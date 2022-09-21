@@ -17,6 +17,7 @@
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
+string?[] filterTestModules = [];
 string[] filterSubTests = [];
 string moduleName = "";
 boolean hasFilteredTests = false;
@@ -25,7 +26,7 @@ boolean terminate = false;
 boolean listGroups = false;
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
-    string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed, 
+    string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
     string inListGroups) {
 
     targetPath = inTargetPath;
@@ -60,9 +61,11 @@ function parseStringArrayInput(string arrArg) returns string[] => arrArg == "" ?
 function filterKeyBasedTests(string packageName, string moduleName, string[] tests) {
     foreach string testName in tests {
         string updatedName = testName;
+        string? prefix = ();
         if (containsModulePrefix(packageName, moduleName, testName)) {
             int separatorIndex = <int>updatedName.indexOf(MODULE_SEPARATOR);
-            updatedName = updatedName.substring(separatorIndex);
+            prefix = updatedName.substring(0, separatorIndex);
+            updatedName = updatedName.substring(separatorIndex + 1);
         }
         if (containsDataKeySuffix(updatedName)) {
             filterSubTests.push(updatedName);
@@ -70,7 +73,6 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             updatedName = updatedName.substring(0, separatorIndex);
         }
         filterTests.push(updatedName);
-        // TODO: handleWildCards(updatedName)
     }
 }
 
@@ -85,6 +87,7 @@ function parseBooleanInput(string input, string variableName) returns boolean {
 }
 
 function parseRerunJson() returns error? {
+    // TODO: fix
     map<ModuleRerunJson> rerunJson = check readRerunJson();
 
     ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];

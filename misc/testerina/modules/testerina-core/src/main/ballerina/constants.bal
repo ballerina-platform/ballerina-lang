@@ -17,3 +17,4 @@
 const DATA_KEY_SEPARATOR = "#";
 const MODULE_SEPARATOR = ":";
 const DOT = ".";
+const WILDCARD = "*";

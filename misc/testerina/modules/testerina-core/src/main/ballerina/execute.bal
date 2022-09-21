@@ -198,6 +198,16 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrEr
         if testIndex is int {
             _ = filterSubTests.remove(testIndex);
         } else {
+            foreach string filterSub in filterSubTests {
+                int? separatorIndex = filterSub.indexOf(DATA_KEY_SEPARATOR);
+                if (separatorIndex == ()) {
+                    continue;
+                }
+                string filter = filterSub.substring(0, separatorIndex);
+                if (filter.includes(WILDCARD) && matchWildcard(testFunction.name, filter)) {
+                    return true;
+                }
+            }
             return false;
         }
     }
