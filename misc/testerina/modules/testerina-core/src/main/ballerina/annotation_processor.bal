@@ -136,8 +136,20 @@ function hasGroup(string[] groups, string[] filter) returns boolean {
 
 function hasTest(string name) returns boolean {
     if hasFilteredTests {
-        int? testIndex = filterTests.indexOf(name);
+        string testName = name;
+        if (name.includes(MODULE_SEPARATOR)) {
+            // TODO: check if moduleName is equal to the moduleName of the test suite.
+            // string moduleName = name.substring(0, <int>name.indexOf(MODULE_SEPARATOR));
+            // if matched - proceed. else return false.
+            testName = name.substring(<int>name.indexOf(MODULE_SEPARATOR) + 1);
+        }
+        int? testIndex = filterTests.indexOf(testName);
         if testIndex == () {
+            foreach string filter in filterTests {
+                if (filter.includes(WILDCARD) && matchWildcard(testName, filter)) {
+                    return true;
+                }
+            }
             return false;
         } else {
             _ = filterTests.remove(testIndex);
