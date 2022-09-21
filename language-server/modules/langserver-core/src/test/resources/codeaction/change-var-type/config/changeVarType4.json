@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 17,
+    "character": 27
+  },
+  "source": "changeVarType.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027inferredVal\u0027 type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 4
+            },
+            "end": {
+              "line": 17,
+              "character": 11
+            }
+          },
+          "newText": "int"
+        }
+      ]
+    }
+  ]
+}
