@@ -59,7 +59,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION
  * Ballerina function calls creation related JVM byte code generation class. This is required to call function by its
  * name dynamically at runtime.
  *
- * @since 2201.3.0
+ * @since 2.0.0
  */
 public class JvmFunctionCallsCreatorsGen {
 
