@@ -119,7 +119,8 @@ public class SortingUtil {
      */
     public static boolean isLangLibModuleCompletionItem(LSCompletionItem item) {
         if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
-                && ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof ModuleSymbol) {
+                && ((SymbolCompletionItem) item).getSymbol()
+                    .filter(symbol -> symbol.kind() == SymbolKind.MODULE).isPresent()) {
             Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
             return (symbol.isPresent() && CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()));
         }

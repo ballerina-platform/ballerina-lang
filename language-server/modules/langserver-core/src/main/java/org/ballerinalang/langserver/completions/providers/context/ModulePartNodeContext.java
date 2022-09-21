@@ -89,7 +89,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
             Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
             if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
-                resolvedContext = ResolvedContext.ON_CONFIGURABLE_QUALIFIER;
+                resolvedContext = ResolvedContext.CONFIGURABLE_QUALIFIER;
             }
         } else {
             completionItems.addAll(this.getModulePartContextItems(context));
@@ -179,7 +179,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     public void sort(BallerinaCompletionContext context, ModulePartNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
-        if (resolvedContext == ResolvedContext.ON_CONFIGURABLE_QUALIFIER) {
+        if (resolvedContext == ResolvedContext.CONFIGURABLE_QUALIFIER) {
             SortingUtil.sortCompletionsAfterConfigurableQualifier(completionItems);
         } else {
             ModulePartNodeContextUtil.sort(completionItems);
@@ -188,6 +188,6 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     enum ResolvedContext {
         DEFAULT,
-        ON_CONFIGURABLE_QUALIFIER
+        CONFIGURABLE_QUALIFIER
     }
 }
