@@ -130,7 +130,7 @@ public class Bootstrap {
         }
 
         if (langLib.equals(STRING)) {
-            // String module requires Regexp module. Hence loading them.
+            // String module requires Regexp module. Hence, loading it.
             symbolTable.langRegexpModuleSymbol = loadLangLibFromBala(REGEXP, compilerContext);
         }
 
