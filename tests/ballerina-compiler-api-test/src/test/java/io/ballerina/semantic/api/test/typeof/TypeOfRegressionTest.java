@@ -66,9 +66,8 @@ public class TypeOfRegressionTest {
 
     @Test
     public void testLiteralType() {
-        Optional<TypeSymbol> type = model.typeOf(
-                LineRange.from("typeof_listener_test.bal",
-                        LinePosition.from(45, 32), LinePosition.from(45, 36)));
+        Optional<TypeSymbol> type = model.typeOf(LineRange.from("typeof_listener_test.bal",
+                                LinePosition.from(45, 32), LinePosition.from(45, 36)));
 
         assertTrue(type.isPresent());
         assertEquals(type.get().kind(), SymbolKind.TYPE);
