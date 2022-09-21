@@ -87,7 +87,7 @@ public class JvmConstantsGen {
         unionTypeConstantsGen.setJvmUnionTypeGen(jvmCreateTypeGen.getJvmUnionTypeGen());
         tupleTypeConstantsGen.setJvmTupleTypeGen(jvmCreateTypeGen.getJvmTupleTypeGen());
         arrayTypeConstantsGen.setJvmArrayTypeGen(jvmCreateTypeGen.getJvmArrayTypeGen());
-        refTypeConstantsGen.setJvmTypeRefTypeGen(jvmCreateTypeGen.getJvmTypeRefTypeGen());
+        refTypeConstantsGen.setJvmRefTypeGen(jvmCreateTypeGen.getJvmRefTypeGen());
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {

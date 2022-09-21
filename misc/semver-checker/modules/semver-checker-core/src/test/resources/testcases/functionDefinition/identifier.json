@@ -65,5 +65,36 @@
         }]
       }]
     }
+  },
+  {
+    "description": "Add a new unicode function",
+    "oldCode": "",
+    "newCode": "public function พิมพ์ชื่อ(string ชื่อ) {}",
+    "expectedOutput": {
+      "kind":"package",
+      "type":"modified",
+      "versionImpact":"minor",
+      "childDiffs":[{
+        "kind":"module",
+        "type":"modified",
+        "versionImpact":"minor",
+        "childDiffs":[{
+          "kind":"function",
+          "type":"new",
+          "versionImpact":"minor"}]}]}
+  },
+  {
+    "description": "Add a new quoted identifier(reserve keyword) function",
+    "oldCode": "",
+    "newCode": "public function 'int(){}",
+    "expectedOutput": {"kind":"package","type":"modified","versionImpact":"minor","childDiffs":[{
+      "kind":"module","type":"modified","versionImpact":"minor","childDiffs":[{
+        "kind":"function","type":"new","versionImpact":"minor"}]}]}
+  },
+  {
+    "description": "Change a function to a quoted  function with same name",
+    "oldCode": "public function get(){}",
+    "newCode": "public function 'get(){}",
+    "expectedOutput": {}
   }
 ]

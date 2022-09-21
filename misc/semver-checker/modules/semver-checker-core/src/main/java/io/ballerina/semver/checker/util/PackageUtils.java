@@ -33,6 +33,7 @@ import io.ballerina.semver.checker.exception.SemverToolException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -121,5 +122,14 @@ public class PackageUtils {
                 .setConfigSchemaGen(false);
 
         return buildOptionsBuilder.build();
+    }
+
+    /**
+     * Capitalize the given word.
+     *
+     * @param str word string
+     */
+    public static String capitalize(String str) {
+        return str.substring(0, 1).toUpperCase(Locale.ENGLISH) + str.substring(1).toLowerCase(Locale.ENGLISH);
     }
 }

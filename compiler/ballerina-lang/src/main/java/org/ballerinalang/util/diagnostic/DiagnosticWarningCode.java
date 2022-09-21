@@ -51,6 +51,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     INVALID_DEPRECATION_DOCUMENTATION("BCE20019", "invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE20020", "deprecation.documentation.should.available"),
     DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE20021", "deprecated.parameters.documentation.not.allowed"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("BCE20022", "attempt.expose.non.public.symbol"),
 
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
@@ -62,18 +63,13 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
 
     FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE("BCE20350", "function.should.explicitly.return.a.value"),
 
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE("BCE20400",
-            "concurrent.calls.will.not.be.made.to.non.isolated.method.in.non.isolated.service"),
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE("BCE20401",
-            "concurrent.calls.will.not.be.made.to.non.isolated.service"),
-    CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD("BCE20402",
-            "concurrent.calls.will.not.be.made.to.non.isolated.method"),
-
     UNUSED_LOCAL_VARIABLE("BCE20403", "unused.local.variable"),
 
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE20404", "checked.expr.invalid.usage.no.error.type.rhs"),
 
-    INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member")
+    INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member"),
+
+    USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED("BCE20406", "strand.annotation.will.be.deprecated")
     ;
 
     private String diagnosticId;

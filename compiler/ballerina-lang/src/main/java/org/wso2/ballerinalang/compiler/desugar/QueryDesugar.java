@@ -33,9 +33,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -168,6 +171,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -203,6 +207,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
+    private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
@@ -259,6 +264,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
                 queryBlock, stmtsToBePropagated);
         BLangStatementExpression streamStmtExpr;
+        BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
+                Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.setBType(streamRef.getBType());
@@ -268,19 +275,34 @@ public class QueryDesugar extends BLangNodeVisitor {
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
+                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                     addTypeConversionExpr(result,
                             queryExpr.getBType()));
             streamStmtExpr.setBType(tableRef.getBType());
             onConflictExpr = null;
+        } else if (queryExpr.isMap) {
+            onConflictExpr = (onConflictExpr == null)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    : onConflictExpr;
+            BMapType mapType = (BMapType) getMapType(queryExpr.getBType());
+            BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
+                    mapType, new ArrayList<>());
+            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                    addTypeConversionExpr(result, queryExpr.getBType()));
+            streamStmtExpr.setBType(queryExpr.getBType());
+            onConflictExpr = null;
         } else {
             BLangVariableReference result;
             BType refType = Types.getReferredType(queryExpr.getBType());
-            if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
-                    && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag)))) {
-                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
+            if (isXml(refType)) {
+                if (types.isSubTypeOfReadOnly(refType, env)) {
+                    isReadonly.value = true;
+                }
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
+                        Lists.of(streamRef, isReadonly), pos);
             } else if (TypeTags.isStringTypeTag(refType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
@@ -294,7 +316,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 arr.exprs = new ArrayList<>();
                 arr.setBType(arrayType);
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
-                        Lists.of(streamRef, arr), pos);
+                        Lists.of(streamRef, arr, isReadonly), pos);
             }
             if (containsCheckExpr) {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
@@ -312,6 +334,35 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
+    }
+
+    private BType getMapType(BType type) {
+        BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
+        if (resultantType.tag == TypeTags.INTERSECTION) {
+            return getMapType(((BIntersectionType) resultantType).effectiveType);
+        }
+        return resultantType;
+    }
+
+    private boolean isXml(BType type) {
+        BType refType = Types.getReferredType(type);
+
+        if (TypeTags.isXMLTypeTag(refType.tag)) {
+            return true;
+        }
+        switch (refType.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                    if (!isXml(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.INTERSECTION:
+                return isXml(((BIntersectionType) refType).getEffectiveType());
+            default:
+                return false;
+        }
     }
 
     /**
@@ -339,7 +390,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
-        if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
+        if (queryAction.returnsWithinDoClause) {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, result);
             BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
             ifBody.stmts.add(returnStmt);
@@ -815,10 +866,18 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType tableType = type;
         BType refType = Types.getReferredType(type);
         if (refType.tag == TypeTags.UNION) {
-            tableType = ((BUnionType) refType).getMemberTypes()
-                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE)
-                    .findFirst().orElse(symTable.tableType);
+            tableType = symTable.tableType;
+            for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                int memberTypeTag = Types.getReferredType(memberType).tag;
+                if (memberTypeTag == TypeTags.TABLE) {
+                    tableType = memberType;
+                } else if (memberTypeTag == TypeTags.INTERSECTION &&
+                        ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
+                    tableType = ((BIntersectionType) memberType).effectiveType;
+                }
+            }
         }
+
         final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
@@ -1591,6 +1650,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+            if (symbol instanceof BVarSymbol) {
+                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+                if (originalSymbol != null) {
+                    symbol = originalSymbol;
+                }
+            }
             if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1869,7 +1934,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
-        this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        if (this.checkedErrorList != null && checkedExpr.equivalentErrorTypeList != null) {
+            this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
         this.acceptNode(checkedExpr.expr);
     }
 
@@ -2058,6 +2125,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
+        this.acceptNode(foreach.body);
     }
 
     @Override

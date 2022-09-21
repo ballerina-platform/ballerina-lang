@@ -27,13 +27,12 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -43,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
@@ -55,7 +55,7 @@ public class BuildCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public BuildCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -120,10 +120,11 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
     private Boolean dumpBIRFile;
 
-    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
@@ -158,6 +159,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
             " the services in the current package")
     private Boolean exportOpenAPI;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
 
     public void execute() {
         long start = 0;
@@ -221,7 +225,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // If project is empty
-        if (isProjectEmpty(project)) {
+        if (ProjectUtils.isProjectEmpty(project)) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
                     false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -235,13 +239,16 @@ public class BuildCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -250,16 +257,6 @@ public class BuildCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
-    }
-
-    private boolean isProjectEmpty(Project project) {
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private BuildOptions constructBuildOptions() {
@@ -277,7 +274,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setExportOpenAPI(exportOpenAPI);
+                .setExportOpenAPI(exportOpenAPI)
+                .setEnableCache(enableCache);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

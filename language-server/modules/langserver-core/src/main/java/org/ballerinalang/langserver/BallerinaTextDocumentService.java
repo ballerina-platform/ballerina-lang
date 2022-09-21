@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
@@ -38,10 +39,12 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.definition.DefinitionUtil;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
@@ -49,7 +52,6 @@ import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
-import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -347,6 +349,32 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                String fileUri = resolvableCodeAction.getData().getFileUri();
+                CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
+                        fileUri,
+                        workspaceManagerProxy.get(),
+                        this.serverContext,
+                        cancelChecker);
+                return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Resolve Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'text/resolveCodeAction' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RESOLVE_CODE_ACTION, msg, e, null,
+                        (Position) null);
+            }
+
+            return null;
+        });
+    }
+
+    @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             if (!LSCodeLensesProviderHolder.getInstance(this.serverContext).isEnabled()) {
@@ -528,9 +556,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManagerProxy.didOpen(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -551,9 +579,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.workspaceManagerProxy.didChange(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),

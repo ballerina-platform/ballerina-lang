@@ -202,6 +202,44 @@ public class ValidatorTest {
                 "    }\n" +
                 "}"));
 
+        // Multiple function testcases
+        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1;\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();"));
+        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1;\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
+                "}"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
+                "}"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
+                "}"));
+
         // Command related testcases
         Assert.assertTrue(inputValidator.isComplete(" "));
         Assert.assertTrue(inputValidator.isComplete("/remove a"));

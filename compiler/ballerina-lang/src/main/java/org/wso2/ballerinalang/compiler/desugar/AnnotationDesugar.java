@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -122,6 +123,9 @@ public class AnnotationDesugar {
     private static final String FIELD = "$field$";
     private static final String PARAM = "$param$";
     private static final String RETURNS = "$returns$";
+    public static final String STRAND = "strand";
+    public static final String THREAD = "thread";
+    public static final String STRAND_DATA = "StrandData";
     private BLangSimpleVariable annotationMap;
     private int annotFuncCount = 0;
 
@@ -302,6 +306,7 @@ public class AnnotationDesugar {
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
         BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
                 names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+        annSymbol.origin = SymbolOrigin.BUILTIN;
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -1066,6 +1071,54 @@ public class AnnotationDesugar {
         }
 
         return params;
+    }
+
+    public BLangAnnotationAttachment createStrandAnnotationWithThreadAny(Location position, SymbolEnv env) {
+        BLangAnnotationAttachment annotAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        annotAttachment.annotationSymbol = symResolver.getStrandAnnotationSymbol();
+
+        annotAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annotAttachment.annotationName.value = STRAND;
+        annotAttachment.pos = position;
+        annotAttachment.annotationName.pos = position;
+
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(LANG_ANNOT_PKG_KEY);
+        annotAttachment.pkgAlias = pkgAlias;
+        annotAttachment.attachPoints.add(AttachPoint.Point.WORKER);
+
+        BLangRecordLiteral strandDataRecord = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annotAttachment.expr = strandDataRecord;
+        strandDataRecord.pos = position;
+        final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symTable.rootPkgSymbol);
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(STRAND_DATA));
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+        strandDataRecord.setBType(bStructSymbol.type);
+        strandDataRecord.typeChecked = true;
+
+        BLangRecordLiteral.BLangRecordKeyValueField threadFieldKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+        strandDataRecord.fields.add(threadFieldKeyValue);
+
+        BLangLiteral threadKey = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        threadKey.value = THREAD;
+        threadKey.setBType(symTable.stringType);
+        threadKey.typeChecked = true;
+
+        BLangLiteral threadValue = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        threadValue.setBType(symTable.stringType);
+        threadValue.value = "any";
+        threadValue.pos = position;
+        threadValue.typeChecked = true;
+
+        threadFieldKeyValue.key = new BLangRecordLiteral.BLangRecordKey(threadKey);
+        BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv, Names.fromString(THREAD),
+                bStructSymbol);
+        threadFieldKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        threadFieldKeyValue.valueExpr = threadValue;
+
+        symResolver.populateAnnotationAttachmentSymbol(annotAttachment, env, constantValueResolver);
+        return annotAttachment;
     }
 
     private class LocationData {

@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -121,12 +122,12 @@ class ModuleContext {
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
             srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig));
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
@@ -290,6 +291,9 @@ class ModuleContext {
 
         // TODO This logic needs to be updated. We need a proper way to decide on the initial state
         if (compilationCache.getBir(moduleDescriptor.name()).length == 0) {
+            moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
+        } else if (this.project().kind() == ProjectKind.BUILD_PROJECT
+                && !this.project.buildOptions().enableCache()) {
             moduleCompState = ModuleCompilationState.LOADED_FROM_SOURCES;
         } else {
             moduleCompState = ModuleCompilationState.LOADED_FROM_CACHE;
@@ -471,7 +475,6 @@ class ModuleContext {
         // Generate and write the thin JAR to the file system
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
-        // Skip writing the bir for BuildProject
         if (birContent == null) {
             return;
         }
@@ -482,16 +485,30 @@ class ModuleContext {
         moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
     }
 
-    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching the BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
+    private static boolean shouldGenerateBir(ModuleContext moduleContext, CompilerContext compilerContext) {
+        if (moduleContext.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            return true;
+        }
+        if (ProjectUtils.isBuiltInPackage(
                 moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
-            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return null;
-            }
+            return true;
+        }
+        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+        if (Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+            return true;
+        }
+        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT)
+                && moduleContext.project().buildOptions().enableCache()) {
+            return true;
         }
 
+        return false;
+    }
+
+    private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
+        if (!shouldGenerateBir(moduleContext, compilerContext)) {
+            return null;
+        }
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();
         try {
@@ -503,7 +520,6 @@ class ModuleContext {
             }
             byte[] pkgBirBinaryContent = PackageFileWriter.writePackage(birPackageFile);
             birContent.writeBytes(pkgBirBinaryContent);
-            moduleContext.compilationCache.cacheBir(moduleContext.moduleName(), birContent);
             return birContent;
         } catch (IOException e) {
             // This path may never be executed
@@ -540,13 +556,13 @@ class ModuleContext {
     }
 
     ModuleContext duplicate(Project project) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.srcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             srcDocContextMap.put(documentId, documentContext.duplicate());
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.testSrcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             testDocContextMap.put(documentId, documentContext.duplicate());

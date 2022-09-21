@@ -23,6 +23,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -45,10 +46,24 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 public class CompileTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
+    private final boolean compileForBalPack;
+    private final boolean isPackageModified;
+    private final boolean cachesEnabled;
 
     public CompileTask(PrintStream out, PrintStream err) {
+        this(out, err, false, true, false);
+    }
+
+    public CompileTask(PrintStream out,
+                       PrintStream err,
+                       boolean compileForBalPack,
+                       boolean isPackageModified,
+                       boolean cachesEnabled) {
         this.out = out;
         this.err = err;
+        this.compileForBalPack = compileForBalPack;
+        this.isPackageModified = isPackageModified;
+        this.cachesEnabled = cachesEnabled;
     }
 
     @Override
@@ -76,7 +91,17 @@ public class CompileTask implements Task {
                 start = System.currentTimeMillis();
             }
 
-            project.currentPackage().getResolution();
+            if (project.currentPackage().compilationOptions().dumpGraph()
+                    || project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                this.out.println();
+                this.out.println("Resolving dependencies");
+            }
+
+            PackageResolution packageResolution = project.currentPackage().getResolution();
+
+            if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
@@ -85,21 +110,39 @@ public class CompileTask implements Task {
 
             // run built-in code generator compiler plugins
             // We only continue with next steps if package resolution does not have errors.
-            // Errors in package resolution denotes version incompatibility errors. Hence we do not continue further.
+            // Errors in package resolution denotes version incompatibility errors. Hence, we do not continue further.
             if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
                 if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
-                    // SingleFileProject cannot hold additional sources or resources
-                    // and BalaProjects is a read-only project.
-                    // Hence we run the code generators only for BuildProject
-                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                            .runCodeGenAndModifyPlugins();
-                    if (codeGenAndModifyDiagnosticResult != null) {
-                        diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                    // BalaProject is a read-only project.
+                    // Hence, we run the code generators/ modifiers only for BuildProject and SingleFileProject
+
+                    if (!project.kind().equals(ProjectKind.BALA_PROJECT) && !isPackCmdForATemplatePkg(project)) {
+                        // SingleFileProject cannot hold additional sources or resources
+                        // and BalaProjects is a read-only project.r
+                        // Hence, we run the code generators only for BuildProject.
+                        if (this.isPackageModified || !this.cachesEnabled) {
+                            // Run code gen and modify plugins, if project has updated only
+                            DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                                    .runCodeGenAndModifyPlugins();
+                            if (codeGenAndModifyDiagnosticResult != null) {
+                                diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                            }
+                        }
                     }
                 }
             }
 
-            project.currentPackage().getCompilation();
+            // We dump the raw graphs twice only if code generator/modifier plugins are engaged
+            // since the package has changed now
+            if (packageResolution != project.currentPackage().getResolution()) {
+                packageResolution = project.currentPackage().getResolution();
+                if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                    packageResolution.dumpGraphs(out);
+                }
+            }
+            if (project.currentPackage().compilationOptions().dumpGraph()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             // Print diagnostics and exit when version incompatibility issues are found in package resolution.
             if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
@@ -140,5 +183,9 @@ public class CompileTask implements Task {
         } catch (ProjectException e) {
             throw createLauncherException("compilation failed: " + e.getMessage());
         }
+    }
+
+    private boolean isPackCmdForATemplatePkg(Project project) {
+        return compileForBalPack && project.currentPackage().manifest().template();
     }
 }

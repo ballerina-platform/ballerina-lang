@@ -78,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -116,8 +117,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -178,6 +181,7 @@ import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
@@ -399,7 +403,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
+            initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        }
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -833,10 +839,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (!types.isAssignable(existingVariable.getBType(), field.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                field.name, field.getType(), existingVariable.getBType());
-                    }
                     continue;
                 }
 
@@ -1152,11 +1154,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Name alias : predeclaredModules.keySet()) {
+        for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
+            Name alias = predeclaredModuleEntry.getKey();
+            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
@@ -1174,7 +1178,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     entry = entry.next;
                 }
                 if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
                             new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
@@ -2311,6 +2315,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
             }
 
+        } else if (nodeKind == NodeKind.UNARY_EXPR && constant.typeNode == null &&
+                types.isLiteralInUnaryAllowed((BLangUnaryExpr) constant.expr)) {
+            // When unary type constants with `-` or `+` operators are defined without the type,
+            // then the type of the symbol will be handled similar to handling a literal type constant
+            // defined without the type.
+
+            BLangUnaryExpr unaryConstant = (BLangUnaryExpr) constant.expr;
+            // Replace unary expression in AssociatedTypeDefinition of constant with numeric literal
+            BLangNumericLiteral literal = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+            Types.setValueOfNumericLiteral(literal, unaryConstant);
+            literal.isConstant = true;
+            literal.setBType(unaryConstant.expr.getBType());
+            ((BLangFiniteTypeNode) constant.getAssociatedTypeDefinition().getTypeNode()).valueSpace.set(0, literal);
+
+            defineNode(constant.associatedTypeDefinition, env);
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+            constantSymbol.literalType = unaryConstant.expr.getBType();
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
         }
@@ -3071,7 +3092,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             restConstraintType = BUnionType.create(null, constraintTypes);
         }
-        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+        return restVarSymbolMapType.tag == TypeTags.NONE ?
+                restConstraintType : this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
     BRecordType createRecordTypeForRestField(Location pos, SymbolEnv env, BRecordType recordType,
@@ -3086,7 +3108,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }};
 
-        setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        if (recordType.sealed && (restConstraint.tag == TypeTags.NONE)) {
+            setRestRecordFields(pos, env, unMappedFields, variableList, null, recordVarType);
+        } else {
+            setRestRecordFields(pos, env, unMappedFields, variableList, restConstraint, recordVarType);
+        }
 
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(recordVarType,
                 env.enclPkg.packageID, symTable, pos);
@@ -3141,7 +3167,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         targetRestRecType.fields = fields;
-        targetRestRecType.restFieldType = restConstraint;
+        if (restConstraint == null) {
+            targetRestRecType.restFieldType = new BNoType(TypeTags.NONE);
+            targetRestRecType.sealed = true;
+        } else {
+            targetRestRecType.restFieldType = restConstraint;
+        }
     }
 
     private long setSymbolAsOptional(long existingFlags) {
@@ -3586,6 +3617,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(FLOAT)) {
             symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUNCTION)) {
+            symTable.langFunctionModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(FUTURE)) {
@@ -4758,8 +4793,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
+        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+                                     accessor, pathParamSymbols, restPathParamSym, 
+                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -4784,9 +4821,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
         funcNode.symbol.flags |= Flags.RESOURCE;
+        funcNode.symbol.flags |= Flags.PUBLIC;
 
-        if (!Symbols.isFlagOn(objectSymbol.flags, Flags.SERVICE)) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_IN_NON_SERVICE_OBJECT);
+        if (!isNetworkQualified(objectSymbol)) {
+            this.dlog.error(funcNode.pos, 
+                    DiagnosticErrorCode.RESOURCE_METHODS_ARE_ONLY_ALLOWED_IN_SERVICE_OR_CLIENT_OBJECTS);
         }
     }
 
@@ -4999,10 +5038,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (!types.isAssignable(existingVariable.getBType(), f.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                f.name, f.getType(), existingVariable.getBType());
-                    }
                     return false;
                 }
                 return true;
@@ -5050,9 +5085,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFuncSymbol) || Symbols.isResource(referencedFuncSymbol)) {
-            // we should not copy private functions. And we ignore the resource functions as they are not part of the
-            // type.
+        if (Symbols.isPrivate(referencedFuncSymbol)) {
+            // we should not copy private functions
             return;
         }
 
@@ -5078,7 +5112,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             attachedFunc = new BResourceFunction(referencedFunc.funcName,
                     funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
                     resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    referencedFunc.pos);
+                    resourceFunction.resourcePathType, referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

@@ -157,10 +157,25 @@ public class BFiniteType extends BType implements FiniteType {
                 case TypeTags.CHAR_STRING_TAG:
                     joiner.add("\"" + value + "\"");
                     break;
+                case TypeTags.NULL_TAG:
+                    joiner.add("()");
+                    break;
                 default:
                     joiner.add(value.toString());
             }
         }
         return valueSpace.size() == 1 ? joiner.toString() : "(" + joiner + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BFiniteType)) {
+            return false;
+        }
+        BFiniteType that = (BFiniteType) o;
+        return this.valueSpace.size() == that.valueSpace.size() && this.valueSpace.containsAll(that.valueSpace);
     }
 }

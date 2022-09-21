@@ -515,12 +515,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Annotation",
+      "label": "annotation",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Z",
-      "filterText": "Annotation",
+      "filterText": "annotation",
       "insertText": "annotation ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

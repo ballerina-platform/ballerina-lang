@@ -154,6 +154,7 @@ public class ProjectFiles {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(BAL_EXTENSION_MATCHER::matches)
+                    .filter(Files::isRegularFile)
                     .map(ProjectFiles::loadDocument)
                     .collect(Collectors.toList());
         } catch (IOException e) {

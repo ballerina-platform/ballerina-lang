@@ -21,23 +21,31 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.ReferenceType;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+
+import java.util.Optional;
 
 /**
  * {@code TypeReferencedType} represents a type description which refers to another type.
  *
  * @since 2201.2.0
  */
-public class BTypeReferenceType extends BAnnotatableType implements ReferenceType {
+public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
 
-    private final Type referredType;
+    private Type referredType;
+    private IntersectionType intersectionType;
 
-    public BTypeReferenceType(String typeName, Module pkg, Type referredType) {
+    public BTypeReferenceType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+    }
+
+    public void setReferredType(Type referredType) {
         this.referredType = referredType;
     }
 
+    @Override
     public Type getReferredType() {
         return referredType;
     }
@@ -80,8 +88,27 @@ public class BTypeReferenceType extends BAnnotatableType implements ReferenceTyp
     }
 
     @Override
+    public boolean isAnydata() {
+        return this.referredType.isAnydata();
+    }
+
+    @Override
+    public boolean isPureType() {
+        return this.referredType.isPureType();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return this.referredType.isReadOnly();
     }
 
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType == null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
+    }
 }

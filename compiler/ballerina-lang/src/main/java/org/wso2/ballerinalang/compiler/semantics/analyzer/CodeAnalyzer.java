@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -1069,6 +1070,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case SIMPLE_VARIABLE_REF:
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
+            case UNARY_EXPR:
+                BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(
+                        (BLangUnaryExpr) constPattern.expr);
+                constValAndType.put(newNumericLiteral.value, null);
         }
         return constValAndType;
     }
@@ -1680,7 +1685,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
-            dlog.error(pos, DiagnosticErrorCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
+            dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
         }
     }
 
@@ -1989,7 +1994,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2043,7 +2048,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2072,7 +2077,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -2513,6 +2518,28 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             actionInvocation.invokedInsideTransaction = true;
         }
     }
+    
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceActionInvocation, AnalyzerData data) {
+        validateInvocationInMatchGuard(resourceActionInvocation);
+        analyzeExpr(resourceActionInvocation.expr, data);
+        analyzeExprs(resourceActionInvocation.requiredArgs, data);
+        analyzeExprs(resourceActionInvocation.restArgs, data);
+        analyzeExpr(resourceActionInvocation.resourceAccessPathSegments, data);
+        resourceActionInvocation.invokedInsideTransaction = data.withinTransactionScope;
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.TRANSACTIONAL) &&
+                !data.withinTransactionScope) {
+            dlog.error(resourceActionInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            return;
+        }
+        
+        if (Symbols.isFlagOn(resourceActionInvocation.symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWarningForInvocation(resourceActionInvocation);
+        }
+
+        validateActionInvocation(resourceActionInvocation.pos, resourceActionInvocation);
+    }
 
     private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
         String deprecatedConstruct = invocationExpr.name.toString();
@@ -2584,7 +2611,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         while (parent != null) {
             final NodeKind kind = parent.getKind();
-            if (parent instanceof StatementNode) {
+            if (parent instanceof StatementNode || checkActionInQuery(kind)) {
                 return true;
             } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
                     kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR ||
@@ -2601,6 +2628,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
         return false;
+    }
+
+    private boolean checkActionInQuery(NodeKind parentKind) {
+        return parentKind == NodeKind.FROM || parentKind == NodeKind.SELECT ||
+                parentKind == NodeKind.LET_CLAUSE;
     }
 
     @Override
@@ -3177,7 +3209,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
+        boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
+        data.queryToMap = queryExpr.isMap;
+        boolean prevWithinQuery = data.withinQuery;
+        data.withinQuery = true;
         int fromCount = 0;
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3192,12 +3228,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
+        data.withinQuery = prevWithinQuery;
+        data.queryToTableWithKey = prevQueryToTableWithKey;
     }
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
         boolean prevFailureHandled = data.failureHandled;
         data.failureHandled = true;
+        boolean prevWithinQuery = data.withinQuery;
+        data.withinQuery = true;
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3214,6 +3254,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
+        data.withinQuery = prevWithinQuery;
     }
 
     @Override
@@ -3260,8 +3301,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
         analyzeExpr(onConflictClause.expression, data);
-        if (!data.queryToTableWithKey) {
-            dlog.error(onConflictClause.pos, DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
+        if (!(data.queryToTableWithKey || data.queryToMap)) {
+            dlog.error(onConflictClause.pos,
+                    DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_MAPS_OR_TABLES_WITH_KEY_SPECIFIER);
         }
     }
 
@@ -3274,11 +3316,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
         boolean currentFailVisited = data.failVisited;
         data.failVisited = false;
-        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
-        for (BType errorType : data.errorTypes.peek()) {
-            if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
-                dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
-                           onFailVarNode.getBType());
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
+
+        if (onFailVarDefNode != null) {
+            BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
+            for (BType errorType : data.errorTypes.peek()) {
+                if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
+                    dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
+                            onFailVarNode.getBType());
+                }
             }
         }
         analyzeNode(onFailClause.body, data);
@@ -4081,6 +4127,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean failureHandled;
         boolean failVisited;
         boolean queryToTableWithKey;
+        boolean withinQuery;
+        boolean queryToMap;
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;

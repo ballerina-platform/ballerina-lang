@@ -821,6 +821,18 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
+    public void visit(STClientResourceAccessActionNode clientResourceAccessActionNode) {
+        visitSyntaxNode(clientResourceAccessActionNode);
+    }
+
+    public void visit(STComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        visitSyntaxNode(computedResourceAccessSegmentNode);
+    }
+
+    public void visit(STResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        visitSyntaxNode(resourceAccessRestSegmentNode);
+    }
+
     public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
     }

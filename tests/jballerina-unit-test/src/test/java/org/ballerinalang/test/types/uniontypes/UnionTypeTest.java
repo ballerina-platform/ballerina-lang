@@ -185,6 +185,11 @@ public class UnionTypeTest {
     public void testParenthesisedUnionType() {
         BRunUtil.invoke(result, "testParenthesisedSingletonUnionType");
     }
+
+    @Test
+    public void testLiteralWithUnionExpectedType() {
+        BRunUtil.invoke(result, "testLiteralWithUnionExpectedType");
+    }
     
     @AfterClass
     public void tearDown() {

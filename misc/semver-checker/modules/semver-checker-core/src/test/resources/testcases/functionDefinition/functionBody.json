@@ -1,8 +1,8 @@
 [
   {
     "description": "Modify the function body",
-    "oldCode": "public function add(int x, int y) returns int {\n\tint Sum = x + y;\n\treturns sum; \n}",
-    "newCode": "public function add(int x, int y) returns int {\n\tint Sum = x - y;\n\treturns sum; \n}",
+    "oldCode": "public function add(int x, int y) {\n\tint Sum = x + y;\n}",
+    "newCode": "public function add(int x, int y) {\n\tint Sum = x - y;\n}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",

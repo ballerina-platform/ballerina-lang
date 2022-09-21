@@ -230,7 +230,9 @@ public class ImmutableTypeCloner {
                                                                           pkgId, owner, symTable, anonymousModelHelper,
                                                                           names, unresolvedTypes),
                                                 immutableXmlTSymbol, origXmlType.flags | Flags.READONLY);
-                immutableXmlTSymbol.type = immutableXmlType;
+                if (immutableXmlTSymbol != null) {
+                    immutableXmlTSymbol.type = immutableXmlType;
+                }
 
                 BIntersectionType immutableXmlIntersectionType = createImmutableIntersectionType(pkgId, owner,
                                                                                                  originalType,
@@ -607,9 +609,7 @@ public class ImmutableTypeCloner {
                     unresolvedTypes);
 
         TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
-        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol,
-                                                                                    recordTypeNode, env);
-        typeDefinition.pos = pos;
+        TypeDefBuilderHelper.addTypeDefinition(immutableRecordType, recordSymbol, recordTypeNode, env);
         return immutableRecordIntersectionType;
     }
 

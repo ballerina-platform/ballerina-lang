@@ -25,6 +25,8 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 
 import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility functions required by invokers.
@@ -171,5 +173,27 @@ public class StringUtils {
      */
     public static String convertUnicode(char character) {
         return "\\u{" + Integer.toHexString((int) character) + "}";
+    }
+
+    /**
+     * Replace ballerina unicode format codes with their unicode character
+     * for a given string.
+     *
+     * @param toConvert String need to convert.
+     * @return Reformatted string.
+     */
+    public static String convertUnicodeToCharacter(String toConvert) {
+        Matcher matcher = Pattern.compile("\\\\u\\{([\\da-fA-F]*)}").matcher(toConvert);
+        StringBuilder stringBuilder = new StringBuilder();
+        int currentPosition = 0;
+        while (matcher.find()) {
+            stringBuilder.append(toConvert, currentPosition, matcher.start());
+            int code = Integer.parseInt(matcher.group(1), 16);
+            stringBuilder.append(Character.toChars(code));
+            currentPosition = matcher.end();
+        }
+
+        stringBuilder.append(toConvert.substring(currentPosition));
+        return stringBuilder.toString();
     }
 }

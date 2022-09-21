@@ -31,6 +31,9 @@ public interface NodeDiffBuilder extends DiffBuilder {
     NodeDiffBuilder withType(DiffType diffType);
 
     @Override
+    NodeDiffBuilder withKind(DiffKind diffKind);
+
+    @Override
     NodeDiffBuilder withVersionImpact(SemverImpact versionImpact);
 
     NodeDiffBuilder withMessage(String message);

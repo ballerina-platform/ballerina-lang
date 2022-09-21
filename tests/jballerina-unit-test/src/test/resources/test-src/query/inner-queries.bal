@@ -350,7 +350,7 @@ function testQueryExpWithinQueryAction() returns error? {
             };
             int[] expected = [2, 4];
             assertEquality(expected, func());
-        };
+    };
 }
 
 // todo Should be enabled after fixing https://github.com/ballerina-platform/ballerina-lang/issues/32710
@@ -408,6 +408,257 @@ function testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAc
             teamId: ti
         };
     assertEquality(true, [{email: "anne@abc.com", teamId: 2}] == j);
+}
+
+type Token record {|
+    readonly int idx;
+    string value;
+|};
+
+type TokenTable table<Token> key(idx);
+
+function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() returns error? {
+    TokenTable|error tbl = table key(idx) from int i in (from var j in 1 ... 3 select j)
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    TokenTable expectedTbl = table [
+            {"idx": 1, "value": "A1"},
+            {"idx": 2, "value": "A2"},
+            {"idx": 3, "value": "A3"}
+        ];
+
+    assertEquality(true, tbl is TokenTable);
+    if tbl is TokenTable {
+        assertEquality(expectedTbl, tbl);
+    }
+
+    TokenTable|error tbl2 = table key(idx) from int i in (from var j in [1, 2, 1] select j)
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    assertEquality(true, tbl2 is error);
+    if tbl2 is error {
+        assertEquality("Duplicate Key", tbl2.message());
+    }
+
+    TokenTable|error tbl3 = table key(idx) from int i in (from var j in 1 ... 3 select j)
+        from int m in (from var k in 1 ... 3 select k)
+        where i == m
+        select {
+            idx: i,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    assertEquality(true, tbl3 is TokenTable);
+    if tbl3 is TokenTable {
+        assertEquality(expectedTbl, tbl3);
+    }
+
+    TokenTable|error tbl4 = table key(idx) from var i in (check table key(idx) from var j in 1 ... 3
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        from int m in (from var k in 1 ... 3 select k)
+        where i.idx == m
+        select {
+            idx: i.idx,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl4 is TokenTable);
+    if tbl4 is TokenTable {
+        assertEquality(expectedTbl, tbl4);
+    }
+
+    TokenTable|error tbl5 = table key(idx) from var i in (check table key(idx) from var j in 1 ... 3
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        from int m in (from var k in 1 ... 3 select k)
+        select {
+            idx: i.idx,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl5 is error);
+    if tbl5 is error {
+        assertEquality("Duplicate Key in Outer Query", tbl5.message());
+    }
+
+    TokenTable|error tbl6 = getOnconflictErrorFromInnerQuery();
+
+    assertEquality(true, tbl6 is error);
+    if tbl6 is error {
+        assertEquality("Duplicate Key in Inner Query", tbl6.message());
+    }
+
+    TokenTable|error tbl7 = table key(idx) from var i in (check table key(idx) from var j in 1 ... 3
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        join int m in (from var k in 1 ... 3 select k)
+        on i.idx equals m
+        select {
+            idx: i.idx,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl7 is TokenTable);
+    if tbl7 is TokenTable {
+        assertEquality(expectedTbl, tbl7);
+    }
+
+    TokenTable|error tbl8 = table key(idx) from var i in (check table key(idx) from var j in 1 ... 3
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        join int m in (from var k in 1 ... 3 select k)
+        on i.idx equals m
+        select {
+            idx: 1,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl8 is error);
+    if tbl8 is error {
+        assertEquality("Duplicate Key in Outer Query", tbl8.message());
+    }
+
+    TokenTable|error tbl9 = getOnconflictErrorFromInnerQuery2();
+
+    assertEquality(true, tbl9 is error);
+    if tbl9 is error {
+        assertEquality("Duplicate Key in Inner Query", tbl9.message());
+    }
+
+    TokenTable|error tbl10 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+                select {
+                    idx: i,
+                    value: "A" + i.toString()
+                }
+                on conflict error("Duplicate Key in Outer Query"))
+            select m)
+        select {
+            idx: j.idx,
+            value: "A" + j.idx.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl10 is TokenTable);
+    if tbl10 is TokenTable {
+        assertEquality(expectedTbl, tbl10);
+    }
+
+    TokenTable|error tbl11 = getOnconflictErrorFromInnerQuery3();
+
+    assertEquality(true, tbl11 is error);
+    if tbl11 is error {
+        assertEquality("Duplicate Key in Inner Query", tbl11.message());
+    }
+
+    TokenTable|error tbl12 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+                select {
+                    idx: i,
+                    value: "A" + i.toString()
+                }
+                on conflict error("Duplicate Key in Inner Query"))
+            select m)
+        select {
+            idx: 1,
+            value: "A" + j.idx.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+
+    assertEquality(true, tbl12 is error);
+    if tbl12 is error {
+        assertEquality("Duplicate Key in Outer Query", tbl12.message());
+    }
+
+    TokenTable|error tbl13 = table key(idx) from int i in 1 ... 3
+        let TokenTable tb = table []
+        where tb == from var j in (from Token m in (check table key(idx) from var j in [1, 2]
+                        select {
+                            idx: j,
+                            value: "A"
+                        }) select m) select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    TokenTable expectedTbl2 = table [];
+
+    assertEquality(true, tbl13 is TokenTable);
+    if tbl13 is TokenTable {
+        assertEquality(expectedTbl2, tbl13);
+    }
+
+    TokenTable|error tbl14 = table key(idx) from int i in 1 ... 3
+        let table<Token> tb = from var j in (from Token m in (check table key(idx) from var j in [1, 2]
+                        select {
+                            idx: j,
+                            value: "A"
+                        }) select m) select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    assertEquality(true, tbl14 is TokenTable);
+    if tbl14 is TokenTable {
+        assertEquality(expectedTbl, tbl14);
+    }
+}
+
+function getOnconflictErrorFromInnerQuery() returns TokenTable|error {
+    TokenTable|error tbl = table key(idx) from var i in (check table key(idx) from var j in [1, 2, 1]
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        from int m in (from var k in 1 ... 3 select k)
+        select {
+            idx: i.idx,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+    return tbl;
+}
+
+function getOnconflictErrorFromInnerQuery2() returns TokenTable|error {
+    return table key(idx) from var i in (check table key(idx) from var j in [1, 2, 1]
+            select {idx: j}
+            on conflict error("Duplicate Key in Inner Query"))
+        join int m in (from var k in 1 ... 3 select k)
+        on i.idx equals m
+        select {
+            idx: i.idx,
+            value: "A" + m.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
+}
+
+function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
+    return table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in [1, 2, 1] select n)
+                select {
+                    idx: i,
+                    value: "A" + i.toString()
+                }
+                on conflict error("Duplicate Key in Inner Query"))
+            select m)
+        select {
+            idx: j.idx,
+            value: "A" + j.idx.toString()
+        }
+        on conflict error("Duplicate Key in Outer Query");
 }
 
 function assertEquality(any|error expected, any|error actual) {

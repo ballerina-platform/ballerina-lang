@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,10 +35,11 @@ import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_VERSION_IMPACT;
+import static io.ballerina.semver.checker.util.DiffUtils.getDiffTypeName;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
- * Base implementation of changes in Ballerina syntax tree node lists.
+ * Base implementation for changes in Ballerina syntax tree node lists.
  *
  * @param <T> node type
  * @since 2201.2.0
@@ -49,6 +49,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     protected final List<T> newNodes;
     protected final List<T> oldNodes;
     protected DiffType diffType;
+    protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
     private String message;
@@ -84,6 +85,15 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
 
     private void setType(DiffType diffType) {
         this.diffType = diffType;
+    }
+
+    @Override
+    public DiffKind getKind() {
+        return diffKind;
+    }
+
+    private void setKind(DiffKind diffKind) {
+        this.diffKind = diffKind;
     }
 
     @Override
@@ -152,12 +162,18 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         JsonArray childArray = new JsonArray();
         if (childDiffs == null || childDiffs.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
-            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
+            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.ENGLISH)));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
-                    .toLowerCase(Locale.getDefault())));
+                    .toLowerCase(Locale.ENGLISH)));
+
+            if (this.getKind() == null || this.getKind() == DiffKind.UNKNOWN) {
+                jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(getDiffTypeName(this)));
+            } else {
+                jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(this.getKind().toString()));
+            }
+
             if (this.getMessage().isPresent()) {
-                jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getVersionImpact().name()));
+                jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getMessage().get()));
             }
             childArray.add(jsonObject);
         } else {
@@ -190,7 +206,9 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         @Override
         public Optional<NodeListDiffImpl<?>> build() {
             if (!nodeListDiff.getChildDiffs().isEmpty()) {
-                nodeListDiff.computeVersionImpact();
+                if (nodeListDiff.getVersionImpact() == SemverImpact.UNKNOWN) {
+                    nodeListDiff.computeVersionImpact();
+                }
                 nodeListDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeListDiff);
             } else if (nodeListDiff.getType() == DiffType.NEW || nodeListDiff.getType() == DiffType.REMOVED
@@ -199,6 +217,12 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
             }
 
             return Optional.empty();
+        }
+
+        @Override
+        public NodeDiffBuilder withKind(DiffKind diffKind) {
+            nodeListDiff.setKind(diffKind);
+            return this;
         }
 
         @Override

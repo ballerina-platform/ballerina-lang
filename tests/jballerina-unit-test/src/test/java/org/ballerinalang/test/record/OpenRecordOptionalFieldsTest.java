@@ -52,10 +52,12 @@ public class OpenRecordOptionalFieldsTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/open_record_optional_fields_negatives.bal");
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, i++, "invalid token '='", 22, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid token '999'", 22, 16);
-        BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 33, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '='", 25, 14);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '999'", 25, 16);
+        BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'adrs'", 36, 17);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type 'CustomRecord3' " +
+                "does not support optional field access for field 'name'", 42, 19);
     }
 
     @Test(description = "Test creating a record with a non-defaultable required field")

@@ -254,6 +254,14 @@
       "sortText": "G",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "G",
+      "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

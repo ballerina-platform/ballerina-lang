@@ -1,0 +1,8 @@
+digraph "foo/package_p:1.0.0" {
+	node [shape=record]
+	"foo/package_p" [label="<1.0.0> foo/package_p:1.0.0"];
+	"foo/package_o" [label="<1.0.0> foo/package_o:1.0.0"];
+
+	// Edges
+	"foo/package_p":"1.0.0" -> "foo/package_o":"1.0.0";
+}

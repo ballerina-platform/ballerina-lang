@@ -498,7 +498,7 @@ public class StaticMethods {
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
             add(PredefinedTypes.TYPE_INT);
             add(PredefinedTypes.TYPE_STRING);
-        }}), length, true), length, entries);
+        }}), length, true), entries);
     }
 
     public static Object echoAnydataAsAny(Object value) {

@@ -17,10 +17,12 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -35,23 +37,31 @@ import java.util.List;
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction {
+public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
+        implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Implement Method";
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        List<TextEdit> edits = new ArrayList<>(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+        List<TextEdit> edits = new ArrayList<>(getDiagBasedTextEdits(positionDetails, context));
         if (!edits.isEmpty()) {
             if (positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).isPresent()) {
                 String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE,
                         positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).get());
-                CodeAction quickFixCodeAction = createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeAction quickFixCodeAction = CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                         CodeActionKind.QuickFix);
                 quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
                 return Collections.singletonList(quickFixCodeAction);

@@ -22,7 +22,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
@@ -32,6 +34,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
@@ -60,6 +63,7 @@ import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -80,6 +84,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -93,10 +99,12 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -938,6 +946,64 @@ public class ProjectUtils {
     }
 
     /**
+     * Check project files are updated.
+     *
+     * @param project project instance
+     * @return is project files are updated
+     */
+    public static boolean isProjectUpdated(Project project) {
+        // If observability included and Syntax Tree Json not in the caches, return true
+        Path observeJarCachePath = project.targetDir()
+                .resolve(CACHES_DIR_NAME)
+                .resolve(project.currentPackage().packageOrg().value())
+                .resolve(project.currentPackage().packageName().value())
+                .resolve(project.currentPackage().packageVersion().value().toString())
+                .resolve("observe")
+                .resolve(project.currentPackage().packageOrg().value() + "-"
+                        + project.currentPackage().packageName().value()
+                        + "-observability-symbols.jar");
+        if (project.buildOptions().observabilityIncluded() &&
+                !observeJarCachePath.toFile().exists()) {
+            return true;
+        }
+
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        if (buildFile.toFile().exists()) {
+            try {
+                BuildJson buildJson = readBuildJson(buildFile);
+                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+                if (buildJson != null
+                        && buildJson.getLastModifiedTime() != null
+                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                            .get(project.currentPackage().packageName().value());
+                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+                }
+            } catch (IOException e) {
+                // if reading `build` file fails
+                // delete `build` file and return true
+                try {
+                    Files.deleteIfExists(buildFile);
+                } catch (IOException ex) {
+                    // ignore
+                }
+                return true;
+            }
+        }
+        return true; // return true if `build` file does not exist
+    }
+
+    /**
+     * Get temporary target path.
+     *
+     * @return temporary target path
+     */
+    public static String getTemporaryTargetPath() {
+        return Paths.get(System.getProperty("java.io.tmpdir"))
+                .resolve("ballerina-cache" + System.nanoTime()).toString();
+    }
+
+    /**
      * Write build file from given object.
      *
      * @param buildFilePath build file path
@@ -980,5 +1046,126 @@ public class ProjectUtils {
             // Find the latest version
             return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
         }
+    }
+
+    /**
+     * Checks if a given project does not contain ballerina source files or test files.
+     *
+     * @param project project for checking for emptiness
+     * @return true if the project is empty
+     */
+    public static boolean isProjectEmpty(Project project) {
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Given a list of patterns in include field, find the directories and files in the package that match the patterns.
+     *
+     * @param patterns list of string patterns to be matched
+     * @return the list of matching paths
+     */
+    public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
+        List<Path> allMatchingPaths = new ArrayList<>();
+        for (String pattern : patterns) {
+            if (pattern.startsWith("!")) {
+                removeNegatedIncludePaths(pattern.substring(1), allMatchingPaths);
+            } else {
+                addMatchingIncludePaths(pattern, allMatchingPaths, packageRoot);
+            }
+        }
+        return allMatchingPaths;
+    }
+
+    private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        Stream<Path> pathStream = allMatchingPaths.stream();
+        List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+        allMatchingPaths.removeAll(patternPaths);
+    }
+
+    private static void addMatchingIncludePaths(String pattern, List<Path> allMatchingPaths, Path packageRoot) {
+        String combinedPattern = getGlobFormatPattern(pattern);
+        try (Stream<Path> pathStream = Files.walk(packageRoot)) {
+            List<Path> patternPaths = filterPathStream(pathStream, combinedPattern);
+            for (Path absolutePath : patternPaths) {
+                if (isCorrectPatternPathMatch(absolutePath, packageRoot, pattern)) {
+                    Path relativePath = packageRoot.relativize(absolutePath);
+                    allMatchingPaths.add(relativePath);
+                }
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read files matching the include pattern '" + pattern + "': " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static boolean isCorrectPatternPathMatch(Path absolutePath, Path packageRoot, String pattern) {
+        Path relativePath = packageRoot.relativize(absolutePath);
+        boolean correctMatch = true;
+        if (relativePath.startsWith(TARGET_DIR_NAME)) {
+            // ignore paths inside target directory
+            correctMatch = false;
+        } else if (pattern.startsWith("/") && !packageRoot.equals(absolutePath.getParent())) {
+            // ignore non-root level paths if the pattern is root directory only
+            correctMatch = false;
+        } else if (pattern.endsWith("/") && absolutePath.toFile().isFile()) {
+            // ignore files if the pattern is directory only
+            correctMatch = false;
+        }
+        return correctMatch;
+    }
+
+    private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
+        return pathStream.filter(
+                        FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
+                .collect(Collectors.toList());
+    }
+
+    private static String getGlobFormatPattern(String pattern) {
+        String patternPrefix = getPatternPrefix(pattern);
+        String globPattern = removeTrailingSlashes(pattern);
+        return patternPrefix + globPattern;
+    }
+
+    private static String getPatternPrefix(String pattern) {
+        // if the pattern already contains '/', only "**" should be added for the glob to work.
+        if (pattern.startsWith("/")) {
+            return "**";
+        }
+        return "**/";
+    }
+
+    private static String removeTrailingSlashes(String pattern) {
+        while (pattern.endsWith("/")) {
+            pattern = pattern.substring(0, pattern.length() - 1);
+        }
+        return pattern;
+    }
+
+    /**
+     * Return the path of a bala with the available platform directory (java11 or any).
+     *
+     * @param balaDirPath path to the bala directory
+     * @param org org name of the bala
+     * @param name package name of the bala
+     * @param version version of the bala
+     * @return path of the bala file
+     */
+    public static Path getPackagePath(Path balaDirPath, String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = balaDirPath.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = balaDirPath.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
     }
 }

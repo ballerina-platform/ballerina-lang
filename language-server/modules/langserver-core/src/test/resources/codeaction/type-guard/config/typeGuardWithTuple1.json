@@ -1,23 +1,13 @@
 {
-  "line": 1,
-  "character": 9,
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "typeGuardWithTuple1.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
       "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 15
-            },
-            "end": {
-              "line": 1,
-              "character": 15
-            }
-          },
-          "newText": "\n    if tuple is [int, string...] {\n\n    }"
-        },
         {
           "range": {
             "start": {
@@ -30,6 +20,19 @@
             }
           },
           "newText": "[int, string...]|error tuple \u003d "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 15
+            },
+            "end": {
+              "line": 1,
+              "character": 15
+            }
+          },
+          "newText": "\n    if tuple is [int, string...] {\n\n    }"
         }
       ]
     }

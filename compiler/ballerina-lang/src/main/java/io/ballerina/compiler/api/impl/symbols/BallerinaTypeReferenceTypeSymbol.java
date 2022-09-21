@@ -97,10 +97,14 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-
-        if (this.getReferredType(this.getBType()).tag == TypeTags.PARAMETERIZED_TYPE) {
+        BType bType = this.getBType();
+        BType referredType = this.getReferredType(bType);
+        if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
+        } else if (referredType.tag == TypeTags.INTERSECTION) {
+            this.definition = symbolFactory.getBCompiledSymbol(referredType.tsymbol,
+                    referredType.tsymbol.getName().getValue());
         } else {
             Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(Names.fromString(this.name()));
             this.definition = symbolFactory.getBCompiledSymbol(scopeEntry.symbol, this.name());
@@ -161,6 +165,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
                 (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
                 this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
+        } else if (moduleID.moduleName().equals("lang.xml") && moduleID.orgName().equals("ballerina")) {
+            this.signature = "xml:" + this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +
                     moduleID.moduleName() + Names.VERSION_SEPARATOR + moduleID.version() + ":" +
@@ -188,6 +194,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private BType getReferredType(BType type) {
         if (type.tag == TypeTags.TYPEREFDESC) {
             return ((BTypeReferenceType) type).referredType;
+        }
+
+        if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
+            return ((BParameterizedType) type).paramValueType;
         }
 
         return type;

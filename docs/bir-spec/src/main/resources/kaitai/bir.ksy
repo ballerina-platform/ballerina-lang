@@ -488,6 +488,8 @@ types:
         repeat-expr: service_decls_size
   golbal_var:
     seq:
+      - id: position
+        type: position
       - id: kind
         type: s1
       - id: name_cp_index
@@ -773,6 +775,11 @@ types:
         type: s1
       - id: type_cp_index
         type: s4
+      - id: is_resource_function
+        type: u1
+      - id: resource_function_content
+        type: resource_function_content
+        if: is_resource_function == 1
       - id: annotation_attachments_content
         type: annotation_attachments_content
       - id: return_type_annotations
@@ -817,6 +824,35 @@ types:
       - id: function_body
         type: function_body
         size: function_body_length
+  resource_function_content:
+    seq:
+      - id: path_params_count
+        type: s4
+      - id: path_params
+        type: path_param
+        repeat: expr
+        repeat-expr: path_params_count
+      - id: has_rest_path_param  
+        type: u1
+      - id: rest_path_param
+        type: path_param
+        if: has_rest_path_param == 1
+      - id: resource_path_count
+        type: s4
+      - id: resource_path_segment_cp_index
+        type: s4  
+        repeat: expr
+        repeat-expr: resource_path_count
+      - id: resource_accessor
+        type: s4
+      - id: resource_path_type_cp_index
+        type: s4
+  path_param:
+    seq:
+      - id: path_param_name_cp_index
+        type: s4
+      - id: path_param_type_cp_index
+        type: s4
   annotation_attachments_content:
     seq:
       - id: annotation_attachments_content_length
