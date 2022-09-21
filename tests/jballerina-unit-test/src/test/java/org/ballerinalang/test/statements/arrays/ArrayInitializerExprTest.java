@@ -156,16 +156,7 @@ public class ArrayInitializerExprTest {
 
     @Test
     public void testInferredArrayInitWithInGrpExpr() {
-        Object[] args = {};
-        Object returns = BRunUtil.invoke(compileResult, "testInferredArrayInitWithInGrpExpr", args);
-
-        Assert.assertTrue(returns instanceof BArray);
-
-        BArray arrayValue = (BArray) returns;
-        Assert.assertEquals(arrayValue.size(), 3);
-        Assert.assertEquals(arrayValue.getInt(0), 1);
-        Assert.assertEquals(arrayValue.getInt(1), 2);
-        Assert.assertEquals(arrayValue.getBString(2).getValue(), "a");
+        BRunUtil.invoke(compileResult, "testInferredArrayInitWithInGrpExpr");
     }
 
     @AfterClass

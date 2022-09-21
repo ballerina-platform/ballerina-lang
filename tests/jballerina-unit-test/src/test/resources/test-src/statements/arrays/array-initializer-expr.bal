@@ -60,7 +60,19 @@ function finiteTypeArray() returns FiniteType {
     panic e;
 }
 
-function testInferredArrayInitWithInGrpExpr() returns (any[]) {
-    any[*] arr = (([1, 2, "a"]));
-    return arr;
+function testInferredArrayInitWithInGrpExpr() {
+    anydata[*] arr = (([1, 2, "a"]));
+    assertEquality(arr.length(), 3);
+    assertEquality(arr[0], 1);
+    assertEquality(arr[1], 2);
+    assertEquality(arr[2], "a");
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("AssertionError", message = "expected '" + expected.toString() +
+        "', found '" + actual.toString() + "'");
 }

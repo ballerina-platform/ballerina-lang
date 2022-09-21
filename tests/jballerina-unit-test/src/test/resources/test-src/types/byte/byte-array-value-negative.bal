@@ -32,5 +32,9 @@ function byteArrayLiteralTypeTest() {
     int[*] j = base64 `aa bb`;
     byte[] k = <byte[3] & readonly>base16 `aa bb`; // error
     int[] l = <int[2] & readonly>base64 `aa bb`; // error
-    string[] arr3 = <string[] & readonly>base64 `aa bb`; // error
+    string[] m = <string[] & readonly>base64 `aa bb`; // error
+
+    var n = base16 `aa bb`;
+    byte[2] _ = n;
+    byte[3] _ = n;                          // error
 }

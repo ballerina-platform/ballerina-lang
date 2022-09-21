@@ -203,6 +203,8 @@ function testByteArrayLiteralCastToReadOnlyType() {
     assertTrue(arr4.isReadOnly());
 
     any[] arr5 = <any[] & readonly>base16 `aa bb`;
+    byte[] arr6 = <byte[]> arr5;
+    assertTrue(arr6.isReadOnly());
 }
 
 function testInherentTypeViolationOfByteArrayCastToIntArray() {

@@ -56,6 +56,19 @@ function testByteArrayLiteralInherentType() {
     assertEquality(true, byteArray6 is byte[2]);
 }
 
+type ByteArr byte[2];
+type ByteArr2 byte[2] & readonly;
+
+function testByteArrayLiteralWithReferenceType() {
+    ByteArr byteArr1 = base16 `aa bb`;
+    assertEquality(true, byteArr1 is byte[2]);
+    assertEquality(true, byteArr1 is ByteArr);
+
+    ByteArr2 byteArr2 = base16 `aa bb`;
+    assertEquality(true, byteArr2.isReadOnly());
+    assertEquality(true, byteArr2 is ByteArr2);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
