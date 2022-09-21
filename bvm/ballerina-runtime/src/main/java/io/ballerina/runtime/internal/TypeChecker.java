@@ -513,10 +513,10 @@ public class TypeChecker {
             case TypeTags.FUNCTION_POINTER_TAG:
                 return lhsType.getPackage().equals(rhsType.getPackage()) &&
                         lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
-            case TypeTags.REG_EXP_TYPE_TAG:
-                return rhsType.getTag() == TypeTags.REG_EXP_TYPE_TAG && isEqual((RegExpValue) lhsValue,
-                        (RegExpValue) rhsValue);
             default:
+                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
+                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                }
                 return false;
         }
     }
@@ -2992,9 +2992,11 @@ public class TypeChecker {
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
-            case TypeTags.REG_EXP_TYPE_TAG:
-                return rhsValTypeTag == TypeTags.REG_EXP_TYPE_TAG && isEqual((RegExpValue) lhsValue,
-                        (RegExpValue) rhsValue);
+            default:
+                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
+                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                }
+
         }
         return false;
     }

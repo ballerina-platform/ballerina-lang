@@ -579,6 +579,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUALS, anydataType, nilType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, anydataType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUAL, regExpType, regExpType, booleanType);
 
         // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType);
@@ -597,6 +598,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, intType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, regExpType, regExpType, booleanType);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);

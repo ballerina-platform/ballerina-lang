@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.util.Flags;
 /**
  * Represents Builtin Regexp Type.
  *
- * @since 2.3.0
+ * @since 2201.3.0
  */
 public class BRegexpType extends BType {
 
