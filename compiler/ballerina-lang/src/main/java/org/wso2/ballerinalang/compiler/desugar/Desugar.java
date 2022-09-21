@@ -266,7 +266,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1335,22 +1334,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        List<BLangMemberTypeNode> rewrittenMembers = new ArrayList<>();
-        tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
-        tupleTypeNode.memberTypeNodes = rewrittenMembers;
+        tupleTypeNode.memberTypeNodes.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }
-
-    @Override
-    public void visit(BLangMemberTypeNode memberTypeNode) {
-        rewrite(memberTypeNode.typeNode, env);
-        for (BLangAnnotationAttachment attachment : memberTypeNode.annAttachments) {
-            rewrite(attachment, env);
-        }
-        result = memberTypeNode;
-    }
-
 
     @Override
     public void visit(BLangBlockFunctionBody body) {

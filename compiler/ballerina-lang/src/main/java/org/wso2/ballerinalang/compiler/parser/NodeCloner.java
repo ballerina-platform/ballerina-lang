@@ -206,7 +206,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1817,16 +1816,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.memberTypeNodes = cloneList(source.memberTypeNodes);
         clone.restParamType = clone(source.restParamType);
-        cloneBLangType(source, clone);
-    }
-
-    @Override
-    public void visit(BLangMemberTypeNode source) {
-
-        BLangMemberTypeNode clone = new BLangMemberTypeNode();
-        source.cloneRef = clone;
-        clone.typeNode = clone(source.typeNode);
-        clone.annAttachments = cloneList(source.annAttachments);
         cloneBLangType(source, clone);
     }
 

@@ -182,7 +182,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -896,7 +895,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangMemberTypeNode> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+        List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
         for (int i = 0; i < memberTypeNodes.size(); i++) {
             analyzeDef(memberTypeNodes.get(i), data);
             if (tupleTypeNode.getBType() != null && tupleTypeNode.getBType().getKind() == TypeKind.TUPLE) {
@@ -908,15 +907,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         if (tupleTypeNode.restParamType != null) {
             analyzeDef(tupleTypeNode.restParamType, data);
-        }
-    }
-
-    @Override
-    public void visit(BLangMemberTypeNode memberTypeNode, AnalyzerData data) {
-        analyzeDef(memberTypeNode.typeNode, data);
-        for (BLangAnnotationAttachment annotationAttachment : memberTypeNode.annAttachments) {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
-            annotationAttachment.accept(this, data);
         }
     }
 

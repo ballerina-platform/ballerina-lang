@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1375,8 +1374,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TUPLE_TYPE_NODE:
                 BLangTupleTypeNode tupleNode = (BLangTupleTypeNode) currentTypeOrClassNode;
-                List<BLangMemberTypeNode> tupleMemberTypeNodes = tupleNode.memberTypeNodes;
-                for (BLangMemberTypeNode memberTypeNode : tupleMemberTypeNodes) {
+                List<BLangSimpleVariable> tupleMemberTypeNodes = tupleNode.memberTypeNodes;
+                for (BLangSimpleVariable memberTypeNode : tupleMemberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode.typeNode, visitedNodes, true);
                 }
                 if (tupleNode.restParamType != null) {

@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -563,7 +562,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnTupleMember() {
         BLangTupleTypeNode tp = (BLangTupleTypeNode) getTypeDefinition(
                 compileResult.getAST().getTypeDefinitions(), "Tp").getTypeNode();
-        BLangMemberTypeNode m1 = tp.getMemberTypeNodes().get(0);
+        BLangSimpleVariable m1 = tp.getMemberTypeNodes().get(0);
         Assert.assertEquals(m1.annAttachments.size(), 1);
         Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v29");
     }

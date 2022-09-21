@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +38,11 @@ import java.util.stream.Collectors;
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     // BLangNodes
-    public List<BLangMemberTypeNode> memberTypeNodes = new ArrayList<>();
+    public List<BLangSimpleVariable> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 
     @Override
-    public List<BLangMemberTypeNode> getMemberTypeNodes() {
+    public List<BLangSimpleVariable> getMemberTypeNodes() {
         return memberTypeNodes;
     }
 
@@ -72,7 +73,7 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     @Override
     public String toString() {
-        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(","))
+        return "[" + memberTypeNodes.stream().map(BLangSimpleVariable::toString).collect(Collectors.joining(","))
                 + ((restParamType != null) ? "," + restParamType.toString() + "...]" : "]");
     }
 }

@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -639,7 +638,7 @@ public class AnnotationDesugar {
             addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env, false);
         }
         int i = 0;
-        for (BLangMemberTypeNode member : ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes) {
+        for (BLangSimpleVariable member : ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes) {
             BLangLambdaFunction paramAnnotLambda = defineAnnotations(member.annAttachments, member.pos, pkgNode, env,
                     pkgID, owner, false);
             if (paramAnnotLambda != null) {

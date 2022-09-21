@@ -431,7 +431,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
-import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -998,9 +997,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
-                BLangMemberTypeNode member = (BLangMemberTypeNode) TreeBuilder.createMemberTypeNode();
+                BLangSimpleVariable member = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
                 member.typeNode = createTypeNode(memberNode.typeDescriptor());
                 member.annAttachments = applyAll(memberNode.annotations());
+                member.setName(this.createIdentifier(null, String.valueOf(i)));
                 tupleTypeNode.memberTypeNodes.add(member);
             }
         }
