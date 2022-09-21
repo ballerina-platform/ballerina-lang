@@ -1007,12 +1007,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangGroupingKey groupingKey) {
-        BLangNode groupingKeyNode = (BLangNode) groupingKey.getGroupingKey();
-        if (groupingKeyNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            groupingKey.variableRef = rewrite(groupingKey.variableRef);
-        } else {
-            groupingKey.variableDef = rewrite(groupingKey.variableDef);
-        }
+        groupingKey.setGroupingKey(rewrite((BLangNode) groupingKey.getGroupingKey()));
         result = groupingKey;
     }
 

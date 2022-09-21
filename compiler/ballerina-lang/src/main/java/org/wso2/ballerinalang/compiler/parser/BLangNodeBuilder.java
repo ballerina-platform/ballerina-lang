@@ -2869,23 +2869,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         switch (bindingPattern.kind()) {
             case CAPTURE_BINDING_PATTERN:
             case WILDCARD_BINDING_PATTERN:
-                BLangSimpleVariableDef bLVarDef =
-                        (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-                bLVarDef.pos = variable.pos = location;
-                BLangExpression expr = initializer.isPresent() ? createExpression(initializer.get()) : null;
-                variable.setInitialExpression(expr);
-                bLVarDef.setVariable(variable);
+                TypeDescriptorNode typeDesc = typedBindingPattern.typeDescriptor();
                 if (finalKeyword.isPresent()) {
                     variable.flagSet.add(Flag.FINAL);
                 }
-
-                TypeDescriptorNode typeDesc = typedBindingPattern.typeDescriptor();
-                variable.isDeclaredWithVar = isDeclaredWithVar(typeDesc);
-                if (!variable.isDeclaredWithVar) {
-                    variable.setTypeNode(createTypeNode(typeDesc));
-                }
-
-                return bLVarDef;
+                BLangExpression expr = initializer.isPresent() ? createExpression(initializer.get()) : null;
+                return getVariableDefinition(typeDesc, variable, location, expr);
             case MAPPING_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer, qualifierList);
                 return createRecordVariableDef(variable, location);
@@ -3889,8 +3878,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangGroupingKey groupingKeyNode = (BLangGroupingKey) TreeBuilder.createGroupingKeyNode();
             groupingKeyNode.pos = getPosition(node);
             if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                groupingKeyNode.variableRef =
-                        (BLangSimpleVarRef) getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
+                groupingKeyNode.variableRef = getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
             } else {
                 groupingKeyNode.variableDef = (BLangSimpleVariableDef) node.apply(this);
             }
@@ -3899,7 +3887,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return groupByClause;
     }
 
-    public BLangNode getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
+    public BLangSimpleVarRef getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
         BLangIdentifier key = createIdentifier(groupingKeySimpleVarRefNode.name());
         key.setLiteral(false);
 
@@ -3913,21 +3901,25 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
-        Location variablePos = getPosition(groupingKeyVarDeclarationNode);
-        BLangSimpleVariableDef groupingVarDef =
-                (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.variableName(), variablePos);
-        groupingVarDef.pos = variable.pos = variablePos;
-        BLangExpression expr = createExpression(groupingKeyVarDeclarationNode.expression());
-        variable.setInitialExpression(expr);
-        groupingVarDef.setVariable(variable);
         TypeDescriptorNode typeDesc = groupingKeyVarDeclarationNode.typeDescriptor();
+        Location variablePos = getPosition(groupingKeyVarDeclarationNode);
+        BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.variableName(), variablePos);
+        BLangExpression expr = createExpression(groupingKeyVarDeclarationNode.expression());
+        BLangSimpleVariableDef groupingVarDef = getVariableDefinition(typeDesc, variable, variablePos, expr);
+        return groupingVarDef;
+    }
+
+    private BLangSimpleVariableDef getVariableDefinition(TypeDescriptorNode typeDesc, BLangVariable variable,
+                                                            Location variablePos, BLangExpression expr) {
+        BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        variableDef.pos = variable.pos = variablePos;
+        variable.setInitialExpression(expr);
+        variableDef.setVariable(variable);
         variable.isDeclaredWithVar = isDeclaredWithVar(typeDesc);
         if (!variable.isDeclaredWithVar) {
             variable.setTypeNode(createTypeNode(typeDesc));
         }
-
-        return groupingVarDef;
+        return variableDef;
     }
 
     @Override
