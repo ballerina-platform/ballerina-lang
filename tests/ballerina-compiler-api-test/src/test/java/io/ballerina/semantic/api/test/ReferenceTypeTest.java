@@ -13,6 +13,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.Test;
+
 import java.util.Optional;
 
 import static org.testng.Assert.assertEquals;
@@ -43,9 +44,9 @@ public class ReferenceTypeTest {
         };
     }
 
-    private void assertType(Node node, SemanticModel model, String ReferenceTypeName) {
+    private void assertType(Node node, SemanticModel model, String referenceTypeName) {
         Optional<TypeSymbol> type = model.typeOf(node);
         assertTrue(type.isPresent());
-        assertEquals((((BallerinaTypeReferenceTypeSymbol) type.get()).getBType().toString()), ReferenceTypeName);
+        assertEquals((((BallerinaTypeReferenceTypeSymbol) type.get()).getBType().toString()), referenceTypeName);
     }
 }
