@@ -343,6 +343,210 @@ function testFromBalStringNegative() {
     assert(d.fromBalString(), err);
 }
 
+function testFromStringOnRegExp() {
+    string s = "re `AB+C*D{1,4}`";
+    anydata x1 = checkpanic s.fromBalString();
+    assert(re `AB+C*D{1,4}` == x1, true);
+
+    s = "re `A?B+C*?D{1,4}`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A?B+C*?D{1,4}` == x1, true);
+
+    s = "re `A\\sB\\WC\\Dd\\\\`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A\sB\WC\Dd\\` == x1, true);
+
+    s = "re `\\s{1}\\p{sc=Braille}*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\s{1}\p{sc=Braille}*` == x1, true);
+
+    s = "re `AB+\\p{gc=Lu}{1,}`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `AB+\p{gc=Lu}{1,}` == x1, true);
+
+    s = "re `A\\p{Lu}??B+\\W\\(+?C*D{1,4}?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
+
+    s = "re `\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
+
+    s = "re `[\\r\\n\\^]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\r\n\^]` == x1, true);
+
+    s = "re `[A\\sB\\WC\\Dd\\\\]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[A\sB\WC\Dd\\]` == x1, true);
+
+    s = "re `[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
+
+    s = "re `[A\\sA-GB\\WC\\DJ-Kd\\\\]*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
+
+    s = "re `[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
+
+    s = "re `[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
+
+    s = "re `(?:ABC)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?:ABC)` == x1, true);
+
+    s = "re `(?i:ABC)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i:ABC)` == x1, true);
+
+    s = "re `(?i-m:AB+C*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-m:AB+C*)` == x1, true);
+
+    s = "re `(?imxs:AB+C*D{1,4})`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?imxs:AB+C*D{1,4})` == x1, true);
+
+    s = "re `(?imx-s:A?B+C*?D{1,4})`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
+
+    s = "re `(?i-s:\\s{1}\\p{sc=Braille}*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
+
+    s = "re `(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
+
+    s = "re `(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
+
+    s = "re `(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
+
+    s = "re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
+
+    s = "re `(z)((a+)?(b+)?(c))*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `(z)((a+)?(b+)?(c))*` == x1, true);
+
+    s = "re `^^^^^^^robot$$$$`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `^^^^^^^robot$$$$` == x1, true);
+
+    s = "re `cx{0,93}c`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `cx{0,93}c` == x1, true);
+
+    s = "re `[\\d]*[\\s]*bc.`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `[\d]*[\s]*bc.` == x1, true);
+
+    s = "re `\\??\\??\\??\\??\\??`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\??\??\??\??\??` == x1, true);
+
+    s = "re `.?.?.?.?.?.?.?`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `.?.?.?.?.?.?.?` == x1, true);
+
+    s = "re `bc..[\\d]*[\\s]*`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `bc..[\d]*[\s]*` == x1, true);
+
+    s = "re `\\\\u123`";
+    x1 = checkpanic s.fromBalString();
+    assert(re `\\u123` == x1, true);
+
+    s = "re ``";
+    x1 = checkpanic s.fromBalString();
+    assert(re `` == x1, true);
+}
+
+function testFromStringOnRegExpNegative() {
+    string s = "re `AB+^*`";
+    anydata|error x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `AB\\hCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '\\h'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `AB\\pCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '\\p'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `AB\\uCD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '\\u'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `AB\\u{001CD`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '\\u{001CD'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `AB\\p{sc=Lu`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Missing '}' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `[^abc`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `(abc`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Missing ')' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "re `(ab^*)`";
+    x1 = s.fromBalString();
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}FromBalStringError", x1.message());
+        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+}
+
 function assert(anydata|error actual, anydata|error expected) {
     if (!isEqual(actual, expected)) {
         string expectedValAsString = expected is error ? expected.toString() : expected.toString();

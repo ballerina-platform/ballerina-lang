@@ -293,6 +293,17 @@ public class LangLibValueTest {
         BRunUtil.invoke(testFile, "testXmlToBalString");
         BRunUtil.invoke(testFile, "testObjectToBalString");
         BRunUtil.invoke(testFile, "testToBalStringOnCycles");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithLiterals");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithEscapes");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCharacterClass");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCharacterClass2");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups2");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups3");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups4");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups5");
+        BRunUtil.invoke(testFile, "testToBalStringOnComplexRegExpValue");
+        BRunUtil.invoke(testFile, "testToBalStringComplexRegExpValue2");
     }
 
     @Test
@@ -311,6 +322,8 @@ public class LangLibValueTest {
         BRunUtil.invoke(file, "testObjectFromString");
         BRunUtil.invoke(file, "testFromBalStringOnCycles");
         BRunUtil.invoke(file, "testFromBalStringNegative");
+        BRunUtil.invoke(file, "testFromStringOnRegExp");
+        BRunUtil.invoke(file, "testFromStringOnRegExpNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")

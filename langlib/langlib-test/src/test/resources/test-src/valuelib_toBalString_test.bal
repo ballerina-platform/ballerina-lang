@@ -287,6 +287,356 @@ function testToBalStringOnCycles() {
      "\"4\":{\"mm\":5,\"1\":...[4],\"2\":...[2]}},\"3\":...[0]}");
 }
 
+function testToBalStringOnRegExpValueWithLiterals() {
+    regexp:RegExp x1 = re `A`;
+    assert("re `A`", x1.toBalString());
+
+    regexp:RegExp x2 = re `ABC`;
+    assert("re `ABC`", x2.toBalString());
+
+    regexp:RegExp x3 = re `AB+C*`;
+    assert("re `AB+C*`", x3.toBalString());
+
+    regexp:RegExp x4 = re `AB+C*D{1}`;
+    assert("re `AB+C*D{1}`", x4.toBalString());
+
+    regexp:RegExp x5 = re `AB+C*D{1,}`;
+    assert("re `AB+C*D{1,}`", x5.toBalString());
+
+    regexp:RegExp x6 = re `AB+C*D{1,4}`;
+    assert("re `AB+C*D{1,4}`", x6.toBalString());
+
+    regexp:RegExp x7 = re `A?B+C*?D{1,4}`;
+    assert("re `A?B+C*?D{1,4}`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithEscapes() {
+    regexp:RegExp x1 = re `\r\n\^`;
+    assert("re `\\r\\n\\^`", x1.toBalString());
+
+    regexp:RegExp x2 = re `\*\d`;
+    assert("re `\\*\\d`", x2.toBalString());
+
+    regexp:RegExp x3 = re `A\sB\WC\Dd\\`;
+    assert("re `A\\sB\\WC\\Dd\\\\`", x3.toBalString());
+
+    regexp:RegExp x4 = re `\s{1}\p{sc=Braille}*`;
+    assert("re `\\s{1}\\p{sc=Braille}*`", x4.toBalString());
+
+    regexp:RegExp x5 = re `AB+\p{gc=Lu}{1,}`;
+    assert("re `AB+\\p{gc=Lu}{1,}`", x5.toBalString());
+
+    regexp:RegExp x6 = re `A\p{Lu}??B+\W\(+?C*D{1,4}?`;
+    assert("re `A\\p{Lu}??B+\\W\\(+?C*D{1,4}?`", x6.toBalString());
+
+    regexp:RegExp x7 = re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*`;
+    assert("re `\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCharacterClass() {
+    regexp:RegExp x1 = re `[\r\n\^]`;
+    assert("re `[\\r\\n\\^]`", x1.toBalString());
+
+    regexp:RegExp x2 = re `[\*\d]`;
+    assert("re `[\\*\\d]`", x2.toBalString());
+
+    regexp:RegExp x3 = re `[A\sB\WC\Dd\\]`;
+    assert("re `[A\\sB\\WC\\Dd\\\\]`", x3.toBalString());
+
+    regexp:RegExp x4 = re `[\s\p{sc=Braille}]`;
+    assert("re `[\\s\\p{sc=Braille}]`", x4.toBalString());
+
+    regexp:RegExp x5 = re `[AB\p{gc=Lu}]+?`;
+    assert("re `[AB\\p{gc=Lu}]+?`", x5.toBalString());
+
+    regexp:RegExp x6 = re `[A\p{Lu}B\W\(CD]*`;
+    assert("re `[A\\p{Lu}B\\W\\(CD]*`", x6.toBalString());
+
+    regexp:RegExp x7 = re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??`;
+    assert("re `[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCharacterClass2() {
+    regexp:RegExp x1 = re `[^\r\n\^a-z]`;
+    assert("re `[^\\r\\n\\^a-z]`", x1.toBalString());
+
+    regexp:RegExp x2 = re `[\*a-d\de-f]`;
+    assert("re `[\\*a-d\\de-f]`", x2.toBalString());
+
+    regexp:RegExp x3 = re `[A\sA-GB\WC\DJ-Kd\\]*`;
+    assert("re `[A\\sA-GB\\WC\\DJ-Kd\\\\]*`", x3.toBalString());
+
+    regexp:RegExp x4 = re `[\sA-F\p{sc=Braille}K-Mabc-d\--]`;
+    assert("re `[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]`", x4.toBalString());
+
+    regexp:RegExp x5 = re `[A-B\p{gc=Lu}\s-\SAD\s-\w]`;
+    assert("re `[A-B\\p{gc=Lu}\\s-\\SAD\\s-\\w]`", x5.toBalString());
+
+    regexp:RegExp x6 = re `[\s-\wA\p{Lu}B\W\(CDA-B]+?`;
+    assert("re `[\\s-\\wA\\p{Lu}B\\W\\(CDA-B]+?`", x6.toBalString());
+
+    regexp:RegExp x7 = re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?`;
+    assert("re `[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCapturingGroups() {
+    regexp:RegExp x1 = re `(?:ABC)`;
+    assert("re `(?:ABC)`", x1.toBalString());
+
+    regexp:RegExp x2 = re `(?i:ABC)`;
+    assert("re `(?i:ABC)`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(?i-m:AB+C*)`;
+    assert("re `(?i-m:AB+C*)`", x3.toBalString());
+
+    regexp:RegExp x4 = re `(?im-sx:AB+C*D{1})`;
+    assert("re `(?im-sx:AB+C*D{1})`", x4.toBalString());
+
+    regexp:RegExp x5 = re `(?:AB+C*D{1,})`;
+    assert("re `(?:AB+C*D{1,})`", x5.toBalString());
+
+    regexp:RegExp x6 = re `(?imxs:AB+C*D{1,4})`;
+    assert("re `(?imxs:AB+C*D{1,4})`", x6.toBalString());
+
+    regexp:RegExp x7 = re `(?imx-s:A?B+C*?D{1,4})`;
+    assert("re `(?imx-s:A?B+C*?D{1,4})`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCapturingGroups2() {
+    regexp:RegExp x1 = re `(\r\n\^)`;
+    assert("re `(\\r\\n\\^)`", x1.toBalString());
+
+    regexp:RegExp x2 = re `(?:\*\d)`;
+    assert("re `(?:\\*\\d)`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(?i:A\sB\WC\Dd\\)`;
+    assert("re `(?i:A\\sB\\WC\\Dd\\\\)`", x3.toBalString());
+
+    regexp:RegExp x4 = re `(?i-s:\s{1}\p{sc=Braille}*)`;
+    assert("re `(?i-s:\\s{1}\\p{sc=Braille}*)`", x4.toBalString());
+
+    regexp:RegExp x5 = re `(?ismx:AB+\p{gc=Lu}{1,})`;
+    assert("re `(?ismx:AB+\\p{gc=Lu}{1,})`", x5.toBalString());
+
+    regexp:RegExp x6 = re `(?im-sx:A\p{Lu}??B+\W\(+?C*D{1,4}?)`;
+    assert("re `(?im-sx:A\\p{Lu}??B+\\W\\(+?C*D{1,4}?)`", x6.toBalString());
+
+    regexp:RegExp x7 = re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)`;
+    assert("re `(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCapturingGroups3() {
+    regexp:RegExp x1 = re `([\r\n\^])`;
+    assert("re `([\\r\\n\\^])`", x1.toBalString());
+
+    regexp:RegExp x2 = re `(?i:[\*\d])`;
+    assert("re `(?i:[\\*\\d])`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(?i-s:[A\sB\WC\Dd\\])`;
+    assert("re `(?i-s:[A\\sB\\WC\\Dd\\\\])`", x3.toBalString());
+
+    regexp:RegExp x4 = re `(?ix:sm:[\s\p{sc=Braille}])`;
+    assert("re `(?ix:sm:[\\s\\p{sc=Braille}])`", x4.toBalString());
+
+    regexp:RegExp x5 = re `(?isxm:[AB\p{gc=Lu}]+?)`;
+    assert("re `(?isxm:[AB\\p{gc=Lu}]+?)`", x5.toBalString());
+
+    regexp:RegExp x6 = re `(?isx-m:[A\p{Lu}B\W\(CD]*)`;
+    assert("re `(?isx-m:[A\\p{Lu}B\\W\\(CD]*)`", x6.toBalString());
+
+    regexp:RegExp x7 = re `([\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??)`;
+    assert("re `([\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??)`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCapturingGroups4() {
+    regexp:RegExp x1 = re `([^\r\n\^a-z])`;
+    assert("re `([^\\r\\n\\^a-z])`", x1.toBalString());
+
+    regexp:RegExp x2 = re `(?i:[\*a-d\de-f])`;
+    assert("re `(?i:[\\*a-d\\de-f])`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)`;
+    assert("re `(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)`", x3.toBalString());
+
+    regexp:RegExp x4 = re `(?i-s:[\sA-F\p{sc=Braille}K-Mabc-d\--])`;
+    assert("re `(?i-s:[\\sA-F\\p{sc=Braille}K-Mabc-d\\--])`", x4.toBalString());
+
+    regexp:RegExp x5 = re `(?imx-s:[A-B\p{gc=Lu}\s-\SAD\s-\w])`;
+    assert("re `(?imx-s:[A-B\\p{gc=Lu}\\s-\\SAD\\s-\\w])`", x5.toBalString());
+
+    regexp:RegExp x6 = re `(?imxs:[\s-\wA\p{Lu}B\W\(CDA-B]+?)`;
+    assert("re `(?imxs:[\\s-\\wA\\p{Lu}B\\W\\(CDA-B]+?)`", x6.toBalString());
+
+    regexp:RegExp x7 = re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)`;
+    assert("re `(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)`", x7.toBalString());
+}
+
+function testToBalStringOnRegExpValueWithCapturingGroups5() {
+    regexp:RegExp x1 = re `((ab)|(a))((c)|(bc))`;
+    assert("re `((ab)|(a))((c)|(bc))`", x1.toBalString());
+
+    regexp:RegExp x2 = re `(?:ab|cd)+|ef`;
+    assert("re `(?:ab|cd)+|ef`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(?:(?i-m:ab|cd))+|ef`;
+    assert("re `(?:(?i-m:ab|cd))+|ef`", x3.toBalString());
+
+    regexp:RegExp x4 = re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef`;
+    assert("re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef`", x4.toBalString());
+
+    regexp:RegExp x5 = re `(z)((a+)?(b+)?(c))*`;
+    assert("re `(z)((a+)?(b+)?(c))*`", x5.toBalString());
+
+    regexp:RegExp x6 = re `(?:)`;
+    assert("re `(?:)`", x6.toBalString());
+
+    regexp:RegExp x7 = re `(?i:a|b)`;
+    assert("re `(?i:a|b)`", x7.toBalString());
+
+    regexp:RegExp x8 = re `(?im:a|b|[])`;
+    assert("re `(?im:a|b|[])`", x8.toBalString());
+
+    regexp:RegExp x9 = re `(?i-m:[0-9])`;
+    assert("re `(?i-m:[0-9])`", x9.toBalString());
+
+    regexp:RegExp x10 = re `(?im-s:[z-z])`;
+    assert("re `(?im-s:[z-z])`", x10.toBalString());
+
+    regexp:RegExp x11 = re `(?im-sx:abc{1})`;
+    assert("re `(?im-sx:abc{1})`", x11.toBalString());
+
+    regexp:RegExp x12 = re `(?im:\\u0042)`;
+    assert("re `(?im:\\\\u0042)`", x12.toBalString());
+
+    regexp:RegExp x13 = re `java(script)?`;
+    assert("re `java(script)?`", x13.toBalString());
+
+    regexp:RegExp x14 = re `(x*)(x+)`;
+    assert("re `(x*)(x+)`", x14.toBalString());
+
+    regexp:RegExp x15= re `(\d*)(\d+)`;
+    assert("re `(\\d*)(\\d+)`", x15.toBalString());
+
+    regexp:RegExp x16= re `(\d*)\d(\d+)`;
+    assert("re `(\\d*)\\d(\\d+)`", x16.toBalString());
+}
+
+function testToBalStringOnComplexRegExpValue() {
+    regexp:RegExp x1 = re `s$`;
+    assert("re `s$`", x1.toBalString());
+
+    regexp:RegExp x2 = re `^[^p]`;
+    assert("re `^[^p]`", x2.toBalString());
+
+    regexp:RegExp x3 = re `^p[b-z]`;
+    assert("re `^p[b-z]`", x3.toBalString());
+
+    regexp:RegExp x4 = re `^ab`;
+    assert("re `^ab`", x4.toBalString());
+
+    regexp:RegExp x5 = re `^\^+`;
+    assert("re `^\\^+`", x5.toBalString());
+
+    regexp:RegExp x6 = re `^^^^^^^robot$$$$`;
+    assert("re `^^^^^^^robot$$$$`", x6.toBalString());
+
+    regexp:RegExp x7 = re `^.*?$`;
+    assert("re `^.*?$`", x7.toBalString());
+
+    regexp:RegExp x8 = re `^.*?(:|$)`;
+    assert("re `^.*?(:|$)`", x8.toBalString());
+
+    regexp:RegExp x9 = re `^.*(:|$)`;
+    assert("re `^.*(:|$)`", x9.toBalString());
+
+    regexp:RegExp x10 = re `\d{2,4}`;
+    assert("re `\\d{2,4}`", x10.toBalString());
+
+    regexp:RegExp x11 = re `cx{0,93}c`;
+    assert("re `cx{0,93}c`", x11.toBalString());
+
+    regexp:RegExp x12 = re `B{42,93}c`;
+    assert("re `B{42,93}c`", x12.toBalString());
+
+    regexp:RegExp x13 = re `[^"]*`;
+    assert("re `[^\"]*`", x13.toBalString());
+
+    regexp:RegExp x14 = re `["'][^"']*["']`;
+    assert("re `[\"'][^\"']*[\"']`", x14.toBalString());
+
+    regexp:RegExp x15 = re `cd*`;
+    assert("re `cd*`", x15.toBalString());
+
+    regexp:RegExp x16 = re `x*y+$`;
+    assert("re `x*y+$`", x16.toBalString());
+
+    regexp:RegExp x17 = re `[\d]*[\s]*bc.`;
+    assert("re `[\\d]*[\\s]*bc.`", x17.toBalString());
+
+    regexp:RegExp x18 = re `.*`;
+    assert("re `.*`", x18.toBalString());
+
+    regexp:RegExp x19 = re `[xyz]*1`;
+    assert("re `[xyz]*1`", x19.toBalString());
+
+    regexp:RegExp x20 = re `cd?e`;
+    assert("re `cd?e`", x20.toBalString());
+
+    regexp:RegExp x21 = re `cdx?e`;
+    assert("re `cdx?e`", x21.toBalString());
+
+    regexp:RegExp x22 = re `X?y?z?`;
+    assert("re `X?y?z?`", x22.toBalString());
+
+    regexp:RegExp x23 = re `ab?c?d?x?y?z`;
+    assert("re `ab?c?d?x?y?z`", x23.toBalString());
+
+    regexp:RegExp x24 = re `\??\??\??\??\??`;
+    assert("re `\\??\\??\\??\\??\\??`", x24.toBalString());
+
+    regexp:RegExp x25 = re `.?.?.?.?.?.?.?`;
+    assert("re `.?.?.?.?.?.?.?`", x25.toBalString());
+
+    regexp:RegExp x26 = re `\S+`;
+    assert("re `\\S+`", x26.toBalString());
+
+    regexp:RegExp x27 = re `bc..[\d]*[\s]*`;
+    assert("re `bc..[\\d]*[\\s]*`", x27.toBalString());
+
+    regexp:RegExp x28 = re `\?`;
+    assert("re `\\?`", x28.toBalString());
+
+    regexp:RegExp x29 = re `\\`;
+    assert("re `\\\\`", x29.toBalString());
+
+    regexp:RegExp x30 = re `\*`;
+    assert("re `\\*`", x30.toBalString());
+
+    regexp:RegExp x31 = re `\\u123`;
+    assert("re `\\\\u123`", x31.toBalString());
+
+    regexp:RegExp x32 = re `\\3`;
+    assert("re `\\\\3`", x32.toBalString());
+}
+
+function testToBalStringComplexRegExpValue2() {
+    int val = 10;
+    regexp:RegExp x1 = re `^ab${val}cd*e$`;
+    assert("re `^ab10cd*e$`", x1.toBalString());
+
+    regexp:RegExp x2 = re `$[^a-b\tx-z]+(?i:ab^c[d-f]){12,}`;
+    assert("re `$[^a-b\\tx-z]+(?i:ab^c[d-f]){12,}`", x2.toBalString());
+
+    regexp:RegExp x3 = re `(x|y)|z|[cde-j]*|(?ms:[^])`;
+    assert("re `(x|y)|z|[cde-j]*|(?ms:[^])`", x3.toBalString());
+
+    regexp:RegExp x4 = re `[^ab-cdk-l]*${val}+|(?:pqr{1,}[a=cdegf\s-\Seg-ijk-])`;
+    assert("re `[^ab-cdk-l]*10+|(?:pqr{1,}[a=cdegf\\s-\\Seg-ijk-])`", x4.toBalString());
+
+    regexp:RegExp x5 = re `a\td-*ab[^c-f]+(?m:xj(?i:x|y))`;
+    assert("re `a\\td-*ab[^c-f]+(?m:xj(?i:x|y))`", x5.toBalString());
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

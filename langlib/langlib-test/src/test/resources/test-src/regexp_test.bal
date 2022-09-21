@@ -434,6 +434,337 @@ isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns
     return groups.length().toString();
 }
 
+function testFromString() {
+    regexp:RegExp|error x1 = regexp:fromString("AB+C*D{1,4}");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `AB+C*D{1,4}` == x1);
+    }
+
+    x1 = regexp:fromString("A?B+C*?D{1,4}");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `A?B+C*?D{1,4}` == x1);
+    }
+
+    x1 = regexp:fromString("A\\sB\\WC\\Dd\\\\");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `A\sB\WC\Dd\\` == x1);
+    }
+
+    x1 = regexp:fromString("\\s{1}\\p{sc=Braille}*");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `\s{1}\p{sc=Braille}*` == x1);
+    }
+
+    x1 = regexp:fromString("AB+\\p{gc=Lu}{1,}");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `AB+\p{gc=Lu}{1,}` == x1);
+    }
+
+    x1 = regexp:fromString("A\\p{Lu}??B+\\W\\(+?C*D{1,4}?");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1);
+    }
+
+    x1 = regexp:fromString("\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1);
+    }
+
+    x1 = regexp:fromString("[\\r\\n\\^]");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[\r\n\^]` == x1);
+    }
+
+    x1 = regexp:fromString("[A\\sB\\WC\\Dd\\\\]");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[A\sB\WC\Dd\\]` == x1);
+    }
+
+    x1 = regexp:fromString("[AB\\p{gc=Lu}]+?");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[AB\p{gc=Lu}]+?` == x1);
+    }
+
+    x1 = regexp:fromString("[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1);
+    }
+
+    x1 = regexp:fromString("[A\\sA-GB\\WC\\DJ-Kd\\\\]*");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1);
+    }
+
+    x1 = regexp:fromString("[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1);
+    }
+
+    x1 = regexp:fromString("[A-B\\p{gc=Lu}\\s-\\SAD\\s-\\w]");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[A-B\p{gc=Lu}\s-\SAD\s-\w]` == x1);
+    }
+
+    x1 = regexp:fromString("[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1);
+    }
+
+    x1 = regexp:fromString("(?:ABC)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?:ABC)` == x1);
+    }
+
+    x1 = regexp:fromString("(?i:ABC)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i:ABC)` == x1);
+    }
+
+    x1 = regexp:fromString("(?i-m:AB+C*)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i-m:AB+C*)` == x1);
+    }
+
+    x1 = regexp:fromString("(?im-sx:AB+C*D{1})");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?im-sx:AB+C*D{1})` == x1);
+    }
+
+    x1 = regexp:fromString("(?:AB+C*D{1,})");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?:AB+C*D{1,})` == x1);
+    }
+
+    x1 = regexp:fromString("(?imxs:AB+C*D{1,4})");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?imxs:AB+C*D{1,4})` == x1);
+    }
+
+    x1 = regexp:fromString("(?imx-s:A?B+C*?D{1,4})");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?imx-s:A?B+C*?D{1,4})` == x1);
+    }
+
+    x1 = regexp:fromString("(?imx-s:A?B+C*?D{1,4})");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?imx-s:A?B+C*?D{1,4})` == x1);
+    }
+
+    x1 = regexp:fromString("(?:\\*\\d)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?:\*\d)` == x1);
+    }
+
+    x1 = regexp:fromString("(?i-s:\\s{1}\\p{sc=Braille}*)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1);
+    }
+
+    x1 = regexp:fromString("(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1);
+    }
+
+    x1 = regexp:fromString("(?isxm:[AB\\p{gc=Lu}]+?)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?isxm:[AB\p{gc=Lu}]+?)` == x1);
+    }
+
+    x1 = regexp:fromString("(?isx-m:[A\\p{Lu}B\\W\\(CD]*)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?isx-m:[A\p{Lu}B\W\(CD]*)` == x1);
+    }
+
+    x1 = regexp:fromString("([^\\r\\n\\^a-z])");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `([^\r\n\^a-z])` == x1);
+    }
+
+    x1 = regexp:fromString("(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1);
+    }
+
+    x1 = regexp:fromString("(?i-s:[\\sA-F\\p{sc=Braille}K-Mabc-d\\--])");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i-s:[\sA-F\p{sc=Braille}K-Mabc-d\--])` == x1);
+    }
+
+    x1 = regexp:fromString("(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1);
+    }
+
+    x1 = regexp:fromString("(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1);
+    }
+
+    x1 = regexp:fromString("(z)((a+)?(b+)?(c))*");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(z)((a+)?(b+)?(c))*` == x1);
+    }
+
+    x1 = regexp:fromString("(?i-m:[0-9])");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `(?i-m:[0-9])` == x1);
+    }
+
+    x1 = regexp:fromString("^^^^^^^robot$$$$");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `^^^^^^^robot$$$$` == x1);
+    }
+
+    x1 = regexp:fromString("cx{0,93}c");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `cx{0,93}c` == x1);
+    }
+
+    x1 = regexp:fromString("x*y+$");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `x*y+$` == x1);
+    }
+
+    x1 = regexp:fromString("[\\d]*[\\s]*bc.");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `[\d]*[\s]*bc.` == x1);
+    }
+
+    x1 = regexp:fromString("X?y?z?");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `X?y?z?` == x1);
+    }
+
+    x1 = regexp:fromString("\\??\\??\\??\\??\\??");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `\??\??\??\??\??` == x1);
+    }
+
+    x1 = regexp:fromString(".?.?.?.?.?.?.?");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `.?.?.?.?.?.?.?` == x1);
+    }
+
+    x1 = regexp:fromString("bc..[\\d]*[\\s]*");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `bc..[\d]*[\s]*` == x1);
+    }
+
+    x1 = regexp:fromString("\\\\u123");
+    assertTrue(x1 is regexp:RegExp);
+    if (x1 is regexp:RegExp) {
+       assertTrue(re `\\u123` == x1);
+    }
+}
+
+function testFromStringNegative() {
+    regexp:RegExp|error x1 = regexp:fromString("AB+^*");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("AB\\hCD");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '\\h'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("AB\\pCD");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '\\p'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("AB\\uCD");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '\\u'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("AB\\u{001CD");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '\\u{001CD'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("AB\\p{sc=Lu");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Missing '}' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("[^abc");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("(abc");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Missing ')' character", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("(ab^*)");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
