@@ -50,7 +50,7 @@ function namedargTest(int x, string y) returns int{
     return x;
 }
 
-function namedArgText() {
+function namedArgTest() {
     int x = namedargTest(x = 2, y = );
 }
 
@@ -89,3 +89,16 @@ function nameLenTest2(string str, NewType newType) returns string|NewType {
     return str;
 }
 
+function getIntValue(int x, string y) returns int {
+    return x;
+}
+
+function functionCallTest() {
+    string s = getIntValue(2, "a");
+    string s = getIntValue( , );
+    var s = getIntValue(2, "a");
+    any s = getIntValue(2, "a");
+    int|string a;
+    int s = getIntValue(2, "a") + a;
+    int s = getIntValue(a, "a");
+}
