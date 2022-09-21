@@ -531,6 +531,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private boolean isInLocalContext = false;
     /* To keep track if we are inside a finite context */
     boolean isInFiniteContext = false;
+    /* To keep track if we are inside a character class in a regular expresssion */
+    boolean isInCharacterClass = false;
 
     private  HashSet<String> constantSet = new HashSet<String>();
 
@@ -5558,6 +5560,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangLiteral syntaxChar = (BLangLiteral) reQuoteEscapeNode.reSyntaxChar().apply(this);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 syntaxChar.value.toString(), pos);
+        // Return the literal for escape sequence if it's in a character class.
+        if (this.isInCharacterClass) {
+            return escapeChar;
+        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
         reAtomCharOrEscape.charOrEscape = escapeChar;
@@ -5573,6 +5579,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 (BLangLiteral) reSimpleCharClassEscapeNode.reSimpleCharClassCode().apply(this);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 simpleCharClassEscapeNode.value.toString(), pos);
+        // Return the literal for escape sequence if it's in a character class.
+        if (this.isInCharacterClass) {
+            return escapeChar;
+        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
         reAtomCharOrEscape.charOrEscape = escapeChar;
@@ -5592,6 +5602,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 createStringLiteral(backSlash.value.toString() + property.value.toString() +
                         openBrace.value.toString() + unicodeProperty.value.toString() +
                         closeBrace.value.toString(), pos);
+        // Return the literal for escape sequence if it's in a character class.
+        if (this.isInCharacterClass) {
+            return escapeChar;
+        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
         reAtomCharOrEscape.charOrEscape = escapeChar;
@@ -5622,6 +5636,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReCharacterClassNode reCharacterClassNode) {
+        boolean prevIsInCharacterClass = this.isInCharacterClass;
+        this.isInCharacterClass = true;
         BLangReCharacterClass reCharacterClass = (BLangReCharacterClass) TreeBuilder.createReCharacterClassNode();
         reCharacterClass.characterClassStart = (BLangExpression) reCharacterClassNode.openBracket().apply(this);
         if (reCharacterClassNode.negation().isPresent()) {
@@ -5640,6 +5656,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         reCharacterClass.characterClassEnd = (BLangExpression) reCharacterClassNode.closeBracket().apply(this);
         reCharacterClass.pos = getPosition(reCharacterClassNode);
+        this.isInCharacterClass = prevIsInCharacterClass;
         return reCharacterClass;
     }
 
