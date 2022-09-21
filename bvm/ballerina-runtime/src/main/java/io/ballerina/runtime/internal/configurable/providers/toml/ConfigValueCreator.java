@@ -370,15 +370,19 @@ public class ConfigValueCreator {
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
-        List<Type> convertibleTypes = new ArrayList<>();
+        Type convertibleType = null;
         for (Type type : unionType.getMemberTypes()) {
-            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, "", false,
-                    new ArrayList<>(), new ArrayList<>(), false, false));
+            convertibleType = TypeConverter.getConvertibleType(balValue, type, null, false, new ArrayList<>(),
+                    new ArrayList<>(), false);
+            if (convertibleType != null) {
+                break;
+            }
         }
-        Type type = convertibleTypes.get(0);
-        if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
+
+        if (isSimpleType(convertibleType.getTag()) || convertibleType.getTag() == TypeTags.FINITE_TYPE_TAG ||
+                isXMLType(convertibleType)) {
             return balValue;
         }
-        return createStructuredValue(tomlValue, type);
+        return createStructuredValue(tomlValue, convertibleType);
     }
 }

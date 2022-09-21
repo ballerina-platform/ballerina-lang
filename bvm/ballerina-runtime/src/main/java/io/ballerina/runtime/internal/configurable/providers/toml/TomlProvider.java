@@ -634,8 +634,11 @@ public class TomlProvider implements ConfigProvider {
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, variableName, false,
-                    new ArrayList<>(), new ArrayList<>(), false, false));
+            Type convertibleType = TypeConverter.getConvertibleType(balValue, type, variableName, false,
+                    new ArrayList<>(), new ArrayList<>(), false);
+            if (convertibleType != null) {
+                convertibleTypes.add(convertibleType);
+            }
         }
 
         if (convertibleTypes.size() > 1 &&
