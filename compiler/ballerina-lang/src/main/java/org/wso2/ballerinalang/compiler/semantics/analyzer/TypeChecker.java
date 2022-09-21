@@ -1134,9 +1134,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
 
-            if (((BTableType) applicableExpType).keyTypeConstraint != symTable.neverType &&
-                    tableType.constraint.equals(((BTableType) applicableExpType).constraint) &&
-                    tableType.fieldNameList.equals(((BTableType) applicableExpType).fieldNameList)) {
+            if (isSameTableType(tableType, (BTableType) applicableExpType)) {
                 data.resultType = expType;
             } else {
                 data.resultType = tableType;
@@ -1320,6 +1318,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos, data);
+    }
+
+    public boolean isSameTableType(BTableType source, BTableType target) {
+        return target.keyTypeConstraint != symTable.neverType && source.constraint.equals(target.constraint) &&
+                source.fieldNameList.equals(target.fieldNameList);
     }
 
     /**

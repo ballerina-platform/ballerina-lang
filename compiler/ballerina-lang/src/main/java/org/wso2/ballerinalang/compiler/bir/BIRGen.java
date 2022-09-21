@@ -2544,10 +2544,10 @@ public class BIRGen extends BLangNodeVisitor {
     private BTypeSymbol getObjectTypeSymbol(BType objType) {
         BType type = Types.getReferredType(objType);
         if (type.tag == TypeTags.UNION) {
-            return Types.getReferredType(((BUnionType) type).getMemberTypes().stream()
+            type = ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
                     .findFirst()
-                    .orElse(symTable.noType)).tsymbol;
+                    .orElse(symTable.noType);
         }
         return Types.getReferredType(type).tsymbol;
     }
