@@ -102,7 +102,6 @@ public class TreeBuilder {
             default:
                 // Read chars in ReLiteralChar, . or ReEscape.
                 reAtom = readChars();
-                break;
         }
 
         nextToken = peek();
@@ -357,7 +356,8 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        // Return empty string if there is no non greedy char.
+        return "";
     }
     
     private RegExpCapturingGroup readCapturingGroups() {

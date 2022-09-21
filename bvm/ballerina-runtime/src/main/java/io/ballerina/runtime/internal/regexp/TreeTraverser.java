@@ -34,6 +34,7 @@ public class TreeTraverser {
     public TreeTraverser(CharReader charReader) {
         this.reader = charReader;
         this.mode = ParserMode.RE_DISJUNCTION;
+        this.modeStack.add(this.mode);
     }
 
     public Token nextToken() {
@@ -162,6 +163,7 @@ public class TreeTraverser {
                 this.reader.advance();
                 if (!isReSyntaxChar(nextChar)) {
                     startMode(ParserMode.RE_QUANTIFIER);
+                    return getRegExpText(TokenKind.RE_CHAR);
                 }
                 throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
         }
