@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
