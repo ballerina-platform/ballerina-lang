@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 /**
  * Native implementation of lang.regexp:matches(string).
  *
- * @since 2.3.0
+ * @since 2201.3.0
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
@@ -50,7 +50,7 @@ public class Matches {
         BArray resultArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region(startIndex, str.length());
         if (matcher.matches()) {
-            for (int i = 1 ; i <= matcher.groupCount(); i++) {
+            for (int i = 1; i <= matcher.groupCount(); i++) {
                 int matcherStart = matcher.start(i);
                 if (matcher.start(i) == -1) {
                     continue;
