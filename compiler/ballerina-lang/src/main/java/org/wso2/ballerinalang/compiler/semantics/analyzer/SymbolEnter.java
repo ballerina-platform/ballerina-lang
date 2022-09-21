@@ -196,6 +196,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
+import static org.ballerinalang.model.tree.NodeKind.TUPLE_TYPE_NODE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -1601,6 +1602,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Check for any circular type references
         boolean hasTypeInclusions = false;
         NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
+        if (typeNodeKind == TUPLE_TYPE_NODE) {
+            if (definedType.tsymbol.scope == null) {
+                definedType.tsymbol.scope = new Scope(definedType.tsymbol);
+            }
+        }
         if (typeNodeKind == NodeKind.OBJECT_TYPE || typeNodeKind == NodeKind.RECORD_TYPE) {
             if (definedType.tsymbol.scope == null) {
                 definedType.tsymbol.scope = new Scope(definedType.tsymbol);
@@ -3896,7 +3902,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
         NodeKind nodeKind = typeDef.typeNode.getKind();
-        if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+        if (nodeKind == TUPLE_TYPE_NODE) {
+            BTupleType bTupleType = (BTupleType) typeDef.symbol.type;
+            BLangTupleTypeNode bLangTupleTypeNode = (BLangTupleTypeNode) typeDef.typeNode;
+            Scope scope = bTupleType.tsymbol.scope;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(bLangTupleTypeNode, scope, pkgEnv);
+
+            resolveTupleMembers(bTupleType, bLangTupleTypeNode,
+                    SymbolEnv.createTypeEnv(bLangTupleTypeNode, scope, pkgEnv));
+            return;
+        } else if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
             return;
         }
 
@@ -3931,6 +3946,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
                 })
                 .collect(getFieldCollector());
+    }
+
+    private void resolveTupleMembers(BTupleType structureType, BLangTupleTypeNode structureTypeNode, SymbolEnv typeDefEnv) {
+        structureType.tupleTypes = structureTypeNode.memberTypeNodes.stream()
+                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
+                .filter(field -> field.symbol.type != symTable.semanticError)
+                .map((BLangSimpleVariable field) -> {
+                    field.symbol.isDefaultable = field.expr != null;
+                    return new BTupleMember(field.typeNode.getBType(), field.symbol);
+                }).collect(Collectors.toList());
     }
 
     private void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {

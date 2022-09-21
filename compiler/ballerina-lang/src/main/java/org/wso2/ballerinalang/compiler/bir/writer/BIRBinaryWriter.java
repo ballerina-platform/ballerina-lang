@@ -46,6 +46,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeConstValue;
+
 /**
  * Serialize BIR into a binary format.
  *
@@ -382,74 +384,10 @@ public class BIRBinaryWriter {
         ByteBuf birbuf = Unpooled.buffer();
         writeType(birbuf, birConstant.constValue.type);
         writeAnnotAttachments(buf, birConstant.annotAttachments);
-        writeConstValue(birbuf, birConstant.constValue);
+        writeConstValue(cp, birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();
         buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
-    }
-
-    private void writeConstValue(ByteBuf buf, ConstValue constValue) {
-        writeConstValue(buf, constValue.value, constValue.type);
-    }
-
-    private void writeConstValue(ByteBuf buf, Object value, BType type) {
-        switch (type.tag) {
-            case TypeTags.INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED8_INT:
-                buf.writeInt(addIntCPEntry((Long) value));
-                break;
-            case TypeTags.BYTE:
-                int byteValue = ((Number) value).intValue();
-                buf.writeInt(addByteCPEntry(byteValue));
-                break;
-            case TypeTags.FLOAT:
-                // TODO:Remove the instanceof check by converting the float literal instance in Semantic analysis phase
-                double doubleVal = value instanceof String ? Double.parseDouble((String) value)
-                        : (Double) value;
-                buf.writeInt(addFloatCPEntry(doubleVal));
-                break;
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.DECIMAL:
-                buf.writeInt(addStringCPEntry((String) value));
-                break;
-            case TypeTags.BOOLEAN:
-                buf.writeBoolean((Boolean) value);
-                break;
-            case TypeTags.NIL:
-                break;
-            case TypeTags.RECORD:
-                Map<String, ConstValue> mapConstVal = (Map<String, ConstValue>) value;
-                buf.writeInt(mapConstVal.size());
-                mapConstVal.forEach((key, fieldValue) -> {
-                    buf.writeInt(addStringCPEntry(key));
-                    writeType(buf, fieldValue.type);
-                    writeConstValue(buf, fieldValue);
-                });
-                break;
-            case TypeTags.TUPLE:
-                ConstValue[] tupleConstVal = (ConstValue[]) value;
-                buf.writeInt(tupleConstVal.length);
-                for (ConstValue memValue : tupleConstVal) {
-                    writeType(buf, memValue.type);
-                    writeConstValue(buf, memValue);
-                }
-                break;
-            case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) type).effectiveType;
-                writeConstValue(buf, new ConstValue(value, effectiveType));
-                break;
-            default:
-                // TODO support for other types
-                throw new UnsupportedOperationException(
-                        "finite type value is not supported for type: " + type);
-
-        }
     }
 
     private void writeServiceDeclarations(ByteBuf buf,
@@ -536,7 +474,7 @@ public class BIRBinaryWriter {
         annotBuf.writeBoolean(true);
         ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annotAttachment).annotValue;
         writeType(annotBuf, constValue.type);
-        writeConstValue(annotBuf, constValue);
+        writeConstValue(cp, annotBuf, constValue);
     }
 
     private void writePosition(ByteBuf buf, Location pos) {

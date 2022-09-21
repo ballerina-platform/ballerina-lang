@@ -997,9 +997,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
-                BLangSimpleVariable member = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-                member.typeNode = createTypeNode(memberNode.typeDescriptor());
-                member.annAttachments = applyAll(memberNode.annotations());
+                BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(), memberNode.annotations());
+//                member.typeNode = createTypeNode(memberNode.typeDescriptor());
+//                member.annAttachments = applyAll(memberNode.annotations());
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
                 tupleTypeNode.memberTypeNodes.add(member);
             }
