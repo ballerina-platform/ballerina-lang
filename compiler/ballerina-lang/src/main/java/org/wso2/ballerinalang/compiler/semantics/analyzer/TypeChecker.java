@@ -868,7 +868,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
-            byte[] byteArray = Types.convertToByteArray((String) literalExpr.value);
+            byte[] byteArray = types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
                     BArrayState.CLOSED);
             if (Symbols.isFlagOn(expectedType.flags, Flags.READONLY)) {

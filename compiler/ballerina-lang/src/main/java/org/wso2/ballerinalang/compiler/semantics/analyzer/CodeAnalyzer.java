@@ -1767,9 +1767,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return true;
             case GROUP_EXPR:
                 return isValidVariableForInferredArray(((BLangGroupExpr) node).expression);
-            default:
-                return false;
         }
+        return false;
     }
 
     @Override

@@ -6577,7 +6577,7 @@ public class Types {
         boolean nonErrorLoggingCheck = false;
     }
 
-    public static byte[] convertToByteArray(String literalExpr) {
+    public byte[] convertToByteArray(String literalExpr) {
         String[] elements = getLiteralTextValue(literalExpr);
         if (elements[0].contains(BASE_16)) {
             return hexStringToByteArray(elements[1]);
@@ -6585,7 +6585,7 @@ public class Types {
         return Base64.getDecoder().decode(elements[1].getBytes(StandardCharsets.UTF_8));
     }
 
-    private static byte[] hexStringToByteArray(String base16String) {
+    private byte[] hexStringToByteArray(String base16String) {
         int arrayLength = base16String.length();
         byte[] byteArray = new byte[arrayLength / 2];
         for (int i = 0; i < arrayLength; i += 2) {
