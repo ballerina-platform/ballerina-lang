@@ -275,7 +275,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(BinaryExpressionNode node) {
-        if (!node.operator().isMissing() && node.operator().text() == "*" || node.operator().text() == "/") {
+        if (!node.operator().isMissing() && node.operator().text().equals("*") || node.operator().text().equals("/")) {
             return Optional.empty();
         }
 
