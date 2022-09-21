@@ -99,6 +99,8 @@ public const annotation record {
     string label;
     # icon path relative to module's resource directory
     string iconPath?;
+    # kind of the data
+    "text"|"password"|"file" kind?;
 } display on source type, source class,
       source function, source return, source parameter, source field, source listener,
       source var, source const, source annotation, source service;
