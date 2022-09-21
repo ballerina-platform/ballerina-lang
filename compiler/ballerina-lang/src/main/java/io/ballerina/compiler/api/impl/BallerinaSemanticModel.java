@@ -398,11 +398,13 @@ public class BallerinaSemanticModel implements SemanticModel {
                 this.compilerContext, linePosition, sourceDocument);
         do {
             typeSymbol = node.apply(expectedTypeFinder);
+            // To handle the cases related to ExternalTreeNodeList
             if (typeSymbol == null || typeSymbol.isEmpty()) {
                 expectedTypeSymbol = null;
             } else {
                 expectedTypeSymbol = typeSymbol.get();
             }
+
             node = node.parent();
         } while (expectedTypeSymbol == null && node != null);
 
