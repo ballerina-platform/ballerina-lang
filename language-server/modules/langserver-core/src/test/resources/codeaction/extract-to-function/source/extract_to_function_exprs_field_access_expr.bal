@@ -25,4 +25,5 @@ function testFunction() {
     boolean isAsian = kamal.isAsian;
     nimal.age = 11;
     kamal.setAge(12);
+    nimal.age += 1;
 }

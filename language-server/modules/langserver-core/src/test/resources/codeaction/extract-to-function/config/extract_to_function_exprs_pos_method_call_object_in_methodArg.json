@@ -12,11 +12,11 @@
         {
           "range": {
             "start": {
-              "line": 27,
+              "line": 28,
               "character": 1
             },
             "end": {
-              "line": 27,
+              "line": 28,
               "character": 1
             }
           },
@@ -35,7 +35,8 @@
           },
           "newText": "extracted()"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, cursor inside the method arguments in method call expression method"

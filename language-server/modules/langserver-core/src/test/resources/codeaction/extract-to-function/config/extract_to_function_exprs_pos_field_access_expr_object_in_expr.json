@@ -12,11 +12,11 @@
         {
           "range": {
             "start": {
-              "line": 27,
+              "line": 28,
               "character": 1
             },
             "end": {
-              "line": 27,
+              "line": 28,
               "character": 1
             }
           },
@@ -35,7 +35,8 @@
           },
           "newText": "extracted(kamal)"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, cursor inside the expression of the field access expression of an Object"
