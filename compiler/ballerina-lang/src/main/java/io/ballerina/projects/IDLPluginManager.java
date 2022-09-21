@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
@@ -44,8 +45,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 class IDLPluginManager {
@@ -116,8 +115,10 @@ class IDLPluginManager {
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
+        private final PackageID sourcePkgId;
+        private final String sourceDoc;
         private final Package currentPackage;
-        private final Map<LineRange, Optional<PackageID>> idlClientMap;
+        private final IDLClients idlClients;
         private final Node clientNode;
         private final Set<ModuleLoadRequest> moduleLoadRequests;
         private final List<ModuleConfig> moduleConfigs;
@@ -125,13 +126,17 @@ class IDLPluginManager {
         private final Path resourcePath;
         private final List<IDLClientEntry> cachedClientEntries;
 
-        public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage, Path resourcePath,
-                                             Map<LineRange, Optional<PackageID>> idlClientMap,
+        public IDLSourceGeneratorContextImpl(Node clientNode, PackageID sourcePkgId, String sourceDoc,
+                                             Package currentPackage, Path resourcePath,
+                                             IDLClients idlClients,
                                              Set<ModuleLoadRequest> moduleLoadRequests,
-                                             List<ModuleConfig> moduleConfigs, List<IDLClientEntry> cachedPlugins) {
+                                             List<ModuleConfig> moduleConfigs,
+                                             List<IDLClientEntry> cachedPlugins) {
+            this.sourcePkgId = sourcePkgId;
+            this.sourceDoc = sourceDoc;
             this.currentPackage = currentPackage;
             this.resourcePath = resourcePath;
-            this.idlClientMap = idlClientMap;
+            this.idlClients = idlClients;
             this.clientNode = clientNode;
             this.moduleLoadRequests = moduleLoadRequests;
             this.moduleConfigs = moduleConfigs;
@@ -173,7 +178,8 @@ class IDLPluginManager {
                 ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
                 lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
             }
-            this.idlClientMap.put(lineRange, Optional.of(newModuleConfig.moduleDescriptor().moduleCompilationId()));
+            idlClients.addEntry(sourcePkgId, sourceDoc, lineRange,
+                    newModuleConfig.moduleDescriptor().moduleCompilationId());
             this.moduleLoadRequests.add(new ModuleLoadRequest(
                     PackageOrg.from(newModuleConfig.moduleDescriptor().moduleCompilationId().orgName.getValue()),
                     newModuleConfig.moduleDescriptor().moduleCompilationId().name.getValue(),

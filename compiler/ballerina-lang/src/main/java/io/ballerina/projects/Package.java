@@ -589,8 +589,6 @@ public class Package {
             return this;
         }
 
-
-
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updatePackageManifest();

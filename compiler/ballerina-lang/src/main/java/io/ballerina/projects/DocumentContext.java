@@ -43,7 +43,6 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.FileNameUtils;
@@ -68,8 +67,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -146,7 +143,7 @@ class DocumentContext {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope,
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope,
                                               IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
                                               Package currentPkg, List<Diagnostic> pluginDiagnosticList) {
         if (this.moduleLoadRequests != null) {
@@ -154,11 +151,11 @@ class DocumentContext {
         }
 
         this.moduleLoadRequests = getModuleLoadRequests(
-                currentModuleName, scope, idlPluginManager, compilationOptions, currentPkg, pluginDiagnosticList);
+                currentModuleDesc, scope, idlPluginManager, compilationOptions, currentPkg, pluginDiagnosticList);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName,
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleDescriptor currentModuleDesc,
                                                          PackageDependencyScope scope,
                                                          IDLPluginManager idlPluginManager,
                                                          CompilationOptions compilationOptions,
@@ -175,27 +172,34 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleName.toString().equals(Names.TRANSACTION.value)) {
+               !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
-        generateIDLClients(syntaxTree, idlPluginManager, compilationOptions, currentPkg,
+        generateIDLClients(currentModuleDesc, syntaxTree, idlPluginManager, compilationOptions, currentPkg,
                 moduleLoadRequests, pluginDiagnosticList);
         return moduleLoadRequests;
     }
 
-    private void generateIDLClients(
-            SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
-            Package currentPkg, Set<ModuleLoadRequest> moduleLoadRequests, List<Diagnostic> pluginDiagnosticList) {
+    private void generateIDLClients(ModuleDescriptor currentModuleDesc, SyntaxTree syntaxTree,
+                                    IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
+                                    Package currentPkg, Set<ModuleLoadRequest> moduleLoadRequests,
+                                    List<Diagnostic> pluginDiagnosticList) {
+
         CompilerContext compilerContext = currentPkg.project().projectEnvironmentContext()
                 .getService(CompilerContext.class);
         IDLClients idlClients = IDLClients.getInstance(compilerContext);
+
+        // Remove the client entries generated from the previous edit
+        if (idlClients.idlClientMap().containsKey(currentModuleDesc.moduleCompilationId())) {
+            idlClients.idlClientMap().get(currentModuleDesc.moduleCompilationId()).remove(name);
+        }
         syntaxTree.rootNode().accept(new ClientNodeVisitor(
-                idlPluginManager, compilationOptions, currentPkg, idlClients.idlClientMap(), moduleLoadRequests,
-                pluginDiagnosticList));
+                idlPluginManager, compilationOptions, currentPkg, idlClients, moduleLoadRequests,
+                pluginDiagnosticList, currentModuleDesc, name));
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -241,19 +245,26 @@ class DocumentContext {
         private final IDLPluginManager idlPluginManager;
         private final CompilationOptions compilationOptions;
         private final Package currentPkg;
-        private final Map<LineRange, Optional<PackageID>> idlClientMap;
+        private final IDLClients idlClients;
         private final Set<ModuleLoadRequest> moduleLoadRequests;
-        private List<Diagnostic> pluginDiagnosticList;
+        private final List<Diagnostic> pluginDiagnosticList;
+        private final ModuleDescriptor currentModuleDesc;
+        private String docName;
 
-        public ClientNodeVisitor(IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
-                                 Package currentPkg, Map<LineRange, Optional<PackageID>> idlClientMap,
-                                 Set<ModuleLoadRequest> moduleLoadRequests, List<Diagnostic> pluginDiagnosticList) {
+        public ClientNodeVisitor(IDLPluginManager idlPluginManager,
+                                 CompilationOptions compilationOptions,
+                                 Package currentPkg, IDLClients idlClients,
+                                 Set<ModuleLoadRequest> moduleLoadRequests,
+                                 List<Diagnostic> pluginDiagnosticList,
+                                 ModuleDescriptor moduleDescriptor, String docName) {
             this.idlPluginManager = idlPluginManager;
             this.compilationOptions = compilationOptions;
             this.currentPkg = currentPkg;
-            this.idlClientMap = idlClientMap;
+            this.idlClients = idlClients;
             this.moduleLoadRequests = moduleLoadRequests;
             this.pluginDiagnosticList = pluginDiagnosticList;
+            this.currentModuleDesc = moduleDescriptor;
+            this.docName = docName;
         }
 
         @Override
@@ -284,8 +295,9 @@ class DocumentContext {
                             new Name(this.currentPkg.descriptor().name().value()),
                             new Name(generatedModuleName),
                             new Name(this.currentPkg.descriptor().version().toString()), null);
-                    idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(),
-                            Optional.of(packageID));
+                    idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                            moduleClientDeclarationNode.clientPrefix().location().lineRange(),
+                            packageID);
                     moduleLoadRequests.add(new ModuleLoadRequest(
                             PackageOrg.from(packageID.orgName.getValue()),
                             packageID.name.getValue(),
@@ -315,8 +327,8 @@ class DocumentContext {
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    moduleClientDeclarationNode,
-                                    currentPkg, idlPath, idlClientMap, moduleLoadRequests,
+                                    moduleClientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
+                                    currentPkg, idlPath, idlClients, moduleLoadRequests,
                                     idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
@@ -338,7 +350,8 @@ class DocumentContext {
             Location location = moduleClientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                    moduleClientDeclarationNode.clientPrefix().location().lineRange(), null);
         }
 
         @Override
@@ -367,8 +380,9 @@ class DocumentContext {
                                 new Name(this.currentPkg.descriptor().name().value()),
                                 new Name(generatedModuleName),
                                 new Name(this.currentPkg.descriptor().version().toString()), null);
-                        idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(),
-                                Optional.of(packageID));
+                        idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                                clientDeclarationNode.clientPrefix().location().lineRange(),
+                                packageID);
                         moduleLoadRequests.add(new ModuleLoadRequest(
                                 PackageOrg.from(packageID.orgName.getValue()),
                                 packageID.name.getValue(),
@@ -399,8 +413,8 @@ class DocumentContext {
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    clientDeclarationNode,
-                                    currentPkg, idlPath, idlClientMap, moduleLoadRequests,
+                                    clientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
+                                    currentPkg, idlPath, idlClients, moduleLoadRequests,
                                     idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
@@ -422,7 +436,8 @@ class DocumentContext {
             Location location = clientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                    clientDeclarationNode.clientPrefix().location().lineRange(), null);
         }
 
         private List<String> annotations(NodeList<AnnotationNode> supportedAnnotations) {

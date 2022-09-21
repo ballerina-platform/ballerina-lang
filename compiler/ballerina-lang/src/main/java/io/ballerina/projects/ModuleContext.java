@@ -226,7 +226,7 @@ class ModuleContext {
         }
         allModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(),
+            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleDescriptor,
                     PackageDependencyScope.DEFAULT, idlPluginManager, compilationOptions, currentPkg,
                     idlPluginDiagnostics));
         }
@@ -243,7 +243,7 @@ class ModuleContext {
         allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : testDocContextMap.values()) {
             allTestModuleLoadRequests.addAll(
-                    docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY,
+                    docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY,
                             idlPluginManager, compilationOptions, currentPkg, idlPluginDiagnostics));
         }
 

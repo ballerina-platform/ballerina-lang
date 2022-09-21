@@ -1252,8 +1252,17 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangClientDeclaration clientDeclaration) {
         BLangIdentifier prefix = clientDeclaration.prefix;
 
-        if (!symTable.clientDeclarations.containsKey(prefix.pos.lineRange())) {
+        if (!symTable.clientDeclarations.containsKey(this.env.enclPkg.packageID) ||
+                !symTable.clientDeclarations.get(this.env.enclPkg.packageID)
+                        .containsKey(clientDeclaration.pos.lineRange().filePath())) {
             dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
+        } else {
+            Map<LineRange, Optional<PackageID>> lineRangeMap =
+                    symTable.clientDeclarations.get(this.env.enclPkg.packageID)
+                    .get(clientDeclaration.pos.lineRange().filePath());
+            if (!lineRangeMap.containsKey(prefix.pos.lineRange())) {
+                dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
+            }
         }
 
         Name prefixName = names.fromIdNode(prefix);
