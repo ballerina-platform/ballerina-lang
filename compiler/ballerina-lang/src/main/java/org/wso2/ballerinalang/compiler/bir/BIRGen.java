@@ -2193,7 +2193,7 @@ public class BIRGen extends BLangNodeVisitor {
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
         dataLiteral.setBType(
-                new BArrayType(((BTableType) Types.getReferredType(tableConstructorExpr.getBType())).constraint));
+                new BArrayType(type.constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
