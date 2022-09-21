@@ -125,7 +125,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         /*
          * Here we decide whether the content of the selected range is syntactically correct to be extracted to a
          * function.
-        * */
+         * */
         if (!statementAnalyzer.isExtractable()) {
             return Collections.emptyList();
         }
@@ -134,8 +134,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 = isExtractableAndUpdatingVar(statementAnalyzer, enclosingNode, context);
 
         /*
-        * Here we decide whether the selected range is extractable by the usages of symbols, empty scenario implies
-        * multiple variable symbols updated and referred after range
+         * Here we decide whether the selected range is extractable by the usages of symbols, empty scenario implies
+         * multiple variable symbols updated and referred after range
          */
         if (isExtractableAndUpdatingVarPair.getLeft().equals(Boolean.FALSE)) {
             return Collections.emptyList();
@@ -156,10 +156,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             returnTypeDescriptor = String.format("returns %s", possibleTypeOfUpdatedVar.get());
         }
 
-        List<Symbol> argsSymbolsForExtractFunction =
+        Optional<List<Symbol>> argsSymbolsForExtractFunction =
                 getVarAndParamSymbolsWithinRangeForStmts(context, enclosingNode);
 
-        Optional<ArgListsHolder> argLists = getArgLists(context, argsSymbolsForExtractFunction);
+        if (argsSymbolsForExtractFunction.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<ArgListsHolder> argLists = getArgLists(context, argsSymbolsForExtractFunction.get());
         if (argLists.isEmpty()) {
             return Collections.emptyList();
         }
@@ -220,7 +224,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
      * Finds whether the selected range is extractable. If extractable, finds whether a value should be returned or not
      * from the extracted function. If yes, return the updated variable symbol. The two scenarios, if the nodes in the
      * range is extractable:
-     *
+     * <p>
      * 1. extracted();                      // a value is not returned
      * 2. int varName = extracted();        // a value is returned
      *
@@ -249,13 +253,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         // LocalVarSymbols which are declared or updated inside the selected range and also referred after the range
         List<VariableSymbol> localVarSymbols = updatedOrDeclaredLocVarSymbolsInRange.stream()
-                        .filter(symbol -> !updatedModVarSymbols.contains(symbol))
-                        .filter(symbol -> semanticModel.references(symbol).stream()
-                                .anyMatch(location -> PositionUtil.isRangeWithinRange
-                                        (PositionUtil.toRange(location.lineRange()),
-                                                getRangeAfterHighlightedRange(context, enclosingNode))))
-                        .map(symbol -> (VariableSymbol) symbol)
-                        .collect(Collectors.toList());
+                .filter(symbol -> !updatedModVarSymbols.contains(symbol))
+                .filter(symbol -> semanticModel.references(symbol).stream()
+                        .anyMatch(location -> PositionUtil.isRangeWithinRange
+                                (PositionUtil.toRange(location.lineRange()),
+                                        getRangeAfterHighlightedRange(context, enclosingNode))))
+                .map(symbol -> (VariableSymbol) symbol)
+                .collect(Collectors.toList());
 
         /*
          * Following checks are done when deciding whether the selected range R is extractable to a function.
@@ -290,7 +294,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
      * This method finds the visible variable and parameter symbols which are referred inside the selected range for
      * getCodeActionsForStatements scenario.
      */
-    private List<Symbol> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context, Node enclosingNode) {
+    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context, 
+                                                                            Node enclosingNode) {
         List<Symbol> argsSymbolsForExtractFunction = new ArrayList<>();
         List<Symbol> visibleSymbols = getVisibleSymbols(context, context.range().getStart());
 
@@ -320,9 +325,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             }
         });
 
-        return argsSymbolsForExtractFunction.stream()
+        if (argsSymbolsForExtractFunction.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(argsSymbolsForExtractFunction.stream()
+                // getLocation() is present for each symbol
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -344,9 +354,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        List<Symbol> varAndParamSymbolsWithinRange =
+        Optional<List<Symbol>> varAndParamSymbolsWithinRange =
                 getVarAndParamSymbolsWithinRangeForExprs(matchedCodeActionNode.lineRange(), context);
-        Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange);
+
+        if (varAndParamSymbolsWithinRange.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get());
 
         if (argLists.isEmpty()) {
             return Collections.emptyList();
@@ -418,19 +433,27 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 isIsolated, "");
     }
 
-    private List<Symbol> getVarAndParamSymbolsWithinRangeForExprs(LineRange matchedLineRange,
-                                                                  CodeActionContext context) {
-        return getVisibleSymbols(context, PositionUtil.toPosition(matchedLineRange.endLine())).stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
-                .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
-                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
-                                        .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(matchedLineRange))))
-                // for every variable and parameter symbol, the symbol.getLocation() is not empty
+    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForExprs(LineRange matchedLineRange,
+                                                                            CodeActionContext context) {
+        List<Symbol> varAndParamSymbols =
+                getVisibleSymbols(context, PositionUtil.toPosition(matchedLineRange.endLine())).stream()
+                        .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
+                        .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
+                                .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
+                                                .getRangeFromLineRange(location.lineRange()),
+                                        PositionUtil.toRange(matchedLineRange))))
+                        .collect(Collectors.toList());
+
+        if (varAndParamSymbols.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(varAndParamSymbols.stream()
+                // getLocation() is present for each symbol
                 .filter(symbol -> !PositionUtil.isWithinLineRange(symbol.getLocation().get().lineRange(),
                         matchedLineRange))
                 .sorted(Comparator.comparingInt(symbol -> symbol.getLocation().get().textRange().startOffset()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList) {
@@ -500,11 +523,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     /*
-    * TODO remove with the fix of #37454
-    * */
+     * TODO remove with the fix of #37454
+     * */
     private static boolean isExpressionNode(NonTerminalNode node) {
         return (node.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0
-                    && node.kind().compareTo(SyntaxKind.TYPE_DESC) < 0);
+                && node.kind().compareTo(SyntaxKind.TYPE_DESC) < 0);
     }
 
     private boolean isExpressionExtractable(RangeBasedPositionDetails positionDetails) {
@@ -513,23 +536,23 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         SyntaxKind nodeKind = node.kind();
         SyntaxKind parentKind = node.parent().kind();
         /*
-        * Avoid providing the code action for the following since it is syntactically incorrect.
-        * 1. inside module level declarations or definitions // todo include module-client-decl after 2201.3.0
-        * 2. a mapping constructor used in a table constructor  
-        * 3. a field name of string literal in a specific field,    ex: var val = {"name": 1};
-        * 4. the qualified name reference of a function call expression
-        * 5. a field access expression,
-        *   5.1. with self keyword inside its expression            
-        *   5.2. as varRef() in assignment statement
-        *   5.3. as lhsExpression() in compound assignment statement
-        **/
+         * Avoid providing the code action for the following since it is syntactically incorrect.
+         * 1. inside module level declarations or definitions // todo include module-client-decl after 2201.3.0
+         * 2. a mapping constructor used in a table constructor
+         * 3. a field name of string literal in a specific field,    ex: var val = {"name": 1};
+         * 4. the qualified name reference of a function call expression
+         * 5. a field access expression,
+         *   5.1. with self keyword inside its expression
+         *   5.2. as varRef() in assignment statement
+         *   5.3. as lhsExpression() in compound assignment statement
+         **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
                 && (nodeKind != SyntaxKind.STRING_LITERAL || parentKind != SyntaxKind.SPECIFIC_FIELD)
                 && (nodeKind != SyntaxKind.QUALIFIED_NAME_REFERENCE || parentKind != SyntaxKind.FUNCTION_CALL)
                 && nodeKind != SyntaxKind.FIELD_ACCESS
                 || (!((FieldAccessExpressionNode) node).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
-                && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT 
+                && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT
                 || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
                 && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
                 || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node)));
