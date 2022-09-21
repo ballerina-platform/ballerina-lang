@@ -512,7 +512,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
                     if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                         if (!(argIndex < params.size())) {
-                            return Optional.empty();
+                            throw new IllegalStateException();
                         }
 
                         break;
@@ -546,8 +546,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
                     if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                         if (!(argIndex < params.size())) {
-                            return Optional.empty();
-                         }
+                            throw new IllegalStateException();
+                        }
 
                         return getTypeFromBType(params.get(argIndex).getType());
                     }
