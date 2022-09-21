@@ -451,6 +451,24 @@ public class LangLibTableTest {
         Assert.assertTrue((Boolean) returns);
     }
 
+    @Test
+    public void testRemoveEmptyThenIterate() {
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyThenIterate");
+        Assert.assertTrue((Boolean) returns);
+    }
+
+    @Test
+    public void testRemoveEmptyAddThenIterate() {
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyAddThenIterate");
+        Assert.assertTrue((Boolean) returns);
+    }
+
+    @Test
+    public void testRemoveEmptyIterateThenAdd() {
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyIterateThenAdd");
+        Assert.assertTrue((Boolean) returns);
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}IteratorMutabilityError \\{\"message\":\"Table "
                     + "was mutated after the iterator was created\"\\}.*")
