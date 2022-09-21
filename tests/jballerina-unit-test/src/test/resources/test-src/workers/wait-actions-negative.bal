@@ -90,6 +90,59 @@ function waitForAllTest() {
     restRec2 result16 = wait {id: f1, name: f2, age: f4};
 }
 
+type WaitResult record {|
+    boolean|error producer;
+    boolean consumer;
+|};
+
+function waitForAllTest2() {
+    worker Producer1 returns boolean|error {
+        int i = 100;
+        i -> Consumer;
+        error? unionResult = flush Consumer1;
+        return true;
+    }
+
+    worker Producer2 returns boolean|error {
+        int i = 100;
+        i -> Consumer;
+        error? unionResult = flush Consumer1;
+        return true;
+    }
+
+    worker Consumer1 returns boolean {
+        int i = <- Producer;
+        return false;
+    }
+
+    worker Consumer2 returns boolean {
+        int i = <- Producer;
+        return false;
+    }
+
+    WaitResult res = wait {producer: Producer1|Producer2, consumer: Consumer1};
+    res = wait {producer: Producer1, consumer: Consumer1|Consumer2};
+    res = wait {producer: Producer1|Producer2, consumer: Consumer1|Consumer2};
+}
+
+function waitActionWithInvalidType() {
+    worker Producer1 returns boolean|error {
+        return true;
+    }
+
+    worker Consumer1 returns boolean {
+        int i = <- Producer;
+        return false;
+    }
+
+    future<boolean|error>|future<boolean|error> x = Producer1;
+    future<boolean>|future<boolean> y = Consumer1;
+
+    WaitResult res = wait {producer: x, consumer: Consumer1};
+    res = wait {producer: Producer1, consumer: y};
+    res = wait {producer: x, consumer: y};
+}
+
 function print(string str) {
     string result = str.toUpperAscii();
 }
