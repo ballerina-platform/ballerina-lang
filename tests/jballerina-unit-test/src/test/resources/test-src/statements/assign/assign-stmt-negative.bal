@@ -130,7 +130,7 @@ type List ["list", int?, Type];
 
 function incompatibilityAssignInTupleTypes() {
     Type a = ["tuple", "A", "A", "A"];
-    List b = a; // error: incompatible types: expected '["list",int?,Type]', found 'Type'
+    List b = a; // error: incompatible types: expected 'List', found 'Type'
 }
 
 function assignTableCtrToIncompatibleType() {
