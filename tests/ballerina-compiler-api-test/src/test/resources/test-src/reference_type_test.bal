@@ -25,3 +25,17 @@ type Bar record {
 function testTypeReferenceOfTableConstructor() {
     BTable tab = table key(a) [{a : "a"}];
 }
+
+type ListenerRef Listener;
+
+public class Listener {
+    boolean initialized = false;
+
+    public function init() {
+        self.initialized = true;
+    }
+}
+
+function testTypeReferenceOfNewObject() {
+    ListenerRef l = new ();
+}

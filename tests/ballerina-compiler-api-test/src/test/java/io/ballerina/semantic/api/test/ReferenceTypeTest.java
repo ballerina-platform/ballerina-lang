@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -59,6 +60,11 @@ public class ReferenceTypeTest {
             @Override
             public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
                 assertType(tableConstructorExpressionNode, model, "BarTable");
+            }
+
+            @Override
+            public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+                assertType(implicitNewExpressionNode, model, "ListenerRef");
             }
         };
     }
