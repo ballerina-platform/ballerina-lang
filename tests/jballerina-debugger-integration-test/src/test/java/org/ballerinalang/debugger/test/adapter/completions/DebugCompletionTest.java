@@ -62,7 +62,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 31);
+        Assert.assertEquals(completions.size(), 32);
 
         // Test for global variable completions in the beginning of the main() method.
         debugTestRunner.assertCompletions(completions, "globalVar");
