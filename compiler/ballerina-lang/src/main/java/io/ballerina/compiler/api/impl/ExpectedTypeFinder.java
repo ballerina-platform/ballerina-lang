@@ -18,7 +18,6 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.exceptions.ExpectedTypeException;
 import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
@@ -277,11 +276,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(BinaryExpressionNode node) {
         if (!node.operator().isMissing() && node.operator().text() == "*" || node.operator().text() == "/") {
-            try {
-                throw new ExpectedTypeException("invalid position");
-            } catch (ExpectedTypeException e) {
-                throw new IllegalStateException();
-            }
+            return Optional.empty();
         }
 
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
