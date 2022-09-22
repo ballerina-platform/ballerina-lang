@@ -631,6 +631,17 @@ public class SymbolFactory {
     }
 
     /**
+     * Get associated module of the given client declaration symbol.
+     *
+     * @param clientDeclSymbol Client declaration Symbol
+     * @return {@link BallerinaModule} symbol generated
+     */
+    public BallerinaModule getAssociatedModule(BClientDeclarationSymbol clientDeclSymbol) {
+        BPackageSymbol packageSymbol = (BPackageSymbol) symResolver.resolveClientDeclPrefix(clientDeclSymbol);
+        return createModuleSymbol(packageSymbol, packageSymbol.getName().value);
+    }
+
+    /**
      * Create a module symbol.
      *
      * @param symbol Package Symbol to evaluate

@@ -30,4 +30,11 @@ public interface ClientDeclSymbol extends Symbol {
      * @return {@link String} service URI
      */
     String serviceUri();
+
+    /**
+     * Get associated module symbol.
+     *
+     * @return {@link ModuleSymbol} module symbol
+     */
+    ModuleSymbol moduleSymbol();
 }

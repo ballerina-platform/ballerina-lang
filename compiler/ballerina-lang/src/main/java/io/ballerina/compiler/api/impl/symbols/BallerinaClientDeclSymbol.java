@@ -19,7 +19,9 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -33,6 +35,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaClientDeclSymbol extends BallerinaSymbol implements ClientDeclSymbol {
 
     private final String serviceUri;
+    private ModuleSymbol moduleSymbol;
 
     private BallerinaClientDeclSymbol(String name, BSymbol symbol, String serviceUri, CompilerContext context) {
         super(name, SymbolKind.CLIENT_DECLARATION, symbol, context);
@@ -42,6 +45,17 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
     @Override
     public String serviceUri() {
         return this.serviceUri;
+    }
+
+    @Override
+    public ModuleSymbol moduleSymbol() {
+        if (this.moduleSymbol != null) {
+            return moduleSymbol;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(context);
+        this.moduleSymbol = symbolFactory.getAssociatedModule((BClientDeclarationSymbol) this.getInternalSymbol());
+        return this.moduleSymbol;
     }
 
     @Override
