@@ -353,8 +353,7 @@ public class CoverageReport {
                     }
                     // If file is a source bal file
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
-                            !sourceFileCoverage.getName().contains("tests/") &&
-                            !sourceFileCoverage.getName().contains("test_execute-generated_")) {
+                            !sourceFileCoverage.getName().contains("tests/")) {
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
                             // Update coverage for missed lines if covered
                             Optional<List<Integer>> missedLinesList = moduleCoverage.getMissedLinesList(
