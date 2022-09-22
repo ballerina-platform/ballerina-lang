@@ -721,7 +721,6 @@ public class TomlProvider implements ConfigProvider {
             case ARRAY:
                 visitedNodes.add(tomlValue);
                 List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
-                validateArraySize(tomlValue, variableName, arrayType, nodeList.size());
                 for (int i = 0; i < nodeList.size(); i++) {
                     validateValue(nodeList.get(i), variableName + "[" + i + "]", elementType);
                 }
