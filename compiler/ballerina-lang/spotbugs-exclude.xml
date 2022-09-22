@@ -190,6 +190,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.internal.CompilerPhaseRunner"/>
     </Match>
     <Match>

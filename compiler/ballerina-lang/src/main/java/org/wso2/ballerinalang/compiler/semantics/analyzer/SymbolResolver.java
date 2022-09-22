@@ -1435,7 +1435,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         List<BType> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
         for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
             BType type = resolveTypeNode(memTypeNode.typeNode, data, data.env);
-
+            memTypeNode.setBType(type);
             // If at least one member is undefined, return noType as the type.
             if (type == symTable.noType) {
                 return symTable.noType;
