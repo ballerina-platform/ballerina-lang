@@ -112,7 +112,7 @@ public class RegExpFactory {
         }
     }
 
-    public static RegExpDisjunction translateRegExpConstructs(RegExpValue regExpValue) {
+    public static RegExpValue translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
         for (Object s : disjunction.getRegExpSeqList()) {
             if (s == null) {
@@ -135,7 +135,7 @@ public class RegExpFactory {
                 }
             }
         }
-        return disjunction;
+        return new RegExpValue(disjunction);
     }
 
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {

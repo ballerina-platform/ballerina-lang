@@ -21,8 +21,10 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.regex.Matcher;
@@ -45,7 +47,9 @@ public class RegexUtil {
     }
 
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
-        String patternStr = StringUtils.getStringValue(regexpVal, null);
+        // Map the required ballerina regexp constructs to java.
+        RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regexpVal);
+        String patternStr = StringUtils.getStringValue(translatedRegExpVal, null);
         Pattern pattern = Pattern.compile(patternStr);
         return pattern.matcher(inputStr);
     }
