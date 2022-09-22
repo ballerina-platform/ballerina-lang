@@ -72,6 +72,6 @@ public class ReferenceTypeTest {
     private void assertType(Node node, SemanticModel model, String referenceTypeName) {
         Optional<TypeSymbol> type = model.typeOf(node);
         assertTrue(type.isPresent());
-        assertEquals((((BallerinaTypeReferenceTypeSymbol) type.get()).getBType().toString()), referenceTypeName);
+        assertEquals(((BallerinaTypeReferenceTypeSymbol) type.get()).getBType().toString(), referenceTypeName);
     }
 }
