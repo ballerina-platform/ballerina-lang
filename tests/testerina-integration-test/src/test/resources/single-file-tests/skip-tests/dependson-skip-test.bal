@@ -54,3 +54,14 @@ public function test5() {
     j = j+1;
     test:assertEquals(j, 2);
 }
+
+
+// public function __execute__( string targetPath, string packageName, string moduleName, string report, string coverage, string groups, string disableGroups, string tests, string rerunFailed, string listGroups) returns error? {
+// test:setTestOptions(targetPath,packageName,moduleName,report,coverage,groups,disableGroups,tests,rerunFailed,listGroups);
+// test:registerTest("test1",test1);
+// test:registerTest("test2",test2);
+// test:registerTest("test3",test3);
+// test:registerTest("test4",test4);
+// test:registerTest("test5",test5);
+// test:startSuite();
+// }
