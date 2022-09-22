@@ -6591,6 +6591,9 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+
+        // Disallow desugaring the same expression twice.
+        // For langlib invocations, expr is duplicated as the first required arg.
         if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
             invocation.expr = invocation.requiredArgs.get(0);
         } else {
@@ -9512,7 +9515,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getReferredType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType)) {
+            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
@@ -9597,8 +9600,9 @@ public class Desugar extends BLangNodeVisitor {
         pushToMatchStatementStack(matchStmt, successClause, pos);
     }
 
-    private boolean isMapJson(BType originalType) {
-        return originalType.tag == TypeTags.MAP && ((BMapType) originalType).getConstraint().tag == TypeTags.JSON;
+    private boolean isMapJson(BType originalType, boolean fromMap) {
+        return ((originalType.tag == TypeTags.MAP) && isMapJson(((BMapType) originalType).getConstraint(), true))
+                || ((originalType.tag == TypeTags.JSON) && fromMap);
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,
@@ -10056,17 +10060,21 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addImportForModuleGeneratedForClientDecl(BLangClientDeclaration clientDeclaration) {
-        addImportForModuleGeneratedForClientDecl(clientDeclaration.prefix.pos.lineRange());
-    }
-
-    private void addImportForModuleGeneratedForClientDecl(LineRange clientDeclPrefixLineRange) {
         // Currently happens when client declarations are in single bal files. May not be required once it is
         // restricted.
-        if (!symTable.clientDeclarations.containsKey(clientDeclPrefixLineRange)) {
+        if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
+                !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                        .containsKey(clientDeclaration.prefix.pos.lineRange().filePath())) {
+            return;
+        }
+        Map<LineRange, Optional<PackageID>> lineRangeMap =
+                symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                .get(clientDeclaration.prefix.pos.lineRange().filePath());
+        if (!lineRangeMap.containsKey(clientDeclaration.prefix.pos.lineRange())) {
             return;
         }
 
-        Optional<PackageID> optionalPackageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange);
+        Optional<PackageID> optionalPackageID = lineRangeMap.get(clientDeclaration.prefix.pos.lineRange());
 
         // No compatible plugin was found to generate a module for the client declaration.
         if (optionalPackageID.isEmpty()) {

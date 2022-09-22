@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,6 +92,7 @@ class ModuleContext {
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
     private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
     private final ModuleKind kind;
+    private List<Diagnostic> idlPluginDiagnostics;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -122,6 +124,7 @@ class ModuleContext {
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
+        this.idlPluginDiagnostics = new ArrayList<>();
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -216,28 +219,32 @@ class ModuleContext {
         return moduleDescDependencies;
     }
 
-    Set<ModuleLoadRequest> populateModuleLoadRequests(IDLPluginManager idlPluginManager, Package currentPkg) {
+    Set<ModuleLoadRequest> populateModuleLoadRequests(IDLPluginManager idlPluginManager,
+                                                      CompilationOptions compilationOptions, Package currentPkg) {
         if (allModuleLoadRequests != null) {
             return allModuleLoadRequests;
         }
         allModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(),
-                    PackageDependencyScope.DEFAULT, idlPluginManager, currentPkg));
+            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleDescriptor,
+                    PackageDependencyScope.DEFAULT, idlPluginManager, compilationOptions, currentPkg,
+                    idlPluginDiagnostics));
         }
 
         return allModuleLoadRequests;
     }
 
-    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests(IDLPluginManager idlPluginManager, Package currentPkg) {
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests(IDLPluginManager idlPluginManager,
+                                                             CompilationOptions compilationOptions,
+                                                             Package currentPkg) {
         if (allTestModuleLoadRequests != null) {
             return allTestModuleLoadRequests;
         }
         allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : testDocContextMap.values()) {
             allTestModuleLoadRequests.addAll(
-                    docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY,
-                            idlPluginManager, currentPkg));
+                    docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY,
+                            idlPluginManager, compilationOptions, currentPkg, idlPluginDiagnostics));
         }
 
         return allTestModuleLoadRequests;
@@ -279,6 +286,10 @@ class ModuleContext {
         }
 
         return Collections.emptyList();
+    }
+
+    List<Diagnostic> idlPluginDiagnostics() {
+        return idlPluginDiagnostics;
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {

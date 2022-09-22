@@ -23,8 +23,10 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleConfig;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -41,6 +43,9 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.DocumentData;
+import io.ballerina.projects.internal.ModuleData;
+import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -1150,6 +1155,27 @@ public class ProjectUtils {
         return pattern;
     }
 
+    /**
+     * Return the path of a bala with the available platform directory (java11 or any).
+     *
+     * @param balaDirPath path to the bala directory
+     * @param org org name of the bala
+     * @param name package name of the bala
+     * @param version version of the bala
+     * @return path of the bala file
+     */
+    public static Path getPackagePath(Path balaDirPath, String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = balaDirPath.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = balaDirPath.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
+    }
+
     public static void writeModule(ModuleConfig moduleConfig, Path modulesRoot) throws IOException {
         Path moduleDirPath = modulesRoot.resolve(moduleConfig.moduleDescriptor().name().moduleNamePart());
         Files.createDirectories(moduleDirPath);
@@ -1168,5 +1194,26 @@ public class ProjectUtils {
         for (ResourceConfig resource : moduleConfig.resources()) {
             Files.write(moduleResourcesDirPath.resolve(resource.name()), resource.content().orElse(null));
         }
+    }
+
+    public static ModuleConfig createModuleConfig (String moduleName, Project project) {
+        ModuleData moduleData = ProjectFiles.loadModule(
+                project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName));
+        ModuleId moduleId = ModuleId.create(moduleName, project.currentPackage().packageId());
+        List<DocumentConfig> documentConfigs = new ArrayList<>();
+        List<DocumentConfig> testDocumentConfigs = new ArrayList<>();
+        for (DocumentData sourceDoc : moduleData.sourceDocs()) {
+            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
+            documentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
+        }
+        for (DocumentData sourceDoc : moduleData.testSourceDocs()) {
+            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
+            testDocumentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
+        }
+        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
+                ModuleName.from(project.currentPackage().packageName(), moduleName),
+                project.currentPackage().descriptor());
+        return ModuleConfig.from(
+                moduleId, moduleDescriptor, documentConfigs, testDocumentConfigs, null, new ArrayList<>());
     }
 }

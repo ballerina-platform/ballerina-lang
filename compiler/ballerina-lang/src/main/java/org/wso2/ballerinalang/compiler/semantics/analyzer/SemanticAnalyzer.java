@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -1374,7 +1375,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                         types.isAssignable(type, symTable.stringType) ||
                         types.isAssignable(type, symTable.booleanType) ||
                         types.isAssignable(type, symTable.decimalType) ||
-                        types.isAssignable(type, symTable.xmlType);
+                        types.isAssignable(type, symTable.xmlType) ||
+                        types.isAssignable(type, symTable.jsonType);
         }
         return true;
     }
@@ -4944,9 +4946,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void validateClientDeclarations(BLangPackage bLangPackage, AnalyzerData data) {
-        if (this.symTable.clientDeclarations.containsValue(Optional.of(bLangPackage.packageID))) {
-            checkForClientObjectTypeOrClass(bLangPackage);
-            checkForMutableState(bLangPackage, data);
+        for (Map.Entry<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> pkgIdEntry :
+                this.symTable.clientDeclarations.entrySet()) {
+            for (Map.Entry<String, Map<LineRange, Optional<PackageID>>> compUnitEntry :
+                    pkgIdEntry.getValue().entrySet()) {
+                if (compUnitEntry.getValue().containsValue(Optional.of(bLangPackage.packageID))) {
+                    checkForClientObjectTypeOrClass(bLangPackage);
+                    checkForMutableState(bLangPackage, data);
+                }
+            }
         }
 
         checkForPubliclyExposedConstructsFromClientDeclModules(bLangPackage);
@@ -5084,11 +5092,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             BTypeSymbol tsymbol = type.tsymbol;
-            if (tsymbol != null &&
-                    !this.currentPkgId.equals(tsymbol.pkgID) &&
-                    this.symTable.clientDeclarations.containsValue(Optional.of(tsymbol.pkgID))) {
-                this.exposedTypes.add(type);
-                return;
+            if (tsymbol != null && !this.currentPkgId.equals(tsymbol.pkgID)) {
+                for (Map.Entry<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> pkgIdEntry :
+                        this.symTable.clientDeclarations.entrySet()) {
+                    for (Map.Entry<String, Map<LineRange, Optional<PackageID>>> compUnitEntry :
+                            pkgIdEntry.getValue().entrySet()) {
+                        if (compUnitEntry.getValue().containsValue(Optional.of(tsymbol.pkgID))) {
+                            this.exposedTypes.add(type);
+                            return;
+                        }
+                    }
+
+                }
             }
 
             type.accept(this);

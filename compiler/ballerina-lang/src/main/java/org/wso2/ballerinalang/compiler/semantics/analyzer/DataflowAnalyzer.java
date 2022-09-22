@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -737,7 +738,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BLangIdentifier prefix = clientDeclaration.prefix;
         Location location = prefix.pos;
 
-        Optional<PackageID> optionalPackageID = symTable.clientDeclarations.get(location.lineRange());
+        if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
+                !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                        .containsKey(prefix.pos.lineRange().filePath())) {
+            return;
+        }
+        Map<LineRange, Optional<PackageID>> lineRangeMap =
+                symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID).get(prefix.pos.lineRange().filePath());
+        Optional<PackageID> optionalPackageID = lineRangeMap.get(location.lineRange());
         // `optionalPackageID` is empty if no compatible plugin was found to generate a module for the client
         // declaration (for which an error would have been logged).
         // Unused prefix analysis cannot be carried out in such scenarios since it is bound to a `BPackageSymbol`.

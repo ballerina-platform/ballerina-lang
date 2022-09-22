@@ -40,12 +40,26 @@ public class ClientDeclarationStatementTest {
 
     private static final String REDECLARED_PREFIX_ERROR = "redeclared symbol '%s'";
     private static final String NO_MODULE_GENERATED_ERROR = "no module generated for the client declaration";
+    private static final String NOT_SUPPORTED_IN_SINGLEFILE_ERROR =
+            "client declaration is not supported with standalone Ballerina file";
 
     @Test
     public void testInvalidRedeclaredPrefixNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_redeclared_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 22, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 24, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 25, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 27, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 30, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 31, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 34, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 35, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 38, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 40, 5);
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 44, 9);
+
         BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 22, 5);
         BAssertUtil.validateError(result, index++, getRedeclaredSymbolError("foo"), 22, 54);
         BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 24, 5);
@@ -75,6 +89,7 @@ public class ClientDeclarationStatementTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_client_prefix_as_xmlns_prefix_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 18, 5);
         BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 18, 5);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 20, 19);
         BAssertUtil.validateError(result, index++, "cannot find xml namespace prefix 'foo'", 21, 16);
@@ -121,6 +136,7 @@ public class ClientDeclarationStatementTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/clientdeclstmt/client_decl_stmt_annotations_negative_test.bal");
         int index = 0;
+        BAssertUtil.validateError(result, index++, NOT_SUPPORTED_IN_SINGLEFILE_ERROR, 22, 5);
         BAssertUtil.validateError(result, index++, "annotation 'A7' is not allowed on client", 22, 5);
         BAssertUtil.validateError(result, index++, NO_MODULE_GENERATED_ERROR, 22, 5);
         BAssertUtil.validateError(result, index++, "annotation value expected for annotation of record type 'record " +

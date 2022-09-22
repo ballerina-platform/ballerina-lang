@@ -2642,13 +2642,22 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
         LineRange lineRange = symbol.pos.lineRange();
-        Map<LineRange, Optional<PackageID>> clientDeclarations = symTable.clientDeclarations;
-
+        if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
+                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
+            return symTable.notFoundSymbol;
+        }
+        Map<LineRange, Optional<PackageID>> clientDeclarations =
+                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().filePath());
         if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForPackageId(clientDeclarations.get(lineRange).get());
+        Optional<PackageID> optionalPackageID = clientDeclarations.get(lineRange);
+        if (optionalPackageID.isEmpty()) {
+            return symTable.notFoundSymbol;
+        }
+
+        BPackageSymbol moduleSymbol = getModuleForPackageId(optionalPackageID.get());
         moduleSymbol.isUsed = true;
         return moduleSymbol;
     }

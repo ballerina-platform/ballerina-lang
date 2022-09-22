@@ -118,24 +118,6 @@ public final class ConverterUtils {
         return extractedTypeNames;
     }
 
-    private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
-        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
-            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
-        } else {
-            return typeDescNode;
-        }
-    }
-
-    private static void addIfNotExist(List<TypeDescriptorNode> typeDescNodes,
-                                      List<TypeDescriptorNode> typeDescNodesToBeInserted) {
-        for (TypeDescriptorNode typeDescNodeToBeInserted : typeDescNodesToBeInserted) {
-            if (typeDescNodes.stream().noneMatch(typeDescNode -> typeDescNode.toSourceCode()
-                    .equals(typeDescNodeToBeInserted.toSourceCode()))) {
-                typeDescNodes.add(typeDescNodeToBeInserted);
-            }
-        }
-    }
-
     /**
      * This method returns the sorted TypeDescriptorNode list.
      *
@@ -160,16 +142,73 @@ public final class ConverterUtils {
     }
 
     /**
+     * This method returns the memberTypeDesc node of an ArrayTypeDescriptorNode.
+     *
+     * @param typeDescNode ArrayTypeDescriptorNode for which it has to be extracted.
+     * @return {@link TypeDescriptorNode} The memberTypeDesc node of the ArrayTypeDescriptor node.
+     */
+    public static TypeDescriptorNode extractArrayTypeDescNode(TypeDescriptorNode typeDescNode) {
+        if (typeDescNode.kind().equals(SyntaxKind.ARRAY_TYPE_DESC)) {
+            ArrayTypeDescriptorNode arrayTypeDescNode = (ArrayTypeDescriptorNode) typeDescNode;
+            return extractArrayTypeDescNode(arrayTypeDescNode.memberTypeDesc());
+        } else {
+            return typeDescNode;
+        }
+    }
+
+    /**
+     * This method returns a list of TypeDescriptorNodes extracted from a UnionTypeDescriptorNode.
+     *
+     * @param typeDescNode UnionTypeDescriptorNode for which that has to be extracted.
+     * @return {@link List<TypeDescriptorNode>} The list of extracted TypeDescriptorNodes.
+     */
+    public static List<TypeDescriptorNode> extractUnionTypeDescNode(TypeDescriptorNode typeDescNode) {
+        List<TypeDescriptorNode> extractedTypeDescNodes = new ArrayList<>();
+        TypeDescriptorNode extractedTypeDescNode = typeDescNode;
+        if (typeDescNode.kind().equals(SyntaxKind.PARENTHESISED_TYPE_DESC)) {
+            extractedTypeDescNode = extractParenthesisedTypeDescNode(typeDescNode);
+        }
+        if (extractedTypeDescNode.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+            UnionTypeDescriptorNode unionTypeDescNode = (UnionTypeDescriptorNode) extractedTypeDescNode;
+            TypeDescriptorNode leftTypeDescNode = unionTypeDescNode.leftTypeDesc();
+            TypeDescriptorNode rightTypeDescNode = unionTypeDescNode.rightTypeDesc();
+            extractedTypeDescNodes.addAll(extractUnionTypeDescNode(leftTypeDescNode));
+            extractedTypeDescNodes.addAll(extractUnionTypeDescNode(rightTypeDescNode));
+        } else {
+            extractedTypeDescNodes.add(extractedTypeDescNode);
+        }
+        return extractedTypeDescNodes;
+    }
+
+    /**
      * This method returns the number of dimensions of an ArrayTypeDescriptorNode.
      *
      * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated.
      * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode.
      */
-    private static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
+    public static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
         int totalDimensions = arrayNode.dimensions().size();
         if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
             totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
         }
         return totalDimensions;
+    }
+
+    private static TypeDescriptorNode extractParenthesisedTypeDescNode(TypeDescriptorNode typeDescNode) {
+        if (typeDescNode instanceof ParenthesisedTypeDescriptorNode) {
+            return extractParenthesisedTypeDescNode(((ParenthesisedTypeDescriptorNode) typeDescNode).typedesc());
+        } else {
+            return typeDescNode;
+        }
+    }
+
+    private static void addIfNotExist(List<TypeDescriptorNode> typeDescNodes,
+                                      List<TypeDescriptorNode> typeDescNodesToBeInserted) {
+        for (TypeDescriptorNode typeDescNodeToBeInserted : typeDescNodesToBeInserted) {
+            if (typeDescNodes.stream().noneMatch(typeDescNode -> typeDescNode.toSourceCode()
+                    .equals(typeDescNodeToBeInserted.toSourceCode()))) {
+                typeDescNodes.add(typeDescNodeToBeInserted);
+            }
+        }
     }
 }
