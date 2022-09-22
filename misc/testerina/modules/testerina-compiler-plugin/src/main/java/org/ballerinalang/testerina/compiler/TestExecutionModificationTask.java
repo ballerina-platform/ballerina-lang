@@ -32,6 +32,8 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.TextDocument;
 
 import java.util.ArrayList;
@@ -46,8 +48,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
 
     @Override
     public void modify(SourceModifierContext modifierContext) {
-
-        if (!TesterinaCompilerPluginUtils.isSingleFileProject(modifierContext.currentPackage().project())) {
+        if (!(modifierContext.currentPackage().project().kind() == ProjectKind.SINGLE_FILE_PROJECT)) {
             return;
         }
 

@@ -575,7 +575,7 @@ public class TestProcessor {
      */
     private String getExecutePath(Module module) {
         if (isSingleFileProject(module.project())) {
-            String fileName = module.project().sourceRoot().getFileName().toString();
+            String fileName = Optional.of(module.project().sourceRoot().getFileName()).toString();
             return fileName.substring(0, fileName.length() - 4);
         }
         for (DocumentId docId : module.testDocumentIds()) {

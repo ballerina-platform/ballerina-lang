@@ -34,8 +34,6 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,19 +96,6 @@ public class TesterinaCompilerPluginUtils {
                 getFunctionSignature(),
                 functionBodyNode);
         return functionDefinition;
-    }
-
-    /**
-     * Returns true if a project is single file project kind.
-     * @param project
-     * @return is single file project
-     */
-    public static boolean isSingleFileProject(Project project) {
-        boolean isSingleFileProject = false;
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            isSingleFileProject = true;
-        }
-        return isSingleFileProject;
     }
 
     public static StatementNode invokeRegisterFunction(String testNameVal, String testFuncVal) {

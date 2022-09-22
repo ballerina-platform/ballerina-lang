@@ -52,11 +52,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
-        if (TesterinaCompilerPluginUtils.isSingleFileProject(generatorContext.currentPackage().project())) {
-            return;
-        }
-
-        for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
+       for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
             Module module = generatorContext.currentPackage().module(moduleId);
             // Code generation skipped for the module since no tests are available.
             if (module.testDocumentIds().isEmpty()) {
