@@ -763,9 +763,7 @@ public class Desugar extends BLangNodeVisitor {
         parameterDesugar.visit(pkgNode);
 
         // Initialize the annotation map
-        if (!Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
-            annotationDesugar.initializeAnnotationMap(pkgNode);
-        }
+        annotationDesugar.initializeAnnotationMap(pkgNode);
 
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
@@ -822,7 +820,6 @@ public class Desugar extends BLangNodeVisitor {
         closureDesugar.visit(pkgNode);
 
         for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
-            annotationDesugar.initializeAnnotationMap(testablePkg);
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
