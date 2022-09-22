@@ -45,6 +45,7 @@ import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -575,8 +576,8 @@ public class TestProcessor {
      */
     private String getExecutePath(Module module) {
         if (isSingleFileProject(module.project())) {
-            String fileName = Optional.of(module.project().sourceRoot().getFileName()).toString();
-            return fileName.substring(0, fileName.length() - 4);
+            String fileName = Optional.of(module.project().sourceRoot().getFileName()).get().toString();
+            return FileUtils.getFileNameWithoutExtension(fileName);
         }
         for (DocumentId docId : module.testDocumentIds()) {
             if (module.document(docId).name().startsWith(
