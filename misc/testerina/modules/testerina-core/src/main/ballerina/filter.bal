@@ -17,9 +17,10 @@
 string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
-string?[] filterTestModules = [];
+map<string?> filterTestModules = {};
 string[] filterSubTests = [];
 string moduleName = "";
+string packageName = "";
 boolean hasFilteredTests = false;
 string targetPath = "";
 boolean terminate = false;
@@ -28,8 +29,8 @@ boolean listGroups = false;
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
     string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
     string inListGroups) {
-
     targetPath = inTargetPath;
+    packageName = inPackageName;
     moduleName = inModuleName;
     filterGroups = parseStringArrayInput(inGroups);
     filterDisableGroups = parseStringArrayInput(inDisableGroups);
@@ -73,6 +74,7 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             updatedName = updatedName.substring(0, separatorIndex);
         }
         filterTests.push(updatedName);
+        filterTestModules[updatedName] = prefix;
     }
 }
 
@@ -87,12 +89,14 @@ function parseBooleanInput(string input, string variableName) returns boolean {
 }
 
 function parseRerunJson() returns error? {
-    // TODO: fix
     map<ModuleRerunJson> rerunJson = check readRerunJson();
 
     ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
     if moduleRerunJson is ModuleRerunJson {
         filterTests = moduleRerunJson.testNames;
+        foreach string test in filterTests {
+            filterTestModules[test] = ();
+        }
         filterSubTests = moduleRerunJson.subTestNames;
     }
 }
@@ -126,4 +130,8 @@ function containsDataKeySuffix(string testName) returns boolean {
 function isPrefixInCorrectFormat(string packageName, string moduleName, string testName) returns boolean {
     string prefix = testName.substring(0, <int>testName.indexOf(MODULE_SEPARATOR));
     return prefix.includes(packageName) || prefix.includes(packageName + DOT + moduleName);
+}
+
+function getFullModuleName() returns string {
+    return packageName == moduleName ? packageName : packageName + DOT + moduleName;
 }
