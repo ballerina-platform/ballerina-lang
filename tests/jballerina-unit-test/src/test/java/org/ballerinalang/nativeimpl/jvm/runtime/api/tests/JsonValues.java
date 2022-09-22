@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
+import static io.ballerina.runtime.api.utils.JsonUtils.convertJSON;
 import static io.ballerina.runtime.api.utils.JsonUtils.convertJSONToRecord;
 
 /**
@@ -34,7 +35,7 @@ import static io.ballerina.runtime.api.utils.JsonUtils.convertJSONToRecord;
  *
  * @since 2201.0.0
  */
-public class Jsons {
+public class JsonValues {
 
     public static BMap<BString, Object> testConvertJSONToRecord(Object record, BTypedesc t) throws BError {
         Type describingType = t.getDescribingType();
@@ -43,6 +44,11 @@ public class Jsons {
         } else {
             throw new ErrorValue(StringUtils.fromString("provided typedesc does not describe a record type."));
         }
+    }
+
+    public static Object testConvertJSON(Object sourceVal, BTypedesc t) {
+        Type describingType = t.getDescribingType();
+        return convertJSON(sourceVal, describingType);
     }
 
     public static BString convertJSONToString(Object jValue) {

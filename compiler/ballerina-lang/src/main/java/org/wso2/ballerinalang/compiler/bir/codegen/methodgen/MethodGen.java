@@ -75,6 +75,7 @@ import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DSTORE;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
@@ -100,7 +101,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.generateReturnType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.populateMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -131,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
@@ -143,7 +147,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_C
  */
 public class MethodGen {
 
-    private static final String STATE = "state";
+    protected static final String STATE = "state";
+    protected static final String FUNCTION_INVOCATION = "functionInvocation";
+    private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
@@ -174,10 +180,11 @@ public class MethodGen {
                                    BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+        boolean isWorker = Symbols.isFlagOn(func.flags, Flags.WORKER);
 
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
+        // localVarOffset is actually the local var index of the strand which is passed as an argument to the function
         int localVarOffset;
         if (attachedType != null) {
             localVarOffset = 1;
@@ -188,9 +195,18 @@ public class MethodGen {
             access += ACC_STATIC;
         }
 
+        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+
         String funcName = func.name.value;
         BType retType = getReturnType(func);
-        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        String desc;
+        int invocationCountArgVarIndex = -1;
+        if (isWorker) {
+            invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
+            desc = INITIAL_METHOD_DESC + "I" + populateMethodDesc(func.type.paramTypes) + generateReturnType(retType);
+        } else {
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
@@ -199,18 +215,13 @@ public class MethodGen {
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
 
-        // set channel details to strand.
-        setChannelDetailsToStrand(func, localVarOffset, mv);
-
-        // panic if this strand is cancelled
-        checkStrandCancelled(mv, localVarOffset);
-
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int stateVarIndex = getStateVarIndex(indexMap, mv);
+        int stateVarIndex = getIntVarIndex(STATE, indexMap, mv);
         int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
         int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
+        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -219,8 +230,16 @@ public class MethodGen {
         Label resumeLabel = labelGen.getLabel(funcName + "resume");
         mv.visitJumpInsn(IFGT, resumeLabel);
 
-        Label varinitLabel = labelGen.getLabel(funcName + "varinit");
-        mv.visitLabel(varinitLabel);
+        // set function invocation variable
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
+        // set channel details to strand.
+        setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
+
+        Label varInitLabel = labelGen.getLabel(funcName + "varinit");
+        mv.visitLabel(varInitLabel);
+
+        // panic if this strand is cancelled
+        checkStrandCancelled(mv, localVarOffset);
 
         // process basic blocks
         List<Label> labels = new ArrayList<>();
@@ -236,22 +255,26 @@ public class MethodGen {
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
         mv.visitVarInsn(ILOAD, stateVarIndex);
-        Label yieldLable = labelGen.getLabel(funcName + "yield");
-        mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
+        Label yieldLabel = labelGen.getLabel(funcName + "yield");
+        mv.visitLookupSwitchInsn(yieldLabel, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
+                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, invocationVarIndex, module, attachedType,
+                moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
 
         generateFrameClassFieldLoad(func.localVars, mv, indexMap, frameName);
+        mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, frameName, STATE, "I");
         mv.visitVarInsn(ISTORE, stateVarIndex);
-        mv.visitJumpInsn(GOTO, varinitLabel);
+        mv.visitFieldInsn(GETFIELD, frameName, FUNCTION_INVOCATION, "I");
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
+        mv.visitJumpInsn(GOTO, varInitLabel);
 
-        mv.visitLabel(yieldLable);
+        mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
@@ -261,6 +284,9 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ILOAD, invocationVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, FUNCTION_INVOCATION, "I");
         generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
         generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
@@ -268,13 +294,30 @@ public class MethodGen {
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(returnVarRefIndex, func);
+        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
+                                          int invocationCountArgVarIndex) {
+        if (invocationCountArgVarIndex == -1) {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
+            mv.visitInsn(DUP_X1);
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(IADD);
+            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
+        } else {
+            // this means this is a function created for a worker
+            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
+        }
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
     }
 
     private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
@@ -300,14 +343,15 @@ public class MethodGen {
                           MODULE_START_ATTEMPTED, "Z");
     }
 
-    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv) {
+    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv,
+                                           int invocationVarIndex) {
         // these channel info is required to notify datachannels, when there is a panic
         // we cannot set this during strand creation, because function call do not have this info.
         if (func.workerChannels.length <= 0) {
             return;
         }
         mv.visitVarInsn(ALOAD, localVarOffset);
-        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels));
+        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels), invocationVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "updateChannelDetails",
                            UPDATE_CHANNEL_DETAILS, false);
     }
@@ -434,11 +478,11 @@ public class MethodGen {
         }
     }
 
-    private int getStateVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int stateVarIndex = indexMap.addIfNotExists(STATE, symbolTable.stringType);
+    private int getIntVarIndex(String intVarName, BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+        int varIndex = indexMap.addIfNotExists(intVarName, symbolTable.stringType);
         mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, stateVarIndex);
-        return stateVarIndex;
+        mv.visitVarInsn(ISTORE, varIndex);
+        return varIndex;
     }
 
     private int getFrameStringVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String frameStringFieldName) {
@@ -475,7 +519,7 @@ public class MethodGen {
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                              int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
-                             BIRPackage module, BType attachedType, String moduleClassName) {
+                             int invocationVarIndex, BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -507,12 +551,13 @@ public class MethodGen {
 
             processTerminator(mv, func, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, fullyQualifiedFuncName);
+                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, invocationVarIndex,
+                    fullyQualifiedFuncName);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, invocationVarIndex);
 
             String yieldStatus = getYieldStatusByTerminator(terminator);
 
