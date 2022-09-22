@@ -164,6 +164,7 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
+        // TODO: refactor addUtilityFunctions to remove redundance
         addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
