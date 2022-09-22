@@ -22,7 +22,7 @@ package io.ballerina.compiler.api.symbols;
  *
  * @since 2201.3.0
  */
-public interface ClientDeclSymbol extends Symbol {
+public interface ClientDeclSymbol extends Symbol, Annotatable {
 
     /**
      * Get the service URI.
