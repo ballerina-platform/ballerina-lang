@@ -20,14 +20,20 @@ package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -63,13 +69,22 @@ public class ClientDeclSymbolTest {
         assertEquals(id.orgName(), "testorg");
         assertEquals(id.packageName(), "clientdecl");
         assertTrue(id.moduleName().startsWith("clientdecl.client"));
+
+        // Annotations
+        assertEquals(symbol.annotations().size(), 1);
+        AnnotationSymbol annotSymbol = symbol.annotations().get(0);
+        assertTrue(annotSymbol.getName().isPresent());
+        assertEquals(annotSymbol.getName().get(), "ClientAnnot");
+        Optional<TypeSymbol> typeSymbol = annotSymbol.typeDescriptor();
+        assertTrue(typeSymbol.isPresent());
+        assertEquals(typeSymbol.get().typeKind(), TypeDescKind.ARRAY);
     }
 
     @DataProvider(name = "ClientDeclarationSymbolInfoProvider")
     public Object[][] getClientDeclInfo() {
         return new Object[][]{
-                {16, 69, "myapi", "https://postman-echo.com/get?name=projectapiclientplugin"},
-                {23, 67, "bar", "https://postman-echo.com/get?name=simpleclienttest"},
+                {19, 69, "myapi", "https://postman-echo.com/get?name=projectapiclientplugin"},
+                {29, 67, "bar", "https://postman-echo.com/get?name=simpleclienttest"},
         };
     }
 
