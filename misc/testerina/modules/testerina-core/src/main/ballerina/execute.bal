@@ -90,6 +90,7 @@ function executeTest(TestFunction testFunction) {
         } else {
             ExecutionError|boolean output = executeTestFunction(testFunction, "");
             if output is ExecutionError {
+                shouldSkipDependents = true;
                 reportData.onFailed(name = testFunction.name, message = output.message());
             }
             if output is boolean && output {
@@ -160,6 +161,9 @@ function executeAfterFunction(TestFunction testFunction) {
     if testFunction.after is function && !shouldSkip && !testFunction.skip {
         ExecutionError? err = executeFunction(<function>testFunction.after);
         if err is ExecutionError {
+            testFunction.dependents.forEach(function(TestFunction dependent) {
+                dependent.skip = true;
+            });
             printExecutionError(err, "after test function for the test");
         }
     }
