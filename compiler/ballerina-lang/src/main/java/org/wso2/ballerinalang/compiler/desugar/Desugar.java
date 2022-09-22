@@ -10060,17 +10060,21 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addImportForModuleGeneratedForClientDecl(BLangClientDeclaration clientDeclaration) {
-        addImportForModuleGeneratedForClientDecl(clientDeclaration.prefix.pos.lineRange());
-    }
-
-    private void addImportForModuleGeneratedForClientDecl(LineRange clientDeclPrefixLineRange) {
         // Currently happens when client declarations are in single bal files. May not be required once it is
         // restricted.
-        if (!symTable.clientDeclarations.containsKey(clientDeclPrefixLineRange)) {
+        if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
+                !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                        .containsKey(clientDeclaration.prefix.pos.lineRange().filePath())) {
+            return;
+        }
+        Map<LineRange, Optional<PackageID>> lineRangeMap =
+                symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                .get(clientDeclaration.prefix.pos.lineRange().filePath());
+        if (!lineRangeMap.containsKey(clientDeclaration.prefix.pos.lineRange())) {
             return;
         }
 
-        Optional<PackageID> optionalPackageID = symTable.clientDeclarations.get(clientDeclPrefixLineRange);
+        Optional<PackageID> optionalPackageID = lineRangeMap.get(clientDeclaration.prefix.pos.lineRange());
 
         // No compatible plugin was found to generate a module for the client declaration.
         if (optionalPackageID.isEmpty()) {

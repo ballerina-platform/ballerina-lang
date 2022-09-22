@@ -17,15 +17,20 @@
  */
 package io.ballerina.projects.internal.plugins;
 
+import io.ballerina.projects.IDLPluginContextImpl;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.IDLGeneratorPlugin;
+import io.ballerina.projects.util.ProjectConstants;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -40,6 +45,7 @@ import java.util.ServiceLoader;
  */
 public class CompilerPlugins {
     static List<CompilerPlugin> builtInPlugins = new ArrayList<>();
+    private static  List<IDLPluginContextImpl> idlPluginContexts;
 
     private CompilerPlugins() {
     }
@@ -121,5 +127,14 @@ public class CompilerPlugins {
             }
         }
         return jarURLS;
+    }
+
+    public static boolean moduleExists(String moduleName, Project project) {
+        Path moduleRoot = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName);
+        try {
+            return Files.exists(moduleRoot) && Files.list(moduleRoot).findFirst().isPresent();
+        } catch (IOException ignore) {
+            return false;
+        }
     }
 }
