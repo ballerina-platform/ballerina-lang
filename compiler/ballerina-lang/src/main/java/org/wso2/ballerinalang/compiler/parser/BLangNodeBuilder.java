@@ -1046,6 +1046,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        boolean isAnonymous = checkIfAnonymous(tupleTypeDescriptorNode);
         SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
             Node node = types.get(i);
@@ -1054,15 +1055,22 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
+                this.anonTypeNameSuffixes.push(String.valueOf(i));
                 BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
                         memberNode.annotations());
+                this.anonTypeNameSuffixes.pop();
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
+                member.pos = getPositionWithoutMetadata(memberNode);
                 tupleTypeNode.memberTypeNodes.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
 
-        return tupleTypeNode;
+        // If anonymous type, create a user defined type and return it.
+        if (!isAnonymous || this.isInLocalContext) {
+            return tupleTypeNode;
+        }
+        return createAnonymousTupleType(tupleTypeDescriptorNode, tupleTypeNode);
     }
 
     @Override
@@ -6250,6 +6258,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeDef.flagSet.add(Flag.ANONYMOUS);
 
         typeDef.typeNode = recordTypeNode;
+        typeDef.pos = pos;
+        addToTop(typeDef);
+        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
+    }
+
+    private BLangType createAnonymousTupleType(TupleTypeDescriptorNode tupleTypeDescriptorNode,
+                                                BLangTupleTypeNode tupleTypeNode) {
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        Location pos = getPosition(tupleTypeDescriptorNode);
+        // Generate a name for the anonymous object
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID, this.anonTypeNameSuffixes);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
+
+        typeDef.typeNode = tupleTypeNode;
         typeDef.pos = pos;
         addToTop(typeDef);
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
