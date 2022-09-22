@@ -381,7 +381,7 @@ public class ConfigValueCreator {
                 break;
             }
         }
-        Type type = getEffectiveType(convertibleType;
+        Type type = getEffectiveType(convertibleType);
         if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }

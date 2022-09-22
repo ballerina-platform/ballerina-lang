@@ -469,7 +469,8 @@ public class BTestRunner {
      */
     private List<String> getKeyValues(BMap dataMap) {
         List<String> keyValues = new ArrayList<>();
-        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
+        if (TypeUtils.getReferredType(
+                ((BMapType) TypeUtils.getReferredType(dataMap.getType())).getConstrainedType()) instanceof TupleType) {
             for (BString key : (BString[]) dataMap.getKeys()) {
                 keyValues.add(key.getValue());
             }
@@ -844,7 +845,8 @@ public class BTestRunner {
      */
     private List<Object[]> extractArguments(BMap dataMap) {
         List<Object[]> argsList = new ArrayList<>();
-        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
+        if (TypeUtils.getReferredType(
+                ((BMapType) TypeUtils.getReferredType(dataMap.getType())).getConstrainedType()) instanceof TupleType) {
             for (BString keyValue : (BString[]) dataMap.getKeys()) {
                 setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
             }
@@ -883,7 +885,8 @@ public class BTestRunner {
     private static Class<?>[] extractArgumentTypes(BMap dataMap) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (TypeUtils.getReferredType(((BMapType) dataMap.getType()).getConstrainedType()) instanceof TupleType) {
+        if (TypeUtils.getReferredType(
+                ((BMapType) TypeUtils.getReferredType(dataMap.getType())).getConstrainedType()) instanceof TupleType) {
             setTestFunctionSignature(typeList, dataMap.getArrayValue(
                     (BString) dataMap.getKeys()[0]));
         }
@@ -893,8 +896,9 @@ public class BTestRunner {
     }
 
     private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
-        if (bArray.getType() instanceof BTupleType) {
-            List<Type> types = ((BTupleType) bArray.getType()).getTupleTypes();
+        Type arrayType = TypeUtils.getReferredType(bArray.getType());
+        if (arrayType instanceof BTupleType) {
+            List<Type> types = ((BTupleType) arrayType).getTupleTypes();
             for (Type type : types) {
                 Class<?> classMapping = getArgTypeToClassMapping(TypeUtils.getReferredType(type));
                 typeList.add(classMapping);
@@ -915,7 +919,7 @@ public class BTestRunner {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        if (bArray.getType() instanceof BTupleType) {
+        if (TypeUtils.getReferredType(bArray.getType()) instanceof BTupleType) {
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 params.add(bArray.getRefValue(i));
