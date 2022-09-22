@@ -166,7 +166,8 @@ public class ServiceSemanticAPITest {
 
     @DataProvider(name = "LookupPosProvider")
     public Object[][] getLookupPos() {
-        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass");
+        List<String> moduleSymbols = List.of("AServiceType", "Listener", "lsn", "ProcessingService", "AServiceClass",
+                "A", "B", "ClientClassA", "ClientClassB");
         return new Object[][]{
                 {68, 26, moduleSymbols},
                 {70, 59, concatSymbols(moduleSymbols, "self", "magic", "createError")}
