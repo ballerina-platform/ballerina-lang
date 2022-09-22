@@ -90,14 +90,14 @@ public class TypeBuildersTest {
     private static final String ORG = "$anon";
     private static final String MODULE = ".";
     private static final String VERSION = "0.0.0";
-    private TypeSymbol CLASS_TYPE;
-    private TypeSymbol CUS_RECORD_TYPE;
-    private TypeSymbol CONST_TYPE;
-    private TypeSymbol RED_TYPE;
-    private TypeSymbol GREEN_TYPE;
-    private TypeSymbol SINGLETON_TYPE;
-    private TypeSymbol TABLE_TYPE;
-    private TypeSymbol ENUM_TYPE;
+    private TypeSymbol classType;
+    private TypeSymbol cusRecordType;
+    private TypeSymbol constType;
+    private TypeSymbol redType;
+    private TypeSymbol greenType;
+    private TypeSymbol singletonType;
+    private TypeSymbol tableType;
+    private TypeSymbol enumType;
 
     @BeforeClass
     public void setup() {
@@ -112,14 +112,14 @@ public class TypeBuildersTest {
             xmlSubTypes.add(((XMLTypeSymbol) ((TypeReferenceTypeSymbol) xmlSubTypeMember).typeDescriptor()));
         }
 
-        CLASS_TYPE = getReferredTypeSymbol(157, 10);
-        CUS_RECORD_TYPE = getReferredTypeSymbol(158, 8);
-        CONST_TYPE = getReferredTypeSymbol(159, 12);
-        RED_TYPE = getReferredTypeSymbol(160, 8);
-        GREEN_TYPE = getReferredTypeSymbol(161, 10);
-        SINGLETON_TYPE = getReferredTypeSymbol(162, 6);
-        TABLE_TYPE = getReferredTypeSymbol(163, 13);
-        ENUM_TYPE = getReferredTypeSymbol(164, 11);
+        classType = getReferredTypeSymbol(157, 10);
+        cusRecordType = getReferredTypeSymbol(158, 8);
+        constType = getReferredTypeSymbol(159, 12);
+        redType = getReferredTypeSymbol(160, 8);
+        greenType = getReferredTypeSymbol(161, 10);
+        singletonType = getReferredTypeSymbol(162, 6);
+        tableType = getReferredTypeSymbol(163, 13);
+        enumType = getReferredTypeSymbol(164, 11);
     }
 
     @Test(dataProvider = "xmlTypeBuilderProvider")
@@ -312,10 +312,10 @@ public class TypeBuildersTest {
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
                 {types.FLOAT, -1, "float[*]"},
-                {CONST_TYPE, 4, "\"389\"[4]"},
-                {ENUM_TYPE, 2, "myEnum[2]"},
-                {SINGLETON_TYPE, 5, "5[5]"},
-                {CLASS_TYPE, -1, "MyCls[*]"},
+                {constType, 4, "\"389\"[4]"},
+                {enumType, 2, "myEnum[2]"},
+                {singletonType, 5, "5[5]"},
+                {classType, -1, "MyCls[*]"},
         };
     }
 
@@ -578,11 +578,11 @@ public class TypeBuildersTest {
     private Object[][] getUnionTypes() {
         return new Object[][] {
                 {List.of(types.INT, types.STRING), "int|string"},
-                {List.of(types.FLOAT, CLASS_TYPE, types.BOOLEAN), "float|MyCls|boolean"},
-                {List.of(CONST_TYPE, CUS_RECORD_TYPE), "\"389\"|Cus"},
-                {List.of(RED_TYPE, TABLE_TYPE, GREEN_TYPE), "\"DER\"|table<Student>|\"GREEN\""},
-                {List.of(types.BYTE, SINGLETON_TYPE), "byte|5"},
-                {List.of(types.DECIMAL, ENUM_TYPE, CONST_TYPE), "decimal|myEnum|\"389\""},
+                {List.of(types.FLOAT, classType, types.BOOLEAN), "float|MyCls|boolean"},
+                {List.of(constType, cusRecordType), "\"389\"|Cus"},
+                {List.of(redType, tableType, greenType), "\"DER\"|table<Student>|\"GREEN\""},
+                {List.of(types.BYTE, singletonType), "byte|5"},
+                {List.of(types.DECIMAL, enumType, constType), "decimal|myEnum|\"389\""},
         };
     }
 
