@@ -1,0 +1,7 @@
+{
+  "plugin_class": "io.samjs.plugins.init.codemodify.CodeModifyFunctionPlugin",
+  "dependency_paths": [
+    "compiler-plugin/libs/init-function-code-modify-compiler-plugin-1.0.0.jar",
+    "compiler-plugin/libs/diagnostic-utils-lib-1.0.0.jar"
+  ]
+}

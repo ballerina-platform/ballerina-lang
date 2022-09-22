@@ -1,0 +1,21 @@
+{
+  "packages": [
+    {
+      "org": "samjs",
+      "name": "package_comp_plugin_code_modify_add_function",
+      "version": "0.1.0",
+      "transitive": false,
+      "dependencies": [],
+      "modules": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "samjs",
+      "package_name": "package_comp_plugin_code_modify_add_function",
+      "version": "0.1.0",
+      "module_name": "package_comp_plugin_code_modify_add_function",
+      "dependencies": []
+    }
+  ]
+}

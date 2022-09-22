@@ -579,8 +579,9 @@ public class TestProcessor {
             return fileName.substring(0, fileName.length() - 4);
         }
         for (DocumentId docId : module.testDocumentIds()) {
-            if (module.document(docId).name().startsWith(TEST_EXECUTE_FILE_PREFIX)) {
-                String executePath = module.document(docId).name();
+            if (module.document(docId).name().startsWith(
+                    ProjectConstants.TEST_DIR_NAME + "/" + TEST_EXECUTE_FILE_PREFIX)) {
+                String executePath = module.document(docId).name().replace("/", ProjectConstants.DOT);
                 return executePath.substring(0, executePath.length() - 4);
             }
         }
