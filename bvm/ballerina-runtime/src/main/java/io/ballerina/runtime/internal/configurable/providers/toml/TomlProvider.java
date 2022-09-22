@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -638,8 +639,11 @@ public class TomlProvider implements ConfigProvider {
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
-            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, variableName, false,
-                    new ArrayList<>(), new ArrayList<>(), false, false));
+            Type convertibleType = TypeConverter.getConvertibleType(balValue, type, variableName, false,
+                    new ArrayList<>(), new ArrayList<>(), false);
+            if (convertibleType != null) {
+                convertibleTypes.add(convertibleType);
+            }
         }
 
         if (convertibleTypes.size() > 1 &&
@@ -705,10 +709,35 @@ public class TomlProvider implements ConfigProvider {
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
                 break;
+            case TypeTags.TABLE_TAG:
+                validateTableValueArray(tomlValue, variableName, arrayType, (BTableType) elementType);
+                break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
                 validateNonPrimitiveArray(tomlValue, variableName, arrayType, effectiveType);
                 break;
+        }
+    }
+
+    private void validateTableValueArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
+                                         BTableType elementType) {
+        TomlType tomlType = tomlValue.kind();
+        switch (tomlType) {
+            case ARRAY:
+                visitedNodes.add(tomlValue);
+                List<TomlValueNode> nodeList = ((TomlArrayValueNode) tomlValue).elements();
+                validateArraySize(tomlValue, variableName, arrayType, nodeList.size());
+                for (int i = 0; i < nodeList.size(); i++) {
+                    validateValue(nodeList.get(i), variableName + "[" + i + "]", elementType);
+                }
+                return;
+            case KEY_VALUE:
+                visitedNodes.add(tomlValue);
+                tomlValue = ((TomlKeyValueNode) tomlValue).value();
+                validateTableValueArray(tomlValue, variableName, arrayType, elementType);
+                return;
+            default:
+                throwTypeIncompatibleError(tomlValue, variableName, arrayType);
         }
     }
 

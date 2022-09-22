@@ -715,7 +715,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                      List<TypePair> unresolvedTypes) {
+                                       List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 

@@ -1236,14 +1236,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case NIL:
                 return !isRequired;
             case ARRAY:
-                BType elementType = Types.getReferredType(((BArrayType) type).eType);
-
-                if (elementType.tag == TypeTags.INTERSECTION) {
-                    elementType = ((BIntersectionType) elementType).getEffectiveType();
-                }
-
-                if (elementType.tag == TypeTags.TABLE || !isSupportedConfigType(elementType, errors, varName,
-                        unresolvedTypes, isRequired)) {
+                BType elementType = ((BArrayType) type).eType;
+                if (!isSupportedConfigType(elementType, errors, varName, unresolvedTypes, isRequired)) {
                     errors.add("array element type '" + elementType + "' is not supported");
                 }
                 break;

@@ -79,7 +79,7 @@ public class JvmErrorGen {
     }
 
     public void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                          JvmTerminatorGen termGen, LabelGenerator labelGen) {
+                                 JvmTerminatorGen termGen, LabelGenerator labelGen, int invocationVarIndex) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {
@@ -107,7 +107,7 @@ public class JvmErrorGen {
                 this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createInteropError",
                         CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
-                termGen.genReturnTerm(retIndex, func);
+                termGen.genReturnTerm(retIndex, func, invocationVarIndex);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {

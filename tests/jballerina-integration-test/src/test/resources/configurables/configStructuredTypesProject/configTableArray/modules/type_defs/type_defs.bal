@@ -1,6 +1,6 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,17 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Employee record {
+public type Person readonly & record {
     string name;
-    string status;
-    string batch;
+    readonly int id;
+    Address address;
 };
 
-//-----------------------Union Type Stamp Negative Test cases --------------------------------------------------
+public type Address record {
+    string city;
+    Country country = {};
+};
 
-function stampUnionToXML() returns Employee|error {
-    int|float|xml unionVar = xml `<book>The Lost World</book>`;
+public type Country record {
+    string name = "SL";
+};
 
-    Employee|error employeeValue = unionVar.cloneWithType(Employee);
-    return employeeValue;
-}
+public type PersonTable table<Person>;
+
+public type PersonTableArray PersonTable[];
+
+public type MapTable table<map<anydata>>;
