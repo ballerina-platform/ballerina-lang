@@ -18,6 +18,7 @@
 
 package io.ballerina.semantic.api.test.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -32,6 +33,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBas
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for client declaration symbols.
@@ -45,7 +47,9 @@ public class ClientDeclSymbolTest {
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/symbols/clients_decl_symbol_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/client_decl_proj");
+        // Generate IDL to access the module associated with client-decl
+        project.currentPackage().runIDLGeneratorPlugins();
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
@@ -55,13 +59,17 @@ public class ClientDeclSymbolTest {
         ClientDeclSymbol symbol = (ClientDeclSymbol) assertBasicsAndGetSymbol(model, srcFile, line, col,
                                                                               modPrefix, SymbolKind.CLIENT_DECLARATION);
         assertEquals(symbol.serviceUri(), serviceUri);
+        ModuleID id = symbol.moduleSymbol().id();
+        assertEquals(id.orgName(), "testorg");
+        assertEquals(id.packageName(), "clientdecl");
+        assertTrue(id.moduleName().startsWith("clientdecl.client"));
     }
 
     @DataProvider(name = "ClientDeclarationSymbolInfoProvider")
     public Object[][] getClientDeclInfo() {
         return new Object[][]{
-                {16, 31, "cl1", "http://example.com"},
-                {19, 53, "bar", "http://www.example.com/apis/one.yaml"},
+                {16, 69, "myapi", "https://postman-echo.com/get?name=projectapiclientplugin"},
+                {23, 67, "bar", "https://postman-echo.com/get?name=simpleclienttest"},
         };
     }
 

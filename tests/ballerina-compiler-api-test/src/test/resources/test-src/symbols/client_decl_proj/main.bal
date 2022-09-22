@@ -14,10 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "http://example.com" as cl1;
+client "https://postman-echo.com/get?name=projectapiclientplugin" as myapi;
+
+public function main() {
+    myapi:client x;
+}
 
 function testClientDeclStmt() {
-    client "http://www.example.com/apis/one.yaml" as bar;
+    client "https://postman-echo.com/get?name=simpleclienttest" as bar;
     bar:ClientConfiguration config = {'limit: 5};
     bar:client cl = new (config);
     int 'limit = cl->getLimit();
