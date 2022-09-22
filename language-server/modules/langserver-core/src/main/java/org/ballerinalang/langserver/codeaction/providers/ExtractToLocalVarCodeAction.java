@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -34,10 +35,12 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -58,6 +61,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
     public static final String NAME = "Extract To Local Variable";
     private static final String VARIABLE_NAME_PREFIX = "var";
+    
+    private static final String RENAME_COMMAND = "Rename variable";
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
@@ -130,8 +135,11 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())),  varName);
 
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE, 
-                List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
+        addRenamePopup(context, codeAction, varDeclStr.length(), node.textRange().startOffset());
+        
+        return Collections.singletonList(codeAction);
     }
 
     @Override
@@ -157,6 +165,21 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toSet());
         
         return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, allNames);
+    }
+
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
+                                int varDeclStrLength, int nodeStartOffset) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            return;
+        }
+
+        int startPos = varDeclStrLength + nodeStartOffset;
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
+                    List.of(context.fileUri(), startPos)));
+        }
     }
 
     // If the variables within the selected range have been initialized in the closest statement node (and outside
