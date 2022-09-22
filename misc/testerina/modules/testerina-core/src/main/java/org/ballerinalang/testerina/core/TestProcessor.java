@@ -164,10 +164,8 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
-        // TODO: Deprecate these functions
-//        addUtilityFunctions(module, testSuite);
-//        processAnnotations(module, testSuite);
-//        testSuite.sort();
+        // TODO: Remove redundancy in addUtilityFunctions
+        addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
     }
@@ -576,6 +574,10 @@ public class TestProcessor {
      * @return String
      */
     private String getExecutePath(Module module) {
+        if (isSingleFileProject(module.project())) {
+            String fileName = Optional.of(module.project().sourceRoot().getFileName()).toString();
+            return fileName.substring(0, fileName.length() - 4);
+        }
         for (DocumentId docId : module.testDocumentIds()) {
             if (module.document(docId).name().startsWith(TEST_EXECUTE_FILE_PREFIX)) {
                 String executePath = module.document(docId).name();

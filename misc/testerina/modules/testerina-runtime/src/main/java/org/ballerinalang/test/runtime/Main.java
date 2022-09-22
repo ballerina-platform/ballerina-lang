@@ -106,10 +106,10 @@ public class Main {
                     for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey();
                         TestSuite testSuite = entry.getValue();
-
-                        out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
+                        String packageName = testSuite.getPackageName();
+                        out.println("\n\t" + (moduleName.equals(packageName) ?
                                 (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
-                                : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
+                                : packageName + TesterinaConstants.DOT + moduleName));
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
@@ -124,10 +124,9 @@ public class Main {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
-                        Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite,
-                                jsonTmpSummaryPath, classLoader, new TestArguments(args[0], moduleName, args[2],
-                                        args[3], args[4], args[5], args[6], args[7], args[8]));
+                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
+                                new TestArguments(args[0], packageName, moduleName,
+                                        args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -141,18 +140,14 @@ public class Main {
         Runtime.getRuntime().exit(exitStatus);
     }
 
-    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     ClassLoader classLoader, TestArguments args) throws IOException {
+    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
+                                     TestArguments args) {
         int exitStatus = 0;
         try {
             TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
-            if (testSuite.isReportRequired()) {
-                writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
-                ModuleStatus.clearInstance();
-            }
             return exitStatus;
         }
     }

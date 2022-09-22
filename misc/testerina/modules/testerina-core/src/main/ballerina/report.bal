@@ -38,8 +38,8 @@ class Result {
         self.data = data;
     }
 
-    function fullName() returns string => 
-        self.data.suffix == "" ? self.data.name : self.data.name + DATA_PROVIDER_SEPARATOR + self.data.suffix;
+    function fullName() returns string =>
+        self.data.suffix == "" ? self.data.name : self.data.name + DATA_KEY_SEPARATOR + self.data.suffix;
 
     function isDataProvider() returns boolean => self.data.suffix != "";
 
@@ -69,15 +69,22 @@ class ReportData {
 }
 
 function consoleReport(ReportData data) {
-    data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
+    if (!isSystemConsole()) {
+            data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
+    }
     data.failedCases().forEach(function(Result entry) {
-        println("\t\t[fail] " + entry.fullName() + ":");
+        println("\n\t\t[fail] " + entry.fullName() + ":");
         println("\n\t\t    " + formatFailedError(entry.message()));
     });
 
-    println("\t\t" + data.passedCount().toString() + " passing");
-    println("\t\t" + data.failedCount().toString() + " failing");
-    println("\t\t" + data.skippedCount().toString() + " skipped");
+    int totalTestCount = data.passedCount() + data.failedCount() + data.skippedCount();
+    if (totalTestCount == 0) {
+        println("\t\tNo tests found");
+    } else {
+        println("\t\t" + data.passedCount().toString() + " passing");
+        println("\t\t" + data.failedCount().toString() + " failing");
+        println("\t\t" + data.skippedCount().toString() + " skipped");
+    }
 }
 
 function formatFailedError(string message) returns string {
@@ -97,7 +104,7 @@ function failedTestsReport(ReportData data) {
         } else {
             testNames.push(testPrefix);
         }
-    }   
+    }
     ModuleRerunJson moduleReport = {testNames, subTestNames};
     string filePath = targetPath + "/" + RERUN_JSON_FILE;
 
@@ -144,7 +151,7 @@ function moduleStatusReport(ReportData data) {
         "tests": tests
     };
 
-    error? err = writeContent(targetPath + "/" + CACHE_DIRECTORY + "/" + TESTS_CACHE_DIRECTORY 
+    error? err = writeContent(targetPath + "/" + CACHE_DIRECTORY + "/" + TESTS_CACHE_DIRECTORY
         + "/" + moduleName + "/" + MODULE_STATUS_JSON_FILE, output.toString());
     if err is error {
         println(err.message());
