@@ -4,7 +4,7 @@
     "character": 23
   },
   "source": "create_function_in_conditional_expression.bal",
-  "description": "Test create function code action in conditional expression",,
+  "description": "Test create function code action in conditional expression",
   "expected": [
     {
       "title": "Create function 'isGreaterThanZero(...)'",
