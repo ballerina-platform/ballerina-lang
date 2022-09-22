@@ -164,10 +164,8 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
-        // TODO: Deprecate these functions
-//        addUtilityFunctions(module, testSuite);
-//        processAnnotations(module, testSuite);
-//        testSuite.sort();
+        // TODO: Remove redundancy in addUtilityFunctions
+        addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
         return testSuite;
     }
