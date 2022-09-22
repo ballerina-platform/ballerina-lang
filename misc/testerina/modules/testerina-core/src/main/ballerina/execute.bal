@@ -193,11 +193,18 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 }
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params) returns boolean {
+    // TODO: refactor
     if hasFilteredTests {
-        int? testIndex = filterSubTests.indexOf(testFunction.name + DATA_PROVIDER_SEPARATOR + suffix);
+        // has --tests flag
+        int? testIndex = filterSubTests.indexOf(testFunction.name + DATA_KEY_SEPARATOR + suffix);
         if testIndex is int {
+            // has '#' keyed tests with no wild cards
             _ = filterSubTests.remove(testIndex);
         } else {
+            // either 
+            // 1. has '#' keyed --tests with wild cards
+            // 2. No '#' keyed tests (** still has --tests flag)
+            boolean hasWildCard = false;
             foreach string filterSub in filterSubTests {
                 int? separatorIndex = filterSub.indexOf(DATA_KEY_SEPARATOR);
                 if (separatorIndex == ()) {
@@ -205,10 +212,15 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrEr
                 }
                 string filter = filterSub.substring(0, separatorIndex);
                 if (filter.includes(WILDCARD) && matchWildcard(testFunction.name, filter)) {
-                    return true;
+                    hasWildCard = true;
+                    break;
                 }
             }
-            return false;
+            // 1. Invalid --test flag
+            // 2. Has --test with no # key
+            if (hasWildCard == false && !hasTest(testFunction.name)) {
+                return false;
+            }
         }
     }
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, params);

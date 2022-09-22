@@ -39,7 +39,7 @@ class Result {
     }
 
     function fullName() returns string =>
-        self.data.suffix == "" ? self.data.name : self.data.name + DATA_PROVIDER_SEPARATOR + self.data.suffix;
+        self.data.suffix == "" ? self.data.name : self.data.name + DATA_KEY_SEPARATOR + self.data.suffix;
 
     function isDataProvider() returns boolean => self.data.suffix != "";
 
