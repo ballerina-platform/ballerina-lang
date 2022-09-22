@@ -80,8 +80,10 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                             this.internalPathParams.get(internalPathParamCount++), PathSegment.Kind.PATH_PARAMETER));
                     break;
                 case "$*":
-                    pathParams.add(symbolFactory.createPathParamSymbol(this.resourcePathType.getTupleTypes().get(i).tsymbol,
-                            PathSegment.Kind.PATH_PARAMETER));
+                    pathParams.add(
+                            symbolFactory.createPathParamSymbol(this.resourcePathType.getTupleTypes().get(i).tsymbol,
+                                    PathSegment.Kind.PATH_PARAMETER)
+                    );
                     break;
                 default:
                     break;
