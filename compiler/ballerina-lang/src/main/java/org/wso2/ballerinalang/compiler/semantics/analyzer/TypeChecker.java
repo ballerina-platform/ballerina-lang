@@ -3576,8 +3576,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (errorTypeRef == null) {
             // If contextually expected type for error constructor without type-ref contain errors take it.
             // Else take default error type as the contextually expected type.
-            if (Types.getReferredType(data.expType).tag == TypeTags.ERROR) {
+            int expReferredTypeTag = Types.getReferredType(data.expType).tag;
+            if (expReferredTypeTag == TypeTags.ERROR) {
                 return List.of(data.expType);
+            } else if (expReferredTypeTag == TypeTags.NEVER) {
+                return List.of(symTable.errorType);
             } else if (types.isAssignable(data.expType, symTable.errorType) || data.expType.tag == TypeTags.UNION) {
                 return expandExpectedErrorTypes(data.expType);
             }
