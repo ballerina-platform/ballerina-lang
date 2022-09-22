@@ -60,6 +60,12 @@ public class Async {
         return 0;
     }
 
+    public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
     public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
         invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", fieldName, true);
         return 0;

@@ -418,6 +418,8 @@ public class JvmConstants {
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
 
+    public static final int VISIT_MAX_SAFE_MARGIN = 10;
+
     private JvmConstants() {
     }
 }

@@ -84,7 +84,6 @@ public class RuntimeRegistry {
         }
     }
 
-
     private synchronized void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
         if (stopHandlerStack.isEmpty()) {
             return;

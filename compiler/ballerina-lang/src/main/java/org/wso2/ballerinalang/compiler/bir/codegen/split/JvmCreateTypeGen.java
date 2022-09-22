@@ -106,6 +106,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
@@ -529,13 +530,13 @@ public class JvmCreateTypeGen {
                             JvmSignatures.GET_ANON_TYPE, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, shapeParamRegIndex, "No such type: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }
@@ -676,10 +677,10 @@ public class JvmCreateTypeGen {
         return jvmArrayTypeGen;
     }
 
-
     public JvmRefTypeGen getJvmRefTypeGen() {
         return jvmRefTypeGen;
     }
+
     public JvmTypeGen getJvmTypeGen() {
         return jvmTypeGen;
     }

@@ -39,10 +39,10 @@ public class RuntimeAPITest {
     @DataProvider
     public Object[] packageNameProvider() {
         return new String[]{
-                "async",
                 "values",
                 "errors",
                 "types",
+                "async",
                 "invalid_values",
                 "utils",
                 "stop_handler"

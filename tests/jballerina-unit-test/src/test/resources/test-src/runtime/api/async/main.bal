@@ -16,6 +16,7 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 
 int globalVar = 2;
 
@@ -43,6 +44,11 @@ public class ObjectMethodsCallClass {
         return a + b + c;
     }
 
+    function getFieldValWithMultipleOptionalArgsAsync(int a = asyncFunction(3), int b = asyncFunction(a),
+                                                      int c = asyncFunction(a + b)) returns int {
+        return a + b + c;
+    }
+
     public function callGetFieldValWithNoArgs() returns int = @java:Method {
         name: "getFieldValWithNoArgs",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
@@ -60,6 +66,11 @@ public class ObjectMethodsCallClass {
 
     public function callGetFieldValWithMultipleOptionalArgsDefaultVal() returns int = @java:Method {
         name: "getFieldValWithMultipleOptionalArgsDefaultVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithMultipleOptionalArgsDefaultValAsync() returns int = @java:Method {
+        name: "getFieldValWithMultipleOptionalArgsDefaultValAsync",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
@@ -206,6 +217,11 @@ service class NonIsolatedServiceClass {
 
 }
 
+function asyncFunction(int x) returns int {
+    runtime:sleep(0.1);
+    return x;
+}
+
 public function callAsyncNullObjectSequentially() returns int|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
 } external;
@@ -278,6 +294,7 @@ public function main() {
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultVal(), 12);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultValAsync(), 12);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
 
     IsolatedClass isolatedClass = new ();

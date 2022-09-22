@@ -53,13 +53,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_FUNCTION_CALL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
 
 /**
  * Ballerina function calls creation related JVM byte code generation class. This is required to call function by its
  * name dynamically at runtime.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
 public class JvmFunctionCallsCreatorsGen {
 
@@ -155,14 +156,14 @@ public class JvmFunctionCallsCreatorsGen {
                             false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
 
         if (methodCount != 0 && bTypesCount % MAX_CALLS_PER_FUNCTION_CALL_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }
