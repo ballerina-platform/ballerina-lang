@@ -1243,7 +1243,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return unionType;
     }
 
-        private BType inferTableMemberType(List<BTupleMember> memTypes, BLangTableConstructorExpr tableConstructorExpr,
+    private BType inferTableMemberType(List<BTupleMember> memTypes, BLangTableConstructorExpr tableConstructorExpr,
                                        AnalyzerData data) {
         BLangTableKeySpecifier keySpecifier = tableConstructorExpr.tableKeySpecifier;
         List<String> keySpecifierFieldNames = new ArrayList<>();

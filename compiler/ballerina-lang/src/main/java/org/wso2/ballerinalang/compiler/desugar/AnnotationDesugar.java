@@ -635,7 +635,6 @@ public class AnnotationDesugar {
                                                   PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
         BLangRecordLiteral mapLiteral = null;
-        BLangLambdaFunction lambdaFunction = null;
 
         if (!typeDef.annAttachments.isEmpty()) {
             function = defineFunction(typeDef.pos, pkgID, owner);
@@ -658,14 +657,10 @@ public class AnnotationDesugar {
             i++;
         }
 
-        if (function != null) {
-            if (mapLiteral.fields.isEmpty()) {
-                return null;
-            }
-            lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+        if (function == null || mapLiteral.fields.isEmpty()) {
+            return null;
         }
-
-        return lambdaFunction;
+        return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
     }
 
     private BLangLambdaFunction defineAnnotations(BLangFunction bLangFunction, BLangPackage pkgNode, SymbolEnv env,

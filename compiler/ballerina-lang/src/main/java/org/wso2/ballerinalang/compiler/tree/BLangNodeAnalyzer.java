@@ -614,5 +614,4 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangUserDefinedType node, T data);
 
     public abstract void visit(BLangValueType node, T data);
-
 }

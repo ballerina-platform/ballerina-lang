@@ -242,15 +242,15 @@ function testTupleMemberAnnotations() {
      [@member int, @annot string] T4 = [1, "d"];
 }
 
-type T5 [@typeParam int, string];
-type T6 [@annot int, string...];
-type T7 [@member @annot int, string];
-type T8 [@member int, @annot string];
+type T5 [@typeParam int, string];   // annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on field
+type T6 [@annot int, string...];        // undefined annotation 'annot'
+type T7 [@member @annot int, string];   // undefined annotation 'annot'
+type T8 [@member int, @annot string];   // undefined annotation 'annot'
 
-@annot
+@annot  // undefined annotation 'annot'
 type T9 [int, string];
 
-@annot
+@annot  // undefined annotation 'annot'
 type T10 [@member int, string];
 
-type T11 [@member int, @member string...];
+type T11 [@member int, @member string...];  // annotations not allowed for tuple rest descriptor
