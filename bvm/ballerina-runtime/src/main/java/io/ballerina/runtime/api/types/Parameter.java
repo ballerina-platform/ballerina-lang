@@ -33,4 +33,19 @@ public class Parameter {
         this.isDefault = isDefault;
         this.type = type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Parameter)) {
+            return false;
+        }
+
+        Parameter that = (Parameter) o;
+        return this.name.equals(that.name) && this.type.equals(that.type) && this.isDefault == that.isDefault;
+    }
+
 }
