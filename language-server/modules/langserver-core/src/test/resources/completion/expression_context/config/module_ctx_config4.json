@@ -312,12 +312,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream\u003c\u003e streamName \u003d new;",
+      "label": "stream<> streamName = new;",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "stream",
-      "insertText": "stream\u003c${1}\u003e ${2:streamName} \u003d new;",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -540,7 +540,7 @@
     {
       "label": "mod1:TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future\u003cint\u003e",
+      "detail": "future<int>",
       "sortText": "B",
       "insertText": "mod1:TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
@@ -953,6 +953,30 @@
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp as regexp1;\n"
+        }
+      ]
     }
   ]
 }

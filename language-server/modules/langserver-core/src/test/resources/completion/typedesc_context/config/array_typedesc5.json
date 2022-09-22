@@ -231,12 +231,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream\u003c\u003e streamName \u003d new;",
+      "label": "stream<> streamName = new;",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "stream",
-      "insertText": "stream\u003c${1}\u003e ${2:streamName} \u003d new;",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -907,6 +907,30 @@
       "sortText": "M",
       "insertText": "module1:TestRecord2",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp as regexp1;\n"
+        }
+      ]
     }
   ]
 }
