@@ -60,7 +60,7 @@ function processConfigAnnotation(string name, function f, string[] dependsOn) re
         config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
             && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
-            
+
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
             dependsOnString = dependsOn, enabled = enabled, dependsOnCount = dependsOn.length());
@@ -137,24 +137,23 @@ function hasGroup(string[] groups, string[] filter) returns boolean {
 function hasTest(string name) returns boolean {
     if hasFilteredTests {
         string testName = name;
-        if (name.includes(MODULE_SEPARATOR)) {
-            // TODO: check if moduleName is equal to the moduleName of the test suite.
-            // string moduleName = name.substring(0, <int>name.indexOf(MODULE_SEPARATOR));
-            // if matched - proceed. else return false.
-            testName = name.substring(<int>name.indexOf(MODULE_SEPARATOR) + 1);
-        }
         int? testIndex = filterTests.indexOf(testName);
         if testIndex == () {
             foreach string filter in filterTests {
-                if (filter.includes(WILDCARD) && matchWildcard(testName, filter)) {
+                if (filter.includes(WILDCARD) && matchWildcard(testName, filter) && matchModuleName(filter)) {
                     return true;
                 }
             }
             return false;
-        } else {
-            _ = filterTests.remove(testIndex);
+        } else if (matchModuleName(testName)) {
             return true;
         }
+        return false;
     }
     return true;
+}
+
+function matchModuleName(string testName) returns boolean {
+    string? filterModule = filterTestModules[testName];
+    return filterModule == () ? true : filterModule == getFullModuleName();
 }
