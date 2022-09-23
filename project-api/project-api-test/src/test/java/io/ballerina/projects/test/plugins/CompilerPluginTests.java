@@ -341,7 +341,7 @@ public class CompilerPluginTests {
             Document document = newPackage.getDefaultModule().document(documentId);
             // The code generator adds specific function to the end of every source file.
             String specificFunction = "public function newFunctionByCodeModifier"
-                    + document.name().replace(".bal", "").replace("/", "_")
+                    + document.name().replace(".bal", "").replace("/", "_").replace("-", "_")
                     + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
         }
