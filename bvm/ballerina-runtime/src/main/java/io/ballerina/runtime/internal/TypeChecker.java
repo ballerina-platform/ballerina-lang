@@ -137,7 +137,7 @@ public class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
-        Type sourceType = getType(sourceVal);
+        Type sourceType = TypeUtils.getReferredType(getType(sourceVal));
         if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
         }

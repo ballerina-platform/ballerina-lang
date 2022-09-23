@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -84,7 +85,8 @@ public class AsyncUtils {
 
         blockStrand(parent);
         final FutureValue future = scheduler.createFuture(parent, null, null,
-                                                          ((BFunctionType) func.getType()).retType, name, metadata);
+                ((BFunctionType) TypeUtils.getReferredType(func.getType())).retType, name,
+                metadata);
         future.callback = callback;
         callback.setFuture(future);
         callback.setStrand(parent);
