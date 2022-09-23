@@ -197,7 +197,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
 }
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) returns boolean {
-    if (skipDataDrivenTest(testFunction.name, suffix, testType)) {
+    if (skipDataDrivenTest(testFunction, suffix, testType)) {
         return false;
     }
 
@@ -210,8 +210,15 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
     return false;
 }
 
-function skipDataDrivenTest(string functionName, string suffix, TestType testType) returns boolean {
+function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType testType) returns boolean {
+    string functionName = testFunction.name;
     if (!hasFilteredTests) {
+        return false;
+    }
+    TestFunction[] dependents = testFunction.dependents;
+
+    // if a dependent in a below level is enabled, this test should run
+    if (dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents)) {
         return false;
     }
     string functionKey = functionName;
@@ -340,4 +347,18 @@ function getTestType(TestFunction testFunction) returns TestType {
         return DATA_DRIVEN_TUPLE_OF_TUPLE;
     }
     return GENERAL_TEST;
+}
+
+function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boolean {
+    if (dependents.length() == 0) {
+        return false;
+    }
+    TestFunction[] queue = [];
+    foreach TestFunction dependent in dependents {
+        if(dependent.enabled) {
+            return true;
+        }
+        dependent.dependents.forEach((superDependent) => queue.push(superDependent));
+    }
+    return nestedEnabledDependentsAvailable(queue);
 }
