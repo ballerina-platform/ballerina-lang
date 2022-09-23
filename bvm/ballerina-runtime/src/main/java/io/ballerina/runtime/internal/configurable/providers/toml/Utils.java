@@ -35,6 +35,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
@@ -354,7 +355,7 @@ public class Utils {
 
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
-            if (TypeChecker.getType(value).getTag() == tag) {
+            if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
                     return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
@@ -393,7 +394,7 @@ public class Utils {
             int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
                 for (Object obj : ((FiniteType) effectiveType).getValueSpace()) {
-                    if (TypeChecker.getType(obj).getTag() == tag) {
+                    if (TypeUtils.getReferredType(TypeChecker.getType(obj)).getTag() == tag) {
                         return true;
                     }
                 }

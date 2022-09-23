@@ -108,7 +108,7 @@ public class CloneWithType {
         }
 
         // handle primitive values
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG) {
             if (TypeChecker.checkIsType(value, convertibleType)) {
                 return value;
             } else {

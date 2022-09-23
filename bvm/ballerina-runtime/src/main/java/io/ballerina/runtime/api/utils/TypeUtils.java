@@ -55,7 +55,7 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        switch (type.getTag()) {
+        switch (TypeUtils.getReferredType(type).getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
@@ -70,8 +70,6 @@ public class TypeUtils {
                     }
                 }
                 return true;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return isValueType(((ReferenceType) type).getReferredType());
             default:
                 return false;
 

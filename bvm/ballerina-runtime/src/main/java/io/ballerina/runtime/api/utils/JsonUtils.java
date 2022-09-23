@@ -285,7 +285,8 @@ public class JsonUtils {
             return null;
         }
         Type sourceType = TypeChecker.getType(value);
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
+        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
+                jsonType)) {
             return value;
         }
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);

@@ -170,7 +170,7 @@ public class StringUtils {
             return "";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
@@ -202,7 +202,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
-            ObjectType objectType = (ObjectType) objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -227,7 +227,7 @@ public class StringUtils {
             return "()";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
@@ -273,7 +273,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = (ObjectType) objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -351,7 +351,7 @@ public class StringUtils {
     public static String getJsonString(Object value) {
         Object jsonValue = JsonUtils.convertToJson(value, new ArrayList<>());
 
-        Type type = TypeChecker.getType(jsonValue);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(jsonValue));
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:
                 return "null";

@@ -233,7 +233,8 @@ public class GenericMockObjectValue implements BObject {
         List<Object> newArgs = new ArrayList<>();
         int i = 0;
         while (i < args.length) {
-            if (args[i] != null && (TypeUtils.getType(args[i]).getTag() != TypeTags.TYPEDESC_TAG)) {
+            if (args[i] != null &&
+                    (TypeUtils.getReferredType(TypeUtils.getType(args[i])).getTag() != TypeTags.TYPEDESC_TAG)) {
                 newArgs.add(args[i]);
             }
             i += 2;

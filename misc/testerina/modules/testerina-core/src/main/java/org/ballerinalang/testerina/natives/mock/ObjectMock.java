@@ -60,7 +60,7 @@ public class ObjectMock {
      * @return mock object of provided type
      */
     public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
-        ObjectType objectValueType = (ObjectType) objectValue.getType();
+        ObjectType objectValueType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
@@ -126,7 +126,8 @@ public class ObjectMock {
 
     public static BError validateFunctionName(String functionName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFunctionName(functionName, ((ObjectType) genericMock.getType()).getMethods())) {
+        if (!validateFunctionName(functionName,
+                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods())) {
             String detail = "invalid function name '" + functionName + " ' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -147,7 +148,8 @@ public class ObjectMock {
      */
     public static BError validateFieldName(String fieldName, BObject mockObject) {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
-        if (!validateFieldName(fieldName, ((ObjectType) genericMock.getType()).getFields())) {
+        if (!validateFieldName(fieldName,
+                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getFields())) {
             String detail = "invalid field name '" + fieldName + "' provided";
             throw ErrorCreator.createError(
                     MockConstants.TEST_PACKAGE_ID,
@@ -171,7 +173,8 @@ public class ObjectMock {
         String functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
         BArray argsList = caseObj.getArrayValue(StringUtils.fromString("args"));
 
-        for (MethodType attachedFunction : ((ObjectType) genericMock.getType()).getMethods()) {
+        for (MethodType attachedFunction :
+                ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods()) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
@@ -248,7 +251,7 @@ public class ObjectMock {
             }
             functionName = null;
         }
-        ObjectType objectType = (ObjectType) genericMock.getType();
+        ObjectType objectType = (ObjectType) TypeUtils.getReferredType(genericMock.getType());
         if (functionName != null) {
             // register return value for member function
             BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
@@ -300,7 +303,7 @@ public class ObjectMock {
                 break;
             }
             if (!validateReturnValue(functionName, returnVals.getValues()[i],
-                    ((ObjectType) genericMock.getType()).getMethods())) {
+                    ((ObjectType) TypeUtils.getReferredType(genericMock.getType())).getMethods())) {
                 String detail = "return value provided at position '" + i
                         + "' does not match the return type of function '" + functionName + "()'";
                 return ErrorCreator.createError(
@@ -375,7 +378,7 @@ public class ObjectMock {
      * @return whether the return value is valid
      */
     private static boolean validateStreamValue(Object returnVal, StreamType streamType) {
-        Type sourceType = getType(returnVal);
+        Type sourceType = TypeUtils.getReferredType(getType(returnVal));
         if (sourceType.getTag() == TypeTags.STREAM_TAG) {
             Type targetConstrainedType = streamType.getConstrainedType();
             Type targetCompletionType = streamType.getCompletionType();

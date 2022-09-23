@@ -57,7 +57,7 @@ public class GetElementType {
                 return getElementTypeDescValue(
                         ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getElementTypeDescValue(((ReferenceType)type).getReferredType());
+                return getElementTypeDescValue(((ReferenceType) type).getReferredType());
             default:
                 return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
         }
