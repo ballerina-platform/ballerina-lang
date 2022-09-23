@@ -167,6 +167,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
+    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    private boolean enableNativeImage;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -279,7 +282,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups))
+                        testList, includes, coverageFormat, moduleMap, listGroups, enableNativeImage))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 

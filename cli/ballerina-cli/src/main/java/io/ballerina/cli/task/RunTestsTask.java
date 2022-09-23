@@ -77,6 +77,8 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
+import static io.ballerina.cli.utils.NativeUtils.createResourceConfig;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
@@ -110,6 +112,7 @@ public class RunTestsTask implements Task {
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
+    private boolean enableNativeImage;
 
     TestReport testReport;
 
@@ -122,7 +125,7 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups) {
+                        Map<String, Module> modules, boolean listGroups, boolean enableNativeImage) {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -140,6 +143,7 @@ public class RunTestsTask implements Task {
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
         this.listGroups = listGroups;
+        this.enableNativeImage = enableNativeImage;
     }
 
     @Override
@@ -238,7 +242,13 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+
+                if (enableNativeImage) {
+                    testResult = runTestSuite(project.currentPackage(), jBallerinaBackend, target);
+                } else {
+                    testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+                }
+
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -436,14 +446,12 @@ public class RunTestsTask implements Task {
         cmdArgs.add(mainClassName);
 
         // Adds arguments to be read at the Test Runner
-        // Index [0 - 3...]
         cmdArgs.add(target.path().toString());
         cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
         cmdArgs.add(this.groupList != null ? this.groupList : "");
-        cmdArgs.add(this.disableGroupList != null ?
-                this.disableGroupList : "");
+        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
@@ -451,6 +459,67 @@ public class RunTestsTask implements Task {
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
+    }
+
+    private int runTestSuite(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target) throws
+            IOException, InterruptedException {
+        String packageName = currentPackage.packageName().toString();
+        String classPath = getNewClassPath(jBallerinaBackend, currentPackage);
+        String nativeImageDir = "." + File.separator + "target" + File.separator + "native" + File.separator;
+
+        // TODO : Handle code coverage after testing
+        String jacocoAgentJarPath = "";
+
+        Path nativeConfigPath = target.getTestsCachePath().resolve("native");
+
+        // Create Configs
+        createReflectConfig(nativeConfigPath, currentPackage);
+        createResourceConfig(nativeConfigPath);
+
+        List<String> cmdArgs = new ArrayList<>();
+
+        // Run native-image command with generated configs
+        cmdArgs.add("native-image");
+        cmdArgs.addAll(Lists.of("-cp", classPath));
+        cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
+
+        // native-image name
+        cmdArgs.add(nativeImageDir + packageName);
+
+        // native-image configs
+        cmdArgs.add("-H:MaxDuplicationFactor=4.0");
+        cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        cmdArgs.add("-H:ResourceConfigurationFiles=" + nativeConfigPath.resolve("resource-config.json"));
+
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command(cmdArgs.toArray(new String[0]));
+        builder.inheritIO();
+        Process process = builder.start();
+
+        if (process.waitFor() == 0) {
+            cmdArgs = new ArrayList<>();
+
+            // Run the generated image
+            cmdArgs.add(nativeImageDir + packageName);
+
+            // Test Runner Class arguments
+            cmdArgs.add(target.path().toString());                                  // 0
+            cmdArgs.add(jacocoAgentJarPath);
+            cmdArgs.add(Boolean.toString(report));
+            cmdArgs.add(Boolean.toString(coverage));
+            cmdArgs.add(this.groupList != null ? this.groupList : "");
+            cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+            cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
+            cmdArgs.add(Boolean.toString(isRerunTestExecution));
+            cmdArgs.add(Boolean.toString(listGroups));                              // 8
+
+            builder.command(cmdArgs.toArray(new String[0]));
+            builder.inheritIO();
+            process = builder.start();
+            return process.waitFor();
+        } else {
+            return 1;
+        }
     }
 
     /**
@@ -523,6 +592,30 @@ public class RunTestsTask implements Task {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
+    }
+
+    // TODO : Refactor this
+    private String getNewClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> dependencies = new ArrayList<>();
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
+            }
+        }
+
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
     }
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
