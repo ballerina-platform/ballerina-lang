@@ -114,6 +114,8 @@ public enum Snippet {
 
     DEF_REMOTE_METHOD_DECL(SnippetGenerator.getRemoteMethodDeclSnippet()),
 
+    DEF_RESOURCE_METHOD_DECL(SnippetGenerator.getResourceMethodDeclSnippet()),
+
     DEF_INIT_FUNCTION(SnippetGenerator.getInitFunctionSnippet()),
 
     DEF_ATTACH_FUNCTION(SnippetGenerator.getAttachFunctionSnippet()),
