@@ -488,6 +488,10 @@ public class CodeActionUtil {
                             returnText = "returns " + typeName + "|error";
                             returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                         }
+                    } else if (enclosedRetTypeDesc.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                        String returnType = enclosedRetTypeDescNode.type().toString().replaceAll("\\s+", "");
+                        returnText = "returns " + returnType + "|error";
+                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     } else {
                         // Parent function already has another return-type
                         if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
