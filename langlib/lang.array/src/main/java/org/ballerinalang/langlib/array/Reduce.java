@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,12 +50,9 @@ public class Reduce {
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand, accum.get(),
-                                                               getFn.get(arr, index.incrementAndGet())},
-                                                       accum::set, accum::get, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{accum.get(), true, getFn.get(arr, index.incrementAndGet()), true }, accum::set,
+                accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
 
         

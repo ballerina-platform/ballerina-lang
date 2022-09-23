@@ -102,6 +102,8 @@ public abstract class ValueCreator {
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;
 
+    public abstract Object call(Strand strand, String funcName, Object... args) throws BError;
+
     public abstract Type getAnonType(int typeHash, String typeShape) throws BError;
 
 }
