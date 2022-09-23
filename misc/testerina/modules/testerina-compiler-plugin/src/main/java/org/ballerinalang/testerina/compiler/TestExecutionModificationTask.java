@@ -19,8 +19,6 @@
 package org.ballerinalang.testerina.compiler;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -30,10 +28,9 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.ModifierTask;
 import io.ballerina.projects.plugins.SourceModifierContext;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.TextDocument;
 
 import java.util.ArrayList;
