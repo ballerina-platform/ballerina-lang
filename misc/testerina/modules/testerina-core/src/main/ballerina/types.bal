@@ -26,5 +26,12 @@ type ExecutionError distinct error<record {|string functionName;|}>;
 
 type ModuleRerunJson record {|
     string[] testNames;
-    string[] subTestNames;
+    map<string?> testModuleNames;
+    map<string[]> subTestNames;
 |};
+
+enum TestType {
+    GENERAL_TEST,
+    DATA_DRIVEN_TUPLE_OF_TUPLE,
+    DATA_DRIVEN_MAP_OF_TUPLE
+}

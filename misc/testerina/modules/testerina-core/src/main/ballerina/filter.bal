@@ -45,16 +45,16 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
             println("Unable to read the 'rerun_test.json': " + err.message());
             return;
         }
+        hasFilteredTests = true;
     } else {
         string[] singleExecTests = parseStringArrayInput(inTests);
         filterKeyBasedTests(inPackageName, moduleName, singleExecTests);
+        hasFilteredTests = filterTests.length() > 0;
     }
 
     if testReport || codeCoverage {
         reportGenerators.push(moduleStatusReport);
     }
-
-    hasFilteredTests = filterTests.length() > 0;
 }
 
 function parseStringArrayInput(string arrArg) returns string[] => arrArg == "" ? [] : split(arrArg, ",");
@@ -72,7 +72,7 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
             string suffix = updatedName.substring(separatorIndex + 1);
             string testPart = updatedName.substring(0, separatorIndex);
-            if (filterSubTests.hasKey(updatedName)) {
+            if (filterSubTests.hasKey(updatedName) && filterSubTests[updatedName] is string[]) {
                 string[] subTestList = <string[]>filterSubTests[testPart];
                 subTestList.push(suffix);
             } else {
@@ -98,15 +98,11 @@ function parseBooleanInput(string input, string variableName) returns boolean {
 function parseRerunJson() returns error? {
     map<ModuleRerunJson> rerunJson = check readRerunJson();
 
-    // TODO: save and get correct filterTestModules for filterTests
     ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
     if moduleRerunJson is ModuleRerunJson {
         filterTests = moduleRerunJson.testNames;
-        foreach string test in filterTests {
-            filterTestModules[test] = ();
-        }
-        // TODO: use a map here
-        // filterSubTests = moduleRerunJson.subTestNames;
+        filterTestModules = moduleRerunJson.testModuleNames;
+        filterSubTests = moduleRerunJson.subTestNames;
     }
 }
 

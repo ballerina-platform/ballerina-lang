@@ -56,7 +56,7 @@ function executeTest(TestFunction testFunction) {
     }
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message());
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
         return;
     }
     if testFunction.dependsOnCount > 1 {
@@ -73,7 +73,7 @@ function executeTest(TestFunction testFunction) {
         DataProviderReturnType? params = testFunction.params;
         if params is map<AnyOrError[]> {
             foreach [string, AnyOrError[]] entry in params.entries() {
-                if executeDataDrivenTest(testFunction, entry[0], entry[1], true) {
+                if executeDataDrivenTest(testFunction, entry[0], DATA_DRIVEN_MAP_OF_TUPLE, entry[1]) {
                     shouldSkipDependents = true;
                     break;
                 }
@@ -81,24 +81,24 @@ function executeTest(TestFunction testFunction) {
         } else if params is AnyOrError[][] {
             int i = 0;
             foreach AnyOrError[] entry in params {
-                if executeDataDrivenTest(testFunction, i.toString(), entry, false) {
+                if executeDataDrivenTest(testFunction, i.toString(), DATA_DRIVEN_TUPLE_OF_TUPLE, entry) {
                     shouldSkipDependents = true;
                     break;
                 }
                 i += 1;
             }
         } else {
-            ExecutionError|boolean output = executeTestFunction(testFunction, "");
+            ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
             if output is ExecutionError {
                 shouldSkipDependents = true;
-                reportData.onFailed(name = testFunction.name, message = output.message());
+                reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
             }
             if output is boolean && output {
                 shouldSkipDependents = true;
             }
         }
     } else {
-        reportData.onSkipped(name = testFunction.name);
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
         shouldSkipDependents = true;
     }
 
@@ -196,22 +196,21 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params, boolean isMapOfTuple) returns boolean {
-    println("executeDataDrivenTest: ", testFunction.name);
-    if (skipDataDrivenTest(testFunction.name, suffix, isMapOfTuple)) {
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) returns boolean {
+    if (skipDataDrivenTest(testFunction.name, suffix, testType)) {
         return false;
     }
 
-    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, params);
+    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
-            + "]\n" + getErrorMessage(err));
+            + "]\n" + getErrorMessage(err), testType = testType);
         return true;
     }
     return false;
 }
 
-function skipDataDrivenTest(string functionName, string suffix, boolean isMapOfTuple) returns boolean {
+function skipDataDrivenTest(string functionName, string suffix, TestType testType) returns boolean {
     if (!hasFilteredTests) {
         return false;
     }
@@ -243,7 +242,7 @@ function skipDataDrivenTest(string functionName, string suffix, boolean isMapOfT
 
             // TODO: move subFilterUpdate logic to a separate method
             string updatedSubFilter = subFilter;
-            if (isMapOfTuple) {
+            if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
                 if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
                     updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
                 } else {
@@ -274,14 +273,14 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, AnyOrError[]? params = ()) returns ExecutionError|boolean {
+function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output));
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         return true;
     } else if output is any {
-        reportData.onPassed(name = testFunction.name, suffix = suffix);
+        reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
@@ -331,4 +330,14 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
     testFunction.enabled = true;
     testFunction.visited = true;
     _ = descendants.pop();
+}
+
+function getTestType(TestFunction testFunction) returns TestType {
+    DataProviderReturnType? params = testFunction.params;
+    if (params is map<AnyOrError[]>) {
+        return DATA_DRIVEN_MAP_OF_TUPLE;
+    } else if (params is AnyOrError[][]) {
+        return DATA_DRIVEN_TUPLE_OF_TUPLE;
+    }
+    return GENERAL_TEST;
 }
