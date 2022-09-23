@@ -55,7 +55,8 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        switch (TypeUtils.getReferredType(type).getTag()) {
+        Type referredType = TypeUtils.getReferredType(type);
+        switch (referredType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
             case TypeTags.FLOAT_TAG:
@@ -64,7 +65,7 @@ public class TypeUtils {
             case TypeTags.STRING_TAG:
                 return true;
             case TypeTags.FINITE_TYPE_TAG:
-                for (Object value : ((BFiniteType) type).valueSpace) {
+                for (Object value : ((BFiniteType) referredType).valueSpace) {
                     if (!isValueType(TypeChecker.getType(value))) {
                         return false;
                     }

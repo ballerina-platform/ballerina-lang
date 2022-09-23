@@ -980,7 +980,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-//        this.arrayType = (ArrayType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.arrayType);
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.arrayType = (ArrayType) TypeUtils.getReferredType(type);
 
