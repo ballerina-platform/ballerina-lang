@@ -21,7 +21,6 @@ package io.ballerina.semver.checker;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.semver.checker.central.CentralClientWrapper;
 import io.ballerina.semver.checker.comparator.PackageComparator;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.exception.SemverToolException;
@@ -46,21 +45,17 @@ public class SemverChecker {
 
     private final Path projectPath;
     private Package currentPackage;
-    private SemanticVersion releasedVersion;
+    private SemanticVersion releaseVersion;
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    public SemverChecker(Path projectPath) {
-        this(projectPath, null, System.out, System.err);
+    public SemverChecker(Path projectPath, SemanticVersion releaseVersion) {
+        this(projectPath, releaseVersion, System.out, System.err);
     }
 
-    public SemverChecker(Path projectPath, SemanticVersion releasedVersion) {
-        this(projectPath, releasedVersion, System.out, System.err);
-    }
-
-    public SemverChecker(Path projectPath, SemanticVersion releasedVersion, PrintStream out, PrintStream err) {
+    public SemverChecker(Path projectPath, SemanticVersion releaseVersion, PrintStream out, PrintStream err) {
         this.projectPath = projectPath;
-        this.releasedVersion = releasedVersion;
+        this.releaseVersion = releaseVersion;
         this.outStream = out;
         this.errStream = err;
     }
@@ -75,7 +70,7 @@ public class SemverChecker {
      */
     public String getVersionSuggestionSummary() throws SemverToolException {
         Optional<PackageDiff> packageDiff = computeDiff();
-        return DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releasedVersion);
+        return DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releaseVersion);
     }
 
     /**
@@ -90,8 +85,8 @@ public class SemverChecker {
     public String getDiffSummary() throws SemverToolException {
         StringBuilder sb = new StringBuilder();
         Optional<PackageDiff> packageDiff = computeDiff();
-        sb.append(DiffUtils.getDiffSummary(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
-        sb.append(DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
+        sb.append(DiffUtils.getDiffSummary(packageDiff.orElse(null), getLocalVersion(), releaseVersion));
+        sb.append(DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releaseVersion));
         return sb.toString();
     }
 
@@ -109,12 +104,12 @@ public class SemverChecker {
         String pkgName = currentPackage.packageName().value();
         SemanticVersion pkgVersion = currentPackage.packageVersion().value();
 
-        CentralClientWrapper clientWrapper = new CentralClientWrapper(outStream, errStream);
-        if (releasedVersion == null) {
+        BallerinaPackageResolver clientWrapper = new BallerinaPackageResolver(outStream, errStream);
+        if (releaseVersion == null) {
             errStream.println("checking for the latest compatible release version available in central...");
-            releasedVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
+            releaseVersion = clientWrapper.resolveClosestCompatibleCentralVersion(orgName, pkgName, pkgVersion);
         }
-        Path balaPath = clientWrapper.pullPackage(orgName, pkgName, releasedVersion);
+        Path balaPath = clientWrapper.resolvePackage(orgName, pkgName, releaseVersion);
         Package balaPackage = PackageUtils.loadPackage(balaPath);
 
         PackageComparator packageComparator = new PackageComparator(currentPackage, balaPackage);
