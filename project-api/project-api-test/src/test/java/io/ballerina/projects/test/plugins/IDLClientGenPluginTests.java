@@ -48,7 +48,8 @@ public class IDLClientGenPluginTests {
         Project project = TestUtils.loadBuildProject(
                 RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"), buildOptions);
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -67,7 +68,7 @@ public class IDLClientGenPluginTests {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
-                "Unexpected number of compilation diagnostics");
+                TestUtils.getDiagnosticsAsString(diagnosticResult));
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
     }
@@ -81,7 +82,8 @@ public class IDLClientGenPluginTests {
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
 
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
         Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 0);
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
     }
@@ -91,7 +93,8 @@ public class IDLClientGenPluginTests {
         BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
         Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"),
                 buildOptions);
-        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6,
+                TestUtils.getDiagnosticsAsString(project.currentPackage().getCompilation().diagnosticResult()));
 
         DocumentId documentId = project.currentPackage().getDefaultModule().documentIds()
                 .stream().findFirst().orElseThrow();
@@ -103,22 +106,24 @@ public class IDLClientGenPluginTests {
             sourceCode += ("int a" + i + " = " + i);
             project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
             Assert.assertEquals(
-                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), 6 + i);
+                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), 6 + i,
+                    TestUtils.getDiagnosticsAsString(project.currentPackage().getCompilation().diagnosticResult()));
         }
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
 
         // Run IDL client generator plugins
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
         Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
-        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 5);
+        Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 5,
+                TestUtils.getDiagnosticsAsString(project.currentPackage().getCompilation().diagnosticResult()));
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
 
         // Repeat: Edit, compile and check diagnostics
         for (int i = 6; i < 11; i++) {
             sourceCode += ("int a" + i + " = " + i);
             project.currentPackage().getDefaultModule().document(documentId).modify().withContent(sourceCode).apply();
-            Assert.assertEquals(
-                    project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), i);
+            Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().diagnostics().size(), i,
+                    TestUtils.getDiagnosticsAsString(project.currentPackage().getCompilation().diagnosticResult()));
         }
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
