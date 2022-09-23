@@ -62,7 +62,7 @@ public class MatchedExpressionNodeResolver extends NodeTransformer<Optional<Expr
      */
     public Optional<ExpressionNode> findExpression(Node node) {
         if (node == null) {
-            return Optional.empty();    
+            return Optional.empty();
         }
 
         Optional<ExpressionNode> exprNode = node.apply(this);
