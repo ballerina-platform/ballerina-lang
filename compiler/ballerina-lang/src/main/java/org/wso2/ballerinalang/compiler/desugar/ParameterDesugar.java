@@ -609,7 +609,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
                 name = ((BLangFunction) parent).symbol.name.value.replaceAll("\\.", UNDERSCORE) + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RESOURCE_FUNC:
-                name = ((BLangResourceFunction) parent).symbol.name.value + UNDERSCORE + name;
+                name = ((BLangResourceFunction) parent).name.value + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case VARIABLE:
                 name = ((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name;
