@@ -5525,8 +5525,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangLiteral closeBrace = (BLangLiteral) reBracedQuantifierNode.closeBraceToken().apply(this);
         StringBuilder leastTimesMatchedDigits = new StringBuilder();
         String quantifier;
+        Location leastTimesMatchedDigitPos = null;
         for (Node digit : reBracedQuantifierNode.leastTimesMatchedDigit()) {
             BLangLiteral leastDigit = (BLangLiteral) digit.apply(this);
+            leastTimesMatchedDigitPos = leastDigit.pos;
             leastTimesMatchedDigits.append(leastDigit.value.toString());
         }
         if (reBracedQuantifierNode.commaToken().isEmpty()) {
@@ -5538,10 +5540,22 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangLiteral mostDigit = (BLangLiteral) digit.apply(this);
                 mostTimesMatchedDigits.append(mostDigit.value.toString());
             }
-            quantifier = openBrace.value.toString() + leastTimesMatchedDigits.toString() +
-                    comma.value.toString() + mostTimesMatchedDigits.toString() + closeBrace.value.toString();
+            String leastTimesMatched = leastTimesMatchedDigits.toString();
+            String mostTimesMatched = mostTimesMatchedDigits.toString();
+            // leastTimesMatched value should be less than mostTimesMatched value.
+            if (!mostTimesMatched.isEmpty()) {
+                checkValidityOfOccurrences(leastTimesMatched, mostTimesMatched, leastTimesMatchedDigitPos);
+            }
+            quantifier = openBrace.value.toString() + leastTimesMatched +
+                    comma.value.toString() + mostTimesMatched + closeBrace.value.toString();
         }
         return createStringLiteral(quantifier, getPosition(reBracedQuantifierNode));
+    }
+
+    private void checkValidityOfOccurrences(String lhsValue, String rhsValue, Location pos) {
+        if (Long.parseLong(lhsValue) > Long.parseLong(rhsValue)) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_QUANTIFIER_MINIMUM);
+        }
     }
 
     @Override
@@ -5722,7 +5736,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.lhsCharSetAtom = (BLangExpression) charSetRangeNode.lhsReCharSetAtom().apply(this);
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.rhsReCharSetAtom().apply(this);
+        // lhsCharSetAtom value should be less than rhsCharSetAtom value.
+        checkRangeValidity((BLangLiteral) charSetRange.lhsCharSetAtom, (BLangLiteral) charSetRange.rhsCharSetAtom);
         return charSetRange;
+    }
+
+    private void checkRangeValidity(BLangLiteral lhsValue, BLangLiteral rhsValue) {
+        if (lhsValue.value.toString().compareTo(rhsValue.value.toString()) > 0) {
+            dlog.error(lhsValue.pos, DiagnosticErrorCode.INVALID_START_CHAR_CODE_IN_RANGE);
+        }
     }
 
     @Override
@@ -5798,9 +5820,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 flags = lhsFlags.value.toString() + dash.value.toString() + rhsFlags.value.toString();
             }
         }
-        reFlagsOnOff.pos = getPosition(reFlagsOnOffNode);
+        Location pos = getPosition(reFlagsOnOffNode);
+        checkValidityOfFlags(flags, pos);
+        reFlagsOnOff.pos = pos;
         reFlagsOnOff.flags = createStringLiteral(flags, getPosition(reFlagsOnOffNode));
         return reFlagsOnOff;
+    }
+
+    private void checkValidityOfFlags(String flags, Location pos) {
+        List<Character> charList = new ArrayList<>();
+        for (int i = 0; i < flags.length(); i++) {
+            char flag = flags.charAt(i);
+            if (charList.contains(flag)) {
+                dlog.error(pos, DiagnosticErrorCode.DUPLICATE_FLAGS, flag);
+                return;
+            }
+            charList.add(flag);
+        }
     }
 
     @Override

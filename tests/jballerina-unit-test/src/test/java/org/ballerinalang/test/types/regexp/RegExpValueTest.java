@@ -24,6 +24,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Class to test regular expression values.
  *
@@ -31,6 +34,11 @@ import org.testng.annotations.Test;
  */
 public class RegExpValueTest {
     private CompileResult compileResult;
+
+    private static final String START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE =
+            "start char code is greater than end char code";
+    private static final String QUANTIFIER_MIN_GREATER_THAN_MAX =
+            "quantifier minimum is greater than maximum";
 
     @BeforeClass
     public void setup() {
@@ -59,6 +67,34 @@ public class RegExpValueTest {
                 "testEqualityWithRegExp",
                 "testExactEqualityWithRegExp"
         };
+    }
+
+    @Test
+    public void testRegExpValueNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/types/regexp/regexp_value_negative_test.bal");
+        int index = 0;
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 20, 28);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 21, 29);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 22, 28);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 23, 28);
+        validateError(negativeResult, index++, "duplicate flag 'i'", 24, 29);
+        validateError(negativeResult, index++, "duplicate flag 'm'", 25, 29);
+        validateError(negativeResult, index++, "duplicate flag 'i'", 26, 29);
+        validateError(negativeResult, index++, "duplicate flag 'i'", 27, 29);
+        validateError(negativeResult, index++, "duplicate flag 's'", 28, 19);
+        validateError(negativeResult, index++, "duplicate flag 's'", 29, 19);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 29, 26);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 29, 31);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 18);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 30, 24);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 32);
+        validateError(negativeResult, index++, "duplicate flag 'm'", 30, 42);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 49);
+        validateError(negativeResult, index++, "duplicate flag 'x'", 30, 55);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 61);
+        validateError(negativeResult, index++, "duplicate flag 'x'", 30, 67);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 75);
+        assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @AfterClass
