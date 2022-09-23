@@ -29,6 +29,7 @@ type ResultData record {|
     string name;
     string suffix = "";
     string message = "";
+    TestType testType;
 |};
 
 class Result {
@@ -48,6 +49,8 @@ class Result {
     function testSuffix() returns string => self.data.suffix;
 
     function message() returns string => self.data.message;
+
+    function testType() returns TestType => self.data.testType;
 }
 
 class ReportData {
@@ -70,7 +73,7 @@ class ReportData {
 
 function consoleReport(ReportData data) {
     if (!isSystemConsole()) {
-            data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
+        data.passedCases().forEach(entry => println("\t\t[pass] " + entry.fullName()));
     }
     data.failedCases().forEach(function(Result entry) {
         println("\n\t\t[fail] " + entry.fullName() + ":");
@@ -94,18 +97,25 @@ function formatFailedError(string message) returns string {
 }
 
 function failedTestsReport(ReportData data) {
-    string[] subTestNames = [];
     string[] testNames = [];
+    map<string?> testModuleNames = {};
+    map<string[]> subTestNames = {};
     foreach Result result in data.failedCases() {
         string testPrefix = result.testPrefix();
-        if result.isDataProvider() {
-            testNames.push(testPrefix);
-            subTestNames.push(result.fullName());
-        } else {
-            testNames.push(testPrefix);
+        string testSuffix = result.testType() == DATA_DRIVEN_MAP_OF_TUPLE ?
+            SINGLE_QUOTE + result.testSuffix() + SINGLE_QUOTE : result.testSuffix();
+        testNames.push(testPrefix);
+        testModuleNames[testPrefix] = moduleName;
+        if (result.isDataProvider()) {
+            if (subTestNames.hasKey(testPrefix) && subTestNames[testPrefix] is string[]) {
+                string[] subTestList = <string[]>subTestNames[testPrefix];
+                subTestList.push(testSuffix);
+            } else {
+                subTestNames[testPrefix] = [testSuffix];
+            }
         }
     }
-    ModuleRerunJson moduleReport = {testNames, subTestNames};
+    ModuleRerunJson moduleReport = {testNames, testModuleNames, subTestNames};
     string filePath = targetPath + "/" + RERUN_JSON_FILE;
 
     map<ModuleRerunJson> rerunJson;

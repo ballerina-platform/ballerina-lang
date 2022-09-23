@@ -56,7 +56,7 @@ function executeTest(TestFunction testFunction) {
     }
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message());
+        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
         return;
     }
     if testFunction.dependsOnCount > 1 {
@@ -73,7 +73,7 @@ function executeTest(TestFunction testFunction) {
         DataProviderReturnType? params = testFunction.params;
         if params is map<AnyOrError[]> {
             foreach [string, AnyOrError[]] entry in params.entries() {
-                if executeDataDrivenTest(testFunction, entry[0], entry[1]) {
+                if executeDataDrivenTest(testFunction, entry[0], DATA_DRIVEN_MAP_OF_TUPLE, entry[1]) {
                     shouldSkipDependents = true;
                     break;
                 }
@@ -81,24 +81,24 @@ function executeTest(TestFunction testFunction) {
         } else if params is AnyOrError[][] {
             int i = 0;
             foreach AnyOrError[] entry in params {
-                if executeDataDrivenTest(testFunction, i.toString(), entry) {
+                if executeDataDrivenTest(testFunction, i.toString(), DATA_DRIVEN_TUPLE_OF_TUPLE, entry) {
                     shouldSkipDependents = true;
                     break;
                 }
                 i += 1;
             }
         } else {
-            ExecutionError|boolean output = executeTestFunction(testFunction, "");
+            ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
             if output is ExecutionError {
                 shouldSkipDependents = true;
-                reportData.onFailed(name = testFunction.name, message = output.message());
+                reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
             }
             if output is boolean && output {
                 shouldSkipDependents = true;
             }
         }
     } else {
-        reportData.onSkipped(name = testFunction.name);
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
         shouldSkipDependents = true;
     }
 
@@ -196,44 +196,77 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params) returns boolean {
-    // TODO: refactor
-    if hasFilteredTests {
-        // has --tests flag
-        int? testIndex = filterSubTests.indexOf(testFunction.name + DATA_KEY_SEPARATOR + suffix);
-        if testIndex is int {
-            // has '#' keyed tests with no wild cards
-            _ = filterSubTests.remove(testIndex);
-        } else {
-            // either 
-            // 1. has '#' keyed --tests with wild cards
-            // 2. No '#' keyed tests (** still has --tests flag)
-            boolean hasWildCard = false;
-            foreach string filterSub in filterSubTests {
-                int? separatorIndex = filterSub.indexOf(DATA_KEY_SEPARATOR);
-                if (separatorIndex == ()) {
-                    continue;
-                }
-                string filter = filterSub.substring(0, separatorIndex);
-                if (filter.includes(WILDCARD) && matchWildcard(testFunction.name, filter)) {
-                    hasWildCard = true;
-                    break;
-                }
-            }
-            // 1. Invalid --test flag
-            // 2. Has --test with no # key
-            if (hasWildCard == false && !hasTest(testFunction.name)) {
-                return false;
-            }
-        }
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) returns boolean {
+    if (skipDataDrivenTest(testFunction, suffix, testType)) {
+        return false;
     }
-    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, params);
+
+    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
-            + "]\n" + getErrorMessage(err));
+            + "]\n" + getErrorMessage(err), testType = testType);
         return true;
     }
     return false;
+}
+
+function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType testType) returns boolean {
+    string functionName = testFunction.name;
+    if (!hasFilteredTests) {
+        return false;
+    }
+    TestFunction[] dependents = testFunction.dependents;
+
+    // if a dependent in a below level is enabled, this test should run
+    if (dependents.length() > 0 && nestedEnabledDependentsAvailable(dependents)) {
+        return false;
+    }
+    string functionKey = functionName;
+
+    // check if prefix matches directly
+    boolean prefixMatch = filterSubTests.hasKey(functionName);
+
+    // if prefix matches to a wildcard
+    if (!prefixMatch && hasTest(functionName)) {
+
+        // get the matching wildcard
+        prefixMatch = true;
+        foreach string filter in filterTests {
+            if (filter.includes(WILDCARD) && matchWildcard(functionKey, filter) && matchModuleName(filter)) {
+                functionKey = filter;
+                break;
+            }
+        }
+    }
+
+    // check if no filterSubTests found for a given prefix
+    boolean suffixMatch = !filterSubTests.hasKey(functionKey);
+
+    // if a subtest is found specified
+    if (!suffixMatch) {
+        string[] subTests = filterSubTests.get(functionKey);
+        foreach string subFilter in subTests {
+
+            // TODO: move subFilterUpdate logic to a separate method
+            string updatedSubFilter = subFilter;
+            if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
+                if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
+                    updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
+                } else {
+                    continue;
+                }
+            }
+
+            // direct match or wildcard match
+            if ((updatedSubFilter == suffix) || matchWildcard(suffix, updatedSubFilter)) {
+                suffixMatch = true;
+                break;
+            }
+        }
+    }
+
+    // do not skip iff both matches
+    return !(prefixMatch && suffixMatch);
 }
 
 function printExecutionError(ExecutionError err, string functionSuffix)
@@ -247,14 +280,14 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
     }
 }
 
-function executeTestFunction(TestFunction testFunction, string suffix, AnyOrError[]? params = ()) returns ExecutionError|boolean {
+function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output));
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         return true;
     } else if output is any {
-        reportData.onPassed(name = testFunction.name, suffix = suffix);
+        reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
     } else {
         return error(getErrorMessage(output), functionName = testFunction.name);
@@ -304,4 +337,28 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
     testFunction.enabled = true;
     testFunction.visited = true;
     _ = descendants.pop();
+}
+
+function getTestType(TestFunction testFunction) returns TestType {
+    DataProviderReturnType? params = testFunction.params;
+    if (params is map<AnyOrError[]>) {
+        return DATA_DRIVEN_MAP_OF_TUPLE;
+    } else if (params is AnyOrError[][]) {
+        return DATA_DRIVEN_TUPLE_OF_TUPLE;
+    }
+    return GENERAL_TEST;
+}
+
+function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boolean {
+    if (dependents.length() == 0) {
+        return false;
+    }
+    TestFunction[] queue = [];
+    foreach TestFunction dependent in dependents {
+        if(dependent.enabled) {
+            return true;
+        }
+        dependent.dependents.forEach((superDependent) => queue.push(superDependent));
+    }
+    return nestedEnabledDependentsAvailable(queue);
 }

@@ -18,7 +18,7 @@ string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
 map<string?> filterTestModules = {};
-string[] filterSubTests = [];
+map<string[]> filterSubTests = {};
 string moduleName = "";
 string packageName = "";
 boolean hasFilteredTests = false;
@@ -45,16 +45,16 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
             println("Unable to read the 'rerun_test.json': " + err.message());
             return;
         }
+        hasFilteredTests = true;
     } else {
         string[] singleExecTests = parseStringArrayInput(inTests);
         filterKeyBasedTests(inPackageName, moduleName, singleExecTests);
+        hasFilteredTests = filterTests.length() > 0;
     }
 
     if testReport || codeCoverage {
         reportGenerators.push(moduleStatusReport);
     }
-
-    hasFilteredTests = filterTests.length() > 0;
 }
 
 function parseStringArrayInput(string arrArg) returns string[] => arrArg == "" ? [] : split(arrArg, ",");
@@ -69,9 +69,16 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             updatedName = updatedName.substring(separatorIndex + 1);
         }
         if (containsDataKeySuffix(updatedName)) {
-            filterSubTests.push(updatedName);
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
-            updatedName = updatedName.substring(0, separatorIndex);
+            string suffix = updatedName.substring(separatorIndex + 1);
+            string testPart = updatedName.substring(0, separatorIndex);
+            if (filterSubTests.hasKey(updatedName) && filterSubTests[updatedName] is string[]) {
+                string[] subTestList = <string[]>filterSubTests[testPart];
+                subTestList.push(suffix);
+            } else {
+                filterSubTests[testPart] = [suffix];
+            }
+            updatedName = testPart;
         }
         filterTests.push(updatedName);
         filterTestModules[updatedName] = prefix;
@@ -94,9 +101,7 @@ function parseRerunJson() returns error? {
     ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
     if moduleRerunJson is ModuleRerunJson {
         filterTests = moduleRerunJson.testNames;
-        foreach string test in filterTests {
-            filterTestModules[test] = ();
-        }
+        filterTestModules = moduleRerunJson.testModuleNames;
         filterSubTests = moduleRerunJson.subTestNames;
     }
 }
