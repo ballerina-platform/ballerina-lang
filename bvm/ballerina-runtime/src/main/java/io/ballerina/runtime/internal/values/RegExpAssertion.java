@@ -32,7 +32,7 @@ import java.util.Map;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  *
- * @since 1.3.0
+ * @since 2201.3.0
  */
 public class RegExpAssertion implements RegExpTerm {
     private final String assertion;

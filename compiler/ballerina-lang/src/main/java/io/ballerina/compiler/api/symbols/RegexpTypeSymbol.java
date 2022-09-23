@@ -20,7 +20,7 @@ package io.ballerina.compiler.api.symbols;
 /**
  * Represents an RegExp type descriptor.
  *
- * @since 2.3.0
+ * @since 2201.3.0
  */
 public interface RegexpTypeSymbol extends TypeSymbol {
 }
