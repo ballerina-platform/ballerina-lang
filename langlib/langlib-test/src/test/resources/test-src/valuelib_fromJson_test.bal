@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.value;
+import ballerina/lang.regexp;
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type StringArray string[];

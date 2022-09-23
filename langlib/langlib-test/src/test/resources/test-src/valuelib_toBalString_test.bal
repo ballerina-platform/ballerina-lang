@@ -17,6 +17,7 @@
 import ballerina/lang.'string as strings;
 import ballerina/lang.'int as ints;
 import ballerina/lang.value;
+import ballerina/lang.regexp;
 
 type Address record {
     string country;
