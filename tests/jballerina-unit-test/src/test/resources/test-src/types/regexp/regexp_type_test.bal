@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.regexp;
+
 function testBasicRegExp() {
     regexp:RegExp _ = re `AB*|[^c-d]{1,5}`;
 }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.regexp;
+
 function testRegExpValueWithLiterals() {
     regexp:RegExp x1 = re `A`;
     assertEquality("A", x1.toString());
