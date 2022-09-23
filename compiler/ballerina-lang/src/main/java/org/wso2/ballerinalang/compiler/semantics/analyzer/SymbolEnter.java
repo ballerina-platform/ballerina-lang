@@ -208,6 +208,7 @@ import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_S
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * @since 0.94
@@ -4712,6 +4713,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
+            if (varName.value.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+                varSymbol.flags |= Flags.WORKER;
+            }
         } else if (Symbols.isFlagOn(flags, Flags.WORKER)) {
             varSymbol = new BWorkerSymbol(flags, varName, env.enclPkg.symbol.pkgID, type, env.scope.owner, location,
                                           isInternal ? VIRTUAL : getOrigin(varName));
