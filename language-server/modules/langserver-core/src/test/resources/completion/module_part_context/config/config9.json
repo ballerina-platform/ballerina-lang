@@ -410,7 +410,7 @@
       "detail": "Module",
       "sortText": "C",
       "filterText": "regexp",
-      "insertText": "regexp1",
+      "insertText": "regexp",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -424,7 +424,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.regexp as regexp1;\n"
+          "newText": "import ballerina/lang.regexp;\n"
         }
       ]
     }
