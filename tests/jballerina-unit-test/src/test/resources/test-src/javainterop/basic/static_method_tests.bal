@@ -41,6 +41,9 @@ function testJavaNullPointerException() {
     test:assertEquals(unionResult is error, true);
     if unionResult is error {
         test:assertEquals(unionResult.message(), "java.lang.NullPointerException");
+        test:assertEquals(unionResult.stackTrace().toBalString(),
+        "[object callableName: throwNPE  fileName: static_method_tests.bal lineNumber: 190," +
+        "object callableName: $lambda$_0  fileName: static_method_tests.bal lineNumber: 53]");
     }
 }
 
