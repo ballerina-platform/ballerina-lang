@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.array;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -41,7 +42,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Sort {
 
     public static BArray sort(BArray arr, Object direction, Object func) {
-        checkIsArrayOnlyOperation(arr.getType(), "sort()");
+        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "sort()");
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
 
         Object[][] sortArr = new Object[arr.size()][2];

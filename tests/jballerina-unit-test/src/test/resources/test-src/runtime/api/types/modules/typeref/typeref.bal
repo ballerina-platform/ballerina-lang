@@ -85,6 +85,7 @@ public function validateTypeRef() {
     validateArray();
     validateFunctionParameters();
     validateRuntimeAPIs();
+    validateValueWithUnion();
 }
 
 function validateFunctionParameters() {

@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -78,7 +79,7 @@ public class MapLibUtils {
     }
 
     public static void validateRecord(BMap m) {
-        Type type = m.getType();
+        Type type = TypeUtils.getReferredType(m.getType());
         if (type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             return;
         }
@@ -104,7 +105,7 @@ public class MapLibUtils {
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {
-        Type type = m.getType();
+        Type type = TypeUtils.getReferredType(m.getType());
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && isRequiredField((RecordType) type, k)) {
             throw createOpNotSupportedErrorForRecord(type, k);
         }

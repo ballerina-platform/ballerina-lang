@@ -49,7 +49,7 @@ public class Map {
                                                                       TABLE_VERSION, "map");
 
     public static BTable map(BTable tbl, BFunctionPointer<Object, Object> func) {
-        Type newConstraintType = ((FunctionType) func.getType()).getReturnType();
+        Type newConstraintType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
         TableType tblType = (TableType) TypeUtils.getReferredType(tbl.getType());
         TableType newTableType =
                 TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());

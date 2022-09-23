@@ -76,6 +76,36 @@ class PositiveNumberGenerator {
 
 type BObject Test;
 
+public class TestWithInit {
+    int i = 1;
+
+    function init() {
+        self.i = 5;
+    }
+}
+
+public class TestWithInitReturnError {
+    int i = 1;
+
+    function init() returns error? {
+        self.i = 5;
+    }
+}
+
+public class TestWithInitReturnTypeRefError {
+    int i = 1;
+
+    function init() returns DetailedError? {
+        self.i = 5;
+    }
+}
+
+type BObjectWithInit TestWithInit;
+
+type BObjectWithInitReturnError TestWithInitReturnError;
+
+type BObjectWithInitReturnTypeRefError TestWithInitReturnTypeRefError;
+
 function validateRuntimeAPIs() {
     boolean result = validateGetDetailType(DetailedError);
     test:assertTrue(result);
@@ -134,6 +164,18 @@ function validateRuntimeAPIs() {
     result = validateBObject(obj);
     test:assertTrue(result);
 
+    BObjectWithInit obj2 = new ();
+    result = validateBObject(obj2);
+    test:assertTrue(result);
+
+    BObjectWithInitReturnError obj3 = checkpanic new ();
+    result = validateBObject(obj3);
+    test:assertTrue(result);
+
+    BObjectWithInitReturnTypeRefError obj4 = checkpanic new ();
+    result = validateBObject(obj4);
+    test:assertTrue(result);
+
     BFunctionPointer fp = testFunc;
     result = validateBFunctionPointer(fp);
     test:assertTrue(result);
@@ -145,6 +187,30 @@ function validateRuntimeAPIs() {
 
 function testFunc(int a) returns int {
     return a + 5;
+}
+
+type UnionValues BArray|BTuple|BMap|TableType|BObject;
+
+function validateValueWithUnion() {
+    UnionValues value = [2, 4, 6, 8];
+    boolean result = validateUnionTypeNarrowing(value, BArray);
+    test:assertTrue(result);
+
+    value = [1, {id: 100, msg: "hello", "priority": 5}];
+    result = validateUnionTypeNarrowing(value, BTuple);
+    test:assertTrue(result);
+
+    value = {"a": 1, "b": 2, "c": 3};
+    result = validateUnionTypeNarrowing(value, BMap);
+    test:assertTrue(result);
+
+    value = table [{id: 200, msg: "error message", "priority": 1}];
+    result = validateUnionTypeNarrowing(value, TableType);
+    test:assertTrue(result);
+
+    value = new ();
+    result = validateUnionTypeNarrowing(value, BObject);
+    test:assertTrue(result);
 }
 
 public function validateGetDetailType(any value) returns boolean = @java:Method {
@@ -215,3 +281,6 @@ public function validateBFunctionPointer(any value) returns boolean = @java:Meth
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;
 
+public function validateUnionTypeNarrowing(any|error value, typedesc<any> td) returns boolean = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
+} external;

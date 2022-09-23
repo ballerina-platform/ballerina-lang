@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
@@ -47,7 +48,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 public class Enumerate {
 
     public static BArray enumerate(BArray arr) {
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         int size = arr.size();
         TupleType elemType;
         GetFunction getFn;

@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -298,6 +299,20 @@ public class TypeReference {
         BError error = ErrorCreator.createError(StringUtils.fromString("BObject getType API provided a non type " +
                 "reference type."));
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static boolean validateUnionTypeNarrowing(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        BError error = ErrorCreator.createError(StringUtils.fromString("RefValue getType API provided a wrong type " +
+                "reference type."));
+        Type type = TypeChecker.getType(value);
+        if (type.getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (type.getTag() != describingType.getTag() || !type.toString().equals(describingType.toString())) {
             throw error;
         }
         return true;

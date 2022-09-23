@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSupportedError;
@@ -40,7 +41,7 @@ public class Push {
     private static final String FUNCTION_SIGNATURE = "push()";
 
     public static void push(BArray arr, Object... vals) {
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         int nVals = vals.length;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

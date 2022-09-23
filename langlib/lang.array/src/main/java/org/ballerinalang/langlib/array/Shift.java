@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -36,7 +37,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Shift {
 
     public static Object shift(BArray arr) {
-        checkIsArrayOnlyOperation(arr.getType(), "shift()");
+        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "shift()");
         return arr.shift(0);
     }
 }
