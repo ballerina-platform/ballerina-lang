@@ -575,18 +575,19 @@ public class TestProcessor {
      * @return String
      */
     private String getExecutePath(Module module) {
+        String executePath = "";
         if (isSingleFileProject(module.project())) {
-            String fileName = Optional.of(module.project().sourceRoot().getFileName()).get().toString();
-            return FileUtils.getFileNameWithoutExtension(fileName);
+            executePath = Optional.of(module.project().sourceRoot().getFileName()).get().toString();
+            return FileUtils.getFileNameWithoutExtension(executePath);
         }
         for (DocumentId docId : module.testDocumentIds()) {
             if (module.document(docId).name().startsWith(
                     ProjectConstants.TEST_DIR_NAME + "/" + TEST_EXECUTE_FILE_PREFIX)) {
-                String executePath = module.document(docId).name().replace("/", ProjectConstants.DOT);
-                return executePath.substring(0, executePath.length() - 4);
+                executePath = module.document(docId).name().replace("/", ProjectConstants.DOT);
+                return FileUtils.getFileNameWithoutExtension(executePath);
             }
         }
         //TODO: Throw an exception for not generating the test execution file. Currently, this handles at BTestRunner
-        return "";
+        return executePath;
     }
 }
