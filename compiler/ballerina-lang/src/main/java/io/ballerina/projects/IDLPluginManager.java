@@ -18,45 +18,63 @@
 
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.elements.PackageID;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 class IDLPluginManager {
     private List<IDLPluginContextImpl> idlPluginContexts;
     private final List<ModuleConfig> moduleConfigs;
-    private final List<Diagnostic> diagnosticList;
     private final Path target;
-    private final Map<String, String> cachedPlugins;
+    private final List<IDLClientEntry> cachedClientEnrtries;
+    private final List<String> cachedModuleNames;
 
-    private IDLPluginManager(Path target, Map<String, String> cachedPlugins) {
+    private IDLPluginManager(Path target, List<IDLClientEntry> cachedPlugins) {
         this.target = target;
         this.moduleConfigs = new ArrayList<>();
-        this.diagnosticList = new ArrayList<>();
-        this.cachedPlugins = cachedPlugins;
+        this.cachedClientEnrtries = cachedPlugins;
+        this.cachedModuleNames = new ArrayList<>();
     }
 
     static IDLPluginManager from(Path target) {
-        if (Files.exists(target.resolve("idl-plugin-cache.json"))) {
-            return new IDLPluginManager(target, new HashMap<>());
+        List<IDLClientEntry> cache = new ArrayList<>();
+        if (Files.exists(target.resolve(ProjectConstants.IDL_CACHE_FILE))) {
+            try {
+                String readString = Files.readString(target.resolve(ProjectConstants.IDL_CACHE_FILE));
+                Type cacheMapType = new TypeToken<List<IDLClientEntry>>() {
+                }.getType();
+                cache = new Gson().fromJson(readString, cacheMapType);
+            } catch (IOException e) {
+                // ignore e
+            }
         }
-        return new IDLPluginManager(target, null);
+        return new IDLPluginManager(target, cache);
+
     }
 
     private static List<IDLPluginContextImpl> initializePlugins(List<IDLGeneratorPlugin> builtInIDLPlugins) {
@@ -80,38 +98,49 @@ class IDLPluginManager {
         return moduleConfigs;
     }
 
-    public void reportDiagnostic(Diagnostic diagnostic) {
-        this.diagnosticList.add(diagnostic);
-    }
-
-    public List<Diagnostic> diagnosticList() {
-        return diagnosticList;
-    }
-
     public Path target() {
         return target;
     }
 
-    public Map<String, String> cachedPlugins() {
-        return cachedPlugins;
+    public List<IDLClientEntry> cachedClientEntries() {
+        return cachedClientEnrtries;
+    }
+
+    public List<String> cachedModuleNames() {
+        return cachedModuleNames;
+    }
+
+    public void addModuleToLoadFromCache(String generatedModuleName) {
+        this.cachedModuleNames.add(generatedModuleName);
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
+        private final PackageID sourcePkgId;
+        private final String sourceDoc;
         private final Package currentPackage;
-        private final Map<LineRange, Optional<PackageID>> idlClientMap;
+        private final IDLClients idlClients;
         private final Node clientNode;
+        private final Set<ModuleLoadRequest> moduleLoadRequests;
         private final List<ModuleConfig> moduleConfigs;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
-        private Path resourcePath;
+        private final Path resourcePath;
+        private final List<IDLClientEntry> cachedClientEntries;
 
-        public IDLSourceGeneratorContextImpl(Node clientNode, Package currentPackage, Path resourcePath,
-                                             Map<LineRange, Optional<PackageID>> idlClientMap,
-                                             List<ModuleConfig> moduleConfigs) {
+        public IDLSourceGeneratorContextImpl(Node clientNode, PackageID sourcePkgId, String sourceDoc,
+                                             Package currentPackage, Path resourcePath,
+                                             IDLClients idlClients,
+                                             Set<ModuleLoadRequest> moduleLoadRequests,
+                                             List<ModuleConfig> moduleConfigs,
+                                             List<IDLClientEntry> cachedPlugins) {
+            this.sourcePkgId = sourcePkgId;
+            this.sourceDoc = sourceDoc;
             this.currentPackage = currentPackage;
             this.resourcePath = resourcePath;
-            this.idlClientMap = idlClientMap;
+            this.idlClients = idlClients;
             this.clientNode = clientNode;
+            this.moduleLoadRequests = moduleLoadRequests;
             this.moduleConfigs = moduleConfigs;
+            this.cachedClientEntries = cachedPlugins;
         }
 
         @Override
@@ -139,7 +168,7 @@ class IDLPluginManager {
         }
 
         @Override
-        public void addClient(ModuleConfig moduleConfig) {
+        public void addClient(ModuleConfig moduleConfig, NodeList<AnnotationNode> supportedAnnotations) {
             ModuleConfig newModuleConfig = createModuleConfigWithRandomName(moduleConfig);
             LineRange lineRange;
             if (this.clientNode.kind().equals(SyntaxKind.MODULE_CLIENT_DECLARATION)) {
@@ -149,8 +178,51 @@ class IDLPluginManager {
                 ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
                 lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
             }
-            this.idlClientMap.put(lineRange, Optional.of(newModuleConfig.moduleDescriptor().moduleCompilationId()));
+            idlClients.addEntry(sourcePkgId, sourceDoc, lineRange,
+                    newModuleConfig.moduleDescriptor().moduleCompilationId());
+            this.moduleLoadRequests.add(new ModuleLoadRequest(
+                    PackageOrg.from(newModuleConfig.moduleDescriptor().moduleCompilationId().orgName.getValue()),
+                    newModuleConfig.moduleDescriptor().moduleCompilationId().name.getValue(),
+                    PackageDependencyScope.DEFAULT,
+                    DependencyResolutionType.SOURCE));
             this.moduleConfigs.add(newModuleConfig);
+
+            // Generate id to cache plugins for subsequent compilations
+            List<String> annotations = createId(supportedAnnotations);
+            String uri = getUri(this.clientNode);
+
+            IDLClientEntry idlCacheInfo = new IDLClientEntry(uri,
+                    annotations, newModuleConfig.moduleDescriptor().name().moduleNamePart());
+            this.cachedClientEntries.add(idlCacheInfo);
+        }
+
+        private String getUri(Node clientNode) {
+            BasicLiteralNode clientUri;
+
+            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
+            } else {
+                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
+            }
+
+            String text = clientUri.literalToken().text();
+            return text.substring(1, text.length() - 1);
+        }
+
+        private List<String> createId(NodeList<AnnotationNode> supportedAnnotations) {
+            List<String> annotations = new ArrayList<>();
+            StringBuilder id = new StringBuilder();
+            for (AnnotationNode annotation : supportedAnnotations) {
+                String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
+                        .replaceAll("\\n", "");
+                id.append(annotationRef);
+
+                String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
+                .replaceAll("\\n", "");
+                id.append(annotationVal);
+                annotations.add(id.toString());
+            }
+            return annotations;
         }
 
         private ModuleConfig createModuleConfigWithRandomName(ModuleConfig moduleConfig) {
@@ -160,7 +232,7 @@ class IDLPluginManager {
                         String.valueOf(System.currentTimeMillis()));
             } else {
                 randomModuleName = ModuleName.from(moduleConfig.moduleDescriptor().packageName(),
-                        moduleConfig.moduleDescriptor().name() + String.valueOf(System.currentTimeMillis()));
+                        moduleConfig.moduleDescriptor().name().moduleNamePart() + System.currentTimeMillis());
             }
             ModuleDescriptor newModuleDescriptor = ModuleDescriptor.from(randomModuleName,
                     this.currentPackage.descriptor());

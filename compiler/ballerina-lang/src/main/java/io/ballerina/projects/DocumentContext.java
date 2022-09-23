@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
@@ -24,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -32,15 +35,17 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.TransactionImportValidator;
+import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLClientGenerator;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -48,6 +53,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangNodeBuilder;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedInputStream;
@@ -56,9 +62,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -135,20 +143,24 @@ class DocumentContext {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope,
-                                              IDLPluginManager idlPluginManager, Package currentPkg) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope,
+                                              IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
+                                              Package currentPkg, List<Diagnostic> pluginDiagnosticList) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope, idlPluginManager, currentPkg);
+        this.moduleLoadRequests = getModuleLoadRequests(
+                currentModuleDesc, scope, idlPluginManager, compilationOptions, currentPkg, pluginDiagnosticList);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName,
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleDescriptor currentModuleDesc,
                                                          PackageDependencyScope scope,
                                                          IDLPluginManager idlPluginManager,
-                                                         Package currentPkg) {
+                                                         CompilationOptions compilationOptions,
+                                                         Package currentPkg,
+                                                         List<Diagnostic> pluginDiagnosticList) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -160,39 +172,34 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleName.toString().equals(Names.TRANSACTION.value)) {
+               !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
-        if (idlPluginManager != null) {
-            Map<LineRange, Optional<PackageID>> idlClientsMap = generateIDLClients(
-                    syntaxTree, idlPluginManager, currentPkg);
-            // Add generated client modules to module load requests
-            for (Map.Entry<LineRange, Optional<PackageID>> locationPackageIDEntry : idlClientsMap.entrySet()) {
-                Optional<PackageID> packageID = locationPackageIDEntry.getValue();
-                if (packageID.isEmpty()) {
-                    continue;
-                }
-                moduleLoadRequests.add(new ModuleLoadRequest(
-                        PackageOrg.from(packageID.get().orgName.getValue()),
-                        packageID.get().name.getValue(),
-                        PackageDependencyScope.DEFAULT,
-                        DependencyResolutionType.SOURCE));
-            }
-        }
+        generateIDLClients(currentModuleDesc, syntaxTree, idlPluginManager, compilationOptions, currentPkg,
+                moduleLoadRequests, pluginDiagnosticList);
         return moduleLoadRequests;
     }
 
-    private Map<LineRange, Optional<PackageID>> generateIDLClients(
-            SyntaxTree syntaxTree, IDLPluginManager idlPluginManager, Package currentPkg) {
+    private void generateIDLClients(ModuleDescriptor currentModuleDesc, SyntaxTree syntaxTree,
+                                    IDLPluginManager idlPluginManager, CompilationOptions compilationOptions,
+                                    Package currentPkg, Set<ModuleLoadRequest> moduleLoadRequests,
+                                    List<Diagnostic> pluginDiagnosticList) {
+
         CompilerContext compilerContext = currentPkg.project().projectEnvironmentContext()
                 .getService(CompilerContext.class);
         IDLClients idlClients = IDLClients.getInstance(compilerContext);
-        syntaxTree.rootNode().accept(new ClientNodeVisitor(idlPluginManager, currentPkg, idlClients.idlClientMap()));
-        return idlClients.idlClientMap();
+
+        // Remove the client entries generated from the previous edit
+        if (idlClients.idlClientMap().containsKey(currentModuleDesc.moduleCompilationId())) {
+            idlClients.idlClientMap().get(currentModuleDesc.moduleCompilationId()).remove(name);
+        }
+        syntaxTree.rootNode().accept(new ClientNodeVisitor(
+                idlPluginManager, compilationOptions, currentPkg, idlClients, moduleLoadRequests,
+                pluginDiagnosticList, currentModuleDesc, name));
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -236,14 +243,28 @@ class DocumentContext {
     private static class ClientNodeVisitor extends NodeVisitor {
 
         private final IDLPluginManager idlPluginManager;
+        private final CompilationOptions compilationOptions;
         private final Package currentPkg;
-        private final Map<LineRange, Optional<PackageID>> idlClientMap;
+        private final IDLClients idlClients;
+        private final Set<ModuleLoadRequest> moduleLoadRequests;
+        private final List<Diagnostic> pluginDiagnosticList;
+        private final ModuleDescriptor currentModuleDesc;
+        private String docName;
 
         public ClientNodeVisitor(IDLPluginManager idlPluginManager,
-                                 Package currentPkg, Map<LineRange, Optional<PackageID>> idlClientMap) {
+                                 CompilationOptions compilationOptions,
+                                 Package currentPkg, IDLClients idlClients,
+                                 Set<ModuleLoadRequest> moduleLoadRequests,
+                                 List<Diagnostic> pluginDiagnosticList,
+                                 ModuleDescriptor moduleDescriptor, String docName) {
             this.idlPluginManager = idlPluginManager;
+            this.compilationOptions = compilationOptions;
             this.currentPkg = currentPkg;
-            this.idlClientMap = idlClientMap;
+            this.idlClients = idlClients;
+            this.moduleLoadRequests = moduleLoadRequests;
+            this.pluginDiagnosticList = pluginDiagnosticList;
+            this.currentModuleDesc = moduleDescriptor;
+            this.docName = docName;
         }
 
         @Override
@@ -253,8 +274,41 @@ class DocumentContext {
                 ProjectDiagnosticErrorCode errorCode =
                         ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
                 Location location = moduleClientDeclarationNode.location();
-                String message = "client declaration is not supported with standalone ballerina file";
-                idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                String message = "client declaration is not supported with standalone Ballerina file";
+                pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
+                return;
+            }
+
+            String uri = getUri(moduleClientDeclarationNode);
+            for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
+                if (cachedPlugin.url().equals(uri)) {
+                    cachedPlugin.annotations().sort(Comparator.naturalOrder());
+                    if (!cachedPlugin.annotations().equals(annotations(moduleClientDeclarationNode.annotations()))) {
+                        continue;
+                    }
+                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
+                        break;
+                    }
+                    String generatedModuleName = this.currentPkg.descriptor().name().value() +
+                            ProjectConstants.DOT + cachedPlugin.generatedModuleName();
+                    PackageID packageID = new PackageID(new Name(this.currentPkg.descriptor().org().value()),
+                            new Name(this.currentPkg.descriptor().name().value()),
+                            new Name(generatedModuleName),
+                            new Name(this.currentPkg.descriptor().version().toString()), null);
+                    idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                            moduleClientDeclarationNode.clientPrefix().location().lineRange(),
+                            packageID);
+                    moduleLoadRequests.add(new ModuleLoadRequest(
+                            PackageOrg.from(packageID.orgName.getValue()),
+                            packageID.name.getValue(),
+                            PackageDependencyScope.DEFAULT,
+                            DependencyResolutionType.SOURCE));
+                    idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
+                    return;
+                }
+            }
+
+            if (!compilationOptions.withIDLGenerators()) {
                 return;
             }
 
@@ -268,18 +322,18 @@ class DocumentContext {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         Location location = moduleClientDeclarationNode.location();
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
-                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    moduleClientDeclarationNode,
-                                    currentPkg, idlPath, idlClientMap,
-                                    idlPluginManager.generatedModuleConfigs());
+                                    moduleClientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
+                                    currentPkg, idlPath, idlClients, moduleLoadRequests,
+                                    idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
-                            idlPluginManager.diagnosticList().addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
                             return; // Assumption: only one plugin will be able to handle a given client node
                         }
                     } catch (Exception e) {
@@ -287,7 +341,7 @@ class DocumentContext {
                         Location location = moduleClientDeclarationNode.location();
                         String message = "unexpected exception thrown from plugin class: " 
                                 + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
-                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
                     }
                 }
@@ -295,8 +349,9 @@ class DocumentContext {
             ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
             Location location = moduleClientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
-            idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(moduleClientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
+            pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                    moduleClientDeclarationNode.clientPrefix().location().lineRange(), null);
         }
 
         @Override
@@ -306,8 +361,40 @@ class DocumentContext {
                 ProjectDiagnosticErrorCode errorCode =
                         ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
                 Location location = clientDeclarationNode.location();
-                String message = "client declaration is not supported with standalone ballerina file";
-                idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                String message = "client declaration is not supported with standalone Ballerina file";
+                pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
+                return;
+            }
+
+            String uri = getUri(clientDeclarationNode);
+            for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
+                if (cachedPlugin.url().equals(uri)) {
+                    cachedPlugin.annotations().sort(Comparator.naturalOrder());
+                    if (cachedPlugin.annotations().equals(annotations(clientDeclarationNode.annotations()))) {
+                        if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
+                            break;
+                        }
+                        String generatedModuleName = this.currentPkg.descriptor().name().value() +
+                                ProjectConstants.DOT + cachedPlugin.generatedModuleName();
+                        PackageID packageID = new PackageID(new Name(this.currentPkg.descriptor().org().value()),
+                                new Name(this.currentPkg.descriptor().name().value()),
+                                new Name(generatedModuleName),
+                                new Name(this.currentPkg.descriptor().version().toString()), null);
+                        idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                                clientDeclarationNode.clientPrefix().location().lineRange(),
+                                packageID);
+                        moduleLoadRequests.add(new ModuleLoadRequest(
+                                PackageOrg.from(packageID.orgName.getValue()),
+                                packageID.name.getValue(),
+                                PackageDependencyScope.DEFAULT,
+                                DependencyResolutionType.SOURCE));
+                        idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
+                        return;
+                    }
+                }
+            }
+
+            if (!compilationOptions.withIDLGenerators()) {
                 return;
             }
 
@@ -321,18 +408,18 @@ class DocumentContext {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         Location location = clientDeclarationNode.location();
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
-                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    clientDeclarationNode,
-                                    currentPkg, idlPath, idlClientMap,
-                                    idlPluginManager.generatedModuleConfigs());
+                                    clientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
+                                    currentPkg, idlPath, idlClients, moduleLoadRequests,
+                                    idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
-                            idlPluginManager.diagnosticList().addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
                             return; // Assumption: only one plugin will be able to handle a given client node
                         }
                     } catch (Exception e) {
@@ -340,7 +427,7 @@ class DocumentContext {
                         Location location = clientDeclarationNode.location();
                         String message = "unexpected exception thrown from plugin class: "
                                 + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
-                        idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
+                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
                     }
                 }
@@ -348,8 +435,26 @@ class DocumentContext {
             ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
             Location location = clientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
-            idlPluginManager.reportDiagnostic(createDiagnostic(errorCode, location, message));
-            idlClientMap.put(clientDeclarationNode.clientPrefix().location().lineRange(), Optional.empty());
+            pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
+                    clientDeclarationNode.clientPrefix().location().lineRange(), null);
+        }
+
+        private List<String> annotations(NodeList<AnnotationNode> supportedAnnotations) {
+            List<String> annotations = new ArrayList<>();
+            StringBuilder id = new StringBuilder();
+            for (AnnotationNode annotation : supportedAnnotations) {
+                String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
+                        .replaceAll("\\n", "");
+                id.append(annotationRef);
+
+                String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
+                        .replaceAll("\\n", "");
+                id.append(annotationVal);
+                annotations.add(id.toString());
+            }
+            annotations.sort(Comparator.naturalOrder());
+            return annotations;
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
@@ -361,10 +466,16 @@ class DocumentContext {
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
             URL url = new URL(getUri(clientNode));
-            Path resourcePath = this.currentPkg.project().targetDir().resolve(
-                    "idl-resource" + System.currentTimeMillis());
+            String extension = FileNameUtils.getExtension(url.getFile());
+            String fileName = "idl-spec-file" + System.currentTimeMillis();
+            if (!"".equals(extension)) {
+                fileName = fileName + ProjectConstants.DOT + extension;
+            }
+            Path resourceName = Paths.get(fileName);
+            Path resourcePath = this.currentPkg.project().targetDir().resolve(resourceName);
             Files.createDirectories(this.currentPkg.project().targetDir());
             Files.createFile(resourcePath);
+
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
                 byte[] dataBuffer = new byte[1024];

@@ -58,7 +58,7 @@ public class TestUtils {
         return BuildProject.load(projectPath, buildOptions);
     }
 
-    static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
+    public static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
         return BuildProject.load(projectPath, mergedOptions);

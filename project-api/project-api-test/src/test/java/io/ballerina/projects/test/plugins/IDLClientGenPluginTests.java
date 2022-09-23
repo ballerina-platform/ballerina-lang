@@ -18,11 +18,13 @@
 
 package io.ballerina.projects.test.plugins;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.test.TestUtils;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,10 +40,13 @@ public class IDLClientGenPluginTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
+    private String targetPath = ProjectUtils.getTemporaryTargetPath();
 
     @Test
     public void testIdlPluginBuildProject() {
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        BuildOptions buildOptions = BuildOptions.builder().targetDir(targetPath).build();
+        Project project = TestUtils.loadBuildProject(
+                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"), buildOptions);
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
         Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
 
@@ -53,9 +58,25 @@ public class IDLClientGenPluginTests {
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
     }
 
+    @Test (dependsOnMethods = "testIdlPluginBuildProject")
+    public void testIdlPluginBuildProjectLoadExisting() {
+        BuildOptions buildOptions = BuildOptions.builder().targetDir(targetPath).build();
+        Project project = TestUtils.loadBuildProject(
+                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"), buildOptions);
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
+                "Unexpected number of compilation diagnostics");
+
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+    }
+
     @Test
     public void testIdlPluginBuildProjectRepeatCompilation() {
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"),
+                buildOptions);
         Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
@@ -67,7 +88,9 @@ public class IDLClientGenPluginTests {
 
     @Test
     public void testIdlPluginBuildProjectRepeatEditsWithCompilation() {
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"));
+        BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"),
+                buildOptions);
         Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
 
         DocumentId documentId = project.currentPackage().getDefaultModule().documentIds()

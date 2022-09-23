@@ -627,7 +627,22 @@ public class SymbolFactory {
     private BallerinaClientDeclSymbol createClientDeclSymbol(BClientDeclarationSymbol symbol) {
         BallerinaClientDeclSymbol.ClientDeclSymbolBuilder symbolBuilder =
                 new BallerinaClientDeclSymbol.ClientDeclSymbolBuilder(symbol.getName().getValue(), symbol, context);
+
+        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+        }
         return symbolBuilder.build();
+    }
+
+    /**
+     * Get associated module of the given client declaration symbol.
+     *
+     * @param clientDeclSymbol Client declaration Symbol
+     * @return {@link BallerinaModule} symbol generated
+     */
+    public BallerinaModule getAssociatedModule(BClientDeclarationSymbol clientDeclSymbol) {
+        BPackageSymbol packageSymbol = (BPackageSymbol) symResolver.resolveClientDeclPrefix(clientDeclSymbol);
+        return createModuleSymbol(packageSymbol, packageSymbol.getName().value);
     }
 
     /**

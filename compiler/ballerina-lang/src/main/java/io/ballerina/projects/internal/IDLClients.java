@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class IDLClients {
     public static final CompilerContext.Key<IDLClients> IDL_CLIENT_MAP_KEY = new CompilerContext.Key<>();
-    private final Map<LineRange, Optional<PackageID>> idlClientMap;
+    private final Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> idlClientMap;
 
     private IDLClients(CompilerContext context) {
         context.put(IDL_CLIENT_MAP_KEY, this);
@@ -49,7 +49,17 @@ public class IDLClients {
         return idlClients;
     }
 
-    public Map<LineRange, Optional<PackageID>> idlClientMap() {
+    public Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> idlClientMap() {
         return idlClientMap;
+    }
+
+    public void addEntry(PackageID sourcePkgID, String sourceDoc, LineRange lineRange, PackageID clientPkgID) {
+        if (!this.idlClientMap.containsKey(sourcePkgID)) {
+            this.idlClientMap.put(sourcePkgID, new HashMap<>());
+        }
+        if (!this.idlClientMap.get(sourcePkgID).containsKey(sourceDoc)) {
+            this.idlClientMap.get(sourcePkgID).put(sourceDoc, new HashMap<>());
+        }
+        this.idlClientMap.get(sourcePkgID).get(sourceDoc).put(lineRange, Optional.ofNullable(clientPkgID));
     }
 }

@@ -19,11 +19,17 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents an client declaration Symbol.
@@ -33,15 +39,35 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaClientDeclSymbol extends BallerinaSymbol implements ClientDeclSymbol {
 
     private final String serviceUri;
+    private ModuleSymbol moduleSymbol;
+    private final List<AnnotationSymbol> annots;
 
-    private BallerinaClientDeclSymbol(String name, BSymbol symbol, String serviceUri, CompilerContext context) {
+    private BallerinaClientDeclSymbol(String name, BSymbol symbol, String serviceUri, List<AnnotationSymbol> annots,
+                                      CompilerContext context) {
         super(name, SymbolKind.CLIENT_DECLARATION, symbol, context);
         this.serviceUri = serviceUri;
+        this.annots = annots;
     }
 
     @Override
     public String serviceUri() {
         return this.serviceUri;
+    }
+
+    @Override
+    public ModuleSymbol moduleSymbol() {
+        if (this.moduleSymbol != null) {
+            return moduleSymbol;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(context);
+        this.moduleSymbol = symbolFactory.getAssociatedModule((BClientDeclarationSymbol) this.getInternalSymbol());
+        return this.moduleSymbol;
+    }
+
+    @Override
+    public List<AnnotationSymbol> annotations() {
+        return this.annots;
     }
 
     @Override
@@ -60,6 +86,7 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
     public static class ClientDeclSymbolBuilder extends SymbolBuilder<ClientDeclSymbolBuilder> {
 
         protected String uri;
+        private List<AnnotationSymbol> annots = new ArrayList<>();
 
         /**
          * Symbol Builder's Constructor.
@@ -73,9 +100,14 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
             this.uri = symbol.uri;
         }
 
+        public ClientDeclSymbolBuilder withAnnotation(AnnotationSymbol annot) {
+            this.annots.add(annot);
+            return this;
+        }
+
         @Override
         public BallerinaClientDeclSymbol build() {
-            return new BallerinaClientDeclSymbol(this.name, this.bSymbol, this.uri, this.context);
+            return new BallerinaClientDeclSymbol(this.name, this.bSymbol, this.uri, this.annots, this.context);
         }
     }
 }
