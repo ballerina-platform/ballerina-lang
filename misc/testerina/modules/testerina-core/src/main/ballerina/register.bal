@@ -25,7 +25,7 @@ final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
 public function registerTest(string name, function f, string[] dependsOn = []) {
-    processAnnotation(name, f, dependsOn);
+    processAnnotation(name.trim(), f, dependsOn);
 }
 
 type TestFunction record {|

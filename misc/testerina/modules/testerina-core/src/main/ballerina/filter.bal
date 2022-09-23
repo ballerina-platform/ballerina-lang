@@ -18,7 +18,7 @@ string[] filterGroups = [];
 string[] filterDisableGroups = [];
 string[] filterTests = [];
 map<string?> filterTestModules = {};
-string[] filterSubTests = [];
+map<string[]> filterSubTests = {};
 string moduleName = "";
 string packageName = "";
 boolean hasFilteredTests = false;
@@ -69,9 +69,16 @@ function filterKeyBasedTests(string packageName, string moduleName, string[] tes
             updatedName = updatedName.substring(separatorIndex + 1);
         }
         if (containsDataKeySuffix(updatedName)) {
-            filterSubTests.push(updatedName);
             int separatorIndex = <int>updatedName.indexOf(DATA_KEY_SEPARATOR);
-            updatedName = updatedName.substring(0, separatorIndex);
+            string suffix = updatedName.substring(separatorIndex + 1);
+            string testPart = updatedName.substring(0, separatorIndex);
+            if (filterSubTests.hasKey(updatedName)) {
+                string[] subTestList = <string[]>filterSubTests[testPart];
+                subTestList.push(suffix);
+            } else {
+                filterSubTests[testPart] = [suffix];
+            }
+            updatedName = testPart;
         }
         filterTests.push(updatedName);
         filterTestModules[updatedName] = prefix;
@@ -91,13 +98,15 @@ function parseBooleanInput(string input, string variableName) returns boolean {
 function parseRerunJson() returns error? {
     map<ModuleRerunJson> rerunJson = check readRerunJson();
 
+    // TODO: save and get correct filterTestModules for filterTests
     ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
     if moduleRerunJson is ModuleRerunJson {
         filterTests = moduleRerunJson.testNames;
         foreach string test in filterTests {
             filterTestModules[test] = ();
         }
-        filterSubTests = moduleRerunJson.subTestNames;
+        // TODO: use a map here
+        // filterSubTests = moduleRerunJson.subTestNames;
     }
 }
 

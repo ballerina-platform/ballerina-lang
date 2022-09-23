@@ -73,7 +73,7 @@ function executeTest(TestFunction testFunction) {
         DataProviderReturnType? params = testFunction.params;
         if params is map<AnyOrError[]> {
             foreach [string, AnyOrError[]] entry in params.entries() {
-                if executeDataDrivenTest(testFunction, entry[0], entry[1]) {
+                if executeDataDrivenTest(testFunction, entry[0], entry[1], true) {
                     shouldSkipDependents = true;
                     break;
                 }
@@ -81,7 +81,7 @@ function executeTest(TestFunction testFunction) {
         } else if params is AnyOrError[][] {
             int i = 0;
             foreach AnyOrError[] entry in params {
-                if executeDataDrivenTest(testFunction, i.toString(), entry) {
+                if executeDataDrivenTest(testFunction, i.toString(), entry, false) {
                     shouldSkipDependents = true;
                     break;
                 }
@@ -196,37 +196,12 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
     }
 }
 
-function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params) returns boolean {
-    // TODO: refactor
-    if hasFilteredTests {
-        // has --tests flag
-        int? testIndex = filterSubTests.indexOf(testFunction.name + DATA_KEY_SEPARATOR + suffix);
-        if testIndex is int {
-            // has '#' keyed tests with no wild cards
-            _ = filterSubTests.remove(testIndex);
-        } else {
-            // either 
-            // 1. has '#' keyed --tests with wild cards
-            // 2. No '#' keyed tests (** still has --tests flag)
-            boolean hasWildCard = false;
-            foreach string filterSub in filterSubTests {
-                int? separatorIndex = filterSub.indexOf(DATA_KEY_SEPARATOR);
-                if (separatorIndex == ()) {
-                    continue;
-                }
-                string filter = filterSub.substring(0, separatorIndex);
-                if (filter.includes(WILDCARD) && matchWildcard(testFunction.name, filter)) {
-                    hasWildCard = true;
-                    break;
-                }
-            }
-            // 1. Invalid --test flag
-            // 2. Has --test with no # key
-            if (hasWildCard == false && !hasTest(testFunction.name)) {
-                return false;
-            }
-        }
+function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrError[] params, boolean isMapOfTuple) returns boolean {
+    println("executeDataDrivenTest: ", testFunction.name);
+    if (skipDataDrivenTest(testFunction.name, suffix, isMapOfTuple)) {
+        return false;
     }
+
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, params);
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
@@ -234,6 +209,58 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, AnyOrEr
         return true;
     }
     return false;
+}
+
+function skipDataDrivenTest(string functionName, string suffix, boolean isMapOfTuple) returns boolean {
+    if (!hasFilteredTests) {
+        return false;
+    }
+    string functionKey = functionName;
+
+    // check if prefix matches directly
+    boolean prefixMatch = filterSubTests.hasKey(functionName);
+
+    // if prefix matches to a wildcard
+    if (!prefixMatch && hasTest(functionName)) {
+
+        // get the matching wildcard
+        prefixMatch = true;
+        foreach string filter in filterTests {
+            if (filter.includes(WILDCARD) && matchWildcard(functionKey, filter) && matchModuleName(filter)) {
+                functionKey = filter;
+                break;
+            }
+        }
+    }
+
+    // check if no filterSubTests found for a given prefix
+    boolean suffixMatch = !filterSubTests.hasKey(functionKey);
+
+    // if a subtest is found specified
+    if (!suffixMatch) {
+        string[] subTests = filterSubTests.get(functionKey);
+        foreach string subFilter in subTests {
+
+            // TODO: move subFilterUpdate logic to a separate method
+            string updatedSubFilter = subFilter;
+            if (isMapOfTuple) {
+                if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
+                    updatedSubFilter = subFilter.substring(1, subFilter.length() - 1);
+                } else {
+                    continue;
+                }
+            }
+
+            // direct match or wildcard match
+            if ((updatedSubFilter == suffix) || matchWildcard(suffix, updatedSubFilter)) {
+                suffixMatch = true;
+                break;
+            }
+        }
+    }
+
+    // do not skip iff both matches
+    return !(prefixMatch && suffixMatch);
 }
 
 function printExecutionError(ExecutionError err, string functionSuffix)
