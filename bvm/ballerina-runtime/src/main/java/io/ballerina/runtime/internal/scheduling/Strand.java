@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -56,7 +57,6 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
  *
  * @since 0.955.0
  */
-
 public class Strand {
 
     private static final AtomicInteger nextStrandId = new AtomicInteger(0);
@@ -131,6 +131,11 @@ public class Strand {
             this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
         }
     }
+
+    public static int getCreatedStrandCount() {
+        return nextStrandId.get();
+    }
+
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            String strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
@@ -403,12 +408,8 @@ public class Strand {
         return id;
     }
 
-    public int getStrandGroupId() {
-        return strandGroup.getId();
-    }
-
-    public boolean isStrandGroupScheduled() {
-        return strandGroup.isScheduled();
+    public ItemGroup getStrandGroup() {
+        return strandGroup;
     }
 
     /**
