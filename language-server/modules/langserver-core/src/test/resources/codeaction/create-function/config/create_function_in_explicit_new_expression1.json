@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getRandomName() returns string {\n    return \"\";\n}\n"
+          "newText": "\n\nfunction getRandomName() returns string {\n    return \"\";\n}"
         }
       ],
       "resolvable": true,
