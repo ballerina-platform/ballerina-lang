@@ -81,6 +81,7 @@ function consoleReport(ReportData data) {
     });
 
     int totalTestCount = data.passedCount() + data.failedCount() + data.skippedCount();
+    println("\n");
     if (totalTestCount == 0) {
         println("\t\tNo tests found");
     } else {

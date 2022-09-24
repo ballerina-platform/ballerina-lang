@@ -55,7 +55,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
  */
 public class TesterinaUtils {
 
-    private static final PrintStream outStream = System.out;
     private static final PrintStream errStream = System.err;
 
     private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
@@ -102,7 +101,9 @@ public class TesterinaUtils {
 //                throw new RuntimeException("there are test failures");
 //            }
         } catch (BallerinaTestException e) {
-            errStream.println("error: " + e.getMessage());
+            if (e.getMessage() != null) {
+                errStream.println("error: " + e.getMessage());
+            }
             throw e;
         } catch (Throwable e) {
             throw new RuntimeException("test execution failed due to runtime exception");
@@ -160,14 +161,14 @@ public class TesterinaUtils {
         Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class},
                 new Object[]{new String[]{}, getConfigPaths(suite), null});
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
+            throw new BallerinaTestException("configurable initialization for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
 
         init.setName("$moduleInit");
         response = init.invoke();
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
+            throw new BallerinaTestException("dependant module initialization for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
         // As the start function we need to use $moduleStart to start all the dependent modules
@@ -175,14 +176,13 @@ public class TesterinaUtils {
         start.setName("$moduleStart");
         response = start.invoke();
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
+            throw new BallerinaTestException("dependant module start for test suite failed due to error : " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
 
         response = testExecute.invoke(args.getArgTypes(), args.getArgValues());
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
+            throw new BallerinaTestException();
         }
 
         // Once the start function finish we will re start the scheduler with immortal true
