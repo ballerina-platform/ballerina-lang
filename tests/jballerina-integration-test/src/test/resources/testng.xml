@@ -312,6 +312,7 @@
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.test.semver.SemverValidatorTest"/>
+            <class name="org.ballerinalang.test.semver.SemverValidatorNegativeTest"/>
         </classes>
     </test>
 </suite>

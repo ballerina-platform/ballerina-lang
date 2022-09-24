@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.test.semver;
 
-import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,25 +27,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_ENV_KEY;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Integration tests for the semver validator tool.
+ * Integration test implementation for the semver validator.
  *
  * @since 2201.2.2
  */
-public class SemverValidatorTest extends BaseTest {
-
-    private Path tempProjectsDir;
-
-    private Path customRepoDir;
-    private BMainInstance balClient;
+public class SemverValidatorTest extends SemverValidatorBaseTest {
 
     @BeforeClass()
-    public void setUp() throws IOException, BallerinaTestException {
+    private void setup() throws IOException, BallerinaTestException {
         tempProjectsDir = Files.createTempDirectory("bal-test-integration-semver-");
         customRepoDir = tempProjectsDir.resolve("ballerina-home");
         Path testProject = Paths.get("src", "test", "resources", "semver").toAbsolutePath();
@@ -56,56 +47,79 @@ public class SemverValidatorTest extends BaseTest {
     }
 
     @Test(description = "Test semver validator output on a set of patch-compatible changes")
-    public void testPatchCompatibleChanges() throws BallerinaTestException {
+    public void testValidatePatchCompatibleChanges() throws BallerinaTestException {
         pushPackageToCustomRepo("package_1_0_0");
 
-        LogLeecher[] logLeechers = new LogLeecher[]{
-                new LogLeecher("current version: 1.0.1", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("compared with the release version '1.0.0'", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("patch-compatible changes detected", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("suggested version: 1.0.1", LogLeecher.LeecherType.ERROR)
-        };
-        executeSemverCommand("package_1_0_1", new String[]{"--compare-version=1.0.0"}, logLeechers);
+        List<String> expectedLogs = new LinkedList<>();
+        expectedLogs.add("current version: 1.0.1");
+        expectedLogs.add("compared with the release version '1.0.0'");
+        expectedLogs.add("patch-compatible changes detected");
+        expectedLogs.add("suggested version: 1.0.1");
+
+        executeSemverCommand("package_1_0_1", new String[]{"--compare-version=1.0.0"}, expectedLogs);
     }
 
     @Test(description = "Test semver validator output on a set of patch-incompatible changes")
-    public void testPatchIncompatibleChanges() throws BallerinaTestException {
+    public void testValidatePatchIncompatibleChanges() throws BallerinaTestException {
         pushPackageToCustomRepo("package_1_0_0");
 
-        LogLeecher[] logLeechers = new LogLeecher[]{
-                new LogLeecher("current version: 1.1.0", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("compared with the release version '1.0.0'", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("patch-incompatible changes detected", LogLeecher.LeecherType.ERROR),
-                new LogLeecher("suggested version: 1.1.0", LogLeecher.LeecherType.ERROR)
-        };
-        executeSemverCommand("package_1_1_0", new String[]{"--compare-version=1.0.0"}, logLeechers);
+        List<String> expectedLogs = new LinkedList<>();
+        expectedLogs.add("current version: 1.1.0");
+        expectedLogs.add("compared with the release version '1.0.0'");
+        expectedLogs.add("patch-incompatible changes detected");
+        expectedLogs.add("suggested version: 1.1.0");
+
+        executeSemverCommand("package_1_1_0", new String[]{"--compare-version=1.0.0"}, expectedLogs);
     }
 
-    private void pushPackageToCustomRepo(String packageName) throws BallerinaTestException {
-        Map<String, String> customRepoEnv = new HashMap<>();
-        customRepoEnv.put(HOME_REPO_ENV_KEY, customRepoDir.toAbsolutePath().toString());
+    @Test(description = "Test semver validator output on a set of backward-compatible changes")
+    public void testValidateBackwardIncompatibleChanges() throws BallerinaTestException {
+        pushPackageToCustomRepo("package_1_0_0");
 
-        balClient.runMain("pack", new String[]{}, customRepoEnv, new String[]{}, new LogLeecher[0],
-                tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+        List<String> expectedLogs = new LinkedList<>();
+        expectedLogs.add("current version: 2.0.0");
+        expectedLogs.add("compared with the release version '1.0.0'");
+        expectedLogs.add("backward-incompatible changes detected");
+        expectedLogs.add("suggested version: 2.0.0");
 
-        balClient.runMain("push", new String[]{"--repository=local"}, customRepoEnv, new String[]{},
-                new LogLeecher[0], tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+        executeSemverCommand("package_2_0_0", new String[]{"--compare-version=1.0.0"}, expectedLogs);
     }
 
-    private void executeSemverCommand(String packageName, String[] commandArgs, LogLeecher[] logLeechers) {
-        try {
-            Map<String, String> customRepoEnv = new HashMap<>();
-            customRepoEnv.put(HOME_REPO_ENV_KEY, customRepoDir.toAbsolutePath().toString());
+    @Test(description = "Test semver validation functionality where multiple release versions of the same package" +
+            "are available in local/central repositories")
+    public void testValidateWithMultipleRelease() throws BallerinaTestException {
+        pushPackageToCustomRepo("package_1_0_0");
+        pushPackageToCustomRepo("package_1_0_1");
+        pushPackageToCustomRepo("package_1_1_0");
 
-            balClient.runMain("semver", commandArgs, customRepoEnv, new String[]{}, logLeechers,
-                    tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+        List<String> expectedLogs = new LinkedList<>();
+        expectedLogs.add("current version: 2.0.0");
+        expectedLogs.add("compared with the release version '1.0.1'");
+        expectedLogs.add("backward-incompatible changes detected");
+        expectedLogs.add("suggested version: 2.0.0");
 
-            for (LogLeecher leecher : logLeechers) {
-                leecher.waitForText(10000);
-            }
-        } catch (BallerinaTestException e) {
-            throw new RuntimeException(e);
-        }
+        executeSemverCommand("package_2_0_0", new String[]{"--compare-version=1.0.1"}, expectedLogs);
+    }
+
+    @Test(description = "Test semver validation output with the diff option enabled")
+    public void testValidateWithDiffEnabled() throws BallerinaTestException {
+        pushPackageToCustomRepo("package_1_0_0");
+
+        List<String> expectedLogs = new LinkedList<>();
+        expectedLogs.add("current version: 2.0.0");
+        expectedLogs.add("compared with the release version '1.0.0'");
+        expectedLogs.add("backward-incompatible changes detected");
+        expectedLogs.add("suggested version: 2.0.0");
+        // diff output related logs
+        expectedLogs.add("Comparing version '2.0.0'(local) with version '1.0.0'(central)");
+        expectedLogs.add("[+-] package 'library' is modified [version impact: MAJOR]");
+        expectedLogs.add("  [+-] module 'library' is modified [version impact: MAJOR]");
+        expectedLogs.add("    [++] function 'privateFunctionChanged' is added [version impact: PATCH]");
+        expectedLogs.add("    [++] function 'publicFunctionNew' is added [version impact: PATCH]");
+        expectedLogs.add("    [--] function 'privateFunction' is removed [version impact: PATCH]");
+        expectedLogs.add("    [--] function 'publicFunction' is removed [version impact: MAJOR]");
+
+        executeSemverCommand("package_2_0_0", new String[]{"--compare-version=1.0.0", "--show-diff"}, expectedLogs);
     }
 
     @AfterClass
