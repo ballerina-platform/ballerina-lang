@@ -36,6 +36,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.semver.checker.exception.SemverToolException;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.slf4j.Logger;
@@ -52,6 +53,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_ENV_KEY;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -128,18 +130,19 @@ class BallerinaPackageResolver {
         // Avoids pulling from central if the package version already available in the local repo.
         Path packagePathInLocalRepo = centralCachePath.resolve(orgName).resolve(pkgName);
         if (Files.exists(packagePathInLocalRepo) && Files.isDirectory(packagePathInLocalRepo)) {
+            LOGGER.debug("target version: " + version.toString() + "is already available in local repository");
             ProjectUtils.getPackagePath(localRepoPath, orgName, pkgName, version.toString());
         }
 
         // Avoids pulling from central if the package version already available in the local central cache.
         Path packagePathInCentralCache = centralCachePath.resolve(orgName).resolve(pkgName);
         if (Files.exists(packagePathInCentralCache) && Files.isDirectory(packagePathInCentralCache)) {
+            LOGGER.debug("target version: " + version.toString() + "is already available in central repository cache");
             ProjectUtils.getPackagePath(centralCachePath, orgName, pkgName, version.toString());
         }
 
-        errStream.printf("resolving package version '%s/%s:%s'...%n", orgName, pkgName, version);
+        outStream.printf("resolving package '%s/%s:%s'...%n", orgName, pkgName, version);
         return resolveBalaPath(orgName, pkgName, version.toString());
-
     }
 
     /**
@@ -184,20 +187,20 @@ class BallerinaPackageResolver {
                 PackageVersion.from(version), repository);
         ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor);
 
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
         PackageResolver packageResolver = getEnvironment().getService(PackageResolver.class);
         Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                 Collections.singletonList(resolutionRequest), ResolutionOptions.builder().setOffline(false).build());
         ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().orElse(null);
 
-        if (resolutionResponse != null && resolutionResponse.resolutionStatus().equals(
-                ResolutionResponse.ResolutionStatus.RESOLVED)) {
+        if (resolutionResponse != null && resolutionResponse.resolutionStatus().equals(ResolutionStatus.RESOLVED)) {
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             if (resolvedPackage != null) {
                 return resolvedPackage.project().sourceRoot();
             }
         }
 
-        throw new SemverToolException("No bala project found for package '" + packageDescriptor + "'");
+        throw new SemverToolException("failed to resolve package '" + packageDescriptor + "' from central");
     }
 
     private SemanticVersion getHighestVersion(List<SemanticVersion> availableVersions) {

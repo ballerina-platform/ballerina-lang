@@ -106,7 +106,7 @@ public class SemverChecker {
 
         BallerinaPackageResolver clientWrapper = new BallerinaPackageResolver(outStream, errStream);
         if (releaseVersion == null) {
-            errStream.println("checking for the latest compatible release version available in central...");
+            outStream.println("checking for the latest compatible release version available in central...");
             releaseVersion = clientWrapper.resolveClosestCompatibleCentralVersion(orgName, pkgName, pkgVersion);
         }
         Path balaPath = clientWrapper.resolvePackage(orgName, pkgName, releaseVersion);
