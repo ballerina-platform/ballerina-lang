@@ -1046,7 +1046,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TupleTypeDescriptorNode tupleTypeDescriptorNode) {
         BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-        boolean isAnonymous = checkIfAnonymous(tupleTypeDescriptorNode);
         SeparatedNodeList<Node> types = tupleTypeDescriptorNode.memberTypeDesc();
         for (int i = 0; i < types.size(); i++) {
             Node node = types.get(i);
@@ -1055,10 +1054,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
-                this.anonTypeNameSuffixes.push(String.valueOf(i));
                 BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
                         memberNode.annotations());
-                this.anonTypeNameSuffixes.pop();
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
                 member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
@@ -1066,12 +1063,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
-
-        // If anonymous type, create a user defined type and return it.
-        if (!isAnonymous || this.isInLocalContext) {
-            return tupleTypeNode;
-        }
-        return createAnonymousTupleType(tupleTypeDescriptorNode, tupleTypeNode);
+        return tupleTypeNode;
     }
 
     @Override
