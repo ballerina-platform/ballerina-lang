@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type AnnotationProcessor function (string name, function f, string[] dependsOn) returns boolean;
+type AnnotationProcessor function (string name, function f) returns boolean;
 
 AnnotationProcessor[] annotationProcessors = [
     processConfigAnnotation,
@@ -26,10 +26,10 @@ AnnotationProcessor[] annotationProcessors = [
     processAfterGroupsAnnotation
 ];
 
-function processAnnotation(string name, function f, string[] dependsOn) {
+function processAnnotation(string name, function f) {
     boolean annotationProcessed = false;
     foreach AnnotationProcessor annotationProcessor in annotationProcessors {
-        if (annotationProcessor(name, f, dependsOn)) {
+        if (annotationProcessor(name, f)) {
             annotationProcessed = true;
             break;
         }
@@ -43,7 +43,7 @@ function processAnnotation(string name, function f, string[] dependsOn) {
     // }
 }
 
-function processConfigAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
         DataProviderReturnType? params = ();
@@ -63,13 +63,13 @@ function processConfigAnnotation(string name, function f, string[] dependsOn) re
 
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            dependsOnString = dependsOn, enabled = enabled, dependsOnCount = dependsOn.length());
+            enabled = enabled, dependsOnCount = config.dependsOn.length());
         return true;
     }
     return false;
 }
 
-function processBeforeSuiteAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processBeforeSuiteAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@BeforeSuite;
     if isTrue == true {
         beforeSuiteRegistry.addFunction(name = name, executableFunction = f);
@@ -78,7 +78,7 @@ function processBeforeSuiteAnnotation(string name, function f, string[] dependsO
     return false;
 }
 
-function processAfterSuiteAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processAfterSuiteAnnotation(string name, function f) returns boolean {
     AfterSuiteConfig? config = (typeof f).@AfterSuite;
     if config != () {
         afterSuiteRegistry.addFunction(name = name, executableFunction = f, alwaysRun = config.alwaysRun);
@@ -87,7 +87,7 @@ function processAfterSuiteAnnotation(string name, function f, string[] dependsOn
     return false;
 }
 
-function processBeforeEachAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processBeforeEachAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@BeforeEach;
     if isTrue == true {
         beforeEachRegistry.addFunction(name = name, executableFunction = f);
@@ -96,7 +96,7 @@ function processBeforeEachAnnotation(string name, function f, string[] dependsOn
     return false;
 }
 
-function processAfterEachAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processAfterEachAnnotation(string name, function f) returns boolean {
     boolean? isTrue = (typeof f).@AfterEach;
     if isTrue == true {
         afterEachRegistry.addFunction(name = name, executableFunction = f);
@@ -105,7 +105,7 @@ function processAfterEachAnnotation(string name, function f, string[] dependsOn)
     return false;
 }
 
-function processBeforeGroupsAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processBeforeGroupsAnnotation(string name, function f) returns boolean {
     BeforeGroupsConfig? config = (typeof f).@BeforeGroups;
     if config != () {
         config.value.forEach(group => beforeGroupsRegistry.addFunction(group,
@@ -115,7 +115,7 @@ function processBeforeGroupsAnnotation(string name, function f, string[] depends
     return false;
 }
 
-function processAfterGroupsAnnotation(string name, function f, string[] dependsOn) returns boolean {
+function processAfterGroupsAnnotation(string name, function f) returns boolean {
     AfterGroupsConfig? config = (typeof f).@AfterGroups;
     if config != () {
         config.value.forEach(group => afterGroupsRegistry.addFunction(group,

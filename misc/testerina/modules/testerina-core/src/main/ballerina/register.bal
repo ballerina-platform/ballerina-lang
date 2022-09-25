@@ -24,8 +24,8 @@ final GroupRegistry beforeGroupsRegistry = new ();
 final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
-public function registerTest(string name, function f, string[] dependsOn = []) {
-    processAnnotation(name.trim(), f, dependsOn);
+public function registerTest(string name, function f) {
+    processAnnotation(name.trim(), f);
 }
 
 type TestFunction record {|
@@ -41,7 +41,6 @@ type TestFunction record {|
     error? diagnostics = ();
     function[] dependsOn = [];
     int dependsOnCount = 0;
-    string[] dependsOnString = [];
     TestFunction[] dependents = [];
     boolean visited = false;
 |};
