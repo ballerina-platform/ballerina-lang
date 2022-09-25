@@ -3937,16 +3937,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
         NodeKind nodeKind = typeDef.typeNode.getKind();
-        if (nodeKind == TUPLE_TYPE_NODE) {
-            BTupleType bTupleType = (BTupleType) typeDef.symbol.type;
-            BLangTupleTypeNode bLangTupleTypeNode = (BLangTupleTypeNode) typeDef.typeNode;
-            Scope scope = new Scope(bTupleType.tsymbol);
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(bLangTupleTypeNode, scope, pkgEnv);
-
-            resolveTupleMembers(bTupleType, bLangTupleTypeNode,
-                    SymbolEnv.createTypeEnv(bLangTupleTypeNode, scope, pkgEnv));
-            return;
-        } else if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
+        if (nodeKind != NodeKind.OBJECT_TYPE && nodeKind != NodeKind.RECORD_TYPE) {
             return;
         }
 

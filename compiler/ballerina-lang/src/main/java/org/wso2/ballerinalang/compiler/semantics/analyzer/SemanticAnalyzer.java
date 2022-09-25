@@ -991,13 +991,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
-        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeNode.getBType().tsymbol),
-                data.env);
+        BType btype = tupleTypeNode.getBType();
+        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(btype.tsymbol), data.env);
+
         for (int i = 0; i < memberTypeNodes.size(); i++) {
-            data.env = tupleEnv;
-            analyzeDef(memberTypeNodes.get(i), data);
-            BType btype = tupleTypeNode.getBType();
-            if (btype != null && btype.getKind() == TypeKind.TUPLE) {
+            if (btype.getKind() == TypeKind.TUPLE) {
+                data.env = tupleEnv;
+                analyzeDef(memberTypeNodes.get(i), data);
                 for (BLangAnnotationAttachment ann : memberTypeNodes.get(i).annAttachments) {
                     ((BTupleType) btype).tupleTypes.get(i).symbol
                             .addAnnotation(ann.annotationAttachmentSymbol);
