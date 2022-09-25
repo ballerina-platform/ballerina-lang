@@ -4,6 +4,7 @@
     "character": 4
   },
   "source": "createVariableWithCheck.bal",
+  "description": "Parent function has union return type with no error member",
   "expected": [
     {
       "title": "Create variable and check error",
@@ -54,11 +55,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithCheck.bal",
-          274
+          256
         ]
       },
       "resolvable": false
     }
-  ],
-  "description": "Parent function has union return type with no error member"
+  ]
 }
