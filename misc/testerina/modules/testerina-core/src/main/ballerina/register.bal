@@ -24,10 +24,6 @@ final GroupRegistry beforeGroupsRegistry = new ();
 final GroupRegistry afterGroupsRegistry = new ();
 final GroupStatusRegistry groupStatusRegistry = new ();
 
-public function registerTest(string name, function f) {
-    processAnnotation(name.trim(), f);
-}
-
 type TestFunction record {|
     string name;
     function executableFunction;

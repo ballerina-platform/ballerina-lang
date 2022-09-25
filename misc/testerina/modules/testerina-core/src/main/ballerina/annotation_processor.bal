@@ -26,10 +26,10 @@ AnnotationProcessor[] annotationProcessors = [
     processAfterGroupsAnnotation
 ];
 
-function processAnnotation(string name, function f) {
+public function registerTest(string name, function f) {
     boolean annotationProcessed = false;
     foreach AnnotationProcessor annotationProcessor in annotationProcessors {
-        if (annotationProcessor(name, f)) {
+        if (annotationProcessor(name.trim(), f)) {
             annotationProcessed = true;
             break;
         }
