@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const string CONST \u003d \"Hello World\";\n"
+          "newText": "const string CONST = \"Hello World\";\n"
         },
         {
           "range": {
@@ -35,7 +35,16 @@
           },
           "newText": "CONST"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Constant",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToConstantWithImports.bal",
+          139
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
