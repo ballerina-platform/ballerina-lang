@@ -72,36 +72,13 @@ function executeTest(TestFunction testFunction) {
 
     executeBeforeGroupFunctions(testFunction);
     executeBeforeEachFunctions();
-    executeBeforeFunction(testFunction);
 
     boolean shouldSkipDependents = false;
     if !testFunction.skip && !shouldSkip {
-        DataProviderReturnType? params = testFunction.params;
-        if params is map<AnyOrError[]> {
-            foreach [string, AnyOrError[]] entry in params.entries() {
-                if executeDataDrivenTest(testFunction, entry[0], DATA_DRIVEN_MAP_OF_TUPLE, entry[1]) {
-                    shouldSkipDependents = true;
-                    break;
-                }
-            }
-        } else if params is AnyOrError[][] {
-            int i = 0;
-            foreach AnyOrError[] entry in params {
-                if executeDataDrivenTest(testFunction, i.toString(), DATA_DRIVEN_TUPLE_OF_TUPLE, entry) {
-                    shouldSkipDependents = true;
-                    break;
-                }
-                i += 1;
-            }
+        if (isDataDrivenTest(testFunction)) {
+            executeDataDrivenTestSet(testFunction);
         } else {
-            ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
-            if output is ExecutionError {
-                shouldSkipDependents = true;
-                reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
-            }
-            if output is boolean && output {
-                shouldSkipDependents = true;
-            }
+            shouldSkipDependents = executeNonDataDrivenTest(testFunction);
         }
     } else {
         reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
@@ -109,7 +86,6 @@ function executeTest(TestFunction testFunction) {
     }
 
     testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
-    executeAfterFunction(testFunction);
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
@@ -119,6 +95,68 @@ function executeTest(TestFunction testFunction) {
         });
     }
     testFunction.dependents.forEach(dependent => executeTest(dependent));
+}
+
+function executeDataDrivenTestSet(TestFunction testFunction) {
+    DataProviderReturnType? params = testFunction.params;
+    if params is map<AnyOrError[]> {
+        foreach [string, AnyOrError[]] entry in params.entries() {
+            boolean beforeFailed = executeBeforeFunction(testFunction);
+            if (beforeFailed) {
+                reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+            } else {
+                executeDataDrivenTest(testFunction, entry[0], DATA_DRIVEN_MAP_OF_TUPLE, entry[1]);
+                var _ = executeAfterFunction(testFunction);
+            }
+        }
+    } else if params is AnyOrError[][] {
+        int i = 0;
+        foreach AnyOrError[] entry in params {
+            boolean beforeFailed = executeBeforeFunction(testFunction);
+            if (beforeFailed) {
+                reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+            } else {
+                executeDataDrivenTest(testFunction, i.toString(), DATA_DRIVEN_TUPLE_OF_TUPLE, entry);
+                var _ = executeAfterFunction(testFunction);
+            }
+            i += 1;
+        }
+    }
+}
+
+function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
+    if (skipDataDrivenTest(testFunction, suffix, testType)) {
+        return;
+    }
+
+    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
+    if err is ExecutionError {
+        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
+            + "]\n" + getErrorMessage(err), testType = testType);
+        exitCode = 1;
+    }
+}
+
+function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
+    boolean failed = false;
+    boolean beforeFailed = executeBeforeFunction(testFunction);
+    if (beforeFailed) {
+        testFunction.skip = true;
+        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        return true;
+    }
+    ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
+    if output is ExecutionError {
+        failed = true;
+        reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
+    } else if output {
+        failed = true;
+    }
+    boolean afterFailed = executeAfterFunction(testFunction);
+    if (afterFailed) {
+        return true;
+    }
+    return failed;
 }
 
 function executeBeforeSuiteFunctions() {
@@ -157,28 +195,30 @@ function executeAfterEachFunctions() {
     }
 }
 
-function executeBeforeFunction(TestFunction testFunction) {
+function executeBeforeFunction(TestFunction testFunction) returns boolean {
+    boolean failed = false;
     if testFunction.before is function && !shouldSkip && !testFunction.skip {
         ExecutionError? err = executeFunction(<function>testFunction.before);
         if err is ExecutionError {
-            testFunction.skip = true;
             exitCode = 1;
             printExecutionError(err, "before test function for the test");
+            failed = true;
         }
     }
+    return failed;
 }
 
-function executeAfterFunction(TestFunction testFunction) {
+function executeAfterFunction(TestFunction testFunction) returns boolean {
+    boolean failed = false;
     if testFunction.after is function && !shouldSkip && !testFunction.skip {
         ExecutionError? err = executeFunction(<function>testFunction.after);
         if err is ExecutionError {
-            testFunction.dependents.forEach(function(TestFunction dependent) {
-                dependent.skip = true;
-            });
             exitCode = 1;
             printExecutionError(err, "after test function for the test");
+            failed = true;
         }
     }
+    return failed;
 }
 
 function executeBeforeGroupFunctions(TestFunction testFunction) {
@@ -208,21 +248,6 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
             }
         }
     }
-}
-
-function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) returns boolean {
-    if (skipDataDrivenTest(testFunction, suffix, testType)) {
-        return false;
-    }
-
-    ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
-    if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
-            + "]\n" + getErrorMessage(err), testType = testType);
-        exitCode = 1;
-        return true;
-    }
-    return false;
 }
 
 function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType testType) returns boolean {
