@@ -3940,7 +3940,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (nodeKind == TUPLE_TYPE_NODE) {
             BTupleType bTupleType = (BTupleType) typeDef.symbol.type;
             BLangTupleTypeNode bLangTupleTypeNode = (BLangTupleTypeNode) typeDef.typeNode;
-            Scope scope = bTupleType.tsymbol.scope;
+            Scope scope = new Scope(bTupleType.tsymbol);
             SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(bLangTupleTypeNode, scope, pkgEnv);
 
             resolveTupleMembers(bTupleType, bLangTupleTypeNode,
@@ -3983,14 +3983,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
     }
 
-    private void resolveTupleMembers(BTupleType structureType, BLangTupleTypeNode structureTypeNode,
+    private void resolveTupleMembers(BTupleType tupleType, BLangTupleTypeNode structureTypeNode,
                                      SymbolEnv typeDefEnv) {
-        structureType.tupleTypes = structureTypeNode.memberTypeNodes.stream()
-                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
-                .filter(field -> field.symbol.type != symTable.semanticError)
-                .map((BLangSimpleVariable field) -> {
-                    field.symbol.isDefaultable = field.expr != null;
-                    return new BTupleMember(field.typeNode.getBType(), field.symbol);
+        tupleType.tupleTypes = structureTypeNode.memberTypeNodes.stream()
+                .peek((BLangSimpleVariable member) -> defineNode(member, typeDefEnv))
+                .filter(member -> member.symbol.type != symTable.semanticError)
+                .map((BLangSimpleVariable member) -> {
+                    member.symbol.isDefaultable = member.expr != null;
+                    return new BTupleMember(member.typeNode.getBType(), member.symbol);
                 }).collect(Collectors.toList());
     }
 

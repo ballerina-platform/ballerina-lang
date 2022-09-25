@@ -1060,6 +1060,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         memberNode.annotations());
                 this.anonTypeNameSuffixes.pop();
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
+                member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
                 tupleTypeNode.memberTypeNodes.add(member);
             }
