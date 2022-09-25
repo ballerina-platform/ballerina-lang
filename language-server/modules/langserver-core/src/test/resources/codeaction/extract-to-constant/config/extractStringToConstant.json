@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const string CONST \u003d \"abc\";\n"
+          "newText": "const string CONST = \"abc\";\n"
         },
         {
           "range": {
@@ -35,7 +35,16 @@
           },
           "newText": "CONST"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Constant",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToConstant.bal",
+          253
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
