@@ -8437,9 +8437,10 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
         BLangExpression reAtom = reAtomQuantifier.atom;
-        if (isReAtomNode(reAtom.getKind())) {
+        if (symResolver.isReAtomNode(reAtom.getKind())) {
             reAtomQuantifier.atom = rewriteExpr(reAtom);
         } else {
+            // Handle interpolations.
             reAtomQuantifier.atom = rewriteExpr(getToStringInvocationOnExpr(reAtom));
         }
 
@@ -8450,17 +8451,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         reAtomQuantifier.quantifier = rewriteExpr(reAtomQuantifier.quantifier);
         result = reAtomQuantifier;
-    }
-
-    private boolean isReAtomNode(NodeKind kind) {
-        switch (kind) {
-            case REG_EXP_ATOM_CHAR_ESCAPE:
-            case REG_EXP_CHARACTER_CLASS:
-            case REG_EXP_CAPTURING_GROUP:
-                return true;
-            default:
-                return false;
-        }
     }
 
     @Override

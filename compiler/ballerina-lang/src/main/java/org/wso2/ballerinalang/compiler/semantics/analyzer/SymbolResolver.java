@@ -87,6 +87,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReTerm;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
@@ -2612,6 +2616,32 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BAnnotationSymbol getStrandAnnotationSymbol() {
         return (BAnnotationSymbol) lookupSymbolInAnnotationSpace(
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
+    }
+
+    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList,
+                                                          List<BLangExpression> interpolationsList) {
+        for (BLangExpression seq : sequenceList) {
+            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
+                return interpolationsList;
+            }
+            BLangReSequence sequence = (BLangReSequence) seq;
+            for (BLangReTerm term : sequence.termList) {
+                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+                    continue;
+                }
+                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
+                NodeKind kind = atom.getKind();
+                if (!isReAtomNode(kind)) {
+                    interpolationsList.add(atom);
+                    continue;
+                }
+                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
+                    return getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList,
+                            interpolationsList);
+                }
+            }
+        }
+        return interpolationsList;
     }
 
     public boolean isReAtomNode(NodeKind kind) {

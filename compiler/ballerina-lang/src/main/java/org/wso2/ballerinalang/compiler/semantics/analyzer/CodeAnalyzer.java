@@ -3393,30 +3393,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
-        analyzeInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList, data);
-    }
-
-    private void analyzeInterpolations(List<BLangExpression> sequenceList, AnalyzerData data) {
-        for (BLangExpression seq : sequenceList) {
-            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
-                return;
-            }
-            BLangReSequence sequence = (BLangReSequence) seq;
-            for (BLangExpression term : sequence.termList) {
-                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
-                    continue;
-                }
-                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
-                NodeKind kind = atom.getKind();
-                if (!symResolver.isReAtomNode(kind)) {
-                    analyzeExpr(atom, data);
-                    continue;
-                }
-                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                    analyzeInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList, data);
-                }
-            }
-        }
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(interpolation -> analyzeExpr(interpolation, data));
     }
 
     @Override

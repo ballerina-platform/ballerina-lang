@@ -5781,31 +5781,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
         // Check expr with insertions to resolve its type.
-        checkExprWithInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList, data);
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(interpolation -> checkExpr(interpolation, data));
         data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
-    }
-
-    private void checkExprWithInterpolations(List<BLangExpression> sequenceList, AnalyzerData data) {
-        for (BLangExpression seq : sequenceList) {
-            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
-                return;
-            }
-            BLangReSequence sequence = (BLangReSequence) seq;
-            for (BLangExpression term : sequence.termList) {
-                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
-                    continue;
-                }
-                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
-                NodeKind kind = atom.getKind();
-                if (!symResolver.isReAtomNode(kind)) {
-                    checkExpr(atom, data);
-                    continue;
-                }
-                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                    checkExprWithInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList, data);
-                }
-            }
-        }
     }
 
     @Override

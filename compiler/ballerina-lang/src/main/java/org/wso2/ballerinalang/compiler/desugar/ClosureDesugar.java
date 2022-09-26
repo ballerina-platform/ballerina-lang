@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -89,9 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -196,6 +194,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Types types;
     private Desugar desugar;
     private Names names;
+    private SymbolResolver symResolver;
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
@@ -219,6 +218,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
     }
@@ -1458,42 +1458,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        resolveClosuresInInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(this::rewriteExpr);
         result = regExpTemplateLiteral;
-    }
-
-    private void resolveClosuresInInterpolations(List<BLangExpression> sequenceList) {
-        for (BLangExpression seq : sequenceList) {
-            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
-                return;
-            }
-            BLangReSequence sequence = (BLangReSequence) seq;
-            for (BLangExpression term : sequence.termList) {
-                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
-                    continue;
-                }
-                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
-                NodeKind kind = atom.getKind();
-                if (!isReAtomNode(kind)) {
-                    atom = rewriteExpr(atom);
-                    continue;
-                }
-                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                    resolveClosuresInInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList);
-                }
-            }
-        }
-    }
-
-    private boolean isReAtomNode(NodeKind kind) {
-        switch (kind) {
-            case REG_EXP_ATOM_CHAR_ESCAPE:
-            case REG_EXP_CHARACTER_CLASS:
-            case REG_EXP_CAPTURING_GROUP:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
