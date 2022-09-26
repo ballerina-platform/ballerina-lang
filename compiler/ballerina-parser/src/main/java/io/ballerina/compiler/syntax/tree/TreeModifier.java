@@ -3129,15 +3129,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         TypeDescriptorNode typeDescriptor =
                 modifyNode(groupingKeyVarDeclarationNode.typeDescriptor());
-        CaptureBindingPatternNode variableName =
-                modifyNode(groupingKeyVarDeclarationNode.variableName());
+        BindingPatternNode simpleBindingPattern =
+                modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern());
         Token equalsToken =
                 modifyToken(groupingKeyVarDeclarationNode.equalsToken());
         ExpressionNode expression =
                 modifyNode(groupingKeyVarDeclarationNode.expression());
         return groupingKeyVarDeclarationNode.modify(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression);
     }

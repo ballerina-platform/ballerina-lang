@@ -144,6 +144,19 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_85.bal", "query-expr/query_expr_assert_85.json");
     }
 
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithWildcardBP() {
+        testFile("query-expr/query_expr_source_110.bal", "query-expr/query_expr_assert_110.json");
+        testFile("query-expr/query_expr_source_111.bal", "query-expr/query_expr_assert_111.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleGroupingKeysWithWildcardBP() {
+        testFile("query-expr/query_expr_source_112.bal", "query-expr/query_expr_assert_112.json");
+        testFile("query-expr/query_expr_source_113.bal", "query-expr/query_expr_assert_113.json");
+        testFile("query-expr/query_expr_source_114.bal", "query-expr/query_expr_assert_114.json");
+    }
+
     // Recovery tests
 
     @Test

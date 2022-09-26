@@ -2479,12 +2479,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STGroupingKeyVarDeclarationNode transform(
             STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         STNode typeDescriptor = modifyNode(groupingKeyVarDeclarationNode.typeDescriptor);
-        STNode variableName = modifyNode(groupingKeyVarDeclarationNode.variableName);
+        STNode simpleBindingPattern = modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern);
         STNode equalsToken = modifyNode(groupingKeyVarDeclarationNode.equalsToken);
         STNode expression = modifyNode(groupingKeyVarDeclarationNode.expression);
         return groupingKeyVarDeclarationNode.modify(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression);
     }

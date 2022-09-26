@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class GroupByClauseNode extends IntermediateClauseNode {
 

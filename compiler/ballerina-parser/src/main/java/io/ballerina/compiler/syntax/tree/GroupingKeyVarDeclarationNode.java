@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
 
@@ -36,7 +36,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public CaptureBindingPatternNode variableName() {
+    public BindingPatternNode simpleBindingPattern() {
         return childInBucket(1);
     }
 
@@ -62,19 +62,19 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "typeDescriptor",
-                "variableName",
+                "simpleBindingPattern",
                 "equalsToken",
                 "expression"};
     }
 
     public GroupingKeyVarDeclarationNode modify(
             TypeDescriptorNode typeDescriptor,
-            CaptureBindingPatternNode variableName,
+            BindingPatternNode simpleBindingPattern,
             Token equalsToken,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression)) {
             return this;
@@ -82,7 +82,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
 
         return NodeFactory.createGroupingKeyVarDeclarationNode(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -99,14 +99,14 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
     public static class GroupingKeyVarDeclarationNodeModifier {
         private final GroupingKeyVarDeclarationNode oldNode;
         private TypeDescriptorNode typeDescriptor;
-        private CaptureBindingPatternNode variableName;
+        private BindingPatternNode simpleBindingPattern;
         private Token equalsToken;
         private ExpressionNode expression;
 
         public GroupingKeyVarDeclarationNodeModifier(GroupingKeyVarDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.typeDescriptor = oldNode.typeDescriptor();
-            this.variableName = oldNode.variableName();
+            this.simpleBindingPattern = oldNode.simpleBindingPattern();
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
         }
@@ -118,10 +118,10 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
             return this;
         }
 
-        public GroupingKeyVarDeclarationNodeModifier withVariableName(
-                CaptureBindingPatternNode variableName) {
-            Objects.requireNonNull(variableName, "variableName must not be null");
-            this.variableName = variableName;
+        public GroupingKeyVarDeclarationNodeModifier withSimpleBindingPattern(
+                BindingPatternNode simpleBindingPattern) {
+            Objects.requireNonNull(simpleBindingPattern, "simpleBindingPattern must not be null");
+            this.simpleBindingPattern = simpleBindingPattern;
             return this;
         }
 
@@ -142,7 +142,7 @@ public class GroupingKeyVarDeclarationNode extends NonTerminalNode {
         public GroupingKeyVarDeclarationNode apply() {
             return oldNode.modify(
                     typeDescriptor,
-                    variableName,
+                    simpleBindingPattern,
                     equalsToken,
                     expression);
         }
