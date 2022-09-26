@@ -19,3 +19,4 @@ const MODULE_SEPARATOR = ":";
 const DOT = ".";
 const WILDCARD = "*";
 const SINGLE_QUOTE = "'";
+const UTF8_ENC = "UTF-8";

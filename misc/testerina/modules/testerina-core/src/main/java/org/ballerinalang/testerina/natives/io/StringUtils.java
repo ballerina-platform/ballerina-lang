@@ -28,8 +28,11 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.IllegalFormatConversionException;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * External function ballerina/test#sprintf.
@@ -38,12 +41,32 @@ import java.util.regex.Pattern;
  */
 public class StringUtils {
 
+    private static final String CHAR_PREFIX = "$";
+
     private StringUtils() {
     }
 
-    public static boolean matchWildcard(BString functionName, BString functionPattern) {
-        return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
-                        TesterinaConstants.DOT + TesterinaConstants.WILDCARD), functionName.getValue());
+    public static Object matchWildcard(BString functionName, BString functionPattern) {
+        try {
+            return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD), functionName.getValue());
+        } catch (PatternSyntaxException e) {
+            return BLangExceptionHelper.getRuntimeException(
+                    RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
+        }
+    }
+
+    public static Object decode(BString str, BString charset) {
+        try {
+            String javaStr = str.getValue();
+            javaStr = javaStr.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+            javaStr = javaStr.replaceAll("\\+", "%2B");
+            return io.ballerina.runtime.api.utils.StringUtils.fromString(
+                    URLDecoder.decode(javaStr, charset.getValue()));
+        } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+            return BLangExceptionHelper.getRuntimeException(
+                    RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
+        }
     }
 
     public static BString sprintf(BString format, Object... args) {

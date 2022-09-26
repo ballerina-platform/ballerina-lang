@@ -272,9 +272,12 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
         // get the matching wildcard
         prefixMatch = true;
         foreach string filter in filterTests {
-            if (filter.includes(WILDCARD) && matchWildcard(functionKey, filter) && matchModuleName(filter)) {
-                functionKey = filter;
-                break;
+            if (filter.includes(WILDCARD)) {
+                boolean|error wildCardMatch = matchWildcard(functionKey, filter);
+                if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
+                    functionKey = filter;
+                    break;
+                }
             }
         }
     }
@@ -287,7 +290,6 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
         string[] subTests = filterSubTests.get(functionKey);
         foreach string subFilter in subTests {
 
-            // TODO: move subFilterUpdate logic to a separate method
             string updatedSubFilter = subFilter;
             if (testType == DATA_DRIVEN_MAP_OF_TUPLE) {
                 if (subFilter.startsWith(SINGLE_QUOTE) && subFilter.endsWith(SINGLE_QUOTE)) {
@@ -296,9 +298,17 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
                     continue;
                 }
             }
-
-            // direct match or wildcard match
-            if ((updatedSubFilter == suffix) || matchWildcard(suffix, updatedSubFilter)) {
+            string|error decodedSubFilter = decode(updatedSubFilter, UTF8_ENC);
+            updatedSubFilter = decodedSubFilter is string? decodedSubFilter : updatedSubFilter;
+            string|error decodedSuffix = decode(suffix, UTF8_ENC);
+            string updatedSuffix = decodedSuffix is string? decodedSuffix : suffix;
+            
+            boolean wildCardMatchBoolean = false;
+            if (updatedSubFilter.includes(WILDCARD)) {
+                    boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
+                    wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+            }
+            if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
                 suffixMatch = true;
                 break;
             }

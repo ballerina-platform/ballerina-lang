@@ -77,8 +77,13 @@ isolated function sprintf(string format, (any|error)... args) returns string = @
     'class : "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
-isolated function matchWildcard(string functionName, string functionPattern) returns boolean = @java:Method {
+isolated function matchWildcard(string functionName, string functionPattern) returns boolean|error = @java:Method {
     name : "matchWildcard",
+    'class : "org.ballerinalang.testerina.natives.io.StringUtils"
+} external;
+
+isolated function decode(string str, string charset) returns string|error = @java:Method {
+    name : "decode",
     'class : "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
