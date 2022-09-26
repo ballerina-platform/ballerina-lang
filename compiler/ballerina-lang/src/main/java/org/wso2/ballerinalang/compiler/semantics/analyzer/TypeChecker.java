@@ -1320,7 +1320,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos, data);
     }
 
-    public boolean isSameTableType(BTableType source, BTableType target) {
+    private boolean isSameTableType(BTableType source, BTableType target) {
         return target.keyTypeConstraint != symTable.neverType && source.constraint.equals(target.constraint) &&
                 source.fieldNameList.equals(target.fieldNameList);
     }
