@@ -5772,7 +5772,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
-        BTupleType tupleType = (BTupleType) tupleLiteral.getBType();
+        BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
         List<BType> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
@@ -6424,13 +6424,13 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             if (resourcePathName.value.equals("*")) {
-                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded && 
-                        requiredArg.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded) {
                     BLangStatementExpression statementExpression = new BLangStatementExpression();
                     statementExpression.expr = requiredArg;
                     statementExpression.stmt = firstRequiredArgFromRestArg.stmt;
                     statementExpression.setBType(requiredArg.getBType());
                     bLangInvocation.requiredArgs.add(statementExpression);
+                    isFirstRequiredArgFromRestArgIncluded = true;
                 } else {
                     bLangInvocation.requiredArgs.add(requiredArg);
                 }
@@ -6559,6 +6559,9 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+
+        // Disallow desugaring the same expression twice.
+        // For langlib invocations, expr is duplicated as the first required arg.
         if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
             invocation.expr = invocation.requiredArgs.get(0);
         } else {
@@ -7013,6 +7016,11 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
             return;
@@ -7042,10 +7050,6 @@ public class Desugar extends BLangNodeVisitor {
             createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
             return;
         }
-
-        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
-            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
-        }
     }
 
     private BLangStatementExpression createStmtExprForNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
@@ -7070,27 +7074,15 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nonNilType = exprBType.getMemberTypes().iterator().next();
 
-        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
-        boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
-
-        boolean isBitWiseOperator = !isArithmeticOperator && !isShiftOperator;
-
-        BType rhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.rhsExpr.getBType().isNullable()) {
-                rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
-            } else {
-                rhsType = binaryExpr.rhsExpr.getBType();
-            }
-        }
-
-        BType lhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.lhsExpr.getBType().isNullable()) {
-                lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
-            } else {
-                lhsType = binaryExpr.lhsExpr.getBType();
-            }
+        BType rhsType;
+        BType lhsType;
+        if (symResolver.isArithmeticOperator(binaryExpr.opKind)) {
+            rhsType = nonNilType;
+            lhsType = nonNilType;
+        } else {
+            // then it is a bitwise operator or a shift operator
+            rhsType = getBinaryExprOperandNonNilType(binaryExpr.rhsExpr.getBType());
+            lhsType = getBinaryExprOperandNonNilType(binaryExpr.lhsExpr.getBType());
         }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
@@ -7145,6 +7137,10 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.setBType(binaryExpr.getBType());
 
         return stmtExpr;
+    }
+
+    private BType getBinaryExprOperandNonNilType(BType operandType) {
+        return operandType.isNullable() ? types.getSafeType(operandType, true, false) : operandType;
     }
 
     private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
@@ -7220,28 +7216,56 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
-                                                                int rhsExprTypeTag) {
+                                                     int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        BType lhsExprType = binaryExpr.lhsExpr.getBType();
+        BType rhsExprType = binaryExpr.rhsExpr.getBType();
 
         if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
                 rhsExprTypeTag == TypeTags.BYTE)) {
             return;
         }
 
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.FLOAT) {
+            addTypeCastForBinaryExprB(binaryExpr, lhsExprType, rhsExprType);
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.FLOAT) {
+            addTypeCastForBinaryExprA(binaryExpr, rhsExprType, lhsExprType);
+            return;
+        }
+
         if (isLhsIntegerType && !isRhsIntegerType) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.intType, rhsExprType);
             return;
         }
 
         if (!isLhsIntegerType && isRhsIntegerType) {
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.intType, lhsExprType);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            if ((lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) ||
+                    (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable())) {
+                binaryExpr.lhsExpr = addNilType(symTable.intType, binaryExpr.lhsExpr);
+                binaryExpr.rhsExpr = addNilType(symTable.intType, binaryExpr.rhsExpr);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
         }
 
@@ -7253,13 +7277,37 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isLhsStringType && !isRhsStringType) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            addTypeCastForBinaryExprB(binaryExpr, symTable.stringType, rhsExprType);
             return;
         }
 
         if (!isLhsStringType && isRhsStringType) {
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
+            addTypeCastForBinaryExprA(binaryExpr, symTable.stringType, lhsExprType);
         }
+    }
+
+    private void addTypeCastForBinaryExprA(BLangBinaryExpr binaryExpr, BType rhsExprType, BType lhsExprType) {
+        if (lhsExprType.tag == TypeTags.UNION && lhsExprType.isNullable()) {
+            binaryExpr.rhsExpr = addNilType(rhsExprType, binaryExpr.rhsExpr);
+        } else {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, rhsExprType);
+        }
+    }
+
+    private void addTypeCastForBinaryExprB(BLangBinaryExpr binaryExpr, BType lhsExprType, BType rhsExprType) {
+        if (rhsExprType.tag == TypeTags.UNION && rhsExprType.isNullable()) {
+            binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
+        } else {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, lhsExprType);
+        }
+    }
+
+    private BLangExpression addNilType(BType exprType, BLangExpression expr) {
+        LinkedHashSet<BType> members = new LinkedHashSet<>(2);
+        members.add(exprType);
+        members.add(symTable.nilType);
+        BUnionType unionType = new BUnionType(null, members, true, false);
+        return createTypeCastExpr(expr, unionType);
     }
 
     private BLangInvocation replaceWithIntRange(Location location, BLangExpression lhsExpr,
@@ -9415,7 +9463,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getReferredType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType)) {
+            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
@@ -9500,8 +9548,9 @@ public class Desugar extends BLangNodeVisitor {
         pushToMatchStatementStack(matchStmt, successClause, pos);
     }
 
-    private boolean isMapJson(BType originalType) {
-        return originalType.tag == TypeTags.MAP && ((BMapType) originalType).getConstraint().tag == TypeTags.JSON;
+    private boolean isMapJson(BType originalType, boolean fromMap) {
+        return ((originalType.tag == TypeTags.MAP) && isMapJson(((BMapType) originalType).getConstraint(), true))
+                || ((originalType.tag == TypeTags.JSON) && fromMap);
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,

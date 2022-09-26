@@ -62,7 +62,7 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -116,7 +116,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -200,7 +200,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -284,7 +284,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -401,7 +401,7 @@
               ]
             },
             {
-              "kind": "ROLLBACK_STATEMENT",
+              "kind": "RETRY_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {

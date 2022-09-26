@@ -205,6 +205,7 @@ import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_S
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
+import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * @since 0.94
@@ -2567,10 +2568,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ARRAY:
                     List<BType> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
-                    for (int i = 0; i < arrayType.size; i++) {
-                        tupleTypes.add(arrayType.eType);
-                    }
                     tupleTypeNode = new BTupleType(tupleTypes);
+                    BType eType = arrayType.eType;
+                    for (int i = 0; i < arrayType.size; i++) {
+                        tupleTypes.add(eType);
+                    }
+                    if (varNode.restVariable != null) {
+                        tupleTypeNode.restType = eType;
+                    }
                     break;
                 default:
                     dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, bType);
@@ -4655,6 +4660,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
+            if (varName.value.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
+                varSymbol.flags |= Flags.WORKER;
+            }
         } else if (Symbols.isFlagOn(flags, Flags.WORKER)) {
             varSymbol = new BWorkerSymbol(flags, varName, env.enclPkg.symbol.pkgID, type, env.scope.owner, location,
                                           isInternal ? VIRTUAL : getOrigin(varName));
@@ -5085,9 +5093,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFuncSymbol) || Symbols.isResource(referencedFuncSymbol)) {
-            // we should not copy private functions. And we ignore the resource functions as they are not part of the
-            // type.
+        if (Symbols.isPrivate(referencedFuncSymbol)) {
+            // we should not copy private functions
             return;
         }
 

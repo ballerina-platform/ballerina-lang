@@ -3,8 +3,9 @@ type NewRecord record {
     string lastName;
     record {
         string city;
-        int zip;
         string country;
+        int zip?;
+        int houseNo?;
     } address;
     record {
         string firstName;

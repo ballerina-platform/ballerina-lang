@@ -165,15 +165,15 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found 'string'", 180, 50);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 182, 20);
+                "incompatible types: expected 'User', found 'int'", 184, 46);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 186, 22);
+                "incompatible types: expected 'string', found 'int'", 188, 59);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found 'string'", 193, 50);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
+                "incompatible types: expected 'string', found 'User'", 197, 46);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
+                "incompatible types: expected '[string,User]', found 'string[2]'", 202, 29);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,string]', found '(string[2]|[string,int])'", 207, 29);
         validateError(negativeResult, index++,
@@ -183,7 +183,7 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
+                "incompatible types: expected 'map<string>', found 'map<(int|string)>'", 229, 21);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
                 236, 16);
         validateError(negativeResult, index++,
@@ -204,6 +204,69 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 286, 48);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,float[]]', found '[string:Char,int[]]'", 289, 63);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int[] & readonly)]', found '[string:Char,int[]]'", 291, 72);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar1]', found 'FooBar1'", 302, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar2]', found 'FooBar2'", 305, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar3]', found 'FooBar3[2]'", 308, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar4]', found 'FooBar4[2]'", 311, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,FooBar5]', found 'FooBar5[2]'", 314, 64);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar3,(int|float)]'", 317, 66);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
+                " found '((map<(int[2] & readonly)> & readonly)|error)'", 329, 34);
+        validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
+                " found 'Department'", 334, 55);
+        validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
+                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 337, 48);
+        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 347, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
+                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+                384, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +
+                        "found '(table<ResultValue>|error)'", 387, 33);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                        "found '(table<NumberRecord> key(id)|error)'", 390, 42);
+        // Enable following tests after fixing issue - lang/#36746
+//        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+//                356, 21);
+//        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord>', " +
+//                "found '(table<NumberRecord>|error)'", 361, 40);
+//        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+//                "found '(table<NumberRecord> key(id)|error)'", 366, 42);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+                408, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                "found '(table<NumberRecord> key(id)|error)'", 411, 42);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<int>', found '(map<int>|error)'", 419, 21);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'table<ResultValue>', found '(table<ResultValue>|error)'", 422, 33);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                        "found '(table<NumberRecord> key(id)|error)'", 425, 42);
+        validateError(negativeResult, index++,
+                "incompatible types: '(map<int>|error)' is not an iterable collection", 428, 48);
+        validateError(negativeResult, index++,
+                "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
+                        "is not an iterable collection", 432, 100);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
+                438, 13);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
+                "found 'table<record {| |}>'", 439, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
+                "found 'table<record {| int a; int b; |}>'", 440, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -318,6 +381,21 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testReadonlyMap2() {
         BRunUtil.invoke(result, "testReadonlyMap2");
+    }
+
+    @Test
+    public void testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError() {
+        BRunUtil.invoke(result, "testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError");
+    }
+
+    @Test
+    public void testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
+        BRunUtil.invoke(result, "testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithStringSubtypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
     }
 
     @AfterClass
