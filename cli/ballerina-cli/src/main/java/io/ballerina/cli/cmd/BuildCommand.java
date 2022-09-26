@@ -163,8 +163,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native-image")
-    private Boolean enableNativeImage;
+    @CommandLine.Option(names = "--native")
+    private boolean enableNativeImage;
 
     public void execute() {
         long start = 0;
@@ -176,10 +176,6 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
-        }
-
-        if (enableNativeImage == null) {
-            enableNativeImage = false;
         }
 
         // load project

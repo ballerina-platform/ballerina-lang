@@ -106,7 +106,7 @@ public class CreateExecutableTask implements Task {
                 Process process = builder.start();
 
                 if (process.waitFor() != 0) {
-                    out.println("\t Native-image generation failed");
+                    out.println("\t GraalVM image generation failed.");
                 }
             }
 
