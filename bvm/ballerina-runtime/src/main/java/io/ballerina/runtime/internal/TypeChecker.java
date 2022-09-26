@@ -2996,7 +2996,6 @@ public class TypeChecker {
                 if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
                     return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
                 }
-
         }
         return false;
     }

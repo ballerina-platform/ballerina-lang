@@ -154,7 +154,7 @@ public class Bootstrap {
         }
 
         if (langLib.equals(REGEXP)) {
-            // Query module requires stream, array, map, string, table, xml & value modules. Hence loading them.
+            // Regexp module requires array module. Hence loading it.
             symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
         }
 
