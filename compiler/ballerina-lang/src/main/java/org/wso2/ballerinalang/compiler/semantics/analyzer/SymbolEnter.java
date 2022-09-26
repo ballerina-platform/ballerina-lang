@@ -2563,10 +2563,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ARRAY:
                     List<BType> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
-                    for (int i = 0; i < arrayType.size; i++) {
-                        tupleTypes.add(arrayType.eType);
-                    }
                     tupleTypeNode = new BTupleType(tupleTypes);
+                    BType eType = arrayType.eType;
+                    for (int i = 0; i < arrayType.size; i++) {
+                        tupleTypes.add(eType);
+                    }
+                    if (varNode.restVariable != null) {
+                        tupleTypeNode.restType = eType;
+                    }
                     break;
                 default:
                     dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, bType);

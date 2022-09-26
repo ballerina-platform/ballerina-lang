@@ -2161,7 +2161,7 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.pos = tableConstructorExpr.pos;
         keySpecifierLiteral.setBType(symTable.stringArrayType);
         keySpecifierLiteral.exprs = new ArrayList<>();
-        BTableType type = (BTableType) tableConstructorExpr.getBType();
+        BTableType type = (BTableType) Types.getReferredType(tableConstructorExpr.getBType());
 
         if (!type.fieldNameList.isEmpty()) {
             type.fieldNameList.forEach(col -> {
@@ -2178,7 +2178,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
-        dataLiteral.setBType(new BArrayType(((BTableType) tableConstructorExpr.getBType()).constraint));
+        dataLiteral.setBType(new BArrayType(type.constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
@@ -2529,12 +2529,12 @@ public class BIRGen extends BLangNodeVisitor {
     private BTypeSymbol getObjectTypeSymbol(BType objType) {
         BType type = Types.getReferredType(objType);
         if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .filter(t -> t.tag == TypeTags.OBJECT)
+            type = ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
                     .findFirst()
-                    .orElse(symTable.noType).tsymbol;
+                    .orElse(symTable.noType);
         }
-        return type.tsymbol;
+        return Types.getReferredType(type).tsymbol;
     }
 
     private BIROperand generateStringLiteral(String value) {
