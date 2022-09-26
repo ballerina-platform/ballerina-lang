@@ -5797,7 +5797,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
                 BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
                 NodeKind kind = atom.getKind();
-                if (!isReAtomNode(kind)) {
+                if (!symResolver.isReAtomNode(kind)) {
                     checkExpr(atom, data);
                     continue;
                 }
@@ -5805,17 +5805,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     checkExprWithInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList, data);
                 }
             }
-        }
-    }
-
-    private boolean isReAtomNode(NodeKind kind) {
-        switch (kind) {
-            case REG_EXP_ATOM_CHAR_ESCAPE:
-            case REG_EXP_CHARACTER_CLASS:
-            case REG_EXP_CAPTURING_GROUP:
-                return true;
-            default:
-                return false;
         }
     }
 

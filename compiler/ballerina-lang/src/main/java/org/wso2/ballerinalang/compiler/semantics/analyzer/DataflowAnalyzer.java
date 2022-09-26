@@ -2205,6 +2205,30 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        analyzeInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList, env);
+    }
+
+    private void analyzeInterpolations(List<BLangExpression> sequenceList, SymbolEnv env) {
+        for (BLangExpression seq : sequenceList) {
+            if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
+                return;
+            }
+            BLangReSequence sequence = (BLangReSequence) seq;
+            for (BLangExpression term : sequence.termList) {
+                if (term.getKind() != NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+                    continue;
+                }
+                BLangExpression atom = ((BLangReAtomQuantifier) term).atom;
+                NodeKind kind = atom.getKind();
+                if (!symResolver.isReAtomNode(kind)) {
+                    analyzeNode(atom, env);
+                    continue;
+                }
+                if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
+                    analyzeInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList, env);
+                }
+            }
+        }
     }
 
     @Override
