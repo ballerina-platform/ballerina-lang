@@ -2343,10 +2343,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(regExpTemplateLiteral.getBType(),
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(regExpTemplateLiteral.getBType());
 
         regExpTemplateLiteral.reDisjunction.accept(this);
         BIROperand reDisjunction = this.env.targetOperand;
@@ -2359,10 +2356,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReDisjunction reDisjunction) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         BLangArrayLiteral seqList = new BLangArrayLiteral();
         seqList.pos = reDisjunction.pos;
@@ -2381,10 +2375,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         BLangArrayLiteral terms = new BLangArrayLiteral();
         terms.pos = reSequence.pos;
@@ -2403,10 +2394,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReAssertion reAssertion) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reAssertion.assertion.accept(this);
         BIROperand assertion = this.env.targetOperand;
@@ -2419,10 +2407,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reAtomQuantifier.atom.accept(this);
         BIROperand atom = this.env.targetOperand;
@@ -2439,10 +2424,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reQuantifier.quantifier.accept(this);
         BIROperand quantifier = this.env.targetOperand;
@@ -2458,10 +2440,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReAtomCharOrEscape reLiteralCharOrEscape) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reLiteralCharOrEscape.charOrEscape.accept(this);
         BIROperand charOrEscape = this.env.targetOperand;
@@ -2474,10 +2453,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reCharacterClass.characterClassStart.accept(this);
         BIROperand classStart = this.env.targetOperand;
@@ -2500,10 +2476,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharSet reCharSet) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         BLangArrayLiteral atoms = new BLangArrayLiteral();
         atoms.pos = reCharSet.pos;
@@ -2522,10 +2495,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCharSetRange reCharSetRange) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reCharSetRange.lhsCharSetAtom.accept(this);
         BIROperand lhsCharSetAtom = this.env.targetOperand;
@@ -2544,10 +2514,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reCapturingGroups.openParen.accept(this);
         BIROperand openParen = this.env.targetOperand;
@@ -2570,10 +2537,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReFlagExpression reFlagExpression) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reFlagExpression.questionMark.accept(this);
         BIROperand questionMark = this.env.targetOperand;
@@ -2593,10 +2557,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReFlagsOnOff reFlagsOnOff) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.anydataType,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
-        BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
 
         reFlagsOnOff.flags.accept(this);
         BIROperand flags = this.env.targetOperand;
@@ -2605,6 +2566,13 @@ public class BIRGen extends BLangNodeVisitor {
                 toVarRef, flags);
         setScopeAndEmit(newReFlagOnOff);
         this.env.targetOperand = toVarRef;
+    }
+
+    private BIROperand createVarRefOperand(BType type) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION,
+                VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        return new BIROperand(tempVarDcl);
     }
 
     private void setScopeAndEmit(BIRNonTerminator instruction) {
