@@ -37,6 +37,7 @@ function testOnFailEdgeTestcases() {
     assertEquality(44, testLambdaFunctionWithOnFail());
     testOnFailWithinInLineServiceObj();
     assertTrue(testOnFailInAnonFunctionExpr() is ());
+//    testNoPossibleFailureWithOnFail();
 }
 
 function testUnreachableCodeWithIf(){
@@ -488,6 +489,30 @@ service S / on new Listener() {
         };
     }
 }
+
+//function testNoPossibleFailureWithOnFail() {
+//    assertEquality(returnStringWithoutFailure(), "packages");
+//    assertEquality(returnIntWithoutFailure(true), 1);
+//    assertEquality(returnIntWithoutFailure(false), 2);
+//}
+//
+//function returnStringWithoutFailure() returns string {
+//    do {
+//        return "packages";
+//    } on fail var e {
+//        return e.toString();
+//    }
+//}
+//
+//function returnIntWithoutFailure(boolean val) returns int {
+//    if (val) {
+//        do {
+//            return 1;
+//        } on fail {
+//        }
+//    }
+//    return 2;
+//}
 
 function getService() returns object {} = @java:Method {
     'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",

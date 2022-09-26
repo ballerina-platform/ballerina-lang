@@ -649,18 +649,22 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangRetry retryNode, AnalyzerData data) {
-        data.errorTypes.push(new LinkedHashSet<>());
+        boolean onFailExists = retryNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
+        if (onFailExists) {
+            data.errorTypes.push(new LinkedHashSet<>());
+        }
         if (!failureHandled) {
-            data.failureHandled = retryNode.onFailClause != null;
+            data.failureHandled = onFailExists;
         }
         visitNode(retryNode.retrySpec, data);
         visitNode(retryNode.retryBody, data);
         data.failureHandled = failureHandled;
-        retryNode.retryBody.failureBreakMode = retryNode.onFailClause != null ?
-                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(retryNode.onFailClause, data);
-        data.errorTypes.pop();
+        if (onFailExists) {
+            retryNode.retryBody.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
+            data.errorTypes.pop();
+        }
     }
 
     @Override
@@ -1469,10 +1473,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangForeach foreach, AnalyzerData data) {
         data.loopWithinTransactionCheckStack.push(true);
-        data.errorTypes.push(new LinkedHashSet<>());
+        boolean onFailExists = foreach.onFailClause != null;
         boolean failureHandled = data.failureHandled;
-        if (!data.failureHandled) {
-            data.failureHandled = foreach.onFailClause != null;
+        if (onFailExists) {
+            data.errorTypes.push(new LinkedHashSet<>());
+        }
+        if (!failureHandled) {
+            data.failureHandled = onFailExists;
         }
         data.loopCount++;
         BLangBlockStmt body = foreach.body;
@@ -1482,10 +1489,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = failureHandled;
         data.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection, data);
-        body.failureBreakMode = foreach.onFailClause != null ?
-                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause, data);
-        data.errorTypes.pop();
+        if (onFailExists) {
+            body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
+            data.errorTypes.pop();
+        }
     }
 
     @Override
@@ -1510,17 +1518,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangDo doNode, AnalyzerData data) {
-        data.errorTypes.push(new LinkedHashSet<>());
+        boolean onFailExists = doNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
-        if (!data.failureHandled) {
-            data.failureHandled = doNode.onFailClause != null;
+        if (onFailExists) {
+            data.errorTypes.push(new LinkedHashSet<>());
+        }
+        if (!failureHandled) {
+            data.failureHandled = onFailExists;
         }
         analyzeNode(doNode.body, data);
         data.failureHandled = failureHandled;
-        doNode.body.failureBreakMode = doNode.onFailClause != null ?
-                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(doNode.onFailClause, data);
-        data.errorTypes.pop();
+        if (onFailExists) {
+            doNode.body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
+            data.errorTypes.pop();
+        }
     }
 
 
@@ -1545,22 +1557,31 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
     }
 
+    private BLangBlockStmt.FailureBreakMode getPossibleBreakMode(boolean possibleFailurePresent) {
+        return possibleFailurePresent ? BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK
+                : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
+    }
+
     @Override
     public void visit(BLangLock lockNode, AnalyzerData data) {
-        data.errorTypes.push(new LinkedHashSet<>());
+        boolean onFailExists = lockNode.onFailClause != null;
         boolean failureHandled = data.failureHandled;
-        if (!data.failureHandled) {
-            data.failureHandled = lockNode.onFailClause != null;
+        if (onFailExists) {
+            data.errorTypes.push(new LinkedHashSet<>());
+        }
+        if (!failureHandled) {
+            data.failureHandled = onFailExists;
         }
         boolean previousWithinLockBlock = data.withinLockBlock;
         data.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, data));
         data.withinLockBlock = previousWithinLockBlock;
         data.failureHandled = failureHandled;
-        lockNode.body.failureBreakMode = lockNode.onFailClause != null ?
-                BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(lockNode.onFailClause, data);
-        data.errorTypes.pop();
+        if (onFailExists) {
+            lockNode.body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
+            data.errorTypes.pop();
+        }
     }
 
     @Override
