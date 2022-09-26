@@ -39,10 +39,7 @@ public class ModuleClientDeclarationContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-//        return this.getConfigsList();
-        return new Object[][] {
-                {"module_client_declaration_after_client_keyword.json", getTestResourceDir()}
-        };
+        return this.getConfigsList();
     }
 
     @Override

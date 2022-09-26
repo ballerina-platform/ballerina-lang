@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.providers;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -340,7 +341,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .forEach(symbol -> {
                     String prefix = symbol.getName().get();
                     CompletionItem item = this.getModuleCompletionItem(prefix, prefix, new ArrayList<>(), prefix);
-//                    CompletionItem cItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                     completionItems.add(new SymbolCompletionItem(context, symbol, item));
                 });
         return completionItems;
@@ -828,5 +828,36 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         sortText += SortingUtil.genSortText(rank);
 
         completionItem.getCompletionItem().setSortText(sortText);
+    }
+
+    /**
+     * Get the completion item list for client declaration module prefix reference, when the node is within the 
+     * qualified name reference node.
+     * 
+     * @param context   Ballerina Completion Context
+     * @param qNameRef  Qualified Name Reference Node
+     * @param predicate Predicate to filter symbols
+     * @return  Client Declaration Completion Item List
+     */
+    protected List<LSCompletionItem> getClientDeclCompletionItemList(BallerinaCompletionContext context, 
+                                                                     QualifiedNameReferenceNode qNameRef, 
+                                                                     Predicate<Symbol> predicate) {
+        Optional<ClientDeclSymbol> clientDeclSymbol = ModuleUtil.searchClientDeclarationForAlias(context,
+                QNameRefCompletionUtil.getAlias(qNameRef));
+        List<Symbol> clientDeclContent = clientDeclSymbol.map(symbol -> symbol.moduleSymbol().allSymbols().stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList()))
+                .orElseGet(ArrayList::new);
+
+        List<LSCompletionItem> completionItemList = this.getCompletionItemList(clientDeclContent, context);
+        for (LSCompletionItem item: completionItemList) {
+            CompletionItem cItem = item.getCompletionItem();
+            if (cItem.getLabel().equals("'client")) {
+                cItem.setLabel("client");
+                cItem.setInsertText("client");
+            }
+        }
+        
+        return completionItemList;
     }
 }

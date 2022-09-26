@@ -78,6 +78,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, filter));
         } else {
             /*
             Covers the following
