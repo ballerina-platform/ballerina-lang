@@ -79,6 +79,10 @@ type Net record {
     string currency;
 };
 
+type Quantity record {
+    int value;
+};
+
 type DetailItem record {
     int sequence;
     ProductOrService productOrService;
@@ -86,10 +90,6 @@ type DetailItem record {
     Net net;
     Quantity quantity?;
     decimal factor?;
-};
-
-type Quantity record {
-    int value;
 };
 
 type ItemItem record {

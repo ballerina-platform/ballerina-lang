@@ -109,10 +109,10 @@ public class CentralClientWrapper {
      * @throws SemverToolException if unexpected error occurred while pulling package
      */
     public Path pullPackage(String orgName, String pkgName, SemanticVersion version) throws SemverToolException {
-        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME)
-                .resolve(orgName).resolve(pkgName);
+        Path balaDirPath = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+        Path packagePathInBalaCache = balaDirPath.resolve(orgName).resolve(pkgName);
         try {
             // avoids pulling from the central if the package version already available in the local repository.
             if (Files.exists(packagePathInBalaCache) && Files.isDirectory(packagePathInBalaCache)) {
@@ -130,7 +130,7 @@ public class CentralClientWrapper {
                     + e.getMessage());
         }
 
-        return packagePathInBalaCache.resolve(version.toString()).resolve(SUPPORTED_PLATFORM_JAVA_11);
+        return ProjectUtils.getPackagePath(balaDirPath, orgName, pkgName, version.toString());
     }
 
     /**

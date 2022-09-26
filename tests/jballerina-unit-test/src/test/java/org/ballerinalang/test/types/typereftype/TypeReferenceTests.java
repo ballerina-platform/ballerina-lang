@@ -42,6 +42,11 @@ public class TypeReferenceTests {
     }
 
     @Test
+    public void testTypeRef2() {
+        BRunUtil.invoke(result, "testTypeRef2");
+    }
+
+    @Test
     public void testUnionTypeRefWithMap() {
         BRunUtil.invoke(result, "testUnionTypeRefWithMap");
     }
