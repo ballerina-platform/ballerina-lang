@@ -11,7 +11,6 @@ on:
       - ballerina-[0-9]+.[0-9]+.x
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
-      - compiletime-changes-for-function-defult-values
 
 jobs:
   windows_build:
