@@ -835,6 +835,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST = 
             { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.ACTION_END };
 
+    private static final ParserRuleContext[] OPTIONAL_TOP_LEVEL_SEMICOLON =
+            { ParserRuleContext.TOP_LEVEL_NODE, ParserRuleContext.SEMICOLON };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1590,6 +1593,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_ACCESS_SEGMENT_RHS:    
             case OPTIONAL_RESOURCE_ACCESS_METHOD:
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
+            case OPTIONAL_TOP_LEVEL_SEMICOLON:
                 return true;
             default:
                 return false;
@@ -2050,6 +2054,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST;
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
                 return ParserRuleContext.ACTION_END;
+            case OPTIONAL_TOP_LEVEL_SEMICOLON:
+                return ParserRuleContext.TOP_LEVEL_NODE;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -2397,6 +2403,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case ANNOTATION_DECL_START:
                 alternativeRules = ANNOTATION_DECL_START;
+                break;
+            case OPTIONAL_TOP_LEVEL_SEMICOLON:
+                alternativeRules = OPTIONAL_TOP_LEVEL_SEMICOLON;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -4707,13 +4716,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL:
             case MODULE_CLASS_DEFINITION:
                 endContext();
-                nextToken = this.tokenReader.peek();
-                switch (nextToken.kind) {
-                    case SEMICOLON_TOKEN:
-                        return ParserRuleContext.SEMICOLON;
-                    default:
-                        return ParserRuleContext.TOP_LEVEL_NODE;
-                }
+                return ParserRuleContext.OPTIONAL_TOP_LEVEL_SEMICOLON;
             case OBJECT_CONSTRUCTOR_MEMBER:
                 endContext();
                 parentCtx = getParentContext();
@@ -4811,13 +4814,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_LIST:
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx
-                nextToken = this.tokenReader.peek();
-                switch (nextToken.kind) {
-                    case SEMICOLON_TOKEN:
-                        return ParserRuleContext.SEMICOLON;
-                    default:
-                        return ParserRuleContext.TOP_LEVEL_NODE;
-                }
+                return ParserRuleContext.OPTIONAL_TOP_LEVEL_SEMICOLON;
             case MATCH_BODY:
                 endContext(); // end match body
                 endContext(); // end match stmt
@@ -4843,13 +4840,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_TYPE_MEMBER:
                 return ParserRuleContext.CLASS_MEMBER_OR_OBJECT_MEMBER_START;
             case COMP_UNIT:
-                STToken nextToken = this.tokenReader.peek();
-                switch (nextToken.kind) {
-                    case SEMICOLON_TOKEN:
-                        return ParserRuleContext.SEMICOLON;
-                    default:
-                        return ParserRuleContext.TOP_LEVEL_NODE;
-                }
+                return ParserRuleContext.OPTIONAL_TOP_LEVEL_SEMICOLON;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
                 endContext(); // end func-def
