@@ -48,6 +48,7 @@ public class VisibleSymbolsInClassesAndObjectsTest extends BaseVisibleSymbolsTes
         List<ExpectedSymbolInfo> expModuleSymbols =
                 List.of(
                         from("Vehicle", CLASS),
+                        from("testObjectConstructor", FUNCTION),
                         from("testObjectConstructor", FUNCTION)
                 );
 
@@ -72,6 +73,11 @@ public class VisibleSymbolsInClassesAndObjectsTest extends BaseVisibleSymbolsTes
                         from("age", CLASS_FIELD),
                         from("init", METHOD),
                         from("obj", VARIABLE),
+                        from("self", VARIABLE))},
+                {62, 23, concat(expModuleSymbols,
+                        from("objectVar6", VARIABLE))},
+                {63, 39, concat(expModuleSymbols,
+                        from("objectVar6", VARIABLE),
                         from("self", VARIABLE))}
         };
     }
