@@ -4135,6 +4135,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkObjectCompatibility(BType actualType, BLangTypeInit cIExpr, AnalyzerData data) {
+        actualType = checkObjectType(actualType, cIExpr, data);
+
+        if (actualType == symTable.semanticError) {
+            return actualType;
+        }
+        if (cIExpr.initInvocation.getBType() == null) {
+            cIExpr.initInvocation.setBType(symTable.nilType);
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
+        return types.checkType(cIExpr, actualTypeInitType, data.expType);
+    }
+
+    private BType checkObjectType(BType actualType, BLangTypeInit cIExpr, AnalyzerData data) {
         switch (actualType.tag) {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
@@ -4255,20 +4268,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return matchedType;
             case TypeTags.TYPEREFDESC:
                 BType refType = Types.getReferredType(actualType);
-                BType compatibleType = checkObjectCompatibility(refType, cIExpr, data);
+                BType compatibleType = checkObjectType(refType, cIExpr, data);
                 return compatibleType == refType ? actualType : compatibleType;
             case TypeTags.INTERSECTION:
-                return checkObjectCompatibility(((BIntersectionType) actualType).effectiveType, cIExpr, data);
+                return checkObjectType(((BIntersectionType) actualType).effectiveType, cIExpr, data);
             default:
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
         }
-
-        if (cIExpr.initInvocation.getBType() == null) {
-            cIExpr.initInvocation.setBType(symTable.nilType);
-        }
-        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
-        return types.checkType(cIExpr, actualTypeInitType, data.expType);
+        return actualType;
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType, AnalyzerData data) {
