@@ -4135,14 +4135,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkObjectCompatibility(BType actualType, BLangTypeInit cIExpr, AnalyzerData data) {
-        BType referredType = Types.getReferredType(actualType);
-        switch (referredType.tag) {
+        switch (actualType.tag) {
             case TypeTags.OBJECT:
-                BObjectType actualObjectType = (BObjectType) referredType;
+                BObjectType actualObjectType = (BObjectType) actualType;
 
-                if ((referredType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
+                if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
-                            referredType.tsymbol);
+                            actualType.tsymbol);
                     cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, symTable.noType, data));
                     return symTable.semanticError;
                 }
@@ -4153,14 +4152,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                     markConstructedObjectIsolatedness(actualObjectType);
                 }
-                if (((BObjectTypeSymbol) referredType.tsymbol).initializerFunc != null) {
-                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) referredType.tsymbol).initializerFunc.symbol;
+                if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
+                    cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
                     checkInvocationParam(cIExpr.initInvocation, data);
                     cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
                 } else {
                     // If the initializerFunc is null then this is a default constructor invocation. Hence should not
                     // pass any arguments.
-                    if (!isValidInitInvocation(cIExpr, (BObjectType) referredType, data)) {
+                    if (!isValidInitInvocation(cIExpr, (BObjectType) actualType, data)) {
                         return symTable.semanticError;
                     }
                 }
@@ -4171,7 +4170,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return symTable.semanticError;
                 }
 
-                BStreamType actualStreamType = (BStreamType) referredType;
+                BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.completionType != null) {
                     BType completionType = actualStreamType.completionType;
                     if (!types.isAssignable(completionType, symTable.errorOrNilType)) {
@@ -4181,7 +4180,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 BUnionType expectedNextReturnType =
-                        createNextReturnType(cIExpr.pos, (BStreamType) referredType, data);
+                        createNextReturnType(cIExpr.pos, (BStreamType) actualType, data);
                 if (cIExpr.initInvocation.argExprs.isEmpty()) {
                     if (!types.containsNilType(actualStreamType.completionType)) {
                         dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR,
@@ -4225,15 +4224,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 DiagnosticErrorCode.INVALID_NEXT_METHOD_RETURN_TYPE, expectedNextReturnType);
                     }
                 }
-                if (data.expType.tag != TypeTags.NONE && !types.isAssignable(referredType, data.expType)) {
+                if (data.expType.tag != TypeTags.NONE && !types.isAssignable(actualType, data.expType)) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data.expType,
-                            referredType);
+                            actualType);
                     return symTable.semanticError;
                 }
-                return referredType;
+                return actualType;
             case TypeTags.UNION:
-                List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) referredType, data);
-                BType matchedType = getMatchingType(matchingMembers, cIExpr, referredType, data);
+                List<BType> matchingMembers = findMembersWithMatchingInitFunc(cIExpr, (BUnionType) actualType, data);
+                BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType, data);
                 cIExpr.initInvocation.setBType(symTable.nilType);
 
                 BType referredMatchedType = Types.getReferredType(matchedType);
@@ -4254,10 +4253,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 types.checkType(cIExpr, matchedType, data.expType);
                 cIExpr.setBType(matchedType);
                 return matchedType;
+            case TypeTags.TYPEREFDESC:
+                BType refType = Types.getReferredType(actualType);
+                BType compatibleType = checkObjectCompatibility(refType, cIExpr, data);
+                return compatibleType == refType ? actualType : compatibleType;
             case TypeTags.INTERSECTION:
-                return checkObjectCompatibility(((BIntersectionType) referredType).effectiveType, cIExpr, data);
+                return checkObjectCompatibility(((BIntersectionType) actualType).effectiveType, cIExpr, data);
             default:
-                dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, referredType);
+                dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
         }
 
