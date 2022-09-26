@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int[] var1 \u003d [1,2,3,4];\n    "
+          "newText": "int[] var1 = [1,2,3,4];\n    "
         },
         {
           "range": {
@@ -41,7 +41,16 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToVariableInListConstructor.bal",
+          73
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

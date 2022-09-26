@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d intArr[0];\n    "
+          "newText": "int var1 = intArr[0];\n    "
         },
         {
           "range": {
@@ -41,7 +41,16 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToVariableInIndexedExpression.bal",
+          104
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
