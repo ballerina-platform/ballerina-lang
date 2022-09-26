@@ -140,8 +140,11 @@ function hasTest(string name) returns boolean {
         int? testIndex = filterTests.indexOf(testName);
         if testIndex == () {
             foreach string filter in filterTests {
-                if (filter.includes(WILDCARD) && matchWildcard(testName, filter) && matchModuleName(filter)) {
-                    return true;
+                if (filter.includes(WILDCARD)) {
+                    boolean|error wildCardMatch = matchWildcard(testName, filter);
+                    if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
+                            return true;
+                    } 
                 }
             }
             return false;

@@ -128,3 +128,6 @@ class GroupStatusRegistry {
 }
 
 isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;
+
+function isDataDrivenTest(TestFunction testFunction) returns boolean =>
+    testFunction.params is map<AnyOrError[]> || testFunction.params is AnyOrError[][];
