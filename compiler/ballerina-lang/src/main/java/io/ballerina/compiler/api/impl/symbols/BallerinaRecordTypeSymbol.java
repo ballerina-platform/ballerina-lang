@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,10 +45,10 @@ import java.util.StringJoiner;
 public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements RecordTypeSymbol {
 
     private Map<String, RecordFieldSymbol> fieldSymbols;
-    private Map<String, RecordFieldSymbol> originalFieldSymbols;
+    private Map<String, RecordFieldSymbol> userSpecifiedFieldSymbols;
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
-    private List<TypeSymbol> originalTypeInclusions;
+    private List<TypeSymbol> userSpecifiedTypeInclusions;
 
     public BallerinaRecordTypeSymbol(CompilerContext context, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, recordType);
@@ -70,9 +71,9 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         return this.fieldSymbols;
     }
 
-    public Map<String, RecordFieldSymbol> originalFieldDescriptors() {
-        if (this.originalFieldSymbols != null) {
-            return this.originalFieldSymbols;
+    private Map<String, RecordFieldSymbol> userSpecifiedFieldDescriptors() {
+        if (this.userSpecifiedFieldSymbols != null) {
+            return this.userSpecifiedFieldSymbols;
         }
 
         Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>();
@@ -82,8 +83,8 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
             fields.put(field.name.value, new BallerinaRecordFieldSymbol(this.context, field));
         }
 
-        this.originalFieldSymbols = Collections.unmodifiableMap(fields);
-        return this.originalFieldSymbols;
+        this.userSpecifiedFieldSymbols = Collections.unmodifiableMap(fields);
+        return this.userSpecifiedFieldSymbols;
     }
 
     @Override
@@ -122,8 +123,8 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         return this.typeInclusions;
     }
 
-    public List<TypeSymbol> originalTypeInclusions() {
-        if (this.originalTypeInclusions == null) {
+    private List<TypeSymbol> userSpecifiedTypeInclusions() {
+        if (this.userSpecifiedTypeInclusions == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             List<BType> inclusions = ((BRecordType) this.getBType()).typeInclusions;
 
@@ -144,24 +145,22 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
                 }
             }
 
-            this.originalTypeInclusions = Collections.unmodifiableList(typeRefs);
+            this.userSpecifiedTypeInclusions = Collections.unmodifiableList(typeRefs);
         }
 
-        return this.originalTypeInclusions;
+        return this.userSpecifiedTypeInclusions;
     }
 
     @Override
     public String signature() {
         // Treating every record typedesc as exclusive record typedescs.
         StringJoiner joiner = new StringJoiner(" ", "{|", "|}");
-        for (TypeSymbol typeInclusion : this.originalTypeInclusions()) {
-            String ballerinaTypeSignature = "*" + typeInclusion.signature() + ";";
-            joiner.add(ballerinaTypeSignature);
+        for (TypeSymbol typeInclusion : this.userSpecifiedTypeInclusions()) {
+            joiner.add(String.join("", "*", typeInclusion.signature(), ";"));
         }
 
-        for (RecordFieldSymbol fieldSymbol : this.originalFieldDescriptors().values()) {
-            String ballerinaFieldSignature = fieldSymbol.signature() + ";";
-            joiner.add(ballerinaFieldSignature);
+        for (RecordFieldSymbol fieldSymbol : this.userSpecifiedFieldDescriptors().values()) {
+            joiner.add(String.join("", fieldSymbol.signature(), ";"));
         }
 
         restTypeDescriptor().ifPresent(typeDescriptor -> {

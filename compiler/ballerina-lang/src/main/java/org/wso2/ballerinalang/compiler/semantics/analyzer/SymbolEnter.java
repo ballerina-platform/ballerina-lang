@@ -3226,6 +3226,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         targetRestRecType.fields = fields;
+        targetRestRecType.originalFields = fields;
         if (restConstraint == null) {
             targetRestRecType.restFieldType = new BNoType(TypeTags.NONE);
             targetRestRecType.sealed = true;
@@ -4136,6 +4137,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType tRef : typeRefs) {
             structureType.typeInclusions.add(tRef.getBType());
         }
+
+        structureType.originalFields.putAll(structureType.fields);
     }
 
     private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode) {

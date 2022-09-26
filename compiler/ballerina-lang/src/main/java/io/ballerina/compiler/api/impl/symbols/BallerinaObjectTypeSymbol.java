@@ -60,9 +60,9 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
     private Map<String, ObjectFieldSymbol> objectFields;
     private Map<String, ObjectFieldSymbol> originalObjectFields;
     private Map<String, MethodSymbol> methods;
-    private Map<String, MethodSymbol> originalMethods;
+    private Map<String, MethodSymbol> userSpecifiedMethods;
     private List<TypeSymbol> typeInclusions;
-    private List<TypeSymbol> originalTypeInclusions;
+    private List<TypeSymbol> userSpecifiedTypeInclusions;
 
     public BallerinaObjectTypeSymbol(CompilerContext context, BObjectType objectType) {
         super(context, TypeDescKind.OBJECT, objectType);
@@ -105,7 +105,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.objectFields;
     }
 
-    public Map<String, ObjectFieldSymbol> originalFieldDescriptors() {
+    private Map<String, ObjectFieldSymbol> userSpecifiedFieldDescriptors() {
         if (this.originalObjectFields != null) {
             return this.originalObjectFields;
         }
@@ -121,9 +121,9 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.originalObjectFields;
     }
 
-    public Map<String, MethodSymbol> originalMethods() {
-        if (this.originalMethods != null) {
-            return this.originalMethods;
+    private Map<String, MethodSymbol> userSpecifiedMethods() {
+        if (this.userSpecifiedMethods != null) {
+            return this.userSpecifiedMethods;
         }
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
@@ -145,8 +145,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
             }
         }
 
-        this.originalMethods = Collections.unmodifiableMap(methods);
-        return this.originalMethods;
+        this.userSpecifiedMethods = Collections.unmodifiableMap(methods);
+        return this.userSpecifiedMethods;
     }
 
     @Override
@@ -198,8 +198,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         return this.typeInclusions;
     }
 
-    public List<TypeSymbol> originalTypeInclusions() {
-        if (this.originalTypeInclusions == null) {
+    public List<TypeSymbol> userDefinedTypeInclusions() {
+        if (this.userSpecifiedTypeInclusions == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             List<BType> inclusions = ((BObjectType) this.getBType()).typeInclusions;
 
@@ -219,10 +219,10 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                 }
             }
 
-            this.originalTypeInclusions = Collections.unmodifiableList(typeRefs);
+            this.userSpecifiedTypeInclusions = Collections.unmodifiableList(typeRefs);
         }
 
-        return this.originalTypeInclusions;
+        return this.userSpecifiedTypeInclusions;
     }
 
     @Override
@@ -239,22 +239,22 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         qualifierJoiner.add("object {");
         signature.append(qualifierJoiner);
 
-        for (TypeSymbol typeInclusion : this.originalTypeInclusions()) {
-            fieldJoiner.add("*" + typeInclusion.signature() + ";");
+        for (TypeSymbol typeInclusion : this.userDefinedTypeInclusions()) {
+            fieldJoiner.add(String.join("", "*", typeInclusion.signature(), ";"));
         }
 
-        for (ObjectFieldSymbol objectFieldSymbol : this.originalFieldDescriptors().values()) {
-            fieldJoiner.add(objectFieldSymbol.signature() + ";");
+        for (ObjectFieldSymbol objectFieldSymbol : this.userSpecifiedFieldDescriptors().values()) {
+            fieldJoiner.add(String.join("", objectFieldSymbol.signature(), ";"));
         }
 
-        if (!this.originalMethods().isEmpty() && !this.originalFieldDescriptors().isEmpty()) {
+        if (!this.userSpecifiedMethods().isEmpty() && !this.userSpecifiedFieldDescriptors().isEmpty()) {
             signature.append(fieldJoiner).append(' ');
         } else {
             signature.append(fieldJoiner);
         }
 
-        for (MethodSymbol method : this.originalMethods().values()) {
-            methodJoiner.add(method.signature() + ";");
+        for (MethodSymbol method : this.userSpecifiedMethods().values()) {
+            methodJoiner.add(String.join("", method.signature(), ";"));
         }
 
         return signature.append(methodJoiner).append("}").toString();
