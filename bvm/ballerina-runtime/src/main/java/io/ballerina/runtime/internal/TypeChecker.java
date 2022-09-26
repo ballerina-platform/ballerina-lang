@@ -714,7 +714,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                      List<TypePair> unresolvedTypes) {
+                                       List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -3338,6 +3338,8 @@ public class TypeChecker {
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
+            case TypeTags.INTERSECTION_TAG:
+                return hasFillerValue(((BIntersectionType) type).getEffectiveType(), unanalyzedTypes);
             default:
                 return false;
         }

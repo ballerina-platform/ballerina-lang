@@ -388,7 +388,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private boolean isAvailableAsEndpoint(String name) {
         for (JsonObject ep : this.visibleEpsForEachBlock) {
-            if (ep.get("name").getAsString().equals(name)) {
+            if (ep.get("name").getAsString().equals(name) && ep.get("innerBlock") == null) {
                 return true;
             }
         }
