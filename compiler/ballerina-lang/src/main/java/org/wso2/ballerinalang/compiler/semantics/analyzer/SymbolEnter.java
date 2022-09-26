@@ -2990,18 +2990,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (field == null) {
                 validRecord = false;
                 if (recordVarType.sealed) {
-                    validRecord = false; //
                     dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                                key, recordVar.getBType());
                 } else {
                     dlog.error(variable.key.pos,
                             DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
                 }
-                continue; // TODO: Remove
             } else {
                 BType fieldType;
                 if (Symbols.isOptional(field.symbol)) {
-                    validRecord = false; // Maybe this is a valid record now.
                     fieldType = types.addNilForNillableAccessType(field.type);
                 } else {
                     fieldType = field.type;

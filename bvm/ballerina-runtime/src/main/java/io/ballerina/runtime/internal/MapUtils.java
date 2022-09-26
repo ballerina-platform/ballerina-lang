@@ -94,7 +94,7 @@ public class MapUtils {
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                fieldName, recType));
+                                                             fieldName, recType));
             }
 
             // If it can be updated, use it.
@@ -110,8 +110,8 @@ public class MapUtils {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    BLangExceptionHelper.getErrorDetails(
-                            RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+                                           BLangExceptionHelper.getErrorDetails(
+                                                      RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
@@ -120,10 +120,10 @@ public class MapUtils {
         Type valuesType = TypeChecker.getType(value);
 
         throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(
-                        RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
-                        valuesType));
+                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                       BLangExceptionHelper.getErrorDetails(
+                                                  RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
+                                                  valuesType));
     }
 
     private static boolean containsNilType(Type type) {
