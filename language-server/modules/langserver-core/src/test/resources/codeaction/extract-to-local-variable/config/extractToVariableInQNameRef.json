@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d int:MAX_VALUE;\n    "
+          "newText": "int var1 = int:MAX_VALUE;\n    "
         },
         {
           "range": {
@@ -41,7 +41,16 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToVariableInQNameRef.bal",
+          73
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

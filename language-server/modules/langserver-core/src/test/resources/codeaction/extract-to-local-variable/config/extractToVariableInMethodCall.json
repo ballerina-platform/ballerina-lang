@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d sq.getArea(5);\n    "
+          "newText": "int var1 = sq.getArea(5);\n    "
         },
         {
           "range": {
@@ -41,7 +41,16 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extractToVariableInMethodCall.bal",
+          180
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
