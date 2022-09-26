@@ -172,11 +172,7 @@ public class LambdaGen {
 
         mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
         int objectArrayLength = paramTypes.size() - 1;
-        if (!isBuiltinModule) {
-            mv.visitIntInsn(BIPUSH, objectArrayLength);
-        } else {
-            mv.visitIntInsn(BIPUSH, objectArrayLength);
-        }
+        mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
     }
 
