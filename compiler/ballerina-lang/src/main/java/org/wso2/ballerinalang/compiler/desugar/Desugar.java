@@ -6732,7 +6732,8 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(objVarDef);
         BLangInvocation typeInitInvocation = typeInitExpr.initInvocation;
         typeInitInvocation.exprSymbol = objVarDef.var.symbol;
-        typeInitInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
+        typeInitInvocation.symbol =
+                ((BObjectTypeSymbol) Types.getReferredType(objType).tsymbol).generatedInitializerFunc.symbol;
 
         typeInitInvocation.objectInitMethod = true;
 
@@ -6840,10 +6841,10 @@ public class Desugar extends BLangNodeVisitor {
     private BType getObjectType(BType bType) {
         BType type = Types.getReferredType(bType);
         if (type.tag == TypeTags.OBJECT) {
-            return type;
+            return bType;
         } else if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
-                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
                     .findFirst()
                     .orElse(symTable.noType);
         }
