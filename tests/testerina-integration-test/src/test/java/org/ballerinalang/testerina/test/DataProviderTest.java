@@ -134,7 +134,7 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test (dependsOnMethods = "testWithSpecialKeys")
+    @Test (dependsOnMethods = "testArrayDataRerunFailedTest")
     public void testMultiModuleSingleTestExec() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
