@@ -316,9 +316,9 @@ public class PackageUtils {
      * @return {@link Optional} Path from the URI
      */
     private static Optional<Path> getPathFromURI(String fileUri) {
-        URI uri = URI.create(fileUri);
-        String scheme = uri.getScheme();
         try {
+            URI uri = URI.create(fileUri);
+            String scheme = uri.getScheme();
             if (uri.getScheme() == null || uri.getScheme().equals(URI_SCHEME_BALA)) {
                 scheme = URI_SCHEME_FILE;
             }
