@@ -16,6 +16,7 @@
 
 boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
+int exitCode = 0;
 
 public function startSuite() {
     if listGroups {
@@ -33,7 +34,8 @@ public function startSuite() {
         }
 
         error? err = orderTests();
-        if err is error { //TODO: break the execution and display the error in a better way
+        if err is error {
+            exitCode = 1;
             println(err.message());
         } else {
             executeBeforeSuiteFunctions();
@@ -41,6 +43,9 @@ public function startSuite() {
             executeAfterSuiteFunctions();
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
+    }
+    if (exitCode > 0) {
+        panic(error(""));
     }
 }
 
@@ -57,6 +62,7 @@ function executeTest(TestFunction testFunction) {
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
         reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
+        exitCode = 1;
         return;
     }
     if testFunction.dependsOnCount > 1 {
@@ -120,6 +126,7 @@ function executeBeforeSuiteFunctions() {
     if err is ExecutionError {
         shouldSkip = true;
         shouldAfterSuiteSkip = true;
+        exitCode = 1;
         printExecutionError(err, "before test suite function");
     }
 }
@@ -127,6 +134,7 @@ function executeBeforeSuiteFunctions() {
 function executeAfterSuiteFunctions() {
     ExecutionError? err = executeFunctions(afterSuiteRegistry.getFunctions(), shouldAfterSuiteSkip);
     if err is ExecutionError {
+        exitCode = 1;
         printExecutionError(err, "after test suite function");
     }
 }
@@ -135,6 +143,7 @@ function executeBeforeEachFunctions() {
     ExecutionError? err = executeFunctions(beforeEachRegistry.getFunctions(), shouldSkip);
     if err is ExecutionError {
         shouldSkip = true;
+        exitCode = 1;
         printExecutionError(err, "before each test function for the test");
     }
 }
@@ -143,6 +152,7 @@ function executeAfterEachFunctions() {
     ExecutionError? err = executeFunctions(afterEachRegistry.getFunctions(), shouldSkip);
     if err is ExecutionError {
         shouldSkip = true;
+        exitCode = 1;
         printExecutionError(err, "after each test function for the test");
     }
 }
@@ -152,6 +162,7 @@ function executeBeforeFunction(TestFunction testFunction) {
         ExecutionError? err = executeFunction(<function>testFunction.before);
         if err is ExecutionError {
             testFunction.skip = true;
+            exitCode = 1;
             printExecutionError(err, "before test function for the test");
         }
     }
@@ -164,6 +175,7 @@ function executeAfterFunction(TestFunction testFunction) {
             testFunction.dependents.forEach(function(TestFunction dependent) {
                 dependent.skip = true;
             });
+            exitCode = 1;
             printExecutionError(err, "after test function for the test");
         }
     }
@@ -177,6 +189,7 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
             if err is ExecutionError {
                 testFunction.skip = true;
                 groupStatusRegistry.setSkipAfterGroup(group);
+                exitCode = 1;
                 printExecutionError(err, "before test group function for the test");
             }
         }
@@ -190,6 +203,7 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
                 shouldSkip || groupStatusRegistry.getSkipAfterGroup(group));
             if err is ExecutionError {
+                exitCode = 1;
                 printExecutionError(err, "after test group function for the test");
             }
         }
@@ -205,6 +219,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
     if err is ExecutionError {
         reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err), testType = testType);
+        exitCode = 1;
         return true;
     }
     return false;
@@ -284,12 +299,14 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
+        exitCode = 1;
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         return true;
     } else if output is any {
         reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
     } else {
+        exitCode = 1;
         return error(getErrorMessage(output), functionName = testFunction.name);
     }
 }
@@ -297,6 +314,7 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
 function executeFunction(TestFunction|function testFunction) returns ExecutionError? {
     any|error output = trap function:call(testFunction is function ? testFunction : testFunction.executableFunction);
     if output is error {
+        exitCode = 1;
         return error(getErrorMessage(output), functionName = testFunction is function ? "" : testFunction.name);
     }
 }
