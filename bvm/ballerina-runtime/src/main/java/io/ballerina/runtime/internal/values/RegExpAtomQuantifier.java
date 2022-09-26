@@ -17,13 +17,8 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BTypedesc;
-
-import java.util.Map;
 
 /**
  * <p>
@@ -35,7 +30,7 @@ import java.util.Map;
  *
  * @since 2201.3.0
  */
-public class RegExpAtomQuantifier implements RegExpTerm {
+public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTerm {
     private Object reAtom;
     private RegExpQuantifier reQuantifier;
 
@@ -63,35 +58,5 @@ public class RegExpAtomQuantifier implements RegExpTerm {
     @Override
     public String stringValue(BLink parent) {
         return StringUtils.getStringValue(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public String informalStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public Type getType() {
-        return PredefinedTypes.TYPE_ANYDATA;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        throw new UnsupportedOperationException();
     }
 }

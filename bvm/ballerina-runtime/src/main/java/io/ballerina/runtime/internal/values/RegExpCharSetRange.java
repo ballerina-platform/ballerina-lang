@@ -17,12 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BTypedesc;
-
-import java.util.Map;
 
 /**
  * <p>
@@ -34,7 +29,7 @@ import java.util.Map;
  *
  * @since 2201.3.0
  */
-public class RegExpCharSetRange implements RefValue {
+public class RegExpCharSetRange extends RegExpCommonValue {
     private String lhsCharSetAtom;
     private String dash;
     private String rhsCharSetAom;
@@ -64,35 +59,5 @@ public class RegExpCharSetRange implements RefValue {
     @Override
     public String stringValue(BLink parent) {
         return this.lhsCharSetAtom + this.dash + this.rhsCharSetAom;
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public String informalStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public Type getType() {
-        return PredefinedTypes.TYPE_ANYDATA;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        throw new UnsupportedOperationException();
     }
 }

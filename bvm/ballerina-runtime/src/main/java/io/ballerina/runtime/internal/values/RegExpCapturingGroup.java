@@ -17,12 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BTypedesc;
-
-import java.util.Map;
 
 /**
  * <p>
@@ -34,7 +29,7 @@ import java.util.Map;
  *
  * @since 2201.3.0
  */
-public class RegExpCapturingGroup implements RegExpAtom {
+public class RegExpCapturingGroup extends RegExpCommonValue implements RegExpAtom {
     private String openParen;
     private RegExpFlagExpression flagExpr;
     private RegExpDisjunction reDisjunction;
@@ -52,35 +47,5 @@ public class RegExpCapturingGroup implements RegExpAtom {
     public String stringValue(BLink parent) {
         return this.openParen + this.flagExpr.stringValue(parent) + this.reDisjunction.stringValue(parent)
                 + this.closeParen;
-    }
-
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public String informalStringValue(BLink parent) {
-        return stringValue(parent);
-    }
-
-    @Override
-    public Type getType() {
-        return PredefinedTypes.TYPE_ANYDATA;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public BTypedesc getTypedesc() {
-        throw new UnsupportedOperationException();
     }
 }
