@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -274,6 +275,15 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNode(xmlnsNode.namespaceURI);
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclNode) {
+        if (setEnclosingNode(clientDeclNode.symbol, clientDeclNode.prefix.pos)) {
+            return;
+        }
+
+        lookupNode((BLangNode) clientDeclNode.getUri());
     }
 
     @Override
