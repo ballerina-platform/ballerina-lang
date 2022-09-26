@@ -28,6 +28,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.jacoco.core.internal.analysis.filter.AnnotationGeneratedFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +65,10 @@ public class CreateExecutableTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Generating executable");
+        this.out.print("Generating executable");
+        if (enableNativeImage) {
+            this.out.println(" with native-image");
+        }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target;
@@ -99,14 +103,26 @@ public class CreateExecutableTask implements Task {
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
 
             if (enableNativeImage) {
-                String[] command = {"native-image", "-jar", executablePath.toString()};
+                // Create nativeConfig directory
+                if (!Files.exists(target.path().resolve("native"))) {
+                    Files.createDirectory(target.path().resolve("native"));
+                }
+
+                String nativeImageDir = "target" + File.separator + "native" + File.separator;
+                String nativeImageName = project.currentPackage().packageName().toString();
+                String[] command = {"native-image", "-jar", executablePath.toString(),
+                        "." + File.separator + nativeImageDir + nativeImageName};
                 ProcessBuilder builder = new ProcessBuilder();
                 builder.command(command);
                 builder.inheritIO();
                 Process process = builder.start();
 
                 if (process.waitFor() != 0) {
-                    out.println("\t GraalVM image generation failed.");
+                    out.println("\n\t GraalVM image generation failed.");
+                } else {
+                    out.println("\n" + "GraalVM image generated");
+                    out.println("\t" + nativeImageDir + nativeImageName);
+                    out.println();
                 }
             }
 
@@ -132,17 +148,18 @@ public class CreateExecutableTask implements Task {
 
         Path relativePathToExecutable = currentDir.relativize(executablePath);
 
-        if (project.buildOptions().getTargetPath() != null) {
-            this.out.println("\t" + relativePathToExecutable);
-        } else {
-            if (relativePathToExecutable.toString().contains("..") ||
-                    relativePathToExecutable.toString().contains("." + File.separator)) {
-                this.out.println("\t" + executablePath.toString());
+        if (!enableNativeImage) {
+            if (project.buildOptions().getTargetPath() != null) {
+                this.out.println("\n\t" + relativePathToExecutable);
             } else {
-                this.out.println("\t" + relativePathToExecutable.toString());
+                if (relativePathToExecutable.toString().contains("..") ||
+                        relativePathToExecutable.toString().contains("." + File.separator)) {
+                    this.out.println("\n\t" + executablePath.toString());
+                } else {
+                    this.out.println("\n\t" + relativePathToExecutable.toString());
+                }
             }
         }
-
     }
 
     private void notifyPlugins(Project project, Target target) {
