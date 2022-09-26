@@ -1,5 +1,6 @@
-import ballerina/io;
+
+client "https://postman-echo.com/get?name=projectapiclientplugin" as myapi;
 
 public function main() {
-    io:println("Hello, World!");
+    myapi:client cli;
 }
