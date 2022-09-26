@@ -465,10 +465,55 @@ public class RunTestsTask implements Task {
             IOException, InterruptedException {
         String packageName = currentPackage.packageName().toString();
         String classPath = getNewClassPath(jBallerinaBackend, currentPackage);
-        String nativeImageDir = "." + File.separator + "target" + File.separator + "native" + File.separator;
-
-        // TODO : Handle code coverage after testing
         String jacocoAgentJarPath = "";
+
+        if (coverage) {
+            // Generate the exec in a separate process
+            List<String> cmdArgs1 = new ArrayList<>();
+            cmdArgs1.add(System.getProperty("java.command"));
+
+            String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
+
+            jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                    .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
+
+            String agentCommand = "-javaagent:" +
+                    jacocoAgentJarPath + "=destfile="
+                    + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
+                    .resolve(TesterinaConstants.EXEC_FILE_NAME);
+
+            if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
+                // add user defined classes for generating the jacoco exec file
+                agentCommand += ",includes=" + currentPackage.packageOrg().toString() + ".*";
+            } else {
+                agentCommand += ",includes=" + this.includesInCoverage;
+            }
+
+            cmdArgs1.add(agentCommand);
+            cmdArgs1.addAll(Lists.of("-cp", classPath));
+            cmdArgs1.add(mainClassName);
+
+            // Adds arguments to be read at the Test Runner
+            cmdArgs1.add(target.path().toString());
+            cmdArgs1.add(jacocoAgentJarPath);
+            cmdArgs1.add(Boolean.toString(report));
+            cmdArgs1.add(Boolean.toString(coverage));
+            cmdArgs1.add(this.groupList != null ? this.groupList : "");
+            cmdArgs1.add(this.disableGroupList != null ? this.disableGroupList : "");
+            cmdArgs1.add(this.singleExecTests != null ? this.singleExecTests : "");
+            cmdArgs1.add(Boolean.toString(isRerunTestExecution));
+            cmdArgs1.add(Boolean.toString(listGroups));
+
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs1).inheritIO();
+            Process proc = processBuilder.start();
+
+            if (proc.waitFor() != 0) {
+                out.println("Jacoco exec generation failed");
+            }
+        }
+
+        List<String> cmdArgs = new ArrayList<>();
+        cmdArgs.add("native-image");
 
         Path nativeConfigPath = target.getTestsCachePath().resolve("native");
 
@@ -476,10 +521,7 @@ public class RunTestsTask implements Task {
         createReflectConfig(nativeConfigPath, currentPackage);
         createResourceConfig(nativeConfigPath);
 
-        List<String> cmdArgs = new ArrayList<>();
-
         // Run native-image command with generated configs
-        cmdArgs.add("native-image");
         cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
 
