@@ -99,13 +99,15 @@ public class MainFunctionValidator extends BLangNodeVisitor {
 
     private BLangSimpleVariable handleSuccessfulVisit(MainParameterVisitor mainParameterVisitor,
                                                       BLangSimpleVariable foundOperand, BLangSimpleVariable param) {
-        if (mainParameterVisitor.isOperandType(param.getBType()) && param.expr == null && foundOperand != null) {
+        BType paramType = param.getBType();
+        BType referredParamType = Types.getReferredType(paramType);
+        if (mainParameterVisitor.isOperandType(paramType) && param.expr == null && foundOperand != null) {
             dLog.error(param.pos, DiagnosticErrorCode.OPTIONAL_OPERAND_PRECEDES_OPERAND, foundOperand.name,
-                       foundOperand.getBType(), param.name, param.getBType());
+                       foundOperand.getBType(), param.name, paramType);
         } else if (foundUnion(param)) {
             foundOperand = param;
-        } else if (param.getBType().tag == TypeTags.ARRAY && foundArrayType == null) {
-            foundArrayType = ((BArrayType) param.getBType()).eType;
+        } else if (referredParamType.tag == TypeTags.ARRAY && foundArrayType == null) {
+            foundArrayType = ((BArrayType) referredParamType).eType;
         }
         return foundOperand;
     }

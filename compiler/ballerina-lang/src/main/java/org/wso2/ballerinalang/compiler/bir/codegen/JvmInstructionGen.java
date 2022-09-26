@@ -375,7 +375,7 @@ public class JvmInstructionGen {
     }
 
     private void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
-
+        targetType = JvmCodeGenUtil.getReferredType(targetType);
         switch (targetType.tag) {
             case TypeTags.BYTE: // Wouldn't reach here for int atm.
             case TypeTags.UNSIGNED8_INT:
@@ -392,8 +392,6 @@ public class JvmInstructionGen {
                 mv.visitInsn(L2I);
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 return;
-            case TypeTags.TYPEREFDESC:
-                generateIntToUnsignedIntConversion(mv, JvmCodeGenUtil.getReferredType(targetType));
         }
     }
 
@@ -431,6 +429,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarLoadForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
@@ -479,9 +478,6 @@ public class JvmInstructionGen {
             case JTypeTags.JTYPE:
                 generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
-            case TypeTags.TYPEREFDESC:
-                generateVarLoadForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
-                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -512,6 +508,7 @@ public class JvmInstructionGen {
     }
 
     private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
@@ -557,9 +554,6 @@ public class JvmInstructionGen {
                 break;
             case JTypeTags.JTYPE:
                 generateJVarStore(mv, (JType) bType, valueIndex);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateVarStoreForType(mv, JvmCodeGenUtil.getReferredType(bType), valueIndex);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);

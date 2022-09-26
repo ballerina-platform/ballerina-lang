@@ -384,7 +384,7 @@ class JMethodResolver {
     }
 
     private boolean isValidParamBType(Class<?> jType, BType bType, boolean isLastParam, boolean restParamExist) {
-
+        bType = JvmCodeGenUtil.getReferredType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -498,9 +498,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
-                            restParamExist);
                 default:
                     return false;
             }
@@ -517,7 +514,7 @@ class JMethodResolver {
 
     private boolean isValidReturnBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest,
                                        LinkedHashSet<Class<?>> visitedSet) {
-
+        bType = JvmCodeGenUtil.getReferredType(bType);
         try {
             String jTypeName = jType.getTypeName();
             switch (bType.tag) {
@@ -658,9 +655,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, JvmCodeGenUtil.getReferredType(bType),
-                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }

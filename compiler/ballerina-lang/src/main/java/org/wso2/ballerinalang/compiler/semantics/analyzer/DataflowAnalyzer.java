@@ -1997,6 +1997,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addTypeDependency(BTypeSymbol dependentTypeSymbol, BType providerType, Set<BType> unresolvedTypes) {
+        providerType = Types.getReferredType(providerType);
         if (unresolvedTypes.contains(providerType)) {
             return;
         }
@@ -2016,10 +2017,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             case TypeTags.MAP:
                 addTypeDependency(dependentTypeSymbol,
                         types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
-                        unresolvedTypes);
-                break;
-            case TypeTags.TYPEREFDESC:
-                addTypeDependency(dependentTypeSymbol, Types.getReferredType(providerType),
                         unresolvedTypes);
                 break;
             default:

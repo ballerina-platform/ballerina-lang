@@ -844,7 +844,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
         for (BLangConstant constant : pkgNode.constants) {
-            BType constType = Types.getReferredType(constant.symbol.type);
+            BType constType = Types.getReferredType(constant.symbol.type, false);
             if (constType.tag != TypeTags.INTERSECTION) {
                 continue;
             }
@@ -4999,7 +4999,7 @@ public class Desugar extends BLangNodeVisitor {
     BLangBlockStmt desugarForeachStmt(BVarSymbol collectionSymbol, BType collectionType, BLangForeach foreach,
                                       BLangSimpleVariableDef dataVarDef) {
         // Get the symbol of the variable (collection).
-        switch (collectionType.tag) {
+        switch (Types.getReferredType(collectionType).tag) {
             case TypeTags.STRING:
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
@@ -5016,9 +5016,6 @@ public class Desugar extends BLangNodeVisitor {
                 iteratorSymbol = getIterableObjectIteratorInvokableSymbol(collectionSymbol);
                 return desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
                         iteratorSymbol, false);
-            case TypeTags.TYPEREFDESC:
-                return desugarForeachStmt(collectionSymbol, Types.getReferredType(foreach.collection.getBType()),
-                        foreach, dataVarDef);
             default:
                 BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
                 blockNode.stmts.add(0, dataVarDef);
@@ -9772,19 +9769,6 @@ public class Desugar extends BLangNodeVisitor {
         literal.setBType(symTable.booleanType);
         literal.pos = symTable.builtinPos;
         return literal;
-    }
-
-    private boolean isDefaultableMappingType(BType type) {
-        switch (types.getSafeType(type, true, false).tag) {
-            case TypeTags.JSON:
-            case TypeTags.MAP:
-            case TypeTags.RECORD:
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isDefaultableMappingType(Types.getReferredType(type));
-            default:
-                return false;
-        }
     }
 
     private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {

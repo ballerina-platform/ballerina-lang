@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -196,6 +197,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getFieldTypeSignature(BType bType) {
+        bType = getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -217,7 +219,6 @@ public class JvmCodeGenUtil {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
                 case TypeTags.JSON:
                 case TypeTags.FINITE:
                 case TypeTags.READONLY:
@@ -246,8 +247,6 @@ public class JvmCodeGenUtil {
                     return GET_HANDLE_VALUE;
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
-                case TypeTags.TYPEREFDESC:
-                    return getFieldTypeSignature(getReferredType(bType));
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -375,6 +374,7 @@ public class JvmCodeGenUtil {
     }
 
     public static String getArgTypeSignature(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -424,15 +424,13 @@ public class JvmCodeGenUtil {
                 return GET_BOBJECT;
             case TypeTags.HANDLE:
                 return GET_HANDLE_VALUE;
-            case TypeTags.TYPEREFDESC:
-                return getArgTypeSignature(getReferredType(bType));
             default:
-                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         bType);
+                throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
     }
 
     public static String generateReturnType(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (bType == null) {
             return RETURN_JOBJECT;
         }
@@ -487,8 +485,6 @@ public class JvmCodeGenUtil {
                 return RETURN_FUNCTION_POINTER;
             case TypeTags.HANDLE:
                 return RETURN_HANDLE_VALUE;
-            case TypeTags.TYPEREFDESC:
-                return generateReturnType(getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -682,6 +678,7 @@ public class JvmCodeGenUtil {
     }
 
     public static boolean isSimpleBasicType(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
             case TypeTags.FLOAT:
@@ -690,8 +687,6 @@ public class JvmCodeGenUtil {
             case TypeTags.NIL:
             case TypeTags.NEVER:
                 return true;
-            case TypeTags.TYPEREFDESC:
-                return isSimpleBasicType(getReferredType(bType));
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
         }
@@ -699,9 +694,18 @@ public class JvmCodeGenUtil {
 
     public static BType getReferredType(BType type) {
         BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+        if (type == null) {
+            return null;
         }
+
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return getReferredType(((BTypeReferenceType) type).referredType);
+        }
+        
+        if (type.tag == TypeTags.INTERSECTION) {
+            return getReferredType(((BIntersectionType) type).effectiveType);
+        }
+        
         return constraint;
     }
 

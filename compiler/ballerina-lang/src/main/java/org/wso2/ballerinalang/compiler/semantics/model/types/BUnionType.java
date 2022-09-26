@@ -407,9 +407,15 @@ public class BUnionType extends BType implements UnionType {
 
     private static BType getReferredType(BType type) {
         BType constraint = type;
+        
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
+
+        if (type.tag == TypeTags.INTERSECTION) {
+            return getReferredType(((BIntersectionType) type).effectiveType);
+        }
+        
         return constraint;
     }
 

@@ -344,6 +344,7 @@ public class MethodGen {
     }
 
     private void genDefaultValue(MethodVisitor mv, BType bType, int index) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
@@ -392,9 +393,6 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 genJDefaultValue(mv, (JType) bType, index);
-                break;
-            case TypeTags.TYPEREFDESC:
-                genDefaultValue(mv, ((BTypeReferenceType) bType).referredType, index);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -639,6 +637,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldLoadByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                       int index, BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName, "I");
@@ -725,10 +724,6 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
                 break;
-            case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).referredType);
-                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -803,6 +798,7 @@ public class MethodGen {
 
     private void generateFrameClassFieldUpdateByTypeTag(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
                                                         int index, BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         switch (bType.tag) {
             case TypeTags.BYTE:
                 mv.visitVarInsn(ILOAD, index);
@@ -889,10 +885,6 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -1019,6 +1011,7 @@ public class MethodGen {
     }
 
     private String getJVMTypeSign(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1086,9 +1079,6 @@ public class MethodGen {
                 break;
             case JTypeTags.JTYPE:
                 jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
-                break;
-            case TypeTags.TYPEREFDESC:
-                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException("JVM code generation is not supported for type " +

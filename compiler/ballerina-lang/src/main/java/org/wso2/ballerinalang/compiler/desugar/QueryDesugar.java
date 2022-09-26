@@ -285,7 +285,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
-            BMapType mapType = (BMapType) ((BUnionType) queryExpr.getBType()).getMemberTypes()
+            BType mapType = ((BUnionType) queryExpr.getBType()).getMemberTypes()
                     .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.MAP)
                     .findFirst().orElse(symTable.mapType);
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
@@ -865,9 +865,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                 int memberTypeTag = Types.getReferredType(memberType).tag;
                 if (memberTypeTag == TypeTags.TABLE) {
                     tableType = memberType;
-                } else if (memberTypeTag == TypeTags.INTERSECTION &&
-                        ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
-                    tableType = ((BIntersectionType) memberType).effectiveType;
                 }
             }
         }

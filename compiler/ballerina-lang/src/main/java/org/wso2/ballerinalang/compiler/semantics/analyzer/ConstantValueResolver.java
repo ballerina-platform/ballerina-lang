@@ -500,7 +500,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
         BType constSymbolValType = value.type;
-        int constSymbolValTypeTag = constSymbolValType.tag;
+        int constSymbolValTypeTag = Types.getReferredType(constSymbolValType).tag;
 
         switch (constSymbolValTypeTag) {
             case TypeTags.INT:
@@ -604,12 +604,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol symbol = constant.symbol;
         updateConstantType(symbol, constant.expr, symEnv);
 
-        BType resolvedType = symbol.type;
+        BType resolvedType = Types.getReferredType(symbol.type, false);
 
         if (resolvedType.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) resolvedType;
 
-            if (intersectionType.effectiveType.tag == TypeTags.RECORD) {
+            if (Types.getReferredType(intersectionType.effectiveType).tag == TypeTags.RECORD) {
                 addAssociatedTypeDefinition(constant, intersectionType);
             }
         }
@@ -925,7 +925,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
             if (memberExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = ((BLangSimpleVarRef) memberExpr).symbol.type;
-                int tag = type.tag;
+                int tag = Types.getReferredType(type, false).tag;
 
                 if (tag == TypeTags.FINITE) {
                     // https://github.com/ballerina-platform/ballerina-lang/issues/35127
@@ -947,11 +947,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
             tupleTypes.add(newType);
 
-            if (newType.tag != TypeTags.FINITE) {
+            if (Types.getReferredType(newType).tag != TypeTags.FINITE) {
                 // https://github.com/ballerina-platform/ballerina-lang/issues/35127
                 memberConstValue.type = newType;
-                memberExpr.setBType(newType.tag == TypeTags.INTERSECTION ?
-                                            ((BIntersectionType) newType).effectiveType : newType);
+                memberExpr.setBType(newType);
             }
         }
 

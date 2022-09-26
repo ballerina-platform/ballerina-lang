@@ -1315,6 +1315,7 @@ public class JvmTerminatorGen {
     }
 
     private void generateReturnTermFromType(int returnVarRefIndex, BType bType, BIRNode.BIRFunction func) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
@@ -1368,9 +1369,6 @@ public class JvmTerminatorGen {
                 this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-                break;
-            case TypeTags.TYPEREFDESC:
-                generateReturnTermFromType(returnVarRefIndex, JvmCodeGenUtil.getReferredType(bType), func);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

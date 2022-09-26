@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -146,7 +145,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUCNTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STREAM_TYPE_IMPL;
@@ -477,6 +475,7 @@ public class JvmTypeGen {
     }
 
     private String loadTypeClass(BType bType) {
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (bType == null || bType.tag == TypeTags.NIL) {
             return LOAD_NULL_TYPE;
         } else {
@@ -523,8 +522,6 @@ public class JvmTypeGen {
                     return LOAD_READONLY_TYPE;
                 case TypeTags.UNION:
                     return LOAD_UNION_TYPE;
-                case TypeTags.TYPEREFDESC:
-                    return loadTypeClass(JvmCodeGenUtil.getReferredType(bType));
                 default:
                     return LOAD_TYPE;
             }
@@ -689,15 +686,13 @@ public class JvmTypeGen {
     }
 
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
+        valueType = JvmCodeGenUtil.getReferredType(valueType);
         switch (valueType.tag) {
             case TypeTags.UNION:
                 mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
                 break;
             case TypeTags.TUPLE:
                 mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadCyclicFlag(mv, JvmCodeGenUtil.getReferredType(valueType));
                 break;
         }
     }
@@ -796,13 +791,9 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-        String effectiveTypeClass;
-        if (bType.effectiveType instanceof IntersectableReferenceType) {
-            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
-        } else {
-            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
-        }
-        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD, effectiveTypeClass, false);
+
+        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
+                INIT_INTERSECTION_TYPE_WITH_TYPE, false);
     }
 
     private void generateCreateNewArray(MethodVisitor methodVisitor, Set<BType> members) {
@@ -976,7 +967,7 @@ public class JvmTypeGen {
     }
 
     public static String getTypeDesc(BType bType) {
-
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1026,8 +1017,6 @@ public class JvmTypeGen {
                 return GET_HANDLE_VALUE;
             case TypeTags.INVOKABLE:
                 return GET_FUNCTION_POINTER;
-            case TypeTags.TYPEREFDESC:
-                return getTypeDesc(JvmCodeGenUtil.getReferredType(bType));
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -1074,6 +1063,7 @@ public class JvmTypeGen {
     }
 
     private void loadValueType(MethodVisitor mv, BType valueType) {
+        valueType = JvmCodeGenUtil.getReferredType(valueType);
         switch (valueType.tag) {
             case TypeTags.BOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
@@ -1086,9 +1076,6 @@ public class JvmTypeGen {
             case TypeTags.BYTE:
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
                         INT_VALUE_OF_METHOD, false);
-                break;
-            case TypeTags.TYPEREFDESC:
-                loadValueType(mv, JvmCodeGenUtil.getReferredType(valueType));
         }
     }
 
