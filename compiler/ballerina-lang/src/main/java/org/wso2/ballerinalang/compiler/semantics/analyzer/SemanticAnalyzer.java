@@ -994,8 +994,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType btype = tupleTypeNode.getBType();
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(btype.tsymbol), data.env);
 
-        for (int i = 0; i < memberTypeNodes.size(); i++) {
-            if (btype.getKind() == TypeKind.TUPLE) {
+        if (btype.getKind() == TypeKind.TUPLE) {
+            for (int i = 0; i < memberTypeNodes.size(); i++) {
                 data.env = tupleEnv;
                 analyzeDef(memberTypeNodes.get(i), data);
                 for (BLangAnnotationAttachment ann : memberTypeNodes.get(i).annAttachments) {
@@ -1159,7 +1159,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL);
             }
 
-            if (Types.getReferredType(lhsType).tag == TypeTags.ARRAY
+            if (ownerSymTag != SymTag.TUPLE_TYPE && Types.getReferredType(lhsType).tag == TypeTags.ARRAY
                     && typeChecker.isArrayOpenSealedType((BArrayType) Types.getReferredType(lhsType))) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
