@@ -484,7 +484,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
 
         // native-image name
-        cmdArgs.add(nativeImageDir + packageName);
+        cmdArgs.add(packageName);
 
         // native-image configs
         cmdArgs.add("-H:MaxDuplicationFactor=4.0");
@@ -500,7 +500,7 @@ public class RunTestsTask implements Task {
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
-            cmdArgs.add(nativeImageDir + packageName);
+            cmdArgs.add("./" + packageName);
 
             // Test Runner Class arguments
             cmdArgs.add(target.path().toString());                                  // 0
