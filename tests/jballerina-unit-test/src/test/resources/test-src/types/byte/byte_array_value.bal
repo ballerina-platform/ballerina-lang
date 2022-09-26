@@ -69,6 +69,25 @@ function testByteArrayLiteralWithReferenceType() {
     assertEquality(true, byteArr2 is ByteArr2);
 }
 
+function testByteArrayLiteralAssignToIntArray() {
+    int[*] arr1 = base16 `aa bb`;
+    int[2] arr2 = arr1;
+    assertTrue(arr2 is int[2]);
+    assertEquality([170, 187], arr2);
+
+    int[] arr3 = arr1;
+    assertTrue(arr3 is int[2]);
+    assertEquality([170, 187], arr3);
+
+    int[3] arr4 = base64 `aa bb`;
+    assertTrue(arr4 is int[3]);
+    assertEquality([105,166,219], arr4);
+}
+
+function assertTrue(boolean actual) {
+    assertEquality(true, actual);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

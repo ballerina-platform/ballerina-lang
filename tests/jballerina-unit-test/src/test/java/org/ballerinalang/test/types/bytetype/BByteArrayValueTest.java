@@ -60,4 +60,9 @@ public class BByteArrayValueTest {
     public void testByteArrayLiteralWithReferenceType() {
         BRunUtil.invoke(compileResult, "testByteArrayLiteralWithReferenceType");
     }
+
+    @Test
+    public void testByteArrayLiteralAssignToIntArray() {
+        BRunUtil.invoke(compileResult, "testByteArrayLiteralAssignToIntArray");
+    }
 }
