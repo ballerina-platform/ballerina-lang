@@ -50,7 +50,8 @@ public class RegExpTypeBalaTest {
                 "testAssignabilityWithRegExp",
                 "testSubtypingWithRegExp",
                 "testRegExpWithVar",
-                "testRegExpWithUserDefinedType"
+                "testRegExpWithUserDefinedType",
+                "testPublicRegExpValue"
         };
     }
 

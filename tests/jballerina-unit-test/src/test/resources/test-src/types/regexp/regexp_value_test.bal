@@ -353,6 +353,9 @@ function testComplexRegExpValue2() {
     regexp:RegExp x1 = re `^ab${val}cd*e$`;
     assertEquality("^ab10cd*e$", x1.toString());
 
+    x1 = re `^ab${(val + 1) * val}cd*e$`;
+    assertEquality("^ab110cd*e$", x1.toString());
+
     regexp:RegExp x2 = re `$[^a-b\tx-z]+(?i:ab^c[d-f]){12,}`;
     assertEquality("$[^a-b\\tx-z]+(?i:ab^c[d-f]){12,}", x2.toString());
 

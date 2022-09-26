@@ -113,6 +113,20 @@ function testRegExpWithUserDefinedType() {
     assertEquality(re `AB*|[^c-d]{1,5}`, x7);
 }
 
+function testPublicRegExpValue() {
+    assertEquality(true, regexp1:regexValue1 is regexp:RegExp);
+    assertEquality(true, re `AB+C*D{1,4}` == regexp1:regexValue1);
+
+    assertEquality(true, regexp1:regexValue2 is regexp:RegExp);
+    assertEquality(true, re `AB+C*D{1,4}` == regexp1:regexValue2);
+
+    regexp1:RegExpType x1 = regexp1:regexValue1;
+    assertEquality(true, x1 is regexp:RegExp);
+
+    regexp:RegExp x2 = regexp1:regexValue2;
+    assertEquality(true, x2 is regexp1:RegExpType2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

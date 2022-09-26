@@ -19,3 +19,7 @@ import ballerina/lang.regexp;
 public type RegExpType regexp:RegExp;
 
 public type RegExpType2 RegExpType;
+
+public regexp:RegExp regexValue1 = re `AB+C*D{1,4}`;
+
+public RegExpType regexValue2 = re `AB+C*D{1,4}`;
