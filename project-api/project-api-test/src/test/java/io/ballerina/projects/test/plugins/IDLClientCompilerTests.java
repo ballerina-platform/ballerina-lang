@@ -157,7 +157,8 @@ public class IDLClientCompilerTests {
     public void testExposingConstructFromGeneratedModuleNegative() {
         Project project = loadPackage("simpleclientnegativetestthree");
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
@@ -196,7 +197,8 @@ public class IDLClientCompilerTests {
     public void testInvalidGeneratedModuleNegative() {
         Project project = loadPackage("simpleclientnegativetestfour");
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty());
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);

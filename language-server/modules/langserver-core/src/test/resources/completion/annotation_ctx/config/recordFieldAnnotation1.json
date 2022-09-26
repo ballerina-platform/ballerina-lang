@@ -394,6 +394,15 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
