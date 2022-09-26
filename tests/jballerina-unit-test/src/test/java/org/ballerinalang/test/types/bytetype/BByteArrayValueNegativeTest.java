@@ -77,28 +77,28 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "missing binary operator", 16, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 24);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 24);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[3]', found 'byte[2]'",
-                23, 17);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[3]', found 'byte[2]'",
-                24, 16);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[2]', found 'byte[3]'",
-                28, 17);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[2]', found 'byte[3]'",
-                30, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[3]', found 'byte[2]'", 23, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[3]', found 'byte[2]'", 24, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[2]', found 'byte[3]'", 28, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[2]', found 'byte[3]'", 30, 16);
         BAssertUtil.validateError(result, index++, "incompatible types: 'byte[2]' cannot be cast to " +
-                        "'(byte[3] & readonly)'", 33, 16);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'",
-                33, 16);
+                "'(byte[3] & readonly)'", 33, 16);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 33, 16);
         BAssertUtil.validateError(result, index++, "incompatible types: 'byte[3]' cannot be cast to " +
                 "'(int[2] & readonly)'", 34, 15);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'other'",
-                34, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'other'", 34, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: 'byte[3]' cannot be cast to " +
                 "'(string[] & readonly)'", 35, 18);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', found 'other'",
-                35, 18);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[3]', found 'byte[2]'",
-                39, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', found 'other'", 35, 18);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[3]', found 'byte[2]'", 39, 17);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testInferredArrayWithNilLiteral() {
+        CompileResult result = BCompileUtil.compile("test-src/types/byte/byte_array_with_nil_literal.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "length of the array cannot be inferred from the context", 18, 5);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 }
