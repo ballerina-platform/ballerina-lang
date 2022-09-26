@@ -237,6 +237,7 @@ public class JvmConstants {
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
+    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -349,6 +350,8 @@ public class JvmConstants {
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
+    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
+    public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

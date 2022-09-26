@@ -188,6 +188,7 @@ public class JvmSignatures {
     public static final String DECIMAL_VALUE_OF_INT = "(I)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_LONG = "(J)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_SHORT = "(S)L" + DECIMAL_VALUE + ";";
+    public static final String INT_TO_STRING = "(I)L" + STRING_VALUE + ";";
     public static final String DOUBLE_TO_STRING = "(D)L" + STRING_VALUE + ";";
     public static final String DOUBLE_VALUE_OF_METHOD = "(D)L" + DOUBLE_VALUE + ";";
     public static final String ERROR_CALL = "(L" + BAL_ENV + ";L" + ERROR_VALUE + ";)V";
@@ -437,6 +438,9 @@ public class JvmSignatures {
     public static final String XML_GET_ATTRIBUTE = "(L" + B_XML_QNAME + ";)L" + STRING_VALUE + ";";
     public static final String XML_GET_ITEM = "(I)L" + XML_VALUE + ";";
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
+    public static final String HANDLE_DESCRIPTOR_FOR_STRING_CONCAT = "(Ljava/lang/invoke/MethodHandles$Lookup;" +
+            GET_STRING + "Ljava/lang/invoke/MethodType;" + GET_STRING + "[" + GET_OBJECT + ")" +
+            "Ljava/lang/invoke/CallSite;";
 
     private JvmSignatures() {
     }
