@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getTestRecord(int x) returns module1:TestRecord1 {\n    return {};\n}\n"
+          "newText": "\n\nfunction getTestRecord(int x) returns module1:TestRecord1 {\n    return {};\n}"
         }
       ],
       "resolvable": true,
