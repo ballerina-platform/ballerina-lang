@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Test class to test the functionality of the extract to function code action.
  *
- * @since 2201.2.1
+ * @since 2201.3.0
  */
 public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
@@ -155,7 +155,6 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_pos_field_access_expr_record_in_fieldName.json"},
                 {"extract_to_function_exprs_pos_method_call_object_in_methodArg.json"},
                 {"extract_to_function_exprs_pos_method_call_object_in_methodName.json"},
-                {"extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"extract_to_function_exprs_pos_typeof_expr_typeof_kw.json"},
                 {"extract_to_function_exprs_pos_typeof_expr_expression.json"},
                 {"extract_to_function_exprs_pos_unary_expr_expression.json"},
@@ -257,6 +256,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_enum_declaration.json"},
                 {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
                 {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
+                {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
         };
     }

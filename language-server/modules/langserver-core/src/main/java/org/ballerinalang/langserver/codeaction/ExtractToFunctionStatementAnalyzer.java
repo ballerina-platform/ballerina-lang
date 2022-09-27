@@ -40,7 +40,7 @@ import java.util.Set;
  * 3. Whether the selected range of a particular code action context is extractable to a function
  * 4. Nodes which are inside the selected range that should be extracted(fully selected nodes)
  *
- * @since 2201.2.1
+ * @since 2201.3.0
  */
 public class ExtractToFunctionStatementAnalyzer extends NodeVisitor {
     private final List<Symbol> updatedSymbols = new ArrayList<>();
