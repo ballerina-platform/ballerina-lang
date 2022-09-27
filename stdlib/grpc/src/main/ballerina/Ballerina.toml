@@ -99,7 +99,7 @@ target = "java8"
     [[platform.libraries]]
     artifactId = "snakeyaml"
     version = "1.31.0.wso2v1"
-    path = "./lib/snakeyaml-1.31.0.wso2v1.jar"
+    path = "./lib/snakeyaml-1.32.0.wso2v1.jar"
     groupId = "org.wso2.orbit.org.yaml"
     modules = ["grpc"]
 
