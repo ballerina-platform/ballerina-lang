@@ -169,7 +169,7 @@ axiom-api-1.2.22.jar                                                            
 ballerina-lang-1.1.0.jar                                                                            jar            apache2
 javax.transaction-api-1.2.jar                                                                       bundle         cddl1
 ballerina-docker-1.1.0.jar                                                                          jar            apache2
-snakeyaml-1.31.0.wso2v1.jar                                                                         bundle         apache2
+snakeyaml-1.32.0.wso2v1.jar                                                                         bundle         apache2
 ballerina-stringutils-1.1.0.jar                                                                     jar            apache2
 docerina-1.1.0.jar                                                                                  jar            apache2
 ballerina-observability-1.1.0.jar                                                                   jar            apache2
