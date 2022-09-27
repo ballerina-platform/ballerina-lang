@@ -2995,7 +2995,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.originalFields = fields;
+        recordVarType.originalFields.putAll(fields);
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BRecordTypeSymbol matchPattenRecordSym =
@@ -3526,7 +3526,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.originalFields = fields;
+        recordVarType.originalFields.putAll(fields);
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;

@@ -7943,7 +7943,7 @@ public class Desugar extends BLangNodeVisitor {
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
-        objectClassType.originalFields = objectType.fields;
+        objectClassType.originalFields.putAll(objectType.fields);
         classTSymbol.type = objectClassType;
         objectClassType.typeIdSet.add(objectType.typeIdSet);
 
@@ -9477,7 +9477,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BRecordType recordVarType = new BRecordType(recordSymbol);
             recordVarType.fields = fields;
-            recordVarType.originalFields = fields;
+            recordVarType.originalFields.putAll(fields);
 
             // if rest param is null we treat it as an open record with anydata rest param
             recordVarType.restFieldType = recordVariable.restParam != null ?
