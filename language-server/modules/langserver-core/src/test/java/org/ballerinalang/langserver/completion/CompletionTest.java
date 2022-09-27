@@ -78,13 +78,13 @@ public abstract class CompletionTest extends AbstractLSTest {
         if (!result) {
             // Fix test cases replacing expected using responses
 //            updateConfig(configJsonPath, testConfig, responseItemList);
-            Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
             List<CompletionItem> mismatchedList1 = responseItemList.stream()
                     .filter(item -> !testConfig.getItems().contains(item)).collect(Collectors.toList());
             List<CompletionItem> mismatchedList2 = testConfig.getItems().stream()
                     .filter(item -> !responseItemList.contains(item)).collect(Collectors.toList());
-            LOG.info("Completion items which are in response but not in test config : " + mismatchedList1.toString());
-            LOG.info("Completion items which are in test config but not in response : " + mismatchedList2.toString());
+            LOG.info("Completion items which are in response but not in test config : " + mismatchedList1);
+            LOG.info("Completion items which are in test config but not in response : " + mismatchedList2);
+            Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
         }
     }
 
