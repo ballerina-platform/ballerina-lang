@@ -70,7 +70,7 @@ public class BindgenTestCase extends BaseTest {
         String bindgenMsg2 = "Oh no, something really went wrong. Bad. Sad.";
         LogLeecher bindgenLeecher2 = new LogLeecher(bindgenMsg2, ERROR);
 
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.31", "-o=.", "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yaml:snakeyaml:1.32", "-o=.", "org.yaml.snakeyaml.Yaml"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
                     new LogLeecher[]{bindgenLeecher1, bindgenLeecher2}, tempProjectsDir.toString());

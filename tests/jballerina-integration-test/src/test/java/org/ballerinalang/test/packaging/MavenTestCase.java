@@ -66,7 +66,7 @@ public class MavenTestCase extends BaseTest {
      */
     @Test(description = "Test maven dependency resolution.")
     public void mavenResolvingTest() throws BallerinaTestException, IOException {
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.31", "org.yaml.snakeyaml.Yaml"};
+        String[] args = {"-mvn=org.yaml:snakeyaml:1.32", "org.yaml.snakeyaml.Yaml"};
         balClient.runMain("bindgen", args, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         // delete the platform lib directory
