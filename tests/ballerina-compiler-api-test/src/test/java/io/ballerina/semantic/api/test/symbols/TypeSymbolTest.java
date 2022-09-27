@@ -216,7 +216,7 @@ public class TypeSymbolTest {
     public Object[][] getTypeSignatures() {
         return new Object[][] {
                 {88, 2, OBJECT, "object {*Obj1; int z;}"},
-                {100, 3, TYPE_REFERENCE, "record {| *R1; int c; anydata...; |}"},
+                {100, 3, TYPE_REFERENCE, "record {|*R1; int c; anydata...;|}"},
         };
     }
 

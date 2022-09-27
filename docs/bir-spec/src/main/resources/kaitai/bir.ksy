@@ -310,12 +310,6 @@ types:
         type: object_field
         repeat: expr
         repeat-expr: object_fields_count
-      - id: object_original_fields_count
-        type: s4
-      - id: object_original_fields
-        type: object_field
-        repeat: expr
-        repeat-expr: object_original_fields_count
       - id: has_generated_init_function
         type: s1
       - id: generated_init_function
@@ -347,6 +341,8 @@ types:
       - id: flags
         type: s8
       - id: is_defaultable
+        type: u1
+      - id: is_user_specified
         type: u1
       - id: doc
         type: markdown
@@ -467,12 +463,6 @@ types:
         type: record_field
         repeat: expr
         repeat-expr: record_fields_count
-      - id: record_original_fields_count
-        type: s4
-      - id: record_original_fields
-        type: record_field
-        repeat: expr
-        repeat-expr: record_original_fields_count
       - id: has_init_function
         type: s1
       - id: record_init_function
@@ -490,6 +480,8 @@ types:
         type: s4
       - id: flags
         type: s8
+      - id: is_user_specified
+        type: u1
       - id: doc
         type: markdown
       - id: type_cp_index

@@ -1275,6 +1275,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < recordFields; i++) {
                         String fieldName = getStringCPEntryValue(inputStream);
                         var fieldFlags = inputStream.readLong();
+                        var isUserSpecified = inputStream.readBoolean();
 
                         byte[] docBytes = readDocBytes(inputStream);
 
@@ -1289,27 +1290,10 @@ public class BIRPackageSymbolEnter {
 
                         BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
                         recordType.fields.put(structField.name.value, structField);
-                        recordSymbol.scope.define(varSymbol.name, varSymbol);
-                    }
+                        if (isUserSpecified) {
+                            recordType.originalFields.put(structField.name.value, structField);
+                        }
 
-                    int recordOriginalFields = inputStream.readInt();
-                    for (int i = 0; i < recordOriginalFields; i++) {
-                        String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
-
-                        byte[] docBytes = readDocBytes(inputStream);
-
-                        BType fieldType = readTypeFromCp();
-
-                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
-                                recordSymbol.pkgID, fieldType,
-                                recordSymbol.scope.owner, symTable.builtinPos,
-                                COMPILED_SOURCE);
-
-                        defineMarkDownDocAttachment(varSymbol, docBytes);
-
-                        BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
-                        recordType.originalFields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
@@ -1667,6 +1651,7 @@ public class BIRPackageSymbolEnter {
                         String fieldName = getStringCPEntryValue(inputStream);
                         var fieldFlags = inputStream.readLong();
                         var defaultable = inputStream.readBoolean();
+                        var isUserSpecified = inputStream.readBoolean();
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
@@ -1679,26 +1664,10 @@ public class BIRPackageSymbolEnter {
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
                         objectType.fields.put(structField.name.value, structField);
-                        objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
-                    }
+                        if (isUserSpecified) {
+                            objectType.originalFields.put(structField.name.value, structField);
+                        }
 
-                    int originalFieldCount = inputStream.readInt();
-                    for (int i = 0; i < originalFieldCount; i++) {
-                        String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
-                        var defaultable = inputStream.readBoolean();
-                        byte[] docBytes = readDocBytes(inputStream);
-
-                        BType fieldType = readTypeFromCp();
-                        BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
-                                objectSymbol.pkgID, fieldType,
-                                objectSymbol.scope.owner, symTable.builtinPos,
-                                COMPILED_SOURCE);
-                        objectVarSymbol.isDefaultable = defaultable;
-                        defineMarkDownDocAttachment(objectVarSymbol, docBytes);
-
-                        BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
-                        objectType.originalFields.put(structField.name.value, structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                     }
 

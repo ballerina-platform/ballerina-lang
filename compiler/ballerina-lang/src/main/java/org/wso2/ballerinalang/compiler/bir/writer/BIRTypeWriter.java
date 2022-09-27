@@ -406,17 +406,10 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(bRecordType.fields.size());
         for (BField field : bRecordType.fields.values()) {
             BSymbol symbol = field.symbol;
-            buff.writeInt(addStringCPEntry(symbol.name.value));
+            String fieldName = symbol.name.value;
+            buff.writeInt(addStringCPEntry(fieldName));
             buff.writeLong(symbol.flags);
-            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
-            writeTypeCpIndex(field.type);
-        }
-
-        buff.writeInt(bRecordType.originalFields.size());
-        for (BField field : bRecordType.originalFields.values()) {
-            BVarSymbol symbol = field.symbol;
-            buff.writeInt(addStringCPEntry(symbol.name.value));
-            buff.writeLong(symbol.flags);
+            buff.writeBoolean(bRecordType.originalFields.containsKey(fieldName));
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
@@ -464,20 +457,12 @@ public class BIRTypeWriter implements TypeVisitor {
 
         buff.writeInt(bObjectType.fields.size());
         for (BField field : bObjectType.fields.values()) {
-            buff.writeInt(addStringCPEntry(field.name.value));
+            String fieldName = field.name.value;
+            buff.writeInt(addStringCPEntry(fieldName));
             // TODO add position
             buff.writeLong(field.symbol.flags);
             buff.writeBoolean(field.symbol.isDefaultable);
-            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
-            writeTypeCpIndex(field.type);
-        }
-
-        buff.writeInt(bObjectType.originalFields.size());
-        for (BField field : bObjectType.originalFields.values()) {
-            buff.writeInt(addStringCPEntry(field.name.value));
-            // TODO add position
-            buff.writeLong(field.symbol.flags);
-            buff.writeBoolean(field.symbol.isDefaultable);
+            buff.writeBoolean(bObjectType.originalFields.containsKey(fieldName));
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }
