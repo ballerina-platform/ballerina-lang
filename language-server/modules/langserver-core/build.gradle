@@ -126,7 +126,12 @@ createJavadoc {
     exclude "**"
 }
 
+task deleteGeneratedModules(type:Delete) {
+    delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
+}
+
 test {
+    dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
@@ -144,3 +149,4 @@ task buildAndCopy(type: Copy) {
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib'
 }
+

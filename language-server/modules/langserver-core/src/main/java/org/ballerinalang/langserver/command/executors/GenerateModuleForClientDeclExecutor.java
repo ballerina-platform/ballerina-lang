@@ -1,8 +1,22 @@
+/*
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.command.executors;
 
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.environment.ResolutionOptions;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -27,6 +41,7 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -51,6 +66,8 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     fileUri = arg.valueAs(String.class);
                     break;
+                default:
+                    //continue
             }
         }
 
@@ -82,10 +99,14 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                             Either.forLeft(beginNotification)));
                 })
                 .thenRunAsync(() -> {
-                    IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage()
-                            .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build());
-                    boolean diagnosticNotResolved = idlClientGeneratorResult.reportedDiagnostics().diagnostics().stream().anyMatch(diagnostic ->
-                            DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()));
+                    Optional<IDLClientGeneratorResult> idlClientGeneratorResult =
+                            context.workspace().waitAndRunIDLGenertorPlugins(filePath, project);
+                    boolean diagnosticNotResolved = true;
+                    if (idlClientGeneratorResult.isPresent()) {
+                        diagnosticNotResolved = idlClientGeneratorResult.get().reportedDiagnostics().diagnostics()
+                                .stream().anyMatch(diagnostic ->
+                                        DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()));
+                    }
                     if (diagnosticNotResolved) {
                         throw new UserErrorException("Failed to generate modules for client declarations");
                     }
@@ -109,8 +130,8 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                             String errorMessage = throwable.getCause().getMessage();
                             CommandUtil.notifyClient(languageClient, MessageType.Error, errorMessage);
                         } else {
-                            CommandUtil.notifyClient(languageClient, MessageType.Error, "Failed to generate modules for " +
-                                    "client declarations");
+                            CommandUtil.notifyClient(languageClient, MessageType.Error,
+                                    "Failed to generate modules for " + "client declarations");
                         }
                     } else {
                         CommandUtil

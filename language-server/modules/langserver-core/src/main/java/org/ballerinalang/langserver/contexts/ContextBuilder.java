@@ -246,9 +246,8 @@ public class ContextBuilder {
     public static CodeActionResolveContext buildCodeActionResolveContext(String uri,
                                                                          WorkspaceManager workspaceManager,
                                                                          LanguageServerContext serverContext,
-                                                                         CancelChecker cancelChecker, 
-                                                                         BallerinaLanguageServer languageServer) {
-        return new CodeActionResolveContextImpl.CodeActionResolveContextBuilder(serverContext, languageServer)
+                                                                         CancelChecker cancelChecker) {
+        return new CodeActionResolveContextImpl.CodeActionResolveContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)

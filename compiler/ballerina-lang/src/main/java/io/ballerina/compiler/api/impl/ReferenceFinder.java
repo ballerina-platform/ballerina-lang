@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -271,12 +270,6 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         find(xmlnsNode.namespaceURI);
         addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        find((BLangNode) clientDeclNode.getUri());
-        addIfSameSymbol(clientDeclNode.symbol, clientDeclNode.prefix.pos);
     }
 
     @Override

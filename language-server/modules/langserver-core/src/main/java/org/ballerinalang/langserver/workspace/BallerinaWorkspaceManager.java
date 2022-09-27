@@ -29,6 +29,7 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -39,6 +40,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -89,6 +91,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  * @since 2.0.0
  */
 public class BallerinaWorkspaceManager implements WorkspaceManager {
+
     /**
      * Cache mapping of document path to source root.
      */
@@ -980,6 +983,24 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    @Override
+    public Optional<IDLClientGeneratorResult> waitAndRunIDLGenertorPlugins(Path filePath, Project project) {
+        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
+        if (projectPair.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Lock Project Instance
+        Lock lock = projectPair.get().lockAndGet();
+        try {
+            return Optional.of(project.currentPackage()
+                    .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build()));
+        } finally {
+            // Unlock Project Instance
+            lock.unlock();
+        }
+    }
+    
     // ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {

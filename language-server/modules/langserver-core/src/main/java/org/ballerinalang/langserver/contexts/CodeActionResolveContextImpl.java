@@ -15,15 +15,12 @@
  */
 package org.ballerinalang.langserver.contexts;
 
-import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
-import org.eclipse.lsp4j.services.LanguageServer;
 
 /**
  * Code action resolve context implementation.
@@ -32,29 +29,12 @@ import org.eclipse.lsp4j.services.LanguageServer;
  */
 public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext implements CodeActionResolveContext {
 
-    private final BallerinaLanguageServer languageServer;
-
-    private final ExtendedLanguageClient languageClient;
-
     CodeActionResolveContextImpl(LSOperation operation,
                                  String fileUri,
                                  WorkspaceManager wsManager,
                                  LanguageServerContext serverContext,
-                                 CancelChecker cancelChecker,
-                                 BallerinaLanguageServer languageServer) {
+                                 CancelChecker cancelChecker) {
         super(operation, fileUri, wsManager, serverContext, cancelChecker);
-        this.languageServer = languageServer;
-        this.languageClient = this.languageServer.getClient();
-    }
-
-    @Override
-    public LanguageServer getLanguageServer() {
-        return this.languageServer;
-    }
-
-    @Override
-    public ExtendedLanguageClient getLanguageClient() {
-        return this.languageClient;
     }
 
     /**
@@ -63,11 +43,8 @@ public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext
     protected static class CodeActionResolveContextBuilder
             extends AbstractContextBuilder<CodeActionResolveContextBuilder> {
 
-        private BallerinaLanguageServer languageServer;
-
-        public CodeActionResolveContextBuilder(LanguageServerContext serverContext, BallerinaLanguageServer languageServer) {
+        public CodeActionResolveContextBuilder(LanguageServerContext serverContext) {
             super(LSContextOperation.TXT_RESOLVE_CODE_ACTION, serverContext);
-            this.languageServer = languageServer;
         }
 
         public CodeActionResolveContext build() {
@@ -76,8 +53,7 @@ public class CodeActionResolveContextImpl extends AbstractDocumentServiceContext
                     this.fileUri,
                     this.wsManager,
                     this.serverContext,
-                    this.cancelChecker,
-                    this.languageServer);
+                    this.cancelChecker);
         }
 
         @Override
