@@ -49,10 +49,6 @@ public class SemverChecker {
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    public SemverChecker(Path projectPath, SemanticVersion releaseVersion) {
-        this(projectPath, releaseVersion, System.out, System.err);
-    }
-
     public SemverChecker(Path projectPath, SemanticVersion releaseVersion, PrintStream out, PrintStream err) {
         this.projectPath = projectPath;
         this.releaseVersion = releaseVersion;
@@ -104,12 +100,12 @@ public class SemverChecker {
         String pkgName = currentPackage.packageName().value();
         SemanticVersion pkgVersion = currentPackage.packageVersion().value();
 
-        BallerinaPackageResolver clientWrapper = new BallerinaPackageResolver(outStream, errStream);
+        BallerinaPackageResolver pkgResolver = new BallerinaPackageResolver(outStream, errStream);
         if (releaseVersion == null) {
             outStream.println("checking for the latest compatible release version available in central...");
-            releaseVersion = clientWrapper.resolveClosestCompatibleCentralVersion(orgName, pkgName, pkgVersion);
+            releaseVersion = pkgResolver.resolveClosestCompatibleCentralVersion(orgName, pkgName, pkgVersion);
         }
-        Path balaPath = clientWrapper.resolvePackage(orgName, pkgName, releaseVersion);
+        Path balaPath = pkgResolver.resolvePackage(orgName, pkgName, releaseVersion);
         Package balaPackage = PackageUtils.loadPackage(balaPath);
 
         PackageComparator packageComparator = new PackageComparator(currentPackage, balaPackage);
