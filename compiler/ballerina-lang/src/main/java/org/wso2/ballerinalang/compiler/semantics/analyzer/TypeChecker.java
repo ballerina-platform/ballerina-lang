@@ -7689,7 +7689,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private void populateIncludedRecordParams(BVarSymbol param, HashSet<String> includedRecordFields,
                                               List<String> includedRecordParamNames) {
-        Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
+        BType paramType = Types.getReferredType(param.type);
+        if (paramType.tag != TypeTags.RECORD) {
+            return;
+        }
+        
+        Set<String> fields = ((BRecordType) paramType).fields.keySet();
         for (String field : fields) {
             if (includedRecordParamNames.contains(field)) {
                 includedRecordFields.add(field);

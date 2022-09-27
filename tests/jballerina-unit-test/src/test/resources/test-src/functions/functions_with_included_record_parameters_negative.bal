@@ -258,3 +258,19 @@ function fn4(*Record4 record4) {
 function functionWithIncludedRecordParam18() {
     fn4(rec = {}, record4 = {}); // error
 }
+
+function fn(*Boo f) {
+
+}
+
+class MyClass {
+    function fn(*Boo f) {
+
+    }
+}
+
+function testInvokingFunctionWithUndefindeIncludedRecordParamUsingNamedArg() {
+    fn(f = {});
+    MyClass obj = new;
+    _ = obj.fn(f = {});
+}
