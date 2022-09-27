@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateNativeImageTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -263,7 +264,8 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
-                .addTask(new CreateExecutableTask(outStream, this.output, enableNativeImage))
+                .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateNativeImageTask(outStream, this.output), !enableNativeImage)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
