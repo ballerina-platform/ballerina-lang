@@ -259,18 +259,22 @@ function functionWithIncludedRecordParam18() {
     fn4(rec = {}, record4 = {}); // error
 }
 
-function fn(*Boo f) {
+type Coo int;
 
+function fn(*Boo f) {
 }
 
 class MyClass {
     function fn(*Boo f) {
+    }
 
+    function fn2(*Coo f) {
     }
 }
 
-function testInvokingFunctionWithUndefindeIncludedRecordParamUsingNamedArg() {
+function testInvokingFunctionContainingIncludedRecordParamOfTypeOtherThanRecordOrUndefinedUsingNamedArg() {
     fn(f = {});
     MyClass obj = new;
     _ = obj.fn(f = {});
+    _ = obj.fn2(f = {}); // No errors will be logged for these lines, but we are testing the call path
 }
