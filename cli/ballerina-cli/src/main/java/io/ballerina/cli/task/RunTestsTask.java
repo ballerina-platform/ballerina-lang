@@ -515,7 +515,8 @@ public class RunTestsTask implements Task {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add("native-image");
 
-        Path nativeConfigPath = target.getTestsCachePath().resolve("native");
+        Path nativeConfigPath = target.getTestsCachePath().toAbsolutePath().resolve("native-config");
+        Path nativeTargetPath = currentPackage.project().sourceRoot().toAbsolutePath();
 
         // Create Configs
         createReflectConfig(nativeConfigPath, currentPackage);
@@ -526,7 +527,8 @@ public class RunTestsTask implements Task {
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
 
         // native-image name
-        cmdArgs.add(packageName);
+        String nativeImageName = nativeTargetPath.resolve(packageName).toString();
+        cmdArgs.add(nativeImageName);
 
         // native-image configs
         cmdArgs.add("-H:MaxDuplicationFactor=4.0");
@@ -542,10 +544,10 @@ public class RunTestsTask implements Task {
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
-            cmdArgs.add("./" + packageName);
+            cmdArgs.add(nativeImageName);
 
             // Test Runner Class arguments
-            cmdArgs.add(target.path().toString());                                  // 0
+            cmdArgs.add(target.path().toAbsolutePath().toString());                                  // 0
             cmdArgs.add(jacocoAgentJarPath);
             cmdArgs.add(Boolean.toString(report));
             cmdArgs.add(Boolean.toString(coverage));
