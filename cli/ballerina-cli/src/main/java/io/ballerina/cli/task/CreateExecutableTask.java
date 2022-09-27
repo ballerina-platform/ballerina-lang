@@ -105,16 +105,13 @@ public class CreateExecutableTask implements Task {
                 // Directory where the native image gets generated
                 Path nativeDirectoryPath;
                 String nativeImageName;
-                Path relativize;
 
                 if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                     nativeDirectoryPath = project.sourceRoot().toAbsolutePath().getParent().resolve("native");
                     nativeImageName = project.sourceRoot().toAbsolutePath().getParent().getFileName().toString();
-                    relativize = project.sourceRoot().toAbsolutePath().getParent().relativize(nativeDirectoryPath);
                 } else {
                     nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
                     nativeImageName = project.currentPackage().packageName().toString();
-                    relativize = project.sourceRoot().relativize(nativeDirectoryPath);
                 }
 
                 // Create native directory
@@ -126,7 +123,7 @@ public class CreateExecutableTask implements Task {
                         "native-image",
                         "-jar",
                         executablePath.toString(),
-                        relativize + File.separator + nativeImageName,
+                        nativeDirectoryPath + File.separator + nativeImageName,
                         "-H:MaxDuplicationFactor=4.0",
                         "--no-fallback"};
 
