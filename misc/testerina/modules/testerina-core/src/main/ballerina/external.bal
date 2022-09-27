@@ -16,14 +16,15 @@
 
 import ballerina/jballerina.java;
 
+handle outStreamObj = outStream();
+
 isolated function print(handle printStream, any|error obj) = @java:Method {
     name: "print",
     'class: "java.io.PrintStream",
     paramTypes: ["java.lang.Object"]
 } external;
 
-isolated function println(any|error... objs) {
-    handle outStreamObj = outStream();
+function println(any|error... objs) {
     foreach var obj in objs {
         print(outStreamObj, obj);
     }
