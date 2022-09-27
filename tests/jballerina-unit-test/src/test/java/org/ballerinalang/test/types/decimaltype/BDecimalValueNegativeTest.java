@@ -40,12 +40,14 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "leading zeros in numeric literals", 26, 17);
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '-0x' too small", 29, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 29, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid expression statement", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 20);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 29, 20);
-        BAssertUtil.validateError(compileResult, index++, "missing pipe token", 29, 25);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'X1231'", 29, 20);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 25);
+        BAssertUtil.validateError(compileResult, index++, "invalid expression statement", 32, 20);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 32, 20);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 32, 20);
-        BAssertUtil.validateError(compileResult, index++, "missing pipe token", 32, 25);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'X1231'", 32, 20);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 32, 25);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 35, 17);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 36, 17);
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0x' too large", 39, 17);

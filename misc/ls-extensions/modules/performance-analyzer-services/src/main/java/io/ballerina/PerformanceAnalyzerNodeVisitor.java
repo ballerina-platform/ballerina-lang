@@ -67,6 +67,8 @@ import org.eclipse.lsp4j.Range;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static io.ballerina.Constants.MAIN_WORKER;
+
 /**
  * Visitor to discover the program structure.
  *
@@ -80,12 +82,14 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private final HashMap<LineRange, Object> variableMap;
     private final HashMap<LineRange, String> referenceMap;
     private final HashMap<String, EndPointNode> endPointDeclarationMap;
+    private final HashMap<String, Node> workers;
 
     private final Node startNode;
     private final SemanticModel model;
     private final String file;
     private final Range range;
     private Node currentNode;
+    private Node currentWorkerNode;
     private Document document;
     private boolean withinRange = false;
     private int uuid;
@@ -99,6 +103,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         this.variableMap = new HashMap<>();
         this.referenceMap = new HashMap<>();
         this.endPointDeclarationMap = new HashMap<>();
+        this.workers = new HashMap<>();
         this.startNode = new Node();
         this.currentNode = this.startNode;
         this.model = model;
@@ -323,7 +328,12 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 isWorkerExists = namedWorkerDeclarationNode != null;
             }
             if (namedWorkerDeclarationNode != null) {
+                currentWorkerNode = new Node();
+                Node workerNode = currentWorkerNode;
                 namedWorkerDeclarationNode.workerBody().accept(this);
+
+                ParserUtil.getReducedTree(workerNode);
+                workers.put(namedWorkerDeclarationNode.workerName().text(), workerNode);
             }
             withinWorker = false;
         }
@@ -351,8 +361,13 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
     private void setChildNode(Node node) {
 
-        this.currentNode.setNextNode(node);
-        this.currentNode = node;
+        if (withinWorker) {
+            this.currentWorkerNode.setNextNode(node);
+            this.currentWorkerNode = node;
+        } else {
+            this.currentNode.setNextNode(node);
+            this.currentNode = node;
+        }
     }
 
     private void registerVariableRef(LineRange key, Object value) {
@@ -422,7 +437,6 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 String pos = actionPos.filePath() + "/" + actionPos;
                 ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
                         actionName, actionPath, pos);
-                this.currentNode.setNextNode(actionNode);
                 this.setChildNode(actionNode);
             }
         }
@@ -567,6 +581,17 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         HashMap<String, Object> invocationInfo = new HashMap<>();
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
         invocationInfo.put(ACTION_INVOCATION_KEY, this.startNode);
+        return invocationInfo;
+    }
+    public HashMap<String, Object> getWorkers() {
+
+        this.workers.values().forEach(ParserUtil::getReducedTree);
+        ParserUtil.getReducedTree(this.startNode);
+        this.workers.put(MAIN_WORKER, this.startNode);
+
+        HashMap<String, Object> invocationInfo = new HashMap<>();
+        invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
+        invocationInfo.put(ACTION_INVOCATION_KEY, this.workers);
         return invocationInfo;
     }
 
