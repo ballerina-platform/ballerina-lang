@@ -28,7 +28,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
-import org.jacoco.core.internal.analysis.filter.AnnotationGeneratedFilter;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,15 +102,34 @@ public class CreateExecutableTask implements Task {
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
 
             if (enableNativeImage) {
-                // Create nativeConfig directory
-                if (!Files.exists(target.path().resolve("native"))) {
-                    Files.createDirectory(target.path().resolve("native"));
+                // Directory where the native image gets generated
+                Path nativeDirectoryPath;
+                String nativeImageName;
+                Path relativize;
+
+                if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                    nativeDirectoryPath = project.sourceRoot().toAbsolutePath().getParent().resolve("native");
+                    nativeImageName = project.sourceRoot().toAbsolutePath().getParent().getFileName().toString();
+                    relativize = project.sourceRoot().toAbsolutePath().getParent().relativize(nativeDirectoryPath);
+                } else {
+                    nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
+                    nativeImageName = project.currentPackage().packageName().toString();
+                    relativize = project.sourceRoot().relativize(nativeDirectoryPath);
                 }
 
-                String nativeImageDir = "target" + File.separator + "native" + File.separator;
-                String nativeImageName = project.currentPackage().packageName().toString();
-                String[] command = {"native-image", "-jar", executablePath.toString(),
-                        "." + File.separator + nativeImageDir + nativeImageName};
+                // Create native directory
+                if (!Files.exists(nativeDirectoryPath)) {
+                    Files.createDirectory(nativeDirectoryPath);
+                }
+
+                String[] command = {
+                        "native-image",
+                        "-jar",
+                        executablePath.toString(),
+                        relativize + File.separator + nativeImageName,
+                        "-H:MaxDuplicationFactor=4.0",
+                        "--no-fallback"};
+
                 ProcessBuilder builder = new ProcessBuilder();
                 builder.command(command);
                 builder.inheritIO();
@@ -121,7 +139,7 @@ public class CreateExecutableTask implements Task {
                     out.println("\n\t GraalVM image generation failed.");
                 } else {
                     out.println("\n" + "GraalVM image generated");
-                    out.println("\t" + nativeImageDir + nativeImageName);
+                    out.println("\t" + nativeDirectoryPath + File.separator + nativeImageName);
                     out.println();
                 }
             }
