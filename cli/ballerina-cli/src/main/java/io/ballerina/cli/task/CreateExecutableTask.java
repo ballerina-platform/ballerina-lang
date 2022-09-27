@@ -51,23 +51,18 @@ public class CreateExecutableTask implements Task {
     private final transient PrintStream out;
     private Path output;
     private Path currentDir;
-    private boolean enableNativeImage;
 
-    public CreateExecutableTask(PrintStream out, String output, boolean enableNativeImage) {
+    public CreateExecutableTask(PrintStream out, String output) {
         this.out = out;
         if (output != null) {
             this.output = Paths.get(output);
         }
-        this.enableNativeImage = enableNativeImage;
     }
 
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.print("Generating executable");
-        if (enableNativeImage) {
-            this.out.println(" with native-image");
-        }
+        this.out.println("Generating executable");
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target;
@@ -100,47 +95,6 @@ public class CreateExecutableTask implements Task {
                 start = System.currentTimeMillis();
             }
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
-
-            if (enableNativeImage) {
-                // Directory where the native image gets generated
-                Path nativeDirectoryPath;
-                String nativeImageName;
-
-                if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                    nativeDirectoryPath = project.sourceRoot().toAbsolutePath().getParent().resolve("native");
-                    nativeImageName = project.sourceRoot().toAbsolutePath().getParent().getFileName().toString();
-                } else {
-                    nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
-                    nativeImageName = project.currentPackage().packageName().toString();
-                }
-
-                // Create native directory
-                if (!Files.exists(nativeDirectoryPath)) {
-                    Files.createDirectory(nativeDirectoryPath);
-                }
-
-                String[] command = {
-                        "native-image",
-                        "-jar",
-                        executablePath.toString(),
-                        nativeDirectoryPath + File.separator + nativeImageName,
-                        "-H:MaxDuplicationFactor=4.0",
-                        "--no-fallback"};
-
-                ProcessBuilder builder = new ProcessBuilder();
-                builder.command(command);
-                builder.inheritIO();
-                Process process = builder.start();
-
-                if (process.waitFor() != 0) {
-                    out.println("\n\t GraalVM image generation failed.");
-                } else {
-                    out.println("\n" + "GraalVM image generated");
-                    out.println("\t" + nativeDirectoryPath + File.separator + nativeImageName);
-                    out.println();
-                }
-            }
-
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -153,7 +107,7 @@ public class CreateExecutableTask implements Task {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
-        } catch (ProjectException | IOException | InterruptedException e) {
+        } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }
 
@@ -163,18 +117,17 @@ public class CreateExecutableTask implements Task {
 
         Path relativePathToExecutable = currentDir.relativize(executablePath);
 
-        if (!enableNativeImage) {
-            if (project.buildOptions().getTargetPath() != null) {
-                this.out.println("\n\t" + relativePathToExecutable);
+        if (project.buildOptions().getTargetPath() != null) {
+            this.out.println("\t" + relativePathToExecutable);
+        } else {
+            if (relativePathToExecutable.toString().contains("..") ||
+                    relativePathToExecutable.toString().contains("." + File.separator)) {
+                this.out.println("\t" + executablePath.toString());
             } else {
-                if (relativePathToExecutable.toString().contains("..") ||
-                        relativePathToExecutable.toString().contains("." + File.separator)) {
-                    this.out.println("\n\t" + executablePath.toString());
-                } else {
-                    this.out.println("\n\t" + relativePathToExecutable.toString());
-                }
+                this.out.println("\t" + relativePathToExecutable.toString());
             }
         }
+
     }
 
     private void notifyPlugins(Project project, Target target) {
