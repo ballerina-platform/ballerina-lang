@@ -1799,7 +1799,12 @@ public class Types {
                 if (tupleType.restType != null) {
                     tupleTypes.add(tupleType.restType);
                 }
-                varType = tupleTypes.size() == 1 ?
+                int tupleTypeSize = tupleTypes.size();
+                if (tupleTypeSize == 0) {
+                    varType = symTable.neverType;
+                    break;
+                }
+                varType = tupleTypeSize == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
                 break;
             case TypeTags.MAP:
@@ -1967,7 +1972,11 @@ public class Types {
                 if (tupleType.restType != null) {
                     tupleTypes.add(tupleType.restType);
                 }
-                return tupleTypes.size() == 1 ?
+                int tupleTypesSize = tupleTypes.size();
+                if (tupleTypesSize == 0) {
+                    return symTable.neverType;
+                }
+                return tupleTypesSize == 1 ?
                         tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
