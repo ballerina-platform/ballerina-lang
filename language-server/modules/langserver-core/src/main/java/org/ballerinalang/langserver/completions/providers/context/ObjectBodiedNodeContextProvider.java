@@ -88,8 +88,7 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
     private boolean isServiceOrClientObject(Node node) {
         return node.kind() == SyntaxKind.SERVICE_DECLARATION || (node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                 && ((ObjectConstructorExpressionNode) node).objectTypeQualifiers().stream()
-                .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD
-                        || token.kind() == SyntaxKind.CLIENT_KEYWORD));
+                .anyMatch(token -> token.kind() == SyntaxKind.CLIENT_KEYWORD));
     }
 
     private boolean onSuggestInitMethod(Node node) {
