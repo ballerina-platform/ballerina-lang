@@ -60,6 +60,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
     }
 
     private static TextDocument modifyDocument(Document document) {
+        List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
@@ -69,16 +70,36 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
         TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
         node.accept(testFunctionVisitor);
 
-        // Add the statements, 'check test:registerTest(<name>, <function>);'
-        testFunctionVisitor.getTestStaticFunctions().forEach(func ->
-                statements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(func.functionName().toString(),
-                        func.functionName().toString())));
+        // Initialize variables for test registrars
+        int i = 0;
+        int group = 0;
+        List<StatementNode> registrarStatements = new ArrayList<>();
+
+        // Call the test registrar functions
+        for (FunctionDefinitionNode func: testFunctionVisitor.getTestStaticFunctions()) {
+            // Add the statements, 'check test:registerTest(<name>, <function>);'
+            registrarStatements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(
+                    func.functionName().toString(), func.functionName().toString()));
+            i++;
+            if (i >= TesterinaCompilerPluginConstants.REGISTERS_PER_FUNCTION) {
+                functionsList.add(TesterinaCompilerPluginUtils.
+                        createTestRegistrarFunction(registrarStatements, group));
+                TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
+                i = 0;
+                group++;
+                registrarStatements = new ArrayList<>();
+            }
+        }
+        if (i > 0) {
+            functionsList.add(TesterinaCompilerPluginUtils.
+                    createTestRegistrarFunction(registrarStatements, group));
+            TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
+        }
 
         TesterinaCompilerPluginUtils.addStartSuiteCall(statements);
-        FunctionDefinitionNode functionDefinition =
-                TesterinaCompilerPluginUtils.createTestExecutionFunction(statements);
+        functionsList.add(TesterinaCompilerPluginUtils.createTestExecutionFunction(statements));
 
-        NodeList<ModuleMemberDeclarationNode> newMembers = node.members().add(functionDefinition);
+        NodeList<ModuleMemberDeclarationNode> newMembers = node.members().addAll(functionsList);
         ModulePartNode newModulePart = node.modify(node.imports(), newMembers, node.eofToken());
         SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
         return updatedSyntaxTree.textDocument();
