@@ -4254,12 +4254,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
         }
-
-        if (initInvocation.getBType() == null) {
-            initInvocation.setBType(symTable.nilType);
-        }
-        BType actualTypeInitType = getObjectConstructorReturnType(actualType, initInvocation.getBType(), data);
-        return types.checkType(cIExpr, actualTypeInitType, data.expType);
+        return actualType;
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType, AnalyzerData data) {
