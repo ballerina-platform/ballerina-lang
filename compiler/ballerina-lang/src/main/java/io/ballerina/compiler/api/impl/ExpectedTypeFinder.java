@@ -74,6 +74,7 @@ import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -88,22 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -324,11 +310,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                         }
                     }
 
-                    if ((((BLangInvocation) bLangNode).argExprs.get(argumentIndex).expectedType == null)) {
+                    int argument = argumentIndex == 0 ?  argumentIndex : argumentIndex - 1;
+                    if ((((BLangInvocation) bLangNode).argExprs.get(argument).expectedType == null)) {
                         return Optional.empty();
                     }
 
-                    return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argumentIndex));
+                    return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argument));
                 }
             }
 
@@ -789,8 +776,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangSelectClause) {
-            BType expectedType = ((BLangExpression) ((BLangSelectClause) bLangNode).getExpression()).expectedType;
+        BLangSelectClause selectClause = null;
+        if (bLangNode instanceof BLangQueryExpr) {
+            selectClause = ((BLangQueryExpr) bLangNode).getSelectClause();
+        }
+
+        if (selectClause != null) {
+            BType expectedType = ((BLangExpression) (selectClause.getExpression())).expectedType;
             return getTypeFromBType(expectedType);
         }
 
