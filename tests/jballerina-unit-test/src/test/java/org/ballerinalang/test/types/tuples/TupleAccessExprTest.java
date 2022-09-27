@@ -30,6 +30,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * Tuple access with dynamic indexes test.
  *
@@ -38,10 +41,12 @@ import org.testng.annotations.Test;
 public class TupleAccessExprTest {
 
     private CompileResult compileResult;
+    private CompileResult compileNegativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/types/tuples/tuple_access_expr.bal");
+        compileNegativeResult = BCompileUtil.compile("test-src/types/tuples/tuple_with_no_member_test.bal");
     }
 
     @Test(description = "Test tuple access expression with dynamic index")
@@ -234,6 +239,19 @@ public class TupleAccessExprTest {
                 {"testTupleWithRestTypesAccess2"},
                 {"testCustomTupleWithRestTypesAccess"}
         };
+    }
+
+    @Test
+    public void testLoopEmptyTuple() {
+        int index = 0;
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 19, 13);
+        validateWarning(compileNegativeResult, index++, "unused variable 'x1'", 23, 9);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 23, 18);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 28, 13);
+        Assert.assertEquals(compileNegativeResult.getDiagnostics().length, index);
     }
 
     @AfterClass
