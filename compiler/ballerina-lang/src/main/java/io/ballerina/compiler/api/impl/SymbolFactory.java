@@ -631,6 +631,7 @@ public class SymbolFactory {
         for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
             symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
+
         return symbolBuilder.build();
     }
 
