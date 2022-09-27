@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -1559,7 +1558,6 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             jvmTypeGen.loadType(this.mv, instType);
-            this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
@@ -1575,7 +1573,6 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             jvmTypeGen.loadType(this.mv, instType);
-            this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD, INIT_TUPLE, false);
             this.storeToVar(inst.lhsOp.variableDcl);
@@ -1586,8 +1583,6 @@ public class JvmInstructionGen {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) elementType).effectiveType : elementType;
-        BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
-                ((BIntersectionType) elementType).effectiveType.tsymbol;
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
