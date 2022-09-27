@@ -73,7 +73,7 @@ function getInt(int i) returns int {
 }
 
 function getIntsFromFutureInts(future<int>[] arr) returns int[]|error {
-    int[] res = check from future<int> i in arr
+    int[] res = from future<int> i in arr
                 select check wait i;
     return res;
 }

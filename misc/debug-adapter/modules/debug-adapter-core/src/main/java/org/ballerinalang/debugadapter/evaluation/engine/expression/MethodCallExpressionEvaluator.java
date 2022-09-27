@@ -26,6 +26,7 @@ import com.sun.jdi.VoidValue;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -45,6 +46,7 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.AbstractMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -248,12 +250,24 @@ public class MethodCallExpressionEvaluator extends Evaluator {
                 .findFirst()
                 .map(symbol -> (ClassSymbol) symbol);
     }
-
-    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
-        return classDef.methods().values()
-                .stream()
+    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef,
+                                                             String methodName) {
+        return classDef.methods().values().stream()
                 .filter(methodSymbol -> modifyName(methodSymbol.getName().get()).equals(methodName))
                 .findFirst();
+    }
+
+    protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef,
+                                                             String methodName,
+                                                             List<Qualifier> qualifiers) {
+        return classDef.methods().values().stream()
+                .filter(methodSymbol -> new HashSet<>(methodSymbol.qualifiers()).containsAll(qualifiers))
+                .filter(methodSymbol -> methodSymbol.getName().get().equals(methodName))
+                .findFirst();
+    }
+
+    protected Optional<MethodSymbol> findRemoteMethodInClass(ClassSymbol classDef, String methodName) {
+        return findObjectMethodInClass(classDef, methodName, List.of(Qualifier.REMOTE));
     }
 
     private GeneratedInstanceMethod getObjectMethodByName(BVariable objectVar, String methodName)

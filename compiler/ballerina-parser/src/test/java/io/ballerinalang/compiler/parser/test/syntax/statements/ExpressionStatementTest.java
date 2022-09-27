@@ -26,7 +26,19 @@ import org.testng.annotations.Test;
  */
 public class ExpressionStatementTest extends AbstractStatementTest {
 
-    // Test invalid expression statement
+    // Test invalid expression statement without recovery
+
+    @Test
+    public void testExpressionStmtForSimpleLocalVarReference() {
+        testFile("expression-stmt/local_var_decl_source_2.bal", "expression-stmt/local_var_decl_assert_2.json");
+        testFile("expression-stmt/local_var_decl_source_4.bal", "expression-stmt/local_var_decl_assert_4.json");
+    }
+    
+    @Test
+    public void testExpressionStmtForSimpleModuleVarReference() {
+        testFile("expression-stmt/module_var_decl_source_2.bal", "expression-stmt/module_var_decl_assert_2.json");
+        testFile("expression-stmt/module_var_decl_source_4.bal", "expression-stmt/module_var_decl_assert_4.json");
+    }
 
     @Test
     public void testExpressionStmtForByteArrayLiteral() {
@@ -42,5 +54,23 @@ public class ExpressionStatementTest extends AbstractStatementTest {
     public void testExpressionStmtForQueryConstructsMap() {
         test("map from int i in y let int a = i * 2 where a < 10 select a on conflict error(\"Error\");\n",
                 "expression-stmt/expression_stmt_assert_03.json");
+    }
+
+    // Test expression statement with recovery
+
+    @Test
+    public void testExpressionStmtForSimpleLocalVarReferenceWithRecovery() {
+        testFile("expression-stmt/local_var_decl_source_1.bal", "expression-stmt/local_var_decl_assert_1.json");
+        testFile("expression-stmt/local_var_decl_source_3.bal", "expression-stmt/local_var_decl_assert_3.json");
+        testFile("expression-stmt/local_var_decl_source_5.bal", "expression-stmt/local_var_decl_assert_5.json");
+        testFile("expression-stmt/local_var_decl_source_6.bal", "expression-stmt/local_var_decl_assert_6.json");
+    }
+
+    @Test
+    public void testExpressionStmtForSimpleModuleVarReferenceWithRecovery() {
+        testFile("expression-stmt/module_var_decl_source_1.bal", "expression-stmt/module_var_decl_assert_1.json");
+        testFile("expression-stmt/module_var_decl_source_3.bal", "expression-stmt/module_var_decl_assert_3.json");
+        testFile("expression-stmt/module_var_decl_source_5.bal", "expression-stmt/module_var_decl_assert_5.json");
+        testFile("expression-stmt/module_var_decl_source_6.bal", "expression-stmt/module_var_decl_assert_6.json");
     }
 }
