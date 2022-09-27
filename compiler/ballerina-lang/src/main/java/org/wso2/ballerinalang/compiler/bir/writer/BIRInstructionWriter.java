@@ -627,6 +627,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         reFlagExpression.colon.accept(this);
     }
 
+    @Override
     public void visit(BIRNonTerminator.NewReFlagOnOff reFlagsOnOff) {
         reFlagsOnOff.lhsOp.accept(this);
         reFlagsOnOff.flags.accept(this);

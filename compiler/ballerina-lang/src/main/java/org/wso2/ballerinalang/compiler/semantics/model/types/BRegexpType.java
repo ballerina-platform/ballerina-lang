@@ -34,10 +34,12 @@ public class BRegexpType extends BType {
         super(tag, null, name, Flags.READONLY);
     }
 
+    @Override
     public boolean isNullable() {
         return false;
     }
 
+    @Override
     public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
         return visitor.visit(this, t);
     }
@@ -57,6 +59,7 @@ public class BRegexpType extends BType {
         return Names.REGEXP.value + Names.ALIAS_SEPARATOR + name;
     }
 
+    @Override
     public String getQualifiedTypeName() {
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.REGEXP.value + Names.ALIAS_SEPARATOR + name;

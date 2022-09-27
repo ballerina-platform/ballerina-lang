@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
@@ -62,7 +63,7 @@ public class RegExpParser extends AbstractParser {
                 nextToken = peek();
             }
         }
-        return STNodeFactory.createNodeList(reSequenceList);
+        return STAbstractNodeFactory.createNodeList(reSequenceList);
     }
 
     /**
@@ -78,7 +79,7 @@ public class RegExpParser extends AbstractParser {
             reTerms.add(reTerm);
             nextToken = peek();
         }
-        return STNodeFactory.createReSequenceNode(STNodeFactory.createNodeList(reTerms));
+        return STNodeFactory.createReSequenceNode(STAbstractNodeFactory.createNodeList(reTerms));
     }
 
     /**
@@ -150,8 +151,9 @@ public class RegExpParser extends AbstractParser {
                 return parseReQuoteEscape(backSlash);
             case RE_SIMPLE_CHAR_CLASS_CODE:
                 return parseReSimpleCharClassEscape(backSlash);
+            default:
+                return consume();
         }
-        return consume();
     }
 
     /**
@@ -440,7 +442,7 @@ public class RegExpParser extends AbstractParser {
             digits.add(digit);
             nextToken = peek();
         }
-        return STNodeFactory.createNodeList(digits);
+        return STAbstractNodeFactory.createNodeList(digits);
     }
 
     private boolean isEndOfDigits(SyntaxKind kind, boolean isLeastDigits) {
@@ -563,7 +565,7 @@ public class RegExpParser extends AbstractParser {
             reFlags.add(reFlag);
             nextToken = peek();
         }
-        return STNodeFactory.createReFlagsNode(STNodeFactory.createNodeList(reFlags));
+        return STNodeFactory.createReFlagsNode(STAbstractNodeFactory.createNodeList(reFlags));
     }
 
     private boolean isEndOfReFlags(SyntaxKind kind) {

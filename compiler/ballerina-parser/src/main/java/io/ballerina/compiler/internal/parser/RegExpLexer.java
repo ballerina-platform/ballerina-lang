@@ -18,8 +18,8 @@
 package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STNode;
-import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.CharReader;
@@ -464,6 +464,7 @@ public class RegExpLexer extends AbstractLexer {
                 this.reader.advance();
                 startMode(ParserMode.RE_QUANTIFIER);
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+            default:
         }
 
         // Process the first ReCharSetAtom.
@@ -884,22 +885,22 @@ public class RegExpLexer extends AbstractLexer {
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
-        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
-        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+        STNode leadingTrivia = STAbstractNodeFactory.createEmptyNodeList();
+        STNode trailingTrivia = STAbstractNodeFactory.createEmptyNodeList();
+        return STAbstractNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getRegExpText(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createEmptyNodeList();
+        STNode leadingTrivia = STAbstractNodeFactory.createEmptyNodeList();
         String lexeme = getLexeme();
-        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+        STNode trailingTrivia = STAbstractNodeFactory.createEmptyNodeList();
+        return STAbstractNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getRegExpCloseBraceTokenWithoutTrailingWS() {
         STNode leadingTrivia = getLeadingTrivia();
-        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0));
-        return STNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, leadingTrivia, trailingTrivia);
+        STNode trailingTrivia = STAbstractNodeFactory.createNodeList(new ArrayList<>(0));
+        return STAbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, leadingTrivia, trailingTrivia);
     }
 
     /**

@@ -42,6 +42,8 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  * @since 2201.3.0
  */
 public class RegExpFactory {
+    private RegExpFactory() {
+    }
 
     public static RegExpValue createRegExpValue(RegExpDisjunction regExpDisjunction) {
         return new RegExpValue(regExpDisjunction);
@@ -122,20 +124,24 @@ public class RegExpFactory {
                 continue;
             }
             RegExpSequence seq = (RegExpSequence) s;
-            for (RegExpTerm t : seq.getRegExpTermsList()) {
-                if (!(t instanceof RegExpAtomQuantifier)) {
-                    continue;
-                }
-                RegExpAtomQuantifier atomQuantifier = (RegExpAtomQuantifier) t;
-                Object reAtom = atomQuantifier.getReAtom();
-                if (reAtom instanceof RegExpLiteralCharOrEscape) {
-                    atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
-                } else if (reAtom instanceof RegExpCharacterClass) {
-                    atomQuantifier.setReAtom(translateCharacterClass((RegExpCharacterClass) reAtom));
-                }
-            }
+            translateRegExpTerms(seq.getRegExpTermsList());
         }
         return new RegExpValue(disjunction);
+    }
+
+    private static void translateRegExpTerms(RegExpTerm[] terms) {
+        for (RegExpTerm t : terms) {
+            if (!(t instanceof RegExpAtomQuantifier)) {
+                continue;
+            }
+            RegExpAtomQuantifier atomQuantifier = (RegExpAtomQuantifier) t;
+            Object reAtom = atomQuantifier.getReAtom();
+            if (reAtom instanceof RegExpLiteralCharOrEscape) {
+                atomQuantifier.setReAtom(translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) reAtom));
+            } else if (reAtom instanceof RegExpCharacterClass) {
+                atomQuantifier.setReAtom(translateCharacterClass((RegExpCharacterClass) reAtom));
+            }
+        }
     }
 
     private static RegExpAtom translateLiteralCharOrEscape(RegExpLiteralCharOrEscape charOrEscape) {

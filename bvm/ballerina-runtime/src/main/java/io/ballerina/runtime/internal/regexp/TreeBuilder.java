@@ -138,9 +138,10 @@ public class TreeBuilder {
                 return readRegQuoteEscape(backSlash.value);
             case RE_SIMPLE_CHAR_CLASS_CODE:
                 return readRegSimpleCharClassEscape(backSlash.value);
+            default:
+                Token consumedToken = consume();
+                return consumedToken.value;
         }
-        Token consumedToken = consume();
-        return consumedToken.value;
     }
     
     private String readRegUnicodePropertyEscape(String backSlash) {

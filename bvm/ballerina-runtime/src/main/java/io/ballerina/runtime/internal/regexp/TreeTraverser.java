@@ -30,6 +30,7 @@ public class TreeTraverser {
     private CharReader reader;
     private ParserMode mode;
     private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
+    private final String errorMsgStart = "Invalid character '";
     
     public TreeTraverser(CharReader charReader) {
         this.reader = charReader;
@@ -98,7 +99,7 @@ public class TreeTraverser {
                 reader.advance();
                 // Pipe cannot be the end of the regular expression.
                 if (this.reader.isEOF()) {
-                    throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                    throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
                 }
                 return getRegExpToken(TokenKind.PIPE_TOKEN);
             default:
@@ -157,7 +158,7 @@ public class TreeTraverser {
                     switchMode(ParserMode.RE_QUANTIFIER);
                     return getRegExpToken(TokenKind.CLOSE_PAREN_TOKEN);
                 }
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
             default:
                 // Handle ReLiteralChar.
                 this.reader.advance();
@@ -165,7 +166,7 @@ public class TreeTraverser {
                     startMode(ParserMode.RE_QUANTIFIER);
                     return getRegExpText(TokenKind.RE_CHAR);
                 }
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
     }
 
@@ -194,7 +195,7 @@ public class TreeTraverser {
         boolean isReSimpleCharClassCode = isReSimpleCharClassCode(nextToken);
 
         if (!isReSyntaxChar && !isReSimpleCharClassCode) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         this.reader.advance();
@@ -337,12 +338,12 @@ public class TreeTraverser {
 
     private void processReUnicodePropertyValue() {
         if (!isReUnicodePropertyValueChar(peek())) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         while (!isEndOfUnicodePropertyEscape()) {
             if (!isReUnicodePropertyValueChar(peek())) {
-                throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+                throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
             }
             this.reader.advance();
         }
@@ -411,6 +412,7 @@ public class TreeTraverser {
                 this.reader.advance();
                 startMode(ParserMode.RE_QUANTIFIER);
                 return getRegExpToken(TokenKind.CLOSE_BRACKET_TOKEN);
+            default:
         }
 
         // Process the first ReCharSetAtom.
@@ -689,7 +691,7 @@ public class TreeTraverser {
         }
 
         if (!isDigit(peek())) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         this.reader.advance();
@@ -739,7 +741,7 @@ public class TreeTraverser {
         }
 
         if (!isReFlag(peek())) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         this.reader.advance();
@@ -795,7 +797,7 @@ public class TreeTraverser {
         }
         // Invalid ReEscape.
         this.reader.advance(2);
-        throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+        throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
     }
 
     private void processNumericEscape() {
@@ -804,7 +806,7 @@ public class TreeTraverser {
 
         // Process code-point.
         if (!isHexDigit(this.reader.peek())) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException();
         }
 
         reader.advance();
@@ -813,7 +815,7 @@ public class TreeTraverser {
         }
         
         if (this.reader.peek() != Terminals.CLOSE_BRACE) {
-            throw new BallerinaException("Invalid character '" + getMarkedChars() + "'");
+            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         this.reader.advance();

@@ -5500,9 +5500,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Node reAtomNode = reAtomQuantifierNode.reAtom();
         reAtomQuantifier.atom = (BLangExpression) reAtomNode.apply(this);
         Location pos = getPosition(reAtomQuantifierNode);
-        if (reAtomQuantifierNode.reQuantifier().isPresent()) {
-            reAtomQuantifier.quantifier = (BLangReQuantifier) reAtomQuantifierNode.reQuantifier().get().apply(this);
-        }
+        Optional<ReQuantifierNode> quantifier = reAtomQuantifierNode.reQuantifier();
+        quantifier.ifPresent(reQuantifierNode -> reAtomQuantifier.quantifier =
+                (BLangReQuantifier) reQuantifierNode.apply(this));
         reAtomQuantifier.pos = pos;
         return reAtomQuantifier;
     }
@@ -5511,9 +5511,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReQuantifierNode reQuantifierNode) {
         BLangReQuantifier reQuantifier = (BLangReQuantifier) TreeBuilder.createReQuantifierNode();
         BLangExpression quantifier = (BLangExpression) reQuantifierNode.reBaseQuantifier().apply(this);
-        if (reQuantifierNode.nonGreedyChar().isPresent()) {
-            reQuantifier.nonGreedyChar = (BLangExpression) reQuantifierNode.nonGreedyChar().get().apply(this);
-        }
+        Optional<Token> nonGreedyChar = reQuantifierNode.nonGreedyChar();
+        nonGreedyChar.ifPresent(token -> reQuantifier.nonGreedyChar = (BLangExpression) token.apply(this));
         reQuantifier.pos = getPosition(reQuantifierNode);
         reQuantifier.quantifier = quantifier;
         return reQuantifier;
@@ -5531,10 +5530,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             leastTimesMatchedDigitPos = leastDigit.pos;
             leastTimesMatchedDigits.append(leastDigit.value.toString());
         }
-        if (reBracedQuantifierNode.commaToken().isEmpty()) {
+        Optional<Token> commaToken = reBracedQuantifierNode.commaToken();
+        if (commaToken.isEmpty()) {
              quantifier = openBrace.value.toString() + leastTimesMatchedDigits.toString() + closeBrace.value.toString();
         } else {
-            BLangLiteral comma = (BLangLiteral) reBracedQuantifierNode.commaToken().get().apply(this);
+            BLangLiteral comma = (BLangLiteral) commaToken.get().apply(this);
             StringBuilder mostTimesMatchedDigits = new StringBuilder();
             for (Node digit : reBracedQuantifierNode.mostTimesMatchedDigit()) {
                 BLangLiteral mostDigit = (BLangLiteral) digit.apply(this);
@@ -5569,9 +5569,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReQuoteEscapeNode reQuoteEscapeNode) {
-        Location pos = getPosition(reQuoteEscapeNode);
         BLangLiteral backSlash = (BLangLiteral) reQuoteEscapeNode.slashToken().apply(this);
         BLangLiteral syntaxChar = (BLangLiteral) reQuoteEscapeNode.reSyntaxChar().apply(this);
+        Location pos = getPosition(reQuoteEscapeNode);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 syntaxChar.value.toString(), pos);
         // Return the literal for escape sequence if it's in a character class.
@@ -5587,10 +5587,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
-        Location pos = getPosition(reSimpleCharClassEscapeNode);
         BLangLiteral backSlash = (BLangLiteral) reSimpleCharClassEscapeNode.slashToken().apply(this);
         BLangLiteral simpleCharClassEscapeNode =
                 (BLangLiteral) reSimpleCharClassEscapeNode.reSimpleCharClassCode().apply(this);
+        Location pos = getPosition(reSimpleCharClassEscapeNode);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 simpleCharClassEscapeNode.value.toString(), pos);
         // Return the literal for escape sequence if it's in a character class.
@@ -5606,12 +5606,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
-        Location pos = getPosition(reUnicodePropertyEscapeNode);
         BLangLiteral backSlash = (BLangLiteral) reUnicodePropertyEscapeNode.slashToken().apply(this);
         BLangLiteral property = (BLangLiteral) reUnicodePropertyEscapeNode.property().apply(this);
         BLangLiteral openBrace = (BLangLiteral) reUnicodePropertyEscapeNode.openBraceToken().apply(this);
         BLangLiteral unicodeProperty = (BLangLiteral) reUnicodePropertyEscapeNode.reUnicodeProperty().apply(this);
         BLangLiteral closeBrace = (BLangLiteral) reUnicodePropertyEscapeNode.closeBraceToken().apply(this);
+        Location pos = getPosition(reUnicodePropertyEscapeNode);
         BLangExpression escapeChar =
                 createStringLiteral(backSlash.value.toString() + property.value.toString() +
                         openBrace.value.toString() + unicodeProperty.value.toString() +
@@ -5639,8 +5639,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
         BLangLiteral unicodeGeneralCategoryName =
                 (BLangLiteral) reUnicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().apply(this);
-        if (reUnicodeGeneralCategoryNode.categoryStart().isPresent()) {
-            BLangLiteral categoryStart = (BLangLiteral) reUnicodeGeneralCategoryNode.categoryStart().get().apply(this);
+        Optional<Node> categoryStartNode = reUnicodeGeneralCategoryNode.categoryStart();
+        if (categoryStartNode.isPresent()) {
+            BLangLiteral categoryStart = (BLangLiteral) categoryStartNode.get().apply(this);
             return createStringLiteral(categoryStart.value.toString() +
                     unicodeGeneralCategoryName.value.toString(), getPosition(reUnicodeGeneralCategoryNode));
         }
@@ -5654,12 +5655,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.isInCharacterClass = true;
         BLangReCharacterClass reCharacterClass = (BLangReCharacterClass) TreeBuilder.createReCharacterClassNode();
         reCharacterClass.characterClassStart = (BLangExpression) reCharacterClassNode.openBracket().apply(this);
-        if (reCharacterClassNode.negation().isPresent()) {
-            reCharacterClass.negation = (BLangExpression) reCharacterClassNode.negation().get().apply(this);
-        }
-        if (reCharacterClassNode.reCharSet().isPresent()) {
+        Optional<Token> negation = reCharacterClassNode.negation();
+        negation.ifPresent(token -> reCharacterClass.negation = (BLangExpression) token.apply(this));
+        Optional<Node> reCharSet = reCharacterClassNode.reCharSet();
+        if (reCharSet.isPresent()) {
             BLangReCharSet charSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
-            BLangExpression charSetAtoms = (BLangExpression) reCharacterClassNode.reCharSet().get().apply(this);
+            BLangExpression charSetAtoms = (BLangExpression) reCharSet.get().apply(this);
             if (charSetAtoms.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                 charSet.charSetAtoms.addAll(((BLangListConstructorExpr) charSetAtoms).exprs);
             } else {
@@ -5678,7 +5679,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCharSetAtomWithReCharSetNoDashNode charSetNode) {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        listConstructorExpr.pos = getPosition(charSetNode);
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add((BLangExpression) charSetNode.reCharSetAtom().apply(this));
         BLangExpression charSetNoDash =
@@ -5689,6 +5689,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             exprs.add(charSetNoDash);
         }
         listConstructorExpr.exprs = exprs;
+        listConstructorExpr.pos = getPosition(charSetNode);
         return listConstructorExpr;
     }
 
@@ -5696,7 +5697,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCharSetAtomNoDashWithReCharSetNoDashNode charSetNode) {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        listConstructorExpr.pos = getPosition(charSetNode);
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add((BLangExpression) charSetNode.reCharSetAtomNoDash().apply(this));
         BLangExpression charSetNoDash =
@@ -5707,6 +5707,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             exprs.add(charSetNoDash);
         }
         listConstructorExpr.exprs = exprs;
+        listConstructorExpr.pos = getPosition(charSetNode);
         return listConstructorExpr;
     }
 
@@ -5714,11 +5715,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCharSetRangeWithReCharSetNode charSetNode) {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        listConstructorExpr.pos = getPosition(charSetNode);
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add((BLangExpression) charSetNode.reCharSetRange().apply(this));
-        if (charSetNode.reCharSet().isPresent()) {
-            BLangExpression charSet = (BLangExpression) charSetNode.reCharSet().get().apply(this);
+        Optional<Node> reCharSet = charSetNode.reCharSet();
+        if (reCharSet.isPresent()) {
+            BLangExpression charSet = (BLangExpression) reCharSet.get().apply(this);
             if (charSet.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                 exprs.addAll(((BLangListConstructorExpr) charSet).exprs);
             } else {
@@ -5726,16 +5727,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
         listConstructorExpr.exprs = exprs;
+        listConstructorExpr.pos = getPosition(charSetNode);
         return listConstructorExpr;
     }
 
     @Override
     public BLangNode transform(ReCharSetRangeNode charSetRangeNode) {
         BLangReCharSetRange charSetRange = (BLangReCharSetRange) TreeBuilder.createReCharSetRangeNode();
-        charSetRange.pos = getPosition(charSetRangeNode);
         charSetRange.lhsCharSetAtom = (BLangExpression) charSetRangeNode.lhsReCharSetAtom().apply(this);
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.rhsReCharSetAtom().apply(this);
+        charSetRange.pos = getPosition(charSetRangeNode);
         // lhsCharSetAtom value should be less than rhsCharSetAtom value.
         checkRangeValidity((BLangLiteral) charSetRange.lhsCharSetAtom, (BLangLiteral) charSetRange.rhsCharSetAtom);
         return charSetRange;
@@ -5751,11 +5753,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCharSetRangeNoDashWithReCharSetNode charSetNode) {
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        listConstructorExpr.pos = getPosition(charSetNode);
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add((BLangExpression) charSetNode.reCharSetRangeNoDash().apply(this));
-        if (charSetNode.reCharSet().isPresent()) {
-            BLangExpression charSet = (BLangExpression) charSetNode.reCharSet().get().apply(this);
+        Optional<Node> reCharSet = charSetNode.reCharSet();
+        if (reCharSet.isPresent()) {
+            BLangExpression charSet = (BLangExpression) reCharSet.get().apply(this);
             if (charSet.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                 exprs.addAll(((BLangListConstructorExpr) charSet).exprs);
             } else {
@@ -5763,16 +5765,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
         listConstructorExpr.exprs = exprs;
+        listConstructorExpr.pos = getPosition(charSetNode);
         return listConstructorExpr;
     }
 
     @Override
     public BLangNode transform(ReCharSetRangeNoDashNode charSetRangeNode) {
         BLangReCharSetRange charSetRange = (BLangReCharSetRange) TreeBuilder.createReCharSetRangeNode();
-        charSetRange.pos = getPosition(charSetRangeNode);
         charSetRange.lhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtomNoDash().apply(this);
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtom().apply(this);
+        charSetRange.pos = getPosition(charSetRangeNode);
         return charSetRange;
     }
 
@@ -5780,10 +5783,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ReCapturingGroupsNode reCapturingGroupsNode) {
         BLangReCapturingGroups reCapturingGroups = (BLangReCapturingGroups) TreeBuilder.createReCapturingGroupsNode();
         reCapturingGroups.openParen = (BLangExpression) reCapturingGroupsNode.openParenthesis().apply(this);
-        if (reCapturingGroupsNode.reFlagExpression().isPresent()) {
-            reCapturingGroups.flagExpr =
-                    (BLangReFlagExpression) reCapturingGroupsNode.reFlagExpression().get().apply(this);
-        }
+        Optional<ReFlagExpressionNode> flagExpr = reCapturingGroupsNode.reFlagExpression();
+        flagExpr.ifPresent(reFlagExpressionNode -> reCapturingGroups.flagExpr =
+                (BLangReFlagExpression) reFlagExpressionNode.apply(this));
         Location pos = getPosition(reCapturingGroupsNode);
         reCapturingGroups.disjunction =
                 (BLangReDisjunction) createReDisjunctionNode(reCapturingGroupsNode.reSequences(), pos);
@@ -5809,14 +5811,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangReFlagsOnOff reFlagsOnOff = (BLangReFlagsOnOff) TreeBuilder.createReFlagsOnOffNode();
         BLangLiteral lhsFlags = (BLangLiteral) reFlagsOnOffNode.lhsReFlags().apply(this);
         String flags;
-        if (reFlagsOnOffNode.minusToken().isEmpty()) {
+        Optional<Token> minusToken = reFlagsOnOffNode.minusToken();
+        if (minusToken.isEmpty()) {
             flags = lhsFlags.value.toString();
         } else {
-            BLangLiteral dash = (BLangLiteral) reFlagsOnOffNode.minusToken().get().apply(this);
-            if (reFlagsOnOffNode.rhsReFlags().isEmpty()) {
+            BLangLiteral dash = (BLangLiteral) minusToken.get().apply(this);
+            Optional<ReFlagsNode> rhsFlagsNode = reFlagsOnOffNode.rhsReFlags();
+            if (rhsFlagsNode.isEmpty()) {
                 flags = lhsFlags.value.toString() + dash.value.toString();
             } else {
-                BLangLiteral rhsFlags = (BLangLiteral) reFlagsOnOffNode.rhsReFlags().get().apply(this);
+                BLangLiteral rhsFlags = (BLangLiteral) rhsFlagsNode.get().apply(this);
                 flags = lhsFlags.value.toString() + dash.value.toString() + rhsFlags.value.toString();
             }
         }

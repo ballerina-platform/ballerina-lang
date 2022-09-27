@@ -198,6 +198,7 @@ public class DocumentationLexer extends AbstractLexer {
      * <p>
      * <code>NumericEscape := \ u { CodePoint }</code>
      */
+    @Override
     protected void processNumericEscape() {
         // Process '\ u {'
         this.reader.advance(3);

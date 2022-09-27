@@ -131,7 +131,7 @@ public class FromJsonWithType {
                     try {
                         newValue = RegExpFactory.parse(((BString) value).getValue());
                         break;
-                    } catch (Throwable e) {
+                    } catch (BError e) {
                         throw createConversionError(value, targetType, e.getMessage());
                     }
                 }

@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -1390,6 +1391,13 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangReCharSet node, T data) {
         analyzeNode(node, data);
         visitNode(node.charSetAtoms, data);
+    }
+
+    public void visit(BLangReCharSetRange node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsCharSetAtom, data);
+        visitNode(node.dash, data);
+        visitNode(node.rhsCharSetAtom, data);
     }
 
     public void visit(BLangReAssertion node, T data) {

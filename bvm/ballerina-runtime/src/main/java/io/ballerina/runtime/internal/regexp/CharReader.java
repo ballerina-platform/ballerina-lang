@@ -17,8 +17,6 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
-import io.ballerina.tools.text.TextDocument;
-
 import java.util.Arrays;
 
 /**
@@ -40,23 +38,14 @@ public class CharReader {
         this.charBufferLength = buffer.length;
     }
 
-    public static CharReader from(TextDocument textDocument) {
-        return new CharReader(textDocument.toCharArray());
-    }
-
     public static CharReader from(String text) {
         return new CharReader(text.toCharArray());
-    }
-
-    public void reset(int offset) {
-        this.offset = offset;
     }
 
     public char peek() {
         if (offset < charBufferLength) {
             return charBuffer[offset];
         } else {
-            // TODO Revisit this branch
             return Character.MAX_VALUE;
         }
     }
@@ -66,7 +55,6 @@ public class CharReader {
         if (n < charBufferLength) {
             return charBuffer[n];
         } else {
-            // TODO Revisit this branch
             return Character.MAX_VALUE;
         }
     }

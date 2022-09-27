@@ -40,4 +40,7 @@ public class Terminals {
     public static final char DOLLAR = '$';
     public static final char PLUS = '+';
     public static final char ASTERISK = '*';
+
+    private Terminals() {
+    }
 }

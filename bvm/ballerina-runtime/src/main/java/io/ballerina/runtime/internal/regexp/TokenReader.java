@@ -29,7 +29,6 @@ public class TokenReader {
 
     private final TreeTraverser treeTraverser;
     private TokenBuffer tokensAhead = new TokenBuffer(BUFFER_SIZE);
-    private Token currentToken = null;
 
     public TokenReader(TreeTraverser treeTraverser) {
         this.treeTraverser = treeTraverser;
@@ -41,15 +40,16 @@ public class TokenReader {
      * @return Next token in the input
      */
     public Token read() {
+        Token currentToken;
         if (this.tokensAhead.size > 0) {
             // Cache the head.
-            this.currentToken = tokensAhead.consume();
-            return this.currentToken;
+            currentToken = tokensAhead.consume();
+            return currentToken;
         }
 
         // Cache the head.
-        this.currentToken = this.treeTraverser.nextToken();
-        return this.currentToken;
+        currentToken = this.treeTraverser.nextToken();
+        return currentToken;
     }
 
     /**
@@ -78,20 +78,20 @@ public class TokenReader {
      */
     public Token peek(int k) {
         Token nextToken;
-        TokenBuffer tokensAhead = this.tokensAhead;
+        TokenBuffer nextTokens = this.tokensAhead;
 
-        while (tokensAhead.size < k) {
+        while (nextTokens.size < k) {
             nextToken = this.treeTraverser.nextToken();
-            if (tokensAhead.size == tokensAhead.capacity) {
+            if (nextTokens.size == nextTokens.capacity) {
                 // We reach here when the BUFFER_SIZE is exceeded.
                 // To avoid parser being crashed, return EOF token as peek(k) for k > BUFFER_SIZE.
                 return createToken(TokenKind.EOF_TOKEN);
             }
 
-            tokensAhead.add(nextToken);
+            nextTokens.add(nextToken);
         }
 
-        return tokensAhead.peek(k);
+        return nextTokens.peek(k);
     }
 
     public static Token createToken(TokenKind kind) {

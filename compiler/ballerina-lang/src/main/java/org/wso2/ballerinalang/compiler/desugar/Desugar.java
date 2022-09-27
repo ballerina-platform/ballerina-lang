@@ -8523,6 +8523,7 @@ public class Desugar extends BLangNodeVisitor {
         result = reFlagExpression;
     }
 
+    @Override
     public void visit(BLangReFlagsOnOff reFlagsOnOff) {
         reFlagsOnOff.flags = rewriteExpr(reFlagsOnOff.flags);
         result = reFlagsOnOff;

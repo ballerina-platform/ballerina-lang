@@ -20,6 +20,7 @@ package io.ballerina.compiler.internal.parser;
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
+import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STAmbiguousCollectionNode;
 import io.ballerina.compiler.internal.parser.tree.STAnnotAccessExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
@@ -11155,7 +11156,7 @@ public class BallerinaParser extends AbstractParser {
         // Create new missing startingBackTick token which has no diagnostic.
         STNode startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
         STNode endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-        STNode content = STNodeFactory.createEmptyNodeList();
+        STNode content = STAbstractNodeFactory.createEmptyNodeList();
         STNode templateExpr =
                 STNodeFactory.createTemplateExpressionNode(kind, reKeyword, startingBackTick, content, endingBackTick);
         templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);

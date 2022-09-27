@@ -57,20 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -755,60 +742,6 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             analyzeReachability((BLangNode) letVariable.definitionNode, data);
         }
         data.statementReturnsPanicsOrFails = returnStateBefore;
-    }
-
-    @Override
-    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReSequence reSequence, AnalyzerData data) {
-
-    }
-
-    @Override
-    public void visit(BLangReAtomQuantifier reAtomQuantifier, AnalyzerData data) {
-
-    }
-
-    @Override
-    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReCharSet reCharSet, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReCharSetRange reCharSetRange, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReAssertion reAssertion, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReCapturingGroups reCapturingGroups, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReFlagsOnOff source, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangReFlagExpression source, AnalyzerData data) {
     }
 
     private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {

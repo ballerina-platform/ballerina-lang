@@ -113,7 +113,6 @@ public class Names {
     public static final Name CLONEABLE = new Name("Cloneable");
     public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
     public static final Name OBJECT_ITERABLE = new Name("Iterable");
-    public static final Name REG_EXP = new Name("RegExp");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
