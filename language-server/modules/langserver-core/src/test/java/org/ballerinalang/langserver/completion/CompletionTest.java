@@ -33,6 +33,8 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,11 +47,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Completion Test Interface.
  */
 public abstract class CompletionTest extends AbstractLSTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractLSTest.class);
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
@@ -74,6 +79,12 @@ public abstract class CompletionTest extends AbstractLSTest {
             // Fix test cases replacing expected using responses
 //            updateConfig(configJsonPath, testConfig, responseItemList);
             Assert.fail(String.format("Failed test: '%s' (%s)", testConfig.getDescription(), configPath));
+            List<CompletionItem> mismatchedList1 = responseItemList.stream()
+                    .filter(item -> !testConfig.getItems().contains(item)).collect(Collectors.toList());
+            List<CompletionItem> mismatchedList2 = testConfig.getItems().stream()
+                    .filter(item -> !responseItemList.contains(item)).collect(Collectors.toList());
+            LOG.info("Completion items which are in response but not in test config : " + mismatchedList1.toString());
+            LOG.info("Completion items which are in test config but not in response : " + mismatchedList2.toString());
         }
     }
 
