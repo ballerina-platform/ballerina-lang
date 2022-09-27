@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -37,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Testerina compiler plugin utils for the Testerina module.
@@ -229,6 +231,33 @@ public class TesterinaCompilerPluginUtils {
                         NodeFactory.createToken(SyntaxKind.COMMA_TOKEN),
                         getStringParameter(TesterinaCompilerPluginConstants.LIST_GROUPS_PARAMETER)),
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), returnTypeDescriptorNode);
+    }
+
+    public static void traverseTestRegistrars(AtomicInteger testIndex, AtomicInteger group,
+                                              List<StatementNode> registrarStatements,
+                                              List<ModuleMemberDeclarationNode> functionsList,
+                                              TestFunctionVisitor testFunctionVisitor,
+                                              List<StatementNode> statements) {
+        for (FunctionDefinitionNode func: testFunctionVisitor.getTestStaticFunctions()) {
+            // Add the statements, 'check test:registerTest(<name>, <function>);'
+            registrarStatements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(
+                    func.functionName().toString(), func.functionName().toString()));
+            testIndex.getAndIncrement();
+            if (testIndex.get() >= TesterinaCompilerPluginConstants.REGISTERS_PER_FUNCTION) {
+                populateTestRegistrarStatements(group, registrarStatements, functionsList, statements);
+                testIndex.set(0);
+                group.incrementAndGet();
+                registrarStatements = new ArrayList<>();
+            }
+        }
+    }
+
+    public static void populateTestRegistrarStatements(AtomicInteger group, List<StatementNode> registrarStatements,
+                                                       List<ModuleMemberDeclarationNode> functionsList,
+                                                       List<StatementNode> statements) {
+        functionsList.add(TesterinaCompilerPluginUtils.
+                createTestRegistrarFunction(registrarStatements, group.get()));
+        TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group.get());
     }
 
     public static RequiredParameterNode getStringParameter(String varName) {

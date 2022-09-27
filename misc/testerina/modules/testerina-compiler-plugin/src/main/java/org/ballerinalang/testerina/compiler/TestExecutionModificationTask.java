@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -35,6 +34,7 @@ import io.ballerina.tools.text.TextDocument;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Code modification task to generate the main Testerina runtime function.
@@ -71,29 +71,15 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
         node.accept(testFunctionVisitor);
 
         // Initialize variables for test registrars
-        int i = 0;
-        int group = 0;
+        AtomicInteger testIndex = new AtomicInteger(0);
+        AtomicInteger group = new AtomicInteger(0);
         List<StatementNode> registrarStatements = new ArrayList<>();
 
-        // Call the test registrar functions
-        for (FunctionDefinitionNode func: testFunctionVisitor.getTestStaticFunctions()) {
-            // Add the statements, 'check test:registerTest(<name>, <function>);'
-            registrarStatements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(
-                    func.functionName().toString(), func.functionName().toString()));
-            i++;
-            if (i >= TesterinaCompilerPluginConstants.REGISTERS_PER_FUNCTION) {
-                functionsList.add(TesterinaCompilerPluginUtils.
-                        createTestRegistrarFunction(registrarStatements, group));
-                TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
-                i = 0;
-                group++;
-                registrarStatements = new ArrayList<>();
-            }
-        }
-        if (i > 0) {
-            functionsList.add(TesterinaCompilerPluginUtils.
-                    createTestRegistrarFunction(registrarStatements, group));
-            TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
+        TesterinaCompilerPluginUtils.traverseTestRegistrars(testIndex, group, registrarStatements,
+                functionsList, testFunctionVisitor, statements);
+        if (testIndex.get() > 0) {
+            TesterinaCompilerPluginUtils.populateTestRegistrarStatements(group, registrarStatements,
+                    functionsList, statements);
         }
 
         TesterinaCompilerPluginUtils.addStartSuiteCall(statements);

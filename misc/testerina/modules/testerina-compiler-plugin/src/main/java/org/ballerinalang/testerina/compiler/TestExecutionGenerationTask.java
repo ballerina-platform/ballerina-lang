@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -39,6 +38,7 @@ import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Code generation task to generate the main Testerina runtime function.
@@ -68,8 +68,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
 
         // Initialize variables for test registrars
-        int i = 0;
-        int group = 0;
+        AtomicInteger testIndex = new AtomicInteger(0);
+        AtomicInteger group = new AtomicInteger(0);
         List<StatementNode> registrarStatements = new ArrayList<>();
 
         // Register all the test cases of the module
@@ -80,31 +80,17 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             node.accept(testFunctionVisitor);
 
             // Call the test registrar functions
-            for (FunctionDefinitionNode func: testFunctionVisitor.getTestStaticFunctions()) {
-                // Add the statements, 'check test:registerTest(<name>, <function>);'
-                registrarStatements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(
-                        func.functionName().toString(), func.functionName().toString()));
-                i++;
-                if (i >= TesterinaCompilerPluginConstants.REGISTERS_PER_FUNCTION) {
-                    functionsList.add(TesterinaCompilerPluginUtils.
-                            createTestRegistrarFunction(registrarStatements, group));
-                    TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
-                    i = 0;
-                    group++;
-                    registrarStatements = new ArrayList<>();
-                }
-            }
-
+            TesterinaCompilerPluginUtils.traverseTestRegistrars(testIndex, group, registrarStatements,
+                    functionsList, testFunctionVisitor, statements);
             //TODO: Enable dynamic registration upon approval
 //            // Add the statements, 'check <function>()'
 //            testFunctionVisitor.getTestDynamicFunctions().forEach(func ->
 //                    statements.add(invokeFactoryFunction(func.functionName().toString(),
 //                            func.functionSignature().returnTypeDesc())));
         }
-        if (i > 0) {
-            functionsList.add(TesterinaCompilerPluginUtils.
-                    createTestRegistrarFunction(registrarStatements, group));
-            TesterinaCompilerPluginUtils.addTestRegistrarCall(statements, group);
+        if (testIndex.get() > 0) {
+            TesterinaCompilerPluginUtils.populateTestRegistrarStatements(group, registrarStatements,
+                    functionsList, statements);
         }
 
         TesterinaCompilerPluginUtils.addStartSuiteCall(statements);
