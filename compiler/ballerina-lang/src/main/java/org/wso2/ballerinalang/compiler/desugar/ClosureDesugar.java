@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -91,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -192,6 +194,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Types types;
     private Desugar desugar;
     private Names names;
+    private SymbolResolver symResolver;
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
@@ -215,6 +218,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
     }
@@ -1450,6 +1454,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
         dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
         dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
         result = dynamicParamExpr;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(this::rewriteExpr);
+        result = regExpTemplateLiteral;
     }
 
     /**

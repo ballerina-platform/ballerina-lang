@@ -129,6 +129,60 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
                 "regexp-constructor-expr/regexp_constructor_assert_17.json");
     }
 
+    @Test
+    public void testCharacterClassEscapesWithQuantifier() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_29.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_29.json");
+    }
+
+    @Test
+    public void testDotAllWithFlags() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_30.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_30.json");
+    }
+
+    @Test
+    public void testCapturingGroups() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_31.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_31.json");
+    }
+
+    @Test
+    public void testPropertyEscapesGeneralCategory() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_32.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_32.json");
+    }
+
+    @Test
+    public void testPropertyEscapesScript() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_33.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_33.json");
+    }
+
+    @Test
+    public void testQuoteEscape() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_34.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_34.json");
+    }
+
+    @Test
+    public void testCharacterClassCharSets() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_35.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_35.json");
+    }
+
+    @Test
+    public void testBracedQuantifier() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_36.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_36.json");
+    }
+
+    @Test
+    public void testBracedQuantifierWithNonGreedyChar() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_37.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_37.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -195,5 +249,17 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
     public void testRecoveryWithInvalidRegExpInTuple() {
         testFile("regexp-constructor-expr/regexp_constructor_source_28.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_28.json");
+    }
+
+    @Test
+    public void testInvalidUnicodeProperty4() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_38.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_38.json");
+    }
+
+    @Test
+    public void testInvalidEscapeChars() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_39.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_39.json");
     }
 }

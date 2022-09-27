@@ -120,9 +120,22 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -2951,6 +2964,58 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         mappingMatchPattern.setBType(types.resolvePatternTypeFromMatchExpr(mappingMatchPattern,
                                                                            recordVarType, currentEnv));
         assignTypesToMemberPatterns(mappingMatchPattern, mappingMatchPattern.getBType(), data);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange charSetRange, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff source, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression source, AnalyzerData data) {
     }
 
     private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType bType, AnalyzerData data) {

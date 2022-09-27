@@ -35,6 +35,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
     implementation project(':ballerina-lang:value');
+    implementation project(':ballerina-lang:regexp');
 
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
