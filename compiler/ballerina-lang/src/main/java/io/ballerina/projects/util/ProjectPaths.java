@@ -295,6 +295,15 @@ public class ProjectPaths {
             return false;
         }
 
+        // check if the filepath is a source filepath in a generated module
+        if (isGeneratedModuleSrcFile(filepath)) {
+            return false;
+        }
+        // check if the filepath is a test filepath in a generated module
+        if (isGeneratedModuleTestFile(filepath)) {
+            return false;
+        }
+
         if (isBalaProjectSrcFile(filepath)) {
             return false;
         }

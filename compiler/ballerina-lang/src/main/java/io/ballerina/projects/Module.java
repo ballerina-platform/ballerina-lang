@@ -350,8 +350,8 @@ public class Module {
                 Modifier module = this.packageInstance.module(dependentDescriptor.name()).modify();
                 moduleContextSet.add(new ModuleContext(this.project,
                         module.moduleId, dependentDescriptor, module.isDefaultModule, module.srcDocContextMap,
-                        module.testDocContextMap, module.moduleMdContext, module.dependencies, this.resourceContextMap,
-                        this.testResourceContextMap, this.kind));
+                        module.testDocContextMap, module.moduleMdContext, module.dependencies,
+                        module.resourceContextMap, module.testResourceContextMap, module.kind));
             }
 
             Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();

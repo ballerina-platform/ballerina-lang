@@ -272,8 +272,13 @@ public class PackageResolution {
         for (String moduleName : idlPluginManager.cachedModuleNames()) {
             if (rootPackageContext.moduleContext(
                     ModuleName.from(rootPackageContext.packageName(), moduleName)) == null) {
-                idlPluginManager.generatedModuleConfigs().add(
-                        Utils.createModuleConfig(moduleName, rootPackageContext.project()));
+                Optional<ModuleConfig> config = idlPluginManager.generatedModuleConfigs().stream().filter(
+                        moduleConfig -> moduleConfig.moduleDescriptor().name().moduleNamePart()
+                                .equals(moduleName)).findFirst();
+                if (config.isEmpty()) {
+                    idlPluginManager.generatedModuleConfigs().add(
+                            Utils.createModuleConfig(moduleName, rootPackageContext.project()));
+                }
             }
         }
         for (ModuleConfig generatedModuleConfig : idlPluginManager.generatedModuleConfigs()) {
