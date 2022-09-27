@@ -575,6 +575,24 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "resource",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource function <accessor> <path>();",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path} (${3});",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -115,7 +115,7 @@ public class NameUtil {
     public static String generateTypeName(String prefix, Set<String> visibleSymbolNames) {
         String typeName = prefix;
         int idx = 0;
-        while (visibleSymbolNames.contains(typeName)) {
+        while (visibleSymbolNames.contains(typeName) || CommonUtil.BALLERINA_KEYWORDS.contains(typeName)) {
             idx++;
             typeName = prefix + idx;
         }
