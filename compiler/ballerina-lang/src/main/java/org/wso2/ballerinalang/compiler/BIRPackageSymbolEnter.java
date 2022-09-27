@@ -1199,15 +1199,11 @@ public class BIRPackageSymbolEnter {
                     PackageID pkgId = getPackageId(pkgCpIndex);
 
                     String recordName = getStringCPEntryValue(inputStream);
-                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                                names.fromString(recordName),
-                                                                                env.pkgSymbol.pkgID, null,
-                                                                                env.pkgSymbol, symTable.builtinPos,
-                                                                                COMPILED_SOURCE);
-                    recordSymbol.flags |= flags;
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(flags, names.fromString(recordName),
+                            env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
-                    recordType.flags |= flags;
+
+                    BRecordType recordType = new BRecordType(recordSymbol, flags);
 
                     if (isImmutable(flags)) {
                         recordSymbol.flags |= Flags.READONLY;
