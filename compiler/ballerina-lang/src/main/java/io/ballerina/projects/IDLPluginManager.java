@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -51,14 +52,14 @@ class IDLPluginManager {
     private List<IDLPluginContextImpl> idlPluginContexts;
     private final List<ModuleConfig> moduleConfigs;
     private final Path target;
-    private final List<IDLClientEntry> cachedClientEnrtries;
-    private final List<String> cachedModuleNames;
+    private final List<IDLClientEntry> cachedClientEntries;
+    private final Set<String> cachedModuleNames;
 
     private IDLPluginManager(Path target, List<IDLClientEntry> cachedPlugins) {
         this.target = target;
         this.moduleConfigs = new ArrayList<>();
-        this.cachedClientEnrtries = cachedPlugins;
-        this.cachedModuleNames = new ArrayList<>();
+        this.cachedClientEntries = cachedPlugins;
+        this.cachedModuleNames = new HashSet<>();
     }
 
     static IDLPluginManager from(Path target) {
@@ -103,10 +104,10 @@ class IDLPluginManager {
     }
 
     public List<IDLClientEntry> cachedClientEntries() {
-        return cachedClientEnrtries;
+        return cachedClientEntries;
     }
 
-    public List<String> cachedModuleNames() {
+    public Set<String> cachedModuleNames() {
         return cachedModuleNames;
     }
 
