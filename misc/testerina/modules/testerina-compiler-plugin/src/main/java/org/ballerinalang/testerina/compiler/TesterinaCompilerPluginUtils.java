@@ -68,6 +68,17 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createSeparatedNodeList(new ArrayList<>()))));
     }
 
+    public static void addTestRegistrarCall(List<StatementNode> statements, int group) {
+        // Add the statement, 'executeTestRegistrarX();'
+        statements.add(getFunctionCallStatement(NodeFactory.createFunctionCallExpressionNode(
+                NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(
+                        TesterinaCompilerPluginConstants.TEST_REGISTRAR_EXEC_FUNCTION + group)),
+                NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+                NodeFactory.createSeparatedNodeList(new ArrayList<>()),
+                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN))
+        ));
+    }
+
     public static FunctionDefinitionNode createTestExecutionFunction(List<StatementNode> statements) {
         // Construct the test execution function
         FunctionBodyBlockNode functionBodyNode = NodeFactory.createFunctionBodyBlockNode(
@@ -78,7 +89,7 @@ public class TesterinaCompilerPluginUtils {
                 null,
                 NodeFactory.createNodeList(statements.toArray(new StatementNode[0])),
                 NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
-        FunctionDefinitionNode functionDefinition = NodeFactory.createFunctionDefinitionNode(
+        return NodeFactory.createFunctionDefinitionNode(
                 SyntaxKind.FUNCTION_DEFINITION,
                 null,
                 NodeFactory.createNodeList(NodeFactory.createToken(
@@ -95,7 +106,35 @@ public class TesterinaCompilerPluginUtils {
                 NodeFactory.createEmptyNodeList(),
                 getFunctionSignature(),
                 functionBodyNode);
-        return functionDefinition;
+    }
+
+    public static FunctionDefinitionNode createTestRegistrarFunction(List<StatementNode> statements, int group) {
+        FunctionBodyBlockNode functionBodyNode = NodeFactory.createFunctionBodyBlockNode(
+                NodeFactory.createToken(
+                        SyntaxKind.OPEN_BRACE_TOKEN,
+                        NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))),
+                null,
+                NodeFactory.createNodeList(statements.toArray(new StatementNode[0])),
+                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+        FunctionSignatureNode functionSignatureNode = NodeFactory.createFunctionSignatureNode(
+                NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+                NodeFactory.createSeparatedNodeList(),
+                NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN), null);
+        return NodeFactory.createFunctionDefinitionNode(
+                SyntaxKind.FUNCTION_DEFINITION,
+                null,
+                NodeFactory.createEmptyNodeList(),
+                NodeFactory.createToken(
+                        SyntaxKind.FUNCTION_KEYWORD,
+                        NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
+                NodeFactory.createIdentifierToken(TesterinaCompilerPluginConstants.TEST_REGISTRAR_EXEC_FUNCTION + group,
+                        NodeFactory.createEmptyMinutiaeList(),
+                        NodeFactory.createMinutiaeList()),
+                NodeFactory.createEmptyNodeList(),
+                functionSignatureNode,
+                functionBodyNode);
     }
 
     public static StatementNode invokeRegisterFunction(String testNameVal, String testFuncVal) {

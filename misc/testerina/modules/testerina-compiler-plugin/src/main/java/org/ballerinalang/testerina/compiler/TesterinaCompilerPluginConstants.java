@@ -32,6 +32,8 @@ public class TesterinaCompilerPluginConstants {
     public static final String TEST_MODULE_NAME = "test";
     public static final String TEST_EXEC_FUNCTION = "__execute__";
     public static final String TEST_EXEC_FILENAME = "test_execute";
+    public static final String TEST_REGISTRAR_EXEC_FUNCTION = "executeTestRegistrar";
+    public static final int REGISTERS_PER_FUNCTION = 150;
 
     public static final String TARGET_PATH_PARAMETER = "targetPath";
     public static final String PACKAGE_NAME_PARAMETER = "packageName";
