@@ -79,6 +79,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -702,6 +703,37 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return Optional.of(typeSymbol);
     }
 
+    @Override
+    public Optional<TypeSymbol> transform(SelectClauseNode node) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node.expression()))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .or(() -> node.parent().apply(this))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR);
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // select clause can be inside a query expression of 3 types:
+        //  table from...
+        //  stream from...
+        //  from...
+        // In such cases, we take the member type
+        switch (typeSymbol.get().typeKind()) {
+            case TABLE:
+                TableTypeSymbol tableType = (TableTypeSymbol) typeSymbol.get();
+                return Optional.of(tableType.rowTypeParameter());
+            case STREAM:
+                StreamTypeSymbol streamType = (StreamTypeSymbol) typeSymbol.get();
+                return Optional.of(streamType.typeParameter());
+            case ARRAY:
+                ArrayTypeSymbol arrayType = (ArrayTypeSymbol) typeSymbol.get();
+                return Optional.of(arrayType.memberTypeDescriptor());
+            default:
+                return typeSymbol;
+        }
+    }
+
     //    @Override
 //    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
 //        return super.transform(interpolationNode);
@@ -730,7 +762,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 return Optional.empty();
             }
-            
+
             return Optional.of(buildUnionOfIterables(typeSymbol.get(), context.currentSemanticModel().get()));
         }
 
@@ -758,7 +790,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                     return Optional.of(((MapTypeSymbol) typeSymbol.get()).typeParam());
             }
         }
-        
+
         return Optional.empty();
     }
 
@@ -785,7 +817,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return builder.UNION_TYPE
                 .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
     }
-    
+
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return this.visit(node.parent());

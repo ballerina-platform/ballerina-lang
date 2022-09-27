@@ -48,7 +48,16 @@
           },
           "newText": "returns abc|error"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithCheck.bal",
+          783
+        ]
+      },
+      "resolvable": false
     }
   ],
   "description": "Parent function has undefined return type"

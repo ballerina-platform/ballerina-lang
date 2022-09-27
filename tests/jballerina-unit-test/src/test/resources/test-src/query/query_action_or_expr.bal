@@ -20,7 +20,7 @@ function testQueryActionOrExprWithStartAction() returns error? {
     int[] res = check getIntsFromFutureInts(a);
     assertEquality([2, 3, 4, 5, 6], res);
 
-    future<int>[] b = check from int i in 1...5
+    future<int>[] b = from int i in 1...5
                       let future<int> futureVal = start getInt(i)
                       let int intVal = check wait futureVal
                       select start getInt(intVal);
@@ -34,7 +34,7 @@ function testQueryActionOrExprWithParenthesizedStartAction() returns error? {
     int[] res = check getIntsFromFutureInts(a);
     assertEquality([2, 3, 4, 5, 6], res);
 
-    future<int>[] b = check from int i in 1...5
+    future<int>[] b = from int i in 1...5
                       let future<int> futureVal = (start getInt(i))
                       let int intVal = check wait futureVal
                       select (start getInt(intVal));
@@ -89,7 +89,7 @@ function getInt(int i) returns int {
 }
 
 function getIntsFromFutureInts(future<int>[] arr) returns int[]|error {
-    int[] res = check from future<int> i in arr
+    int[] res = from future<int> i in arr
                 select check wait i;
     return res;
 }
@@ -223,7 +223,7 @@ function testQueryActionOrExprWithTypeCastActionOrExpr() returns error? {
               select <int>f2(i, val);
     assertEquality([20, 80, 180], b);
 
-    future<int>[] c = check from int i in 1...5
+    future<int>[] c = from int i in 1...5
                       let future<int> futureVal = <future<int>>start getInt(i)
                       let int intVal = <int>check wait futureVal
                       select <future<int>>start getInt(intVal);
@@ -242,7 +242,7 @@ function testQueryActionOrExprWithParenthesizedTypeCastActionOrExpr() returns er
               select (<int>f2(i, val));
     assertEquality([20, 80, 180], b);
 
-    future<int>[] c = check from int i in 1...5
+    future<int>[] c = from int i in 1...5
                       let future<int> futureVal = (<future<int>>start getInt(i))
                       let int intVal = (<int>check wait futureVal)
                       select (<future<int>>start getInt(intVal));
@@ -259,7 +259,7 @@ function f2(int i, int j) returns int? {
 }
 
 function testQueryActionOrExprWithCheckingActionOrExpr() returns error? {
-    int[] a = check from var i in check f3()
+    int[] a = from var i in check f3()
               let int val = 10
               select check f4(i, val);
     assertEquality([10, 20, 30], a);
@@ -278,13 +278,13 @@ function testQueryActionOrExprWithCheckingActionOrExpr() returns error? {
         }
     };
 
-    int[] b = check from var i in check obj->foo()
+    int[] b = from var i in check obj->foo()
               let int val = check obj->bar()
               select check obj->bam(i, val);
     assertEquality([2, 4, 6, 8, 10], b);
 
     int sum = 0;
-    int[] c = check from var i in check obj->foo()
+    int[] c = from var i in check obj->foo()
               let () val = check from var j in 1...5
                            do {
                                sum = sum + j;
@@ -294,7 +294,7 @@ function testQueryActionOrExprWithCheckingActionOrExpr() returns error? {
 }
 
 function testQueryActionOrExprWithParenthesizedCheckingActionOrExpr() returns error? {
-    int[] a = check from var i in (check f3())
+    int[] a = from var i in (check f3())
               let int val = 10
               select (check f4(i, val));
     assertEquality([10, 20, 30], a);
@@ -313,13 +313,13 @@ function testQueryActionOrExprWithParenthesizedCheckingActionOrExpr() returns er
         }
     };
 
-    int[] b = check from var i in check obj->foo()
+    int[] b = from var i in check obj->foo()
               let int val = check obj->bar()
               select check obj->bam(i, val);
     assertEquality([2, 4, 6, 8, 10], b);
 
     int sum = 0;
-    int[] c = check from var i in check obj->foo()
+    int[] c = from var i in check obj->foo()
               let () val = check from var j in 1...5
                            do {
                                sum = sum + j;
@@ -337,7 +337,7 @@ function f4(int i, int j) returns int|error {
 }
 
 function testQueryActionOrExprWithTrapActionOrExpr() returns error? {
-    (int|error?)[] a = check from var i in check f3()
+    (int|error?)[] a = from var i in check f3()
                        let int|error val = trap getInt(i)
                        where val is int && i is int
                        select trap f2(i, val);
@@ -375,7 +375,7 @@ function testQueryActionOrExprWithTrapActionOrExpr() returns error? {
 }
 
 function testQueryActionOrExprWithParenthesizedTrapActionOrExpr() returns error? {
-    (int|error?)[] a = check from var i in (check f3())
+    (int|error?)[] a = from var i in (check f3())
                        let int|error val = (trap getInt(i))
                        where val is int && i is int
                        select (trap f2(i, val));
@@ -457,19 +457,19 @@ function testPrecedenceOfActionsWithQueryActionOrExpr() returns error? {
             return [1, 2, 3, 4, 5];
         }
     };
-    int[] a = check from int i in check obj->foo()
+    int[] a = from int i in check obj->foo()
               select i;
     assertEquality([1, 2, 3, 4, 5], a);
 
-    int[] b = check from int i in check (obj->foo())
+    int[] b = from int i in check (obj->foo())
               select i;
     assertEquality([1, 2, 3, 4, 5], b);
 
-    int[] c = check from int i in check <int[]>obj->bar()
+    int[] c = from int i in check <int[]>obj->bar()
               select i;
     assertEquality([1, 2, 3, 4, 5], c);
 
-    int[] d = check from int i in check (<int[]>(obj->bar()))
+    int[] d = from int i in check (<int[]>(obj->bar()))
               select i;
     assertEquality([1, 2, 3, 4, 5], d);
 }

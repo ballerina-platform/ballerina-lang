@@ -169,6 +169,7 @@ public class JvmRecordCreatorGen {
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ACONST_NULL);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD,
                     INIT_STRAND, false);
             mv.visitInsn(SWAP);

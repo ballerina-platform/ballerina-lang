@@ -99,6 +99,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -287,7 +288,8 @@ public class JvmSignatures {
     public static final String INIT_OPTION = "(L" + TYPE + ";I)V";
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
     public static final String INIT_STRAND =
-            "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" + STRAND_CLASS + ";L" + MAP + ";)V";
+            "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" + STRAND_CLASS + ";L" + MAP + ";L"
+                    + TRANSACTION_CONTEXT_CLASS + ";)V";
     public static final String INIT_STRAND_METADATA =
             "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" +
                     STRING_VALUE + ";)V";
@@ -373,8 +375,8 @@ public class JvmSignatures {
             "<TK;TV;>;L" + MAP_VALUE + "<TK;TV;>;";
     public static final String RESOURCE_METHOD_TYPE_ARRAY_PARAM = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String RESOURCE_METHOD_TYPE_IMPL_INIT =
-            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";JL" +
-                    STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
+            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";L" + TUPLE_TYPE_IMPL +
+                    ";JL" + STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
     public static final String RETURN_ARRAY_VALUE = ")L" + ARRAY_VALUE + ";";
     public static final String RETURN_B_OBJECT = ")L" + B_OBJECT + ";";
     public static final String RETURN_B_STRING_VALUE = ")L" + B_STRING_VALUE + ";";
@@ -392,7 +394,7 @@ public class JvmSignatures {
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
     public static final String SCHEDULE_LOCAL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +
             STRAND_CLASS + ";" + "L" + TYPE + ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
-    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION =
+    public static final String SCHEDULE_FUNCTION =
             "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" + STRAND_CLASS + ";L" + TYPE + ";L" +
                     STRING_VALUE + ";" + "L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
     public static final String SEND_DATA = "(L" + OBJECT + ";L" + STRAND_CLASS + ";)V";
