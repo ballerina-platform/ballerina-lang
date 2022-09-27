@@ -219,7 +219,6 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
-import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
  * @since 0.94
@@ -1132,7 +1131,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (!expectedTableType.fieldNameList.isEmpty() && tableType.fieldNameList.isEmpty()) {
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
-            data.resultType = tableType;
+
+            if (isSameTableType(tableType, (BTableType) applicableExpType)) {
+                data.resultType = expType;
+            } else {
+                data.resultType = tableType;
+            }
         } else if (applicableExpType.tag == TypeTags.UNION) {
 
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
@@ -1314,6 +1318,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return createTableConstraintRecordType(inferredFields, restFieldTypes, tableConstructorExpr.pos, data);
+    }
+
+    private boolean isSameTableType(BTableType source, BTableType target) {
+        return target.keyTypeConstraint != symTable.neverType && source.constraint.equals(target.constraint) &&
+                source.fieldNameList.equals(target.fieldNameList);
     }
 
     /**
@@ -4126,6 +4135,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkObjectCompatibility(BType actualType, BLangTypeInit cIExpr, AnalyzerData data) {
+        actualType = checkObjectType(actualType, cIExpr, data);
+
+        if (actualType == symTable.semanticError) {
+            return actualType;
+        }
+        if (cIExpr.initInvocation.getBType() == null) {
+            cIExpr.initInvocation.setBType(symTable.nilType);
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
+        return types.checkType(cIExpr, actualTypeInitType, data.expType);
+    }
+
+    private BType checkObjectType(BType actualType, BLangTypeInit cIExpr, AnalyzerData data) {
         switch (actualType.tag) {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
@@ -4226,15 +4248,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType matchedType = getMatchingType(matchingMembers, cIExpr, actualType, data);
                 cIExpr.initInvocation.setBType(symTable.nilType);
 
-                if (matchedType.tag == TypeTags.OBJECT) {
-                    if (((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc != null) {
-                        cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) matchedType.tsymbol).initializerFunc.symbol;
+                BType referredMatchedType = Types.getReferredType(matchedType);
+                if (referredMatchedType.tag == TypeTags.OBJECT) {
+                    if (((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc != null) {
+                        cIExpr.initInvocation.symbol =
+                                ((BObjectTypeSymbol) referredMatchedType.tsymbol).initializerFunc.symbol;
                         checkInvocationParam(cIExpr.initInvocation, data);
                         cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
                         actualType = matchedType;
                         break;
                     } else {
-                        if (!isValidInitInvocation(cIExpr, (BObjectType) matchedType, data)) {
+                        if (!isValidInitInvocation(cIExpr, (BObjectType) referredMatchedType, data)) {
                             return symTable.semanticError;
                         }
                     }
@@ -4244,20 +4268,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return matchedType;
             case TypeTags.TYPEREFDESC:
                 BType refType = Types.getReferredType(actualType);
-                BType compatibleType = checkObjectCompatibility(refType, cIExpr, data);
+                BType compatibleType = checkObjectType(refType, cIExpr, data);
                 return compatibleType == refType ? actualType : compatibleType;
             case TypeTags.INTERSECTION:
-                return checkObjectCompatibility(((BIntersectionType) actualType).effectiveType, cIExpr, data);
+                return checkObjectType(((BIntersectionType) actualType).effectiveType, cIExpr, data);
             default:
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
         }
-
-        if (cIExpr.initInvocation.getBType() == null) {
-            cIExpr.initInvocation.setBType(symTable.nilType);
-        }
-        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
-        return types.checkType(cIExpr, actualTypeInitType, data.expType);
+        return actualType;
     }
 
     private BUnionType createNextReturnType(Location pos, BStreamType streamType, AnalyzerData data) {
@@ -4359,12 +4378,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             if (containsSingleObject) {
-                return Collections.singletonList(memberType);
+                return Collections.singletonList(type);
             }
 
             BAttachedFunction initializerFunc = ((BObjectTypeSymbol) memberType.tsymbol).initializerFunc;
             if (isArgsMatchesFunction(cIExpr.argsExpr, initializerFunc, data)) {
-                matchingLhsMemberTypes.add(memberType);
+                matchingLhsMemberTypes.add(type);
             }
         }
         return matchingLhsMemberTypes;
@@ -4379,7 +4398,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         } else if (matchingLhsMembers.size() == 1) {
             // We have a correct match.
-            return matchingLhsMembers.get(0).tsymbol.type;
+            return matchingLhsMembers.get(0);
         } else {
             // Multiple matches found.
             dlog.error(cIExpr.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, lhsUnion);
@@ -7788,8 +7807,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
-
-        boolean isWorkerStart = invocableSymbol.name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX);
+        boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 

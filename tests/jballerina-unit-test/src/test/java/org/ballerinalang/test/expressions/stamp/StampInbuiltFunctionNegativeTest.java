@@ -425,19 +425,6 @@ public class StampInbuiltFunctionNegativeTest {
                 "'lang.xml:Element' value cannot be converted to 'Employee'");
     }
 
-    @Test
-    public void stampUnionToConstraintMapToUnionNegative() {
-        Object results =
-                BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToConstraintMapToUnionNegative");
-        Object error = results;
-        Assert.assertEquals(getType(error).getClass(), BErrorType.class);
-        Assert.assertEquals(
-                ((BMap<String, BString>) ((BError) results).getDetails()).get(StringUtils.fromString("message"))
-                        .toString(),
-                "'int' value cannot be converted to 'UnionTypedesc': \n" +
-                        "\t\tvalue '2' cannot be converted to '(float|decimal|[string,int])': ambiguous target type");
-    }
-
     @AfterClass
     public void tearDown() {
 
