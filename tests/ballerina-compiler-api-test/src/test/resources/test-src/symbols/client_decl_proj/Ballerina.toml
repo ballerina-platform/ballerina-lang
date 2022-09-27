@@ -1,0 +1,7 @@
+[package]
+org = "testorg"
+name = "clientdecl"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true
