@@ -979,13 +979,16 @@ public class ProjectUtils {
             try {
                 BuildJson buildJson = readBuildJson(buildFile);
                 long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                if (buildJson != null
-                        && buildJson.getLastModifiedTime() != null
-                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
-                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                            .get(project.currentPackage().packageName().value());
-                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+                PackageName packageName = project.currentPackage().packageName();
+                if (buildJson == null
+                        || buildJson.getLastModifiedTime() == null
+                        || buildJson.getLastModifiedTime().entrySet().isEmpty()
+                        || buildJson.getLastModifiedTime().get(packageName.value()) == null) {
+                    return true; // return true if `build` file does not exist
                 }
+                long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                        .get(packageName.value());
+                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
             } catch (IOException e) {
                 // if reading `build` file fails
                 // delete `build` file and return true
