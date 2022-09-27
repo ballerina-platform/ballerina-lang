@@ -122,7 +122,7 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "unknown type 'Boo'", 268, 18);
         BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 271, 19);
         BAssertUtil.validateError(result, i++, "a type compatible with mapping constructor expressions " +
-                "not found in type 'int'", 279, 21);
+                "not found in type 'int'", 280, 21);
         
         Assert.assertEquals(i, result.getErrorCount());
     }
