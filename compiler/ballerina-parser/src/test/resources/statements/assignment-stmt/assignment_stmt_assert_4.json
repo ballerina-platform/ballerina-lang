@@ -1,6 +1,9 @@
 {
-  "kind": "ASSIGNMENT_STATEMENT",
+  "kind": "INVALID_EXPRESSION_STATEMENT",
   "hasDiagnostics": true,
+  "diagnostics": [
+    "ERROR_INVALID_EXPRESSION_STATEMENT"
+  ],
   "children": [
     {
       "kind": "SIMPLE_NAME_REFERENCE",
@@ -18,24 +21,12 @@
       ]
     },
     {
-      "kind": "EQUAL_TOKEN",
+      "kind": "SEMICOLON_TOKEN",
       "isMissing": true,
       "hasDiagnostics": true,
       "diagnostics": [
-        "ERROR_MISSING_EQUAL_TOKEN"
+        "ERROR_MISSING_SEMICOLON_TOKEN"
       ]
-    },
-    {
-      "kind": "NUMERIC_LITERAL",
-      "children": [
-        {
-          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-          "value": "5"
-        }
-      ]
-    },
-    {
-      "kind": "SEMICOLON_TOKEN"
     }
   ]
 }

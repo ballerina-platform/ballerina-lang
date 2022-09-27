@@ -133,11 +133,6 @@ public class Scheduler {
         return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
-    public FutureValue scheduleTransactionalFunction(Object[] params, BFunctionPointer<?, ?> fp, Strand parent,
-                                                     Type returnType, String strandName, StrandMetadata metadata) {
-        return scheduleTransactional(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
-    }
-
     /**
      * Schedules given function to the callers strand group.
      *
@@ -179,12 +174,6 @@ public class Scheduler {
         return future;
     }
 
-    public FutureValue scheduleTransactionalLocal(Object[] params, BFunctionPointer<?, ?> fp, Strand parent,
-                                                  Type returnType, String strandName, StrandMetadata metadata) {
-        FutureValue future = createTransactionalFuture(parent, null, null, returnType, strandName, metadata);
-        return scheduleLocal(params, fp, parent, future);
-    }
-
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
@@ -202,13 +191,6 @@ public class Scheduler {
                                 Map<String, Object> properties, Type returnType, String strandName,
                                 StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
-        return schedule(params, function, future);
-    }
-
-    public FutureValue scheduleTransactional(Object[] params, Function function, Strand parent, Callback callback,
-                                Map<String, Object> properties, Type returnType, String strandName,
-                                StrandMetadata metadata) {
-        FutureValue future = createTransactionalFuture(parent, callback, properties, returnType, strandName, metadata);
         return schedule(params, function, future);
     }
 
@@ -508,13 +490,6 @@ public class Scheduler {
     }
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
-                                    Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties);
-        currentStrands.put(newStrand.getId(), newStrand);
-        return createFuture(parent, callback, constraint, newStrand);
-    }
-
-    public FutureValue createTransactionalFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);

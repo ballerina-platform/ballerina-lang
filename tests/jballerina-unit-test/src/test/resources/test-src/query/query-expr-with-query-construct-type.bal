@@ -485,7 +485,7 @@ function testQueryConstructingTableUpdateKeyPanic1() returns error? {
         {id: 1, firstName: "John", lastName: "Doe", age: 25}
     ];
 
-    var result = check table key(id, name) from var user in users
+    var result = table key(id, name) from var user in users
                  where user.age > 21 && user.age < 60
                  select {id: user.id, name: user.firstName, user};
 
@@ -510,7 +510,7 @@ function testQueryConstructingTableUpdateKeyPanic2() returns error? {
     ];
 
     table<record {| readonly int id; readonly string name; User user; |}> key(id, name) result =
-                               check table key(id, name) from var user in users
+                               table key(id, name) from var user in users
                                where user.age > 21 && user.age < 60
                                select {id: user.id, name: user.firstName, user};
 
@@ -1138,7 +1138,7 @@ function testConstructingListOfTablesUsingQueryWithReadonly() {
 
     (table<User> key(id))[] uList = [users1];
 
-    (table<User> key(id))[] & readonly result = from var user in uList
+    (table<User & readonly> key(id))[] & readonly result = from var user in uList
                                     select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":25}]]");
     assertEqual(result, [table key(id) [{"id":1,"firstName":"John","lastName":"Doe","age":25}]]);
@@ -1149,7 +1149,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
     Employee emp2 = {firstName: "A2", lastName: "B2", dept: "C2"};
     Employee emp3 = {firstName: "A3", lastName: "B3", dept: "C3"};
 
-    Employee[] & readonly result = from var user in [emp1, emp2, emp3]
+    (Employee & readonly)[] & readonly result = from var user in [emp1, emp2, emp3]
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [{\"firstName\":\"A1\",\"lastName\":\"B1\",\"dept\":\"C1\"},{\"firstName\":\"A2\",\"lastName\":\"B2\",\"dept\":\"C2\"},{\"firstName\":\"A3\",\"lastName\":\"B3\",\"dept\":\"C3\"}]");
     assertEqual(result, [{"firstName":"A1","lastName":"B1","dept":"C1"},{"firstName":"A2","lastName":"B2","dept":"C2"},{"firstName":"A3","lastName":"B3","dept":"C3"}]);
@@ -1158,7 +1158,7 @@ function testConstructingListOfRecordsUsingQueryWithReadonly() {
 function testConstructingListOfXMLsUsingQueryWithReadonly() {
     xml a = xml `<id> 1 </id> <name> John </name>`;
 
-    xml[] & readonly result = from var user in a
+    (xml & readonly)[] & readonly result = from var user in a
                                 select user.cloneReadOnly();
     assertEqual((typeof(result)).toString(), "typedesc [`<id> 1 </id>`,` `,`<name> John </name>`]");
     assertEqual(result, [xml`<id> 1 </id>`,xml` `,xml`<name> John </name>`]);
@@ -1181,13 +1181,12 @@ function testConstructingListOfMapsUsingQueryWithReadonly() {
     assertEqual(result, [{"item":[1,2]},{"item":"a"},{"item":"b"},{"item":[-1,9223372036854775807]}]);
 }
 
-type T readonly & record {
+type T record {
     string[] params;
 };
 
 function testConstructingListInRecordsUsingQueryWithReadonly() {
     T rec1 = { params: from var s in ["a", "b", "c", "abc"] select s };
-    assertEqual((typeof(rec1)).toString(), "typedesc {\"params\":[\"a\",\"b\",\"c\",\"abc\"]}");
     assertEqual(rec1, {"params":["a","b","c","abc"]});
 }
 
@@ -1228,6 +1227,17 @@ function testReadonlyMap1() {
     any _ = <readonly> (checkpanic mp4);
     assertEqual((typeof(mp4)).toString(), "typedesc {\"2\":2,\"3\":3,\"4\":4}");
     assertEqual(mp4, {"2":2,"3":3,"4":4});
+
+    [string:Char, int[]][] & readonly list = [["a", [1, 2]], ["b", [3, 4]], ["c", [4]], ["c", [3]]];
+    map<int[]>|error mp5 = map from var item in list select item;
+    assertEqual(mp5, {"a":[1,2],"b":[3,4],"c":[3]});
+
+    map<int[]> & readonly|error mp6 = map from var item in list select item;
+    assertEqual(mp6, {"a":[1,2],"b":[3,4],"c":[3]});
+    any _ = <readonly> (checkpanic mp6);
+
+    map<int[]> & readonly|error mp7 = map from var item in list select item on conflict error("Error");
+    assertEqual(mp7, error("Error"));
 }
 
 function testReadonlyMap2() {
@@ -1250,6 +1260,52 @@ function testReadonlyMap2() {
                                         where item[1] > 1
                                         select item on conflict conflictMsg;
     assertEqual(mp4, {"2":2,"3":3,"1":4});
+}
+
+type FooBar1 ("foo"|"bar"|string)[2];
+type FooBar2 ("foo"|"bar")[2];
+type FooBar3 "foo"|"bar";
+type FooBar4 "foo"|"bar"|string:Char;
+type FooBar5 "foo"|"bar"|string;
+
+function testMapConstructingQueryExprWithStringSubtypes() {
+    FooBar1[] list1 = [["key1", "foo"], ["key2", "foo"], ["key3", "foo"]];
+    map<string>|error mp1 = map from var item in list1 select item;
+    assertEqual(mp1, {"key1":"foo","key2":"foo","key3":"foo"});
+
+    FooBar2[] list2 = [["foo", "foo"], ["bar", "foo"], ["foo", "foo"]];
+    map<string>|error mp2 = map from var item in list2 select item;
+    assertEqual(mp2, {"foo":"foo","bar":"foo"});
+
+    FooBar3[][2] list3 = [["foo", "bar"], ["bar", "foo"], ["foo", "bar"]];
+    map<string>|error mp3 = map from var item in list3 select item;
+    assertEqual(mp3, {"foo":"bar","bar":"foo"});
+
+    FooBar4[][2] list4 = [["foo", "4"], ["bar", "2"], ["foo", "3"]];
+    map<string>|error mp4 = map from var item in list4 select item;
+    assertEqual(mp4, {"foo":"3","bar":"2"});
+    map<string>|error mp5 = map from var item in list4 select item on conflict error("Error");
+    assertEqual(mp5, error("Error"));
+
+    FooBar5[][2] list5 = [["key1", "1.4"], ["key2", "2"], ["key3", "3"]];
+    map<string>|error mp6 = map from var item in list5 select item;
+    assertEqual(mp6, {"key1":"1.4","key2":"2","key3":"3"});
+
+    [FooBar3, int|float][] list6 = [["foo", 1.4], ["bar", 2], ["foo", 3]];
+    map<int|float>|error mp7 = map from var item in list6 select item;
+    assertEqual(mp7, {"foo":3,"bar":2});
+    map<int|float>|error mp8 = map from var item in list6 select item on conflict error("Error");
+    assertEqual(mp8, error("Error"));
+
+    [FooBar4, int|float][] list7 = [["foo", 1.4], ["bar", 2], ["foo", 3]];
+    map<int|float>|error mp9 = map from var item in list7 select item;
+    assertEqual(mp9, {"foo":3,"bar":2});
+    map<int|float>|error mp10 = map from var item in list7 select item on conflict error("Error");
+    assertEqual(mp10, error("Error"));
+
+    [FooBar5, int|float][] list8 = [["key1", 1.4], ["key2", 2], ["key3", 3]];
+    map<int|float>|error mp11 = map from var item in list8 select item;
+    assertEqual(mp11, {"key1":1.4,"key2":2,"key3":3});
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {

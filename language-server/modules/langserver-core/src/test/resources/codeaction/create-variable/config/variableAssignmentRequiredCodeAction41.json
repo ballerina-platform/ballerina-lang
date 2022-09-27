@@ -4,10 +4,10 @@
     "character": 10
   },
   "source": "createVariable6.bal",
-  "kind": "quickfix",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "File|error file \u003d "
+          "newText": "File|error file = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable6.bal",
+          271
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction convertStudent(module1:Student student) returns module1:Student {\n    return {name: \"\", age: 0};\n}\n"
+          "newText": "\n\nfunction convertStudent(module1:Student student) returns module1:Student {\n    return {name: \"\", age: 0};\n}"
         }
       ],
       "resolvable": true,

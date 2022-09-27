@@ -60,6 +60,7 @@ import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -656,6 +657,13 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
             checkAndSetEnclosingDocumentableNode(node);
             checkAndSetDocumentableNode(node);
         }
+    }
+
+    @Override
+    public void visit(SpecificFieldNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
     }
 
     public void visit(Node node) {
