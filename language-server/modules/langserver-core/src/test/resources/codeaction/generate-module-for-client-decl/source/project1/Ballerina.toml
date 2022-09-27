@@ -1,8 +1,0 @@
-[package]
-org = "malintha"
-name = "project1"
-version = "0.1.0"
-distribution = "2201.2.0-rc3.2"
-
-[build-options]
-observabilityIncluded = true

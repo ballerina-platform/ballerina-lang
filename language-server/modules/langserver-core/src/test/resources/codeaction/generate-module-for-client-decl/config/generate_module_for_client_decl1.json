@@ -1,43 +1,14 @@
 {
   "position": {
-    "line": 7,
-    "character": 28
+    "line": 1,
+    "character": 43
   },
-  "source": "project1/main.bal",
+  "source": "client_decl/main.bal",
   "expected": [
     {
       "title": "Generate module for client declaration",
       "kind": "quickfix",
-      "edits": [],
-      "resolvable": true,
-      "data": {
-        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
-        "codeActionName": "Generate Client Declaration Module",
-        "fileUri": "project1/main.bal",
-        "range": {
-          "start": {
-            "line": 7,
-            "character": 28
-          },
-          "end": {
-            "line": 7,
-            "character": 40
-          }
-        },
-        "actionData": {
-          "key": "node.range",
-          "value": {
-            "start": {
-              "line": 7.0,
-              "character": 28.0
-            },
-            "end": {
-              "line": 7.0,
-              "character": 40.0
-            }
-          }
-        }
-      }
+      "resolvable": false
     }
   ]
 }

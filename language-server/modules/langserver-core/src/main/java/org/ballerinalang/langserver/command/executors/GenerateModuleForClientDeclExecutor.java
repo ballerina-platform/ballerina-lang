@@ -3,6 +3,7 @@ package org.ballerinalang.langserver.command.executors;
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.environment.ResolutionOptions;
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.command.CommandUtil;
@@ -14,11 +15,9 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -37,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @since 2201.3.0
  */
+@JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
 public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "GENERATE_MODULE_FOR_CLIENT_DECL";
@@ -88,14 +88,6 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                             DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()));
                     if (diagnosticNotResolved) {
                         throw new UserErrorException("Failed to generate modules for client declarations");
-                    }
-                })
-                .thenRunAsync(() -> {
-                    try {
-                        // Refresh project
-                        ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
-                    } catch (WorkspaceDocumentException e) {
-                        throw new UserErrorException("Failed to refresh project");
                     }
                 })
                 .thenRunAsync(() -> {

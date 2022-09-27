@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -32,6 +33,7 @@ import org.eclipse.lsp4j.Command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -42,9 +44,10 @@ import java.util.Set;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCodeActionProvider {
 
-    private static final String NAME = "Generate Client Declaration Module";
+    private static final String NAME = "Generate Module Client Declaration";
 
     public static final String DIAGNOSTIC_CODE = "BCE4037";
+    public static final String DIAGNOSTIC_CODE_EXCLUDE = "BCE5304";
 
     @Override
     public boolean validate(Diagnostic diagnostic,
@@ -57,6 +60,15 @@ public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCod
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
+
+        Optional<PackageCompilation> packageCompilation = context.workspace()
+                .waitAndGetPackageCompilation(context.filePath());
+        //Ensure that the user's project is not stand-alone Ballerina file.
+        if (packageCompilation.isEmpty() ||
+                packageCompilation.get().diagnosticResult().diagnostics().stream()
+                        .anyMatch(diag -> DIAGNOSTIC_CODE_EXCLUDE.equals(diag.diagnosticInfo().code()))) {
+            return Collections.emptyList();
+        }
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri());
         List<Object> args = new ArrayList<>();
         args.add(uriArg);
