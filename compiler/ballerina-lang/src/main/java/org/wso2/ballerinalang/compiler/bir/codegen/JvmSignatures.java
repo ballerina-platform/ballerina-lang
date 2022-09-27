@@ -201,6 +201,7 @@ public class JvmSignatures {
     public static final String DECIMAL_VALUE_OF_INT = "(I)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_LONG = "(J)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_SHORT = "(S)L" + DECIMAL_VALUE + ";";
+    public static final String INT_TO_STRING = "(I)L" + STRING_VALUE + ";";
     public static final String DOUBLE_TO_STRING = "(D)L" + STRING_VALUE + ";";
     public static final String DOUBLE_VALUE_OF_METHOD = "(D)L" + DOUBLE_VALUE + ";";
     public static final String ERROR_CALL = "(L" + BAL_ENV + ";L" + ERROR_VALUE + ";)V";
@@ -316,7 +317,6 @@ public class JvmSignatures {
     public static final String INIT_UNION_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";IZJ)V";
     public static final String INIT_WITH_BOOLEAN = "(L" + TYPE + ";Z)V";
     public static final String INIT_WITH_STRING = "(L" + STRING_VALUE + ";)V";
-    public static final String INIT_WITH_B_STRING = "(L" + B_STRING_VALUE + ";)V";
     public static final String INITIAL_METHOD_DESC = "(L" + STRAND_CLASS + ";";
     public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
@@ -453,6 +453,9 @@ public class JvmSignatures {
     public static final String XML_GET_ATTRIBUTE = "(L" + B_XML_QNAME + ";)L" + STRING_VALUE + ";";
     public static final String XML_GET_ITEM = "(I)L" + XML_VALUE + ";";
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
+    public static final String HANDLE_DESCRIPTOR_FOR_STRING_CONCAT = "(Ljava/lang/invoke/MethodHandles$Lookup;" +
+            GET_STRING + "Ljava/lang/invoke/MethodType;" + GET_STRING + "[" + GET_OBJECT + ")" +
+            "Ljava/lang/invoke/CallSite;";
     public static final String CREATE_REGEXP = "(L" + REG_EXP_DISJUNCTION + ";)L" + REG_EXP_VALUE + ";";
     public static final String CREATE_RE_DISJUNCTION = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_DISJUNCTION + ";";
     public static final String CREATE_RE_SEQUENCE = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_SEQUENCE + ";";

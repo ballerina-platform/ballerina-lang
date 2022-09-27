@@ -630,8 +630,9 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
-                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
-                        "", extractAnnotationAttachmentsFromMetadataNode(semanticModel, recordField.metadata()));
+                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
+                        isDeprecated(recordField.metadata()), type, "",
+                        extractAnnotationAttachmentsFromMetadataNode(semanticModel, recordField.metadata()));
                 if (recordField.readonlyKeyword().isPresent()) {
                     defaultableVariable.isReadOnly = true;
                 }
