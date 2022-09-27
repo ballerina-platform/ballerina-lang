@@ -273,8 +273,9 @@ class MyClass {
 }
 
 function testInvokingFunctionContainingIncludedRecordParamOfTypeOtherThanRecordOrUndefinedUsingNamedArg() {
+     // No errors will be logged for bellow lines, but we are testing the call path
     fn(f = {});
     MyClass obj = new;
     _ = obj.fn(f = {});
-    _ = obj.fn2(f = {}); // No errors will be logged for these lines, but we are testing the call path
+    _ = obj.fn2(f = {});
 }
