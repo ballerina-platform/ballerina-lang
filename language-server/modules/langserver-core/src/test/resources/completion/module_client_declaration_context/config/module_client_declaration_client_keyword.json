@@ -6,513 +6,6 @@
   "source": "module_client_declaration_context/source/module_client_declaration_client_keyword.bal",
   "items": [
     {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "module1",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolated",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "isolated",
-      "insertText": "isolated ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactional",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "transactional",
-      "insertText": "transactional",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "function",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "client",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "client",
-      "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "true",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "true",
-      "insertText": "true",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "false",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "false",
-      "insertText": "false",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "object",
-      "insertText": "object {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "D",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "D",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "B",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "test/project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "project2",
-      "insertText": "project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "project1",
-      "insertText": "project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "local_project2",
-      "insertText": "local_project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "local_project1",
-      "insertText": "local_project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "E",
-      "insertText": "function",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "import",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -540,6 +33,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "final",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -564,6 +66,15 @@
       "sortText": "B",
       "filterText": "listener",
       "insertText": "listener ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "client",
+      "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -600,6 +111,15 @@
       "sortText": "B",
       "filterText": "class",
       "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "transactional",
+      "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
     {
@@ -747,6 +267,81 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "D",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "D",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "service",
       "kind": "Unit",
       "detail": "type",
@@ -761,6 +356,15 @@
       "sortText": "B",
       "filterText": "record",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "function",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -788,6 +392,402 @@
       "sortText": "B",
       "filterText": "distinct",
       "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "false",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "runtime",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "module1",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "test",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "boolean",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "map",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "object",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "stream",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transaction",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "transaction",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
