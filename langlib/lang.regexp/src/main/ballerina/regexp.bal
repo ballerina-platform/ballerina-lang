@@ -18,12 +18,14 @@
 
 import ballerina/jballerina.java;
 
+# The type RegExp refers to the tagged data basic type with tag `re`.
 @builtinSubtype
 public type RegExp any;
 
 public type Span readonly & object {
     public int startIndex;
     public int endIndex;
+    // This avoids constructing a potentially long string unless and until it is needed.
     public isolated function substring() returns string;
 };
 
@@ -69,6 +71,7 @@ function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns Gr
     name: "findGroups"
 } external;
 
+# Return all non-overlapping matches.
 public function findAll(RegExp reExp, string str, int startIndex = 0) returns Span[] {
     Span[] spanArr = [];
     GroupsAsSpanArrayType? resultArr = findGroupsImpl(reExp, str, startIndex);
@@ -80,6 +83,7 @@ public function findAll(RegExp reExp, string str, int startIndex = 0) returns Sp
     return spanArr;
 }
 
+# Return all non-overlapping matches.
 public function findAllGroups(RegExp reExp, string str, int startIndex = 0) returns Groups[]? {
     GroupsArrayType? resultArr = findAllGroupsImpl(reExp, str, startIndex);
     if (resultArr is GroupsArrayType) {
@@ -139,6 +143,7 @@ function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0) returns
     name: "matchGroupsAt"
 } external;
 
+# Says whether there is a match of the RegExp that starts at the beginning of the string and ends at the end of the string.
 public function isFullMatch(RegExp reExp, string str) returns boolean {
     return isFullMatchImpl(reExp, str);
 }
@@ -148,6 +153,7 @@ function isFullMatchImpl(RegExp reExp, string str) returns boolean = @java:Metho
     name: "isFullMatch"
 } external;
 
+# Says whether there is a match of the RegExp that starts at the beginning of the string and ends at the end of the string.
 public function fullMatchGroups(RegExp reExp, string str) returns Groups? {
     return matchGroupsAt(reExp, str);
 }
@@ -156,6 +162,7 @@ type ReplacerFunction function (Groups groups) returns string;
 
 public type Replacement ReplacerFunction|string;
 
+# Replaces the first occurrence of a regular expression.
 public function replace(RegExp reExp, string str, Replacement replacement, int startIndex = 0) returns string {
     string replacementStr = "";
     Groups? findResult = findGroups(reExp, str, startIndex);
@@ -175,17 +182,13 @@ function replaceFromString(RegExp reExp, string str, string replacementStr, int 
     name: "replaceFromString"
 } external;
 
+# Replaces all occurrences of a regular expression.
 public function replaceAll(RegExp reExp, string str, Replacement replacement, int startIndex = 0) returns string {
-    string replacementStr = "";
     Groups? findResult = findGroups(reExp, str, startIndex);
     if findResult is () {
         return str;
     }
-    if (replacement is ReplacerFunction) {
-        replacementStr = replacement(findResult);
-    } else {
-        replacementStr = replacement;
-    }
+    string replacementStr = replacement is ReplacerFunction ? replacement(findResult) : replacement;
     return replaceAllFromString(reExp, str, replacementStr, startIndex);
 }
 
