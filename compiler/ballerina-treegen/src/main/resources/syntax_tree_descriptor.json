@@ -230,6 +230,11 @@
                 {
                     "name": "closeBraceToken",
                     "type": "Token"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -1764,6 +1769,11 @@
                 {
                     "name": "closeBraceToken",
                     "type": "Token"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -3514,6 +3524,11 @@
                 {
                     "name": "closeBraceToken",
                     "type": "Token"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },
@@ -4269,6 +4284,11 @@
                 {
                     "name": "closeBrace",
                     "type": "Token"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         },

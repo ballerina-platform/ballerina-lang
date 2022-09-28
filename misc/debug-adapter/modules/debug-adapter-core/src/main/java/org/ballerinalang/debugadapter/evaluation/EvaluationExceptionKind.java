@@ -40,7 +40,7 @@ public enum EvaluationExceptionKind {
     INVALID_KEY_TYPE_ERROR("expected key type '%s'; found '%s' in '%s'"),
     TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
     IMPORT_RESOLVING_ERROR("Failed to resolve the import: '%s'"),
-    STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),
+    STRAND_NOT_FOUND("Error occurred when trying to get the strand instance for the current stack frame"),
     CLASS_LOADING_FAILED("Failed to load the required classes to execute method: '%s'"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
     INVALID_XML_ATTRIBUTE("Invalid xml attribute access on %s"),

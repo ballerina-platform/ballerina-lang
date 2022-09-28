@@ -889,7 +889,7 @@ public class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
+    public static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
                                                    paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
@@ -928,11 +928,12 @@ public class ASTBuilderUtil {
         return xmlTextLiteral;
     }
 
-    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
+    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition, BVarSymbol param,
                                                                    BLangExpression conditionalArg) {
         BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
         dynamicExpression.condition = condition;
         dynamicExpression.conditionalArgument = conditionalArg;
+        dynamicExpression.setBType(param.getType());
         return dynamicExpression;
     }
 
