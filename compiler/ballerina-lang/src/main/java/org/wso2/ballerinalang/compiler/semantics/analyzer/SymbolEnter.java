@@ -2956,6 +2956,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Infer the type of each variable in recordVariable from the given record type
             // so that symbol enter is done recursively
             BLangVariable value = variable.getValue();
+            String key = variable.key.value;
             if (value.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in record variables. Not allowed if all variables are named as '_'
                 BLangSimpleVariable simpleVar = (BLangSimpleVariable) value;
@@ -2963,10 +2964,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
                     simpleVar.setBType(symTable.anyType);
-                    if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+                    if (!recordVarTypeFields.containsKey(key)) {
                         continue;
                     }
-                    if (!types.isAssignable(recordVarTypeFields.get((variable.getKey().getValue())).type,
+                    if (!types.isAssignable(recordVarTypeFields.get(key).type,
                             symTable.anyType)) {
                         dlog.error(variable.valueBindingPattern.pos,
                                 DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
@@ -2980,25 +2981,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(variable.key.pos, DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
 
-            if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
+            BField field = recordVarTypeFields.get(key);
+            if (field == null) {
                 validRecord = false;
                 if (recordVarType.sealed) {
-                    validRecord = false;
                     dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                               variable.getKey().getValue(), recordVar.getBType());
+                               key, recordVar.getBType());
                 } else {
                     dlog.error(variable.key.pos,
                             DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
                 }
-                continue;
             } else {
-                if (Symbols.isOptional(recordVarTypeFields.get(variable.key.value).symbol)) {
-                    validRecord = false;
-                    dlog.error(variable.key.pos,
-                            DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                BType fieldType;
+                if (Symbols.isOptional(field.symbol)) {
+                    fieldType = types.addNilForNillableAccessType(field.type);
+                } else {
+                    fieldType = field.type;
                 }
+                defineMemberNode(value, env, fieldType);
             }
-            defineMemberNode(value, env, recordVarTypeFields.get((variable.getKey().getValue())).type);
         }
 
         if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
