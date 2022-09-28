@@ -209,6 +209,14 @@ public class NeverTypeTest {
                 "'record {| |} & readonly', found 'record {| int x; never?...; |}'", 258, 25);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
                 "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 41);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 264, 1);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 267, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 268, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 272, 1);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

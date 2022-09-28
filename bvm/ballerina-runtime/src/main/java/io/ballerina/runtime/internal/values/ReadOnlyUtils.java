@@ -130,6 +130,10 @@ public class ReadOnlyUtils {
             return ((BIntersectionType) type).getEffectiveType();
         }
 
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getAvailableImmutableType(((ReferenceType) type).getReferredType());
+        }
+
         IntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
             return immutableType.getEffectiveType();
