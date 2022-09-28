@@ -193,6 +193,7 @@ public class JvmPackageGen {
         }
         dependentModuleArray.add(PackageID.INTERNAL);
         dependentModuleArray.add(PackageID.ARRAY);
+        dependentModuleArray.add(PackageID.REGEXP);
         dependentModuleArray.add(PackageID.DECIMAL);
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
@@ -210,7 +211,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
         dependentModuleArray.add(PackageID.TRANSACTION);
-        dependentModuleArray.add(PackageID.REGEXP);
     }
 
     private static boolean isLangModule(PackageID moduleId) {

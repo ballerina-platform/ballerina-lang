@@ -73,27 +73,27 @@ public class RegExpValueTest {
     public void testRegExpValueNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/types/regexp/regexp_value_negative_test.bal");
         int index = 0;
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 18, 28);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 19, 29);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 20, 28);
-        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 21, 29);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 22, 28);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 23, 28);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 21, 28);
+        validateError(negativeResult, index++, "duplicate flag 'i'", 22, 29);
+        validateError(negativeResult, index++, "duplicate flag 'm'", 23, 29);
         validateError(negativeResult, index++, "duplicate flag 'i'", 24, 29);
-        validateError(negativeResult, index++, "duplicate flag 'm'", 25, 29);
-        validateError(negativeResult, index++, "duplicate flag 'i'", 26, 29);
-        validateError(negativeResult, index++, "duplicate flag 'i'", 27, 29);
-        validateError(negativeResult, index++, "duplicate flag 's'", 28, 19);
-        validateError(negativeResult, index++, "duplicate flag 's'", 29, 19);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 29, 26);
-        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 29, 31);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 18);
-        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 30, 24);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 32);
-        validateError(negativeResult, index++, "duplicate flag 'm'", 30, 42);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 49);
-        validateError(negativeResult, index++, "duplicate flag 'x'", 30, 55);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 61);
-        validateError(negativeResult, index++, "duplicate flag 'x'", 30, 67);
-        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 75);
+        validateError(negativeResult, index++, "duplicate flag 'i'", 25, 29);
+        validateError(negativeResult, index++, "duplicate flag 's'", 26, 19);
+        validateError(negativeResult, index++, "duplicate flag 's'", 27, 19);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 27, 26);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 27, 31);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 18);
+        validateError(negativeResult, index++, QUANTIFIER_MIN_GREATER_THAN_MAX, 28, 24);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 32);
+        validateError(negativeResult, index++, "duplicate flag 'm'", 28, 42);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 49);
+        validateError(negativeResult, index++, "duplicate flag 'x'", 28, 55);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 61);
+        validateError(negativeResult, index++, "duplicate flag 'x'", 28, 67);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 
