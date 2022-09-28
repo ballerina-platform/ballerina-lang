@@ -27,7 +27,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,20 +57,16 @@ public class Filter {
                         tableType.getFieldNames(), false));
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration
-        Strand parentStrand = Scheduler.getStrand();
         Object[] keys = tbl.getKeys();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                tbl.get(keys[index.incrementAndGet()]), true},
-                        result -> {
-                            if ((Boolean) result) {
-                                Object key = keys[index.get()];
-                                Object value = tbl.get(key);
-                                newTable.put(key, value);
-                            }
-                        }, () -> newTable, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{tbl.get(keys[index.incrementAndGet()]), true},
+                result -> {
+                    if ((Boolean) result) {
+                        Object key = keys[index.get()];
+                        Object value = tbl.get(key);
+                        newTable.put(key, value);
+                    }
+                }, () -> newTable, Scheduler.getStrand().scheduler);
         return newTable;
     }
 

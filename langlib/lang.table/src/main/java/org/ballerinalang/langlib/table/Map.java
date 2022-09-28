@@ -30,7 +30,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,15 +57,9 @@ public class Map {
         int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{parentStrand,
-                        tableValues[index.incrementAndGet()], true},
-                newTable::add, () -> newTable, Scheduler.getStrand().scheduler);
+                () -> new Object[]{tableValues[index.incrementAndGet()], true}, newTable::add, () -> newTable,
+                Scheduler.getStrand().scheduler);
         return newTable;
-    }
-
-    public static BTable map_bstring(Strand strand, BTable tbl, BFunctionPointer<Object, Object> func) {
-        return map(tbl, func);
     }
 }

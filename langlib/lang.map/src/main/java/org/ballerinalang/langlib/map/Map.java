@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,15 +58,11 @@ public class Map {
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         Object[] keys = m.getKeys();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{parentStrand,
-                                m.get(keys[index.incrementAndGet()]), true},
-                        result -> newMap
-                                .put((BString) keys[index.get()], result),
-                        () -> newMap, Scheduler.getStrand().scheduler);
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true},
+                result -> newMap.put((BString) keys[index.get()], result),
+                () -> newMap, Scheduler.getStrand().scheduler);
         return newMap;
     }
 }

@@ -60,9 +60,8 @@ public class CliSpec {
         if (option != null) {
             BMap<BString, Object> recordVal = option.parseRecord(args);
             processOperands(option.getOperandArgs());
-            int optionLocation = option.getLocation() * 2 + 1;
+            int optionLocation = option.getLocation() + 1;
             mainArgs.add(optionLocation, recordVal);
-            mainArgs.add(optionLocation + 1, true);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
             Option dummyOption = new Option(type, ValueCreator.createRecordValue(type));
@@ -97,7 +96,6 @@ public class CliSpec {
                 bValue = CliUtil.getBValueWithUnionValue(curOperand.type, operandArgs.get(argIndex++), curOperand.name);
             }
             mainArgs.add(bValue);
-            mainArgs.add(true);
         }
         if (argIndex < operandArgs.size()) {
             throw ErrorCreator.createError(StringUtils.fromString("all operand arguments are not matched"));
@@ -111,13 +109,10 @@ public class CliSpec {
             Type opType = operand.type;
             if (operand.hasDefaultable) {
                 mainArgs.add(getDefaultBValue(opType));
-                mainArgs.add(false);
             } else if (isSupportedArrayType(opType)) {
                 mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
-                mainArgs.add(true);
             } else if ((CliUtil.isUnionWithNil(opType))) {
                 mainArgs.add(null);
-                mainArgs.add(true);
             } else {
                 throw ErrorCreator.createError(StringUtils.fromString(
                         "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));

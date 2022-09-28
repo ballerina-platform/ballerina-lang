@@ -28,7 +28,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,17 +64,14 @@ public class Filter {
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                         () -> new Object[]{parentStrand,
-                                                                 arr.get(index.incrementAndGet()),
-                                                                 true},
-                                                         result -> {
-                                                             if ((boolean) result) {
-                                                                 newArr.add(newArraySize.incrementAndGet(),
-                                                                            arr.get(index.get()));
-                                                             }
-                                                         }, () -> newArr, Scheduler.getStrand().scheduler);
+                () -> new Object[]{arr.get(index.incrementAndGet()), true},
+                result -> {
+                    if ((boolean) result) {
+                        newArr.add(newArraySize.incrementAndGet(),
+                                arr.get(index.get()));
+                    }
+                }, () -> newArr, Scheduler.getStrand().scheduler);
         return newArr;
     }
 
