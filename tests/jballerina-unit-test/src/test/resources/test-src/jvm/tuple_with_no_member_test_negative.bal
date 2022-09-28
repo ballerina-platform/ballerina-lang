@@ -27,4 +27,10 @@ function testLoopEmptyTuple() {
     foreach var item in arr {
         _ = item;
     }
+
+    foreach var item in [[]] {
+        foreach var s in item {
+            _ = s;
+        }
+    }
 }

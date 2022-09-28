@@ -30,4 +30,21 @@ function testQueryEmptyTuple() {
     [never...] arr = [];
     var _ = from var user in arr
             select user;
+
+    var arr1 = [];
+    var _ = from var x in arr1
+        select x.clone();
+
+    var _ = from var user in (from var x in []
+            select x)
+        select user;
+
+    var _ = from var user in [[]]
+        select (from var e in user
+            select e);
+
+    error? err = from var item in []
+        do {
+            _ = item;
+        };
 }

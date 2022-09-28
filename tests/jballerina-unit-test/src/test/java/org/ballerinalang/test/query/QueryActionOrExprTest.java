@@ -74,6 +74,11 @@ public class QueryActionOrExprTest {
     }
 
     @Test
+    public void testQueryEmptyTuple() {
+        BRunUtil.invoke(compileResult, "testQueryEmptyTuple");
+    }
+
+    @Test
     public void testQueryActionOrExprSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/query/query_action_or_expr_semantic_negative.bal");

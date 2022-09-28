@@ -247,6 +247,17 @@ function testEmptyArray() {
     assertEquality(output, "hello");
 }
 
+function testLoopEmptyTuple() {
+    var a = [];
+    var b = from var x in a
+        select 1;
+    assertEquality(0, b.length());
+
+    var c = from var x in []
+            select 1;
+    assertEquality(0, c.length());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -694,6 +694,21 @@ function getTokenValue((record {| Token value; |}|error?)|(record {| Token value
     }
 }
 
+function testQueryEmptyTuple() {
+    var a = [];
+    int count = 0;
+    foreach var item in a {
+        count += 1;
+    }
+    assertEquality(0, count);
+    count = 0;
+
+    foreach var item in [] {
+        count += 1;
+    }
+    assertEquality(0, count);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

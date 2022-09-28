@@ -131,7 +131,7 @@ public class QueryNegativeTests {
 
     @Test
     public void testQueryEmptyTuple() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_empty_tuple.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_empty_tuple_negative.bal");
         int index = 0;
         validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 19, 16);
@@ -147,6 +147,19 @@ public class QueryNegativeTests {
                 "type 'never' not allowed here", 28, 16);
         validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 32, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 39, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 40, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 44, 20);
+        validateWarning(compileResult, index++, "unused variable 'err'", 46, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 48, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }
