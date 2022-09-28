@@ -1,26 +1,17 @@
 {
   "position": {
-    "line": 19,
-    "character": 36
+    "line": 2,
+    "character": 24
   },
-  "source": "query_expression/source/query_expr_ctx_source29.bal",
+  "source": "query_expression/source/query_expr_ctx_from_clause_source7.bal",
   "items": [
     {
-      "label": "let",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "let",
-      "insertText": "let",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
+      "label": "test/project2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
-      "filterText": "test",
-      "insertText": "test",
+      "filterText": "project2",
+      "insertText": "project2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -34,17 +25,17 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import test/project2;\n"
         }
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
-      "filterText": "array",
-      "insertText": "array",
+      "filterText": "project1",
+      "insertText": "project1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -58,17 +49,17 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import test/project1;\n"
         }
       ]
     },
     {
-      "label": "ballerina/jballerina.java",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
-      "filterText": "java",
-      "insertText": "java",
+      "filterText": "runtime",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -82,31 +73,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -135,12 +102,12 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "CR",
-      "filterText": "runtime",
-      "insertText": "runtime",
+      "filterText": "test",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -154,7 +121,127 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "value",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "java",
+      "insertText": "java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "array",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -188,6 +275,14 @@
       "detail": "type",
       "sortText": "CR",
       "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     },
     {
@@ -313,6 +408,15 @@
       "sortText": "CQ",
       "filterText": "function",
       "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "let",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "let",
+      "insertText": "let",
       "insertTextFormat": "Snippet"
     },
     {
@@ -442,68 +546,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getIntArr()",
+      "label": "testStringTypeExpression()",
       "kind": "Function",
-      "detail": "int[]",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int[]`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "CC",
-      "filterText": "getIntArr",
-      "insertText": "getIntArr()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stringValue",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "BB",
-      "insertText": "stringValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "intValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "CB",
-      "insertText": "intValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "intArray",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "BB",
-      "insertText": "intArray",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getStrArr()",
-      "kind": "Function",
-      "detail": "string[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string[]`   \n  \n"
-        }
-      },
-      "sortText": "CC",
-      "filterText": "getStrArr",
-      "insertText": "getStrArr()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "CM",
-      "insertText": "StrandData",
+      "filterText": "testStringTypeExpression",
+      "insertText": "testStringTypeExpression()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -515,34 +569,30 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getMedalStats()",
-      "kind": "Function",
-      "detail": "stream<MedalStatsRecord, error?>|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream<MedalStatsRecord, error?>|error`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "getMedalStats",
-      "insertText": "getMedalStats()",
+      "label": "students",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "students",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MedalStatsRecord",
+      "label": "name",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "name",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "CM",
-      "insertText": "MedalStatsRecord",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "tsvStream",
-      "kind": "Variable",
-      "detail": "stream<string[], error?>",
-      "sortText": "BB",
-      "insertText": "tsvStream",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "AM",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -599,110 +649,6 @@
       "detail": "type",
       "sortText": "CR",
       "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "test/project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "project2",
-      "insertText": "project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "project1",
-      "insertText": "project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "local_project2",
-      "insertText": "local_project2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project2;\n"
-        }
-      ]
-    },
-    {
-      "label": "test/local_project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CR",
-      "filterText": "local_project1",
-      "insertText": "local_project1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project1;\n"
-        }
-      ]
-    },
-    {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]
