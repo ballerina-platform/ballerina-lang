@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -118,16 +117,7 @@ public class BIROptimizer {
             for (BIRErrorEntry errorEntry : birFunction.errorTable) {
                 addErrorTableDependency(errorEntry);
             }
-
-            // First add all the instructions within the function to a list.
-            // This is done since the order of bb's cannot be guaranteed.
-            birFunction.parameters.values().forEach(this::addDependency);
             addDependency(birFunction.basicBlocks);
-
-            // Then visit and replace any temp moves
-            for (List<BIRBasicBlock> paramBBs : birFunction.parameters.values()) {
-                paramBBs.forEach(bb -> bb.accept(this));
-            }
             birFunction.basicBlocks.forEach(bb -> bb.accept(this));
 
             // Remove unused temp vars
@@ -741,16 +731,6 @@ public class BIROptimizer {
                 birVarRef.variableDcl = realVar;
             }
             env.addTempBirOperand(birVarRef);
-        }
-
-        @Override
-        public void visit(BIRArgument birArgument) {
-            BIRVariableDcl realVar = this.env.tempVars.get(birArgument.variableDcl);
-            if (realVar != null) {
-                birArgument.variableDcl = realVar;
-            }
-            env.addTempBirOperand(birArgument);
-            this.optimizeNode(birArgument.condition, this.env);
         }
     }
 

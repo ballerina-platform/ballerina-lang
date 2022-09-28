@@ -131,7 +131,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expressions,
             STNode openBraceToken,
             STNode members,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
 
         return new STServiceDeclarationNode(
                 metadata,
@@ -143,7 +144,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public static STNode createAssignmentStatementNode(
@@ -960,13 +962,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode openBraceToken,
             STNode namedWorkerDeclarator,
             STNode statements,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
 
         return new STFunctionBodyBlockNode(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public static STNode createNamedWorkerDeclarationNode(
@@ -1915,7 +1919,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode identifier,
             STNode openBraceToken,
             STNode enumMemberList,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
 
         return new STEnumDeclarationNode(
                 metadata,
@@ -1924,7 +1929,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public static STNode createEnumMemberNode(
@@ -2328,7 +2334,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode className,
             STNode openBrace,
             STNode members,
-            STNode closeBrace) {
+            STNode closeBrace,
+            STNode semicolonToken) {
 
         return new STClassDefinitionNode(
                 metadata,
@@ -2338,7 +2345,8 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     public static STNode createResourcePathParameterNode(

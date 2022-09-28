@@ -129,6 +129,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBraceToken = modifyNode(serviceDeclarationNode.openBraceToken);
         STNode members = modifyNode(serviceDeclarationNode.members);
         STNode closeBraceToken = modifyNode(serviceDeclarationNode.closeBraceToken);
+        STNode semicolonToken = modifyNode(serviceDeclarationNode.semicolonToken);
         return serviceDeclarationNode.modify(
                 metadata,
                 qualifiers,
@@ -139,7 +140,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -1019,11 +1021,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode namedWorkerDeclarator = modifyNode(functionBodyBlockNode.namedWorkerDeclarator);
         STNode statements = modifyNode(functionBodyBlockNode.statements);
         STNode closeBraceToken = modifyNode(functionBodyBlockNode.closeBraceToken);
+        STNode semicolonToken = modifyNode(functionBodyBlockNode.semicolonToken);
         return functionBodyBlockNode.modify(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -2055,6 +2059,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBraceToken = modifyNode(enumDeclarationNode.openBraceToken);
         STNode enumMemberList = modifyNode(enumDeclarationNode.enumMemberList);
         STNode closeBraceToken = modifyNode(enumDeclarationNode.closeBraceToken);
+        STNode semicolonToken = modifyNode(enumDeclarationNode.semicolonToken);
         return enumDeclarationNode.modify(
                 metadata,
                 qualifier,
@@ -2062,7 +2067,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -2502,6 +2508,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBrace = modifyNode(classDefinitionNode.openBrace);
         STNode members = modifyNode(classDefinitionNode.members);
         STNode closeBrace = modifyNode(classDefinitionNode.closeBrace);
+        STNode semicolonToken = modifyNode(classDefinitionNode.semicolonToken);
         return classDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -2510,7 +2517,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     @Override
