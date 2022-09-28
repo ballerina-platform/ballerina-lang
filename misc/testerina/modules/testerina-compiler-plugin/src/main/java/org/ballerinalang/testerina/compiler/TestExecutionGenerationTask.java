@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -39,6 +38,7 @@ import io.ballerina.tools.text.TextDocuments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Code generation task to generate the main Testerina runtime function.
@@ -62,9 +62,15 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
     private static TextDocument generateDocument(Module module) {
 
+        List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
+
+        // Initialize variables for test registrars
+        AtomicInteger testIndex = new AtomicInteger(0);
+        AtomicInteger group = new AtomicInteger(0);
+        List<StatementNode> registrarStatements = new ArrayList<>();
 
         // Register all the test cases of the module
         for (DocumentId documentId : module.testDocumentIds()) {
@@ -73,21 +79,22 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
             node.accept(testFunctionVisitor);
 
-            // Add the statements, 'check test:registerTest(<name>, <function>);'
-            testFunctionVisitor.getTestStaticFunctions().forEach(func ->
-                    statements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(func.functionName().toString(),
-                            func.functionName().toString())));
-
+            // Call the test registrar functions
+            TesterinaCompilerPluginUtils.traverseTestRegistrars(testIndex, group, registrarStatements,
+                    functionsList, testFunctionVisitor, statements);
             //TODO: Enable dynamic registration upon approval
 //            // Add the statements, 'check <function>()'
 //            testFunctionVisitor.getTestDynamicFunctions().forEach(func ->
 //                    statements.add(invokeFactoryFunction(func.functionName().toString(),
 //                            func.functionSignature().returnTypeDesc())));
         }
+        if (testIndex.get() > 0) {
+            TesterinaCompilerPluginUtils.populateTestRegistrarStatements(group, registrarStatements,
+                    functionsList, statements);
+        }
 
         TesterinaCompilerPluginUtils.addStartSuiteCall(statements);
-        FunctionDefinitionNode functionDefinition =
-                TesterinaCompilerPluginUtils.createTestExecutionFunction(statements);
+        functionsList.add(TesterinaCompilerPluginUtils.createTestExecutionFunction(statements));
 
         // Construct the module part node
         // Add the line, 'import ballerina/test;'
@@ -108,7 +115,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))));
 
         // Construct the document content
-        NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(List.of(functionDefinition));
+        NodeList<ModuleMemberDeclarationNode> nodeList = NodeFactory.createNodeList(functionsList);
         Token eofToken = NodeFactory.createToken(SyntaxKind.EOF_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                 NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n")));
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(

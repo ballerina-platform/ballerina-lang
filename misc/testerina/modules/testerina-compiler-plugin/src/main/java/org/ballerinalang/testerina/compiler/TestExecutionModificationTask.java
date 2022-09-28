@@ -18,7 +18,6 @@
 
 package org.ballerinalang.testerina.compiler;
 
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -35,6 +34,7 @@ import io.ballerina.tools.text.TextDocument;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Code modification task to generate the main Testerina runtime function.
@@ -60,6 +60,7 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
     }
 
     private static TextDocument modifyDocument(Document document) {
+        List<ModuleMemberDeclarationNode> functionsList = new ArrayList<>();
         List<StatementNode> statements = new ArrayList<>();
 
         TesterinaCompilerPluginUtils.addSetTestOptionsCall(statements);
@@ -69,16 +70,22 @@ public class TestExecutionModificationTask implements ModifierTask<SourceModifie
         TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
         node.accept(testFunctionVisitor);
 
-        // Add the statements, 'check test:registerTest(<name>, <function>);'
-        testFunctionVisitor.getTestStaticFunctions().forEach(func ->
-                statements.add(TesterinaCompilerPluginUtils.invokeRegisterFunction(func.functionName().toString(),
-                        func.functionName().toString())));
+        // Initialize variables for test registrars
+        AtomicInteger testIndex = new AtomicInteger(0);
+        AtomicInteger group = new AtomicInteger(0);
+        List<StatementNode> registrarStatements = new ArrayList<>();
+
+        TesterinaCompilerPluginUtils.traverseTestRegistrars(testIndex, group, registrarStatements,
+                functionsList, testFunctionVisitor, statements);
+        if (testIndex.get() > 0) {
+            TesterinaCompilerPluginUtils.populateTestRegistrarStatements(group, registrarStatements,
+                    functionsList, statements);
+        }
 
         TesterinaCompilerPluginUtils.addStartSuiteCall(statements);
-        FunctionDefinitionNode functionDefinition =
-                TesterinaCompilerPluginUtils.createTestExecutionFunction(statements);
+        functionsList.add(TesterinaCompilerPluginUtils.createTestExecutionFunction(statements));
 
-        NodeList<ModuleMemberDeclarationNode> newMembers = node.members().add(functionDefinition);
+        NodeList<ModuleMemberDeclarationNode> newMembers = node.members().addAll(functionsList);
         ModulePartNode newModulePart = node.modify(node.imports(), newMembers, node.eofToken());
         SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
         return updatedSyntaxTree.textDocument();
