@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.value;
-import ballerina/lang.regexp;
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type StringArray string[];
@@ -490,231 +489,231 @@ public function testConvertJsonToAmbiguousType() {
     assertEquality(checkpanic res, <Value> checkpanic {value: {i: 1}});
 }
 
-type RegExpType regexp:RegExp;
+type RegExpType string:RegExp;
 
 function testFromJsonWithTypeOnRegExp() {
     string s = "AB+C*D{1,4}";
     RegExpType|error x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `AB+C*D{1,4}` == x1, true);
     }
 
     s = "A?B+C*?D{1,4}";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `A?B+C*?D{1,4}` == x1, true);
     }
 
     s = "A\\sB\\WC\\Dd\\\\";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `A\sB\WC\Dd\\` == x1, true);
     }
 
     s = "\\s{1}\\p{sc=Braille}*";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `\s{1}\p{sc=Braille}*` == x1, true);
     }
 
     s = "AB+\\p{gc=Lu}{1,}";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `AB+\p{gc=Lu}{1,}` == x1, true);
     }
 
     s = "A\\p{Lu}??B+\\W\\(+?C*D{1,4}?";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
     }
 
     s = "\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
     }
 
 
     s = "[\\r\\n\\^]";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[\r\n\^]` == x1, true);
     }
 
     s = "[A\\sB\\WC\\Dd\\\\]";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[A\sB\WC\Dd\\]` == x1, true);
     }
 
     s = "[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
     }
 
     s = "[A\\sA-GB\\WC\\DJ-Kd\\\\]*";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
     }
 
     s = "[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
     }
 
     s = "[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
     }
 
     s = "(?:ABC)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?:ABC)` == x1, true);
     }
 
     s = "(?i:ABC)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?i:ABC)` == x1, true);
     }
 
     s = "(?i-m:AB+C*)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?i-m:AB+C*)` == x1, true);
     }
 
     s = "(?imxs:AB+C*D{1,4})";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?imxs:AB+C*D{1,4})` == x1, true);
     }
 
     s = "(?imx-s:A?B+C*?D{1,4})";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
     }
 
     s = "(?i-s:\\s{1}\\p{sc=Braille}*)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
     }
 
     s = "(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
     }
 
     s = "(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
     }
 
     s = "(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
     }
 
     s = "(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
     }
 
     s = "(z)((a+)?(b+)?(c))*";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `(z)((a+)?(b+)?(c))*` == x1, true);
     }
 
     s = "^^^^^^^robot$$$$";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `^^^^^^^robot$$$$` == x1, true);
     }
 
     s = "cx{0,93}c";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `cx{0,93}c` == x1, true);
     }
 
     s = "[\\d]*[\\s]*bc.";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `[\d]*[\s]*bc.` == x1, true);
     }
 
     s = "\\??\\??\\??\\??\\??";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `\??\??\??\??\??` == x1, true);
     }
 
     s = ".?.?.?.?.?.?.?";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `.?.?.?.?.?.?.?` == x1, true);
     }
 
     s = "bc..[\\d]*[\\s]*";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `bc..[\d]*[\s]*` == x1, true);
     }
 
     s = "\\\\u123";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `\\u123` == x1, true);
     }
 
     s = "";
     x1 = s.fromJsonWithType(RegExpType);
-    assertEquality(x1 is regexp:RegExp, true);
-    if (x1 is regexp:RegExp) {
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
         assertEquality(re `` == x1, true);
     }
 }

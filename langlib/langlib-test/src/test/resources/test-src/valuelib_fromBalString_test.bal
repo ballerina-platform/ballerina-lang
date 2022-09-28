@@ -17,7 +17,6 @@
 import ballerina/lang.'int as ints;
 import ballerina/lang.'string as strings;
 import ballerina/lang.'value as values;
-import ballerina/lang.regexp;
 
 type UndergradStudent record {|
     readonly int id;
@@ -348,162 +347,162 @@ function testFromStringOnRegExp() {
     string s = "re `AB+C*D{1,4}`";
     anydata x1 = checkpanic s.fromBalString();
     assert(re `AB+C*D{1,4}` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `A?B+C*?D{1,4}`";
     x1 = checkpanic s.fromBalString();
     assert(re `A?B+C*?D{1,4}` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `A\\sB\\WC\\Dd\\\\`";
     x1 = checkpanic s.fromBalString();
     assert(re `A\sB\WC\Dd\\` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `\\s{1}\\p{sc=Braille}*`";
     x1 = checkpanic s.fromBalString();
     assert(re `\s{1}\p{sc=Braille}*` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `AB+\\p{gc=Lu}{1,}`";
     x1 = checkpanic s.fromBalString();
     assert(re `AB+\p{gc=Lu}{1,}` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `A\\p{Lu}??B+\\W\\(+?C*D{1,4}?`";
     x1 = checkpanic s.fromBalString();
     assert(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*`";
     x1 = checkpanic s.fromBalString();
     assert(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[\\r\\n\\^]`";
     x1 = checkpanic s.fromBalString();
     assert(re `[\r\n\^]` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[A\\sB\\WC\\Dd\\\\]`";
     x1 = checkpanic s.fromBalString();
     assert(re `[A\sB\WC\Dd\\]` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??`";
     x1 = checkpanic s.fromBalString();
     assert(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[A\\sA-GB\\WC\\DJ-Kd\\\\]*`";
     x1 = checkpanic s.fromBalString();
     assert(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]`";
     x1 = checkpanic s.fromBalString();
     assert(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?`";
     x1 = checkpanic s.fromBalString();
     assert(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?:ABC)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?:ABC)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?i:ABC)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?i:ABC)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?i-m:AB+C*)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?i-m:AB+C*)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?imxs:AB+C*D{1,4})`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?imxs:AB+C*D{1,4})` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?imx-s:A?B+C*?D{1,4})`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?i-s:\\s{1}\\p{sc=Braille}*)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef`";
     x1 = checkpanic s.fromBalString();
     assert(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `(z)((a+)?(b+)?(c))*`";
     x1 = checkpanic s.fromBalString();
     assert(re `(z)((a+)?(b+)?(c))*` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `^^^^^^^robot$$$$`";
     x1 = checkpanic s.fromBalString();
     assert(re `^^^^^^^robot$$$$` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `cx{0,93}c`";
     x1 = checkpanic s.fromBalString();
     assert(re `cx{0,93}c` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `[\\d]*[\\s]*bc.`";
     x1 = checkpanic s.fromBalString();
     assert(re `[\d]*[\s]*bc.` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `\\??\\??\\??\\??\\??`";
     x1 = checkpanic s.fromBalString();
     assert(re `\??\??\??\??\??` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `.?.?.?.?.?.?.?`";
     x1 = checkpanic s.fromBalString();
     assert(re `.?.?.?.?.?.?.?` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `bc..[\\d]*[\\s]*`";
     x1 = checkpanic s.fromBalString();
     assert(re `bc..[\d]*[\s]*` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re `\\\\u123`";
     x1 = checkpanic s.fromBalString();
     assert(re `\\u123` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 
     s = "re ``";
     x1 = checkpanic s.fromBalString();
     assert(re `` == x1, true);
-    assert(x1 is regexp:RegExp, true);
+    assert(x1 is string:RegExp, true);
 }
 
 function testFromStringOnRegExpNegative() {

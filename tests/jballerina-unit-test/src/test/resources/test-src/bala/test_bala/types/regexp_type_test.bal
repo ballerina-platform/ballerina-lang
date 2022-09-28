@@ -15,33 +15,32 @@
 // under the License.
 
 import testorg/regexp as regexp1;
-import ballerina/lang.regexp;
 
 function testBasicRegExp() {
     regexp1:RegExpType x1 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x1 is regexp:RegExp);
+    assertEquality(true, x1 is string:RegExp);
 }
 
 function testAssignabilityWithRegExp() {
     regexp1:RegExpType x1 = re `AB*|[^c-d]{1,5}`;
     assertEquality("AB*|[^c-d]{1,5}", x1.toString());
 
-    regexp:RegExp _ = x1;
+    string:RegExp _ = x1;
 
     anydata x2 = x1;
-    assertEquality(true, x2 is regexp:RegExp);
+    assertEquality(true, x2 is string:RegExp);
 
     any x3 = x1;
-    assertEquality(true, x2 is regexp:RegExp);
+    assertEquality(true, x2 is string:RegExp);
 
     readonly x4 = x1;
-    assertEquality(true, x4 is regexp:RegExp);
+    assertEquality(true, x4 is string:RegExp);
 
     anydata & readonly x5 = x1;
-    assertEquality(true, x5 is regexp:RegExp);
+    assertEquality(true, x5 is string:RegExp);
 
     any & readonly x6 = x1;
-    assertEquality(true, x6 is regexp:RegExp);
+    assertEquality(true, x6 is string:RegExp);
 }
 
 function testSubtypingWithRegExp() {
@@ -94,7 +93,7 @@ function testRegExpWithUserDefinedType() {
     UserType x1 = re `AB*|[^c-d]{1,5}`;
     assertEquality("AB*|[^c-d]{1,5}", x1.toString());
 
-    regexp:RegExp x2 = x1;
+    string:RegExp x2 = x1;
     assertEquality(re `AB*|[^c-d]{1,5}`, x2);
 
     anydata x3 = x1;
@@ -114,16 +113,16 @@ function testRegExpWithUserDefinedType() {
 }
 
 function testPublicRegExpValue() {
-    assertEquality(true, regexp1:regexValue1 is regexp:RegExp);
+    assertEquality(true, regexp1:regexValue1 is string:RegExp);
     assertEquality(true, re `AB+C*D{1,4}` == regexp1:regexValue1);
 
-    assertEquality(true, regexp1:regexValue2 is regexp:RegExp);
+    assertEquality(true, regexp1:regexValue2 is string:RegExp);
     assertEquality(true, re `AB+C*D{1,4}` == regexp1:regexValue2);
 
     regexp1:RegExpType x1 = regexp1:regexValue1;
-    assertEquality(true, x1 is regexp:RegExp);
+    assertEquality(true, x1 is string:RegExp);
 
-    regexp:RegExp x2 = regexp1:regexValue2;
+    string:RegExp x2 = regexp1:regexValue2;
     assertEquality(true, x2 is regexp1:RegExpType2);
 }
 

@@ -14,57 +14,55 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.regexp;
-
 function testBasicRegExp() {
-    regexp:RegExp _ = re `AB*|[^c-d]{1,5}`;
+    string:RegExp _ = re `AB*|[^c-d]{1,5}`;
 }
 
 function testAssignabilityWithRegExp() {
-    regexp:RegExp x1 = re `AB*|[^c-d]{1,5}`;
+    string:RegExp x1 = re `AB*|[^c-d]{1,5}`;
 
     anydata x2 = x1;
-    assertEquality(true, x2 is regexp:RegExp);
+    assertEquality(true, x2 is string:RegExp);
 
     any x3 = x1;
-    assertEquality(true, x2 is regexp:RegExp);
+    assertEquality(true, x2 is string:RegExp);
 
     readonly x4 = x1;
-    assertEquality(true, x4 is regexp:RegExp);
+    assertEquality(true, x4 is string:RegExp);
 
     anydata & readonly x5 = x1;
-    assertEquality(true, x5 is regexp:RegExp);
+    assertEquality(true, x5 is string:RegExp);
 
     any & readonly x6 = x1;
-    assertEquality(true, x6 is regexp:RegExp);
+    assertEquality(true, x6 is string:RegExp);
 }
 
 function testSubtypingWithRegExp() {
-    regexp:RegExp x1 = re `AB*|[^c-d]{1,5}`;
+    string:RegExp x1 = re `AB*|[^c-d]{1,5}`;
     assertEquality(true, x1 is any);
     assertEquality(true, x1 is anydata);
     assertEquality(true, x1 is readonly);
 
     any x2 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x2 is regexp:RegExp);
+    assertEquality(true, x2 is string:RegExp);
 
     readonly x3 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x3 is regexp:RegExp);
+    assertEquality(true, x3 is string:RegExp);
 
     any & readonly x4 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x4 is regexp:RegExp);
+    assertEquality(true, x4 is string:RegExp);
 
     anydata x5 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x5 is regexp:RegExp);
+    assertEquality(true, x5 is string:RegExp);
 
     anydata & readonly x6 = re `AB*|[^c-d]{1,5}`;
-    assertEquality(true, x6 is regexp:RegExp);
+    assertEquality(true, x6 is string:RegExp);
 }
 
 function testRegExpWithVar() {
     var x1 = re `AB*|[^c-d]{1,5}`;
 
-    regexp:RegExp x2 = x1;
+    string:RegExp x2 = x1;
     assertEquality(re `AB*|[^c-d]{1,5}`, x2);
 
     anydata x3 = x1;
@@ -83,12 +81,12 @@ function testRegExpWithVar() {
     assertEquality(re `AB*|[^c-d]{1,5}`, x7);
 }
 
-type UserType regexp:RegExp;
+type UserType string:RegExp;
 
 function testRegExpWithUserDefinedType() {
     UserType x1 = re `AB*|[^c-d]{1,5}`;
 
-    regexp:RegExp x2 = x1;
+    string:RegExp x2 = x1;
     assertEquality(re `AB*|[^c-d]{1,5}`, x2);
 
     anydata x3 = x1;
