@@ -179,8 +179,17 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     public void sort(BallerinaCompletionContext context, ModulePartNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+        boolean onQualifiedNameIdentifier = QNameRefCompletionUtil
+                .onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        if (resolvedContext != ResolvedContext.CONFIGURABLE_QUALIFIER && onQualifiedNameIdentifier) {
+            Optional<Token> lastQualifier = CommonUtil.getLastQualifier(
+                    context, context.getNodeAtCursor().parent().parent());
+            if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                resolvedContext = ResolvedContext.CONFIGURABLE_QUALIFIER;
+            }
+        }
         if (resolvedContext == ResolvedContext.CONFIGURABLE_QUALIFIER) {
-            SortingUtil.sortCompletionsAfterConfigurableQualifier(completionItems);
+            SortingUtil.sortCompletionsAfterConfigurableQualifier(context, completionItems, onQualifiedNameIdentifier);
         } else {
             ModulePartNodeContextUtil.sort(completionItems);
         }
