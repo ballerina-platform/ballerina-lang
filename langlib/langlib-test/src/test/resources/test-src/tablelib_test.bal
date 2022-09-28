@@ -738,7 +738,7 @@ function testRemoveEmptyIterateThenAdd() returns boolean {
         ar.push(v);
     }
     data.add(newEmp);
-    return data.length() == 1 && data["Jes"].name == "JesB";
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
 }
 
 function testAddInconsistentDataToKeylessTbl() {
