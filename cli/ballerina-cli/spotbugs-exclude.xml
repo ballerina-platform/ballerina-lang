@@ -45,10 +45,6 @@
         <Class name="io.ballerina.cli.task.RunTestsTask"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
-    <Match>
-        <Class name="io.ballerina.cli.task.CreateExecutableTask"/>
-        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
-    </Match>
 
     <Match>
         <Package name="io.ballerina.cli.launcher.util" />
