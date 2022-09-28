@@ -23,11 +23,17 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.test.TestUtils;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -39,14 +45,14 @@ import java.nio.file.Paths;
 public class IDLClientGenPluginTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get(
-            "src/test/resources/compiler_plugin_tests").toAbsolutePath();
+            "src/test/resources/compiler_plugin_tests/idl_plugin_packages").toAbsolutePath();
     private String targetPath = ProjectUtils.getTemporaryTargetPath();
 
     @Test
     public void testIdlPluginBuildProject() {
         BuildOptions buildOptions = BuildOptions.builder().targetDir(targetPath).build();
         Project project = TestUtils.loadBuildProject(
-                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"), buildOptions);
+                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin_1"), buildOptions);
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
         Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
                 TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
@@ -63,7 +69,7 @@ public class IDLClientGenPluginTests {
     public void testIdlPluginBuildProjectLoadExisting() {
         BuildOptions buildOptions = BuildOptions.builder().targetDir(targetPath).build();
         Project project = TestUtils.loadBuildProject(
-                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"), buildOptions);
+                RESOURCE_DIRECTORY.resolve("package_test_idl_plugin_1"), buildOptions);
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
@@ -76,7 +82,7 @@ public class IDLClientGenPluginTests {
     @Test
     public void testIdlPluginBuildProjectRepeatCompilation() {
         BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"),
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin_1"),
                 buildOptions);
         Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6);
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 1);
@@ -91,7 +97,7 @@ public class IDLClientGenPluginTests {
     @Test
     public void testIdlPluginBuildProjectRepeatEditsWithCompilation() {
         BuildOptions buildOptions = BuildOptions.builder().targetDir(ProjectUtils.getTemporaryTargetPath()).build();
-        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin"),
+        Project project = TestUtils.loadBuildProject(RESOURCE_DIRECTORY.resolve("package_test_idl_plugin_1"),
                 buildOptions);
         Assert.assertEquals(project.currentPackage().getCompilation().diagnosticResult().errors().size(), 6,
                 TestUtils.getDiagnosticsAsString(project.currentPackage().getCompilation().diagnosticResult()));
@@ -127,5 +133,21 @@ public class IDLClientGenPluginTests {
         }
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+    }
+
+    @Test
+    public void testIdlDeclarationInBala() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("package_test_idl_plugin_2");
+        Path customUserHome = Paths.get(System.getProperty("user.dir")).resolve("build/user-home");
+        Path customHomeRepo = customUserHome.resolve("repositories/central.ballerina.io");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        Path balaPath = projectPath.resolve("idl-dependency-bala/user-package_test_idl_plugin-any-0.1.0.bala");
+        BCompileUtil.copyBalaToExtractedDist(balaPath, "user", "package_test_idl_plugin", "0.1.0", customHomeRepo);
+
+        BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectPath);
+        Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult().hasErrors(),
+                TestUtils.getDiagnosticsAsString(buildProject.currentPackage().getCompilation().diagnosticResult()));
     }
 }
