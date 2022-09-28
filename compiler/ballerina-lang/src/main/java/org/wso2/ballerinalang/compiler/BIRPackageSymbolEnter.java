@@ -143,14 +143,14 @@ public class BIRPackageSymbolEnter {
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
     private BStructureTypeSymbol currentStructure = null;
-    private LinkedList<Object> compositeStack = new LinkedList<>();
+    private final LinkedList<Object> compositeStack = new LinkedList<>();
 
     private static final int SERVICE_TYPE_TAG = 53;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
 
-    private Map<String, BVarSymbol> globalVarMap = new HashMap<>();
+    private final Map<String, BVarSymbol> globalVarMap = new HashMap<>();
 
     public static BIRPackageSymbolEnter getInstance(CompilerContext context) {
         BIRPackageSymbolEnter packageReader = context.get(COMPILED_PACKAGE_SYMBOL_ENTER_KEY);
@@ -283,7 +283,7 @@ public class BIRPackageSymbolEnter {
                             continue;
                         }
                         String referencedFuncName = function.funcName.value;
-                        Name funcName = names.fromString(
+                        Name funcName = Names.fromString(
                                 Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
                         Scope.ScopeEntry matchingObjFuncSym = objectType.tsymbol.scope.lookup(funcName);
                         if (matchingObjFuncSym == NOT_FOUND_ENTRY) {
@@ -401,7 +401,7 @@ public class BIRPackageSymbolEnter {
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
-                Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
+                Symbols.createFunctionSymbol(flags, Names.fromString(funcName), Names.fromString(funcOrigName),
                                              this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
                                              Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
         invokableSymbol.source = pos.lineRange().filePath();
@@ -417,14 +417,14 @@ public class BIRPackageSymbolEnter {
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
             invokableSymbol.name =
-                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
+                    Names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName));
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 if (isResourceFunction) {
                     int pathParamCount = dataInStream.readInt();
                     List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
                     for (int i = 0; i < pathParamCount; i++) {
-                        Name pathParamName = names.fromString(getStringCPEntryValue(dataInStream));
+                        Name pathParamName = Names.fromString(getStringCPEntryValue(dataInStream));
                         BType paramType = readBType(dataInStream);
                         BVarSymbol varSymbol = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID,
                                 paramType, null, symTable.builtinPos, COMPILED_SOURCE);
@@ -434,7 +434,7 @@ public class BIRPackageSymbolEnter {
                     boolean restPathParamExist = dataInStream.readBoolean();
                     BVarSymbol restPathParam = null;
                     if (restPathParamExist) {
-                        Name pathParamName = names.fromString(getStringCPEntryValue(dataInStream));
+                        Name pathParamName = Names.fromString(getStringCPEntryValue(dataInStream));
                         BType paramType = readBType(dataInStream);
                         restPathParam = new BVarSymbol(0, pathParamName, this.env.pkgSymbol.pkgID, paramType,
                                 null, symTable.builtinPos, COMPILED_SOURCE);
@@ -443,20 +443,20 @@ public class BIRPackageSymbolEnter {
                     int resourcePathCount = dataInStream.readInt();
                     List<Name> resourcePath = new ArrayList<>(resourcePathCount);
                     for (int i = 0; i < resourcePathCount; i++) {
-                        resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
+                        resourcePath.add(Names.fromString(getStringCPEntryValue(dataInStream)));
                     }
 
-                    Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
+                    Name accessor = Names.fromString(getStringCPEntryValue(dataInStream));
                     BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
                     
-                    BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
+                    BResourceFunction resourceFunction = new BResourceFunction(Names.fromString(funcName),
                             invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
                             resourcePathType, symTable.builtinPos);
                     
                     ((BStructureTypeSymbol) attachedType.tsymbol).attachedFuncs.add(resourceFunction);
                 } else {
                     BAttachedFunction attachedFunc =
-                            new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
+                            new BAttachedFunction(Names.fromString(funcName), invokableSymbol, funcType,
                                     symTable.builtinPos);
                     BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
                     if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcName)
@@ -526,7 +526,7 @@ public class BIRPackageSymbolEnter {
                     && type.tsymbol.owner == this.env.pkgSymbol) {
                 referenceType = (BTypeReferenceType) type;
             } else {
-                BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
+                BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, Names.fromString(typeDefName),
                         this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
                 referenceType = new BTypeReferenceType(type, typeSymbol, flags);
             }
@@ -549,11 +549,11 @@ public class BIRPackageSymbolEnter {
             symbol = type.tsymbol;
             symbol.pos = pos;
         } else {
-            symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
+            symbol = Symbols.createTypeDefinitionSymbol(flags, Names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
             ((BTypeDefinitionSymbol) symbol).referenceType = referenceType;
         }
-        symbol.originalName = names.fromString(typeDefOrigName);
+        symbol.originalName = Names.fromString(typeDefOrigName);
         symbol.origin = toOrigin(origin);
         symbol.flags = flags;
 
@@ -717,8 +717,8 @@ public class BIRPackageSymbolEnter {
 
         BPackageSymbol pkgSymbol = pkgId.equals(env.pkgSymbol.pkgID) ? this.env.pkgSymbol :
                 packageCache.getSymbol(pkgId);
-        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
-                                                                            names.fromString(originalName),
+        BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, Names.fromString(name),
+                                                                            Names.fromString(originalName),
                                                                             pkgId, null, pkgSymbol, pos,
                                                                             toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
@@ -769,7 +769,7 @@ public class BIRPackageSymbolEnter {
         Scope enclScope = this.env.pkgSymbol.scope;
 
         // Create the constant symbol.
-        BConstantSymbol constantSymbol = new BConstantSymbol(flags, names.fromString(constantName),
+        BConstantSymbol constantSymbol = new BConstantSymbol(flags, Names.fromString(constantName),
                                                              this.env.pkgSymbol.pkgID, null, type, enclScope.owner,
                                                              pos, toOrigin(origin));
 
@@ -858,9 +858,9 @@ public class BIRPackageSymbolEnter {
             attachPointLiteral = getStringCPEntryValue(inputStream);
         }
 
-        BSymbol classSymbol = this.env.pkgSymbol.scope.lookup(names.fromString(associatedClassName)).symbol;
+        BSymbol classSymbol = this.env.pkgSymbol.scope.lookup(Names.fromString(associatedClassName)).symbol;
         BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
-                                                        names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
+                                                        Names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
                                                         this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));
 
         int nListeners = inputStream.readInt();
@@ -870,7 +870,7 @@ public class BIRPackageSymbolEnter {
         
         serviceDecl.setAttachPointStringLiteral(attachPointLiteral);
         serviceDecl.setAbsResourcePath(attachPoint);
-        this.env.pkgSymbol.scope.define(names.fromString(serviceName), serviceDecl);
+        this.env.pkgSymbol.scope.define(Names.fromString(serviceName), serviceDecl);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
@@ -892,7 +892,7 @@ public class BIRPackageSymbolEnter {
             // the symbol. Because, for the function pointers we directly read the param types
             // from the varType (i.e: from InvokableType), and assumes it can have only required
             // params.
-            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
+            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, Names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
@@ -900,7 +900,7 @@ public class BIRPackageSymbolEnter {
             invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
             varSymbol = invokableSymbol;
         } else {
-            varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
+            varSymbol = new BVarSymbol(flags, Names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                                        enclScope.owner, symTable.builtinPos, toOrigin(origin));
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;
@@ -925,7 +925,7 @@ public class BIRPackageSymbolEnter {
         for (int i = 0; i < requiredParamCount; i++) {
             String paramName = getStringCPEntryValue(dataInStream);
             var flags = dataInStream.readLong();
-            BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+            BVarSymbol varSymbol = new BVarSymbol(flags, Names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
             varSymbol.isDefaultable = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
@@ -935,7 +935,7 @@ public class BIRPackageSymbolEnter {
 
         if (dataInStream.readBoolean()) { //if rest param exist
             String paramName = getStringCPEntryValue(dataInStream);
-            BVarSymbol restParam = new BVarSymbol(0, names.fromString(paramName), this.env.pkgSymbol.pkgID,
+            BVarSymbol restParam = new BVarSymbol(0, Names.fromString(paramName), this.env.pkgSymbol.pkgID,
                                                   invokableType.restType, invokableSymbol, symTable.builtinPos,
                                                   COMPILED_SOURCE);
             invokableSymbol.restParam = restParam;
@@ -1106,10 +1106,10 @@ public class BIRPackageSymbolEnter {
             throw new BLangCompilerException("invalid module name '" + moduleName + "' in compiled package file");
         }
 
-        return new PackageID(names.fromString(orgName),
-                names.fromString(pkgName),
-                names.fromString(moduleName),
-                names.fromString(pkgVersion), null);
+        return new PackageID(Names.fromString(orgName),
+                Names.fromString(pkgName),
+                Names.fromString(moduleName),
+                Names.fromString(pkgVersion), null);
     }
 
     /**
@@ -1140,7 +1140,7 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        private DataInputStream inputStream;
+        private final DataInputStream inputStream;
 
         public BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;
@@ -1152,7 +1152,7 @@ public class BIRPackageSymbolEnter {
 
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
-            Name name = names.fromString(getStringCPEntryValue(inputStream));
+            Name name = Names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
 
             // Read the type flags to identify if type reference types are nullable.
@@ -1201,7 +1201,7 @@ public class BIRPackageSymbolEnter {
                     String recordName = getStringCPEntryValue(inputStream);
                     long tSymbolFlags = inputStream.readLong();
                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(tSymbolFlags,
-                            names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos,
+                            Names.fromString(recordName), env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos,
                             COMPILED_SOURCE);
                     recordSymbol.scope = new Scope(recordSymbol);
 
@@ -1223,7 +1223,7 @@ public class BIRPackageSymbolEnter {
 
                         BType fieldType = readTypeFromCp();
 
-                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName),
                                                               recordSymbol.pkgID, fieldType,
                                                               recordSymbol.scope.owner, symTable.builtinPos,
                                                               COMPILED_SOURCE);
@@ -1241,7 +1241,7 @@ public class BIRPackageSymbolEnter {
                         String recordInitFuncName = getStringCPEntryValue(inputStream);
                         var recordInitFuncFlags = inputStream.readLong();
                         BInvokableType recordInitFuncType = (BInvokableType) readTypeFromCp();
-                        Name initFuncName = names.fromString(recordInitFuncName);
+                        Name initFuncName = Names.fromString(recordInitFuncName);
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
                                 Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
@@ -1267,7 +1267,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return getType(recordType, pkgEnv, names.fromString(recordName));
+                    return getType(recordType, pkgEnv, Names.fromString(recordName));
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1282,7 +1282,7 @@ public class BIRPackageSymbolEnter {
                     String typeDefName = getStringCPEntryValue(inputStream);
                     BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(typeDefName), pkg, null, pkgSymbol,
+                            Names.fromString(typeDefName), pkg, null, pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
 
                     boolean nullable = (typeFlags & TypeFlags.NILABLE) == TypeFlags.NILABLE;
@@ -1389,7 +1389,7 @@ public class BIRPackageSymbolEnter {
                         pkgCpIndex = inputStream.readInt();
                         unionsPkgId = getPackageId(pkgCpIndex);
                         String unionNameStr = getStringCPEntryValue(inputStream);
-                        unionName = names.fromString(unionNameStr);
+                        unionName = Names.fromString(unionNameStr);
                     }
                     BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)), unionName, unionsPkgId,
@@ -1490,7 +1490,7 @@ public class BIRPackageSymbolEnter {
                     errorType.flags = flags;
                     errorSymbol.type = errorType;
                     errorSymbol.pkgID = pkgId;
-                    errorSymbol.originalName = errorSymbol.name = names.fromString(errorName);
+                    errorSymbol.originalName = errorSymbol.name = Names.fromString(errorName);
                     Object poppedErrorType = compositeStack.pop();
                     assert poppedErrorType == errorType;
                     if (!env.pkgSymbol.pkgID.equals(PackageID.ANNOTATIONS)
@@ -1532,7 +1532,7 @@ public class BIRPackageSymbolEnter {
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     var finiteTypeFlags = inputStream.readLong();
                     BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, finiteTypeFlags,
-                                                                  names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
+                                                                  Names.fromString(finiteTypeName), env.pkgSymbol.pkgID,
                                                                   null, env.pkgSymbol, symTable.builtinPos,
                                                                   COMPILED_SOURCE);
                     symbol.scope = new Scope(symbol);
@@ -1556,11 +1556,11 @@ public class BIRPackageSymbolEnter {
                     BObjectTypeSymbol objectSymbol;
 
                     if (Symbols.isFlagOn(objFlags, Flags.CLASS)) {
-                        objectSymbol = Symbols.createClassSymbol(objFlags, names.fromString(objName),
+                        objectSymbol = Symbols.createClassSymbol(objFlags, Names.fromString(objName),
                                                                  env.pkgSymbol.pkgID, null, env.pkgSymbol,
                                                                  symTable.builtinPos, COMPILED_SOURCE, false);
                     } else {
-                        objectSymbol = Symbols.createObjectSymbol(objFlags, names.fromString(objName),
+                        objectSymbol = Symbols.createObjectSymbol(objFlags, Names.fromString(objName),
                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,
                                                                   symTable.builtinPos, COMPILED_SOURCE);
                     }
@@ -1592,7 +1592,7 @@ public class BIRPackageSymbolEnter {
                         byte[] docBytes = readDocBytes(inputStream);
 
                         BType fieldType = readTypeFromCp();
-                        BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName),
+                        BVarSymbol objectVarSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName),
                                                                     objectSymbol.pkgID, fieldType,
                                                                     objectSymbol.scope.owner, symTable.builtinPos,
                                                                     COMPILED_SOURCE);
@@ -1633,7 +1633,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return getType(objectType, pkgEnv, names.fromString(objName));
+                    return getType(objectType, pkgEnv, Names.fromString(objName));
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -1733,11 +1733,11 @@ public class BIRPackageSymbolEnter {
             List<BConstantSymbol> members = new ArrayList<>();
             for (int i = 0; i < memberCount; i++) {
                 String memName = getStringCPEntryValue(inputStream);
-                BSymbol sym = symbolResolver.lookupSymbolInMainSpace(enumPkgEnv, names.fromString(memName));
+                BSymbol sym = symbolResolver.lookupSymbolInMainSpace(enumPkgEnv, Names.fromString(memName));
                 members.add((BConstantSymbol) sym);
             }
 
-            unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
+            unionType.tsymbol = new BEnumSymbol(members, flags, Names.fromString(enumName), pkgSymbol.pkgID, unionType,
                                                 pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
         }
 
@@ -1828,8 +1828,8 @@ public class BIRPackageSymbolEnter {
         String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
         String moduleName = ((StringCPEntry) env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
-        return new PackageID(names.fromString(orgName), names.fromString(pkgName),
-                names.fromString(moduleName), names.fromString(version), null);
+        return new PackageID(Names.fromString(orgName), Names.fromString(pkgName),
+                Names.fromString(moduleName), Names.fromString(version), null);
     }
 
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)
