@@ -26,3 +26,28 @@ function testSimpleWorkerVM(string msg) returns string {
     return wait first;
 }
 
+type Result record {
+    string a;
+    string b;
+};
+
+function fetch(string path) returns string {
+    return path;
+}
+
+function multiFetch(string pathA, string pathB) returns Result|error {
+    worker WA returns string {
+        return fetch(pathA);
+    }
+
+    worker WB returns string {
+            return fetch("pathB");
+    }
+
+    return wait {a: WA, b:WB};
+}
+
+public function testReturnWaitForAll() returns string|error {
+    Result res = check multiFetch("pathA", "pathB");
+    return res.a;
+}

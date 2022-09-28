@@ -18,10 +18,13 @@
 package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,9 +32,15 @@ import org.testng.annotations.Test;
  */
 public class WorkerInFunctionTest {
 
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
+    }
+
     @Test(description = "Test worker in function")
     public void testWorkerInFunction() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
         Object[] args = {StringUtils.fromString("hello")};
         Object returns = BRunUtil.invoke(result, "testSimpleWorker", args);
         Assert.assertEquals(returns.toString(), "hello");
@@ -39,12 +48,23 @@ public class WorkerInFunctionTest {
 
     @Test(description = "Test worker interactions with each other")
     public void testWorkerMultipleInteractions() {
-        CompileResult result = BCompileUtil.compile("test-src/workers/worker-multiple-interactions.bal");
+        CompileResult wmiresult = BCompileUtil.compile("test-src/workers/worker-multiple-interactions.bal");
         Object[] args = {(100)};
-        Object returns = BRunUtil.invoke(result, "testMultiInteractions", args);
+        Object returns = BRunUtil.invoke(wmiresult, "testMultiInteractions", args);
         Assert.assertTrue(returns instanceof Long);
         final String expected = "1103";
         Assert.assertEquals(returns.toString(), expected);
     }
 
+    @Test(description = "Test worker interactions with each other")
+    public void testReturnUnionWithWaitForAll() {
+        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll");
+        Assert.assertTrue(returns instanceof BmpStringValue);
+        Assert.assertEquals(returns.toString(), "pathA");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+    }
 }
