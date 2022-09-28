@@ -1,6 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
- *
+ *  Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
@@ -55,7 +54,7 @@ import java.util.List;
 /**
  * Utility methods used for runtime api @{@link io.ballerina.runtime.internal.types.BTypeReferenceType} testing.
  *
- * @since 2.3.0
+ * @since 2201.3.0
  */
 public class TypeReference {
 
@@ -146,7 +145,6 @@ public class TypeReference {
         if (streamType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }
-
         if (streamType.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw error;
         }

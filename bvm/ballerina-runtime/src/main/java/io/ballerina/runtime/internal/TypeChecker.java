@@ -3012,18 +3012,16 @@ public class TypeChecker {
             case TypeTags.ERROR_TAG:
                 return rhsValTypeTag == TypeTags.ERROR_TAG &&
                         isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
-            case TypeTags.SERVICE_TAG:
-                break;
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return checkValueEquals(lhsValue, rhsValue, checkedValues,
                         ((BTypeReferenceType) lhsValType).getReferredType(), rhsValType);
+            case TypeTags.SERVICE_TAG:
             default:
                 return false;
         }
-        return false;
     }
 
     private static boolean isListType(int typeTag) {

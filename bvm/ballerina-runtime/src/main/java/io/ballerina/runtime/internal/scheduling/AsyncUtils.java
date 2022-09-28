@@ -85,8 +85,7 @@ public class AsyncUtils {
 
         blockStrand(parent);
         final FutureValue future = scheduler.createFuture(parent, null, null,
-                ((BFunctionType) TypeUtils.getReferredType(func.getType())).retType, name,
-                metadata);
+                ((BFunctionType) TypeUtils.getReferredType(func.getType())).retType, name, metadata);
         future.callback = callback;
         callback.setFuture(future);
         callback.setStrand(parent);
