@@ -226,11 +226,11 @@ public interface WorkspaceManager {
     String uriScheme();
 
     /**
-     * Generate IDLGenerator plugins.
+     * Run IDLGenerator plugins.
      * 
      * @param filePath filepath.
      * @param project project.
      * @return
      */
-    Optional<IDLClientGeneratorResult> waitAndRunIDLGenertorPlugins(Path filePath, Project project);
+    Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project);
 }

@@ -100,7 +100,7 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                 })
                 .thenRunAsync(() -> {
                     Optional<IDLClientGeneratorResult> idlClientGeneratorResult =
-                            context.workspace().waitAndRunIDLGenertorPlugins(filePath, project);
+                            context.workspace().waitAndRunIDLGeneratorPlugins(filePath, project);
                     boolean diagnosticNotResolved = true;
                     if (idlClientGeneratorResult.isPresent()) {
                         diagnosticNotResolved = idlClientGeneratorResult.get().reportedDiagnostics().diagnostics()

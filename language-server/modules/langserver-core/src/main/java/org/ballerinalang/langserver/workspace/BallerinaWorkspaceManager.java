@@ -91,7 +91,6 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  * @since 2.0.0
  */
 public class BallerinaWorkspaceManager implements WorkspaceManager {
-
     /**
      * Cache mapping of document path to source root.
      */
@@ -984,7 +983,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public Optional<IDLClientGeneratorResult> waitAndRunIDLGenertorPlugins(Path filePath, Project project) {
+    public Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project) {
         Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
         if (projectPair.isEmpty()) {
             return Optional.empty();
