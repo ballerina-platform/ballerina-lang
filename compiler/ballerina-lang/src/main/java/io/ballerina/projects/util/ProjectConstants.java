@@ -51,6 +51,7 @@ public class ProjectConstants {
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
 
     public static final String NATIVE_DIR_NAME = "native";
+    public static final String NATIVE_CONFIG_DIR_NAME = "native-config";
 
     public static final String CACHES_DIR_NAME = "cache";
 

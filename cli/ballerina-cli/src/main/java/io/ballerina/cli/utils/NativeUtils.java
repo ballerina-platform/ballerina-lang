@@ -10,7 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +31,6 @@ public class NativeUtils {
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage) throws IOException {
         String org = currentPackage.packageOrg().toString();
         String version = currentPackage.packageVersion().toString();
-
-        // Create nativeConfig directory
-        if (!Files.exists(nativeConfigPath)) {
-            Files.createDirectory(nativeConfigPath);
-        }
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         List<ReflectConfigClass> classList = new ArrayList<>();
@@ -225,7 +219,7 @@ public class NativeUtils {
     }
 
     private static class ReflectConfigClass {
-        private String name;
+        private final String name;
         private List<ReflectConfigClassMethod> methods;
         private boolean allDeclaredFields;
         private boolean unsafeAllocated;
@@ -255,10 +249,26 @@ public class NativeUtils {
 
             this.queryAllDeclaredMethods = queryAllDeclaredMethods;
         }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isAllDeclaredFields() {
+            return allDeclaredFields;
+        }
+
+        public boolean isUnsafeAllocated() {
+            return unsafeAllocated;
+        }
+
+        public boolean isQueryAllDeclaredMethods() {
+            return queryAllDeclaredMethods;
+        }
     }
 
     private static class ReflectConfigClassMethod {
-        private String name;
+        private final String name;
         private String[] parameterTypes;
 
         public ReflectConfigClassMethod(String name) {
@@ -269,10 +279,20 @@ public class NativeUtils {
             this.name = name;
             this.parameterTypes = parameterTypes;
         }
+
+        public String getName() {
+
+            return name;
+        }
+
+        public String[] getParameterTypes() {
+
+            return parameterTypes;
+        }
     }
 
     private static class ResourceConfigClass {
-        private List<ResourceConfigBundles> bundles;
+        private final List<ResourceConfigBundles> bundles;
 
         public ResourceConfigClass() {
             this.bundles = new ArrayList<>();
@@ -290,6 +310,16 @@ public class NativeUtils {
         private ResourceConfigBundles(String name, String[] locales) {
             this.name = name;
             this.locales = locales;
+        }
+
+        public String getName() {
+
+            return name;
+        }
+
+        public String[] getLocales() {
+
+            return locales;
         }
     }
 

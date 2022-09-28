@@ -515,8 +515,8 @@ public class RunTestsTask implements Task {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add("native-image");
 
-        Path nativeConfigPath = target.getTestsCachePath().toAbsolutePath().resolve("native-config");
-        Path nativeTargetPath = currentPackage.project().sourceRoot().toAbsolutePath();
+        Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
+        Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
         // Create Configs
         createReflectConfig(nativeConfigPath, currentPackage);
@@ -526,14 +526,14 @@ public class RunTestsTask implements Task {
         cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
 
-        // native-image name
-        String nativeImageName = nativeTargetPath.resolve(packageName).toString();
+        String nativeImageName = nativeTargetPath.resolve(packageName).toString(); // <abs>/target/native/<packageName>
         cmdArgs.add(nativeImageName);
 
         // native-image configs
-        cmdArgs.add("-H:MaxDuplicationFactor=4.0");
+        cmdArgs.add("-H:MaxDuplicationFactor=8.0");
         cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
         cmdArgs.add("-H:ResourceConfigurationFiles=" + nativeConfigPath.resolve("resource-config.json"));
+        cmdArgs.add("--no-fallback");
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(cmdArgs.toArray(new String[0]));
@@ -547,7 +547,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(nativeImageName);
 
             // Test Runner Class arguments
-            cmdArgs.add(target.path().toAbsolutePath().toString());                                  // 0
+            cmdArgs.add(target.path().toString());                                  // 0
             cmdArgs.add(jacocoAgentJarPath);
             cmdArgs.add(Boolean.toString(report));
             cmdArgs.add(Boolean.toString(coverage));

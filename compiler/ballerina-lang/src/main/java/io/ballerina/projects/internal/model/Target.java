@@ -43,6 +43,7 @@ public class Target {
     private Path reportPath;
     private Path docPath;
     private Path nativePath;
+    private Path nativeConfigPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -55,6 +56,7 @@ public class Target {
         this.reportPath = this.targetPath.resolve(ProjectConstants.REPORT_DIR_NAME);
         this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
         this.nativePath = this.targetPath.resolve(ProjectConstants.NATIVE_DIR_NAME);
+        this.nativeConfigPath = this.testsCachePath.resolve(ProjectConstants.NATIVE_CONFIG_DIR_NAME);
 
         if (Files.exists(this.targetPath)) {
             ProjectUtils.checkWritePermission(this.targetPath);
@@ -222,8 +224,13 @@ public class Target {
         ProjectUtils.deleteDirectory(this.cache);
     }
 
-    public Path getNativePath() {
-
+    public Path getNativePath() throws IOException {
+        Files.createDirectories(nativePath);
         return nativePath;
+    }
+
+    public Path getNativeConfigPath() throws IOException {
+        Files.createDirectories(nativeConfigPath);
+        return nativeConfigPath;
     }
 }
