@@ -660,9 +660,11 @@ public class CodeActionUtil {
 
     private static String generateGetterFunctionBodyText(String varName, String typeName, String spaces) {
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function get%s() returns %s{ ", functionName, typeName))
+                .append(String.format("public function get%s() returns %s { ", functionName, typeName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
                 .append(String.format("return self.%s;", varName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
@@ -672,11 +674,13 @@ public class CodeActionUtil {
     private static String generateSetterFunctionBodyText(String varName, String typeName, String spaces) {
 
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, varName))
+                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
-                .append(String.format("self.%s = %s;", varName, varName))
+                .append(String.format("self.%s = %s;", varName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
         return newTextBuilder.toString();
     }
@@ -741,7 +745,8 @@ public class CodeActionUtil {
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
         for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                if (((FunctionDefinitionNode) node).functionName().text()
+                        .equals(removeQuotedIdentifier(functionName))) {
                     return true;
                 }
             }
@@ -837,6 +842,10 @@ public class CodeActionUtil {
         CodeAction action = createCodeAction(commandTitle, edits, uri);
         action.setKind(codeActionKind);
         return action;
+    }
+
+    public static String removeQuotedIdentifier(String identifier) {
+        return identifier.startsWith("'") ? identifier.substring(1) : identifier;
     }
 
     /**
