@@ -12,11 +12,18 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
+/**
+ * Task for creating the native image file.
+ *
+ * @since 2.0.0
+ */
 public class CreateNativeImageTask implements Task {
     private final transient PrintStream out;
     private Path output;
@@ -31,13 +38,12 @@ public class CreateNativeImageTask implements Task {
 
     @Override
     public void execute(Project project) {
-
         this.out.println();
         this.out.println("Generating executable with native-image");
+        this.currentDir = Paths.get(System.getProperty(USER_DIR));
 
         Path nativeDirectoryPath;
         String nativeImageName;
-
         Target target;
 
         try {
@@ -61,8 +67,9 @@ public class CreateNativeImageTask implements Task {
         }
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-            nativeDirectoryPath = project.sourceRoot().toAbsolutePath().getParent().resolve("native");
-            nativeImageName = project.sourceRoot().toAbsolutePath().getParent().getFileName().toString();
+            Path sourceRootParent = Optional.of(project.sourceRoot().toAbsolutePath().getParent()).orElseThrow();
+            nativeDirectoryPath = sourceRootParent.resolve("native");
+            nativeImageName = Optional.of(sourceRootParent.getFileName()).orElseThrow().toString();
         } else {
             nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
             nativeImageName = project.currentPackage().packageName().toString();
