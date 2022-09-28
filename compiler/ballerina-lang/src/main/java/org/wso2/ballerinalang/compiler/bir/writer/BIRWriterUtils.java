@@ -24,8 +24,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -76,8 +78,12 @@ public class BIRWriterUtils {
         writeConstValue(cp, buf, constValue.value, constValue.type);
     }
 
+    public static void writeConstValue(ConstantPool cp, ByteBuf buf, BLangConstantValue constValue) {
+        writeConstValue(cp, buf, constValue.value, constValue.type);
+    }
+
     public static void writeConstValue(ConstantPool cp, ByteBuf buf, Object value, BType type) {
-        switch (type.tag) {
+        switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

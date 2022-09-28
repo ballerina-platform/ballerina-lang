@@ -619,7 +619,7 @@ public class BIRTypeWriter implements TypeVisitor {
                 ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment)
                         .attachmentValueSymbol.value;
         writeType(this.cp, annotBuf, constVal.type);
-        writeConstValue(this.cp, annotBuf, new BIRNode.ConstValue(constVal.value, constVal.type));
+        writeConstValue(this.cp, annotBuf, constVal);
     }
 
 }
