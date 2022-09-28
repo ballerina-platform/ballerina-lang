@@ -225,20 +225,20 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
         validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
-                " found '((map<(int[2] & readonly)> & readonly)|error)'", 292, 34);
+                " found '((map<(int[2] & readonly)> & readonly)|error)'", 329, 34);
         validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
-                " found 'Department'", 297, 55);
+                " found 'Department'", 334, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
-                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 300, 48);
-        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 310, 16);
+                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 337, 48);
+        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 347, 16);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
-                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 319, 44);
+                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
         validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
-                347, 21);
+                384, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +
-                        "found '(table<ResultValue>|error)'", 350, 33);
+                        "found '(table<ResultValue>|error)'", 387, 33);
         validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
-                        "found '(table<NumberRecord> key(id)|error)'", 353, 42);
+                        "found '(table<NumberRecord> key(id)|error)'", 390, 42);
         // Enable following tests after fixing issue - lang/#36746
 //        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
 //                356, 21);
@@ -247,20 +247,20 @@ public class QueryExprWithQueryConstructTypeTest {
 //        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
 //                "found '(table<NumberRecord> key(id)|error)'", 366, 42);
         validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
-                371, 21);
+                408, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
-                "found '(table<NumberRecord> key(id)|error)'", 374, 42);
+                "found '(table<NumberRecord> key(id)|error)'", 411, 42);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<int>', found '(map<int>|error)'", 382, 21);
+                "incompatible types: expected 'map<int>', found '(map<int>|error)'", 419, 21);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'table<ResultValue>', found '(table<ResultValue>|error)'", 385, 33);
+                "incompatible types: expected 'table<ResultValue>', found '(table<ResultValue>|error)'", 422, 33);
         validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
-                        "found '(table<NumberRecord> key(id)|error)'", 388, 42);
+                        "found '(table<NumberRecord> key(id)|error)'", 425, 42);
         validateError(negativeResult, index++,
-                "incompatible types: '(map<int>|error)' is not an iterable collection", 391, 48);
+                "incompatible types: '(map<int>|error)' is not an iterable collection", 428, 48);
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
-                        "is not an iterable collection", 395, 100);
+                        "is not an iterable collection", 432, 100);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
