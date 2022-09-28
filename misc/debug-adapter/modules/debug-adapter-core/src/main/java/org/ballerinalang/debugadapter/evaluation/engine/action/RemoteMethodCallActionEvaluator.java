@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -43,7 +44,6 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 
 /**
  * Evaluator implementation for remote method call invocation actions.
@@ -54,14 +54,14 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
 
     private final RemoteMethodCallActionNode syntaxNode;
     private final String methodName;
-    private final Evaluator objectExpressionEvaluator;
+    private final Evaluator subExpressionEvaluator;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
     public RemoteMethodCallActionEvaluator(EvaluationContext context, RemoteMethodCallActionNode remoteMethodActionNode,
                                            Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context, null, expression, argEvaluators);
         this.syntaxNode = remoteMethodActionNode;
-        this.objectExpressionEvaluator = expression;
+        this.subExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
         this.methodName = syntaxNode.methodName().toSourceCode().trim();
     }
@@ -71,11 +71,11 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         try {
             // Calls a remote method of a client object. This works the same as a method call expression, except that
             // it is used for a client object method with the remote qualifier.
-            BExpressionValue result = objectExpressionEvaluator.evaluate();
-            BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
+            BExpressionValue subExprResult = subExpressionEvaluator.evaluate();
+            BVariable resultVar = VariableFactory.getVariable(context, subExprResult.getJdiValue());
 
-            // If the expression result is an object, try invoking as an object method invocation.
-            if (result.getType() != BVariableType.CLIENT_OBJECT) {
+            // If the expression subExprResult is an object, try invoking as an object method invocation.
+            if (subExprResult.getType() != BVariableType.CLIENT_OBJECT) {
                 throw createEvaluationException("invalid remote method call: expected a client object, but found " +
                         "'other'");
             }
@@ -121,9 +121,10 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
-        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, objectMethodDef.get().typeDescriptor(),
-                argEvaluators);
-        objectMethod.setNamedArgValues(argValueMap);
+        SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, methodName, objectMethod
+                .getJDIMethodRef(), objectMethodDef.get());
+        List<Value> orderedArgsList = argProcessor.process(argEvaluators);
+        objectMethod.setArgValues(orderedArgsList);
         return objectMethod.invokeSafely();
     }
 
@@ -136,10 +137,8 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
 
             List<Method> methods = objectRef.methodsByName(methodName);
             for (Method method : methods) {
-                // Since Ballerina codegen phase introduces an additional boolean helper parameter for every
-                // method parameter except for the `strand` parameter, total number of parameters defined in the runtime
-                // method will be 2n + 1.
-                int expectedArgsCountInRuntime = 2 * argsCountInDefinition + 1;
+                // total number of parameters defined in the runtime method will be n + 1, due to the 'strand' variable.
+                int expectedArgsCountInRuntime = argsCountInDefinition + 1;
                 if (method.argumentTypes().size() == expectedArgsCountInRuntime) {
                     return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
                 }
