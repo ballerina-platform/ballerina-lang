@@ -246,15 +246,14 @@ class JvmObservabilityGen {
 
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 List<BIRBasicBlock> predecessors = entry.getValue();
-                if (predecessors.isEmpty()) {
-                    injectCheckpointCall(currentBB, pkg, desugaredPos);
-                    continue;
-                }
-                boolean alreadyLoaded = predecessors.stream()
+                boolean desugaredPosAlreadyLoaded = predecessors.stream()
                                                     .anyMatch(bb -> getDesugaredPosition(bb).equals(desugaredPos));
-                if (!alreadyLoaded) {
-                    injectCheckpointCall(currentBB, pkg, desugaredPos);
+                int callInsOffset = 0;
+                if (!desugaredPosAlreadyLoaded) {
+                    updatePositionArgsConstLoadIns(desugaredPos, currentBB);
+                    callInsOffset = 2;
                 }
+                injectCheckpointCall(currentBB, pkg, callInsOffset);
             }
         }
     }
@@ -264,13 +263,11 @@ class JvmObservabilityGen {
      *
      * @param currentBB The basic block to which the checkpoint call should be injected
      * @param pkg The package the invocation belongs to
-     * @param originalInsPosition The source code position of the invocation
+     * @param offset The recordCheckPointCall instruction offset
      */
-    private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg,
-                                      Location originalInsPosition) {
+    private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, int offset) {
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 generatePackageId(pkg.packageID));
-        updatePositionArgsConstLoadIns(originalInsPosition, currentBB);
         BIROperand fileNameOperand = tempLocalVarsMap.get(FILE_NAME_STRING);
         BIROperand startLineOperand = tempLocalVarsMap.get(START_LINE_STRING);
         BIROperand startColOperand = tempLocalVarsMap.get(START_COLUMN_STRING);
@@ -281,7 +278,7 @@ class JvmObservabilityGen {
         recordCheckPointCallIns.name = RECORD_CHECKPOINT_METHOD;
         recordCheckPointCallIns.args = new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand,
                 startLineOperand, startColOperand));
-        currentBB.instructions.add(2, recordCheckPointCallIns);
+        currentBB.instructions.add(offset, recordCheckPointCallIns);
     }
 
     private Location getDesugaredPosition(BIRBasicBlock basicBlock) {
