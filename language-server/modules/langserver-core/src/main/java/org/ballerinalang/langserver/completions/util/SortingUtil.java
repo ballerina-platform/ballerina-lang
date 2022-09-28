@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
@@ -42,6 +43,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
 import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
@@ -120,7 +122,7 @@ public class SortingUtil {
     public static boolean isLangLibModuleCompletionItem(LSCompletionItem item) {
         if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
                 && ((SymbolCompletionItem) item).getSymbol()
-                    .filter(symbol -> symbol.kind() == SymbolKind.MODULE).isPresent()) {
+                .filter(symbol -> symbol.kind() == SymbolKind.MODULE).isPresent()) {
             Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
             return (symbol.isPresent() && CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()));
         }
@@ -640,19 +642,36 @@ public class SortingUtil {
         }
         return Optional.empty();
     }
-    
+
     /**
      * Sets the sorting text to provided completion items to be suggested after configurable qualifier.
      *
      * @param completionItems Completion items to be set sorting texts
      */
-    public static void sortCompletionsAfterConfigurableQualifier(List<LSCompletionItem> completionItems) {
+    public static void sortCompletionsAfterConfigurableQualifier(CompletionContext context,
+                                                                 List<LSCompletionItem> completionItems,
+                                                                 Boolean onQualifiedNamedIdentifier) {
+        if (onQualifiedNamedIdentifier) {
+            completionItems.forEach(lsCompletionItem -> {
+                String sortText = SortingUtil.genSortText(2);
+                Types types = context.currentSemanticModel().get().types();
+                if (lsCompletionItem.getType() == SYMBOL) {
+                    Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(lsCompletionItem);
+                    if (typeSymbol.isPresent() && typeSymbol.get().subtypeOf(types.ANYDATA)) {
+                        sortText = SortingUtil.genSortText(1);
+                    }
+                }
+                lsCompletionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+        
         List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
                 "decimal", "string", "xml", "map", "table");
         completionItems.forEach(lsCompletionItem -> {
             String sortText;
             if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
-                    lsCompletionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                    lsCompletionItem.getType() == SYMBOL) {
                 Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
                 if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
                         CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
