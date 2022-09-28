@@ -66,7 +66,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
                 repoBalaPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void codegenCoverageTest() throws BallerinaTestException {
         String[] args = new String[] {"--code-coverage"};
         runCommand(args);

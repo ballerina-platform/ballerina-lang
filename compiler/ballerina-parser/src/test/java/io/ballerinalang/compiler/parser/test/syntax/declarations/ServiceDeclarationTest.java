@@ -58,6 +58,11 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         testFile("service-decl/service_decl_source_19.bal", "service-decl/service_decl_assert_19.json");
     }
 
+    @Test
+    public void testOptionalSemicolon() {
+        testFile("service-decl/service_decl_source_25.bal", "service-decl/service_decl_assert_25.json");
+    }
+
     // Valid service function syntax tests
 
     @Test

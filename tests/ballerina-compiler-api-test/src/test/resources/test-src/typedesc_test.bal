@@ -361,3 +361,14 @@ function testSingletonTypes() {
     "a" j;
     RED k;
 }
+
+public isolated client class 'client {
+}
+
+class 'class {
+}
+
+function testQuotedClientClass() {
+    'client c;
+    'class cls;
+}
