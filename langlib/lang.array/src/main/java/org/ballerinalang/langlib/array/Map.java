@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,14 +73,9 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand,
-                                                               getFn.get(arr, index.incrementAndGet()), true},
-                                                       result -> retArr.add(index.get(), result),
-                                                       () -> retArr, Scheduler.getStrand().scheduler);
-
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true},
+                result -> retArr.add(index.get(), result), () -> retArr, Scheduler.getStrand().scheduler);
         return retArr;
     }
 }

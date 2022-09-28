@@ -89,6 +89,7 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -1127,6 +1128,24 @@ public class TypedescriptorTest {
                 {359, 14, FLOAT, "0xB2.8Fp1"},
                 {360, 8, STRING, "\"a\""},
                 {361, 8, STRING, "\"RED\""},
+        };
+    }
+
+    @Test(dataProvider = "ClassAndObjectTypePosProvider")
+    public void testClassAndObjectType(int line, int column, String expectedSignature, TypeDescKind expTypeKind) {
+        Symbol varSymbol = getSymbol(line, column);
+        assertEquals(varSymbol.kind(), VARIABLE);
+        TypeSymbol typeSymbol = ((VariableSymbol) varSymbol).typeDescriptor();
+        assertEquals(typeSymbol.signature(), expectedSignature);
+        assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), expTypeKind);
+    }
+
+    @DataProvider(name = "ClassAndObjectTypePosProvider")
+    private Object[][] getClassAndObjectTypePos() {
+        return new Object[][] {
+                {371, 12, "'client", OBJECT},
+                {372, 11, "'class", OBJECT},
         };
     }
 
