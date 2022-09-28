@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 5,
+      "character": 30
+    },
+    "end": {
+      "line": 8,
+      "character": 1
+    }
+  },
+  "source": "extractToVariableInTableConstructor.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "table\u003cEmployee\u003e key(name) var1 \u003d table [\n    { name: \"John\", salary: 100 },\n    { name: \"Jane\", salary: 200 }\n];\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 30
+            },
+            "end": {
+              "line": 8,
+              "character": 1
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

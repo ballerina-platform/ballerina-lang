@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 19
+    },
+    "end": {
+      "line": 2,
+      "character": 85
+    }
+  },
+  "source": "extractToVariableInLetExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "int var1 \u003d let int letVar1 \u003d 1, int letVar2 \u003d letVar1 + 1 + intVal in letVar1;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 19
+            },
+            "end": {
+              "line": 2,
+              "character": 85
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}
