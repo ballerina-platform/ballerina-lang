@@ -226,6 +226,9 @@ public class BallerinaAnnotationSymbol extends BallerinaSymbol implements Annota
             if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.RECORD_FIELD)) {
                 annotationAttachPoints.add(AnnotationAttachPoint.RECORD_FIELD);
             }
+            if (Symbols.isAttachPointPresent(maskedPoints, AttachPoints.CLIENT)) {
+                annotationAttachPoints.add(AnnotationAttachPoint.CLIENT);
+            }
 
             return annotationAttachPoints;
         }

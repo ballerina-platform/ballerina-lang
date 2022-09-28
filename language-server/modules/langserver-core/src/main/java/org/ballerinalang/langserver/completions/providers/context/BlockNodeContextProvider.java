@@ -78,6 +78,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, filter));
         } else {
             /*
             Covers the following
@@ -101,6 +102,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Remove the function keyword suggestion from here, since it is suggested by typeItems API
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLIENT_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));

@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -106,7 +107,12 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             this.definition = symbolFactory.getBCompiledSymbol(referredType.tsymbol,
                     referredType.tsymbol.getName().getValue());
         } else {
-            Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(Names.fromString(this.name()));
+            Name name = Names.fromString(this.name());
+            Scope.ScopeEntry scopeEntry = tSymbol.owner.scope.lookup(name);
+            if (scopeEntry.symbol == null) {
+                scopeEntry = tSymbol.owner.scope.lookup(tSymbol.getName());
+            }
+
             this.definition = symbolFactory.getBCompiledSymbol(scopeEntry.symbol, this.name());
         }
 
