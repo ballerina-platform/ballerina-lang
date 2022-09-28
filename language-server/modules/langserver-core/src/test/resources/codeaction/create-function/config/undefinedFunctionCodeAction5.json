@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nisolated function getInt() returns int {\n    return 0;\n}\n"
+          "newText": "\n\nisolated function getInt() returns int {\n    return 0;\n}"
         }
       ],
       "resolvable": true,

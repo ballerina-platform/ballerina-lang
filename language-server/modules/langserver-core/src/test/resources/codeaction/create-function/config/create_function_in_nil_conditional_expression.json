@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getFunc() returns string? {\n    return ();\n}\n"
+          "newText": "\n\nfunction getFunc() returns string? {\n    return ();\n}"
         }
       ],
       "resolvable": true,
@@ -30,24 +30,24 @@
         "fileUri": "create_function_in_nil_conditional_expression.bal",
         "range": {
           "start": {
-            "line": 18,
-            "character": 52
+            "line": 1,
+            "character": 17
           },
           "end": {
-            "line": 18,
-            "character": 69
+            "line": 1,
+            "character": 26
           }
         },
         "actionData": {
           "key": "node.range",
           "value": {
             "start": {
-              "line": 18.0,
-              "character": 52.0
+              "line": 1,
+              "character": 17
             },
             "end": {
-              "line": 18.0,
-              "character": 69.0
+              "line": 1.0,
+              "character": 26.0
             }
           }
         }

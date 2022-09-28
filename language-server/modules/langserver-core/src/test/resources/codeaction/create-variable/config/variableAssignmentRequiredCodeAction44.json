@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "byte[] listResult \u003d "
+          "newText": "byte[] listResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable8.bal",
+          36
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

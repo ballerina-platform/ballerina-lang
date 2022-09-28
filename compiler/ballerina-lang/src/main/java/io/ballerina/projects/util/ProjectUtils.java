@@ -96,10 +96,12 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -938,6 +940,64 @@ public class ProjectUtils {
         try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
             return new Gson().fromJson(bufferedReader, BuildJson.class);
         }
+    }
+
+    /**
+     * Check project files are updated.
+     *
+     * @param project project instance
+     * @return is project files are updated
+     */
+    public static boolean isProjectUpdated(Project project) {
+        // If observability included and Syntax Tree Json not in the caches, return true
+        Path observeJarCachePath = project.targetDir()
+                .resolve(CACHES_DIR_NAME)
+                .resolve(project.currentPackage().packageOrg().value())
+                .resolve(project.currentPackage().packageName().value())
+                .resolve(project.currentPackage().packageVersion().value().toString())
+                .resolve("observe")
+                .resolve(project.currentPackage().packageOrg().value() + "-"
+                        + project.currentPackage().packageName().value()
+                        + "-observability-symbols.jar");
+        if (project.buildOptions().observabilityIncluded() &&
+                !observeJarCachePath.toFile().exists()) {
+            return true;
+        }
+
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        if (buildFile.toFile().exists()) {
+            try {
+                BuildJson buildJson = readBuildJson(buildFile);
+                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+                if (buildJson != null
+                        && buildJson.getLastModifiedTime() != null
+                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                            .get(project.currentPackage().packageName().value());
+                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+                }
+            } catch (IOException e) {
+                // if reading `build` file fails
+                // delete `build` file and return true
+                try {
+                    Files.deleteIfExists(buildFile);
+                } catch (IOException ex) {
+                    // ignore
+                }
+                return true;
+            }
+        }
+        return true; // return true if `build` file does not exist
+    }
+
+    /**
+     * Get temporary target path.
+     *
+     * @return temporary target path
+     */
+    public static String getTemporaryTargetPath() {
+        return Paths.get(System.getProperty("java.io.tmpdir"))
+                .resolve("ballerina-cache" + System.nanoTime()).toString();
     }
 
     /**

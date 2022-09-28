@@ -1536,7 +1536,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                         currentTypeNodeName, currentTypeOrClassNode.pos.lineRange().startLine().line(),
                         currentTypeOrClassNode.pos.lineRange().startLine().offset());
                 if (unknownTypeRefs.add(locationData)) {
-                    dlog.error(currentTypeOrClassNode.pos, DiagnosticErrorCode.UNKNOWN_TYPE, currentTypeNodeName);
+                    dlog.error(currentTypeOrClassNode.pos, DiagnosticErrorCode.UNKNOWN_TYPE, 
+                            new Name(currentTypeNodeName));
                 }
             } else {
                 for (BLangNode typeDefinition : typeDefinitions) {
@@ -5066,9 +5067,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFuncSymbol) || Symbols.isResource(referencedFuncSymbol)) {
-            // we should not copy private functions. And we ignore the resource functions as they are not part of the
-            // type.
+        if (Symbols.isPrivate(referencedFuncSymbol)) {
+            // we should not copy private functions
             return;
         }
 
