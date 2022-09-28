@@ -2428,8 +2428,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
+        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED)
+                && !varNode.flagSet.contains(Flag.FIELD)
+                && types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
             // check if the variable is defined as a 'never' type or equivalent to 'never'
             // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error
@@ -3972,17 +3973,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
                 })
                 .collect(getFieldCollector());
-    }
-
-    private void resolveTupleMembers(BTupleType tupleType, BLangTupleTypeNode structureTypeNode,
-                                     SymbolEnv typeDefEnv) {
-        tupleType.tupleTypes = structureTypeNode.memberTypeNodes.stream()
-                .peek((BLangSimpleVariable member) -> defineNode(member, typeDefEnv))
-                .filter(member -> member.symbol.type != symTable.semanticError)
-                .map((BLangSimpleVariable member) -> {
-                    member.symbol.isDefaultable = member.expr != null;
-                    return new BTupleMember(member.typeNode.getBType(), member.symbol);
-                }).collect(Collectors.toList());
     }
 
     private void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
