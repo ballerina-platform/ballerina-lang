@@ -179,6 +179,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -4534,6 +4535,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.TYPEREFDESC:
                 setResultTypeForWaitForAllExpr(waitForAllExpr, Types.getReferredType(expType), data);
                 break;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> unionMemberTypes = ((BUnionType) expType).getMemberTypes();
+                int prevErrorCount = this.dlog.errorCount();
+                this.dlog.mute();
+                for (BType memberType : unionMemberTypes) {
+                    data.expType = memberType;
+                    this.dlog.resetErrorCount();
+                    setResultTypeForWaitForAllExpr(waitForAllExpr, memberType, data);
+                    if (this.dlog.errorCount() == 0) {
+                        this.dlog.setErrorCount(prevErrorCount);
+                        this.dlog.unmute();
+                        data.expType = expType;
+                        return;
+                    }
+                }
+                this.dlog.setErrorCount(prevErrorCount);
+                this.dlog.unmute();
+                data.expType = expType;
             default:
                 dlog.error(waitForAllExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
                         getWaitForAllExprReturnType(waitForAllExpr, waitForAllExpr.pos, data));
