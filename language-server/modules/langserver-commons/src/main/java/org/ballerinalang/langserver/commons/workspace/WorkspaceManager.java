@@ -230,7 +230,7 @@ public interface WorkspaceManager {
      * 
      * @param filePath filepath.
      * @param project project.
-     * @return
+     * @return {@link IDLClientGeneratorResult}
      */
     Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project);
 }

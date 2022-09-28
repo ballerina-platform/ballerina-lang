@@ -42,7 +42,7 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCodeActionProvider {
 
-    private static final String NAME = "Generate Module Client Declaration";
+    private static final String NAME = "GENERATE_MODULE_FOR_CLIENT_DECLARATION";
 
     public static final String DIAGNOSTIC_CODE = "BCE4037";
     public static final String DIAGNOSTIC_CODE_EXCLUDE = "BCE5304";
