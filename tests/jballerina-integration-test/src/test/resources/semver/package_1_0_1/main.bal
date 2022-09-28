@@ -24,4 +24,4 @@ public function publicFunction() {
 function privateFunctionChanged() {
     int foo = 2;
     int bar = 4;
-
+}
