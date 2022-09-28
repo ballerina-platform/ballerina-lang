@@ -441,9 +441,13 @@ function testIsFullMatch() {
     assertFalse(isFullMatch2);
 
     string str3 = "This Should Match";
-    var regExpr3 = re `Th.*ch`;
+    var regExpr3 = re `A|Th.*ch|^`;
     boolean isFullMatch3 = regExpr3.isFullMatch(str3);
     assertTrue(isFullMatch3);
+
+    var regExpr4 = re `A|Th.*ch|^&`;
+    boolean isFullMatch4 = regExpr4.isFullMatch(str3);
+    assertTrue(isFullMatch4);
 }
 
 function testFullMatchGroups() {
@@ -889,6 +893,41 @@ function testFromStringNegative() {
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
         assertEquality("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("\\p{");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid end of characters", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("\\p{sc=^}");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character '^'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("\\p{sc=L^}");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid character 'L^'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("\\p{gc=");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Invalid end of characters", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = regexp:fromString("[");
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
     }
 }
 

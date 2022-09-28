@@ -117,9 +117,6 @@ public class RegExpFactory {
     public static RegExpValue translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
         for (Object s : disjunction.getRegExpSeqList()) {
-            if (s == null) {
-                break;
-            }
             if (!(s instanceof RegExpSequence)) {
                 continue;
             }

@@ -154,14 +154,9 @@ public class TreeBuilder {
     }
     
     private String readOpenBrace() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.OPEN_BRACE_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
-        }
-        throw new BallerinaException("Missing '{' character");
+        Token consumedToken = consume();
+        return consumedToken.value;
     }
-
 
     private String readUnicodeProperty() {
         Token nextToken = peek();
@@ -178,7 +173,7 @@ public class TreeBuilder {
             Token unicodePropertyValue = consume();
             return scriptStart.value + unicodePropertyValue.value;
         }
-        throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+        throw new BallerinaException(getErrorMsg(nextToken));
     }
 
     private String readRegUnicodeGeneralCategory() {
@@ -191,10 +186,9 @@ public class TreeBuilder {
         Token generalCategory;
         if (nextToken.kind == TokenKind.RE_UNICODE_GENERAL_CATEGORY_NAME) {
             generalCategory = consume();
-        } else {
-            throw new BallerinaException("Invalid character '" + nextToken.value + "'");
+            return scriptStart != null ? scriptStart.value + generalCategory.value : generalCategory.value;
         }
-        return scriptStart != null ? scriptStart.value + generalCategory.value : generalCategory.value;
+        throw new BallerinaException(getErrorMsg(nextToken));
     }
 
     private String readRegQuoteEscape(String backSlash) {
@@ -208,23 +202,14 @@ public class TreeBuilder {
     }
     
     private RegExpCharacterClass readRegCharacterClass() {
-        String characterClassStart = readCharacterClassStart();
+        String characterClassStart = consume().value;
         // Read ^ char.
         String negation = readNegation();
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
-    
-    private String readCharacterClassStart() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.OPEN_BRACKET_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
-        }
-        throw new BallerinaException("Missing '[' character");
-    }
-    
+
     private String readNegation() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.BITWISE_XOR_TOKEN) {
@@ -248,9 +233,6 @@ public class TreeBuilder {
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
-            if (isCharacterClassEnd(nextToken.kind)) {
-                return new RegExpCharSet(new Object[]{startReCharSetAtom, minus.value});
-            }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
@@ -270,9 +252,6 @@ public class TreeBuilder {
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
-            if (isCharacterClassEnd(nextToken.kind)) {
-                return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash, minus.value});
-            }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtomNoDash, minus.value,
                     rhsReCharSetAtom);
@@ -358,7 +337,7 @@ public class TreeBuilder {
     }
     
     private RegExpCapturingGroup readRegCapturingGroups() {
-        String openParenthesis = readOpenParenthesis();
+        String openParenthesis = consume().value;
         Token nextToken = peek();
         RegExpFlagExpression flagExpression;
         if (nextToken.kind == TokenKind.QUESTION_MARK_TOKEN) {
@@ -372,15 +351,6 @@ public class TreeBuilder {
         return new RegExpCapturingGroup(openParenthesis, flagExpression, reDisjunction, closeParenthesis);
     }
 
-    private String readOpenParenthesis() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.OPEN_PAREN_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
-        }
-        throw new BallerinaException("Missing '(' character");
-    }
-
     private RegExpFlagExpression readFlagExpression() {
         Token questionMark = consume();
         Token nextToken = peek();
@@ -391,7 +361,7 @@ public class TreeBuilder {
             // Create empty flags.
             reFlagsOnOff = new RegExpFlagOnOff("");
         }
-        String colon = readColon();
+        String colon = consume().value;
         return new RegExpFlagExpression(questionMark.value, reFlagsOnOff, colon);
     }
 
@@ -417,15 +387,6 @@ public class TreeBuilder {
             nextToken = peek();
         }
         return flags.toString();
-    }
-
-    private String readColon() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.COLON_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
-        }
-        throw new BallerinaException("Missing ':' character");
     }
 
     private String readCloseParenthesis() {
@@ -486,6 +447,13 @@ public class TreeBuilder {
             default:
                 return false;
         }
+    }
+
+    private String getErrorMsg(Token nextToken) {
+        if (nextToken.kind == TokenKind.EOF_TOKEN) {
+            return "Invalid end of characters";
+        }
+        return "Invalid character '" + nextToken.value + "'";
     }
 
     private Token peek() {

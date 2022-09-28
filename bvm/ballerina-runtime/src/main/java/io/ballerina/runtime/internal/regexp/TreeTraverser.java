@@ -186,17 +186,8 @@ public class TreeTraverser {
     private Token readTokenInReEscape() {
         this.reader.mark();
 
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
-
         int nextToken = peek();
         boolean isReSyntaxChar = isReSyntaxChar(nextToken);
-        boolean isReSimpleCharClassCode = isReSimpleCharClassCode(nextToken);
-
-        if (!isReSyntaxChar && !isReSimpleCharClassCode) {
-            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
-        }
 
         this.reader.advance();
         endMode();
@@ -256,10 +247,6 @@ public class TreeTraverser {
      */
     private Token readTokenInReUnicodePropertyEscape() {
         this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpToken(TokenKind.EOF_TOKEN);
-        }
 
         if (peek() == Terminals.OPEN_BRACE) {
             this.reader.advance();
@@ -338,11 +325,13 @@ public class TreeTraverser {
 
     private void processReUnicodePropertyValue() {
         if (!isReUnicodePropertyValueChar(peek())) {
+            this.reader.advance();
             throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
 
         while (!isEndOfUnicodePropertyEscape()) {
             if (!isReUnicodePropertyValueChar(peek())) {
+                this.reader.advance();
                 throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
             }
             this.reader.advance();

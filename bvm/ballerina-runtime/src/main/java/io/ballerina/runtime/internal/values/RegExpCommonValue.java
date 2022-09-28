@@ -37,9 +37,6 @@ import java.util.Map;
 public abstract class RegExpCommonValue implements RefValue {
 
     @Override
-    public abstract String stringValue(BLink parent);
-
-    @Override
     public String expressionStringValue(BLink parent) {
         return stringValue(parent);
     }
