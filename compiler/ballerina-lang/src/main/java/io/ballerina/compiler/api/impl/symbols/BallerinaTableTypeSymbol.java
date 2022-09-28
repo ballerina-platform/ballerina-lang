@@ -19,10 +19,14 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -30,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents a table type descriptor.
@@ -38,6 +43,8 @@ import java.util.StringJoiner;
  */
 public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements TableTypeSymbol {
 
+    private static final String ORG_NAME_BALLERINA = "ballerina";
+    private static final String MODULE_NAME_LANG_TABLE = "lang.table";
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
     private List<String> keySpecifiers = new ArrayList<>();
@@ -66,6 +73,23 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
         }
 
         return Optional.ofNullable(this.keyConstraintTypeParameter);
+    }
+
+    @Override
+    protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+        Types types = Types.getInstance(this.context);
+
+        // Skip key-ed langlib functions if the table's type-constraint is never-typed
+        return super.filterLangLibMethods(functions, internalType).stream()
+                .filter(functionSymbol -> {
+                    if (!ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
+                            !MODULE_NAME_LANG_TABLE.equals(functionSymbol.getModule().get().id().moduleName())) {
+                        return true;
+                    }
+
+                    return !isKeyedLangLibFunction(functionSymbol, types) || !isNeverTypeKeyConstraint(types);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -113,5 +137,24 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
     @Override
     public <T> T apply(SymbolTransformer<T> transformer) {
         return transformer.transform(this);
+    }
+
+    // Private util methods
+
+    private boolean isKeyedLangLibFunction(FunctionSymbol function, Types types) {
+        List<ParameterSymbol> params = function.typeDescriptor().params().get();
+        TableTypeSymbol firstParamTypeDesc = (TableTypeSymbol) params.get(0).typeDescriptor();
+        Optional<TypeSymbol> keyConstraintTypeParam = firstParamTypeDesc.keyConstraintTypeParameter();
+
+        if (keyConstraintTypeParam.isEmpty()) {
+            return false;
+        }
+
+        return !types.isNeverType(((AbstractTypeSymbol) keyConstraintTypeParam.get()).getBType());
+    }
+
+    private boolean isNeverTypeKeyConstraint(Types types) {
+        return this.keyConstraintTypeParameter().isPresent() &&
+                types.isNeverType(((AbstractTypeSymbol) this.keyConstraintTypeParameter().get()).getBType());
     }
 }

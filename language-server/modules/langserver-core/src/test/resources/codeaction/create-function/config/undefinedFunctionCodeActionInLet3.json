@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 7,
+    "character": 59
+  },
+  "source": "testproject/school.bal",
+  "expected": [
+    {
+      "title": "Create function 'createSchool(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 1
+            },
+            "end": {
+              "line": 10,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createSchool([Grade] t) returns School {\n    return {students: []};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/school.bal",
+        "range": {
+          "start": {
+            "line": 7,
+            "character": 59
+          },
+          "end": {
+            "line": 7,
+            "character": 80
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 7.0,
+              "character": 59.0
+            },
+            "end": {
+              "line": 7.0,
+              "character": 80.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

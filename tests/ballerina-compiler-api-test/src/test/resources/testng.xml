@@ -71,6 +71,7 @@
 
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByAnnotationTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClassTest" />
+            <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClientResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByConstantTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByEnumTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByFunctionTest" />

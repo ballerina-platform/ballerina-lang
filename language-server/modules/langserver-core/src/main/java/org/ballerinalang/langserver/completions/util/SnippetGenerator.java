@@ -668,7 +668,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getAnnotationKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ANNOTATION_TYPE, ItemResolverConstants.ANNOTATION_TYPE,
+        return new SnippetBlock(ItemResolverConstants.ANNOTATION, ItemResolverConstants.ANNOTATION,
                 "annotation ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
@@ -1561,6 +1561,19 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.REMOTE_FUNCTION_TYPE,
                 generateFilterText(Arrays.asList(ItemResolverConstants.REMOTE_KEYWORD, ItemResolverConstants.FUNCTION)),
                 snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Resource method declaration Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getResourceMethodDeclSnippet() {
+        String snippet = "resource function ${1:accessor} ${2:path} (${3});";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNCTION_TYPE,
+                generateFilterText(Arrays.asList(ItemResolverConstants.RESOURCE_KEYWORD, 
+                        ItemResolverConstants.FUNCTION)), snippet, ItemResolverConstants.SNIPPET_TYPE, 
+                Kind.SNIPPET);
     }
 
     /**

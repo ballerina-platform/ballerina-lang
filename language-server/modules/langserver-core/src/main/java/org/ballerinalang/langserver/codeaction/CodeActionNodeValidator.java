@@ -20,8 +20,13 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -35,10 +40,12 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
@@ -122,8 +129,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     public Boolean transform(TableTypeDescriptorNode node) {
         return isVisited(node) || !node.tableKeywordToken().isMissing()
                 && node.rowTypeParameterNode().apply(this)
-                && node.keyConstraintNode().isPresent()
-                && node.keyConstraintNode().get().apply(this);
+                // checks both when the key constraint is available and not
+                && (node.keyConstraintNode().isEmpty() || node.keyConstraintNode().get().apply(this));
     }
 
     @Override
@@ -270,9 +277,78 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     }
 
     @Override
+    public Boolean transform(FunctionDefinitionNode node) {
+        return isVisited(node) || !node.functionKeyword().isMissing()
+                && !node.functionName().isMissing()
+                && node.leadingInvalidTokens().isEmpty()
+                && node.trailingInvalidTokens().isEmpty()
+                && node.functionSignature().apply(this)
+                && node.functionBody().apply(this)
+                && node.parent().apply(this);
+    }
+
+    @Override
+    public Boolean transform(FunctionSignatureNode node) {
+        return isVisited(node) || !node.openParenToken().isMissing()
+                && !node.closeParenToken().isMissing()
+                && node.leadingInvalidTokens().isEmpty()
+                && node.trailingInvalidTokens().isEmpty()
+                && (node.returnTypeDesc().isEmpty() || node.returnTypeDesc().get().apply(this))
+                && node.parameters().stream().allMatch(parameterNode -> parameterNode.apply(this));
+    }
+
+    @Override
+    public Boolean transform(FunctionBodyBlockNode node) {
+        return isVisited(node) || !node.isMissing()
+                && !node.openBraceToken().isMissing()
+                && !node.closeBraceToken().isMissing()
+                && node.leadingInvalidTokens().isEmpty()
+                && node.trailingInvalidTokens().isEmpty()
+                && node.parent().apply(this);
+    }
+
+    @Override
+    public Boolean transform(ReturnTypeDescriptorNode node) {
+        return isVisited(node) || !node.returnsKeyword().isMissing()
+                && node.type().apply(this);
+    }
+
+    @Override
+    public Boolean transform(ExpressionFunctionBodyNode node) {
+        return isVisited(node) || !node.rightDoubleArrow().isMissing()
+                && !node.expression().isMissing();
+    }
+
+    @Override
+    public Boolean transform(ClassDefinitionNode node) {
+        return isVisited(node) || !node.classKeyword().isMissing()
+                && !node.className().isMissing()
+                && !node.openBrace().isMissing()
+                && !node.closeBrace().isMissing()
+                && node.leadingInvalidTokens().isEmpty()
+                && node.trailingInvalidTokens().isEmpty()
+                && node.members().stream().allMatch(member -> member.apply(this));
+    }
+
+    @Override
+    public Boolean transform(TableConstructorExpressionNode node) {
+        return isVisited(node) || !node.tableKeyword().isMissing()
+                && !node.openBracket().isMissing()
+                && !node.closeBracket().isMissing()
+                && (node.keySpecifier().isEmpty() || node.keySpecifier().get().apply(this))
+                && node.rows().stream().allMatch(row -> row.apply(this))
+                && node.parent().apply(this);
+    }
+
+    @Override
     public Boolean transform(QualifiedNameReferenceNode node) {
+        /*
+            We need to suggest import module code action when,
+            ex: "io<cursor>:" hence we have special cased typed binding pattern.
+         */
         return isVisited(node) || !node.colon().isMissing() && !node.modulePrefix().isMissing()
-                && node.parent() != null ? node.parent().apply(this) : true;
+                && node.parent() != null
+                && (node.parent().kind() == SyntaxKind.TYPED_BINDING_PATTERN || node.parent().apply(this));
     }
 
     /**

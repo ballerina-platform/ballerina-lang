@@ -1,0 +1,58 @@
+{
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "createUndefinedFunctionInReturn1.bal",
+  "expected": [
+    {
+      "title": "Create function 'getReturnVal(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 1
+            },
+            "end": {
+              "line": 6,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getReturnVal(int i) returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInReturn1.bal",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 11
+          },
+          "end": {
+            "line": 2,
+            "character": 26
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 2.0,
+              "character": 11.0
+            },
+            "end": {
+              "line": 2.0,
+              "character": 26.0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "description": "Create undefined function in a return statement within another block statement node"
+}

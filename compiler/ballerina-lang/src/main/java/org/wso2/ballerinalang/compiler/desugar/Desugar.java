@@ -6587,6 +6587,14 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(invocation);
 
         rewriteExprs(invocation.requiredArgs);
+
+        // Disallow desugaring the same expression twice.
+        // For langlib invocations, expr is duplicated as the first required arg.
+        if (invocation.langLibInvocation && !invocation.requiredArgs.isEmpty()) {
+            invocation.expr = invocation.requiredArgs.get(0);
+        } else {
+            invocation.expr = rewriteExpr(invocation.expr);
+        }
         fixStreamTypeCastsInInvocationParams(invocation);
         fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
@@ -6599,7 +6607,6 @@ public class Desugar extends BLangNodeVisitor {
             visitFunctionPointerInvocation(invocation);
             return;
         }
-        invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
@@ -7094,27 +7101,15 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nonNilType = exprBType.getMemberTypes().iterator().next();
 
-        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
-        boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
-
-        boolean isBitWiseOperator = !isArithmeticOperator && !isShiftOperator;
-
-        BType rhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.rhsExpr.getBType().isNullable()) {
-                rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
-            } else {
-                rhsType = binaryExpr.rhsExpr.getBType();
-            }
-        }
-
-        BType lhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.lhsExpr.getBType().isNullable()) {
-                lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
-            } else {
-                lhsType = binaryExpr.lhsExpr.getBType();
-            }
+        BType rhsType;
+        BType lhsType;
+        if (symResolver.isArithmeticOperator(binaryExpr.opKind)) {
+            rhsType = nonNilType;
+            lhsType = nonNilType;
+        } else {
+            // then it is a bitwise operator or a shift operator
+            rhsType = getBinaryExprOperandNonNilType(binaryExpr.rhsExpr.getBType());
+            lhsType = getBinaryExprOperandNonNilType(binaryExpr.lhsExpr.getBType());
         }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
@@ -7169,6 +7164,10 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.setBType(binaryExpr.getBType());
 
         return stmtExpr;
+    }
+
+    private BType getBinaryExprOperandNonNilType(BType operandType) {
+        return operandType.isNullable() ? types.getSafeType(operandType, true, false) : operandType;
     }
 
     private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
@@ -8667,14 +8666,14 @@ public class Desugar extends BLangNodeVisitor {
                 || funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
-            if (invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
-                returnStmtPos = null;
-            } else {
+            if (invPos != null && !invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
                 returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().startLine().offset(),
                         invPos.lineRange().startLine().offset(), 0, 0);
+            } else {
+                returnStmtPos = null;
             }
             BLangReturn returnStmt = ASTBuilderUtil.createNilReturnStmt(returnStmtPos, symTable.nilType);
             funcBody.addStatement(returnStmt);

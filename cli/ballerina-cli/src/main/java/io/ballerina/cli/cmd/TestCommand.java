@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
@@ -165,6 +166,9 @@ public class TestCommand implements BLauncherCmd {
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -267,10 +271,14 @@ public class TestCommand implements BLauncherCmd {
             moduleMap.put(originalModule.moduleName().toString(), originalModule);
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,

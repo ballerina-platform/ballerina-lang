@@ -101,7 +101,9 @@ public class ObjectTypeDescriptorNodeContext
         // Here we do not add the function keyword as type descriptor completion items add it.
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_METHOD_DECL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_METHOD_DECL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION_SIGNATURE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));

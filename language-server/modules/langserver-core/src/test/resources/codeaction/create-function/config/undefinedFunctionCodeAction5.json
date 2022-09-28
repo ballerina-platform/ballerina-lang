@@ -1,31 +1,56 @@
 {
   "position": {
     "line": 4,
-    "character": 29
+    "character": 24
   },
-  "source": "createUndefinedFunction4.bal",
+  "source": "createUndefinedFunction3.bal",
   "expected": [
     {
       "title": "Create function 'getInt(...)'",
       "kind": "quickfix",
-      "command": {
-        "title": "Create function 'getInt(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 4,
-                "character": 24
-              },
-              "end": {
-                "line": 4,
-                "character": 32
-              }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 1
+            },
+            "end": {
+              "line": 6,
+              "character": 1
+            }
+          },
+          "newText": "\n\nisolated function getInt() returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction3.bal",
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 24
+          },
+          "end": {
+            "line": 4,
+            "character": 32
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 4.0,
+              "character": 24.0
+            },
+            "end": {
+              "line": 4.0,
+              "character": 32.0
             }
           }
-        ]
+        }
       }
     }
   ]

@@ -4378,7 +4378,7 @@
     {
       "name": "ClientResourceAccessActionNode",
       "base": "ActionNode",
-      "kind": "RESOURCE_METHOD_CALL_ACTION",
+      "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
       "attributes": [
         {
           "name": "expression",

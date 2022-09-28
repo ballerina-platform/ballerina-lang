@@ -1,8 +1,57 @@
 {
   "position": {
-    "line": 1,
-    "character": 22
+    "line": 5,
+    "character": 34
   },
-  "source": "createUndefinedFunction3.bal",
-  "expected": []
+  "source": "createUndefinedFunction2.bal",
+  "expected": [
+    {
+      "title": "Create function 'getResponse(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 1
+            },
+            "end": {
+              "line": 6,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getResponse(int a, int b) returns module1:TestRecord2 {\n    return {};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction2.bal",
+        "range": {
+          "start": {
+            "line": 5,
+            "character": 34
+          },
+          "end": {
+            "line": 5,
+            "character": 51
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 5.0,
+              "character": 34.0
+            },
+            "end": {
+              "line": 5.0,
+              "character": 51.0
+            }
+          }
+        }
+      }
+    }
+  ]
 }

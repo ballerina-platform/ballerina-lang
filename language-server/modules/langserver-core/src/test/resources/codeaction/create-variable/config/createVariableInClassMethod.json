@@ -13,6 +13,19 @@
           "range": {
             "start": {
               "line": 7,
+              "character": 8
+            },
+            "end": {
+              "line": 7,
+              "character": 8
+            }
+          },
+          "newText": "int|error intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
               "character": 28
             },
             "end": {
@@ -21,21 +34,17 @@
             }
           },
           "newText": "\n        if intWithError is int {\n\n        }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 7,
-              "character": 8
-            },
-            "end": {
-              "line": 7,
-              "character": 8
-            }
-          },
-          "newText": "int|error intWithError \u003d "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableInClassMethod.bal",
+          133
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable and check error",
@@ -52,7 +61,7 @@
               "character": 8
             }
           },
-          "newText": "int intWithError \u003d "
+          "newText": "int intWithError = "
         },
         {
           "range": {
@@ -80,7 +89,16 @@
           },
           "newText": " returns error?"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableInClassMethod.bal",
+          142
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable",
@@ -97,9 +115,18 @@
               "character": 8
             }
           },
-          "newText": "int|error intWithError \u003d "
+          "newText": "int|error intWithError = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableInClassMethod.bal",
+          133
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
