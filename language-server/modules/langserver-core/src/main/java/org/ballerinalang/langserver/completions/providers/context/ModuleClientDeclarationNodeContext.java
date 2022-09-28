@@ -61,15 +61,14 @@ public class ModuleClientDeclarationNodeContext extends AbstractCompletionProvid
 
         return node.clientKeyword().textRange().endOffset() < cursor 
                 && node.asKeyword().textRange().startOffset() > cursor
-                && (clientUri.isMissing() || cursor < clientUri.textRange().endOffset() + 1);
+                && (clientUri.isMissing() || cursor <= clientUri.textRange().endOffset());
     }
 
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ModuleClientDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         BasicLiteralNode clientUri = node.clientUri();
 
-        return !clientUri.isMissing() && cursor >= clientUri.textRange().endOffset() + 1 
-                && node.asKeyword().isMissing();
+        return !clientUri.isMissing() && cursor > clientUri.textRange().endOffset() && node.asKeyword().isMissing();
     }
 
     @Override

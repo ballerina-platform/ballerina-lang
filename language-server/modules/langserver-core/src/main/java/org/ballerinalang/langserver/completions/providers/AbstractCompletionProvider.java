@@ -850,11 +850,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .orElseGet(ArrayList::new);
 
         List<LSCompletionItem> completionItemList = this.getCompletionItemList(clientDeclContent, context);
+        String clientKW = ItemResolverConstants.CLIENT;
         for (LSCompletionItem item: completionItemList) {
             CompletionItem cItem = item.getCompletionItem();
-            if (cItem.getLabel().equals("'client")) {
-                cItem.setLabel("client");
-                cItem.setInsertText("client");
+            if (cItem.getLabel().equals(CommonUtil.escapeReservedKeyword(clientKW))) {
+                cItem.setLabel(clientKW);
+                cItem.setInsertText(clientKW);
             }
         }
         
