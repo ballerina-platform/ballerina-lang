@@ -2640,7 +2640,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
     }
 
-    private BSymbol resolveClientDeclPrefix(BSymbol symbol) {
+    public BSymbol resolveClientDeclPrefix(BSymbol symbol) {
         LineRange lineRange = symbol.pos.lineRange();
         if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
                 !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
