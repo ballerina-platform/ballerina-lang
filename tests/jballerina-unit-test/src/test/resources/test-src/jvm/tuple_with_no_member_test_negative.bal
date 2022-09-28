@@ -33,4 +33,17 @@ function testLoopEmptyTuple() {
             _ = s;
         }
     }
+
+    var arr1 = [];
+    foreach var item in arr1 {
+        _ = item;
+    }
+
+    foreach var item in [] {
+        _ = item is never;
+    }
+
+    foreach var item in arr1 {
+        _ = item is never;
+    }
 }
