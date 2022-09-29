@@ -194,7 +194,6 @@ public class JvmPackageGen {
         }
         dependentModuleArray.add(PackageID.INTERNAL);
         dependentModuleArray.add(PackageID.ARRAY);
-        dependentModuleArray.add(PackageID.REGEXP);
         dependentModuleArray.add(PackageID.DECIMAL);
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
@@ -205,6 +204,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.MAP);
         dependentModuleArray.add(PackageID.OBJECT);
         dependentModuleArray.add(PackageID.STREAM);
+        dependentModuleArray.add(PackageID.REGEXP);
         dependentModuleArray.add(PackageID.STRING);
         dependentModuleArray.add(PackageID.TABLE);
         dependentModuleArray.add(PackageID.XML);
