@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getString(int i) returns string {\n    return \"\";\n}\n"
+          "newText": "\n\nfunction getString(int i) returns string {\n    return \"\";\n}"
         }
       ],
       "resolvable": true,
