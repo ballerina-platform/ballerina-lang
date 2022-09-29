@@ -465,7 +465,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (value == Double.NEGATIVE_INFINITY) {
             throw ErrorUtils.createInvalidDecimalError(NEG_INF_STRING);
         }
-        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128));
+        return new DecimalValue(BigDecimal.valueOf(value));
     }
 
     /**

@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 12,
+    "character": 23
+  },
+  "source": "extract_to_function_exprs_new_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 1
+            },
+            "end": {
+              "line": 13,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns Student {\n    return new Student(\"James\", 25);\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 12,
+              "character": 21
+            },
+            "end": {
+              "line": 12,
+              "character": 45
+            }
+          },
+          "newText": "extracted()"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside the new keyword of explicit new expression"
+}

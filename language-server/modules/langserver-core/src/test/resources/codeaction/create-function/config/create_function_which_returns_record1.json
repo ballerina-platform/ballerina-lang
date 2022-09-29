@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createData() returns Data {\n    return {id: \"\", value: \"\", count: 0};\n}\n"
+          "newText": "\n\nfunction createData() returns Data {\n    return {id: \"\", value: \"\", count: 0};\n}"
         }
       ],
       "resolvable": true,

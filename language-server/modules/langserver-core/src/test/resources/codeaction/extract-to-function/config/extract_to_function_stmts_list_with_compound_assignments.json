@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 2,
+      "character": 11
+    }
+  },
+  "source": "extract_to_function_stmts_list_with_compound_assignments.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 1
+            },
+            "end": {
+              "line": 5,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    int a \u003d 10;\n    a +\u003d 1;\n    return a;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 11
+            }
+          },
+          "newText": "int a \u003d extracted();"
+        }
+      ]
+    }
+  ]
+}

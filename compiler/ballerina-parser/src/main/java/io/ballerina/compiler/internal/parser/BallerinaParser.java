@@ -3017,7 +3017,7 @@ public class BallerinaParser extends AbstractParser {
      * </p>
      *
      * <code>
-     * function-body-block := { [default-worker-init, named-worker-decl+] default-worker }<br/>
+     * function-body-block := { [default-worker-init, named-worker-decl+] default-worker } [;]<br/>
      * default-worker-init := sequence-stmt<br/>
      * default-worker := sequence-stmt<br/>
      * named-worker-decl := worker worker-name return-type-descriptor { sequence-stmt }<br/>
@@ -3093,8 +3093,10 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode closeBrace = parseCloseBrace();
+        STNode semicolon = isAnonFunc ? STNodeFactory.createEmptyNode() : parseOptionalSemicolon();
         endContext();
-        return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace);
+        return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace,
+                semicolon);
     }
 
     private boolean isEndOfFuncBodyBlock(SyntaxKind nextTokenKind, boolean isAnonFunc) {
@@ -3323,6 +3325,19 @@ public class BallerinaParser extends AbstractParser {
             recover(token, ParserRuleContext.SEMICOLON);
             return parseSemicolon();
         }
+    }
+
+    /**
+     * Parse optional semicolon.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalSemicolon() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.SEMICOLON_TOKEN) {
+            return consume();
+        }
+        return STNodeFactory.createEmptyNode();
     }
 
     /**
@@ -3605,7 +3620,7 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * module-class-defn :=
      * <br/>
-     * metadata [public] class-type-quals class identifier { class-member* }
+     * metadata [public] class-type-quals class identifier { class-member* } [;]
      * </code>
      *
      * @param metadata   Metadata
@@ -3621,9 +3636,10 @@ public class BallerinaParser extends AbstractParser {
         STNode openBrace = parseOpenBrace();
         STNode classMembers = parseObjectMembers(ParserRuleContext.CLASS_MEMBER);
         STNode closeBrace = parseCloseBrace();
+        STNode semicolon = parseOptionalSemicolon();
         endContext();
         return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
-                className, openBrace, classMembers, closeBrace);
+                className, openBrace, classMembers, closeBrace, semicolon);
     }
 
     private boolean isClassTypeQual(SyntaxKind tokenKind) {
@@ -7819,7 +7835,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>
      * service-decl := metadata `service` [type-descriptor] [absolute-resource-path | string-literal]
-     * `on` expression-list object-constructor-block
+     * `on` expression-list object-constructor-block [;]
      * <br/>
      * absolute-resource-path := "/" | ("/" identifier)+
      * <br/>
@@ -7856,12 +7872,13 @@ public class BallerinaParser extends AbstractParser {
         STNode openBrace = parseOpenBrace();
         STNode objectMembers = parseObjectMembers(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
         STNode closeBrace = parseCloseBrace();
+        STNode semicolon = parseOptionalSemicolon();
 
         onKeyword =
                 cloneWithDiagnosticIfListEmpty(expressionList, onKeyword, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
         endContext();
         return STNodeFactory.createServiceDeclarationNode(metadata, qualNodeList, serviceKeyword, serviceType,
-                resourcePath, onKeyword, expressionList, openBrace, objectMembers, closeBrace);
+                resourcePath, onKeyword, expressionList, openBrace, objectMembers, closeBrace, semicolon);
     }
 
     /**
@@ -13465,7 +13482,7 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * module-enum-decl :=
      * metadata
-     * [public] enum identifier { enum-member (, enum-member)* }
+     * [public] enum identifier { enum-member (, enum-member)* } [;]
      * enum-member := metadata identifier [= const-expr]
      * </p>
      *
@@ -13480,12 +13497,13 @@ public class BallerinaParser extends AbstractParser {
         STNode openBraceToken = parseOpenBrace();
         STNode enumMemberList = parseEnumMemberList();
         STNode closeBraceToken = parseCloseBrace();
+        STNode semicolon = parseOptionalSemicolon();
 
         endContext();
         openBraceToken = cloneWithDiagnosticIfListEmpty(enumMemberList, openBraceToken,
                 DiagnosticErrorCode.ERROR_MISSING_ENUM_MEMBER);
         return STNodeFactory.createEnumDeclarationNode(metadata, qualifier, enumKeywordToken, identifier,
-                openBraceToken, enumMemberList, closeBraceToken);
+                openBraceToken, enumMemberList, closeBraceToken, semicolon);
     }
 
     /**

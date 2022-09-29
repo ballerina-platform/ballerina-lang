@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "(Foo \u0026 readonly)|int|(string[] \u0026 readonly) recordIntersectionResult \u003d "
+          "newText": "(Foo & readonly)|int|(string[] & readonly) recordIntersectionResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithIntersectionType.bal",
+          229
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -244,6 +244,18 @@ public class Person {
     }
 }
 
+client class MyClient {
+    resource function get [string... path](map<string|string[]>? headers = ()) returns string {
+        return path[0];
+    }
+}
+
+final MyClient clientEP = new();
+
+function testResourceFunctionDefaultParam() returns string|error {
+    return check clientEP->/foo/bar();
+}
+
 function testAttachedAsyncDefaultParam() returns string {
     Person p = new;
     return p.funcWithAsyncDefaultParamExpression() + p.funcWithAsyncDefaultParamExpression("world") + p.funcWithAsyncDefaultParamExpression("sample", "value");
