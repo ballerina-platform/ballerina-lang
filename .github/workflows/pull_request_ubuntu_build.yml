@@ -45,7 +45,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build --max-workers=2 --scan --no-daemon
+          ./gradlew build --max-workers=2 --scan --no-daemon 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
       - name: Generate Jacoco report
@@ -97,14 +97,14 @@ jobs:
 
       - name: Create missing module folders
         run: |
-          mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina-formatter
+          mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina-formatter 
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina-langlib
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/compiler-plugins
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/composer
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/debug-adapter
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/distribution/zip/nballerina-tools
-          mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/formatter
+          mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/formatter 
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ls-extensions
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/project-api-test-artifact
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/language-server/modules/test-coverage
