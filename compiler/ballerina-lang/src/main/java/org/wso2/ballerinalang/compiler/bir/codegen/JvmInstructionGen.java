@@ -60,7 +60,6 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ASTORE;
-import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DADD;
@@ -90,7 +89,6 @@ import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IFNE;
-import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPGE;
 import static org.objectweb.asm.Opcodes.IF_ICMPGT;
@@ -128,8 +126,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
@@ -140,8 +136,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -156,9 +150,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
@@ -201,9 +193,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ANNO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_EXCEPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_AT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -230,7 +219,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_FP_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PROCESS_OBJ_CTR_ANNOTATIONS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECIMAL_RETURN_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
@@ -245,7 +233,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genVarArg;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -617,38 +604,8 @@ public class JvmInstructionGen {
     void generateObserveJIMethodCallIns(ObservabilityJMethodCall callIns, int localVarOffset) {
         boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
         int argIndex = 0;
-        if (callIns.invocationType == INVOKEVIRTUAL || isInterface) {
-            // check whether function params already include the self
-            BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-            this.loadVar(selfArg);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT,
-                    false);
-            this.mv.visitTypeInsn(CHECKCAST, callIns.jClassName);
-
-            Label ifNonNullLabel = new Label();
-            this.mv.visitLabel(ifNonNullLabel);
-            this.mv.visitInsn(DUP);
-
-            Label elseBlockLabel = new Label();
-            this.mv.visitJumpInsn(IFNONNULL, elseBlockLabel);
-            Label thenBlockLabel = new Label();
-            this.mv.visitLabel(thenBlockLabel);
-            this.mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR",
-                    GET_STRING);
-            this.mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE",
-                    GET_RUNTIME_ERROR);
-            this.mv.visitInsn(ICONST_0);
-            this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            this.mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    GET_RUNTIME_EXCEPTION, false);
-            this.mv.visitInsn(ATHROW);
-            this.mv.visitLabel(elseBlockLabel);
-            argIndex += 1;
-        }
-
         String jMethodVMSig = callIns.jMethodVMSig;
         boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
-
         if (hasBalEnvParam) {
             mv.visitTypeInsn(NEW, BAL_ENV);
             mv.visitInsn(DUP);
@@ -659,19 +616,11 @@ public class JvmInstructionGen {
                     INIT_BAL_ENV, false);
         }
 
-        int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
-        while (argIndex < argsCount) {
+        while (argIndex < callIns.args.size()) {
             BIROperand arg = callIns.args.get(argIndex);
             this.loadVar(arg.variableDcl);
             argIndex += 1;
         }
-        if (callIns.varArgExist) {
-            BIROperand arg = callIns.args.get(argIndex);
-            int localVarIndex = this.indexMap.addIfNotExists(arg.variableDcl.name.value, arg.variableDcl.type);
-            genVarArg(this.mv, this.indexMap, arg.variableDcl.type, callIns.varArgType, localVarIndex,
-                    symbolTable, jvmCastGen);
-        }
-
         String jClassName = callIns.jClassName;
         String jMethodName = callIns.name;
         this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
