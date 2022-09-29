@@ -445,28 +445,22 @@ public class LangLibTableTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test
-    public void testRemoveThenIterate() {
-        Object returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
+    @Test(dataProvider = "functionsToTestRemoveAndIterate")
+    public void testRemoveAndIterateTables(String function) {
+        Object returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test
-    public void testRemoveEmptyThenIterate() {
-        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyThenIterate");
-        Assert.assertTrue((Boolean) returns);
-    }
-
-    @Test
-    public void testRemoveEmptyAddThenIterate() {
-        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyAddThenIterate");
-        Assert.assertTrue((Boolean) returns);
-    }
-
-    @Test
-    public void testRemoveEmptyIterateThenAdd() {
-        Object returns = BRunUtil.invoke(compileResult, "testRemoveEmptyIterateThenAdd");
-        Assert.assertTrue((Boolean) returns);
+    @DataProvider
+    public Object[] functionsToTestRemoveAndIterate() {
+        return new String[]{
+                "testRemoveThenIterate",
+                "testRemoveEmptyThenIterate",
+                "testRemoveEmptyAddThenIterate",
+                "testRemoveEmptyIterateThenAdd",
+                "testRemoveEmptyIterateThenAddQueryExpr",
+                "testRemoveEmptyIterateThenAddQueryAction"
+        };
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

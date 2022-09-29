@@ -733,11 +733,47 @@ function testRemoveEmptyIterateThenAdd() returns boolean {
     var rm2 = data.remove("John");
     var rm3 = data.remove("Jim");
 
-    Employee newEmp = { name: "JesB", department: "Security" };
     foreach var v in data {
         ar.push(v);
     }
-    data.add(newEmp);
+    data.add({name: "JesB", department: "Security"});
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
+}
+
+function testRemoveEmptyIterateThenAddQueryExpr() returns boolean {
+    table<Employee> key(name) data = table [
+            {name: "Mary", department: "IT"},
+            {name: "John", department: "HR"},
+            {name: "Jim", department: "Admin"}
+        ];
+
+    var _ = data.remove("Mary");
+    var _ = data.remove("John");
+    var _ = data.remove("Jim");
+
+    Employee[] ar = from var v in data
+        select v;
+    data.add({name: "JesB", department: "Security"});
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
+}
+
+function testRemoveEmptyIterateThenAddQueryAction() returns boolean|error {
+    table<Employee> key(name) data = table [
+            {name: "Mary", department: "IT"},
+            {name: "John", department: "HR"},
+            {name: "Jim", department: "Admin"}
+        ];
+
+    Employee[] ar = [];
+    var _ = data.remove("Mary");
+    var _ = data.remove("John");
+    var _ = data.remove("Jim");
+
+    check from var v in data
+        do {
+            ar.push(v);
+        };
+    data.add({name: "JesB", department: "Security"});
     return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
 }
 
