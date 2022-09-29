@@ -21,13 +21,17 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.text.LineRange;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -35,18 +39,12 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -83,35 +81,86 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                                     RangeBasedPositionDetails posDetails) {
-        
-        Node node = posDetails.matchedCodeActionNode();
+
+        // Check if the selection is a range or a position
+        if (isRange(context.range())) {
+            // Selection is a range
+            Node node = posDetails.matchedCodeActionNode();
+            BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
+            node.accept(nodeValidator);
+            if (nodeValidator.getInvalidNode()) {
+                return Collections.emptyList();
+            }
+
+            String constName = getLocalVarName(context);
+            String value = node.toSourceCode().strip();
+            LineRange replaceRange = node.lineRange();
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
+            if (typeSymbol.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            Position constDeclPosition = getPosition(context);
+            String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.get().signature(), constName, value);
+            TextEdit constDeclEdit = new TextEdit(new Range(constDeclPosition, constDeclPosition), constDeclStr);
+            TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
+                    PositionUtil.toPosition(replaceRange.endLine())), constName);
+
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
+        }
+        // Selection is a position
+        // TODO Check for number of extractable nodes
+        Node nodeAtCursor = posDetails.matchedCodeActionNode();
+        List<Node> nodeList = new ArrayList<>();
+        Node node = nodeAtCursor;
+
         BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
         node.accept(nodeValidator);
-        if (nodeValidator.getInvalidNode()) {
-            return Collections.emptyList();
+        while (!(node instanceof StatementNode) && !(node instanceof ModuleMemberDeclarationNode)
+                && !(node instanceof ObjectFieldNode) && !nodeValidator.getInvalidNode()) {
+            nodeList.add(node);
+            node = node.parent();
+            node.accept(nodeValidator);
         }
         
         String constName = getLocalVarName(context);
-        String value = node.toSourceCode().strip();
-        LineRange replaceRange = node.lineRange();
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(nodeAtCursor);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-        
-        Position constDeclPosition = getPosition(context);
-        String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.get().signature(), constName, value);
-        TextEdit constDeclEdit = new TextEdit(new Range(constDeclPosition, constDeclPosition), constDeclStr);
-        TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
-                PositionUtil.toPosition(replaceRange.endLine())),  constName);
 
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT, 
-                List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
+        Position constDeclPosition = getPosition(context);
+        HashMap<String,List<TextEdit>> textEditMap = new HashMap<>();
+        nodeList.forEach(extractableNode -> {
+            String value = extractableNode.toSourceCode().strip();
+            LineRange replaceRange = extractableNode.lineRange();
+            String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.get().signature(), constName, value);
+            TextEdit constDeclEdit =
+                    new TextEdit(new Range(constDeclPosition, constDeclPosition), constDeclStr);
+            TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
+                    PositionUtil.toPosition(replaceRange.endLine())), constName);
+            textEditMap.put(value, List.of(constDeclEdit, replaceEdit));
+        });
+        
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                new Command(NAME, "ballerina.action.extract", 
+                        List.of("extractConstant", context.fileUri() ,textEditMap)), CodeActionKind.RefactorExtract);
+        // if capabilities aren't set, return list of text edits
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+//        if (lsClientCapabilities.getInitializationOptions().isRefactorExtractSupported()) {
+//        codeAction.setCommand();
+//        }
+        return Collections.singletonList(codeAction);
     }
 
     @Override
     public String getName() {
         return NAME;
+    }
+
+    private static boolean isRange(Range range) {
+        return !range.getStart().equals(range.getEnd());
     }
 
     private String getLocalVarName(CodeActionContext context) {
