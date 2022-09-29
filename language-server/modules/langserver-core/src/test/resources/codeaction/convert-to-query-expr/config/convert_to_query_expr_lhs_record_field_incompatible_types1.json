@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 19,
+    "character": 17
+  },
+  "source": "convert_to_query_expr_lhs_record_field_incompatible_types1.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 15
+            },
+            "end": {
+              "line": 19,
+              "character": 20
+            }
+          },
+          "newText": "from var item in users\n            select {firstName: \"\", lastName: \"\"}"
+        }
+      ]
+    }
+  ]
+}
