@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 4,
-    "character": 13
+    "character": 20
   },
   "source": "change_var_type_in_object_fields.bal",
   "expected": [
@@ -13,11 +13,11 @@
           "range": {
             "start": {
               "line": 4,
-              "character": 4
+              "character": 12
             },
             "end": {
               "line": 4,
-              "character": 7
+              "character": 15
             }
           },
           "newText": "string"

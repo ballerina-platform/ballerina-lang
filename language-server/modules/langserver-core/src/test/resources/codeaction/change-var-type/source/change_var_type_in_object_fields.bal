@@ -2,7 +2,7 @@ class TestClass {
         
     string f1 = 12.2;
     
-    int a = "string";
+    private int a = "string";
     
     string arr = ["a", "b"];
 
