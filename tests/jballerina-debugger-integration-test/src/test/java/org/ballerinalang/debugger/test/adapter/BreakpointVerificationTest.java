@@ -78,7 +78,9 @@ public class BreakpointVerificationTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 26));
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
 
         // retrieves all the 'breakpoint' events received from the server, which indicates breakpoint verification
         // status changes.
@@ -125,7 +127,7 @@ public class BreakpointVerificationTest extends BaseTestCase {
         // enum declaration
         assertVerifiedBreakpoints(breakpoints, ENUM_DCLN_START, 5, false, false, false, false, false);
         // class definition
-        assertVerifiedBreakpoints(breakpoints, CLASS_DEFN_START, 15, false, false, false, true, true, true, false,
+        assertVerifiedBreakpoints(breakpoints, CLASS_DEFN_START, 15, true, false, false, true, true, true, false,
                 false, true, true, false, false, true, true, false);
         // type definition
         assertVerifiedBreakpoints(breakpoints, TYPE_DEFN_START, 5, false, false, false, false, true);

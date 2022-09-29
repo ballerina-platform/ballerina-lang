@@ -41,14 +41,14 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
     public BVarSymbol restParam;
     public BType returnType;
     public List<BAnnotationAttachmentSymbol> returnTypeAnnots;
-    public Map<String, BType> paramDefaultValTypes;
+    public Map<String, BInvokableSymbol> defaultValues;
     public BInvokableTypeSymbol(int symTag, long flags, PackageID pkgID, BType type, BSymbol owner,
                                 Location location,
                                 SymbolOrigin origin) {
         super(symTag, flags, Names.EMPTY, Names.EMPTY, pkgID, type, owner, location, origin);
         this.params = new ArrayList<>();
         this.returnTypeAnnots = new ArrayList<>();
-        this.paramDefaultValTypes = new HashMap<>();
+        this.defaultValues = new HashMap<>();
     }
 
     @Override

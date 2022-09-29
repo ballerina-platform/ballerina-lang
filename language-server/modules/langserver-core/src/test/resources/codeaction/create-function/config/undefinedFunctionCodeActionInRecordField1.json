@@ -20,7 +20,7 @@
               "character": 3
             }
           },
-          "newText": "\n\nfunction fn() returns int {\n    return 0;\n}\n"
+          "newText": "\n\nfunction fn() returns int {\n    return 0;\n}"
         }
       ],
       "resolvable": true,

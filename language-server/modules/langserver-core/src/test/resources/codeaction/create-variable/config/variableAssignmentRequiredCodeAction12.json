@@ -6,7 +6,7 @@
   "source": "createVariable3.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027json\u0027",
+      "title": "Create variable with 'json'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "json mappingResult \u003d "
+          "newText": "json mappingResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          77
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
