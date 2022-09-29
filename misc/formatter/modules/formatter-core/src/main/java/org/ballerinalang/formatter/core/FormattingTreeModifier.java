@@ -4451,8 +4451,10 @@ public class FormattingTreeModifier extends TreeModifier {
                 return false;
             case LET_EXPRESSION:
                 LetExpressionNode letExpressionNode = (LetExpressionNode) node;
-                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations = letExpressionNode.letVarDeclarations();
-                LetVariableDeclarationNode lastLetVarDeclarationNode = letVarDeclarations.get(letVarDeclarations.size() - 1);
+                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
+                        letExpressionNode.letVarDeclarations();
+                LetVariableDeclarationNode lastLetVarDeclarationNode =
+                        letVarDeclarations.get(letVarDeclarations.size() - 1);
 
                 return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
                         || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
