@@ -58,6 +58,11 @@ public class SemverValidatorBaseTest extends BaseTest {
         executeSemverCommand(packageName, commandArgs, expectedLogs, new LinkedList<>());
     }
 
+    protected void executeSemverCommand(String[] commandArgs, List<String> expectedLogs,
+                                        List<String> expectedErrors) throws BallerinaTestException {
+        executeSemverCommand(null, commandArgs, expectedLogs, expectedErrors);
+    }
+
     protected void executeSemverCommand(String packageName, String[] commandArgs, List<String> expectedLogs,
                                         List<String> expectedErrors) throws BallerinaTestException {
 
@@ -70,8 +75,9 @@ public class SemverValidatorBaseTest extends BaseTest {
                 .map(text -> new LogLeecher(text, LogLeecher.LeecherType.ERROR));
         LogLeecher[] leechers = Stream.concat(logLeechers, errorLeechers).toArray(LogLeecher[]::new);
 
+        Path commandDir = packageName != null ? tempProjectsDir.resolve(packageName) : tempProjectsDir;
         balClient.runMain("semver", commandArgs, customRepoEnv, new String[]{}, leechers,
-                tempProjectsDir.resolve(packageName).toAbsolutePath().toString());
+                commandDir.toAbsolutePath().toString());
 
         for (LogLeecher leecher : leechers) {
             leecher.waitForText(10000);

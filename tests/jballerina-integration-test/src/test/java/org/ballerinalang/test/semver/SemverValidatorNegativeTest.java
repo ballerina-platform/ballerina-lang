@@ -47,14 +47,32 @@ public class SemverValidatorNegativeTest extends SemverValidatorBaseTest {
         balClient = new BMainInstance(balServer);
     }
 
-    @Test(description = "Test semver validation functionality where multiple release versions of the same package" +
-            "are available in local/central repositories")
+    @Test(description = "Negative test for semver validation where the specified version is not available on local" +
+            " and central repositories")
     public void testNegativeValidateWithNoReleases() throws BallerinaTestException {
-
         List<String> errorLogs = new LinkedList<>();
         errorLogs.add("error: failed to resolve package 'semvertool/library:1.0.0' from central");
 
         executeSemverCommand("package_2_0_0", new String[]{"--compare-version=1.0.0"}, new ArrayList<>(), errorLogs);
+    }
+
+    @Test(description = "Negative test for semver validation on a single file program")
+    public void testNegativeValidateSingleFile() throws BallerinaTestException {
+        List<String> errorLogs = new LinkedList<>();
+        errorLogs.add("error: semver checker tool is not applicable for single file projects.");
+
+        Path singleFilePath = tempProjectsDir.resolve("negative_test_single_file.bal").toAbsolutePath();
+        executeSemverCommand(new String[]{singleFilePath.toString()}, new ArrayList<>(), errorLogs);
+    }
+
+    @Test(description = "Negative test for semver validation with an invalid package path provided")
+    public void testNegativeValidateInvalidPackagePath() throws BallerinaTestException {
+        List<String> errorLogs = new LinkedList<>();
+        errorLogs.add("error: failed to load Ballerina package");
+        errorLogs.add("reason: provided directory does not belong to a Ballerina package:");
+
+        executeSemverCommand("negative_test_empty_package", new String[]{"--compare-version=1.0.0"}, new ArrayList<>(),
+                errorLogs);
     }
 
     @AfterClass
