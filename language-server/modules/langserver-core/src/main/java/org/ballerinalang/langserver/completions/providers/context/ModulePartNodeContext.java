@@ -174,7 +174,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 .getServiceTemplates(context));
         return completionItems;
     }
-    
+
     @Override
     public void sort(BallerinaCompletionContext context, ModulePartNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
