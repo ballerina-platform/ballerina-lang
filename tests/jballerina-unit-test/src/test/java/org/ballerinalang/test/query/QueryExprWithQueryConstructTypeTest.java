@@ -265,7 +265,7 @@ public class QueryExprWithQueryConstructTypeTest {
                 "found 'stream<int,BarError?>'", 405, 32);
         validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
                 "found 'stream<int,BarError?>'", 408, 32);
-                        "is not an iterable collection", 432, 100);
+//                        "is not an iterable collection", 432, 100);
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
                 438, 13);
         validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
