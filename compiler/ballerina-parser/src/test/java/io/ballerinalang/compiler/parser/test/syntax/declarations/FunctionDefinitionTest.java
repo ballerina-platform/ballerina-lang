@@ -51,6 +51,11 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
         test("func-definition/isolated_func_def_06.bal", "func-definition/isolated_func_def_assert_06.json");
     }
 
+    @Test
+    public void testOptionalSemicolon() {
+        test("func-definition/func_def_source_34.bal", "func-definition/func_def_assert_34.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -192,5 +197,10 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testRecoveryWhenTypingExternal() {
         testFile("func-definition/func_def_source_33.bal", "func-definition/func_def_assert_33.json");
+    }
+
+    @Test
+    public void testOptionalSemicolonRecovery() {
+        testFile("func-definition/func_def_source_35.bal", "func-definition/func_def_assert_35.json");
     }
 }

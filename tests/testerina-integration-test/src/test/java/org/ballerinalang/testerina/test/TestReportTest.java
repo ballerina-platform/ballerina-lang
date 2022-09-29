@@ -207,7 +207,7 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 42, 43, 55, 56, 57, 60, 61, 64, 65, 69,
+        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 42, 43, 50, 55, 56, 57, 60, 61, 64, 65, 69,
                 70, 71, 74, 75}, fooMainMissed = new int[]{26};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
@@ -323,7 +323,7 @@ public class TestReportTest extends BaseTestCase {
 
         //foo module
         int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37,
-                42, 43, 55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
+                42, 43, 50, 55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage = (float) (Math.round(fooMainPercentageVal * 100.0) / 100.0);

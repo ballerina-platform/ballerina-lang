@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 24
+    },
+    "end": {
+      "line": 1,
+      "character": 30
+    }
+  },
+  "source": "extract_to_function_exprs_within_isolated_function.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nisolated function extracted() returns string {\n    return \"test\";\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 24
+            },
+            "end": {
+              "line": 1,
+              "character": 30
+            }
+          },
+          "newText": "extracted()"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, when the expression is inside an isolated function"
+}

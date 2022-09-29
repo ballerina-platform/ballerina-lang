@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 15,
+    "character": 21
+  },
+  "source": "changeVarType.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027fVal\u0027 type to \u0027float|error\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 4
+            },
+            "end": {
+              "line": 15,
+              "character": 9
+            }
+          },
+          "newText": "float|error"
+        }
+      ]
+    }
+  ]
+}
