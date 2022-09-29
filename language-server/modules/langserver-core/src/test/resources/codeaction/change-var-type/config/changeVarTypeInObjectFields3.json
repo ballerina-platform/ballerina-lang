@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 6,
+    "character": 18
+  },
+  "source": "change_var_type_in_object_fields.bal",
+  "expected": [
+    {
+      "title": "Change variable 'arr' type to 'string[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 10
+            }
+          },
+          "newText": "string[]"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Change variable 'arr' type to '[string, string]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 10
+            }
+          },
+          "newText": "[string, string]"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
