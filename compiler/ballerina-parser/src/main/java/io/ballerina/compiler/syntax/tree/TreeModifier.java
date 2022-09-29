@@ -172,6 +172,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(serviceDeclarationNode.members());
         Token closeBraceToken =
                 modifyToken(serviceDeclarationNode.closeBraceToken());
+        Token semicolonToken =
+                modifyToken(serviceDeclarationNode.semicolonToken().orElse(null));
         return serviceDeclarationNode.modify(
                 metadata,
                 qualifiers,
@@ -182,7 +184,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -1355,11 +1358,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(functionBodyBlockNode.statements());
         Token closeBraceToken =
                 modifyToken(functionBodyBlockNode.closeBraceToken());
+        Token semicolonToken =
+                modifyToken(functionBodyBlockNode.semicolonToken().orElse(null));
         return functionBodyBlockNode.modify(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -2650,6 +2656,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifySeparatedNodeList(enumDeclarationNode.enumMemberList());
         Token closeBraceToken =
                 modifyToken(enumDeclarationNode.closeBraceToken());
+        Token semicolonToken =
+                modifyToken(enumDeclarationNode.semicolonToken().orElse(null));
         return enumDeclarationNode.modify(
                 metadata,
                 qualifier,
@@ -2657,7 +2665,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     @Override
@@ -3212,6 +3221,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(classDefinitionNode.members());
         Token closeBrace =
                 modifyToken(classDefinitionNode.closeBrace());
+        Token semicolonToken =
+                modifyToken(classDefinitionNode.semicolonToken().orElse(null));
         return classDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -3220,7 +3231,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     @Override
