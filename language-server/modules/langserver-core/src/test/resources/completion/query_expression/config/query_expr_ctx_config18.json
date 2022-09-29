@@ -550,7 +550,7 @@
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "CR",
+      "sortText": "CE",
       "filterText": "regexp",
       "insertText": "regexp",
       "insertTextFormat": "Snippet",
