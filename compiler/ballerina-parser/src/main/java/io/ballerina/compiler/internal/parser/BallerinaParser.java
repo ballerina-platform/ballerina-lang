@@ -302,6 +302,38 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as an intermediate clause.
+     *
+     * @param allowActions Allow actions
+     * @return Parsed node
+     */
+    public STNode parseAsIntermediateClause(boolean allowActions) {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.FUNC_DEF);
+        startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        startContext(ParserRuleContext.QUERY_EXPRESSION);
+
+        STNode intermediateClause = null;
+        if (!isEndOfIntermediateClause(peek().kind)) {
+            intermediateClause = parseIntermediateClause(true, allowActions);
+        }
+
+        if (intermediateClause == null) {
+            intermediateClause = createMissingWhereClause();
+        }
+
+        if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
+            STNode temp = intermediateClause;
+            intermediateClause = createMissingWhereClause();
+            intermediateClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(intermediateClause, temp);
+        }
+
+        intermediateClause = invalidateRestAndAddToTrailingMinutiae(intermediateClause);
+        return intermediateClause;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
@@ -4818,6 +4850,15 @@ public class BallerinaParser extends AbstractParser {
 
         return STNodeFactory.createVariableDeclarationNode(metadata, emptyNode, typedBindingPattern, emptyNode,
                 emptyNode, semicolon);
+    }
+
+    private STNode createMissingWhereClause() {
+        STNode whereKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.WHERE_KEYWORD,
+                DiagnosticErrorCode.ERROR_MISSING_WHERE_KEYWORD);
+        STNode missingIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(
+                SyntaxKind.IDENTIFIER_TOKEN, DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+        STNode missingExpr = STNodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+        return STNodeFactory.createWhereClauseNode(whereKeyword, missingExpr);
     }
 
     private STNode createMissingSimpleObjectField(STNode metadata, List<STNode> qualifiers, boolean isObjectTypeDesc) {
