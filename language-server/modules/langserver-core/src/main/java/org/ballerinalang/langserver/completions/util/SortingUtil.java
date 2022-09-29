@@ -114,7 +114,7 @@ public class SortingUtil {
     }
 
     /**
-     * Check whether the item is an associated lang lib module completion item.
+     * Check if the item is an associated lang lib module completion item.
      *
      * @param item {@link LSCompletionItem} to evaluate
      * @return {@link Boolean} whether type completion or not
@@ -219,7 +219,7 @@ public class SortingUtil {
             String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
 
             // Case 7
-            // Skip Types coming from lang.value (StrandData, Thread)
+            // Skip types coming from lang.value (StrandData, Thread)
             if (CommonUtil.isLangLib(orgName, moduleName) && !moduleName.equals("lang.annotations")) {
                 return genSortText(7);
             }
