@@ -103,8 +103,8 @@ public class CreateNativeImageTask implements Task {
                     "native-image",
                     "-jar",
                     executablePath.toString(),
-                    nativeDirectoryPath + File.separator + nativeImageName,
-                    "-H:MaxDuplicationFactor=4.0",
+                    "-H:Name=" + nativeImageName,
+                    "-H:Path=" + nativeDirectoryPath,
                     "--no-fallback"};
 
             ProcessBuilder builder = new ProcessBuilder();
