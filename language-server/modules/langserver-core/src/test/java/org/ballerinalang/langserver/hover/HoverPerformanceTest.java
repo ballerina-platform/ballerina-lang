@@ -36,14 +36,14 @@ import java.util.List;
 public class HoverPerformanceTest extends HoverProviderTest {
 
     private static final int TEST_ITERATIONS = 10;
-    
+
     private final List<Long> executionTimes = new ArrayList<>();
 
     @Test(description = "Test Hover provider", dataProvider = "hover-data-provider")
     public void testHover(String config) throws IOException {
         // We run the same test multiple times and take the average of them as the execution time. This is to
         // reduce the effect of first compilation and outliers
-        for (int i=0; i<TEST_ITERATIONS; i++) {
+        for (int i = 0; i < TEST_ITERATIONS; i++) {
             super.testHover(config);
         }
 
