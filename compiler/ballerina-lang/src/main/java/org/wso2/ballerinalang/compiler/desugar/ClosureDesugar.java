@@ -210,7 +210,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Types types;
     private Desugar desugar;
     private Names names;
-    private SymbolResolver symResolver;
     private ClassClosureDesugar classClosureDesugar;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
