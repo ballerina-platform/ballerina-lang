@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test performance of hover feature in language server.
@@ -32,24 +34,35 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class HoverPerformanceTest extends HoverProviderTest {
-    private JsonParser parser = new JsonParser();
+
+    private static final int TEST_ITERATIONS = 10;
+    
+    private final List<Long> executionTimes = new ArrayList<>();
 
     @Test(description = "Test Hover provider", dataProvider = "hover-data-provider")
     public void testHover(String config) throws IOException {
-        super.testHover(config);
+        // We run the same test multiple times and take the average of them as the execution time. This is to
+        // reduce the effect of first compilation and outliers
+        for (int i=0; i<TEST_ITERATIONS; i++) {
+            super.testHover(config);
+        }
+
+        // Compute the average execution time
+        long avgResponseTime = executionTimes.stream().reduce(0L, Long::sum) / executionTimes.size();
+
+        int expectedResponseTime = PerformanceTestUtils.getHoverResponseTimeThreshold();
+        Assert.assertTrue(avgResponseTime < expectedResponseTime,
+                String.format("Expected avg response time = %d, received %d.", expectedResponseTime, avgResponseTime));
     }
 
     @Override
     public String getResponse(Path sourcePath, Position position) {
         long start = System.currentTimeMillis();
-        String responseString = parser.parse(TestUtil
+        String responseString = JsonParser.parseString(TestUtil
                 .getHoverResponse(sourcePath.toString(), position, serviceEndpoint)).getAsJsonObject().toString();
         long end = System.currentTimeMillis();
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
         long actualResponseTime = end - start;
-        int expectedResponseTime = PerformanceTestUtils.getHoverResponseTimeThreshold();
-        Assert.assertTrue(actualResponseTime < expectedResponseTime,
-                String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
+        executionTimes.add(actualResponseTime);
         return responseString;
     }
 
