@@ -2759,7 +2759,8 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    public static BIRAnnotationAttachment createBIRAnnotationAttachment(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
+    public static BIRAnnotationAttachment createBIRAnnotationAttachment(
+            BAnnotationAttachmentSymbol annotAttachmentSymbol) {
         Location pos = annotAttachmentSymbol.pos;
         PackageID annotPkgID = annotAttachmentSymbol.annotPkgID;
         Name annotTag = annotAttachmentSymbol.annotTag;
