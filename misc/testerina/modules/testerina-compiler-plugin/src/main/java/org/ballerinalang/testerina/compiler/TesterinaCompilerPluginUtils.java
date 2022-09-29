@@ -90,7 +90,7 @@ public class TesterinaCompilerPluginUtils {
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))),
                 null,
                 NodeFactory.createNodeList(statements.toArray(new StatementNode[0])),
-                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN), null);
         return NodeFactory.createFunctionDefinitionNode(
                 SyntaxKind.FUNCTION_DEFINITION,
                 null,
@@ -118,7 +118,7 @@ public class TesterinaCompilerPluginUtils {
                         NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"))),
                 null,
                 NodeFactory.createNodeList(statements.toArray(new StatementNode[0])),
-                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+                NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN), null);
         FunctionSignatureNode functionSignatureNode = NodeFactory.createFunctionSignatureNode(
                 NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
                 NodeFactory.createSeparatedNodeList(),
