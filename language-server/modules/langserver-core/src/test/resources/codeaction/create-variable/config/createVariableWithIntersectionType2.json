@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "Foo \u0026 readonly intersectionValue \u003d "
+          "newText": "Foo & readonly intersectionValue = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithIntersectionType.bal",
+          230
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

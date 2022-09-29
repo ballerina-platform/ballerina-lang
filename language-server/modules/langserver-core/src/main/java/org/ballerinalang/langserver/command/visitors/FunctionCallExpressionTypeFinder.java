@@ -452,6 +452,13 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        // Check if the function call expression is in LHS expression first
+        if (!conditionalExpressionNode.lhsExpression().isMissing() &&
+                PositionUtil.isWithinLineRange(this.functionCallExpr.lineRange(),
+                        conditionalExpressionNode.lhsExpression().lineRange())) {
+            checkAndSetTypeResult(this.semanticModel.types().BOOLEAN);
+            return;
+        }
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
                 .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR)
                 .or(() -> semanticModel.typeOf(conditionalExpressionNode.endExpression())
@@ -501,6 +508,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     /**
      * Get the type symbol of the return type of the function call expression provided to this instance.
+     * Should be invoked after executing this visitor.
      *
      * @return Optional type symbol of the return type of function call expression
      */

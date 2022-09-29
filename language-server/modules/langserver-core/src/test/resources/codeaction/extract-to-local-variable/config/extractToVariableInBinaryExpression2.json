@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 11
+    },
+    "end": {
+      "line": 3,
+      "character": 22
+    }
+  },
+  "source": "extractToVariableInBinaryExpression2.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "int var4 \u003d var1 * var2;\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 11
+            },
+            "end": {
+              "line": 3,
+              "character": 22
+            }
+          },
+          "newText": "var4"
+        }
+      ]
+    }
+  ]
+}
