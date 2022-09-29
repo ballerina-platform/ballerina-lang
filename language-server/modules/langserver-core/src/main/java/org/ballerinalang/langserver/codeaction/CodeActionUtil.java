@@ -74,6 +74,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -868,5 +869,23 @@ public class CodeActionUtil {
         action.setKind(codeActionKind);
         action.setData(data);
         return action;
+    }
+
+    /**
+     * Returns if a new line should be appended to a new text edit at module level.
+     * 
+     * @param enclosingNode Node at module level which is enclosing the cursor.
+     * @return @link{Boolean} W
+     */
+    public static boolean addNewLineAtEnd(Node enclosingNode) {
+        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
+        while (iterator.hasNext()) {
+            Node next = iterator.next();
+            if (next.textRange().length() > 0
+                    && next.lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }
