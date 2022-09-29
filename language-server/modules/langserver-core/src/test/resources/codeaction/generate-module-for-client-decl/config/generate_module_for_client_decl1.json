@@ -1,0 +1,14 @@
+{
+  "position": {
+    "line": 1,
+    "character": 43
+  },
+  "source": "client_decl/main.bal",
+  "expected": [
+    {
+      "title": "Generate module for client declaration",
+      "kind": "quickfix",
+      "resolvable": false
+    }
+  ]
+}
