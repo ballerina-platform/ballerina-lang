@@ -16,7 +16,7 @@
 
 client "https://postman-echo.com/get?name=projectapiclientplugin" as foo;
 
-function testModuleClientDecl() returns string {
+public function testModuleClientDecl() returns string {
     foo:ClientConfiguration config = {specVersion : "3.0.0"};
     foo:client cl = new (config);
     return cl->getSpecVersion();

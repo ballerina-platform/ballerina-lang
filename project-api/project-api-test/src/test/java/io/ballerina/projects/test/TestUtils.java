@@ -64,7 +64,7 @@ public class TestUtils {
         return BuildProject.load(projectPath, mergedOptions);
     }
 
-    static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+    public static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).setSkipTests(false).build();
         return BuildProject.load(environmentBuilder, projectPath, buildOptions);
     }

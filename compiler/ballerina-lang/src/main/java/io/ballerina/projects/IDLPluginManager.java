@@ -215,11 +215,11 @@ class IDLPluginManager {
             StringBuilder id = new StringBuilder();
             for (AnnotationNode annotation : supportedAnnotations) {
                 String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
-                        .replaceAll("\\n", "");
+                        .replaceAll("\\s", "");
                 id.append(annotationRef);
 
                 String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
-                .replaceAll("\\n", "");
+                .replaceAll("\\s", "");
                 id.append(annotationVal);
                 annotations.add(id.toString());
             }
