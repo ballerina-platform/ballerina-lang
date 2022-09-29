@@ -194,6 +194,8 @@ public class JvmSignatures {
     public static final String ERROR_CALL = "(L" + BAL_ENV + ";L" + ERROR_VALUE + ";)V";
     public static final String ERROR_INIT = "(L" + TYPE + ";L" + B_STRING_VALUE + ";L" + BERROR + ";L" + OBJECT + ";)V";
     public static final String FP_INIT = "(L" + FUNCTION + ";L" + TYPE + ";L" + STRING_VALUE + ";Z)V";
+    public static final String FUNCTION_CALL =
+            "(L" + STRAND_CLASS + ";L" + STRING_VALUE + ";[L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String FROM_STRING = "(L" + STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
     public static final String GET_ANNOTATION_VALUE =
             "(L" + TYPEDESC_VALUE + ";L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
@@ -271,9 +273,10 @@ public class JvmSignatures {
     public static final String INIT_ERROR_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INIT_FIELD_IMPL = "(L" + TYPE + ";L" + STRING_VALUE + ";J)V";
     public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + SET + ";I)V";
-    public static final String INIT_FUCNTION_PARAM = "(L" + STRING_VALUE + ";L" + BOOLEAN_VALUE + ";L" + TYPE + ";)V";
-    public static final String INIT_FUNCTION_TYPE_IMPL = "([L" + FUNCTION_PARAMETER + ";L" + TYPE + ";L" + TYPE + ";" +
-            "JL" + STRING_VALUE + ";L" + MODULE + ";)V";
+    public static final String INIT_FUNCTION_PARAM = "(L" + STRING_VALUE + ";ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
+    public static final String INIT_FUNCTION_TYPE_IMPL = "(L" + MODULE + ";J)V";
+    public static final String INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS = "(L" + MODULE + ";[L" + FUNCTION_PARAMETER + ";" +
+            "L" + TYPE + ";L" + TYPE + ";" + "JL" + STRING_VALUE + ";)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE =
             "(L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_TYPE = "(L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
@@ -343,7 +346,7 @@ public class JvmSignatures {
     public static final String METHOD_STRING_PARAM = "(L" + JvmConstants.STRING_VALUE + ";)V";
     public static final String METHOD_TYPE_IMPL_ARRAY_PARAM = "([L" + METHOD_TYPE_IMPL + ";)V";
     public static final String METHOD_TYPE_IMPL_INIT =
-            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";J)V";
+            "(L" + STRING_VALUE + ";L" + MODULE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";J)V";
     public static final String METHOD_TYPE_IMPL_PARAM = "(L" + METHOD_TYPE_IMPL + ";)V";
     public static final String MODULE_START = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String OBJECT_SET = "(L" + STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
@@ -374,8 +377,8 @@ public class JvmSignatures {
             "<TK;TV;>;L" + MAP_VALUE + "<TK;TV;>;";
     public static final String RESOURCE_METHOD_TYPE_ARRAY_PARAM = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String RESOURCE_METHOD_TYPE_IMPL_INIT =
-            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";L" + TUPLE_TYPE_IMPL +
-                    ";JL" + STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
+            "(L" + STRING_VALUE + ";L" + MODULE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";L" +
+                    TUPLE_TYPE_IMPL + ";JL" + STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
     public static final String RETURN_ARRAY_VALUE = ")L" + ARRAY_VALUE + ";";
     public static final String RETURN_B_OBJECT = ")L" + B_OBJECT + ";";
     public static final String RETURN_B_STRING_VALUE = ")L" + B_STRING_VALUE + ";";

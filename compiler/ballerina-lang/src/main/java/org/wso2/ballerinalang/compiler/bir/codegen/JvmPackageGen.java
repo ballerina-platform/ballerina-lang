@@ -96,6 +96,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
@@ -391,7 +392,7 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, String typesClass,
-                                       JvmConstantsGen jvmConstantsGen,
+                                       JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable, TypeHashVisitor typeHashVisitor) {
         jvmClassMapping.entrySet().forEach(entry -> {
@@ -400,8 +401,6 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
-            JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -781,7 +780,8 @@ public class JvmPackageGen {
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
         // enrich current package with package initializers
-        initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
+        initMethodGen.enrichPkgWithInitializers(this, birFunctionMap, jvmClassMapping, moduleInitClass, module,
+                flattenedModuleImports);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass
@@ -797,6 +797,8 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
+        JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
 
 
@@ -804,9 +806,12 @@ public class JvmPackageGen {
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmConstantsGen,
+        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable, typeHashVisitor);
-        jvmMethodsSplitter.generateMethods(jarEntries);
+
+        List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
+        sortedFunctions.sort(NAME_HASH_COMPARATOR);
+        jvmMethodsSplitter.generateMethods(jarEntries, jvmCastGen, sortedFunctions);
         jvmConstantsGen.generateConstants(jarEntries);
 
         // clear class name mappings

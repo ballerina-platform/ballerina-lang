@@ -628,7 +628,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
-
+        
         return completionItems;
     }
 

@@ -155,7 +155,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SeparatedNodeList<ExpressionNode> expressions,
             Token openBraceToken,
             NodeList<Node> members,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         Objects.requireNonNull(qualifiers, "qualifiers must not be null");
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
         Objects.requireNonNull(absoluteResourcePath, "absoluteResourcePath must not be null");
@@ -175,7 +176,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expressions.underlyingListNode().internalNode(),
                 openBraceToken.internalNode(),
                 members.underlyingListNode().internalNode(),
-                closeBraceToken.internalNode());
+                closeBraceToken.internalNode(),
+                getOptionalSTNode(semicolonToken));
         return stServiceDeclarationNode.createUnlinkedFacade();
     }
 
@@ -1301,7 +1303,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token openBraceToken,
             NamedWorkerDeclarator namedWorkerDeclarator,
             NodeList<StatementNode> statements,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(statements, "statements must not be null");
         Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
@@ -1310,7 +1313,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 openBraceToken.internalNode(),
                 getOptionalSTNode(namedWorkerDeclarator),
                 statements.underlyingListNode().internalNode(),
-                closeBraceToken.internalNode());
+                closeBraceToken.internalNode(),
+                getOptionalSTNode(semicolonToken));
         return stFunctionBodyBlockNode.createUnlinkedFacade();
     }
 
@@ -2577,7 +2581,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             IdentifierToken identifier,
             Token openBraceToken,
             SeparatedNodeList<Node> enumMemberList,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         Objects.requireNonNull(enumKeywordToken, "enumKeywordToken must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
@@ -2591,7 +2596,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 identifier.internalNode(),
                 openBraceToken.internalNode(),
                 enumMemberList.underlyingListNode().internalNode(),
-                closeBraceToken.internalNode());
+                closeBraceToken.internalNode(),
+                getOptionalSTNode(semicolonToken));
         return stEnumDeclarationNode.createUnlinkedFacade();
     }
 
@@ -3119,7 +3125,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token className,
             Token openBrace,
             NodeList<Node> members,
-            Token closeBrace) {
+            Token closeBrace,
+            Token semicolonToken) {
         Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
         Objects.requireNonNull(classKeyword, "classKeyword must not be null");
         Objects.requireNonNull(className, "className must not be null");
@@ -3135,7 +3142,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 className.internalNode(),
                 openBrace.internalNode(),
                 members.underlyingListNode().internalNode(),
-                closeBrace.internalNode());
+                closeBrace.internalNode(),
+                getOptionalSTNode(semicolonToken));
         return stClassDefinitionNode.createUnlinkedFacade();
     }
 
