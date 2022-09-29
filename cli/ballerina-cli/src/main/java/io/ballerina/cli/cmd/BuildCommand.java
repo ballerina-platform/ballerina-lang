@@ -190,6 +190,11 @@ public class BuildCommand implements BLauncherCmd {
             sticky = false;
         }
 
+        if (enableNativeImage) {
+            this.outStream.println(
+                    "WARNING : This is an experimental feature, which supports only a limited set of functionality.");
+        }
+
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
