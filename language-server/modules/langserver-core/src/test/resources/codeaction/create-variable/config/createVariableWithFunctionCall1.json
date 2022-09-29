@@ -6,7 +6,7 @@
   "source": "createVariableWithFunctionCall1.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027record {}\u0027",
+      "title": "Create variable with 'record {}'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,12 +20,21 @@
               "character": 4
             }
           },
-          "newText": "record {} rec \u003d "
+          "newText": "record {} rec = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithFunctionCall1.bal",
+          136
+        ]
+      },
+      "resolvable": false
     },
     {
-      "title": "Create variable with \u0027map\u003cany\u003e\u0027",
+      "title": "Create variable with 'map<any>'",
       "kind": "quickfix",
       "edits": [
         {
@@ -39,9 +48,18 @@
               "character": 4
             }
           },
-          "newText": "map\u003cany\u003e rec \u003d "
+          "newText": "map<any> rec = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithFunctionCall1.bal",
+          135
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
