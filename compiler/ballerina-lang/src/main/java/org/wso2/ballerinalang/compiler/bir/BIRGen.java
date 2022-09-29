@@ -534,7 +534,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclPkg.constants.add(birConstant);
     }
 
-    private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
+    public static ConstValue getBIRConstantVal(BLangConstantValue constValue) {
         int tag = constValue.type.tag;
         if (tag == TypeTags.INTERSECTION) {
             constValue.type = ((BIntersectionType) constValue.type).effectiveType;
@@ -2749,7 +2749,7 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    private List<BIRAnnotationAttachment> getBIRAnnotAttachments(
+    public static List<BIRAnnotationAttachment> getBIRAnnotAttachments(
             List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
         List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>(astAnnotAttachments.size());
         for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
@@ -2759,7 +2759,7 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    private BIRAnnotationAttachment createBIRAnnotationAttachment(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
+    public static BIRAnnotationAttachment createBIRAnnotationAttachment(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
         Location pos = annotAttachmentSymbol.pos;
         PackageID annotPkgID = annotAttachmentSymbol.annotPkgID;
         Name annotTag = annotAttachmentSymbol.annotTag;

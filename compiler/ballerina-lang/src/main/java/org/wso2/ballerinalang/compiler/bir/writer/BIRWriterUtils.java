@@ -78,10 +78,6 @@ public class BIRWriterUtils {
         writeConstValue(cp, buf, constValue.value, constValue.type);
     }
 
-    public static void writeConstValue(ConstantPool cp, ByteBuf buf, BLangConstantValue constValue) {
-        writeConstValue(cp, buf, constValue.value, constValue.type);
-    }
-
     public static void writeConstValue(ConstantPool cp, ByteBuf buf, Object value, BType type) {
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:

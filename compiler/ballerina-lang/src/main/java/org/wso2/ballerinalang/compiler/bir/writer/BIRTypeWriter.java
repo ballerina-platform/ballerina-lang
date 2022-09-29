@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
@@ -71,7 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
-import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -82,9 +82,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeConstValue;
-import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writePosition;
-import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.writeType;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -293,7 +290,8 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(Integer.toString(i)));
             buff.writeLong(memberType.symbol.flags);
             writeTypeCpIndex(memberType.type);
-            writeAnnotAttachments(buff, (List<BAnnotationAttachmentSymbol>) memberType.symbol.getAnnotations());
+            BIRWriterUtils.writeAnnotAttachments(cp, buff,
+                    BIRGen.getBIRAnnotAttachments(memberType.symbol.getAnnotations()));
         }
         if (bTupleType.restType != null) {
             buff.writeBoolean(true);
@@ -374,7 +372,8 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
-            writeAnnotAttachments(buff, (List<BAnnotationAttachmentSymbol>) field.symbol.getAnnotations());
+            BIRWriterUtils.writeAnnotAttachments(cp, buff,
+                    BIRGen.getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;
@@ -589,36 +588,4 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(inclusion);
         }
     }
-
-    private void writeAnnotAttachments(ByteBuf buff, List<BAnnotationAttachmentSymbol> annotAttachments) {
-        ByteBuf annotBuf = Unpooled.buffer();
-        annotBuf.writeInt(annotAttachments.size());
-        for (BAnnotationAttachmentSymbol annotAttachment : annotAttachments) {
-            writeAnnotAttachment(annotBuf, annotAttachment);
-        }
-        int length = annotBuf.nioBuffer().limit();
-        buff.writeLong(length);
-        buff.writeBytes(annotBuf.nioBuffer().array(), 0, length);
-    }
-
-    private void writeAnnotAttachment(ByteBuf annotBuf, BAnnotationAttachmentSymbol annotAttachment) {
-        // Write module information of the annotation attachment
-        annotBuf.writeInt(BIRWriterUtils.addPkgCPEntry(annotAttachment.annotPkgID, this.cp));
-        // Write position
-        writePosition(annotAttachment.pos, annotBuf, cp);
-        annotBuf.writeInt(addStringCPEntry(annotAttachment.annotTag.value));
-
-        if (!(annotAttachment instanceof BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol)) {
-            annotBuf.writeBoolean(false);
-            return;
-        }
-
-        annotBuf.writeBoolean(true);
-        BLangConstantValue constVal =
-                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment)
-                        .attachmentValueSymbol.value;
-        writeType(this.cp, annotBuf, constVal.type);
-        writeConstValue(this.cp, annotBuf, constVal);
-    }
-
 }
