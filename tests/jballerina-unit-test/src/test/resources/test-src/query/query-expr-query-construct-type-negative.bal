@@ -284,4 +284,41 @@ function testConstructingInvalidReadonlyMap() {
 
     map<string> & readonly|error mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
                                         select item on conflict error("Error");
+
+    [string:Char, int[]][] list = [];
+    map<float[]>|error mp5 = map from var item in list select item;
+
+    map<int[]> & readonly|error mp7 = map from var item in list select item;
+}
+
+type FooBar1 ("foo"|"bar"|int)[2];
+type FooBar2 ("foo"|"bar"|1)[2];
+type FooBar3 "foo"|"bar"|1;
+type FooBar4 "foo"|"bar"|float;
+type FooBar5 "foo"|"bar"|1;
+
+function testInvalidTypeInSelectWithQueryConstructingMap5() {
+    FooBar1[] list1 = [];
+    map<FooBar1>|error mp1 = map from var item in list1 select item;
+
+    FooBar2[] list2 = [];
+    map<FooBar2>|error mp2 = map from var item in list2 select item;
+
+    FooBar3[][2] list3 = [];
+    map<FooBar3>|error mp3 = map from var item in list3 select item;
+
+    FooBar4[][2] list4 = [];
+    map<FooBar4>|error mp4 = map from var item in list4 select item;
+
+    FooBar5[][2] list5 = [];
+    map<FooBar5>|error mp5 = map from var item in list5 select item;
+
+    [FooBar3, int|float][] list6 = [];
+    map<int|float>|error mp6 = map from var item in list6 select item;
+
+    [FooBar4, int|float][] list7 = [];
+    map<int|float>|error mp7 = map from var item in list7 select item;
+
+    [FooBar5, int|float][] list8 = [];
+    map<int|float>|error mp8 = map from var item in list8 select item;
 }

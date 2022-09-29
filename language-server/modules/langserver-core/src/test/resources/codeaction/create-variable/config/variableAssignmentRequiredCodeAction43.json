@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "record {|int value;|}? next \u003d "
+          "newText": "record {|int value;|}? next = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable7.bal",
+          95
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

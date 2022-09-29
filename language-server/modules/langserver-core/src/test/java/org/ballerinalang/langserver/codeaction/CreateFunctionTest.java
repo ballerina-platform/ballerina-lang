@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,6 +32,8 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateFunctionTest extends AbstractCodeActionTest {
+
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     @Override
     public String getResourceDir() {
@@ -162,7 +167,10 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionInPanicStatement.json"},
                 {"undefinedFunctionInReturn1.json"},
                 {"create_function_in_conditional_expression.json"},
-                {"create_function_in_nil_conditional_expression.json"}
+                {"create_function_in_nil_conditional_expression.json"},
+
+                {"create_function_in_local_var1.json"},
+                {"create_function_in_local_var2.json"}
         };
     }
 
@@ -172,5 +180,10 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeActionNegativeTest1.json"},
                 {"undefinedFunctionCodeActionNegativeTest2.json"}
         };
+    }
+
+    @Override
+    protected Object convertActionData(Object actionData) {
+        return CommandArgument.from(gson.toJsonTree(actionData));
     }
 }

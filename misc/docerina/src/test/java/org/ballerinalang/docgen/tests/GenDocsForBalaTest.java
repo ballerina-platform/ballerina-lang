@@ -105,6 +105,20 @@ public class GenDocsForBalaTest {
         Assert.assertTrue(moduleApiDocsJsonAsString.contains("Task"), "Function annotation attachments missing");
     }
 
+    @Test
+    public void generatingDocsForBalaWithAnnotationTest2() throws IOException {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        String moduleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("ballerina").resolve("http").resolve("2.4.0")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(moduleApiDocsJsonAsString.contains("QueryParamType"), "QueryParamType missing in docs");
+    }
+
     @AfterMethod
     public void cleanUp() throws IOException {
         if (Files.exists(this.docsPath)) {

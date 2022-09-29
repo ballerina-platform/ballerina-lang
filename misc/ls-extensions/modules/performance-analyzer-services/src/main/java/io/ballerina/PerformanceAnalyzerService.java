@@ -41,10 +41,13 @@ import java.util.concurrent.CompletableFuture;
 
 import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
 import static io.ballerina.Constants.ERROR;
+import static io.ballerina.Constants.MAIN_WORKER;
 import static io.ballerina.Constants.MESSAGE;
+import static io.ballerina.Constants.NEXT_NODE;
 import static io.ballerina.Constants.NO_DATA;
 import static io.ballerina.Constants.SUCCESS;
 import static io.ballerina.Constants.TYPE;
+import static io.ballerina.Constants.WORKERS;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
 
@@ -77,7 +80,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
-            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange(), false);
 
             if (data.entrySet().isEmpty()) {
                 JsonObject obj = new JsonObject();
@@ -86,7 +89,7 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                 return obj;
             }
 
-            if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
+            if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get(NEXT_NODE).isJsonNull()) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty(TYPE, ERROR);
                 obj.addProperty(MESSAGE, NO_DATA);
@@ -133,13 +136,15 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
                 LineRange range = resource.getLineRange();
                 Range lineRange = new Range(new Position(range.startLine().line(), range.startLine().offset()),
-                                            new Position(range.endLine().line(), range.endLine().offset()));
+                        new Position(range.endLine().line(), range.endLine().offset()));
 
                 PerformanceAnalyzerResponse response = new PerformanceAnalyzerResponse();
                 response.setName(resource.getName());
                 response.setResourcePos(lineRange);
 
-                JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, lineRange);
+                boolean workerSupported = request.isWorkerSupported();
+                JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, lineRange,
+                        workerSupported);
 
                 if (data.entrySet().isEmpty()) {
                     response.setType(ERROR);
@@ -148,7 +153,9 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
                     return resourcesWithEndpoints;
                 }
 
-                if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
+                if (workerSupported ? data.getAsJsonObject(ACTION_INVOCATION_KEY).
+                        getAsJsonObject(WORKERS).getAsJsonObject(MAIN_WORKER).get(NEXT_NODE).isJsonNull()
+                        : data.getAsJsonObject(ACTION_INVOCATION_KEY).get(NEXT_NODE).isJsonNull()) {
                     response.setType(ERROR);
                     response.setMessage(NO_DATA);
                     resourcesWithEndpoints.add(response);

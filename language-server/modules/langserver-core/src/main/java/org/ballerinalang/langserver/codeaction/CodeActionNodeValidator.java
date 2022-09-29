@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
@@ -80,11 +81,11 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(VariableDeclarationNode node) {
-        return isVisited(node) || node.equalsToken().isPresent()
-                && !node.equalsToken().get().isMissing()
-                && node.typedBindingPattern().apply(this)
+        return isVisited(node) || node.typedBindingPattern().apply(this)
+                // checks for both variables with & without the initializer
+                && (node.equalsToken().isEmpty() || !node.equalsToken().get().isMissing()
                 && node.initializer().isPresent()
-                && node.initializer().get().apply(this);
+                && node.initializer().get().apply(this));
     }
 
     @Override
@@ -236,7 +237,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(ListConstructorExpressionNode node) {
-        return isVisited(node) || !node.openBracket().isMissing() && !node.closeBracket().isMissing()
+        return isVisited(node) || !node.openBracket().isMissing()
+                && !node.closeBracket().isMissing()
                 && node.expressions().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this);
     }
@@ -292,6 +294,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.closeParenToken().isMissing()
                 && node.leadingInvalidTokens().isEmpty()
                 && node.trailingInvalidTokens().isEmpty()
+                && (node.returnTypeDesc().isEmpty() || node.returnTypeDesc().get().apply(this))
                 && node.parameters().stream().allMatch(parameterNode -> parameterNode.apply(this));
     }
 
@@ -301,7 +304,14 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.openBraceToken().isMissing()
                 && !node.closeBraceToken().isMissing()
                 && node.leadingInvalidTokens().isEmpty()
-                && node.trailingInvalidTokens().isEmpty();
+                && node.trailingInvalidTokens().isEmpty()
+                && node.parent().apply(this);
+    }
+
+    @Override
+    public Boolean transform(ReturnTypeDescriptorNode node) {
+        return isVisited(node) || !node.returnsKeyword().isMissing()
+                && node.type().apply(this);
     }
 
     @Override

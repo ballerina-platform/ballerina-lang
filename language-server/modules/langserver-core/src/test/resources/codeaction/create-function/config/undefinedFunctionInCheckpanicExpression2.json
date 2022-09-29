@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getInt() returns error {\n    return error(\"\");\n}\n"
+          "newText": "\n\nfunction getInt() returns error {\n    return error(\"\");\n}"
         }
       ],
       "resolvable": true,

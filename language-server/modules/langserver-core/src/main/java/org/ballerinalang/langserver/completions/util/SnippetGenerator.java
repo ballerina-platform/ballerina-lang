@@ -1564,6 +1564,19 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Resource method declaration Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getResourceMethodDeclSnippet() {
+        String snippet = "resource function ${1:accessor} ${2:path} (${3});";
+        return new SnippetBlock(ItemResolverConstants.RESOURCE_FUNCTION_TYPE,
+                generateFilterText(Arrays.asList(ItemResolverConstants.RESOURCE_KEYWORD, 
+                        ItemResolverConstants.FUNCTION)), snippet, ItemResolverConstants.SNIPPET_TYPE, 
+                Kind.SNIPPET);
+    }
+
+    /**
      * Get Object Initializer Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
