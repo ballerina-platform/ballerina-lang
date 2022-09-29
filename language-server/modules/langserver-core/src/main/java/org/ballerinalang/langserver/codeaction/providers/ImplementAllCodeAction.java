@@ -63,8 +63,8 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
-        return CodeActionNodeValidator.validate(context.nodeAtRange()) && 
-                (node.kind() == SyntaxKind.CLASS_DEFINITION 
+        return CodeActionNodeValidator.validate(context.nodeAtRange()) &&
+                (node.kind() == SyntaxKind.CLASS_DEFINITION
                         || node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION
                         || node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
                         || node.kind() == SyntaxKind.MODULE_VAR_DECL

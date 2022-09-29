@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.langserver.command.visitors;
 
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -29,15 +29,17 @@ import io.ballerina.compiler.syntax.tree.Token;
 import java.util.Optional;
 
 /**
- * Finds if a provided {@link FunctionCallExpressionNode} node is contained within an isolated block.
+ * Finds if a provided {@link NonTerminalNode} node is contained within an isolated block.
  *
  * @since 2.0.0
  */
 public class IsolatedBlockResolver extends NodeTransformer<Boolean> {
 
-    public Boolean findIsolatedBlock(FunctionCallExpressionNode functionCallExpressionNode) {
-        return functionCallExpressionNode.apply(this);
-    }
+    public Boolean findIsolatedBlock(NonTerminalNode node) {
+        if (node.kind() == SyntaxKind.LIST) {
+            return node.parent().apply(this);
+        }
+        return node.apply(this);    }
 
     @Override
     public Boolean transform(ObjectFieldNode objectFieldNode) {

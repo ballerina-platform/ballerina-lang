@@ -88,6 +88,10 @@ public class StaticMethods {
     private StaticMethods() {
     }
 
+    public static void throwNPE() {
+        throw new NullPointerException();
+    }
+
     public static void acceptNothingAndReturnNothing() {
     }
 
