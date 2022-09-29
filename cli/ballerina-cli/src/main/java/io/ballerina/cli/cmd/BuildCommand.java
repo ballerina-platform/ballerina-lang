@@ -192,7 +192,7 @@ public class BuildCommand implements BLauncherCmd {
 
         if (enableNativeImage) {
             this.outStream.println(
-                    "WARNING : This is an experimental feature, which supports only a limited set of functionality.");
+                    "WARNING : Native image generation is an experimental feature, which supports only a limited set of functionality.");
         }
 
         // load project
