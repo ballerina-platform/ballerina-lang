@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 
 class CodeModifierManager {
-    private final Package currentPackage;
+    private Package currentPackage;
     private final PackageCompilation compilation;
     private final CodeModifierTasks codeModifierTasks;
 
@@ -54,13 +54,9 @@ class CodeModifierManager {
     }
 
     CodeModifierResult runCodeModifiers(Package currentPackage) {
+        this.currentPackage = currentPackage;
         CodeModifyTaskResult codeModifyTaskResult = getCodeModifyTaskResult();
-        if (codeModifyTaskResult.containsSourceFile() || codeModifyTaskResult.containsTestSourceFile()) {
-            Package packageWithGenSources = new PackageModifier().modifyPackage(currentPackage, codeModifyTaskResult);
-            return new CodeModifierResult(packageWithGenSources, codeModifyTaskResult.reportedDiagnostics());
-        } else {
-            return new CodeModifierResult(null, codeModifyTaskResult.reportedDiagnostics());
-        }
+        return new CodeModifierResult(this.currentPackage, codeModifyTaskResult.reportedDiagnostics());
     }
 
     private static CodeModifierTasks initCodeModifiers(List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -76,22 +72,51 @@ class CodeModifierManager {
     }
 
     private CodeModifyTaskResult getCodeModifyTaskResult() {
-        List<Diagnostic> reportedDiagnostics = runSyntaxNodeAnalysisTasks();
+
+        Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> inBuiltSyntaxNodeAnalysisTaskMap =
+                populateInBuiltSyntaxNodeTaskMap();
+        List<Diagnostic> reportedDiagnostics = runSyntaxNodeAnalysisTasks(inBuiltSyntaxNodeAnalysisTaskMap);
+
         CodeModifierTaskResultBuilder resultBuilder = new CodeModifierTaskResultBuilder();
         resultBuilder.addDiagnostics(reportedDiagnostics);
         runSourceModifierTasks(resultBuilder);
         return resultBuilder.build();
     }
 
-    private void runSourceModifierTasks(CodeModifierTaskResultBuilder resultBuilder) {
+    private Map<PackageDescriptor, List<SourceModifierTask>> getSourceModifierTaskByPackage() {
+        Map<PackageDescriptor, List<SourceModifierTask>> descriptorListMap = new HashMap<>();
         for (Map.Entry<CodeModifierInfo, List<SourceModifierTask>> codeModifierListEntry :
                 codeModifierTasks.sourceModTaskMap.entrySet()) {
-            runSourceModifierTask(codeModifierListEntry.getValue(), resultBuilder);
+            for (SourceModifierTask sourceModifierTask : codeModifierListEntry.getValue()) {
+                if (sourceModifierTask.compilerPluginInfo.kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
+                    PackageProvidedCompilerPluginInfo compilerPluginInfo =
+                            (PackageProvidedCompilerPluginInfo) sourceModifierTask.compilerPluginInfo;
+                    if (!descriptorListMap.containsKey(compilerPluginInfo.packageDesc())) {
+                        descriptorListMap.put(compilerPluginInfo.packageDesc(), new ArrayList<>());
+                    }
+                    descriptorListMap.get(compilerPluginInfo.packageDesc()).add(sourceModifierTask);
+                }
+            }
+
+        }
+        return descriptorListMap;
+    }
+
+    private void runSourceModifierTasks(CodeModifierTaskResultBuilder resultBuilder) {
+        Map<PackageDescriptor, List<SourceModifierTask>> sourceModifierTaskByPackage = getSourceModifierTaskByPackage();
+        for (Map.Entry<PackageDescriptor, List<SourceModifierTask>> packageDescriptorListEntry :
+                sourceModifierTaskByPackage.entrySet()) {
+            Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> pkgSyntaxNodeAnalysisTaskMap =
+                    populatePkgSyntaxNodeTaskMap(packageDescriptorListEntry.getKey());
+            runSourceModifierTask(packageDescriptorListEntry.getValue(), pkgSyntaxNodeAnalysisTaskMap, resultBuilder);
         }
     }
 
     private void runSourceModifierTask(List<SourceModifierTask> sourceModifierTasks,
+                                       Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTasks,
                                        CodeModifierTaskResultBuilder resultBuilder) {
+        runSyntaxNodeAnalysisTasks(syntaxNodeAnalysisTasks);
+
         for (SourceModifierTask sourceModifierTask : sourceModifierTasks) {
             SourceModifierContextImpl sourceModifyContext = new SourceModifierContextImpl(currentPackage, compilation);
             sourceModifierTask.perform(sourceModifyContext);
@@ -99,12 +124,17 @@ class CodeModifierManager {
             resultBuilder.addDiagnostics(sourceModifyContext.reportedDiagnostics());
             resultBuilder.addSourceFiles(sourceModifyContext.modifiedSourceFiles());
             resultBuilder.addTestSourceFiles(sourceModifyContext.modifiedTestSourceFiles());
+            CodeModifyTaskResult codeModifyTaskResult = resultBuilder.build();
+
+            if (codeModifyTaskResult.containsSourceFile() || codeModifyTaskResult.containsTestSourceFile()) {
+                currentPackage = new PackageModifier().modifyPackage(currentPackage, codeModifyTaskResult);
+            }
         }
     }
 
-    private List<Diagnostic> runSyntaxNodeAnalysisTasks() {
+    private List<Diagnostic> runSyntaxNodeAnalysisTasks(
+            Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap) {
         List<Diagnostic> reportedDiagnostics = new ArrayList<>();
-        Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = populateSyntaxNodeTaskMap();
         if (syntaxNodeAnalysisTaskMap.isEmpty()) {
             // There are no syntax node analyzers to run
             return reportedDiagnostics;
@@ -116,21 +146,36 @@ class CodeModifierManager {
         return reportedDiagnostics;
     }
 
-    private Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> populateSyntaxNodeTaskMap() {
+    private Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> populatePkgSyntaxNodeTaskMap(PackageDescriptor packageDesc) {
         Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = new HashMap<>();
         for (List<SyntaxNodeAnalysisTask> syntaxNodeAnalysisTasks :
                 codeModifierTasks.syntaxNodeAnalysisTaskMap.values()) {
-            populateSyntaxNodeTaskMap(syntaxNodeAnalysisTaskMap, syntaxNodeAnalysisTasks);
+            for (SyntaxNodeAnalysisTask syntaxNodeTask : syntaxNodeAnalysisTasks) {
+                if (syntaxNodeTask.getCompilerPluginInfo().kind().equals(CompilerPluginKind.PACKAGE_PROVIDED)) {
+                    PackageProvidedCompilerPluginInfo compilerPluginInfo =
+                            (PackageProvidedCompilerPluginInfo) syntaxNodeTask.getCompilerPluginInfo();
+                    if (compilerPluginInfo.packageDesc().equals(packageDesc)) {
+                        populateSyntaxNodeTaskMap(syntaxNodeAnalysisTaskMap, syntaxNodeTask);
+                    }
+                }
+            }
         }
 
         return syntaxNodeAnalysisTaskMap;
     }
 
-    private void populateSyntaxNodeTaskMap(Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap,
-                                           List<SyntaxNodeAnalysisTask> syntaxNodeAnalysisTasks) {
-        for (SyntaxNodeAnalysisTask syntaxNodeTask : syntaxNodeAnalysisTasks) {
-            populateSyntaxNodeTaskMap(syntaxNodeAnalysisTaskMap, syntaxNodeTask);
+    private Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> populateInBuiltSyntaxNodeTaskMap() {
+        Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = new HashMap<>();
+        for (List<SyntaxNodeAnalysisTask> syntaxNodeAnalysisTasks :
+                codeModifierTasks.syntaxNodeAnalysisTaskMap.values()) {
+            for (SyntaxNodeAnalysisTask syntaxNodeTask : syntaxNodeAnalysisTasks) {
+                if (syntaxNodeTask.getCompilerPluginInfo().kind().equals(CompilerPluginKind.BUILT_IN)) {
+                    populateSyntaxNodeTaskMap(syntaxNodeAnalysisTaskMap, syntaxNodeTask);
+                }
+            }
         }
+
+        return syntaxNodeAnalysisTaskMap;
     }
 
     private void populateSyntaxNodeTaskMap(Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap,

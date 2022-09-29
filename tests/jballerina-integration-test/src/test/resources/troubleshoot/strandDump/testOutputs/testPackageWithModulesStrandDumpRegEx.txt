@@ -1,8 +1,10 @@
 Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
 ===========================================
 
-Current no. of strand groups\t:\t5
-Current no. of strands      \t:\t17
+Total strand group count \t:\t8
+Total strand count       \t:\t19
+Active strand group count\t:\t5
+Active strand count      \t:\t17
 
 group \d* \[QUEUED\]: \[5\]
 \tstrand \d* "main" \[testOrg.testPackageWithModules.0:main\] \[WAITING\]:

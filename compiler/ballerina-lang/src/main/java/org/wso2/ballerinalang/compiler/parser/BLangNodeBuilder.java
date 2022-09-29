@@ -3230,6 +3230,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
         functionTypeNode.returnsKeywordExists = true;
+        functionTypeNode.inTypeDefinitionContext = isInTypeDefinitionContext(functionTypeDescriptorNode.parent());
 
         if (functionTypeDescriptorNode.functionSignature().isPresent()) {
             FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature().get();
@@ -3240,7 +3241,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 if (child.kind() == SyntaxKind.REST_PARAM) {
                     functionTypeNode.restParam = (BLangSimpleVariable) param;
                 } else {
-                    functionTypeNode.params.add((BLangVariable) param);
+                    functionTypeNode.params.add((BLangSimpleVariable) param);
                 }
             }
 
@@ -3553,7 +3554,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLSimpleNameNode xmlSimpleNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-        xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
+        Token xmlSimpleName = xmlSimpleNameNode.name();
+        xmlName.localname = createIdentifier(getPosition(xmlSimpleName), xmlSimpleName, true);
         xmlName.prefix = createIdentifier(null, "");
         xmlName.pos = getPosition(xmlSimpleNameNode);
         return xmlName;
@@ -5431,6 +5433,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangIdentifier createIdentifier(Location pos, Token token) {
+        return createIdentifier(pos, token, false);
+    }
+
+    private BLangIdentifier createIdentifier(Location pos, Token token, boolean isXML) {
         if (token == null) {
             return createIdentifier(pos, (String) null);
         }
@@ -5438,7 +5444,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         String identifierName = token.text();
         if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
-        } else if (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_")) {
+        } else if (!isXML && (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_"))) {
             dlog.error(pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER);
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
@@ -6190,6 +6196,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             default:
                 return false;
         }
+    }
+
+    private boolean isInTypeDefinitionContext(Node parent) {
+        while (parent != null) {
+            if (parent instanceof TypeDefinitionNode) {
+                return true;
+            }
+            parent = parent.parent();
+        }
+        return false;
     }
 
     private boolean isNumericLiteral(SyntaxKind syntaxKind) {

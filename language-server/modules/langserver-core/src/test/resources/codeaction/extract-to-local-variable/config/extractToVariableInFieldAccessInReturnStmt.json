@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 15,
+      "character": 15
+    },
+    "end": {
+      "line": 15,
+      "character": 23
+    }
+  },
+  "source": "extractToVariableInFieldAccess.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 8
+            },
+            "end": {
+              "line": 15,
+              "character": 8
+            }
+          },
+          "newText": "int var1 \u003d self.age;\n        "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 15
+            },
+            "end": {
+              "line": 15,
+              "character": 23
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}
