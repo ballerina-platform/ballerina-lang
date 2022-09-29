@@ -20,9 +20,18 @@
               "character": 3
             }
           },
-          "newText": "typedesc:TypeId[]? \u0026 readonly typeIds \u003d "
+          "newText": "typedesc:TypeId[]? & readonly typeIds = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithTypeDesc.bal",
+          113
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
