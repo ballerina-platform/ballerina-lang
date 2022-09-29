@@ -245,7 +245,13 @@ class JvmObservabilityGen {
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 List<BIRBasicBlock> predecessors = entry.getValue();
                 boolean desugaredPosAlreadyLoaded = predecessors.stream()
-                                                    .anyMatch(bb -> getDesugaredPosition(bb).equals(desugaredPos));
+                                                    .anyMatch(bb -> {
+                                                        Location predecessorDesugaredPos = getDesugaredPosition(bb);
+                                                        if (predecessorDesugaredPos == null) {
+                                                            return false;
+                                                        }
+                                                        return predecessorDesugaredPos.equals(desugaredPos);
+                                                    });
                 int callInsOffset = 0;
                 if (!desugaredPosAlreadyLoaded) {
                     updatePositionArgsConstLoadIns(desugaredPos, currentBB);
