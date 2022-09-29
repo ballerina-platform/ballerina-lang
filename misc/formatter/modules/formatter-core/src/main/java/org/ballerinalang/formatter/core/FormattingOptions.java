@@ -103,6 +103,7 @@ public class FormattingOptions {
      * This setter method is no longer acceptable to set Formatting Options.
      * <p> Use {@link FormattingOptions#builder()} instead.
      */
+    @Deprecated
     public void setWSCharacter(String wsCharacter) {
         this.wsCharacter = wsCharacter;
     }
@@ -116,6 +117,7 @@ public class FormattingOptions {
      * This setter method is no longer acceptable to set Formatting Options.
      * <p> Use {@link FormattingOptions#builder()} instead.
      */
+    @Deprecated
     public void setColumnLimit(int columnLimit) {
         this.columnLimit = columnLimit;
     }
@@ -129,6 +131,7 @@ public class FormattingOptions {
      * This setter method is no longer acceptable to set Formatting Options.
      * <p> Use {@link FormattingOptions#builder()} instead.
      */
+    @Deprecated
     public void setLineWrapping(boolean lineWrapping) {
         this.lineWrapping = lineWrapping;
     }
