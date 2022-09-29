@@ -260,18 +260,11 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: '(map<int>|error)' is not an iterable collection", 428, 48);
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
-                        "is not an iterable collection", 395, 100);
+                        "is not an iterable collection", 432, 100);
         validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
-                "found 'stream<int,BarError?>'", 405, 32);
+                "found 'stream<int,BarError?>'", 442, 32);
         validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
-                "found 'stream<int,BarError?>'", 408, 32);
-//                        "is not an iterable collection", 432, 100);
-        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
-                438, 13);
-        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
-                "found 'table<record {| |}>'", 439, 19);
-        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
-                "found 'table<record {| int a; int b; |}>'", 440, 16);
+                "found 'stream<int,BarError?>'", 445, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
