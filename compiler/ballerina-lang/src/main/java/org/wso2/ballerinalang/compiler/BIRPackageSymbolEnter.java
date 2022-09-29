@@ -1204,15 +1204,9 @@ public class BIRPackageSymbolEnter {
                                                                                 env.pkgSymbol.pkgID, null,
                                                                                 env.pkgSymbol, symTable.builtinPos,
                                                                                 COMPILED_SOURCE);
-                    recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
-                    recordType.flags |= flags;
 
-                    if (isImmutable(flags)) {
-                        recordSymbol.flags |= Flags.READONLY;
-                    }
-
+                    BRecordType recordType = new BRecordType(recordSymbol, flags);
                     recordSymbol.type = recordType;
 
                     compositeStack.push(recordType);
