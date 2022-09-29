@@ -33,8 +33,6 @@ import java.util.List;
 public class ObservabilityJMethodCall extends BIRNonTerminator {
 
     public List<BIROperand> args;
-    public boolean varArgExist;
-    public JType varArgType;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
