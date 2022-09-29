@@ -623,7 +623,7 @@ public class CommonUtil {
     }
 
     /**
-     * Get the last appearing qualifier token of a give node.
+     * Get the last appearing qualifier token of a given node.
      *
      * @param context completion context.
      * @param node    node.
