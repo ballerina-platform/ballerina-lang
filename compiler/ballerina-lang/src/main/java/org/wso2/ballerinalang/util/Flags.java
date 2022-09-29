@@ -82,7 +82,6 @@ public class Flags {
     public static final long ENUM_MEMBER = INFER << 1;                          //  41
     public static final long QUERY_LAMBDA = ENUM_MEMBER << 1;                   //  42
 
-
     public static long asMask(Set<Flag> flagSet) {
         long mask = 0;
         for (Flag flag : flagSet) {

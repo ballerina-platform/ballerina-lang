@@ -21,3 +21,11 @@ function testCreateVarWithCheckParentHasErrorReturnType() returns error {
 function testCreateVarWithCheckParentHasAnotherReturnType() returns string {
     createIntWithError();
 }
+
+function testCreateVarWithCheckParentHasNoReturnType() returns {
+    createIntWithError();
+}
+
+function testCreateVarWithCheckParentHasUndefinedReturnType() returns abc {
+    createIntWithError();
+}

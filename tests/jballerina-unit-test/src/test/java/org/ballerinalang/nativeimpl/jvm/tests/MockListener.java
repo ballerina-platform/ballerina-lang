@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
-import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -57,7 +56,7 @@ public class MockListener {
                                                           err = error;
                                                           latch.countDown();
                                                       }
-                                                  }, null, PredefinedTypes.TYPE_NULL, new HashMap<>());
+                                                  }, null, PredefinedTypes.TYPE_NULL);
             latch.await();
         }
         return err;

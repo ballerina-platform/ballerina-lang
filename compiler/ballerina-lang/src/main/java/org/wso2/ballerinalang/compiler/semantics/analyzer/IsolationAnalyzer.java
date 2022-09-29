@@ -1500,7 +1500,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
-        BInvokableSymbol initInvocationSymbol = (BInvokableSymbol) typeInitExpr.initInvocation.symbol;
+        BInvokableSymbol initInvocationSymbol =
+                                        (BInvokableSymbol) ((BLangInvocation) typeInitExpr.initInvocation).symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
             analyzeFunctionForInference(initInvocationSymbol);
 

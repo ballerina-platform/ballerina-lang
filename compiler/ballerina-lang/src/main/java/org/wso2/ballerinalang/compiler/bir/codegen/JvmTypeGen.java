@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -87,6 +88,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CALL_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
@@ -104,6 +106,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_CALLS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
@@ -125,6 +128,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_O
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.DOUBLE_VALUE_OF_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FUNCTION_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BOBJECT;
@@ -145,8 +149,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FINITE_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUCNTION_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_PARAMETERIZED_TYPE_IMPL;
@@ -194,6 +199,7 @@ public class JvmTypeGen {
     private final String recordsClass;
     private final String objectsClass;
     private final String errorsClass;
+    private final String functionCallsClass;
 
     public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor,
                       SymbolTable symbolTable) {
@@ -207,6 +213,7 @@ public class JvmTypeGen {
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
         this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CREATOR_CLASS_NAME);
+        this.functionCallsClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_CALLS_CLASS_NAME);
     }
 
     /**
@@ -265,6 +272,7 @@ public class JvmTypeGen {
         generateRecordValueCreateMethod(cw);
         generateObjectValueCreateMethod(cw);
         generateErrorValueCreateMethod(cw);
+        generateFunctionCallMethod(cw);
     }
 
     private void generateRecordValueCreateMethod(ClassWriter cw) {
@@ -303,6 +311,18 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ALOAD, 4);
         mv.visitMethodInsn(INVOKESTATIC, errorsClass, CREATE_ERROR_VALUE, CREATE_ERROR, false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateFunctionCallMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CALL_FUNCTION, FUNCTION_CALL, null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitMethodInsn(INVOKESTATIC, functionCallsClass, CALL_FUNCTION, FUNCTION_CALL, false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -887,14 +907,20 @@ public class JvmTypeGen {
      * @param mv    method visitor
      * @param bType invokable type to be created
      */
-    private void loadInvokableType(MethodVisitor mv, BInvokableType bType) {
+    public void loadInvokableType(MethodVisitor mv, BInvokableType bType) {
 
         mv.visitTypeInsn(NEW, FUNCTION_TYPE_IMPL);
         mv.visitInsn(DUP);
+        if (bType.tsymbol == null) {
+            mv.visitInsn(ACONST_NULL);
+        } else {
+            String moduleName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
+        }
 
         if (Symbols.isFlagOn(bType.flags, Flags.ANY_FUNCTION)) {
             mv.visitLdcInsn(bType.flags);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, "(J)V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL, false);
             return;
         }
 
@@ -912,15 +938,9 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(bType.flags);
         mv.visitLdcInsn(bType.name.getValue());
-        if (bType.tsymbol == null) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            String moduleVarName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
-            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleVarName,
-                    JvmSignatures.GET_MODULE);
-        }
         // initialize the function type using the param types array and the return type
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL, false);
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS,
+                false);
     }
 
     private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
@@ -946,10 +966,19 @@ public class JvmTypeGen {
             mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
             mv.visitInsn(DUP);
             mv.visitLdcInsn(paramSymbol.name.value);
-            mv.visitLdcInsn(paramSymbol.isDefaultable);
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
+            if (paramSymbol.isDefaultable) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            if (bInvokableSymbol == null) {
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                mv.visitLdcInsn(bInvokableSymbol.name.value);
+            }
             loadLocalType(mv, paramSymbol.type);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUCNTION_PARAM, false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -966,10 +995,10 @@ public class JvmTypeGen {
             mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
             mv.visitInsn(DUP);
             mv.visitLdcInsn("");
-            mv.visitLdcInsn(false);
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, BOOLEAN_VALUE_OF_METHOD, false);
+            mv.visitInsn(ICONST_0);
+            mv.visitInsn(ACONST_NULL);
             loadLocalType(mv, paramTypes.get(i));
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUCNTION_PARAM, false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
     }

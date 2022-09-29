@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -63,7 +64,7 @@ import java.util.Set;
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Change Variable Type";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE2652", "BCE3931");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -109,7 +110,12 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+        List<String> types;
+        if ("BCE3931".equals(diagnostic.diagnosticInfo().code())) {
+            types = Collections.singletonList(((TypeDescTypeSymbol) foundType.get()).typeParameter().get().signature());
+        } else {
+            types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+        }
         for (String type : types) {
             if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
                 // Skip suggesting same type

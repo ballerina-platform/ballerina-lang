@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 11,
+      "character": 20
+    },
+    "end": {
+      "line": 11,
+      "character": 42
+    }
+  },
+  "source": "extractToVariableInExplicitNewExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "Person var1 \u003d new Person(\"Anne\", 25);\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 20
+            },
+            "end": {
+              "line": 11,
+              "character": 42
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

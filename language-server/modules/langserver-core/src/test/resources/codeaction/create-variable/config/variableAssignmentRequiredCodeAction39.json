@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};} objectResult \u003d "
+          "newText": "object {public isolated function iterator() returns object {public isolated function next() returns record {|int value;|}?;};} objectResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable5.bal",
+          2091
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

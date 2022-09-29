@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "int intWithError \u003d "
+          "newText": "int intWithError = "
         },
         {
           "range": {
@@ -48,7 +48,16 @@
           },
           "newText": " returns error?"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithCheck.bal",
+          144
+        ]
+      },
+      "resolvable": false
     }
   ],
   "description": "Parent function has no return type"
