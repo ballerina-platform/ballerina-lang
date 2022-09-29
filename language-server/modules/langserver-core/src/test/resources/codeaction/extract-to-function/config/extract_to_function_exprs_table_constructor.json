@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns table<Employee> key(id) {\n    return table [\n        {id: 1, name: \"John\", salary: 300.50},\n        {id: 2, name: \"Bella\", salary: 500.50}\n    ];\n}\n"
+          "newText": "\n\nfunction extracted() returns EmployeeTable {\n    return table [\n        {id: 1, name: \"John\", salary: 300.50},\n        {id: 2, name: \"Bella\", salary: 500.50}\n    ];\n}\n"
         },
         {
           "range": {
@@ -41,7 +41,8 @@
           },
           "newText": "extracted()"
         }
-      ]
+      ],
+      "resolvable": false
     }
   ],
   "description": "Extract to function for expressions, table constructor"
