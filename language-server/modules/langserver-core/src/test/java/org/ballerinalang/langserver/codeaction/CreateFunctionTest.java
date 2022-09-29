@@ -160,7 +160,9 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionInCheckpanicExpression1.json"},
                 {"undefinedFunctionInCheckpanicExpression2.json"},
                 {"undefinedFunctionInPanicStatement.json"},
-                {"undefinedFunctionInReturn1.json"},
+                {"undefinedFunctionInReturn1.json"},  
+                {"create_function_in_conditional_expression.json"},
+                {"create_function_in_nil_conditional_expression.json"}
         };
     }
 

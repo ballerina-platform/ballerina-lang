@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -31,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
@@ -53,15 +55,18 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
@@ -414,14 +419,21 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
-    public void visit(BinaryExpressionNode node) {
+    public void visit(VariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
-    public void visit(QualifiedNameReferenceNode node) {
+    public void visit(AssignmentStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
@@ -526,7 +538,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDeclarationNode node) {
+    public void visit(FunctionCallExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
@@ -540,7 +552,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
-    public void visit(AssignmentStatementNode node) {
+    public void visit(CheckExpressionNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
@@ -603,6 +615,27 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     @Override
+    public void visit(TrapExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(QueryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TemplateExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
     public void visit(ObjectFieldNode node) {
         checkAndSetCodeActionNode(node);
         checkAndSetSyntaxKind(node.kind());
@@ -616,6 +649,13 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
             checkAndSetEnclosingDocumentableNode(node);
             checkAndSetDocumentableNode(node);
         }
+    }
+
+    @Override
+    public void visit(SpecificFieldNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
     }
 
     public void visit(Node node) {

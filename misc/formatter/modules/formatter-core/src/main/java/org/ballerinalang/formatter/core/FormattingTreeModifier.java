@@ -246,6 +246,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.formatter.core.FormatterUtils.isInlineRange;
 
@@ -434,13 +435,18 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null), 0, 1);
 
         unindent(); // reset the indentation
-        Token closeBrace = formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Optional<Token> optSemicolon = functionBodyBlockNode.semicolonToken();
+        Token closeBrace = optSemicolon.isPresent() ?
+                formatToken(functionBodyBlockNode.closeBraceToken(), 0, 0) :
+                formatToken(functionBodyBlockNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Token semicolon = formatToken(optSemicolon.orElse(null), env.trailingWS, env.trailingNL);
 
         return functionBodyBlockNode.modify()
                 .withOpenBraceToken(openBrace)
                 .withNamedWorkerDeclarator(namedWorkerDeclarator)
                 .withStatements(statements)
                 .withCloseBraceToken(closeBrace)
+                .withSemicolonToken(semicolon)
                 .apply();
     }
 
@@ -675,7 +681,11 @@ public class FormattingTreeModifier extends TreeModifier {
         indent(); // increase the indentation of the following statements.
         NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1);
         unindent(); // reset the indentation.
-        Token closeBrace = formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Optional<Token> optSemicolon = serviceDeclarationNode.semicolonToken();
+        Token closeBrace = optSemicolon.isPresent() ?
+                formatToken(serviceDeclarationNode.closeBraceToken(), 0, 0) :
+                formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Token semicolon = formatToken(optSemicolon.orElse(null), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
                 .withMetadata(metadata)
@@ -688,6 +698,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBraceToken(openBrace)
                 .withMembers(members)
                 .withCloseBraceToken(closeBrace)
+                .withSemicolonToken(semicolon)
                 .apply();
     }
 
@@ -1620,7 +1631,11 @@ public class FormattingTreeModifier extends TreeModifier {
         SeparatedNodeList<Node> enumMemberList = formatSeparatedNodeList(enumDeclarationNode.enumMemberList(),
                 0, 0, separatorTrailingWS, separatorTrailingNL, 0, 1);
         unindent();
-        Token closeBraceToken = formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Optional<Token> optSemicolon = enumDeclarationNode.semicolonToken();
+        Token closeBraceToken = optSemicolon.isPresent() ?
+                formatToken(enumDeclarationNode.closeBraceToken(), 0, 0) :
+                formatToken(enumDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
+        Token semicolon = formatToken(optSemicolon.orElse(null), env.trailingWS, env.trailingNL);
 
         return enumDeclarationNode.modify()
                 .withMetadata(metadata)
@@ -1630,6 +1645,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBraceToken(openBraceToken)
                 .withEnumMemberList(enumMemberList)
                 .withCloseBraceToken(closeBraceToken)
+                .withSemicolonToken(semicolon)
                 .apply();
     }
 
@@ -3367,7 +3383,11 @@ public class FormattingTreeModifier extends TreeModifier {
         indent();
         NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
         unindent();
-        Token closeBrace = formatToken(classDefinitionNode.closeBrace(), env.trailingWS, env.trailingNL);
+        Optional<Token> optSemicolon = classDefinitionNode.semicolonToken();
+        Token closeBrace = optSemicolon.isPresent() ?
+                formatToken(classDefinitionNode.closeBrace(), 0, 0) :
+                formatToken(classDefinitionNode.closeBrace(), env.trailingWS, env.trailingNL);
+        Token semicolon = formatToken(optSemicolon.orElse(null), env.trailingWS, env.trailingNL);
 
         return classDefinitionNode.modify()
                 .withMetadata(metadata)
@@ -3378,6 +3398,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenBrace(openBrace)
                 .withMembers(members)
                 .withCloseBrace(closeBrace)
+                .withSemicolonToken(semicolon)
                 .apply();
     }
 
