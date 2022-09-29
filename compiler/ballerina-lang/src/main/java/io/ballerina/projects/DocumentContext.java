@@ -57,8 +57,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +80,7 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
+
     // TODO This constant should not be here
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
@@ -172,7 +175,7 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
+                !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
@@ -339,7 +342,7 @@ class DocumentContext {
                     } catch (Exception e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
                         Location location = moduleClientDeclarationNode.location();
-                        String message = "unexpected exception thrown from plugin class: " 
+                        String message = "unexpected exception thrown from plugin class: "
                                 + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
                         pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
@@ -462,10 +465,11 @@ class DocumentContext {
                     errorCode.diagnosticId(), message, DiagnosticSeverity.ERROR);
             return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         }
-      
+
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
-            URL url = new URL(getUri(clientNode));
+            String uri = getUri(clientNode);
+            URL url = getUrl(uri);
             String extension = FileNameUtils.getExtension(url.getFile());
             String fileName = "idl-spec-file" + System.currentTimeMillis();
             if (!"".equals(extension)) {
@@ -485,6 +489,29 @@ class DocumentContext {
                 }
             }
             return resourcePath;
+        }
+
+        private URL getUrl(String uri) throws MalformedURLException {
+            try {
+                return new URL(uri);
+            } catch (MalformedURLException e) {
+                Path path = Paths.get(uri);
+                if (!path.isAbsolute()) {
+                    Path projectDir = this.currentPkg.project().sourceRoot();
+                    ModuleName moduleName = this.currentModuleDesc.name();
+                    if (moduleName.isDefaultModuleName()) {
+                        path = projectDir.resolve(uri);
+                    } else {
+                        path = projectDir.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart())
+                                .resolve(uri);
+                    }
+                }
+                File file = path.toFile();
+                if (file.exists()) {
+                    return file.toURI().toURL();
+                }
+                throw e;
+            }
         }
 
         private String getUri(Node clientNode) {
