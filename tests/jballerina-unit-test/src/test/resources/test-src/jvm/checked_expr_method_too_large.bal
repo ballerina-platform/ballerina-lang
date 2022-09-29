@@ -43,6 +43,10 @@ service / on new Listener() {
                 var x = check foo(200);
                 if x is Response {
                     check caller->respond(error("error in response"));
+                } else if x is int {
+                    check caller->respond(x);
+                } else if x is false {
+                    check caller->respond(error("internal error"));
                 }
             }
 
