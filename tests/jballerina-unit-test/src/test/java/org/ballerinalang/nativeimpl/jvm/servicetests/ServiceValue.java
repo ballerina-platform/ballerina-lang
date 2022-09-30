@@ -63,9 +63,10 @@ public class ServiceValue {
     }
 
     public static BFuture callMethodWithParams(Environment env, BObject l, BString name, ArrayValue arrayValue) {
-        Object[] args = new Object[arrayValue.size()];
-        for (int i = 0; i < arrayValue.size(); i += 1) {
-            args[i] = arrayValue.get(i);
+        Object[] args = new Object[arrayValue.size() * 2 ];
+        for (int i = 0, j = 0; i < arrayValue.size(); i += 1, j += 2) {
+            args[j] = arrayValue.get(i);
+            args[j + 1] = true;
         }
         BFuture k = env.getRuntime().invokeMethodAsyncConcurrently(l, name.getValue(), null, null, null,
                                                                    new HashMap<>(),
@@ -84,7 +85,7 @@ public class ServiceValue {
             if (attachedFunction.getName().equals(methodName.getValue())) {
                 String[] paramNames = attachedFunction.getParamNames();
                 BArray arrayValue = ValueCreator.createArrayValue(
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length), paramNames.length);
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, paramNames.length));
                 for (int i = 0; i < paramNames.length; i++) {
                     String paramName = paramNames[i];
                     arrayValue.add(i, StringUtils.fromString(paramName));
@@ -196,14 +197,14 @@ public class ServiceValue {
                 .filter(r -> r.getName().equals(name.getValue())).findAny();
 
         if (func.isEmpty()) {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0));
         }
 
         ResourceMethodType rt = func.get();
 
         int len = rt.getParamDefaultability().length;
-        BArray arrayValue = ValueCreator.createArrayValue(
-                TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len), len);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, len));
         for (int i = 0; i < len; i++) {
             boolean d = rt.getParamDefaultability()[i];
             arrayValue.add(i, d);

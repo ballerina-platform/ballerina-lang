@@ -81,6 +81,12 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         return completionItems;
     }
 
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
+        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
+                && context.getCursorPositionInTree() <= node.textRange().endOffset();
+    }
+
     /**
      * Finds an {@link InterpolationNode} which is/is a parent of the cursor node.
      *

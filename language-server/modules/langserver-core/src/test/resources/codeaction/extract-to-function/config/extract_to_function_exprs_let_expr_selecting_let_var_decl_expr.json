@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 54
+    },
+    "end": {
+      "line": 1,
+      "character": 65
+    }
+  },
+  "source": "extract_to_function_exprs_let_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int letVar1) returns int {\n    return letVar1 + 1;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 54
+            },
+            "end": {
+              "line": 1,
+              "character": 65
+            }
+          },
+          "newText": "extracted(letVar1)"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, selecting the range of the expression of a let variable declaration in a let expression"
+}

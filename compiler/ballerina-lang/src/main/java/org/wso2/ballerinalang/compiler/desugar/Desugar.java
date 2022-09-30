@@ -288,10 +288,8 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -334,7 +332,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
-    private static final String BASE_64 = "base64";
     private static final String ERROR_MESSAGE_FUNCTION_NAME = "message";
     private static final String ERROR_CAUSE_FUNCTION_NAME = "cause";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
@@ -756,9 +753,7 @@ public class Desugar extends BLangNodeVisitor {
         parameterDesugar.visit(pkgNode);
 
         // Initialize the annotation map
-        if (!Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
-            annotationDesugar.initializeAnnotationMap(pkgNode);
-        }
+        annotationDesugar.initializeAnnotationMap(pkgNode);
 
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
@@ -815,7 +810,6 @@ public class Desugar extends BLangNodeVisitor {
         closureDesugar.visit(pkgNode);
 
         for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
-            annotationDesugar.initializeAnnotationMap(testablePkg);
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
@@ -2425,9 +2419,14 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAssignment assignNode) {
+        boolean fieldAccessLVExpr = assignNode.varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR;
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         assignNode.expr = rewriteExpr(assignNode.expr);
-        assignNode.expr = addConversionExprIfRequired(rewriteExpr(assignNode.expr), assignNode.varRef.getBType());
+        BType castingType = assignNode.varRef.getBType();
+        if (fieldAccessLVExpr) {
+            castingType = types.addNilForNillableAccessType(castingType);
+        }
+        assignNode.expr = addConversionExprIfRequired(rewriteExpr(assignNode.expr), castingType);
         result = assignNode;
     }
 
@@ -5609,8 +5608,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (literalExpr.getBType().tag == TypeTags.ARRAY
-                && ((BArrayType) literalExpr.getBType()).eType.tag == TypeTags.BYTE) {
+        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.ARRAY) {
             // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
@@ -5619,13 +5617,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {
-        String[] result = getBlobTextValue((String) literalExpr.value);
-        byte[] values;
-        if (BASE_64.equals(result[0])) {
-            values = Base64.getDecoder().decode(result[1].getBytes(StandardCharsets.UTF_8));
-        } else {
-            values = hexStringToByteArray(result[1]);
-        }
+        byte[] values = types.convertToByteArray((String) literalExpr.value);
         BLangArrayLiteral arrayLiteralNode = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.setBType(literalExpr.getBType());
         arrayLiteralNode.pos = literalExpr.pos;
@@ -5634,24 +5626,6 @@ public class Desugar extends BLangNodeVisitor {
             arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
         }
         return arrayLiteralNode;
-    }
-
-    private String[] getBlobTextValue(String blobLiteralNodeText) {
-        String nodeText = blobLiteralNodeText.replace("\t", "").replace("\n", "").replace("\r", "")
-                .replace(" ", "");
-        String[] result = new String[2];
-        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
-        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
-        return result;
-    }
-
-    private static byte[] hexStringToByteArray(String str) {
-        int len = str.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
-        }
-        return data;
     }
 
     @Override
@@ -6801,7 +6775,8 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(objVarDef);
         blockStmt.addStatement(initInvRetValVarDef);
         initInvocation.exprSymbol = objVarDef.var.symbol;
-        initInvocation.symbol = ((BObjectTypeSymbol) objType.tsymbol).generatedInitializerFunc.symbol;
+        initInvocation.symbol =
+                ((BObjectTypeSymbol) Types.getReferredType(objType).tsymbol).generatedInitializerFunc.symbol;
 
         // init() returning nil is the common case and the type test is not needed for it.
         if (initInvocation.getBType().tag == TypeTags.NIL) {
@@ -6916,10 +6891,10 @@ public class Desugar extends BLangNodeVisitor {
     private BType getObjectType(BType bType) {
         BType type = Types.getReferredType(bType);
         if (type.tag == TypeTags.OBJECT) {
-            return type;
+            return bType;
         } else if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
-                    .filter(t -> t.tag == TypeTags.OBJECT)
+                    .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
                     .findFirst()
                     .orElse(symTable.noType);
         }
@@ -7178,27 +7153,15 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nonNilType = exprBType.getMemberTypes().iterator().next();
 
-        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryExpr.opKind);
-        boolean isShiftOperator = symResolver.isBinaryShiftOperator(binaryExpr.opKind);
-
-        boolean isBitWiseOperator = !isArithmeticOperator && !isShiftOperator;
-
-        BType rhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.rhsExpr.getBType().isNullable()) {
-                rhsType = types.getSafeType(binaryExpr.rhsExpr.getBType(), true, false);
-            } else {
-                rhsType = binaryExpr.rhsExpr.getBType();
-            }
-        }
-
-        BType lhsType = nonNilType;
-        if (isBitWiseOperator) {
-            if (binaryExpr.lhsExpr.getBType().isNullable()) {
-                lhsType = types.getSafeType(binaryExpr.lhsExpr.getBType(), true, false);
-            } else {
-                lhsType = binaryExpr.lhsExpr.getBType();
-            }
+        BType rhsType;
+        BType lhsType;
+        if (symResolver.isArithmeticOperator(binaryExpr.opKind)) {
+            rhsType = nonNilType;
+            lhsType = nonNilType;
+        } else {
+            // then it is a bitwise operator or a shift operator
+            rhsType = getBinaryExprOperandNonNilType(binaryExpr.rhsExpr.getBType());
+            lhsType = getBinaryExprOperandNonNilType(binaryExpr.lhsExpr.getBType());
         }
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
@@ -7253,6 +7216,10 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.setBType(binaryExpr.getBType());
 
         return stmtExpr;
+    }
+
+    private BType getBinaryExprOperandNonNilType(BType operandType) {
+        return operandType.isNullable() ? types.getSafeType(operandType, true, false) : operandType;
     }
 
     private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
@@ -9556,7 +9523,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
             BType originalType = Types.getReferredType(accessExpr.originalType);
-            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType)) {
+            if (TypeTags.isXMLTypeTag(originalType.tag) || isMapJson(originalType, false)) {
                 accessExpr.setBType(BUnionType.create(null, originalType, symTable.errorType));
             } else {
                 accessExpr.setBType(originalType);
@@ -9645,8 +9612,9 @@ public class Desugar extends BLangNodeVisitor {
         pushToMatchStatementStack(matchStmt, successClause, pos);
     }
 
-    private boolean isMapJson(BType originalType) {
-        return originalType.tag == TypeTags.MAP && ((BMapType) originalType).getConstraint().tag == TypeTags.JSON;
+    private boolean isMapJson(BType originalType, boolean fromMap) {
+        return ((originalType.tag == TypeTags.MAP) && isMapJson(((BMapType) originalType).getConstraint(), true))
+                || ((originalType.tag == TypeTags.JSON) && fromMap);
     }
 
     private void pushToMatchStatementStack(BLangMatchStatement matchStmt, BLangMatchClause successClause,

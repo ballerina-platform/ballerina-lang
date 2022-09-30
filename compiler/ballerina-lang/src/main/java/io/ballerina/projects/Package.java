@@ -237,6 +237,7 @@ public class Package {
      * @return a {@code DiagnosticResult} instance
      */
     public DiagnosticResult runCodeGenAndModifyPlugins() {
+        Package pkg = this;
         PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
         if (cachedCompilation != null) {
             // Check whether there are engaged code modifiers, if not return
@@ -256,13 +257,16 @@ public class Package {
         List<Diagnostic> diagnostics = new ArrayList<>();
         if (compilerPluginManager.engagedCodeGeneratorCount() > 0) {
             CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
-            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(this);
+            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(pkg);
             diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().allDiagnostics);
+            if (codeGeneratorResult.updatedPackage().isPresent()) {
+                pkg = codeGeneratorResult.updatedPackage().get();
+            }
         }
 
         if (compilerPluginManager.engagedCodeModifierCount() > 0) {
             CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
-            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(this);
+            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(pkg);
             diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);
         }
         return new DefaultDiagnosticResult(diagnostics);

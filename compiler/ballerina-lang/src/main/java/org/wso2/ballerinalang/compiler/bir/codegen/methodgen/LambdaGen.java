@@ -73,6 +73,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
@@ -110,9 +111,11 @@ public class LambdaGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes) {
+    private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,
+                               boolean isWorker) {
         String jvmClass;
-        String methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount);
+        String methodDesc = getLambdaMethodDesc(paramBTypes, lambdaDetails.returnType, lambdaDetails.closureMapsCount,
+                isWorker);
         if (lambdaDetails.functionWrapper != null) {
             jvmClass = lambdaDetails.functionWrapper.fullQualifiedClassName;
         } else {
@@ -169,11 +172,7 @@ public class LambdaGen {
 
         mv.visitLdcInsn(JvmCodeGenUtil.rewriteVirtualCallTypeName(ins.name.value));
         int objectArrayLength = paramTypes.size() - 1;
-        if (!isBuiltinModule) {
-            mv.visitIntInsn(BIPUSH, objectArrayLength);
-        } else {
-            mv.visitIntInsn(BIPUSH, objectArrayLength);
-        }
+        mv.visitIntInsn(BIPUSH, objectArrayLength);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
     }
 
@@ -200,7 +199,7 @@ public class LambdaGen {
             paramBTypes.add(argIndex - 1, paramType);
             argIndex += 1;
         }
-        genNonVirtual(lambdaDetails, mv, paramBTypes);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, false);
     }
 
     private void addBooleanTypeToLambdaParamTypes(MethodVisitor mv, int arrayIndex, int paramIndex) {
@@ -231,7 +230,7 @@ public class LambdaGen {
         loadClosureMaps(lambdaDetails, mv);
         // load and cast param values
         loadAndCastParamValues(ins, lambdaDetails, mv, paramBTypes);
-        genNonVirtual(lambdaDetails, mv, paramBTypes);
+        genNonVirtual(lambdaDetails, mv, paramBTypes, ins.isWorker);
     }
 
     private void loadAndCastParamValues(BIRNonTerminator.FPLoad ins, LambdaDetails lambdaDetails, MethodVisitor mv,
@@ -269,6 +268,15 @@ public class LambdaGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
+
+        if ((ins.getKind() == InstructionKind.FP_LOAD) && ((BIRNonTerminator.FPLoad) ins).isWorker) {
+            mv.visitVarInsn(ALOAD, lambdaDetails.closureMapsCount);
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(AALOAD);
+            mv.visitTypeInsn(CHECKCAST, INT_VALUE);
+            mv.visitMethodInsn(INVOKEVIRTUAL, INT_VALUE, "intValue", "()I", false);
+        }
+
         if (lambdaDetails.isExternFunction) {
             generateBlockedOnExtern(lambdaDetails.closureMapsCount, mv);
         }
@@ -429,8 +437,11 @@ public class LambdaGen {
         int closureMapsCount = 0;
     }
 
-    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount) {
+    private String getLambdaMethodDesc(List<BType> paramTypes, BType retType, int closureMapsCount, boolean isWorker) {
         StringBuilder desc = new StringBuilder(INITIAL_METHOD_DESC);
+        if (isWorker) {
+            desc.append("I");
+        }
         appendClosureMaps(closureMapsCount, desc);
         appendParamTypes(paramTypes, desc);
         desc.append(JvmCodeGenUtil.generateReturnType(retType));

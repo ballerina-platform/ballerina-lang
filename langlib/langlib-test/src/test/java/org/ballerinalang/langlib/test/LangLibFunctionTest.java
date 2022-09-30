@@ -48,9 +48,9 @@ public class LangLibFunctionTest {
     public Object[][] testFunctions() {
         return new Object[][]{
                 {"testCallFunctionWithFunctionPointers"},
-//                {"testCallFunctionWithRequiredParameters"},
-//                {"testCallFunctionWithDefaultParameters"},
-//                {"testCallFunctionWithRestParameters"},
+                {"testCallFunctionWithRequiredParameters"},
+                {"testCallFunctionWithDefaultParameters"},
+                {"testCallFunctionWithRestParameters"},
                 {"testCallFunctionWithIncludedRecordParameters"},
                 {"testCallFunctionWithInvalidArguments"}
         };

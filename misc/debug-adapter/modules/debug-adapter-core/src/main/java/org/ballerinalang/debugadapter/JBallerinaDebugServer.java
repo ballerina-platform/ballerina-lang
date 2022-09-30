@@ -226,8 +226,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
 
             SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-            String sourcePath = args.getSource().getPath();
-            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
+            String sourcePathUri = args.getSource().getPath();
+            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
             qualifiedClassName.ifPresent(className -> {
                 eventProcessor.enableBreakpoints(className, breakpointsMap);
                 BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();

@@ -110,7 +110,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -168,6 +170,7 @@ public class Types {
     private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
+    private static final String BASE_16 = "base16";
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -206,6 +209,15 @@ public class Types {
                            BType actualType,
                            BType expType) {
         return checkType(node, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+    }
+
+    public BType addNilForNillableAccessType(BType actualType) {
+        // index based map/record access always returns a nil-able type for optional/rest fields.
+        if (actualType.isNullable()) {
+            return actualType;
+        }
+
+        return BUnionType.create(null, actualType, symTable.nilType);
     }
 
     public BType checkType(BLangExpression expr,
@@ -5156,13 +5168,13 @@ public class Types {
                     visitedTypes);
         } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(type, env), (BTupleType) lhsType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.TUPLE && isAnydataOrJson(lhsType)) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(lhsType), (BTupleType) type, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(lhsType, env), (BTupleType) type, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
@@ -5218,7 +5230,7 @@ public class Types {
         return mapType;
     }
 
-    private BArrayType getArrayTypeForAnydataOrJson(BType type) {
+    private BArrayType getArrayTypeForAnydataOrJson(BType type, SymbolEnv env) {
         BArrayType arrayType = type.tag == TypeTags.ANYDATA ? symTable.arrayAnydataType : symTable.arrayJsonType;
 
         if (isImmutable(type)) {
@@ -5833,6 +5845,18 @@ public class Types {
         return memberTypes;
     }
 
+    public List<BType> getAllReferredTypes(BUnionType unionType) {
+        List<BType> memberTypes = new LinkedList<>();
+        for (BType type : unionType.getMemberTypes()) {
+            if (type.tag == UNION) {
+                memberTypes.addAll(getAllReferredTypes((BUnionType) type));
+            } else {
+                memberTypes.add(Types.getReferredType(type));
+            }
+        }
+        return memberTypes;
+    }
+
     public boolean isAllowedConstantType(BType type) {
         switch (type.tag) {
             case TypeTags.BOOLEAN:
@@ -6012,6 +6036,8 @@ public class Types {
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
+            case TypeTags.INTERSECTION:
+                return hasFillerValue(((BIntersectionType) type).effectiveType);
             default:
                 // check whether the type is an integer subtype which has filler value 0
                 return TypeTags.isIntegerTypeTag(type.tag);
@@ -6084,6 +6110,10 @@ public class Types {
     private boolean checkFillerValue(BUnionType type) {
         if (type.isNullable()) {
             return true;
+        }
+
+        if (type.isCyclic) {
+            return false;
         }
 
         Set<BType> memberTypes = new HashSet<>();
@@ -7013,5 +7043,32 @@ public class Types {
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
+    }
+
+    public byte[] convertToByteArray(String literalExpr) {
+        String[] elements = getLiteralTextValue(literalExpr);
+        if (elements[0].contains(BASE_16)) {
+            return hexStringToByteArray(elements[1]);
+        }
+        return Base64.getDecoder().decode(elements[1].getBytes(StandardCharsets.UTF_8));
+    }
+
+    private byte[] hexStringToByteArray(String base16String) {
+        int arrayLength = base16String.length();
+        byte[] byteArray = new byte[arrayLength / 2];
+        for (int i = 0; i < arrayLength; i += 2) {
+            byteArray[i / 2] = (byte) ((Character.digit(base16String.charAt(i), 16) << 4)
+                    + Character.digit(base16String.charAt(i + 1), 16));
+        }
+        return byteArray;
+    }
+
+    private static String[] getLiteralTextValue(String literalExpr) {
+        String nodeText = literalExpr.replace("\t", "").replace("\n", "").replace("\r", "")
+                .replace(" ", "");
+        String[] result = new String[2];
+        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
+        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
+        return result;
     }
 }

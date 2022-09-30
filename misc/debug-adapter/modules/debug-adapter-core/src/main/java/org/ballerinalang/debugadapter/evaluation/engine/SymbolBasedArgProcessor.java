@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_MISMATCH;
@@ -71,15 +72,17 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
         List<ParameterSymbol> params = new ArrayList<>();
         Map<String, ParameterSymbol> remainingParams = new LinkedHashMap<>();
 
-        if (definitionTypeSymbol.params().isPresent()) {
-            for (ParameterSymbol parameterSymbol : definitionTypeSymbol.params().get()) {
+        Optional<List<ParameterSymbol>> parameterSymbols = definitionTypeSymbol.params();
+        if (parameterSymbols.isPresent()) {
+            for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
                 params.add(parameterSymbol);
                 remainingParams.put(parameterSymbol.getName().orElse(UNKNOWN_VALUE), parameterSymbol);
             }
         }
 
-        if (definitionTypeSymbol.restParam().isPresent()) {
-            ParameterSymbol restParam = definitionTypeSymbol.restParam().get();
+        Optional<ParameterSymbol> restParamSymbol = definitionTypeSymbol.restParam();
+        if (restParamSymbol.isPresent()) {
+            ParameterSymbol restParam = restParamSymbol.get();
             params.add(restParam);
             remainingParams.put(restParam.getName().orElse(UNKNOWN_VALUE), restParam);
         }

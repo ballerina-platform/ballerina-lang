@@ -212,6 +212,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<BIROperand> args;
         public boolean isAsync;
         public boolean transactional;
+        public boolean workerDerivative;
 
         public FPCall(Location pos,
                       InstructionKind kind,
@@ -238,9 +239,11 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       boolean isAsync,
                       boolean transactional,
                       BIRBasicBlock thenBB,
-                      BirScope scope) {
+                      BirScope scope,
+                      boolean workerDerivative) {
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
             this.transactional = transactional;
+            this.workerDerivative = workerDerivative;
         }
 
         @Override

@@ -300,7 +300,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem completionItem = lsCompletionItem.getCompletionItem();
                 String insertText = completionItem.getInsertText();
                 String label = completionItem.getLabel();
-                String moduleName = importDeclarationNode.prefix().isEmpty() ? moduleSymbol.id().moduleName()
+                String moduleName = importDeclarationNode.prefix().isEmpty()
+                        ? importDeclarationNode.moduleName().get(importDeclarationNode.moduleName().size() - 1).text()
                         : importDeclarationNode.prefix().get().prefix().text();
                 completionItem.setInsertText(moduleName + ":" + insertText);
                 completionItem.setLabel(moduleName + ":" + label);
@@ -607,7 +608,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
-
+        
         return completionItems;
     }
 

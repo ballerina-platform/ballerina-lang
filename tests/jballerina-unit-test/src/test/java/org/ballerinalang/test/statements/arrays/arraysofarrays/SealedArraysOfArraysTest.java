@@ -80,7 +80,7 @@ public class SealedArraysOfArraysTest {
     @Test
     public void testIntegerSealedArraysOfArrays() {
 
-        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 2), 2);
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 2));
         arrayValue.add(0, 10);
         arrayValue.add(1, 12);
         Object[] args = {arrayValue};
@@ -97,7 +97,7 @@ public class SealedArraysOfArraysTest {
     public void testStringSealedArraysOfArrays() {
 
         BArray arrayValue =
-                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, 2), 2);
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, 2));
         arrayValue.add(0, "ballerina");
         arrayValue.add(1, "multidimensional");
         Object[] args = {arrayValue};
