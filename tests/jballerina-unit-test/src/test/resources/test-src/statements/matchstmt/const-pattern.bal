@@ -624,6 +624,32 @@ public function testConstPattern19() {
     assertEquals(4, constPattern19([2, 4]));
 }
 
+enum FOO {
+    X,
+    Y
+}
+
+function constPattern20(FOO 'type, int|string g) returns string {
+    match 'type {
+        X if g is string => {
+            return "A";
+        }
+        Y if g is string => {
+            return "B";
+        }
+        _ => {
+            return string `no match ${'type.toString()}`;
+       }
+    }
+}
+
+function testConstPattern20() {
+    assertEquals(constPattern20(X, "AAA"), "A");
+    assertEquals(constPattern20(Y, "BBB"), "B");
+    assertEquals(constPattern20(X, 1), "no match X");
+    assertEquals(constPattern20(Y, 2), "no match Y");
+}
+
 function constPatternWithNegativeLiteral(any x) returns string {
     match x {
         -1 => {
