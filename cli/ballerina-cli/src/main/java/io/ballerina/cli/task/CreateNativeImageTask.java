@@ -40,7 +40,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 /**
  * Task for creating the native image file.
  *
- * @since 2.0.0
+ * @since 2201.3.0
  */
 public class CreateNativeImageTask implements Task {
     private final transient PrintStream out;
@@ -57,7 +57,7 @@ public class CreateNativeImageTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Generating executable with native-image");
+        this.out.println("Generating GraalVM native image");
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
 
         Path nativeDirectoryPath;
