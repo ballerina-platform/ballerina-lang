@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 /**
  * Code Action to autofill record fields.
  *
- * @since 2201.3.1
+ * @since 2201.2.2
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider {
@@ -65,7 +65,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
     @Override
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.MAPPING_CONSTRUCTOR, SyntaxKind.STRING_LITERAL, SyntaxKind.NUMERIC_LITERAL,
-                SyntaxKind.BINARY_EXPRESSION, SyntaxKind.UNARY_EXPRESSION);
+                SyntaxKind.BINARY_EXPRESSION, SyntaxKind.UNARY_EXPRESSION, SyntaxKind.SPECIFIC_FIELD);
     }
 
     @Override
