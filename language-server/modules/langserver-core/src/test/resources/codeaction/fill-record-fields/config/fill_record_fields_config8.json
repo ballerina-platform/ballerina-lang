@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 3,
+    "character": 19
+  },
+  "source": "fill_record_fields_source5.bal",
+  "expected": [
+    {
+      "title": "Fill \u0027record {|readonly string first; readonly string last; anydata \u0026 readonly...;|}\u0027 required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 19
+            },
+            "end": {
+              "line": 3,
+              "character": 19
+            }
+          },
+          "newText": "last: \"\",first: \"\""
+        }
+      ]
+    }
+  ]
+}
