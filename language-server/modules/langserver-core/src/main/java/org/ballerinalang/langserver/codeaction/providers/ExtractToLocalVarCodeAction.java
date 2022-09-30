@@ -74,6 +74,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
         Node parentNode = node.parent();
+        SyntaxKind nodeKind = node.kind();
+        SyntaxKind parentKind = parentNode.kind();
         // Avoid providing the code action for the following since it is syntactically incorrect.
         // 1. a mapping constructor used in a table constructor  
         // 2. a function call used in a local variable declaration
@@ -83,18 +85,21 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         // 6. the qualified name reference of a function call expression
         // 7. a record field with default value
         // 8. a function call expression used in a start action
-        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
-                !(node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR && parentNode.kind() == SyntaxKind.TABLE_CONSTRUCTOR)
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.LOCAL_VAR_DECL) 
-                && !((node.kind() == SyntaxKind.FUNCTION_CALL || node.kind() == SyntaxKind.METHOD_CALL) 
-                && parentNode.kind() == SyntaxKind.CALL_STATEMENT) && parentNode.kind() != SyntaxKind.CONST_DECLARATION
-                && !(parentNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT 
+        // 9. a service uri in a client declaration or module client declaration
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
+                && !(nodeKind == SyntaxKind.MAPPING_CONSTRUCTOR && parentKind == SyntaxKind.TABLE_CONSTRUCTOR)
+                && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.LOCAL_VAR_DECL) 
+                && !((nodeKind == SyntaxKind.FUNCTION_CALL || nodeKind == SyntaxKind.METHOD_CALL) 
+                && parentKind == SyntaxKind.CALL_STATEMENT) 
+                && parentKind != SyntaxKind.CONST_DECLARATION
+                && !(parentKind == SyntaxKind.ASSIGNMENT_STATEMENT 
                 && ((AssignmentStatementNode) parentNode).varRef().equals(node))
-                && !(node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE 
-                && parentNode.kind() == SyntaxKind.FUNCTION_CALL)
-                && parentNode.kind() != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
-                && parentNode.kind() != SyntaxKind.ENUM_MEMBER
-                && !(node.kind() == SyntaxKind.FUNCTION_CALL && parentNode.kind() == SyntaxKind.START_ACTION)
+                && !(nodeKind == SyntaxKind.QUALIFIED_NAME_REFERENCE && parentKind == SyntaxKind.FUNCTION_CALL)
+                && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
+                && parentKind != SyntaxKind.ENUM_MEMBER
+                && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.START_ACTION)
+                && (nodeKind != SyntaxKind.STRING_LITERAL || (parentKind != SyntaxKind.CLIENT_DECLARATION 
+                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION))
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
