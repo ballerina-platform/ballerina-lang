@@ -211,7 +211,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String cursorStartStr = range.getStart().getLine() + ":" + range.getStart().getCharacter();
         String cursorEndStr = range.getEnd().getLine() + ":" + range.getEnd().getCharacter();
         if (!mismatchedCodeActions.isEmpty()) {
-            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
+//            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
             Assert.fail(
                     String.format("Cannot find expected code action(s) for: '%s', range from [%s] to [%s] in '%s': %s",
                             Arrays.toString(mismatchedCodeActions.toArray()),
