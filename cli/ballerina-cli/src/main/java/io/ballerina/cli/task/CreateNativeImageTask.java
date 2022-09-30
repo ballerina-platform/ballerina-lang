@@ -94,11 +94,6 @@ public class CreateNativeImageTask implements Task {
         }
 
         try {
-            // Create native directory
-            if (!Files.exists(nativeDirectoryPath)) {
-                Files.createDirectory(nativeDirectoryPath);
-            }
-
             String[] command = {
                     "native-image",
                     "-jar",
