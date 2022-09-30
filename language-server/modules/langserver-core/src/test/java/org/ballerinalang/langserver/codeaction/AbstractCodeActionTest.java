@@ -421,34 +421,18 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             }
             return false;
         }
-        
+
         for (JsonElement actualArg : actualArgs) {
             JsonObject arg = actualArg.getAsJsonObject();
             if ("doc.uri".equals(arg.get("key").getAsString())) {
                 Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
-                Optional<String> actualFilePath =
-                        docPath.map(path -> path.toString().replace(sourceRoot.toString(), ""));
-                JsonObject docUriObj = expArgs.get(0).getAsJsonObject();
-                String expectedFilePath = docUriObj.get("value").getAsString();
                 if (docPath.isPresent()) {
                     // We just check file names, since one refers to file in build/ while
                     // the other refers to the file in test resources
-                    String actualPath = actualFilePath.get();
-                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
-                        actualPath = actualFilePath.get().substring(1);
-                    }
-                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))) {
-                        return true;
-                    }
-                    JsonArray newArgs = new JsonArray();
-                    docUriObj.addProperty("value", actualPath);
-                    newArgs.add(docUriObj);
-                    actualCommand.add("arguments", newArgs);
-                    return false;
+                    return docPath.get().getFileName().equals(sourcePath.getFileName());
                 }
-                return false;
             }
         }
-        return true;
+        return TestUtil.isArgumentsSubArray(actualArgs, expArgs);
     }
 }
