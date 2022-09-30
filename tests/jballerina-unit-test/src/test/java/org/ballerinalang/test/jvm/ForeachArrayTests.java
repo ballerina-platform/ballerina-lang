@@ -245,12 +245,6 @@ public class ForeachArrayTests {
                 "type 'never' not allowed here", 28, 13);
         validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 33, 17);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 39, 13);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 43, 13);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 47, 13);
         Assert.assertEquals(compileNegativeResult.getDiagnostics().length, index);
     }
 

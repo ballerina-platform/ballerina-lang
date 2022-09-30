@@ -3353,6 +3353,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             }
             if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprType)) {
+                dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION_FOR_VARIABLE_OF_TYPE_NEVER);
                 return;
             }
             dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION);
@@ -3421,18 +3422,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private  <E extends BLangExpression> void checkExpressionValidity(E exprNode, AnalyzerData data) {
-        if (exprNode.getKind() == NodeKind.GROUP_EXPR || (!isTypeTestExprNeverType(exprNode) &&
-                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType()))) {
+        if (exprNode.getKind() == NodeKind.GROUP_EXPR ||
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
             return;
         }
         if (!checkExpressionInValidParent(exprNode.parent, data)) {
             dlog.error(exprNode.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
         }
-    }
-
-    private <E extends BLangExpression> boolean isTypeTestExprNeverType(E exprNode) {
-        return exprNode.getKind() == NodeKind.TYPE_TEST_EXPR &&
-                ((BLangTypeTestExpr) exprNode).getExpression().getBType().tag == TypeTags.NEVER;
     }
 
     private boolean checkExpressionInValidParent(BLangNode currentParent, AnalyzerData data) {
