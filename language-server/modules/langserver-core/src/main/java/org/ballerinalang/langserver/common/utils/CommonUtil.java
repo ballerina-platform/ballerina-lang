@@ -622,4 +622,21 @@ public class CommonUtil {
         int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
         return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
     }
+
+    /**
+     * Returns the matching node for a given node.
+     *
+     * @param nodeAtCursor node
+     * @return node
+     */
+    public static Optional<Node> getEvalNode(Node nodeAtCursor) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
+    }
 }
