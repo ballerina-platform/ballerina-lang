@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country country \u003d "
+          "newText": "module2:Country country = "
         },
         {
           "range": {
@@ -35,7 +35,16 @@
           },
           "newText": "import testproject.module2;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "testproject/main.bal",
+          111
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Ignore return value",
@@ -52,9 +61,10 @@
               "character": 4
             }
           },
-          "newText": "_ \u003d "
+          "newText": "_ = "
         }
-      ]
+      ],
+      "resolvable": false
     }
   ]
 }

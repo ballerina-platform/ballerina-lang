@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction funcWithNoType() {\n    \n}\n"
+          "newText": "\n\nfunction funcWithNoType() {\n    \n}"
         }
       ],
       "resolvable": true,

@@ -41,6 +41,12 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
         super.test(config);
     }
 
+    @Override
+    @Test(dataProvider = "negative-codeaction-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -51,6 +57,13 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
                 {"implementFunctionInService1.json"},
                 {"implementFuncInObjConstructorExpr1.json"},
                 {"implementFuncInObjConstructorExpr2.json"},
+        };
+    }
+
+    @DataProvider(name = "negative-codeaction-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"implementMethodNegative1.json"},
         };
     }
 }

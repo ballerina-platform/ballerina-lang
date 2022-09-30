@@ -1756,6 +1756,8 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.returnTypeNode = clone(source.returnTypeNode);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.returnsKeywordExists = source.returnsKeywordExists;
+        clone.analyzed = source.analyzed;
+        clone.inTypeDefinitionContext = source.inTypeDefinitionContext;
         cloneBLangType(source, clone);
     }
 

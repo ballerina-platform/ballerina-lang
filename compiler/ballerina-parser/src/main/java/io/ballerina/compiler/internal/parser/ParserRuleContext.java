@@ -733,6 +733,7 @@ public enum ParserRuleContext {
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ANNOTATION_DECL_START("annotation-declaration-start"),
+    OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     ;
 
     private String value;
