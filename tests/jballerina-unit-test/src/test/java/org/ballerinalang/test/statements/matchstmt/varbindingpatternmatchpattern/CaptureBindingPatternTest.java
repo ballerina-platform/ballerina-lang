@@ -57,8 +57,7 @@ public class CaptureBindingPatternTest {
                 "testCaptureBindingPattern4",
                 "testCaptureBindingPattern5",
                 "testCaptureBindingPattern6",
-                "testCaptureBindingPattern7",
-                "testCaptureBindingPattern8"
+                "testCaptureBindingPattern7"
         };
     }
 
