@@ -189,12 +189,13 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * Parameter desugar for create closures for default values.
+ * GenerateClosuresForDefaultValues for create closures for default values.
  *
  * @since 2201.3.0
  */
-public class ParameterDesugar extends BLangNodeVisitor {
-    private static final CompilerContext.Key<ParameterDesugar> PARAMETER_DESUGAR_KEY = new CompilerContext.Key<>();
+public class GenerateClosuresForDefaultValues extends BLangNodeVisitor {
+    private static final CompilerContext.Key<GenerateClosuresForDefaultValues> PARAMETER_DESUGAR_KEY =
+                                                                                            new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
 
     private SymbolTable symTable;
@@ -203,16 +204,16 @@ public class ParameterDesugar extends BLangNodeVisitor {
     private BLangNode result;
     private SymbolResolver symResolver;
 
-    public static ParameterDesugar getInstance(CompilerContext context) {
-        ParameterDesugar parameterDesugar = context.get(PARAMETER_DESUGAR_KEY);
-        if (parameterDesugar == null) {
-            parameterDesugar = new ParameterDesugar(context);
+    public static GenerateClosuresForDefaultValues getInstance(CompilerContext context) {
+        GenerateClosuresForDefaultValues generateClosuresForDefaultValues = context.get(PARAMETER_DESUGAR_KEY);
+        if (generateClosuresForDefaultValues == null) {
+            generateClosuresForDefaultValues = new GenerateClosuresForDefaultValues(context);
         }
 
-        return parameterDesugar;
+        return generateClosuresForDefaultValues;
     }
 
-    private ParameterDesugar(CompilerContext context) {
+    private GenerateClosuresForDefaultValues(CompilerContext context) {
         context.put(PARAMETER_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
