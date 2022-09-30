@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 32
+  },
+  "source": "fill_record_fields_source1.bal",
+  "expected": [
+    {
+      "title": "Fill \u0027Student\u0027 required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 32
+            },
+            "end": {
+              "line": 2,
+              "character": 32
+            }
+          },
+          "newText": ",age: 0"
+        }
+      ]
+    }
+  ]
+}
