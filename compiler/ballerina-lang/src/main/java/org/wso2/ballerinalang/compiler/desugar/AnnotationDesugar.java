@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -305,6 +306,7 @@ public class AnnotationDesugar {
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
         BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
                 names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+        annSymbol.origin = SymbolOrigin.BUILTIN;
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -807,7 +809,7 @@ public class AnnotationDesugar {
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
-        pkgNode.lambdaFunctions.add(lambdaFunction);
+        lambdaFunction.function = desugar.rewrite(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         return lambdaFunction;
     }
 

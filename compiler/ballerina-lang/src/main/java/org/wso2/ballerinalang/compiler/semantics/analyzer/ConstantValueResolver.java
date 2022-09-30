@@ -81,6 +81,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -107,6 +108,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
+    private Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -144,7 +146,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = constructBLangConstantValue(constant.expr);
         this.resolvingConstants.remove(this.currentConstSymbol);
+        this.anonTypeNameSuffixes.push(constant.name.value);
         updateConstantType(constant);
+        this.anonTypeNameSuffixes.pop();
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
@@ -482,23 +486,39 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
+    private Object calculateNegationForInt(BLangConstantValue value) {
+        return -1 * ((Long) (value.value));
+    }
+
+    private Object calculateNegationForFloat(BLangConstantValue value) {
+        return String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+    }
+
+    private Object calculateNegationForDecimal(BLangConstantValue value) {
+        BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
+        BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
+        BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
+        return resultDecimal.toPlainString();
+    }
+
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
+        BType constSymbolValType = value.type;
+        int constSymbolValTypeTag = constSymbolValType.tag;
+
+        switch (constSymbolValTypeTag) {
             case TypeTags.INT:
-                result = -1 * ((Long) (value.value));
+                result = calculateNegationForInt(value);
                 break;
             case TypeTags.FLOAT:
-                result = String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+                result = calculateNegationForFloat(value);
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
-                BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
-                BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                result = calculateNegationForDecimal(value);
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbol.type);
+
+        return new BLangConstantValue(result, constSymbolValType);
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
@@ -519,6 +539,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>());
+    }
+
+    BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
+                                                                BConstantSymbol constantSymbol, SymbolEnv env,
+                                                                Stack<String> anonTypeNameSuffixes) {
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
@@ -526,6 +552,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return value;
         }
 
+        this.anonTypeNameSuffixes = anonTypeNameSuffixes;
         updateConstantType(constantSymbol, expression, env);
         return value;
     }
@@ -735,7 +762,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         type.restFieldType = new BNoType(TypeTags.NONE);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
                 typeDefinitionSymbol, recordTypeNode, env);
-        typeDefinition.pos = pos;
         typeDefinition.symbol.scope = new Scope(typeDefinition.symbol);
         typeDefinition.symbol.type = type;
         typeDefinition.flagSet = new HashSet<>();
@@ -774,7 +800,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID,
+                this.anonTypeNameSuffixes));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,
@@ -836,8 +863,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 key = keyValuePair.key.toString();
                 newSymbol = new BVarSymbol(constantSymbol.flags, Names.fromString(key), constantSymbol.pkgID,
                                            null, constantSymbol.owner, pos, VIRTUAL);
+                this.anonTypeNameSuffixes.push(key);
                 BType newType = checkType(exprValueField, constantSymbol, constValueMap.get(key).value,
                                           constValueMap.get(key).type, pos, env);
+                this.anonTypeNameSuffixes.pop();
                 if (newType == null) {
                     return false;
                 }

@@ -145,6 +145,7 @@ public class JvmConstants {
     public static final String RECORD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRecordType";
     public static final String OBJECT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BObjectType";
     public static final String SERVICE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BServiceType";
+    public static final String CLIENT_TYPE_IMPL = "io/ballerina/runtime/internal/types/BClientType";
     public static final String ERROR_TYPE_IMPL = "io/ballerina/runtime/internal/types/BErrorType";
     public static final String TUPLE_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTupleType";
     public static final String FUNCTION_TYPE_IMPL = "io/ballerina/runtime/internal/types/BFunctionType";
@@ -176,7 +177,7 @@ public class JvmConstants {
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "io/ballerina/runtime/internal/TypeChecker";
     public static final String SCHEDULER = "io/ballerina/runtime/internal/scheduling/Scheduler";
-    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonUtils";
+    public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
@@ -236,6 +237,7 @@ public class JvmConstants {
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
+    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -293,6 +295,7 @@ public class JvmConstants {
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
+    public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
@@ -300,6 +303,7 @@ public class JvmConstants {
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
+    public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
@@ -348,6 +352,8 @@ public class JvmConstants {
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
+    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
+    public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -358,6 +364,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String CALL_FUNCTION = "call";
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants
@@ -400,11 +407,12 @@ public class JvmConstants {
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
 
     public static final int MAX_MEMBERS_PER_METHOD = 100;
-    public static final int MAX_TYPES_PER_METHOD = 100;
-    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_TYPES_PER_METHOD = 3;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
+    public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 100;
     /*
     MAX_STRINGS_PER_METHOD is calculated as below.
     No of instructions required for create ballerina string constant object = 12
@@ -413,6 +421,7 @@ public class JvmConstants {
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
 
+    public static final int VISIT_MAX_SAFE_MARGIN = 10;
 
     private JvmConstants() {
     }

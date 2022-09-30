@@ -47,6 +47,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -88,6 +89,7 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -149,6 +151,33 @@ public class TypedescriptorTest {
         Project project = BCompileUtil.loadProject("test-src/typedesc_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
+    }
+
+    @Test(dataProvider = "ParameterizedUnionReturnTypePosProvider")
+    public void testParameterizedUnionReturnType(int line, int col, String unionSignature, String memberSignature) {
+        Project project = BCompileUtil.loadProject("test-src/parameterized_return_type_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        Optional<TypeSymbol> returnTypeDescriptor = ((MethodSymbol) symbol).typeDescriptor().returnTypeDescriptor();
+        assertTrue(returnTypeDescriptor.isPresent());
+        TypeSymbol returnTypeSymbol = returnTypeDescriptor.get();
+        assertEquals(returnTypeSymbol.signature(), unionSignature);
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        TypeSymbol firstMember = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors().get(0);
+        assertEquals(firstMember.typeKind(), TYPE_REFERENCE);
+        TypeSymbol firstMemberTypeDescriptor = ((TypeReferenceTypeSymbol) firstMember).typeDescriptor();
+        assertEquals(firstMemberTypeDescriptor.signature(), memberSignature);
+    }
+
+    @DataProvider(name = "ParameterizedUnionReturnTypePosProvider")
+    private Object[][] getParameterizedUnionReturnTypePos() {
+        return new Object[][] {
+                {25, 9, "tdA|error", "anydata"},
+                {26, 7, "testType|error", "int|string"},
+        };
     }
 
     @Test
@@ -1073,6 +1102,51 @@ public class TypedescriptorTest {
                 ((VariableSymbol) symbol.get()).typeDescriptor()).typeDescriptor()).memberTypeDescriptors();
         assertEquals(memberSymbols.get(0).signature(), "\"parent\"");
         assertEquals(memberSymbols.get(1).signature(), "\"any\"");
+    }
+
+    @Test(dataProvider = "SingletonTypePos")
+    public void testSingletonType(int line, int col, TypeDescKind expKind, String expString) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), SINGLETON);
+        assertEquals(typeSymbol.signature(), expString);
+        TypeSymbol originalType = ((SingletonTypeSymbol) typeSymbol).originalType();
+        assertEquals(originalType.typeKind(), expKind);
+    }
+
+    @DataProvider(name = "SingletonTypePos")
+    private Object[][] getSingletonType() {
+        return new Object[][] {
+                {351, 6, INT, "5"},
+                {352, 8, STRING, "\"6\""},
+                {353, 10, STRING, "\"abc\""},
+                {354, 8, FLOAT, "1.2"},
+                {355, 9, FLOAT, "3.4"},
+                {356, 8, BYTE, "10"},
+                {357, 11, INT, "46575"},
+                {358, 12, FLOAT, "0xA1.B5p0"},
+                {359, 14, FLOAT, "0xB2.8Fp1"},
+                {360, 8, STRING, "\"a\""},
+                {361, 8, STRING, "\"RED\""},
+        };
+    }
+
+    @Test(dataProvider = "ClassAndObjectTypePosProvider")
+    public void testClassAndObjectType(int line, int column, String expectedSignature, TypeDescKind expTypeKind) {
+        Symbol varSymbol = getSymbol(line, column);
+        assertEquals(varSymbol.kind(), VARIABLE);
+        TypeSymbol typeSymbol = ((VariableSymbol) varSymbol).typeDescriptor();
+        assertEquals(typeSymbol.signature(), expectedSignature);
+        assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), expTypeKind);
+    }
+
+    @DataProvider(name = "ClassAndObjectTypePosProvider")
+    private Object[][] getClassAndObjectTypePos() {
+        return new Object[][] {
+                {371, 12, "'client", OBJECT},
+                {372, 11, "'class", OBJECT},
+        };
     }
 
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {

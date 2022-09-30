@@ -57,10 +57,11 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '+' not defined for 'string'", 29, 20);
         BAssertUtil.validateError(compileResult1, i++, "operator '!' not defined for 'int'", 31, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 33, 22);
-        BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'boolean'", 35, 21);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'int', found 'boolean'", 35, 22);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 40, 15);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 45, 17);
+        BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range for 'int'", 47, 21);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 

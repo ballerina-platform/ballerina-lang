@@ -16,6 +16,6 @@ type NewRecord record {
     string gender;
     int age;
     Address address;
-    anydata phoneNumber?;
+    anydata phoneNumber;
     Friend friend;
 };

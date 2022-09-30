@@ -1,0 +1,80 @@
+name: Improvement Request
+description: File a improvement request
+title: "[Improvement]: "
+labels: ["Type/Improvement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this improvement request!
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Give a brief description of the improvement
+    validations:
+      required: true
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Describe your problem(s)
+      description: Detailed description on the problem.
+    validations:
+      required: false
+  - type: textarea
+    id: solution-description
+    attributes:
+      label: Describe your solution(s)
+      description: Detailed description on the solution
+    validations:
+      required: false
+  - type: dropdown
+    id: labels
+    attributes:
+      label: Related area
+      description: Tag the issue with related area
+      multiple: false
+      options:
+        - -> Compilation
+        - -> Runtime
+        - -> Standard Library
+        - -> Central
+        - -> Website
+        - -> API Docs
+        - -> Debugger
+        - -> Update Tool
+        - -> gRPC Tool
+        - -> AsyncAPI Tool
+        - -> OpenAPI Tool
+        - -> SemVer Validator Tool
+        - -> Bindgen Tool
+        - -> Formatter
+        - -> Shell
+        - -> Editor
+        - -> Test Framework
+        - -> Observability
+        - -> CICD
+        - -> Other Area
+    validations:
+      required: true
+  - type: textarea
+    id: related-issues
+    attributes:
+      label: Related issue(s) (optional)
+      description: Any related issues such as sub tasks and issues reported in other repositories (e.g., component repositories), similar problems, etc. 
+    validations:
+      required: false
+  - type: textarea
+    id: suggested-labels
+    attributes:
+      label: Suggested label(s) (optional)
+      description: Optional comma-separated list of suggested labels. Non committers can’t assign labels to issues, and thereby, this will help issue creators who are not a committer to suggest possible labels.
+    validations:
+      required: false
+  - type: textarea
+    id: suggested-assignees
+    attributes:
+      label: Suggested assignee(s) (optional)
+      description: Optional comma-separated list of suggested team members who should attend the issue. Non committers can’t assign issues to assignees, and thereby, this will help issue creators who are not a committer to suggest possible assignees.
+    validations:
+      required: false

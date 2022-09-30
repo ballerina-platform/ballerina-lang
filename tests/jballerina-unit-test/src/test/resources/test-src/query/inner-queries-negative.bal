@@ -100,9 +100,9 @@ function testScopeVisibilityOfJoinOnClose() {
 }
 
 function testRedeclaredSymInAction1() returns error? {
-     from var item in 1 ... 5
+    check from var item in 1 ... 5
         do {
-          from var item in 1...3
+            check from var item in 1...3
             do {
                 int _ = 10;
             };
@@ -111,7 +111,7 @@ function testRedeclaredSymInAction1() returns error? {
 
 function testRedeclaredSymbol2() returns error? {
     error? a = ();
-    from var item in 1 ... 5
+    check from var item in 1 ... 5
         where item < 2
         do {
             a = (from var item in 1 ... 5
@@ -125,7 +125,7 @@ function testRedeclaredSymbol2() returns error? {
 }
 
 function testRedeclaredSymInExp() returns error? {
-    from var item in 1 ... 5
+    check from var item in 1 ... 5
         do {
             _ = from var item in 1...3
             select item;

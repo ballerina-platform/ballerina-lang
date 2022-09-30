@@ -19,6 +19,9 @@ package org.ballerinalang.test.annotations;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ClassDefinition;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TypeDefinition;
+import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -58,7 +61,7 @@ public class DisplayAnnotationTest {
         BLangFunction fooFunction = (BLangFunction) ((List) ((BLangPackage) result.getAST()).functions).get(0);
         BLangAnnotationAttachment annot = (BLangAnnotationAttachment) ((List) fooFunction.annAttachments).get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(annot.expr).toString(),
-                " {iconPath: fooIconPath.icon,label: Foo function}");
+                " {iconPath: <string?> fooIconPath.icon,label: Foo function}");
     }
 
     @Test
@@ -66,7 +69,7 @@ public class DisplayAnnotationTest {
         BLangService service = (BLangService) result.getAST().getServices().get(0);
         BLangAnnotationAttachment attachment = service.getAnnotationAttachments().get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(attachment.expr).toString(),
-                " {iconPath: service.icon,label: service,misc: <anydata> Other info}");
+                " {iconPath: <string?> service.icon,label: service,misc: <anydata> Other info}");
     }
 
     @Test
@@ -75,7 +78,7 @@ public class DisplayAnnotationTest {
         List<? extends AnnotationAttachmentNode> objAnnot = clz.getAnnotationAttachments();
         Assert.assertEquals(objAnnot.size(), 1);
         Assert.assertEquals(objAnnot.get(0).getExpression().toString(),
-                " {iconPath: barIconPath.icon,label: Bar class}");
+                " {iconPath: <string?> barIconPath.icon,label: Bar class}");
 
         List<BLangAnnotationAttachment> attachedFuncAttachments =
                 ((BLangClassDefinition) clz).functions.get(0).annAttachments;
@@ -85,10 +88,27 @@ public class DisplayAnnotationTest {
         Assert.assertEquals(annotAsString, " {label: k method}");
     }
 
+    @Test
+    public void testDisplayAnnotOnRecord() {
+        TypeDefinition typeDefinition = result.getAST().getTypeDefinitions().get(23);
+        List<? extends AnnotationAttachmentNode> annot = typeDefinition.getAnnotationAttachments();
+        Assert.assertEquals(annot.size(), 1);
+        Assert.assertEquals(annot.get(0).getExpression().toString(),
+                " {iconPath: <string?> Config.icon,label: RefreshTokenGrantConfig record}");
+        RecordTypeNode recType = (RecordTypeNode) typeDefinition.getTypeNode();
+        SimpleVariableNode field = recType.getFields().get(3);
+        List<? extends AnnotationAttachmentNode> fieldAnnot = field.getAnnotationAttachments();
+        Assert.assertEquals(fieldAnnot.size(), 1);
+        Assert.assertEquals(fieldAnnot.get(0).getExpression().toString(), " {iconPath: <string?> Field.icon,label: " +
+                "clientSecret field,kind: <\"text\"|\"password\"|\"file\"?> password}");
+    }
+
     @Test void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
                 "for annotation 'ballerina/lang.annotations:0.0.0:display'", 17, 1);
-        Assert.assertEquals(negative.getErrorCount(), 1);
+        BAssertUtil.validateError(negative, 1, "incompatible types: expected '\"text\"|\"password\"|\"file\"?'," +
+                " found 'string'", 24, 74);
+        Assert.assertEquals(negative.getErrorCount(), 2);
     }
 
     private BLangExpression getActualExpressionFromAnnotationAttachmentExpr(BLangExpression expression) {

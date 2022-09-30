@@ -84,14 +84,12 @@ public class BObjectType extends BStructureType implements ObjectType {
         Strand currentStrand = Scheduler.getStrand();
         Map<String, Field> fieldsMap = objectType.getFields();
         Field[] fields = fieldsMap.values().toArray(new Field[0]);
-        Object[] fieldValues = new Object[fields.length * 2];
+        Object[] fieldValues = new Object[fields.length];
 
         for (int i = 0, j = 0; i < fields.length; i++) {
             Type type = fields[i].getFieldType();
             // Add default value of the field type as initial argument.
             fieldValues[j++] = type.getZeroValue();
-            // Add boolean value for each argument to indicate the default value case.
-            fieldValues[j++] = false;
         }
         return ValueUtils.createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
     }
@@ -128,8 +126,8 @@ public class BObjectType extends BStructureType implements ObjectType {
                 return method.isIsolated();
             }
         }
-        if (this.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
+        if (this.getTag() == SERVICE_TAG || (this.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
+            for (ResourceMethodType method : ((BNetworkObjectType) this).getResourceMethods()) {
                 if (method.getName().equals(methodName)) {
                     return method.isIsolated();
                 }

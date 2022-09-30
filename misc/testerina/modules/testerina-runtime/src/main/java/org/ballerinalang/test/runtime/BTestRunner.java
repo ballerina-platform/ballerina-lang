@@ -24,7 +24,9 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.BooleanType;
 import io.ballerina.runtime.api.types.ByteType;
 import io.ballerina.runtime.api.types.DecimalType;
+import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.FloatType;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntegerType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -45,6 +47,8 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.XmlValue;
@@ -892,17 +896,14 @@ public class BTestRunner {
         if (bArray.getType() instanceof BTupleType) {
             List<Type> types = ((BTupleType) bArray.getType()).getTupleTypes();
             for (Type type : types) {
-                Class<?> classMapping = getArgTypeToClassMapping(type);
+                Class<?> classMapping = getArgTypeToClassMapping(TypeUtils.getReferredType(type));
                 typeList.add(classMapping);
-                typeList.add(Boolean.TYPE);
             }
         } else {
             Class<?> type = getArgTypeToClassMapping(TypeUtils.getReferredType(bArray.getElementType()));
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
-                // This is in jvm function signature to denote if args is passed or not.
-                typeList.add(Boolean.TYPE);
             }
         }
     }
@@ -916,7 +917,6 @@ public class BTestRunner {
                 // Add the param type.
                 params.add(bArray.getRefValue(i));
                 // This is in jvm function signature to denote if args is passed or not.
-                params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
         } else {
@@ -924,7 +924,6 @@ public class BTestRunner {
                 // Add the param type.
                 params.add(bArray.get(i));
                 // This is in jvm function signature to denote if args is passed or not.
-                params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
         }
@@ -953,6 +952,10 @@ public class BTestRunner {
             type = XmlValue.class;
         } else if (elementType instanceof ObjectType) {
             type = ObjectValue.class;
+        } else if (elementType instanceof ErrorType) {
+            type = ErrorValue.class;
+        } else if (elementType instanceof FunctionType) {
+            type =  FPValue.class;
         } else {
             // default case
             type = Object.class;

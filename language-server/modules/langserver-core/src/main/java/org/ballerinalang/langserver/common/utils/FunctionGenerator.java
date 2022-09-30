@@ -118,7 +118,8 @@ public class FunctionGenerator {
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtEnd, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol, boolean isolated) {
         String returnType = null;
-        if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+        if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR
+                && returnTypeSymbol.typeKind() != TypeDescKind.NIL) {
             returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.signature());
         }
 

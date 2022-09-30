@@ -177,36 +177,6 @@ public class TomlProviderNegativeTest {
         };
     }
 
-    @Test(dataProvider = "array-size-negative-tests")
-    public void testArraySizeNegative(Type elementType, String varName, String errorMsg) {
-        ArrayType arrayType = TypeCreator.createArrayType(elementType, 2, true);
-        VariableKey arr = new VariableKey(ROOT_MODULE, varName,
-                new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0,
-                        true), true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arr}));
-        validateTomlProviderErrors("ArrayWrongSize", errorMsg, configVarMap, 14, 0);
-    }
-
-    @DataProvider(name = "array-size-negative-tests")
-    public Object[][] getArraySizeNegativeTests() {
-        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
-        return new Object[][]{
-                {PredefinedTypes.TYPE_INT, "intArr", "[ArrayWrongSize.toml:(1:10,1:22)] the size for " +
-                        "configurable variable 'intArr' is expected to be '2', but found '4'"},
-                {TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true), "mapArr",
-                        "[ArrayWrongSize.toml:(4:1,5:6)] the size for configurable variable 'mapArr' is " +
-                                "expected to be '2', but found '3'"},
-                {TypeCreator.createMapType(TYPE_ANYDATA, true), "mapAnydataArr",
-                        "[ArrayWrongSize.toml:(13:1,14:8)] the size for configurable variable 'mapAnydataArr' " +
-                                "is expected to be '2', but found '3'"},
-                {TYPE_ANYDATA, "anydataArr1", "[ArrayWrongSize.toml:(2:15,2:29)] the size for configurable " +
-                        "variable 'anydataArr1' is expected to be '2', but found '3'"},
-                {TypeCreator.createUnionType(List.of(mapType, PredefinedTypes.TYPE_INT), true), "anydataArr2",
-                        "[ArrayWrongSize.toml:(22:1,23:8)] the size for configurable variable" +
-                                " 'anydataArr2' is expected to be '2', but found '3'"},
-        };
-    }
-
     @Test(dataProvider = "record-negative-tests")
     public void testRecordNegativeConfig(String tomlFileName, String errorMsg, int errorCount) {
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
@@ -244,13 +214,11 @@ public class TomlProviderNegativeTest {
     }
 
     @Test()
-    public void testInvalidMapType() {
-        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true);
-        VariableKey mapInt = new VariableKey(ROOT_MODULE, "mapVar", mapType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{mapInt}));
-        String errorMsg = "configurable variable 'mapVar' with type 'map<int> & readonly' is not " +
-                "supported";
-        validateTomlProviderErrors("InvalidMapType", errorMsg, configVarMap, 4, 0);
+    public void testInvalidType() {
+        VariableKey anyVar = new VariableKey(ROOT_MODULE, "anyVar", PredefinedTypes.TYPE_ANY, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{anyVar}));
+        String errorMsg = "configurable variable 'anyVar' with type 'any' is not supported";
+        validateTomlProviderErrors("InvalidType", errorMsg, configVarMap, 4, 0);
     }
 
     @Test()
@@ -740,13 +708,14 @@ public class TomlProviderNegativeTest {
     }
 
     @Test(dataProvider = "structure-array-negative-tests")
-    public void testStructureArrayNegativeConfig(Type elementType, String tomlFileName, String errorMsg) {
+    public void testStructureArrayNegativeConfig(Type elementType, String tomlFileName, String errorMsg,
+                                                 int errorCount) {
         ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
         VariableKey arrayVar = new VariableKey(ROOT_MODULE, "arrayVar",
                 new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0
                         , true), true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{arrayVar}));
-        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1, 0);
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, errorCount, 0);
     }
 
     @DataProvider(name = "structure-array-negative-tests")
@@ -756,16 +725,42 @@ public class TomlProviderNegativeTest {
         Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
         RecordType recordType =
                 TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        TableType tableType1 = TypeCreator.createTableType(mapType, true);
+        TableType tableType2 = TypeCreator.createTableType(recordType, true);
 
         return new Object[][]{
                 {mapType, "MapArrInlineTypeError1", "[MapArrInlineTypeError1.toml:(1:43,1:47)] configurable variable " +
-                        "'arrayVar[1].b' is expected to be of type 'int', but found 'string'"},
+                        "'arrayVar[1].b' is expected to be of type 'int', but found 'string'", 1},
                 {mapType, "MapArrInlineTypeError2", "[MapArrInlineTypeError2.toml:(1:37,1:42)] configurable variable " +
-                        "'arrayVar[1]' is expected to be of type 'map<int> & readonly', but found 'string'"},
+                        "'arrayVar[1]' is expected to be of type 'map<int> & readonly', but found 'string'", 1},
                 {recordType, "RecordArrInlineTypeError1", "[RecordArrInlineTypeError1.toml:(1:34,1:36)] configurable " +
-                        "variable 'arrayVar[0].name' is expected to be of type 'string', but found 'int'"},
+                        "variable 'arrayVar[0].name' is expected to be of type 'string', but found 'int'", 1},
                 {recordType, "RecordArrInlineTypeError2", "[RecordArrInlineTypeError2.toml:(1:25,1:40)] configurable " +
-                        "variable 'arrayVar[0]' is expected to be of type 'test_module:Person', but found 'string'"},
+                        "variable 'arrayVar[0]' is expected to be of type 'test_module:Person', but found 'string'", 1},
+                {tableType1, "TableArrTypeError1", "[TableArrTypeError1.toml:(1:24,1:28)] configurable variable " +
+                        "'arrayVar' is expected to be of type 'table<map<int> & readonly> & readonly[] & readonly', " +
+                        "but found 'string'", 1},
+                {tableType1, "TableArrTypeError2", "[TableArrTypeError2.toml:(1:25,1:29)] configurable variable " +
+                        "'arrayVar[0]' is expected to be of type 'table<map<int> & readonly> & readonly', " +
+                        "but found 'string'", 1},
+                {tableType1, "TableArrTypeError3", "[TableArrTypeError3.toml:(1:1,1:34)] configurable variable " +
+                        "'arrayVar' is expected to be of type 'table<map<int> & readonly> & readonly[] & readonly'," +
+                        " but found 'record'", 2},
+                {tableType1, "TableArrTypeError4", "[TableArrTypeError4.toml:(1:25,1:31)] configurable variable " +
+                        "'arrayVar[0]' is expected to be of type 'table<map<int> & readonly> & readonly', " +
+                        "but found 'array'", 1},
+                {tableType2, "TableArrTypeError1", "[TableArrTypeError1.toml:(1:24,1:28)] configurable variable " +
+                        "'arrayVar' is expected to be of type 'table<test_module:Person> & readonly[] & readonly', " +
+                        "but found 'string'", 1},
+                {tableType2, "TableArrTypeError2", "[TableArrTypeError2.toml:(1:25,1:29)] configurable variable " +
+                        "'arrayVar[0]' is expected to be of type 'table<test_module:Person> & readonly', " +
+                        "but found 'string'", 1},
+                {tableType2, "TableArrTypeError3", "[TableArrTypeError3.toml:(1:1,1:34)] configurable variable " +
+                        "'arrayVar' is expected to be of type 'table<test_module:Person> & readonly[] & readonly', " +
+                        "but found 'record'", 2},
+                {tableType2, "TableArrTypeError4", "[TableArrTypeError4.toml:(1:25,1:31)] configurable variable " +
+                        "'arrayVar[0]' is expected to be of type 'table<test_module:Person> & readonly', " +
+                        "but found 'array'", 1},
         };
     }
 

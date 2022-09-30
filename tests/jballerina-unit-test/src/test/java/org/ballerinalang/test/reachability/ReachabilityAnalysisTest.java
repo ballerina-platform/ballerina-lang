@@ -352,8 +352,8 @@ public class ReachabilityAnalysisTest {
         validateWarning(result, i++, "this function should explicitly return a value", 1016, 56);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1051, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1059, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1051, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1059, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1067, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1077, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1087, 13);
@@ -370,7 +370,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1188, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1200, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1211, 13);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1224, 17);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1224, 21);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1235, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1242, 9);
         validateWarning(result, i++, "unused variable 'a'", 1242, 14);
@@ -408,12 +408,12 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1419, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1422, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1432, 9);
-        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1442, 15);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1445, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1456, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1465, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1477, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1489, 9);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1442, 19);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1445, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1456, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1465, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1477, 13);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1489, 13);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1498, 15);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1504, 5);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 1510, 8);
