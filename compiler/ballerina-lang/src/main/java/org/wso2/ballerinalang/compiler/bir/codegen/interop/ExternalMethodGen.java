@@ -73,7 +73,7 @@ public class ExternalMethodGen {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
                                      jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     moduleClassName, lambdaGenMetadata, types);
+                    lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);
