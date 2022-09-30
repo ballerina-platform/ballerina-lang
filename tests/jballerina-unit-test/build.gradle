@@ -84,8 +84,6 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
-    jvmArgs = ['-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=$rootDir/dump.hprof"]
-
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
