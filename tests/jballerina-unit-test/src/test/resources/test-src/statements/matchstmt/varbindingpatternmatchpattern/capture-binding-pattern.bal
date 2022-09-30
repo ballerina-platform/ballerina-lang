@@ -166,6 +166,32 @@ function testCaptureBindingPattern7() {
     assertEquals(captureBindingPattern7(true), "no match");
 }
 
+enum FOO {
+    X,
+    Y
+}
+
+function captureBindingPattern8(FOO 'type, int|string g) returns string {
+    match 'type {
+        X if g is string => {
+            return "A";
+        }
+        Y if g is string => {
+            return "B";
+        }
+        _ => {
+            return string `no match ${'type.toString()}`;
+       }
+    }
+}
+
+function testCaptureBindingPattern8() {
+    assertEquals(captureBindingPattern8(X, "AAA"), "A");
+    assertEquals(captureBindingPattern8(Y, "BBB"), "B");
+    assertEquals(captureBindingPattern8(X, 1), "no match X");
+    assertEquals(captureBindingPattern8(Y, 2), "no match Y");
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
