@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 /**
  *  Represent the constant value.
  *
- *  @since 2201.2.0
+ *  @since 2201.3.0
  */
 public interface ConstantValue {
     Object value();
