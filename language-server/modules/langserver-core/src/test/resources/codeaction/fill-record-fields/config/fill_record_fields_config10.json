@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 14,
+    "character": 79
+  },
+  "source": "fill_record_fields_source7.bal",
+  "expected": [
+    {
+      "title": "Fill \u0027Application\u0027 required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 79
+            },
+            "end": {
+              "line": 14,
+              "character": 79
+            }
+          },
+          "newText": "name: \"\",id: \"\",version: 0"
+        }
+      ]
+    }
+  ]
+}
