@@ -145,27 +145,7 @@ public class BRunUtil {
     private static Object invokeOnJBallerina(CompileResult compileResult, String functionName, Object[] args,
                                              Class<?>[] paramTypes) {
         BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        args = addDefaultableBoolean(args);
-        paramTypes = addDefaultableBooleanType(paramTypes);
         return invoke(compileResult, function, functionName, args, paramTypes);
-    }
-
-    private static Object[] addDefaultableBoolean(Object[] args) {
-        Object[] result = new Object[args.length * 2];
-        for (int j = 0, i = 0; i < args.length; i++, j += 2) {
-            result[j] = args[i];
-            result[j + 1] = true;
-        }
-        return result;
-    }
-
-    private static Class<?>[] addDefaultableBooleanType(Class<?>[] paramTypes) {
-        Class<?>[] result = new Class<?>[paramTypes.length * 2];
-        for (int j = 0, i = 0; i < paramTypes.length; i++, j += 2) {
-            result[j] = paramTypes[i];
-            result[j + 1] = boolean.class;
-        }
-        return result;
     }
 
     /**

@@ -106,13 +106,13 @@ public class FromJsonWithType {
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
-                null, new ArrayList<>(), errors);
-        if (convertibleTypes.isEmpty()) {
+        Type convertibleType = TypeConverter.getConvertibleTypeFromJson(value, targetType,
+                null, new ArrayList<>(), errors, true);
+        if (convertibleType == null) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
+        Type matchingType = TypeUtils.getReferredType(convertibleType);
 
         Object newValue;
         switch (sourceType.getTag()) {
@@ -232,7 +232,7 @@ public class FromJsonWithType {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t);
                     arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return ValueCreator.createArrayValue(arrayType, arrayType.getSize(), arrayValues);
+                return ValueCreator.createArrayValue(arrayType, arrayValues);
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
                 int minLen = tupleType.getTupleTypes().size();

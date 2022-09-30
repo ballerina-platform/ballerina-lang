@@ -35,7 +35,7 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.JsonUtils;
+import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BField;
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
-import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
+import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
@@ -222,7 +222,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public Object merge(BMap v2, boolean checkMergeability) {
         if (checkMergeability) {
-            BError errorIfUnmergeable = JsonUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
+            BError errorIfUnmergeable = JsonInternalUtils.getErrorIfUnmergeable(this, v2, new ArrayList<>());
             if (errorIfUnmergeable != null) {
                 return errorIfUnmergeable;
             }
@@ -300,12 +300,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public void populateInitialValue(K key, V value) {
         if (type.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
+            putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true)) {
+                putValue(key, value);
+            }
         }
 
-        putValue(key, value);
         if (this.type.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
         }

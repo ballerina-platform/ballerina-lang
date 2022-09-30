@@ -1,6 +1,6 @@
 [
   {
-    "description": "Remove annotation , Add public qualifier",
+    "description": "Remove documentation , Add public qualifier",
     "oldCode": "#documentation\ntype Age record{\nint x;\n };",
     "newCode": "public type Age record{\nint x;\n };",
     "expectedOutput": {
@@ -70,7 +70,7 @@
     }
   },
   {
-    "description": " add annotation , remove documentation",
+    "description": "Add annotation , remove documentation",
     "oldCode": "#documentation\npublic type Age record{\nint x;\n };",
     "newCode": "@tainted\npublic type Age record{\nint x;\n };",
     "expectedOutput": {
@@ -98,8 +98,8 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
-                    "message": "service annotation list is modified"
+                    "kind": "module variable annotation",
+                    "message": "module variable annotation list is modified"
                   }
                 ]
               ]

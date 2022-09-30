@@ -186,8 +186,6 @@ public class JvmCastGen {
                 generateCheckCastBToJBoolean(mv, sourceType);
                 break;
             case JTypeTags.JREF:
-                generateCheckCastBToJRef(mv, sourceType, targetType);
-                break;
             case JTypeTags.JARRAY:
                 generateCheckCastBToJRef(mv, sourceType, targetType);
                 break;
@@ -492,6 +490,8 @@ public class JvmCastGen {
                     case TypeTags.FINITE:
                         generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
                         break;
+                    default:
+                        break;
                 }
 
                 checkCast(mv, targetType);
@@ -512,11 +512,7 @@ public class JvmCastGen {
                 mv.visitInsn(I2L);
                 break;
             case JTypeTags.JCHAR:
-                mv.visitInsn(I2L);
-                break;
             case JTypeTags.JSHORT:
-                mv.visitInsn(I2L);
-                break;
             case JTypeTags.JINT:
                 mv.visitInsn(I2L);
                 break;
@@ -539,11 +535,7 @@ public class JvmCastGen {
                 mv.visitInsn(I2D);
                 break;
             case JTypeTags.JCHAR:
-                mv.visitInsn(I2D);
-                break;
             case JTypeTags.JSHORT:
-                mv.visitInsn(I2D);
-                break;
             case JTypeTags.JINT:
                 mv.visitInsn(I2D);
                 break;
@@ -601,7 +593,8 @@ public class JvmCastGen {
                         false);
                 break;
             case JTypeTags.JREF:
-                mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_DECIMAL_METHOD, ANY_TO_DECIMAL,
+                        false);
                 break;
             default:
                 throw new BLangCompilerException("Casting is not supported from '" + sourceType + "' to 'decimal'");
@@ -742,7 +735,6 @@ public class JvmCastGen {
     }
 
     private static boolean isNillable(BType targetType) {
-        targetType = JvmCodeGenUtil.getReferredType(targetType);
         switch (targetType.tag) {
             case TypeTags.NIL:
             case TypeTags.NEVER:
@@ -752,12 +744,14 @@ public class JvmCastGen {
             case TypeTags.READONLY:
                 return true;
             case TypeTags.UNION:
-                return targetType.isNullable();
+            case TypeTags.INTERSECTION:
             case TypeTags.FINITE:
                 return targetType.isNullable();
+            case TypeTags.TYPEREFDESC:
+                return isNillable(JvmCodeGenUtil.getReferredType(targetType));
+            default:
+                return false;
         }
-
-        return false;
     }
 
     private void generateCheckCastJToBJSON(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
@@ -1292,15 +1286,18 @@ public class JvmCastGen {
 
     private void generateCheckCastToJSON(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
-        if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.INTERSECTION ||
-                sourceType.tag == TypeTags.READONLY ||
-                sourceType.tag == TypeTags.MAP) {
-            checkCast(mv, symbolTable.jsonType);
-        } else {
-            // if value types, then ad box instruction
-            generateCastToAny(mv, sourceType);
+        switch (sourceType.tag) {
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.READONLY:
+            case TypeTags.MAP:
+                checkCast(mv, symbolTable.jsonType);
+                break;
+            default:
+                // for value types, then add box instruction
+                generateCastToAny(mv, sourceType);
         }
     }
 

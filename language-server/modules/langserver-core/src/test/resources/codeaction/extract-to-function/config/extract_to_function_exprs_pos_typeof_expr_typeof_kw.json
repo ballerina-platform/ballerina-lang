@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 2,
+    "character": 38
+  },
+  "source": "extract_to_function_exprs_typeof_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 1
+            },
+            "end": {
+              "line": 3,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int localVar) returns typedesc<int> {\n    return typeof localVar;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 35
+            },
+            "end": {
+              "line": 2,
+              "character": 50
+            }
+          },
+          "newText": "extracted(localVar)"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside typeof keyword inside typeof expression"
+}

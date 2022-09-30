@@ -145,7 +145,7 @@
     "source": "sorted",
     "result": {
       "shellValue": {
-        "value":"[{\"firstName\":\"Anne\",\"lastName\":\"Perera\",\"salary\":3000.00d},{\"firstName\":\"Anne\",\"lastName\":\"Frank\",\"salary\":5000.00d},{\"firstName\":\"Jermaine\",\"lastName\":\"Perera\",\"salary\":4000.00d},{\"firstName\":\"Jermaine\",\"lastName\":\"Kent\",\"salary\":4000.00d},{\"firstName\":\"Jones\",\"lastName\":\"Welsh\",\"salary\":1000.00d},{\"firstName\":\"Miya\",\"lastName\":\"Bauer\",\"salary\":9000.00d},{\"firstName\":\"Rocky\",\"lastName\":\"Puckett\",\"salary\":6000.00d},{\"firstName\":\"Rocky\",\"lastName\":\"Irving\",\"salary\":6000.00d}]",
+        "value":"[{\"firstName\":\"Anne\", \"lastName\":\"Perera\", \"salary\":3000.00}, {\"firstName\":\"Anne\", \"lastName\":\"Frank\", \"salary\":5000.00}, {\"firstName\":\"Jermaine\", \"lastName\":\"Perera\", \"salary\":4000.00}, {\"firstName\":\"Jermaine\", \"lastName\":\"Kent\", \"salary\":4000.00}, {\"firstName\":\"Jones\", \"lastName\":\"Welsh\", \"salary\":1000.00}, {\"firstName\":\"Miya\", \"lastName\":\"Bauer\", \"salary\":9000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Puckett\", \"salary\":6000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Irving\", \"salary\":6000.00}]",
         "mimeType":"ballerina-notebook/json-view",
         "type":"Employee[]"
       },
@@ -168,7 +168,7 @@
     "source": "top3",
     "result": {
       "shellValue": {
-        "value":"[{\"firstName\":\"Miya\",\"lastName\":\"Bauer\",\"salary\":9000.00d},{\"firstName\":\"Rocky\",\"lastName\":\"Irving\",\"salary\":6000.00d},{\"firstName\":\"Rocky\",\"lastName\":\"Puckett\",\"salary\":6000.00d}]",
+        "value":"[{\"firstName\":\"Miya\", \"lastName\":\"Bauer\", \"salary\":9000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Irving\", \"salary\":6000.00}, {\"firstName\":\"Rocky\", \"lastName\":\"Puckett\", \"salary\":6000.00}]",
         "mimeType":"ballerina-notebook/json-view",
         "type":"Employee[]"
       },

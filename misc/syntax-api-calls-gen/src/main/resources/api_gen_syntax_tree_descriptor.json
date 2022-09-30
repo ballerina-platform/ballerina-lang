@@ -230,6 +230,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -1764,6 +1769,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -3514,6 +3524,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -3622,7 +3637,7 @@
     {
       "name": "RetryStatementNode",
       "base": "StatementNode",
-      "kind": "ROLLBACK_STATEMENT",
+      "kind": "RETRY_STATEMENT",
       "attributes": [
         {
           "name": "retryKeyword",
@@ -4269,6 +4284,11 @@
         {
           "name": "closeBrace",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -4378,7 +4398,7 @@
     {
       "name": "ClientResourceAccessActionNode",
       "base": "ActionNode",
-      "kind": "RESOURCE_METHOD_CALL_ACTION",
+      "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
       "attributes": [
         {
           "name": "expression",

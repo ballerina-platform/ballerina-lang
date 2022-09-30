@@ -98,3 +98,190 @@ isolated function testNamedWorkerWithStrandAnnotInIsolatedFunc2() {
         }
     }
 }
+
+int[] intArr = [];
+
+function f4(int[] b) returns int {
+    return b[0];
+}
+
+function testInvalidWorkersInIsolatedResourceFunctions() {
+    var _ = service object {
+        isolated resource function get foo() returns int[] {
+            int[] a = [];
+            future<int> _ = start f4(intArr);
+
+            worker A {
+                future<int> _ = start f4(a);
+                int[] _ = intArr;
+            }
+
+            future<int> _ = start f4(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f4(intArr);
+                    int[] _ = a;
+                }
+
+                worker C {
+                    future<int> _ = start f4(a);
+                    int[] _ = a;
+                }
+            }
+
+            return intArr;
+        }
+
+        isolated remote function bar() returns int[] {
+            int[] a = [];
+            future<int> _ = start f4(intArr);
+
+            worker A {
+                future<int> _ = start f4(a);
+                int[] _ = intArr;
+            }
+
+            future<int> _ = start f4(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f4(intArr);
+                    int[] _ = a;
+                }
+
+                worker C {
+                    future<int> _ = start f4(a);
+                    int[] _ = a;
+                }
+            }
+
+            return intArr;
+        }
+
+        isolated function bam() returns int[] {
+            int[] a = [];
+            future<int> _ = start f4(intArr);
+
+            worker A {
+                future<int> _ = start f4(a);
+                int[] _ = intArr;
+            }
+
+            future<int> _ = start f4(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f4(intArr);
+                    int[] _ = a;
+                }
+
+                worker C {
+                    future<int> _ = start f4(a);
+                    int[] _ = a;
+                }
+            }
+
+            return intArr;
+        }
+    };
+}
+
+listener Listener ep = new ();
+
+service /doSomething/here on ep {
+    isolated resource function get foo() returns int[] {
+        int[] a = [];
+        future<int> _ = start f4(intArr);
+
+        worker A {
+            future<int> _ = start f4(a);
+            int[] _ = intArr;
+        }
+
+        future<int> _ = start f4(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f4(intArr);
+                int[] _ = a;
+            }
+
+            worker C {
+                future<int> _ = start f4(a);
+                int[] _ = a;
+            }
+        }
+
+        return intArr;
+    }
+
+    isolated remote function bar() returns int[] {
+        int[] a = [];
+        future<int> _ = start f4(intArr);
+
+        worker A {
+            future<int> _ = start f4(a);
+            int[] _ = intArr;
+        }
+
+        future<int> _ = start f4(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f4(intArr);
+                int[] _ = a;
+            }
+
+            worker C {
+                future<int> _ = start f4(a);
+                int[] _ = a;
+            }
+        }
+
+        return intArr;
+    }
+
+    isolated function bam() returns int[] {
+        int[] a = [];
+        future<int> _ = start f4(intArr);
+
+        worker A {
+            future<int> _ = start f4(a);
+            int[] _ = intArr;
+        }
+
+        future<int> _ = start f4(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f4(intArr);
+                int[] _ = a;
+            }
+
+            worker C {
+                future<int> _ = start f4(a);
+                int[] _ = a;
+            }
+        }
+
+        return intArr;
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}

@@ -1420,9 +1420,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (listMatchPattern.matchExpr == null) {
             return;
         }
-        listMatchPattern.isLastPattern = types.isSameType(listMatchPattern.getBType(),
-                                                          listMatchPattern.matchExpr.getBType())
-                && !isConstMatchPatternExist(listMatchPattern);
+        listMatchPattern.isLastPattern = types.isAssignable(listMatchPattern.matchExpr.getBType(),
+                listMatchPattern.getBType()) && !isConstMatchPatternExist(listMatchPattern);
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
@@ -1741,8 +1740,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case VARIABLE:
                 BLangSimpleVariable varNode = (BLangSimpleVariable) node;
                 BLangExpression expr = varNode.expr;
-                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
-                        isValidContextForInferredArray(node.parent);
+                return expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(expr);
             default:
                 return false;
         }
@@ -1760,6 +1759,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             default:
                 return false;
         }
+    }
+
+    private boolean isValidVariableForInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case LITERAL:
+                if (node.getBType().tag == TypeTags.ARRAY) {
+                    return true;
+                }
+                break;
+            case LIST_CONSTRUCTOR_EXPR:
+                return true;
+            case GROUP_EXPR:
+                return isValidVariableForInferredArray(((BLangGroupExpr) node).expression);
+        }
+        return false;
     }
 
     @Override

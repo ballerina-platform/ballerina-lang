@@ -1775,6 +1775,46 @@ function testTypeTestingInReadonlyRecord() {
     testR2({i: 3});
 }
 
+type Type C|Tuple|List;
+type C "C";
+type Tuple ["tuple", Type, Type...];
+type List ["list", int?, Type];
+
+function testCustomCircularTupleTypeWithIsCheck() {
+    Type a = ["list", 1, "C"];
+    Type b = ["tuple", "C", "C", "C"];
+    Type c = "C";
+
+    assertEquality(checkIsExpressionWithCircularTuple(a), "List Type");
+    assertEquality(checkIsExpressionWithCircularTuple(b), "Not a List Type");
+    assertEquality(checkIsExpressionWithCircularTuple(c), "Not a List Type");
+
+    assertEquality(checkIsExpressionWithCircularTuple2(a), "List Type");
+    assertEquality(checkIsExpressionWithCircularTuple2(b), "Tuple Type");
+    assertEquality(checkIsExpressionWithCircularTuple2(c), "Type C");
+}
+
+function checkIsExpressionWithCircularTuple(Type t) returns string {
+    if t is List {
+        List _ = t;
+        return "List Type";
+    }
+    return "Not a List Type";
+}
+
+function checkIsExpressionWithCircularTuple2(Type t) returns string? {
+    if t is List {
+        List _ = t;
+        return "List Type";
+    } else if t is Tuple {
+        Tuple _ = t;
+        return "Tuple Type";
+    } else if t is C {
+        C _ = t;
+        return "Type C";
+    }
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

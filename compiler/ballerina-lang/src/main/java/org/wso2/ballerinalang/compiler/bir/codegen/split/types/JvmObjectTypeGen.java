@@ -64,6 +64,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLIENT_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
@@ -130,7 +131,8 @@ public class JvmObjectTypeGen {
      */
     public void createObjectType(MethodVisitor mv, BObjectType objectType) {
         // Create the object type
-        String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL : OBJECT_TYPE_IMPL;
+        String objectClassName = Symbols.isService(objectType.tsymbol) ? SERVICE_TYPE_IMPL :
+                Symbols.isClient(objectType.tsymbol) ? CLIENT_TYPE_IMPL : OBJECT_TYPE_IMPL;
 
         mv.visitTypeInsn(NEW, objectClassName);
         mv.visitInsn(DUP);
@@ -284,11 +286,14 @@ public class JvmObjectTypeGen {
     private void addResourceMethods(ClassWriter cw, MethodVisitor mv, String fieldName,
                                     List<BAttachedFunction> attachedFunctions, BObjectType objType,
                                     SymbolTable symbolTable) {
-        if (!Symbols.isService(objType.tsymbol)) {
+        if (!Symbols.isService(objType.tsymbol) && !Symbols.isClient(objType.tsymbol)) {
             return;
         }
+
+        String objectClassName = Symbols.isService(objType.tsymbol) ? SERVICE_TYPE_IMPL : CLIENT_TYPE_IMPL;
+
         mv.visitInsn(DUP);
-        mv.visitTypeInsn(CHECKCAST, SERVICE_TYPE_IMPL);
+        mv.visitTypeInsn(CHECKCAST, objectClassName);
         // Create the resource function array
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
@@ -303,8 +308,8 @@ public class JvmObjectTypeGen {
         }
 
         // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceMethods",
-                RESOURCE_METHOD_TYPE_ARRAY_PARAM, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, objectClassName, "setResourceMethods", RESOURCE_METHOD_TYPE_ARRAY_PARAM,
+                false);
     }
 
     private int splitResourceMethods(ClassWriter cw, String methodName, List<BAttachedFunction> attachedFunctions,
@@ -389,9 +394,12 @@ public class JvmObjectTypeGen {
         mv.visitTypeInsn(NEW, METHOD_TYPE_IMPL);
 
         mv.visitInsn(DUP);
-
         // Load function name
         mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
 
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);
@@ -413,6 +421,10 @@ public class JvmObjectTypeGen {
 
         // Load function name
         mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
 
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);
@@ -436,12 +448,19 @@ public class JvmObjectTypeGen {
         // Load function name
         mv.visitLdcInsn(resourceFunction.funcName.value);
 
+        // Load module
+        String moduleName = jvmConstantsGen.getModuleConstantVar(objType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), moduleName, GET_MODULE);
+
         // Load the parent object type
         jvmTypeGen.loadType(mv, objType);
         mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
 
         // Load the invokable type
         jvmTypeGen.loadType(mv, resourceFunction.type);
+
+        // Load the resource path type
+        jvmTypeGen.loadType(mv, resourceFunction.resourcePathType);
 
         // Load flags
         mv.visitLdcInsn(resourceFunction.symbol.flags);

@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -29,6 +32,8 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateFunctionTest extends AbstractCodeActionTest {
+
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     @Override
     public String getResourceDir() {
@@ -56,22 +61,116 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeAction3.json"},
                 {"undefinedFunctionCodeAction4.json"},
                 {"undefinedFunctionCodeAction5.json"},
+                {"undefinedFunctionCodeAction6.json"},
+                {"undefinedFunctionCodeAction20.json"},
+                // TODO Doesn't support method creation in objects
+                // {"undefinedFunctionCodeAction7.json", "createUndefinedFunction5.bal"},
+                // TODO Doesn't support methods inside services yet
+                // {"undefinedFunctionCodeAction8.json", "createUndefinedFunction6.bal"},
+
+                {"undefinedFunctionCodeAction9.json"},
+                {"undefinedFunctionCodeAction10.json"},
+                {"undefinedFunctionCodeAction11.json"},
+                {"undefinedFunctionCodeAction12.json"},
+                {"undefinedFunctionCodeAction13.json"},
+                {"undefinedFunctionCodeAction14.json"},
+                // TODO Need to fix anonymous records support
+                // {"undefinedFunctionCodeAction15.json", "createUndefinedFunction7.bal"},
+
+                // Test functions returning object
+                {"undefinedFunctionCodeAction16.json"},
+                {"undefinedFunctionCodeAction17.json"},
+                {"undefinedFunctionCodeAction18.json"},
+                {"undefinedFunctionCodeAction19.json"},
+                {"undefinedFunctionCodeAction21.json"},
+                {"undefinedFunctionCodeAction22.json"},
+                {"undefinedFunctionCodeAction23.json"},
+
                 {"undefinedFunctionCodeActionInRecord.json"},
                 {"undefinedFunctionCodeActionInRecord2.json"},
+                {"undefinedFunctionCodeActionInRecordField1.json"},
+                {"undefinedFunctionCodeActionInObjectField1.json"},
+
+                {"projectCreateUndefinedFunction1.json"},
+                {"projectCreateUndefinedFunction2.json"},
+                {"projectCreateUndefinedFunction3.json"},
+                {"projectCreateUndefinedFunction4.json"},
+                {"projectCreateUndefinedFunction5.json"},
+                {"projectCreateUndefinedFunction6.json"},
+
+                // Let Expression
                 {"undefinedFunctionCodeActionInLet.json"},
                 {"undefinedFunctionCodeActionInLet2.json"},
+                {"undefinedFunctionCodeActionInLet3.json"},
+                {"undefinedFunctionCodeActionInLet4.json"},
+                {"undefinedFunctionCodeActionInLet5.json"},
+
+                // Module Alias
+                {"projectCreateUndefinedFunctionWithModAlias.json"},
+                {"projectCreateUndefinedFunctionWithModAlias2.json"},
+                {"projectCreateUndefinedFunctionWithLangLib.json"},
+
+                {"create_function_which_returns_record1.json"},
+                {"create_function_which_returns_record2.json"},
                 {"createFunctionCodeActionWithStrands.json"},
-                {"createFunctionInErrorConstructor.json"},
-                {"undefinedFunctionCodeActionInObjectField1.json"},
-                {"undefinedFunctionCodeActionInRecordField1.json"},
+                {"createFunctionCodeActionWithStrands2.json"},
+                {"createFunctionCodeActionWithStrands3.json"},
+                {"createFunctionCodeActionWithStrands4.json"},
+
+                // Create function in condition expressions like in if, while
+                {"create_function_in_if_statement1.json"},
+                {"create_function_in_if_statement2.json"},
+                {"create_function_in_if_statement3.json"},
+                {"create_function_in_if_statement4.json"},
+                {"create_function_in_if_statement5.json"},
+                {"create_function_in_while_statement1.json"},
+
+                {"create_function_in_expression1.json"},
+                {"create_function_in_function_call_expr1.json"},
+                {"create_function_in_method_call_expr1.json"},
+                {"create_function_in_implicit_new_expression1.json"},
+                {"create_function_in_explicit_new_expression1.json"},
+                {"create_function_in_remote_method_call_action1.json"},
+
+                {"create_function_in_named_arg_context1.json"},
+                {"create_function_in_named_arg_context2.json"},
+                {"create_function_in_named_arg_context3.json"},
+                {"create_function_in_named_arg_context4.json"},
+
+                // Error constructor
+                {"create_function_in_error_constructor1.json"},
+                {"create_function_in_error_constructor2.json"},
+                {"create_function_in_error_constructor3.json"},
+
+                // Variable Declaration
+                {"create_function_in_var_decl1.json"},
+                {"create_function_in_var_decl2.json"},
+                {"create_function_in_var_decl3.json"},
+                // TODO Blocked by #34448
+                // {"create_function_in_var_decl4.json"},
+
+                {"create_function_which_returns_error1.json"},
+                {"create_function_in_fail1.json"},
+                {"create_function_in_return1.json"},
+
+                // Named Args
+                {"create_function_with_named_args1.json"},
+
                 {"undefinedFunctionInConditionalExpression1.json"},
                 {"undefinedFunctionInConditionalExpression2.json"},
                 {"undefinedFunctionInConditionalExpression3.json"},
+
                 {"undefinedFunctionInCheckExpression1.json"},
                 {"undefinedFunctionInCheckExpression2.json"},
                 {"undefinedFunctionInCheckpanicExpression1.json"},
                 {"undefinedFunctionInCheckpanicExpression2.json"},
                 {"undefinedFunctionInPanicStatement.json"},
+                {"undefinedFunctionInReturn1.json"},
+                {"create_function_in_conditional_expression.json"},
+                {"create_function_in_nil_conditional_expression.json"},
+
+                {"create_function_in_local_var1.json"},
+                {"create_function_in_local_var2.json"}
         };
     }
 
@@ -81,5 +180,10 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeActionNegativeTest1.json"},
                 {"undefinedFunctionCodeActionNegativeTest2.json"}
         };
+    }
+
+    @Override
+    protected Object convertActionData(Object actionData) {
+        return CommandArgument.from(gson.toJsonTree(actionData));
     }
 }

@@ -59,7 +59,7 @@ public class STRetryStatementNode extends STStatementNode {
             STNode retryBody,
             STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.ROLLBACK_STATEMENT, diagnostics);
+        super(SyntaxKind.RETRY_STATEMENT, diagnostics);
         this.retryKeyword = retryKeyword;
         this.typeParameter = typeParameter;
         this.arguments = arguments;

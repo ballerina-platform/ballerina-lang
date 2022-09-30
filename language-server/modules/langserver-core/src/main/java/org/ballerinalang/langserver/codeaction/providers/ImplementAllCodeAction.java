@@ -15,10 +15,12 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -52,9 +54,22 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
         return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
                 SyntaxKind.SERVICE_DECLARATION,
                 SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.OBJECT_CONSTRUCTOR,
                 SyntaxKind.MODULE_VAR_DECL,
                 SyntaxKind.METHOD_DECLARATION,
                 SyntaxKind.LOCAL_VAR_DECL);
+    }
+
+    @Override
+    public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        Node node = positionDetails.matchedCodeActionNode();
+        return CodeActionNodeValidator.validate(context.nodeAtRange()) &&
+                (node.kind() == SyntaxKind.CLASS_DEFINITION
+                        || node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION
+                        || node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MODULE_VAR_DECL
+                        || node.kind() == SyntaxKind.LOCAL_VAR_DECL
+                        || node.kind() == SyntaxKind.SERVICE_DECLARATION);
     }
 
     @Override
@@ -62,6 +77,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
         if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_CONSTRUCTOR
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
@@ -84,7 +100,7 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction im
 
         diags.forEach(diagnostic -> {
             DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, context);
-            edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+            edits.addAll(getDiagBasedTextEdits(positionDetails, context));
         });
 
         CodeAction quickFixCodeAction = CodeActionUtil.createCodeAction(CommandConstants.IMPLEMENT_ALL, edits,
