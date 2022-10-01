@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -32,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -62,6 +65,8 @@ class BIRGenEnv {
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
 
     Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
+    Map<BVarSymbol, BIRVariableDcl> syntheticVariableDclMap = new ConcurrentHashMap<>();
+    Map<BLangFail, BIRBasicBlock> onFailStartBlockByFailNode = new HashMap<>();
 
     // This is to hold variables to unlock in each scope
     // for example when we are to return from somewhere, we need to unlock all the

@@ -424,6 +424,8 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    private final Map<BLangOnFailClause, BVarSymbol> onFailClauseErrorVariable = new HashMap<>();
+    private final Map<BLangOnFailClause, BLangFail> bLangFailNodeByOnFailClause = new HashMap<>();
     // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
 
@@ -9355,12 +9357,18 @@ public class Desugar extends BLangNodeVisitor {
                         .anyMatch(retType -> types.isAssignable(errorType, retType)));
 
         String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
-        BLangSimpleVariable errorVar =
-                ASTBuilderUtil.createVariable(location, patternFailureCaseVarName, symTable.errorType,
-                                                createTypeCastExpr(ref, symTable.errorType),
-                                              new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
-                                                             this.env.scope.owner.pkgID, symTable.errorType,
-                                                             this.env.scope.owner, location, VIRTUAL));
+        BVarSymbol errorVarSymbol;
+        if (!isCheckPanicExpr && this.onFailClause != null) {
+            errorVarSymbol = onFailClauseErrorVariable.computeIfAbsent(this.onFailClause,
+                    k -> new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
+                            this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL));
+        } else {
+            errorVarSymbol = new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
+                    this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, location, VIRTUAL);
+        }
+
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(location, patternFailureCaseVarName,
+                symTable.errorType, createTypeCastExpr(ref, symTable.errorType), errorVarSymbol);
 
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(location);
         BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(location, errorVar);
@@ -9368,7 +9376,13 @@ public class Desugar extends BLangNodeVisitor {
         BLangVariableReference errorVarRef = ASTBuilderUtil.createVariableRef(location, errorVar.symbol);
         if (!isCheckPanicExpr && (returnOnError || this.onFailClause != null)) {
             // fail e;
-            BLangFail failStmt = (BLangFail) TreeBuilder.createFailNode();
+            BLangFail failStmt;
+            if (this.onFailClause != null) {
+                failStmt = bLangFailNodeByOnFailClause.computeIfAbsent(this.onFailClause,
+                        k -> (BLangFail) TreeBuilder.createFailNode());
+            } else {
+                failStmt = (BLangFail) TreeBuilder.createFailNode();
+            }
             failStmt.pos = location;
             failStmt.expr = errorVarRef;
             blockStmt.addStatement(failStmt);

@@ -213,6 +213,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -1013,51 +1014,67 @@ public class BIRGen extends BLangNodeVisitor {
             numLocks--;
         }
 
-        // Create a basic block for the on fail clause.
-        BIRBasicBlock onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
-        addToTrapStack(onFailBB);
-        this.env.enclBasicBlocks.add(onFailBB);
+        BIRBasicBlock onFailBB = this.env.onFailStartBlockByFailNode.get(failNode);
+        if (onFailBB == null) {
+            // Create a basic block for the on fail clause.
+            onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(onFailBB);
+            this.env.enclBasicBlocks.add(onFailBB);
 
-        // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
+            // Insert a GOTO instruction as the terminal instruction into current basic block.
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
 
-        // Visit condition expression
-        this.env.enclBB = onFailBB;
-        failNode.exprStmt.accept(this);
-        if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
-                    this.currentScope);
+            // Visit condition expression
+            this.env.enclBB = onFailBB;
+            failNode.exprStmt.accept(this);
+            if (this.env.enclBB.terminator == null) {
+                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
+                        this.currentScope);
+            }
+
+            // Statements after fail expression are unreachable, hence ignored
+            BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(ignoreBlock);
+            ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
+            this.env.enclBasicBlocks.add(ignoreBlock);
+            this.env.enclBB = ignoreBlock;
+
+            this.env.onFailStartBlockByFailNode.put(failNode, onFailBB);
+            return;
         }
-
-        // Statements after fail expression are unreachable, hence ignored
-        BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
-        addToTrapStack(ignoreBlock);
-        ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
-        this.env.enclBasicBlocks.add(ignoreBlock);
-        this.env.enclBB = ignoreBlock;
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
+        this.env.enclBB = onFailBB;
     }
 
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
-        VarKind kind;
+        BIRVariableDcl birVarDcl;
+        AtomicBoolean isExistingVarDef = new AtomicBoolean(true);
         if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
-            kind = VarKind.SYNTHETIC;
+            birVarDcl = this.env.syntheticVariableDclMap.computeIfAbsent(astVarDefStmt.var.symbol, k -> {
+                isExistingVarDef.set(false);
+                return new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
+                            this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.SYNTHETIC,
+                            astVarDefStmt.var.name.value);
+            });
         } else {
-            kind = VarKind.LOCAL;
+            birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
+            isExistingVarDef.set(false);
         }
-        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, kind, astVarDefStmt.var.name.value);
-        birVarDcl.startBB = this.env.enclBB;
-        this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
-        this.env.enclFunc.localVars.add(birVarDcl);
-        // We maintain a mapping from variable symbol to the bir_variable declaration.
-        // This is required to pull the correct bir_variable declaration for variable references.
-        this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
+        if (!isExistingVarDef.get()) {
+            birVarDcl.startBB = this.env.enclBB;
+            this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
+            this.env.enclFunc.localVars.add(birVarDcl);
+            // We maintain a mapping from variable symbol to the bir_variable declaration.
+            // This is required to pull the correct bir_variable declaration for variable references.
+            this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
-        birVarDcl.insScope = newScope;
-        this.currentScope = newScope;
+            BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+            birVarDcl.insScope = newScope;
+            this.currentScope = newScope;
+        }
 
         if (astVarDefStmt.var.expr == null) {
             return;
