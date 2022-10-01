@@ -215,6 +215,24 @@ public class AssignStmtTest {
                 "found 'table<record {| |}>'", 138, 11);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
                 "found 'table<record {| |}>'", 141, 12);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo', " +
+                "found 'float'", 147, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
+                "found 'int'", 155, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
+                "found 'int'", 156, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
+                "found 'int'", 157, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
+                "found 'int'", 158, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
+                "found 'int'", 160, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
+                "found 'float'", 170, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
+                "found 'float'", 171, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
+                "found 'float'", 172, 14);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

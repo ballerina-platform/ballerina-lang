@@ -140,3 +140,41 @@ function assignTableCtrToIncompatibleType() {
     [int, string] a = [1, "a"];
     a[0] = table[]; // error
 }
+
+type Foo decimal|2f;
+
+function assignCustomTypeToFloat() {
+    Foo _ = 3; // error: incompatible types: expected 'Foo', found 'float'
+    Foo _ = 2;
+}
+
+type Foo2 decimal|3d|1|5d|3f|4d|2f|7d|6;
+
+function assignCustomTypeToFloat2() {
+    Foo2 _ = 1;
+    Foo2 _ = 2; // error: incompatible types: expected 'Foo2', found 'int'
+    Foo2 _ = 3; // error: incompatible types: expected 'Foo2', found 'int'
+    Foo2 _ = 4; // error: incompatible types: expected 'Foo2', found 'int'
+    Foo2 _ = 5; // error: incompatible types: expected 'Foo2', found 'int'
+    Foo2 _ = 6;
+    Foo2 _ = 7; // error: incompatible types: expected 'Foo2', found 'int'
+    Foo2 _ = 7.1;
+}
+
+type Foo3 decimal|5d|3f|4d|2f|7d;
+type Foo4 decimal|5d|4d|7d;
+
+function assignCustomTypeToFloat3() {
+    Foo3 _ = 2;
+    Foo3 _ = 3;
+    Foo3 _ = 4; // error: incompatible types: expected 'Foo3', found 'float'
+    Foo3 _ = 5; // error: incompatible types: expected 'Foo3', found 'float'
+    Foo3 _ = 7; // error: incompatible types: expected 'Foo3', found 'float'
+    Foo3 _ = 7.1;
+    Foo4 _ = 1;
+    Foo4 _ = 2;
+    Foo4 _ = 3;
+    Foo4 _ = 4;
+    Foo4 _ = 5;
+    Foo4 _ = 7;
+}

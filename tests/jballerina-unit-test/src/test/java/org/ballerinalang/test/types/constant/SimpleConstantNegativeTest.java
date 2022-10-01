@@ -117,7 +117,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithoutType', " +
                 "found 'int'", 183, 28);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ByteTypeWithType', " +
-                "found 'int'", 194, 26);
+                "found 'byte'", 194, 26);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithType', " +
                 "found 'float'", 205, 27);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithoutType', " +

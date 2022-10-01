@@ -529,21 +529,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getFiniteTypeMatchWithIntLiteral(BLangLiteral literalExpr, BFiniteType finiteType,
-                                                   Object literalValue, AnalyzerData data) {
+                                                   Object literalValue, BType compatibleType, AnalyzerData data) {
         BType intLiteralType = getFiniteTypeMatchWithIntType(literalExpr, finiteType, data);
         if (intLiteralType != symTable.noType) {
             return intLiteralType;
         }
+        
         int typeTag = getPreferredMemberTypeTag(finiteType);
         if (typeTag == TypeTags.NONE) {
             return symTable.intType;
         }
+        
         if (literalAssignableToFiniteType(literalExpr, finiteType, typeTag)) {
             BType type = symTable.getTypeFromTag(typeTag);
             setLiteralValueForFiniteType(literalExpr, type, data);
             literalExpr.value = String.valueOf(literalValue);
             return type;
         }
+
         // Handle out of range ints
         if (literalValue instanceof Double) {
             return symTable.floatType;
@@ -551,7 +554,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (literalValue instanceof String) {
             return symTable.decimalType;
         }
-        return symTable.intType;
+        return compatibleType;
     }
 
     private BType silentIntTypeCheck(BLangLiteral literalExpr, Object literalValue, BType expType,
@@ -629,7 +632,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 data.resultType = symTable.semanticError;
                 return compatibleType;
             } else {
-                return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue, data);
+                return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue, compatibleType, data);
             }
         } else if (expectedType.tag == TypeTags.UNION) {
             BUnionType expectedUnionType = (BUnionType) expectedType;
@@ -887,6 +890,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
             }
+        }
+        if (finiteType != symTable.semanticError) {
+            return checkIfOutOfRangeAndReturnType((BFiniteType) finiteType, literalExpr, literalExpr.value, data);
         }
         return symTable.intType;
     }
