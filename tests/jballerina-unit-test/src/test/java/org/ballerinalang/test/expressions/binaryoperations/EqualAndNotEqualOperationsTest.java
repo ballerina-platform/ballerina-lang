@@ -58,7 +58,7 @@ public class EqualAndNotEqualOperationsTest {
                 "checkBooleanEquality", "checkIntEquality", "checkByteEquality", "checkFloatEquality",
                 "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality", "testIntByteEqualityPositive",
                 "testIntByteEqualityNegative", "testIntersectingUnionEquality", "testTableEquality",
-                "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes"
+                "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes", "checkFiniteTypeEquality"
         };
     }
 

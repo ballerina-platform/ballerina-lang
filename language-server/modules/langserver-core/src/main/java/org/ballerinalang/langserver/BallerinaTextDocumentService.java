@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
@@ -38,6 +39,7 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.definition.DefinitionUtil;
@@ -325,7 +327,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
+                        this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params,
                         cancelChecker);
@@ -343,6 +345,32 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         range.getStart(), range.getEnd());
             }
             return Collections.emptyList();
+        });
+    }
+
+    @Override
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                String fileUri = resolvableCodeAction.getData().getFileUri();
+                CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
+                        fileUri,
+                        workspaceManagerProxy.get(fileUri),
+                        this.serverContext,
+                        cancelChecker);
+                return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Resolve Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'text/resolveCodeAction' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RESOLVE_CODE_ACTION, msg, e, null,
+                        (Position) null);
+            }
+
+            return null;
         });
     }
 

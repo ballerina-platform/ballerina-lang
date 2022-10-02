@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 2,
+    "character": 15
+  },
+  "source": "create_function_in_expression1.bal",
+  "expected": [
+    {
+      "title": "Create function 'computeCount(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 1
+            },
+            "end": {
+              "line": 3,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction computeCount(int val) returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_expression1.bal",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 15
+          },
+          "end": {
+            "line": 2,
+            "character": 32
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 2.0,
+              "character": 15.0
+            },
+            "end": {
+              "line": 2.0,
+              "character": 32.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

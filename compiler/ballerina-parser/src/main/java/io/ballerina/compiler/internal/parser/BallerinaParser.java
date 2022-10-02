@@ -4927,7 +4927,7 @@ public class BallerinaParser extends AbstractParser {
 
         if (lvExpr.kind == SyntaxKind.ERROR_CONSTRUCTOR &&
                 isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) lvExpr)) {
-            lvExpr = getBindingPattern(lvExpr);
+            lvExpr = getBindingPattern(lvExpr, false);
         }
 
         if (isWildcardBP(lvExpr)) {
@@ -15397,7 +15397,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr,
                         pipeOrAndToken, rhsTypedBPOrExpr);
             case SEMICOLON_TOKEN:
-                if (isDefiniteExpr(typeOrExpr.kind)) {
+                if (isExpression(typeOrExpr.kind)) {
                     return typeOrExpr;
                 }
 
@@ -15603,7 +15603,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                        kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+                        kind.compareTo(SyntaxKind.ERROR_CONSTRUCTOR) <= 0;
         }
     }
 
@@ -15946,10 +15946,10 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (argNameOrBindingPattern.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                    ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
-            identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern);
-            return createCaptureOrWildcardBP(identifier);
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern,
+                    DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
+            return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
 
         return createCaptureOrWildcardBP(((STSimpleNameReferenceNode) argNameOrBindingPattern).name);
@@ -16638,7 +16638,7 @@ public class BallerinaParser extends AbstractParser {
                 if (memberEnd != null) {
                     // If there are more than one member, then its definitely a binding pattern.
                     List<STNode> memberList = new ArrayList<>();
-                    memberList.add(getBindingPattern(member));
+                    memberList.add(getBindingPattern(member, true));
                     memberList.add(memberEnd);
                     bindingPattern = parseAsListBindingPattern(openBracket, memberList);
                     typeDesc = getTypeDescFromExpr(typeDescOrExpr);
@@ -16895,15 +16895,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode variableName = STNodeFactory.createCaptureBindingPatternNode(identifierToken);
                 return STNodeFactory.createTypedBindingPatternNode(arrayTypeDesc, variableName);
             }
-            
-            if (member.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                // Invalidate Field binding pattern inside list binding pattern
-                openBracket = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBracket, member,
-                        DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
-            } else {
-                STNode bindingPattern = getBindingPattern(member);
-                bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
-            }
+
+            STNode bindingPattern = getBindingPattern(member, true);
+            bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
         }
 
         STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns, closeBracket);
@@ -17585,7 +17579,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member,
                                              boolean isRoot) {
-        memberList = getBindingPatternsList(memberList);
+        memberList = getBindingPatternsList(memberList, true);
         memberList.add(member);
         switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
@@ -17598,7 +17592,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList) {
-        memberList = getBindingPatternsList(memberList);
+        memberList = getBindingPatternsList(memberList, true);
         switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STNode listBindingPattern = parseListBindingPattern(openBracket, memberList);
         endContext();
@@ -17753,7 +17747,7 @@ public class BallerinaParser extends AbstractParser {
                     return new STAmbiguousCollectionNode(SyntaxKind.BRACKETED_LIST, openBracket, members, closeBracket);
                 }
 
-                STNode memberBindingPatterns = STNodeFactory.createNodeList(getBindingPatternsList(members));
+                STNode memberBindingPatterns = STNodeFactory.createNodeList(getBindingPatternsList(members, true));
                 STNode listBindingPattern = STNodeFactory.createListBindingPatternNode(openBracket,
                         memberBindingPatterns, closeBracket);
                 endContext(); // end tuple typ-desc
@@ -17936,7 +17930,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
         List<STNode> bindingPatterns = new ArrayList<>();
         if (firstMappingField.kind != SyntaxKind.REST_BINDING_PATTERN) {
-            bindingPatterns.add(getBindingPattern(firstMappingField));
+            bindingPatterns.add(getBindingPattern(firstMappingField, false));
         }
 
         STNode mappingBP = parseMappingBindingPattern(openBrace, bindingPatterns, firstMappingField);
@@ -18013,14 +18007,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatementStartWithExprRhs(expr);
             case MAPPING_BINDING_PATTERN:
                 switchContext(ParserRuleContext.ASSIGNMENT_STMT);
-                STNode bindingPattern = getBindingPattern(bpOrConstructor);
+                STNode bindingPattern = getBindingPattern(bpOrConstructor, false);
                 return parseAssignmentStmtRhs(bindingPattern);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
             default:
                 // If this is followed by an assignment, then treat this node as mapping-binding pattern.
                 if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
                     switchContext(ParserRuleContext.ASSIGNMENT_STMT);
-                    bindingPattern = getBindingPattern(bpOrConstructor);
+                    bindingPattern = getBindingPattern(bpOrConstructor, false);
                     return parseAssignmentStmtRhs(bindingPattern);
                 }
 
@@ -18449,7 +18443,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseAsMappingBindingPattern(STNode openBrace, List<STNode> members, STNode member) {
         members.add(member);
-        members = getBindingPatternsList(members);
+        members = getBindingPatternsList(members, false);
         // create mapping binding pattern
         switchContext(ParserRuleContext.MAPPING_BINDING_PATTERN);
         return parseMappingBindingPattern(openBrace, members, member);
@@ -18595,7 +18589,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // Treat everything else as list-binding-pattern
-                members = getBindingPatternsList(members);
+                members = getBindingPatternsList(members, true);
                 STNode bindingPatternsNode = STNodeFactory.createNodeList(members);
                 lbpOrListCons = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatternsNode,
                         closeBracket);
@@ -18873,15 +18867,17 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private List<STNode> getBindingPatternsList(List<STNode> ambibuousList) {
+    private List<STNode> getBindingPatternsList(List<STNode> ambibuousList, boolean isListBP) {
         List<STNode> bindingPatterns = new ArrayList<>();
         for (STNode item : ambibuousList) {
-            bindingPatterns.add(getBindingPattern(item));
+            bindingPatterns.add(getBindingPattern(item, isListBP));
         }
         return bindingPatterns;
     }
 
-    private STNode getBindingPattern(STNode ambiguousNode) {
+    private STNode getBindingPattern(STNode ambiguousNode, boolean isListBP) {
+        DiagnosticCode errorCode = DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN;
+
         if (isEmpty(ambiguousNode)) {
             return ambiguousNode;
         }
@@ -18901,6 +18897,10 @@ public class BallerinaParser extends AbstractParser {
                 STNode varName = ((STSimpleNameReferenceNode) ambiguousNode).name;
                 return createCaptureOrWildcardBP(varName);
             case QUALIFIED_NAME_REFERENCE:
+                if (isListBP) {
+                    errorCode = DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP;
+                    break;
+                }
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
                 STNode fieldName = STNodeFactory.createSimpleNameReferenceNode(qualifiedName.modulePrefix);
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, qualifiedName.colon,
@@ -18908,14 +18908,15 @@ public class BallerinaParser extends AbstractParser {
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) ambiguousNode;
-                STNode memberBindingPatterns = STNodeFactory.createNodeList(getBindingPatternsList(innerList.members));
+                STNode memberBindingPatterns =
+                        STNodeFactory.createNodeList(getBindingPatternsList(innerList.members, true));
                 return STNodeFactory.createListBindingPatternNode(innerList.collectionStartToken, memberBindingPatterns,
                         innerList.collectionEndToken);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 innerList = (STAmbiguousCollectionNode) ambiguousNode;
                 List<STNode> bindingPatterns = new ArrayList<>();
                 for (int i = 0; i < innerList.members.size(); i++) {
-                    STNode bp = getBindingPattern(innerList.members.get(i));
+                    STNode bp = getBindingPattern(innerList.members.get(i), false);
                     bindingPatterns.add(bp);
                     if (bp.kind == SyntaxKind.REST_BINDING_PATTERN) {
                         break;
@@ -18931,7 +18932,7 @@ public class BallerinaParser extends AbstractParser {
                     return STNodeFactory.createFieldBindingPatternVarnameNode(fieldName);
                 }
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, field.colon,
-                        getBindingPattern(field.valueExpr));
+                        getBindingPattern(field.valueExpr, false));
             case ERROR_CONSTRUCTOR:
                 STErrorConstructorExpressionNode errorCons = (STErrorConstructorExpressionNode) ambiguousNode;
                 STNode args = errorCons.arguments;
@@ -18939,7 +18940,7 @@ public class BallerinaParser extends AbstractParser {
                 bindingPatterns = new ArrayList<>();
                 for (int i = 0; i < size; i++) {
                     STNode arg = args.childInBucket(i);
-                    bindingPatterns.add(getBindingPattern(arg));
+                    bindingPatterns.add(getBindingPattern(arg, false));
                 }
 
                 STNode argListBindingPatterns = STNodeFactory.createNodeList(bindingPatterns);
@@ -18947,21 +18948,20 @@ public class BallerinaParser extends AbstractParser {
                         errorCons.openParenToken, argListBindingPatterns, errorCons.closeParenToken);
             case POSITIONAL_ARG:
                 STPositionalArgumentNode positionalArg = (STPositionalArgumentNode) ambiguousNode;
-                return getBindingPattern(positionalArg.expression);
+                return getBindingPattern(positionalArg.expression, false);
             case NAMED_ARG:
                 STNamedArgumentNode namedArg = (STNamedArgumentNode) ambiguousNode;
                 STNode bindingPatternArgName = ((STSimpleNameReferenceNode) namedArg.argumentName).name;
                 return STNodeFactory.createNamedArgBindingPatternNode(bindingPatternArgName, namedArg.equalsToken,
-                        getBindingPattern(namedArg.expression));
+                        getBindingPattern(namedArg.expression, false));
             case REST_ARG:
                 STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
                 return STNodeFactory.createRestBindingPatternNode(restArg.ellipsis, restArg.expression);
-            default:
-                STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-                identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode, 
-                        DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
-                return STNodeFactory.createCaptureBindingPatternNode(identifier);
         }
+
+        STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, ambiguousNode, errorCode);
+        return STNodeFactory.createCaptureBindingPatternNode(identifier);
     }
 
     private List<STNode> getExpressionList(List<STNode> ambibuousList, boolean isMappingConstructor) {

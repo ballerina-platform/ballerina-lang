@@ -97,11 +97,14 @@ public class PackageCompilation {
     private static PackageCompilation compile(PackageCompilation compilation) {
         // Compile modules in the dependency graph
         compilation.compileModules();
-
         // Now the modules are compiled, initialize the compiler plugin manager
         CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
         compilation.setCompilerPluginManager(compilerPluginManager);
 
+        // Run code analyzers, if project has updated only
+        if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
+            return compilation;
+        }
         // Do not run code analyzers, if the code generators are enabled.
         if (compilation.compilationOptions().withCodeGenerators()) {
             return compilation;
@@ -141,8 +144,9 @@ public class PackageCompilation {
         // If the states do not match, then this is a illegal state exception.
         if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
-                    "This is an internal error which will be fixed in a later release.");
+                    "compilation state" + (moduleContext.compilationState() == null ? ""
+                    : (" '" + moduleContext.compilationState().name() + "'")) +
+                    ". This is an internal error which will be fixed in a later release.");
         }
 
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
@@ -194,10 +198,13 @@ public class PackageCompilation {
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+        if (!packageResolution.diagnosticResult().hasErrors()) {
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project()));
+                }
             }
         }
         // add plugin diagnostics
