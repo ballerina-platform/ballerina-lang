@@ -89,6 +89,7 @@ public class TypeResolver {
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.constResolver = ConstantValueResolver.getInstance(context);
         this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
+        this.resolveConstantExpressionType = ConstantTypeChecker.ResolveConstantExpressionType.getInstance(context);
     }
 
     public static TypeResolver getInstance(CompilerContext context) {
@@ -1490,6 +1491,7 @@ public class TypeResolver {
         data.constantSymbol = constantSymbol;
         data.env = symEnv;
         data.modTable = modTable;
+        data.expType = staticType;
         BType inferredExpType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
 
         BType narrowedType;
@@ -1515,6 +1517,8 @@ public class TypeResolver {
         BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, narrowedType, symEnv,
                 symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper, names,
                 new HashSet<>());
+
+        resolveConstantExpressionType.resolveConstExpr(constant.expr, intersectionType, data);
 
         constantSymbol.type = intersectionType;
         constantSymbol.literalType = intersectionType;
