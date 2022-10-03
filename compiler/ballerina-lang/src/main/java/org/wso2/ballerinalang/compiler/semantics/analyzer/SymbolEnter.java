@@ -205,7 +205,6 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
-import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -5164,26 +5163,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         Map<String, BLangSimpleVariable> fieldNames = new HashMap<>(structureTypeNode.fields.size());
         for (BLangSimpleVariable fieldVariable : structureTypeNode.fields) {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
-        }
-
-        for (BLangType typeRef : typeRefs) {
-            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            referredType = Types.getReferredType(referredType);
-            if (referredType == symTable.semanticError) {
-                continue;
-            }
-            if (referredType.tag != TypeTags.RECORD) {
-                continue;
-            }
-            var fields = ((BStructureType) referredType).fields.values();
-            for (BField field : fields) {
-                BType type = field.type;
-                BLangTypeDefinition typeDefinition = typeToTypeDef.get(type);
-                if (typeDefinition != null && typeDefinition.typeNode != null &&
-                        typeDefinition.typeNode.getKind() == RECORD_TYPE) {
-                    defineReferencedFieldsOfRecordTypeDef(typeDefinition);
-                }
-            }
         }
 
         structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
