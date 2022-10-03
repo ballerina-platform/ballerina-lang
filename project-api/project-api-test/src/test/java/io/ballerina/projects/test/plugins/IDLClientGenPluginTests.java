@@ -33,9 +33,13 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
 
 /**
  * Test cases for IDL Client generation.
@@ -56,27 +60,30 @@ public class IDLClientGenPluginTests {
     @Test
     public void testIdlPluginLocalPaths() throws IOException {
         String projectName = "package_test_idl_plugin_local_test";
-//        Path projectDir = RESOURCE_DIRECTORY.resolve(projectName);
-//        Path mainPath = projectDir.resolve("main.bal");
-//        String originalContent = writeBalFile(projectDir, mainPath);
+        Path projectDir = RESOURCE_DIRECTORY.resolve(projectName);
+        Path mainPath = projectDir.resolve("main.bal");
+        String originalContent = writeBalFile(projectDir, mainPath);
 
-        assertIdlPluginProject(projectName, 4, ProjectUtils.getTemporaryTargetPath());
+        assertIdlPluginProject(projectName, 6, ProjectUtils.getTemporaryTargetPath());
 
-//        undoBalFile(mainPath, originalContent);
+        undoBalFile(mainPath, originalContent);
     }
 
-//    private String writeBalFile(Path projectDir, Path balPath) throws IOException {
-//        String mainContent = Files.readString(balPath);
-//        String newMainContent = mainContent.replaceAll("<<PROJECT_ABSOLUTE_PATH>>",
-//                projectDir.toAbsolutePath().toString());
-//
-//        Files.write(balPath, newMainContent.getBytes(StandardCharsets.UTF_8));
-//        return mainContent;
-//    }
-//
-//    private void undoBalFile(Path balPath, String oldContent) throws IOException {
-//        Files.write(balPath, oldContent.getBytes(StandardCharsets.UTF_8));
-//    }
+    private String writeBalFile(Path projectDir, Path balPath) throws IOException {
+        String mainContent = Files.readString(balPath);
+
+        String path = projectDir.toAbsolutePath().normalize().toString();
+
+        String newMainContent = mainContent.replaceAll("<<PROJECT_ABSOLUTE_PATH>>",
+                Matcher.quoteReplacement(path + File.separator));
+
+        Files.write(balPath, newMainContent.getBytes(StandardCharsets.UTF_8));
+        return mainContent;
+    }
+
+    private void undoBalFile(Path balPath, String oldContent) throws IOException {
+        Files.write(balPath, oldContent.getBytes(StandardCharsets.UTF_8));
+    }
 
     private void assertIdlPluginProject(String projectName, int expectedModules, String targetPath) {
         Path projectDir = RESOURCE_DIRECTORY.resolve(projectName);

@@ -19,21 +19,21 @@ public function main() {
     _ = mod1:testModuleClientDecl();
 }
 
-//client "<<PROJECT_ABSOLUTE_PATH>>/projectapiclientplugin.json" as foo;
-//client "file://<<PROJECT_ABSOLUTE_PATH>>/projectapiclientplugin.json" as bar;
+client "<<PROJECT_ABSOLUTE_PATH>>projectapiclientplugin.json" as foo;
+client "file://<<PROJECT_ABSOLUTE_PATH>>projectapiclientplugin.json" as bar;
 client "./projectapiclientplugin.json" as baz;
 
-//function testModuleClientDecl() returns string {
-//    foo:ClientConfiguration config = {specVersion : "3.0.0"};
-//    foo:client cl = new (config);
-//    return cl->getSpecVersion();
-//}
-//
-//function testModuleClientDecl1() returns string {
-//    bar:ClientConfiguration config = {specVersion : "3.0.0"};
-//    bar:client cl = new (config);
-//    return cl->getSpecVersion();
-//}
+function testModuleClientDecl() returns string {
+    foo:ClientConfiguration config = {specVersion : "3.0.0"};
+    foo:client cl = new (config);
+    return cl->getSpecVersion();
+}
+
+function testModuleClientDecl1() returns string {
+    bar:ClientConfiguration config = {specVersion : "3.0.0"};
+    bar:client cl = new (config);
+    return cl->getSpecVersion();
+}
 
 function testModuleClientDecl2() returns string {
     baz:ClientConfiguration config = {specVersion : "3.0.0"};
