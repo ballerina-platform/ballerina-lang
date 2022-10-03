@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -86,8 +85,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
             return Collections.emptyList();
         }
         Optional<Node> mappingConstructorNode = getMappingConstructorNode(evalNode.get());
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (mappingConstructorNode.isEmpty() || semanticModel.isEmpty()) {
+        if (mappingConstructorNode.isEmpty()) {
             return Collections.emptyList();
         }
         CodeActionContextTypeResolver contextTypeResolver = new CodeActionContextTypeResolver(context);
