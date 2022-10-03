@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@ package org.ballerinalang.formatter.core;
 
 /**
  * A model for formatting options that can be forced by the API user, that could be passed onto the formatter.
+ *
+ * @since 2201.2.2
  */
 public class ForceFormattingOptions {
-    boolean forceFormatRecordTypeDesc;
+    private boolean forceFormatRecordFields;
 
-    ForceFormattingOptions(boolean forceFormatRecordTypeDesc) {
-        this.forceFormatRecordTypeDesc = forceFormatRecordTypeDesc;
+    private ForceFormattingOptions(boolean forceFormatRecordFields) {
+        this.forceFormatRecordFields = forceFormatRecordFields;
     }
 
     public boolean getForceFormatRecordTypeDesc() {
-        return forceFormatRecordTypeDesc;
+        return forceFormatRecordFields;
     }
 
     public static ForceFormattingOptionsBuilder builder() {
@@ -35,19 +37,17 @@ public class ForceFormattingOptions {
 
     /**
      * A builder for the {@code ForceFormattingOptions}.
-     *
-     * @since 2.0.0
      */
     public static class ForceFormattingOptionsBuilder {
-        private boolean forceFormatRecordTypeDesc = false;
+        private boolean forceFormatRecordFields = false;
 
-        public ForceFormattingOptionsBuilder setForceFormatRecordTypeDesc(boolean value) {
-            forceFormatRecordTypeDesc = value;
+        public ForceFormattingOptionsBuilder setForceFormatRecordFields(boolean forceFormatRecordFields) {
+            this.forceFormatRecordFields = forceFormatRecordFields;
             return this;
         }
 
         public ForceFormattingOptions build() {
-            return new ForceFormattingOptions(forceFormatRecordTypeDesc);
+            return new ForceFormattingOptions(forceFormatRecordFields);
         }
     }
 }
