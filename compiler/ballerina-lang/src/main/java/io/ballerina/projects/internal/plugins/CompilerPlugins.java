@@ -37,6 +37,7 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.stream.Stream;
 
 /**
  * This class contains a set of utility method related to compiler plugin implementation.
@@ -131,9 +132,9 @@ public class CompilerPlugins {
 
     public static boolean moduleExists(String moduleName, Project project) {
         Path moduleRoot = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName);
-        try {
-            return Files.exists(moduleRoot) && Files.list(moduleRoot).findFirst().isPresent();
-        } catch (IOException ignore) {
+        try (Stream<Path> list = Files.list(moduleRoot)) {
+            return Files.exists(moduleRoot) && list.findFirst().isPresent();
+        } catch (IOException e) {
             return false;
         }
     }
