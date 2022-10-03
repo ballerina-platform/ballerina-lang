@@ -807,7 +807,7 @@ public class TypedescriptorTest {
     private Object[][] getDistinctObjectTypes() {
         return new Object[][] {
                 {174, 12, List.of(Qualifier.PUBLIC), List.of(Qualifier.DISTINCT)},
-                {364, 12, List.of(Qualifier.PUBLIC), List.of(Qualifier.DISTINCT, Qualifier.SERVICE)},
+                {375, 12, List.of(Qualifier.PUBLIC), List.of(Qualifier.DISTINCT, Qualifier.SERVICE)},
         };
     }
 
