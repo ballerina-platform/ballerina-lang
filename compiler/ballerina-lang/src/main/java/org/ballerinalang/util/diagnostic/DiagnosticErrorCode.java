@@ -790,6 +790,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4040", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
             "BCE4041", "module.generated.for.client.decl.cannot.have.mutable.state")
+    OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
+    INVALID_START_CHAR_CODE_IN_RANGE("BCE4035", "invalid.start.char.code.in.range"),
+    INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
+    DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
     ;
 
     private String diagnosticId;

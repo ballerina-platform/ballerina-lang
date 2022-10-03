@@ -67,6 +67,11 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testFuncInvocationWithinTypeNarrowingExpr() {
+        BRunUtil.invoke(fpProgram, "testFuncInvocationWithinTypeNarrowingExpr");
+    }
+
+    @Test
     public void testLambdaAsReturnParameter() {
         Object returns = BRunUtil.invoke(fpProgram, "test4");
         Assert.assertNotNull(returns);

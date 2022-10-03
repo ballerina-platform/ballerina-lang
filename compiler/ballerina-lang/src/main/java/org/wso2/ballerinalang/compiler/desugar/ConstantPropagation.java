@@ -88,8 +88,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1103,6 +1116,96 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
         result = clientDeclarationStatement;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        rewrite(regExpTemplateLiteral.reDisjunction);
+        result = regExpTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        rewrite(reSequence.termList);
+        result = reSequence;
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        rewrite(reAtomQuantifier.atom);
+        rewrite(reAtomQuantifier.quantifier);
+        result = reAtomQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        rewrite(reAtomCharOrEscape.charOrEscape);
+        result = reAtomCharOrEscape;
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        rewrite(reQuantifier.quantifier);
+        rewrite(reQuantifier.nonGreedyChar);
+        result = reQuantifier;
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        rewrite(reCharacterClass.characterClassStart);
+        rewrite(reCharacterClass.negation);
+        rewrite(reCharacterClass.charSet);
+        rewrite(reCharacterClass.characterClassEnd);
+        result = reCharacterClass;
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        rewrite(reCharSet.charSetAtoms);
+        result = reCharSet;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        rewrite(reCharSetRange.lhsCharSetAtom);
+        rewrite(reCharSetRange.dash);
+        rewrite(reCharSetRange.rhsCharSetAtom);
+        result = reCharSetRange;
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        rewrite(reAssertion.assertion);
+        result = reAssertion;
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        rewrite(reCapturingGroups.openParen);
+        rewrite(reCapturingGroups.flagExpr);
+        rewrite(reCapturingGroups.disjunction);
+        rewrite(reCapturingGroups.closeParen);
+        result = reCapturingGroups;
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        rewrite(reDisjunction.sequenceList);
+        result = reDisjunction;
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        rewrite(reFlagsOnOff.flags);
+        result = reFlagsOnOff;
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        rewrite(reFlagExpression.questionMark);
+        rewrite(reFlagExpression.flagsOnOff);
+        rewrite(reFlagExpression.colon);
+        result = reFlagExpression;
     }
 
     @SuppressWarnings("unchecked")

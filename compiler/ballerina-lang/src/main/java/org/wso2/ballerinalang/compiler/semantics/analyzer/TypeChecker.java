@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -5816,6 +5817,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
         checkStringTemplateExprs(stringTemplateLiteral.exprs, data);
         data.resultType = types.checkType(stringTemplateLiteral, symTable.stringType, data.expType);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
+        // Check expr with insertions to resolve its type.
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(interpolation -> checkExpr(interpolation, data));
+        data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
     }
 
     @Override

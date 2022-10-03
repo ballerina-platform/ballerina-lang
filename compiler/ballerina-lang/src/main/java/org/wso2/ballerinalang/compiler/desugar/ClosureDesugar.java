@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -234,6 +235,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
         this.symResolver = SymbolResolver.getInstance(context);
@@ -1617,6 +1619,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
         dynamicParamExpr.condition = rewriteExpr(dynamicParamExpr.condition);
         dynamicParamExpr.conditionalArgument = rewriteExpr(dynamicParamExpr.conditionalArgument);
         result = dynamicParamExpr;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(this::rewriteExpr);
+        result = regExpTemplateLiteral;
     }
 
     /**

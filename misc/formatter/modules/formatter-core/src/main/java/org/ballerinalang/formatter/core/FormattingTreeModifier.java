@@ -3093,12 +3093,15 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ConditionalExpressionNode transform(ConditionalExpressionNode conditionalExpressionNode) {
-        ExpressionNode lhsExpression = formatNode(conditionalExpressionNode.lhsExpression(), 1, 0);
-        Token questionMarkToken = formatToken(conditionalExpressionNode.questionMarkToken(), 1, 0);
-        ExpressionNode middleExpression = formatNode(conditionalExpressionNode.middleExpression(), 1, 0);
-        Token colonToken = formatToken(conditionalExpressionNode.colonToken(), 1, 0);
+        indent();
+        ExpressionNode lhsExpression = formatNode(conditionalExpressionNode.lhsExpression(), 1, 0, !env.hasNewline);
+        Token questionMarkToken = formatToken(conditionalExpressionNode.questionMarkToken(), 1, 0, !env.hasNewline);
+        ExpressionNode middleExpression = formatNode(conditionalExpressionNode.middleExpression(),
+                1, 0, !env.hasNewline);
+        Token colonToken = formatToken(conditionalExpressionNode.colonToken(), 1, 0, !env.hasNewline);
         ExpressionNode endExpression = formatNode(conditionalExpressionNode.endExpression(),
-                env.trailingWS, env.trailingNL);
+                env.trailingWS, env.trailingNL, !env.hasNewline);
+        unindent();
 
         return conditionalExpressionNode.modify()
                 .withLhsExpression(lhsExpression)
@@ -3673,10 +3676,11 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param node Node to be formatted
      * @param trailingWS Number of single-length spaces to be added after the node
      * @param trailingNL Number of newlines to be added after the node
+     * @param preserveIndentation Preserve user-defined indentation
      * @return Formatted node
      */
     @SuppressWarnings("unchecked")
-    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
+    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL, Boolean preserveIndentation) {
         try {
             if (node == null) {
                 return node;
@@ -3691,6 +3695,9 @@ public class FormattingTreeModifier extends TreeModifier {
             int prevTrailingWS = env.trailingWS;
             env.trailingNL = trailingNL;
             env.trailingWS = trailingWS;
+            if (preserveIndentation != null) {
+                env.preserveIndentation = preserveIndentation;
+            }
 
             // Cache the current node and parent before format.
             // Because reference to the nodes will change after modifying.
@@ -3716,15 +3723,30 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
+     * Format a node.
+     *
+     * @param <T> Type of the node
+     * @param node Node to be formatted
+     * @param trailingWS Number of single-length spaces to be added after the node
+     * @param trailingNL Number of newlines to be added after the node
+     * @return Formatted node
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Node> T formatNode(T node, int trailingWS, int trailingNL) {
+        return formatNode(node, trailingWS, trailingNL, null);
+    }
+
+    /**
      * Format a token.
      *
      * @param <T> Type of the token
      * @param token Token to be formatted
      * @param trailingWS Number of single-length spaces to be added after the token
      * @param trailingNL Number of newlines to be added after the token
+     * @param preserveIndentation Preserve user-defined indentation
      * @return Formatted token
      */
-    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
+    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL, Boolean preserveIndentation) {
         try {
             if (token == null) {
                 return token;
@@ -3741,6 +3763,9 @@ public class FormattingTreeModifier extends TreeModifier {
             // Trailing newlines can be at-most 1. Rest will go as newlines for the next token
             env.trailingNL = trailingNL > 0 ? 1 : 0;
             env.trailingWS = trailingWS;
+            if (preserveIndentation != null) {
+                env.preserveIndentation = preserveIndentation;
+            }
 
             token = formatTokenInternal(token);
 
@@ -3761,6 +3786,19 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return token;
+    }
+
+    /**
+     * Format a token.
+     *
+     * @param <T> Type of the token
+     * @param token Token to be formatted
+     * @param trailingWS Number of single-length spaces to be added after the token
+     * @param trailingNL Number of newlines to be added after the token
+     * @return Formatted token
+     */
+    private <T extends Token> T formatToken(T token, int trailingWS, int trailingNL) {
+        return formatToken(token, trailingWS, trailingNL, null);
     }
 
     protected <T extends Node> NodeList<T> formatModuleMembers(NodeList<T> members) {
@@ -4196,6 +4234,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
+        // token.isMission() issue has to be discussed.
         if (consecutiveNewlines > 0 && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }

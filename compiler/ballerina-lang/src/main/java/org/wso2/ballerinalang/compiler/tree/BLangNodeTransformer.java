@@ -77,8 +77,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -680,6 +693,58 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangStringTemplateLiteral node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangRegExpTemplateLiteral node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReSequence node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReAtomQuantifier node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReAtomCharOrEscape node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReQuantifier node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReCharacterClass node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReCharSet node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReCharSetRange node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReAssertion node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReCapturingGroups node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReDisjunction node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReFlagsOnOff node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangReFlagExpression node, T data) {
         return transformNode(node, data);
     }
 
