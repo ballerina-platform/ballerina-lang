@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -44,7 +45,8 @@ public class GenerateModuleForClientDeclCodeAction implements DiagnosticBasedCod
 
     private static final String NAME = "GENERATE_MODULE_FOR_CLIENT_DECLARATION";
 
-    public static final String DIAGNOSTIC_CODE = "BCE4037";
+    public static final String DIAGNOSTIC_CODE = 
+            DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL.diagnosticId();
     public static final String DIAGNOSTIC_CODE_EXCLUDE = "BCE5304";
 
     @Override

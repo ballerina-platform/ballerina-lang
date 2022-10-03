@@ -86,6 +86,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
+    public static STToken createMissingRegExpTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getRegExpErrorCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -499,6 +503,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
+            case RE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
@@ -550,6 +556,25 @@ public class SyntaxErrors {
                 return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+        }
+    }
+
+    private static DiagnosticCode getRegExpErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case OPEN_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case CLOSE_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
+            case RE_UNICODE_PROPERTY_VALUE:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            default:
+                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
 

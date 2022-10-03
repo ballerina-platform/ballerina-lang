@@ -841,6 +841,94 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(resourceAccessRestSegmentNode);
     }
 
+    public void visit(STReSequenceNode reSequenceNode) {
+        visitSyntaxNode(reSequenceNode);
+    }
+
+    public void visit(STReAtomQuantifierNode reAtomQuantifierNode) {
+        visitSyntaxNode(reAtomQuantifierNode);
+    }
+
+    public void visit(STReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        visitSyntaxNode(reAtomCharOrEscapeNode);
+    }
+
+    public void visit(STReQuoteEscapeNode reQuoteEscapeNode) {
+        visitSyntaxNode(reQuoteEscapeNode);
+    }
+
+    public void visit(STReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        visitSyntaxNode(reSimpleCharClassEscapeNode);
+    }
+
+    public void visit(STReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        visitSyntaxNode(reUnicodePropertyEscapeNode);
+    }
+
+    public void visit(STReUnicodeScriptNode reUnicodeScriptNode) {
+        visitSyntaxNode(reUnicodeScriptNode);
+    }
+
+    public void visit(STReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        visitSyntaxNode(reUnicodeGeneralCategoryNode);
+    }
+
+    public void visit(STReCharacterClassNode reCharacterClassNode) {
+        visitSyntaxNode(reCharacterClassNode);
+    }
+
+    public void visit(STReCharSetRangeWithReCharSetNode reCharSetRangeWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeWithReCharSetNode);
+    }
+
+    public void visit(STReCharSetRangeNode reCharSetRangeNode) {
+        visitSyntaxNode(reCharSetRangeNode);
+    }
+
+    public void visit(STReCharSetAtomWithReCharSetNoDashNode reCharSetAtomWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomWithReCharSetNoDashNode);
+    }
+
+    public void visit(STReCharSetRangeNoDashWithReCharSetNode reCharSetRangeNoDashWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeNoDashWithReCharSetNode);
+    }
+
+    public void visit(STReCharSetRangeNoDashNode reCharSetRangeNoDashNode) {
+        visitSyntaxNode(reCharSetRangeNoDashNode);
+    }
+
+    public void visit(STReCharSetAtomNoDashWithReCharSetNoDashNode reCharSetAtomNoDashWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomNoDashWithReCharSetNoDashNode);
+    }
+
+    public void visit(STReCapturingGroupsNode reCapturingGroupsNode) {
+        visitSyntaxNode(reCapturingGroupsNode);
+    }
+
+    public void visit(STReFlagExpressionNode reFlagExpressionNode) {
+        visitSyntaxNode(reFlagExpressionNode);
+    }
+
+    public void visit(STReFlagsOnOffNode reFlagsOnOffNode) {
+        visitSyntaxNode(reFlagsOnOffNode);
+    }
+
+    public void visit(STReFlagsNode reFlagsNode) {
+        visitSyntaxNode(reFlagsNode);
+    }
+
+    public void visit(STReAssertionNode reAssertionNode) {
+        visitSyntaxNode(reAssertionNode);
+    }
+
+    public void visit(STReQuantifierNode reQuantifierNode) {
+        visitSyntaxNode(reQuantifierNode);
+    }
+
+    public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
+        visitSyntaxNode(reBracedQuantifierNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

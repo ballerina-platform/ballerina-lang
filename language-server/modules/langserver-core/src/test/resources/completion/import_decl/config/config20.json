@@ -164,6 +164,14 @@
       "sortText": "C",
       "insertText": "lang.'function;",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.regexp;",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
