@@ -830,4 +830,356 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * New RegExp instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewRegExp extends BIRNonTerminator {
+        public BIROperand reDisjunction;
+
+        public NewRegExp(Location pos, BIROperand lhsOp, BIROperand patternOp) {
+            super(pos, InstructionKind.NEW_REG_EXP);
+            this.lhsOp = lhsOp;
+            this.reDisjunction = patternOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{reDisjunction};
+        }
+    }
+
+    /**
+     * New ReDisjunction instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReDisjunction extends BIRNonTerminator {
+        public final BIROperand sequences;
+
+        public NewReDisjunction(Location pos, BIROperand seqList, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_RE_DISJUNCTION);
+            sequences = seqList;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{sequences};
+        }
+    }
+
+    /**
+     * New ReSequence instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReSequence extends BIRNonTerminator {
+        public final BIROperand terms;
+
+        public NewReSequence(Location pos, BIROperand termsList, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_RE_SEQUENCE);
+            terms = termsList;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{terms};
+        }
+    }
+
+    /**
+     * New ReAssertion instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReAssertion extends BIRNonTerminator {
+        public BIROperand assertion;
+
+        public NewReAssertion(Location pos, BIROperand assertion, BIROperand lhsOp) {
+            super(pos, InstructionKind.NEW_RE_ASSERTION);
+            this.assertion = assertion;
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.assertion};
+        }
+    }
+
+    /**
+     * New ReAtom [ReQuantifier] instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReAtomQuantifier extends BIRNonTerminator {
+        public BIROperand atom;
+        public BIROperand quantifier;
+
+        public NewReAtomQuantifier(Location pos, BIROperand lhsOp, BIROperand atom, BIROperand quantifier) {
+            super(pos, InstructionKind.NEW_RE_ATOM_QUANTIFIER);
+            this.lhsOp = lhsOp;
+            this.atom = atom;
+            this.quantifier = quantifier;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.atom, this.quantifier};
+        }
+    }
+
+    /**
+     * New ReLiteralChar, ".", or ReEscape instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReLiteralCharOrEscape extends BIRNonTerminator {
+        public BIROperand charOrEscape;
+
+        public NewReLiteralCharOrEscape(Location pos, BIROperand lhsOp, BIROperand charOrEscape) {
+            super(pos, InstructionKind.NEW_RE_LITERAL_CHAR_ESCAPE);
+            this.lhsOp = lhsOp;
+            this.charOrEscape = charOrEscape;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.charOrEscape};
+        }
+    }
+
+    /**
+     * New character class instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReCharacterClass extends BIRNonTerminator {
+        public BIROperand classStart;
+        public BIROperand negation;
+        public BIROperand charSet;
+        public BIROperand classEnd;
+
+        public NewReCharacterClass(Location pos, BIROperand lhsOp, BIROperand classStart, BIROperand negation,
+                                   BIROperand charSet, BIROperand classEnd) {
+            super(pos, InstructionKind.NEW_RE_CHAR_CLASS);
+            this.lhsOp = lhsOp;
+            this.classStart = classStart;
+            this.negation = negation;
+            this.charSet = charSet;
+            this.classEnd = classEnd;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.classStart, this.negation, this.charSet, this.classEnd};
+        }
+    }
+
+    /**
+     * New ReCharSet instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReCharSet extends BIRNonTerminator {
+        public BIROperand charSetAtoms;
+
+        public NewReCharSet(Location pos, BIROperand lhsOp, BIROperand charSetAtoms) {
+            super(pos, InstructionKind.NEW_RE_CHAR_SET);
+            this.lhsOp = lhsOp;
+            this.charSetAtoms = charSetAtoms;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.charSetAtoms};
+        }
+    }
+
+    /**
+     * New ReCharSetRange instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReCharSetRange extends BIRNonTerminator {
+        public BIROperand lhsCharSetAtom;
+        public BIROperand dash;
+        public BIROperand rhsCharSetAtom;
+
+        public NewReCharSetRange(Location pos, BIROperand lhsOp, BIROperand lhsCharSetAtom,
+                                 BIROperand dash, BIROperand rhsCharSetAtom) {
+            super(pos, InstructionKind.NEW_RE_CHAR_SET_RANGE);
+            this.lhsOp = lhsOp;
+            this.lhsCharSetAtom = lhsCharSetAtom;
+            this.dash = dash;
+            this.rhsCharSetAtom = rhsCharSetAtom;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.lhsCharSetAtom, this.dash, this.rhsCharSetAtom};
+        }
+    }
+
+    /**
+     * New capturing group instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReCapturingGroup extends BIRNonTerminator {
+        public BIROperand openParen;
+        public BIROperand flagExpr;
+        public BIROperand reDisjunction;
+        public BIROperand closeParen;
+
+        public NewReCapturingGroup(Location pos, BIROperand lhsOp, BIROperand openParen, BIROperand flagExpr,
+                                   BIROperand reDisjunction, BIROperand closeParen) {
+            super(pos, InstructionKind.NEW_RE_CAPTURING_GROUP);
+            this.lhsOp = lhsOp;
+            this.openParen = openParen;
+            this.flagExpr = flagExpr;
+            this.reDisjunction = reDisjunction;
+            this.closeParen = closeParen;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.openParen, this.flagExpr, this.reDisjunction, this.closeParen};
+        }
+    }
+
+    /**
+     * New flag expression instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReFlagExpression extends BIRNonTerminator {
+        public BIROperand questionMark;
+        public BIROperand flagsOnOff;
+        public BIROperand colon;
+
+        public NewReFlagExpression(Location pos, BIROperand lhsOp, BIROperand questionMark,
+                                   BIROperand flagsOnOff, BIROperand colon) {
+            super(pos, InstructionKind.NEW_RE_FLAG_EXPR);
+            this.lhsOp = lhsOp;
+            this.questionMark = questionMark;
+            this.flagsOnOff = flagsOnOff;
+            this.colon = colon;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.questionMark, this.flagsOnOff, this.colon};
+        }
+    }
+
+    /**
+     * New ReFlagOnOff instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReFlagOnOff extends BIRNonTerminator {
+        public BIROperand flags;
+
+        public NewReFlagOnOff(Location pos, BIROperand lhsOp, BIROperand flags) {
+            super(pos, InstructionKind.NEW_RE_FLAG_ON_OFF);
+            this.lhsOp = lhsOp;
+            this.flags = flags;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.flags};
+        }
+    }
+
+    /**
+     * New ReQuantifier instruction.
+     *
+     * @since 2201.3.0
+     */
+    public static class NewReQuantifier extends BIRNonTerminator {
+        public BIROperand quantifier;
+        public BIROperand nonGreedyChar;
+
+        public NewReQuantifier(Location pos, BIROperand lhsOp, BIROperand quantifier, BIROperand nonGreedyChar) {
+            super(pos, InstructionKind.NEW_RE_QUANTIFIER);
+            this.lhsOp = lhsOp;
+            this.quantifier = quantifier;
+            this.nonGreedyChar = nonGreedyChar;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.quantifier, this.nonGreedyChar};
+        }
+    }
 }

@@ -131,10 +131,23 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
@@ -2304,6 +2317,240 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = unLockedBB;
 
         lockDetailsHolder.removeLastLock();
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        BIROperand toVarRef = createVarRefOperand(regExpTemplateLiteral.getBType());
+
+        regExpTemplateLiteral.reDisjunction.accept(this);
+        BIROperand reDisjunction = this.env.targetOperand;
+
+        BIRNonTerminator.NewRegExp newRegExp = new BIRNonTerminator.NewRegExp(regExpTemplateLiteral.pos, toVarRef,
+                reDisjunction);
+        setScopeAndEmit(newRegExp);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        BLangArrayLiteral seqList = new BLangArrayLiteral();
+        seqList.pos = reDisjunction.pos;
+        seqList.setBType(symTable.arrayAnydataType);
+        seqList.exprs = new ArrayList<>();
+        seqList.exprs.addAll(reDisjunction.sequenceList);
+
+        seqList.accept(this);
+        BIROperand sequences = this.env.targetOperand;
+
+        BIRNonTerminator.NewReDisjunction newRegExp = new BIRNonTerminator.NewReDisjunction(reDisjunction.pos,
+                sequences, toVarRef);
+        setScopeAndEmit(newRegExp);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        BLangArrayLiteral terms = new BLangArrayLiteral();
+        terms.pos = reSequence.pos;
+        terms.setBType(symTable.arrayAnydataType);
+        terms.exprs = new ArrayList<>();
+        terms.exprs.addAll(reSequence.termList);
+
+        terms.accept(this);
+        BIROperand sequences = this.env.targetOperand;
+
+        BIRNonTerminator.NewReSequence newReSequence =
+                new BIRNonTerminator.NewReSequence(reSequence.pos, sequences, toVarRef);
+        setScopeAndEmit(newReSequence);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reAssertion.assertion.accept(this);
+        BIROperand assertion = this.env.targetOperand;
+
+        BIRNonTerminator.NewReAssertion newReAssertion = new BIRNonTerminator.NewReAssertion(reAssertion.pos,
+                assertion, toVarRef);
+        setScopeAndEmit(newReAssertion);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reAtomQuantifier.atom.accept(this);
+        BIROperand atom = this.env.targetOperand;
+
+        reAtomQuantifier.quantifier.accept(this);
+        BIROperand quantifier = this.env.targetOperand;
+
+        BIRNonTerminator.NewReAtomQuantifier newReAtomQuantifier =
+                new BIRNonTerminator.NewReAtomQuantifier(reAtomQuantifier.pos,
+                toVarRef, atom, quantifier);
+        setScopeAndEmit(newReAtomQuantifier);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reQuantifier.quantifier.accept(this);
+        BIROperand quantifier = this.env.targetOperand;
+
+        reQuantifier.nonGreedyChar.accept(this);
+        BIROperand nonGreedyChar = this.env.targetOperand;
+
+        BIRNonTerminator.NewReQuantifier newReQuantifier =
+                new BIRNonTerminator.NewReQuantifier(reQuantifier.pos, toVarRef, quantifier, nonGreedyChar);
+        setScopeAndEmit(newReQuantifier);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reLiteralCharOrEscape) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reLiteralCharOrEscape.charOrEscape.accept(this);
+        BIROperand charOrEscape = this.env.targetOperand;
+
+        BIRNonTerminator.NewReLiteralCharOrEscape newReLiteralCharOrEscape =
+                new BIRNonTerminator.NewReLiteralCharOrEscape(reLiteralCharOrEscape.pos, toVarRef, charOrEscape);
+        setScopeAndEmit(newReLiteralCharOrEscape);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reCharacterClass.characterClassStart.accept(this);
+        BIROperand classStart = this.env.targetOperand;
+
+        reCharacterClass.negation.accept(this);
+        BIROperand negation = this.env.targetOperand;
+
+        reCharacterClass.charSet.accept(this);
+        BIROperand charSet = this.env.targetOperand;
+
+        reCharacterClass.characterClassEnd.accept(this);
+        BIROperand classEnd = this.env.targetOperand;
+
+        BIRNonTerminator.NewReCharacterClass newReCharacterClass =
+                new BIRNonTerminator.NewReCharacterClass(reCharacterClass.pos, toVarRef, classStart,
+                        negation, charSet, classEnd);
+        setScopeAndEmit(newReCharacterClass);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        BLangArrayLiteral atoms = new BLangArrayLiteral();
+        atoms.pos = reCharSet.pos;
+        atoms.setBType(symTable.arrayAnydataType);
+        atoms.exprs = new ArrayList<>();
+        atoms.exprs.addAll(reCharSet.charSetAtoms);
+
+        atoms.accept(this);
+        BIROperand charSetAtoms = this.env.targetOperand;
+
+        BIRNonTerminator.NewReCharSet newReCharSet = new BIRNonTerminator.NewReCharSet(reCharSet.pos, toVarRef,
+                charSetAtoms);
+        setScopeAndEmit(newReCharSet);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reCharSetRange.lhsCharSetAtom.accept(this);
+        BIROperand lhsCharSetAtom = this.env.targetOperand;
+
+        reCharSetRange.dash.accept(this);
+        BIROperand dash = this.env.targetOperand;
+
+        reCharSetRange.rhsCharSetAtom.accept(this);
+        BIROperand rhsCharSetAtom = this.env.targetOperand;
+
+        BIRNonTerminator.NewReCharSetRange newReCharSet = new BIRNonTerminator.NewReCharSetRange(reCharSetRange.pos,
+                toVarRef, lhsCharSetAtom, dash, rhsCharSetAtom);
+        setScopeAndEmit(newReCharSet);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reCapturingGroups.openParen.accept(this);
+        BIROperand openParen = this.env.targetOperand;
+
+        reCapturingGroups.flagExpr.accept(this);
+        BIROperand flagExpr = this.env.targetOperand;
+
+        reCapturingGroups.disjunction.accept(this);
+        BIROperand reDisjunction = this.env.targetOperand;
+
+        reCapturingGroups.closeParen.accept(this);
+        BIROperand closeParen = this.env.targetOperand;
+
+        BIRNonTerminator.NewReCapturingGroup newReCapturingGroup =
+                new BIRNonTerminator.NewReCapturingGroup(reCapturingGroups.pos, toVarRef, openParen, flagExpr,
+                        reDisjunction, closeParen);
+        setScopeAndEmit(newReCapturingGroup);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reFlagExpression.questionMark.accept(this);
+        BIROperand questionMark = this.env.targetOperand;
+
+        reFlagExpression.flagsOnOff.accept(this);
+        BIROperand flagsOnOff = this.env.targetOperand;
+
+        reFlagExpression.colon.accept(this);
+        BIROperand colon = this.env.targetOperand;
+
+        BIRNonTerminator.NewReFlagExpression newReFlagExpression =
+                new BIRNonTerminator.NewReFlagExpression(reFlagExpression.pos, toVarRef, questionMark, flagsOnOff,
+                        colon);
+        setScopeAndEmit(newReFlagExpression);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        BIROperand toVarRef = createVarRefOperand(symTable.anydataType);
+
+        reFlagsOnOff.flags.accept(this);
+        BIROperand flags = this.env.targetOperand;
+
+        BIRNonTerminator.NewReFlagOnOff newReFlagOnOff = new BIRNonTerminator.NewReFlagOnOff(reFlagsOnOff.pos,
+                toVarRef, flags);
+        setScopeAndEmit(newReFlagOnOff);
+        this.env.targetOperand = toVarRef;
+    }
+
+    private BIROperand createVarRefOperand(BType type) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION,
+                VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        return new BIROperand(tempVarDcl);
     }
 
     private void setScopeAndEmit(BIRNonTerminator instruction) {
