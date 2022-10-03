@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -56,7 +57,8 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
 
     public static final String COMMAND = "GENERATE_MODULE_FOR_CLIENT_DECL";
 
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4037", "BCE5303");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of(
+            DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL.diagnosticId(), "BCE5303");
 
     @Override
     public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
