@@ -99,7 +99,7 @@ public class RecordUtil {
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
             if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
-                requiredFields.put(entry.getKey(), entry.getValue());
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
             }
         }
 
@@ -143,7 +143,7 @@ public class RecordUtil {
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
             if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
-                requiredFields.put(entry.getKey(), entry.getValue());
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
             }
         }
 
@@ -157,7 +157,7 @@ public class RecordUtil {
                 fieldEntries.add(fieldEntry);
             }
 
-            insertText = String.join(",", fieldEntries);
+            insertText = String.join(", ", fieldEntries);
         }
         return insertText;
     }
