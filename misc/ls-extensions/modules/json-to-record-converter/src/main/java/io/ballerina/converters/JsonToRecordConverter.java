@@ -189,7 +189,7 @@ public class JsonToRecordConverter {
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
             FormattingOptions formattingOptions = FormattingOptions.builder()
                     .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordTypeDesc(forceFormatRecordTypeDesc).build()).build();
+                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } else {
             // Sets generated type definition code block
@@ -199,7 +199,7 @@ public class JsonToRecordConverter {
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
             FormattingOptions formattingOptions = FormattingOptions.builder()
                     .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordTypeDesc(forceFormatRecordTypeDesc).build()).build();
+                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         }
 

@@ -206,7 +206,7 @@ public class JsonToRecordMapper {
         try {
             FormattingOptions formattingOptions = FormattingOptions.builder()
                     .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordTypeDesc(forceFormatRecordTypeDesc).build()).build();
+                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } catch (FormatterException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
