@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
+import io.ballerina.projects.exceptions.UnsupportedPathException;
 import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.TransactionImportValidator;
@@ -57,8 +58,10 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +81,7 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
+
     // TODO This constant should not be here
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
@@ -172,7 +176,7 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
+                !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
@@ -318,7 +322,7 @@ class DocumentContext {
                     Path idlPath;
                     try {
                         idlPath = getIDLPath(moduleClientDeclarationNode);
-                    } catch (IOException e) {
+                    } catch (IOException | UnsupportedPathException e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         Location location = moduleClientDeclarationNode.location();
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
@@ -339,7 +343,7 @@ class DocumentContext {
                     } catch (Exception e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
                         Location location = moduleClientDeclarationNode.location();
-                        String message = "unexpected exception thrown from plugin class: " 
+                        String message = "unexpected exception thrown from plugin class: "
                                 + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
                         pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
@@ -404,7 +408,7 @@ class DocumentContext {
                     Path idlPath;
                     try {
                         idlPath = getIDLPath(clientDeclarationNode);
-                    } catch (IOException e) {
+                    } catch (IOException | UnsupportedPathException e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         Location location = clientDeclarationNode.location();
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
@@ -462,10 +466,11 @@ class DocumentContext {
                     errorCode.diagnosticId(), message, DiagnosticSeverity.ERROR);
             return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         }
-      
+
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
-            URL url = new URL(getUri(clientNode));
+            String uri = getUri(clientNode);
+            URL url = getUrl(uri);
             String extension = FileNameUtils.getExtension(url.getFile());
             String fileName = "idl-spec-file" + System.currentTimeMillis();
             if (!"".equals(extension)) {
@@ -485,6 +490,35 @@ class DocumentContext {
                 }
             }
             return resourcePath;
+        }
+
+        private URL getUrl(String uri) throws MalformedURLException {
+            try {
+                URL url = new URL(uri);
+                if (url.getProtocol().equals("file")) {
+                    throw new UnsupportedPathException("absolute paths are not supported");
+                }
+                return url;
+            } catch (MalformedURLException e) {
+                Path path = Paths.get(uri);
+                if (!path.isAbsolute()) {
+                    Path projectDir = this.currentPkg.project().sourceRoot();
+                    ModuleName moduleName = this.currentModuleDesc.name();
+                    if (moduleName.isDefaultModuleName()) {
+                        path = projectDir.resolve(uri);
+                    } else {
+                        path = projectDir.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart())
+                                .resolve(uri);
+                    }
+                    File file = path.toFile();
+                    if (file.exists()) {
+                        return file.toURI().toURL();
+                    }
+                    throw e;
+                } else {
+                    throw new UnsupportedPathException("absolute paths are not supported");
+                }
+            }
         }
 
         private String getUri(Node clientNode) {
