@@ -422,7 +422,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangSimpleVariable pathParamType : funcNode.resourcePathType.memberTypeNodes) {
             symResolver.resolveTypeNode(pathParamType.typeNode, data.env);
             if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                dlog.error(pathParamType.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
                         pathParamType.getBType());
             }
         }
