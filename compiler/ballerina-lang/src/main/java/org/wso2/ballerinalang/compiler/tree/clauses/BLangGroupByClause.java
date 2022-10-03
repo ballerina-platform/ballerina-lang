@@ -18,10 +18,8 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.GroupByClauseNode;
-import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -33,12 +31,12 @@ import java.util.StringJoiner;
 /**
  * Implementation of "group by" clause statement.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
-public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
+public class BLangGroupByClause extends BLangGroupingKey implements GroupByClauseNode {
 
     // BLangNodes
-    public List<GroupingKeyNode> groupingKeyList = new ArrayList<>();
+    public List<BLangGroupingKey> groupingKeyList = new ArrayList<>();
 
     // Semantic Data
     public SymbolEnv env;
@@ -47,12 +45,12 @@ public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
     }
 
     @Override
-    public void addGroupingKey(GroupingKeyNode groupingKey) {
+    public void addGroupingKey(BLangGroupingKey groupingKey) {
         groupingKeyList.add(groupingKey);
     }
 
     @Override
-    public List<GroupingKeyNode> getGroupingKeyList() {
+    public List<BLangGroupingKey> getGroupingKeyList() {
         return groupingKeyList;
     }
 
@@ -79,7 +77,7 @@ public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
     @Override
     public String toString() {
         StringJoiner declarations = new StringJoiner(", ");
-        for (GroupingKeyNode groupingKey : groupingKeyList) {
+        for (BLangGroupingKey groupingKey : groupingKeyList) {
             declarations.add(groupingKey.toString());
         }
         return "group by " + declarations.toString();

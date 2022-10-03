@@ -19,16 +19,17 @@
 package org.ballerinalang.model.clauses;
 
 import org.ballerinalang.model.tree.Node;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 
 import java.util.List;
 
 /**
  * The interface with the APIs to implement the "group by" clause.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public interface GroupByClauseNode extends Node {
-    void addGroupingKey(GroupingKeyNode groupingKey);
+    void addGroupingKey(BLangGroupingKey groupingKey);
 
-    List<GroupingKeyNode> getGroupingKeyList();
+    List<BLangGroupingKey> getGroupingKeyList();
 }

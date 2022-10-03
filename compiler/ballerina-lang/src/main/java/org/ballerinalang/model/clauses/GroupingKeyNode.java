@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.Node;
 /**
  * The interface with the APIs to implement the variable definition in "group by" clause.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public interface GroupingKeyNode extends Node {
     void setGroupingKey(Node groupingKey);

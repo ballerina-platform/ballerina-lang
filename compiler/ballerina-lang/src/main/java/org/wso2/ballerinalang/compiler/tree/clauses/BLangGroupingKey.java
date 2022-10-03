@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 /**
  * Implementation of grouping key specified in "group by" clause statement.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class BLangGroupingKey extends BLangNode implements GroupingKeyNode {
 

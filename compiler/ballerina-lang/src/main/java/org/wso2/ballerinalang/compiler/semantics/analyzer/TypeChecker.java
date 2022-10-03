@@ -21,7 +21,6 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -102,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -6491,12 +6491,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
         groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
-        for (GroupingKeyNode groupingKey : groupByClause.getGroupingKeyList()) {
-            BLangNode groupingKeyNode = (BLangNode) groupingKey.getGroupingKey();
-            if (groupingKeyNode.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                checkExpr((BLangSimpleVarRef) groupingKeyNode, groupByClause.env, data);
+        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            if (groupingKey.variableRef != null) {
+                checkExpr(groupingKey.variableRef, groupByClause.env, data);
             } else {
-                semanticAnalyzer.analyzeNode(groupingKeyNode, groupByClause.env,
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
                         data.commonAnalyzerData);
             }
         }

@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -903,8 +902,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangGroupByClause groupByClause) {
         SymbolEnv orderByEnv = groupByClause.env;
-        for (GroupingKeyNode groupingKeyNode : groupByClause.groupingKeyList) {
-            analyzeNode((BLangNode) groupingKeyNode, orderByEnv);
+        for (BLangGroupingKey groupingKeyNode : groupByClause.groupingKeyList) {
+            analyzeNode(groupingKeyNode, orderByEnv);
         }
     }
 
