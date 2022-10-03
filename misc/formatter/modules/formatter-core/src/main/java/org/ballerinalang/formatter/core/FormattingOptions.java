@@ -147,7 +147,7 @@ public class FormattingOptions {
     /**
      * A builder for the {@code FormattingOptions}.
      *
-     * @since 2.0.0
+     * @since 2201.2.2
      */
     public static class FormattingOptionsBuilder {
         private int tabSize = 4;
@@ -156,28 +156,29 @@ public class FormattingOptions {
         private boolean lineWrapping = false;
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
 
-        public FormattingOptions.FormattingOptionsBuilder setTabSize(int value) {
-            tabSize = value;
+        public FormattingOptions.FormattingOptionsBuilder setTabSize(int tabSize) {
+            this.tabSize = tabSize;
             return this;
         }
 
-        public FormattingOptions.FormattingOptionsBuilder setWSCharacter(String value) {
-            wsCharacter = value;
+        public FormattingOptions.FormattingOptionsBuilder setWSCharacter(String wsCharacter) {
+            this.wsCharacter = wsCharacter;
             return this;
         }
 
-        public FormattingOptions.FormattingOptionsBuilder setColumnLimit(int value) {
-            columnLimit = value;
+        public FormattingOptions.FormattingOptionsBuilder setColumnLimit(int columnLimit) {
+            this.columnLimit = columnLimit;
             return this;
         }
 
-        public FormattingOptions.FormattingOptionsBuilder setLineWrapping(boolean value) {
-            lineWrapping = value;
+        public FormattingOptions.FormattingOptionsBuilder setLineWrapping(boolean lineWrapping) {
+            this.lineWrapping = lineWrapping;
             return this;
         }
 
-        public FormattingOptions.FormattingOptionsBuilder setForceFormattingOptions(ForceFormattingOptions value) {
-            forceFormattingOptions = value;
+        public FormattingOptions.FormattingOptionsBuilder setForceFormattingOptions(
+                ForceFormattingOptions forceFormattingOptions) {
+            this.forceFormattingOptions = forceFormattingOptions;
             return this;
         }
 

@@ -4428,11 +4428,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 NodeList<Node> objectConstructorMembers = objectConstructor.members();
                 return shouldExpandObjectMembers(objectConstructorMembers);
             case RECORD_TYPE_DESC:
-                RecordTypeDescriptorNode recordTypeDesc = (RecordTypeDescriptorNode) node;
                 if (options.getForceFormattingOptions().getForceFormatRecordTypeDesc()) {
                     return true;
                 }
 
+                RecordTypeDescriptorNode recordTypeDesc = (RecordTypeDescriptorNode) node;
                 if (recordTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
                     return true;
                 }
