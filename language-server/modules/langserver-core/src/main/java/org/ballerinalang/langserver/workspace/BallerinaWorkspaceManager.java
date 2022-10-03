@@ -156,6 +156,22 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     /**
+     * Loads the project from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    @Override
+    public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException {
+        Optional<Project> project = project(ProjectPaths.packageRoot(filePath));
+        if (project.isPresent()) {
+            return project.get();
+        }
+
+        return createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+    }
+
+    /**
      * Returns module from the path provided.
      *
      * @param filePath file path of the document
