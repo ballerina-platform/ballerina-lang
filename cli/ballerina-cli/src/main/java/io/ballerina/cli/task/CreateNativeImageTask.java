@@ -95,7 +95,7 @@ public class CreateNativeImageTask implements Task {
             Process process = builder.start();
 
             if (process.waitFor() != 0) {
-                out.println("\n\t GraalVM image generation failed.");
+                throw createLauncherException("unable to create native image");
             } else {
                 out.println("\n" + "GraalVM image generated");
                 out.println("\t" + nativeDirectoryPath + File.separator + nativeImageName);
