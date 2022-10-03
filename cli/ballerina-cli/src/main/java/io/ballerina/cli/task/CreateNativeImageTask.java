@@ -20,7 +20,6 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 
@@ -62,35 +61,23 @@ public class CreateNativeImageTask implements Task {
 
         Path nativeDirectoryPath;
         String nativeImageName;
-        Target target;
-
-        try {
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.targetDir());
-            } else {
-                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
-                target.setOutputPath(getExecutablePath(project));
-            }
-        } catch (IOException e) {
-            throw createLauncherException("unable to resolve target path : " + e.getMessage());
-        } catch (ProjectException e) {
-            throw createLauncherException("unable to create executable : " + e.getMessage());
-        }
-
         Path executablePath;
-        try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createLauncherException("unable to resolve executable path : " + e.getMessage());
-        }
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             Path sourceRootParent = Optional.of(project.sourceRoot().toAbsolutePath().getParent()).orElseThrow();
             nativeDirectoryPath = sourceRootParent.resolve("native");
             nativeImageName = Optional.of(sourceRootParent.getFileName()).orElseThrow().toString();
+            executablePath = getExecutablePath(project);
         } else {
-            nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
-            nativeImageName = project.currentPackage().packageName().toString();
+            Target target;
+            try {
+                target = new Target(project.targetDir());
+                nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
+                nativeImageName = project.currentPackage().packageName().toString();
+                executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+            } catch (IOException e) {
+                throw createLauncherException("unable to resolve target path : " + e.getMessage());
+            }
         }
 
         try {
