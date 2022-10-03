@@ -2429,7 +2429,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
-                !varNode.flagSet.contains(Flag.FIELD) &&
+                (env.scope.owner.tag & SymTag.TUPLE_TYPE) != SymTag.TUPLE_TYPE &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
             // check if the variable is defined as a 'never' type or equivalent to 'never'
             // (except inside a record type or iterative use (followed by in) in typed binding pattern)
