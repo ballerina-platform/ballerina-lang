@@ -1269,8 +1269,8 @@ public class TypedescriptorTest {
 
     private void assertQualifiers(List<Qualifier> qualifiers, List<Qualifier> expectedQualifiers) {
         assertEquals(qualifiers.size(), expectedQualifiers.size());
-        for (Qualifier qualifier : qualifiers) {
-            assertTrue(expectedQualifiers.contains(qualifier));
+        for (Qualifier expectedQualifier : expectedQualifiers) {
+            assertTrue(qualifiers.contains(expectedQualifier));
         }
     }
 
