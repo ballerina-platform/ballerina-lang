@@ -11061,7 +11061,12 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         while (!isEndOfBacktickContent(nextToken.kind)) {
             STNode contentItem = parseTemplateItem();
-            items.add(contentItem);
+            if (contentItem.kind == SyntaxKind.SEMICOLON_TOKEN) {
+                items.add(STNodeFactory.createLiteralValueToken(SyntaxKind.TEMPLATE_STRING, "{",
+                        contentItem.leadingMinutiae(), contentItem.trailingMinutiae()));
+            } else {
+                items.add(contentItem);
+            }
             nextToken = peek();
         }
         return STNodeFactory.createNodeList(items);
