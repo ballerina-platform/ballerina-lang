@@ -128,12 +128,11 @@ function testTupleWithVar() {
     var [...g] = tuples:getTupleWithRestDescOnly();
     assertEquality(<[string...]> ["hello", "world"], g);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/28326
-    //var [...h] = tuples:getTupleWithMemberAndRestDesc();
-    //(int|string)[] i = h;
-    //[int, string...] j = h;
-    //assertEquality(<(int|string)[]> [1, "hello", "world"], i);
-    //assertEquality(<(int|string)[]> [1, "hello", "world"], j);
+    var [...h] = tuples:getTupleWithMemberAndRestDesc();
+    (int|string)[] i = h;
+    [int, string...] j = h;
+    assertEquality(<(int|string)[]> [1, "hello", "world"], i);
+    assertEquality(<(int|string)[]> [1, "hello", "world"], j);
 }
 
 function assertTrue(any|error actual) {

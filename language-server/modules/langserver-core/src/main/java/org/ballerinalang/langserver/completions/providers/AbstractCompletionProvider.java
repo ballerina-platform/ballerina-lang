@@ -91,6 +91,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -288,7 +289,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return completionItems;
         }
-        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
+        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text().toLowerCase((Locale.ENGLISH));
         context.currentDocImportsMap().forEach((importDeclarationNode, moduleSymbol) -> {
             List<Symbol> symbols = moduleSymbol.allSymbols();
             CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclarationNode);
@@ -299,7 +300,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem completionItem = lsCompletionItem.getCompletionItem();
                 String insertText = completionItem.getInsertText();
                 String label = completionItem.getLabel();
-                String moduleName = importDeclarationNode.prefix().isEmpty() ? moduleSymbol.id().moduleName()
+                String moduleName = importDeclarationNode.prefix().isEmpty()
+                        ? importDeclarationNode.moduleName().get(importDeclarationNode.moduleName().size() - 1).text()
                         : importDeclarationNode.prefix().get().prefix().text();
                 completionItem.setInsertText(moduleName + ":" + insertText);
                 completionItem.setLabel(moduleName + ":" + label);
@@ -606,7 +608,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });
-
+        
         return completionItems;
     }
 

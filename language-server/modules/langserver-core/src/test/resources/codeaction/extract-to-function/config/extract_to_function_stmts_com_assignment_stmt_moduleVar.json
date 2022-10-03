@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 4
+    },
+    "end": {
+      "line": 3,
+      "character": 19
+    }
+  },
+  "source": "extract_to_function_stmts_com_assignment_stmt_moduleVar.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
+            },
+            "end": {
+              "line": 4,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() {\n    globalVar +\u003d 1;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 19
+            }
+          },
+          "newText": "extracted();"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for compound assignment statement, checks when a compound assignment statement for a global variable is selected"
+}

@@ -54,27 +54,30 @@ public class CodeActionTests {
     void testCheckUsageCodeAction(final String file, final LinePosition cursorPos) throws IOException {
 
         final String expectedProvider = Constants.BCE_INVALID_CHECK + SLASH + Constants.CA_CHECK_USAGE;
-        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider);
+        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider, false);
     }
 
     @DataProvider
     public Object[] checkQNameDP() {
         return new Object[][]{
-                {"source/qname1.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS},
-                {"source/qname2.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS},
-                {"source/qname3.bal", LinePosition.from(2, 9), Constants.BCE_INTERVENING_WS},
-                {"source/qname4.bal", LinePosition.from(3, 4), Constants.BCE_INVALID_WS}
+                {"source/qname1.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname2.bal", LinePosition.from(2, 5), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname3.bal", LinePosition.from(2, 9), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname4.bal", LinePosition.from(3, 4), Constants.BCE_INVALID_WS, false},
+                {"source/qname5.bal", LinePosition.from(6, 9), Constants.BCE_INTERVENING_WS, false},
+                {"source/qname6.bal", LinePosition.from(4, 7), Constants.BCE_INTERVENING_WS, false},
+                {"source/qnameNegative1.bal", LinePosition.from(3, 9), Constants.BCE_INTERVENING_WS, true},
+                {"source/qnameNegative2.bal", LinePosition.from(9, 3), Constants.BCE_INTERVENING_WS, true},
         };
     }
 
     @Test(dataProvider = "checkQNameDP")
     void testQNameCodeAction(final String file, final LinePosition cursorPos,
-                             final String diagnosticCode) throws IOException {
+                             final String diagnosticCode, boolean negative) throws IOException {
 
         final String expectedProvider = diagnosticCode + SLASH + Constants.CA_QUALIFIED_IDENTIFIER;
-        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider);
+        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider, negative);
     }
-
 
     @DataProvider
     public Object[] floatingNumberDP() {
@@ -93,22 +96,27 @@ public class CodeActionTests {
                                               final String diagnosticCode) throws IOException {
 
         final String expectedProvider = diagnosticCode + SLASH + Constants.CA_FLOATING_POINT;
-        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider);
+        testSingleDiagnosticCodeAction(file, cursorPos, expectedProvider, false);
     }
 
     private void testSingleDiagnosticCodeAction(final String file, final LinePosition cursorPos,
-                                                final String expectedProvider) throws IOException {
+                                                final String expectedProvider, boolean negative) throws IOException {
 
         final Path filePath = CodeActionUtils.getProjectPath(file);
         final Project project = BCompileUtil.loadProject(file);
 
         final List<CodeActionInfo> codeActions = CodeActionUtils.getCodeActions(project, filePath, cursorPos);
-        Assert.assertTrue(codeActions.size() > 0, "Expect at least 1 code action");
+        Assert.assertTrue(codeActions.size() > 0 || negative, "Expect at least 1 code action");
 
         final Optional<CodeActionInfo> found = codeActions.stream()
                 .filter(info -> expectedProvider.equals(info.getProviderName()))
                 .findFirst();
-        Assert.assertTrue(found.isPresent(), "Code Action not found:" + expectedProvider);
+        if (negative) {
+            Assert.assertTrue(found.isEmpty(), "Code Action not expected:" + expectedProvider);
+            return;
+        } else {
+            Assert.assertTrue(found.isPresent(), "Code Action not found:" + expectedProvider);
+        }
 
         final List<DocumentEdit> actualEdits = CodeActionUtils.executeCodeAction(project, filePath, found.get());
         Assert.assertEquals(actualEdits.size(), 1, "Expected changes to n files");
