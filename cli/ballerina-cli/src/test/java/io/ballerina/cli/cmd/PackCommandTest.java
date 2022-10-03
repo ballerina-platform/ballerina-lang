@@ -308,7 +308,7 @@ public class PackCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(compilerPluginPath.toString());
     }
 
-    @Test(description = "Pack a non template package with a compiler plugin dependency",
+    @Test(enabled = false, description = "Pack a non template package with a compiler plugin dependency",
             groups = {"packWithCompilerPlugin"})
     public void testPackNonTemplatePackageWithACompilerPackageDependency() throws IOException {
 
@@ -333,7 +333,7 @@ public class PackCommandTest extends BaseCommandTest {
                 "returns error? {\n}"));
     }
 
-    @Test(description = "Pack a template package with a compiler plugin dependency",
+    @Test(enabled = false, description = "Pack a template package with a compiler plugin dependency",
             groups = {"packWithCompilerPlugin"})
     public void testPackTemplatePackageWithACompilerPackageDependency() throws IOException {
 
