@@ -685,7 +685,10 @@ public class SymbolFactory {
                 new BallerinaClientDeclSymbol.ClientDeclSymbolBuilder(symbol.getName().getValue(), symbol, context);
 
         for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
+            BallerinaAnnotationAttachmentSymbol annotAttachment =
+                    createAnnotAttachment((BAnnotationAttachmentSymbol) annot);
+            symbolBuilder.withAnnotationAttachment(annotAttachment);
+            symbolBuilder.withAnnotation(annotAttachment.typeDescriptor());
         }
 
         return symbolBuilder.build();
