@@ -39,6 +39,7 @@ public class Names {
     public static final String STRING_XML_PI = "ProcessingInstruction";
     public static final String STRING_XML_COMMENT = "Comment";
     public static final String STRING_XML_TEXT = "Text";
+    public static final String STRING_REGEXP = "RegExp";
 
     public static final Name EMPTY = new Name("");
     public static final Name DOT = new Name(".");
@@ -74,6 +75,7 @@ public class Names {
     public static final Name XML = new Name("xml");
     public static final Name JSON = new Name("json");
     public static final Name ANYDATA = new Name("anydata");
+    public static final Name REGEXP = new Name("regexp");
     public static final Name UTILS_PACKAGE = new Name("utils");
     public static final Name BUILTIN_ORG = new Name("ballerina");
     public static final Name RUNTIME_PACKAGE = new Name("runtime");

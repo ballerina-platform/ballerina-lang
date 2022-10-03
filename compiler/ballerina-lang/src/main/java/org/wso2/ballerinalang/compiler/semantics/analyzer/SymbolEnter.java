@@ -190,6 +190,7 @@ import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.QUERY;
+import static org.ballerinalang.model.elements.PackageID.REGEXP;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -3693,6 +3694,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langTransactionModuleSymbol = packageSymbol;
             return;
         }
+        if (langLib.equals(REGEXP)) {
+            symTable.langRegexpModuleSymbol = packageSymbol;
+            return;
+        }
     }
 
     public boolean isValidAnnotationType(BType type) {
@@ -4802,6 +4807,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
+            BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
+            BInvokableSymbol invokableSymbol = (BInvokableSymbol) varSymbol;
+            invokableSymbol.params = invokableTypeSymbol.params;
+            invokableSymbol.restParam = invokableTypeSymbol.restParam;
+            invokableSymbol.retType = invokableTypeSymbol.returnType;
             if (varName.value.startsWith(WORKER_LAMBDA_VAR_PREFIX)) {
                 varSymbol.flags |= Flags.WORKER;
             }

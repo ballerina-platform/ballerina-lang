@@ -117,6 +117,18 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -124,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -2314,5 +2327,108 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isService = source.isService;
 
         source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral source) {
+        BLangRegExpTemplateLiteral clone = new BLangRegExpTemplateLiteral();
+        source.cloneRef = clone;
+        clone.reDisjunction = clone(source.reDisjunction);
+    }
+
+    @Override
+    public void visit(BLangReSequence source) {
+        BLangReSequence clone = new BLangReSequence();
+        source.cloneRef = clone;
+        clone.termList = cloneList(source.termList);
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier source) {
+        BLangReAtomQuantifier clone = new BLangReAtomQuantifier();
+        source.cloneRef = clone;
+        clone.atom = clone(source.atom);
+        clone.quantifier = clone(source.quantifier);
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape source) {
+        BLangReAtomCharOrEscape clone = new BLangReAtomCharOrEscape();
+        source.cloneRef = clone;
+        clone.charOrEscape = clone(source.charOrEscape);
+    }
+
+    @Override
+    public void visit(BLangReQuantifier source) {
+        BLangReQuantifier clone = new BLangReQuantifier();
+        source.cloneRef = clone;
+        clone.quantifier = clone(source.quantifier);
+        clone.nonGreedyChar = clone(source.nonGreedyChar);
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass source) {
+        BLangReCharacterClass clone = new BLangReCharacterClass();
+        source.cloneRef = clone;
+        clone.characterClassStart = clone(source.characterClassStart);
+        clone.negation = clone(source.negation);
+        clone.charSet = clone(source.charSet);
+        clone.characterClassEnd = clone(source.characterClassEnd);
+    }
+
+    @Override
+    public void visit(BLangReCharSet source) {
+        BLangReCharSet clone = new BLangReCharSet();
+        source.cloneRef = clone;
+        clone.charSetAtoms = cloneList(source.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange source) {
+        BLangReCharSetRange clone = new BLangReCharSetRange();
+        source.cloneRef = clone;
+        clone.lhsCharSetAtom = clone(source.lhsCharSetAtom);
+        clone.dash = clone(source.dash);
+        clone.rhsCharSetAtom = clone(source.rhsCharSetAtom);
+    }
+
+    @Override
+    public void visit(BLangReAssertion source) {
+        BLangReAssertion clone = new BLangReAssertion();
+        source.cloneRef = clone;
+        clone.assertion = clone(source.assertion);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups source) {
+        BLangReCapturingGroups clone = new BLangReCapturingGroups();
+        source.cloneRef = clone;
+        clone.openParen = clone(source.openParen);
+        clone.flagExpr = clone(source.flagExpr);
+        clone.disjunction = clone(source.disjunction);
+        clone.closeParen = clone(source.closeParen);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction source) {
+        BLangReDisjunction clone = new BLangReDisjunction();
+        source.cloneRef = clone;
+        clone.sequenceList = cloneList(source.sequenceList);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff source) {
+        BLangReFlagsOnOff clone = new BLangReFlagsOnOff();
+        source.cloneRef = clone;
+        clone.flags = clone(source.flags);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression source) {
+        BLangReFlagExpression clone = new BLangReFlagExpression();
+        source.cloneRef = clone;
+        clone.questionMark = clone(source.questionMark);
+        clone.flagsOnOff = clone(source.flagsOnOff);
+        clone.colon = clone(source.colon);
     }
 }
