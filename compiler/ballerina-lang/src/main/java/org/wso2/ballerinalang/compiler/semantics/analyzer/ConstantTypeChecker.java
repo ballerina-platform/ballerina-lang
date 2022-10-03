@@ -17,6 +17,7 @@ import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
 import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.*;
@@ -133,6 +134,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return data.resultType;
     }
 
+    @Override
+    public void analyzeNode(BLangNode node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangPackage node, AnalyzerData data) {
+
+    }
 
     @Override
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
@@ -1071,451 +1081,749 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return opSymbol;
     }
 
-    public BType getValidType(BType expType, BType actualType, AnalyzerData data) {
-        switch (expType.tag) {
-            case TypeTags.INT:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.BYTE:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.NIL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.FINITE:
-            case TypeTags.ANY:
-                if (actualType.tag == TypeTags.UNION) {
-                    for (BType memberType : ((BUnionType) actualType).getMemberTypes()) {
-                        if (types.isAssignable(memberType, expType)) {
-                            return memberType;
-                        }
-                    }
-                } else {
-                    if (types.isAssignable(actualType, expType)) {
-                        return actualType;
-                    }
-                }
-                return symTable.semanticError;
-            case TypeTags.UNION:
-                return getValidType((BUnionType) expType, actualType, data);
-            case TypeTags.RECORD:
-                actualType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(actualType));
-                if (actualType.tag != TypeTags.RECORD) {
-                    return symTable.semanticError;
-                }
-                return getValidType((BRecordType) expType, actualType, data);
-            case TypeTags.MAP:
-                actualType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(actualType));
-                if (actualType.tag != TypeTags.RECORD) {
-                    return symTable.semanticError;
-                }
-                return getValidType((BMapType) expType, actualType, data);
-            case TypeTags.ARRAY:
-                return getValidType((BArrayType) expType, actualType, data);
-            case TypeTags.TUPLE:
-                return getValidType((BTupleType) expType, actualType, data);
-            default:
-                return symTable.semanticError;
-        }
-    }
+    public static class GetConstantValidType implements TypeVisitor {
 
-    private BType getValidType(BUnionType unionType, BType actualType, AnalyzerData data) {
-        List<BType> validTypeList = new ArrayList<>();
-        DiagnosticCode prevDiagCode = data.diagCode;
-        for (BType memberType : unionType.getMemberTypes()) {
-            BType resultType = getValidType(memberType, actualType, data);
-            if (resultType != symTable.semanticError) {
-                validTypeList.add(resultType);
-                prevDiagCode = data.diagCode;
-            } else {
-                data.diagCode = prevDiagCode;
-            }
+        private static final CompilerContext.Key<ConstantTypeChecker.GetConstantValidType> GET_CONSTANT_VALID_TYPE_KEY =
+                new CompilerContext.Key<>();
+
+        private final SymbolTable symTable;
+        private final Types types;
+        private final ConstantTypeChecker constantTypeChecker;
+        private final Names names;
+        private final ConstantTypeChecker.FillMembers fillMembers;
+
+        private AnalyzerData data;
+
+        public GetConstantValidType(CompilerContext context) {
+            context.put(GET_CONSTANT_VALID_TYPE_KEY, this);
+
+            this.symTable = SymbolTable.getInstance(context);
+            this.types = Types.getInstance(context);
+            this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
+            this.names = Names.getInstance(context);
+            this.fillMembers = FillMembers.getInstance(context);
         }
 
-        if (validTypeList.isEmpty()) {
-            return symTable.semanticError;
-        } else if (validTypeList.size() == 1) {
-            return validTypeList.get(0);
-        }
-        BType selectedType = null;
-        for (BType type : validTypeList) {
-            if (type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1) {
-                switch (((BFiniteType) type).getValueSpace().iterator().next().getBType().tag) {
-                    case TypeTags.INT:
-                        return type;
-                    case TypeTags.FLOAT:
-                        selectedType = type;
-                        break;
-                    case TypeTags.DECIMAL:
-                        if (selectedType == null) {
-                            selectedType = type;
-                        } else if (selectedType.tag == TypeTags.DECIMAL) {
-                            data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
-                            return validTypeList.get(0);
-                        }
-                        break;
-                    default:
-                        data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
-                        return validTypeList.get(0);
-                }
-                continue;
+        public static ConstantTypeChecker.GetConstantValidType getInstance(CompilerContext context) {
+            ConstantTypeChecker.GetConstantValidType getConstantValidType = context.get(GET_CONSTANT_VALID_TYPE_KEY);
+            if (getConstantValidType == null) {
+                getConstantValidType = new ConstantTypeChecker.GetConstantValidType(context);
             }
-            data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
-            return validTypeList.get(0);
-        }
-        return selectedType;
-    }
 
-    private BType getValidType(BRecordType type, BType actualType, AnalyzerData data) {
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(actualType.tsymbol.pkgID, actualType.tsymbol.pos,
-                VIRTUAL, data);
-        LinkedHashMap<String, BField> validatedFields = new LinkedHashMap<>();
-        BType refType = Types.getReferredType(actualType);
-        if (refType.tag != TypeTags.RECORD) {
-            return symTable.semanticError;
+            return getConstantValidType;
         }
-        LinkedHashMap<String, BField> actualFields = new LinkedHashMap<>();
-        for (String key : ((BRecordType) refType).fields.keySet()) {
-            actualFields.put(key, ((BRecordType) refType).fields.get(key));
-        }
-        LinkedHashMap<String, BField> targetFields = type.fields;
-        for (String key : targetFields.keySet()) {
-            if (!actualFields.containsKey(key)) {
-                return symTable.semanticError;
-            }
-            BType validFieldType = getValidType(targetFields.get(key).type, actualFields.get(key).type, data);
-            if (validFieldType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            Name fieldName = names.fromString(key);
-            Set<Flag> flags = new HashSet<>();
-            flags.add(Flag.REQUIRED);
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
-                    recordSymbol, symTable.builtinPos, VIRTUAL);
-            validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
-            actualFields.remove(key);
-        }
-        BType restFieldType = type.restFieldType;
-        if (actualFields.size() != 0 && restFieldType == null) {
-            return symTable.semanticError;
-        }
-        for (String key : actualFields.keySet()) {
-            BType validFieldType = getValidType(restFieldType, actualFields.get(key).type, data);
-            if (validFieldType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            Name fieldName = names.fromString(key);
-            Set<Flag> flags = new HashSet<>();
-            flags.add(Flag.REQUIRED);
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
-                    recordSymbol, symTable.builtinPos, VIRTUAL);
-            validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
-        }
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.fields = validatedFields;
-        recordSymbol.type = recordType;
-        recordType.tsymbol = recordSymbol;
-        recordType.sealed = true;
-        return recordType;
-    }
 
-    private BType getValidType(BMapType type, BType actualType, AnalyzerData data) {
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(actualType.tsymbol.pkgID, actualType.tsymbol.pos,
-                VIRTUAL, data);
-        BType inferredType = Types.getReferredType(actualType);
-        if (inferredType.tag != TypeTags.RECORD) {
-            return symTable.semanticError;
-        }
-        BType constraintType = type.constraint;
-        LinkedHashMap<String, BField> fields = ((BRecordType) inferredType).fields;
-        LinkedHashMap<String, BField> validatedFields = new LinkedHashMap<>();
-        for (String key : fields.keySet()) {
-            BField field = fields.get(key);
-            BType validFieldType = getValidType(constraintType, field.type, data);
-            if (validFieldType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            Name fieldName = names.fromString(key);
-            Set<Flag> flags = new HashSet<>();
-            flags.add(Flag.REQUIRED);
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
-                    recordSymbol, symTable.builtinPos, VIRTUAL);
-            validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
-        }
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.fields = validatedFields;
-        recordSymbol.type = recordType;
-        recordType.tsymbol = recordSymbol;
-        recordType.sealed = true;
-        return recordType;
-    }
+        public BType getValidType(BType type, BType expType, AnalyzerData data) {
+            BType preExpType = data.expType;
+            data.expType = expType;
+            type.accept(this);
+            data.expType = preExpType;
 
-    private BType getValidType(BArrayType arrayType, BType actualType, AnalyzerData data) {
-        BType exprType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(actualType));
-        if (exprType.tag != TypeTags.TUPLE) {
-            return symTable.semanticError;
+            return data.resultType;
         }
-        BTupleType exprTupleType = (BTupleType) exprType;
-        List<BType> tupleTypes = exprTupleType.tupleTypes;
-        if (arrayType.state == BArrayState.CLOSED && arrayType.size < tupleTypes.size()) {
-            return symTable.semanticError;
-        }
-        BType eType = arrayType.eType;
-        List<BType> validatedMemberTypes = new ArrayList<>(tupleTypes.size());
-        for (BType type : tupleTypes) {
-            BType validatedMemberType = getValidType(eType, type, data);
-            if (validatedMemberType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            validatedMemberTypes.add(validatedMemberType);
-        }
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
-                data.env.scope.owner, null, SOURCE);
-        BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, validatedMemberTypes);
-        tupleTypeSymbol.type = resultTupleType;
-        if (arrayType.state == BArrayState.CLOSED && arrayType.size > tupleTypes.size()) {
-            fillMembers(resultTupleType, arrayType, data);
-        }
-        return resultTupleType;
-    }
 
-    private BType getValidType(BTupleType tupleType, BType actualType, AnalyzerData data) {
-        BType exprType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(actualType));
-        if (exprType.tag != TypeTags.TUPLE) {
-            return symTable.semanticError;
-        }
-        List<BType> actualTupleTypes = ((BTupleType) exprType).tupleTypes;
-        List<BType> expTupleTypes = tupleType.tupleTypes;
+        @Override
+        public void visit(BAnnotationType bAnnotationType) {
 
-        int restTypeCount = actualTupleTypes.size() - expTupleTypes.size();
-        List<BType> validatedMemberTypes = new ArrayList<>();
-        int memberCount = expTupleTypes.size();
-        if (restTypeCount < 0) {
-            memberCount += restTypeCount;
         }
-        for (int i = 0; i < memberCount; i++) {
-            BType validatedMemberType = getValidType(expTupleTypes.get(i), actualTupleTypes.get(i), data);
-            if (validatedMemberType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            validatedMemberTypes.add(validatedMemberType);
-        }
-        BType restType = tupleType.restType;
-        if (restType == null & restTypeCount > 0) {
-            return symTable.semanticError;
-        }
-        for (int i = expTupleTypes.size(); i < actualTupleTypes.size(); i++) {
-            BType validatedMemberType = getValidType(restType, actualTupleTypes.get(i), data);
-            if (validatedMemberType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            validatedMemberTypes.add(validatedMemberType);
-        }
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
-                data.env.scope.owner, null, SOURCE);
-        BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, validatedMemberTypes);
-        tupleTypeSymbol.type = resultTupleType;
-        if (restTypeCount < 0) {
-            fillMembers(resultTupleType, tupleType, data);
-        }
-        return resultTupleType;
-    }
 
-    private FillMemberType getFillMemberType(BType expType, AnalyzerData data) {
-        BType refType = Types.getReferredType(expType);
-        int precedence = 0;
-        BType fillMemberType;
-        switch (refType.tag) {
-            case TypeTags.NIL:
-                precedence = 2;
-                return new FillMemberType(precedence,  symTable.nilType);
-            case TypeTags.BOOLEAN:
-                precedence = 3;
-                return new FillMemberType(precedence, symTable.falseType);
-            case TypeTags.INT:
-                precedence = 4;
-                return new FillMemberType(precedence, getFiniteType(0l, data.constantSymbol, null, symTable.intType));
-            case TypeTags.FLOAT:
-                precedence = 5;
-                return new FillMemberType(precedence, getFiniteType(0.0d, data.constantSymbol, null, symTable.floatType));
-            case TypeTags.DECIMAL:
-                precedence = 6;
-                return new FillMemberType(precedence, getFiniteType(new BigDecimal(0), data.constantSymbol, null, symTable.decimalType));
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-                precedence = 7;
-                return new FillMemberType(precedence, getFiniteType("", data.constantSymbol, null, symTable.stringType));
-            case TypeTags.ARRAY:
-                precedence = 8;
-                return new FillMemberType(precedence, fillMembers((BArrayType) refType, data));
-            case TypeTags.TUPLE:
-                precedence = 9;
-                return new FillMemberType(precedence, fillMembers((BTupleType) refType, data));
-            case TypeTags.MAP:
-                precedence = 10;
-                return new FillMemberType(precedence, symTable.mapType);
-            case TypeTags.RECORD:
-                precedence = 11;
-                return new FillMemberType(precedence, fillMembers((BRecordType) refType, data));
-            case TypeTags.INTERSECTION:
-                precedence = 12;
-                return new FillMemberType(precedence, ((BIntersectionType) refType).getEffectiveType());
-            case TypeTags.TABLE:
-                precedence = 13;
-                return new FillMemberType(precedence, symTable.tableType);
-            case TypeTags.FINITE:
-                precedence = 14;
-                Set<BLangExpression> valueSpace = ((BFiniteType) refType).getValueSpace();
-                LinkedHashSet<BType> typeList = new LinkedHashSet<>(valueSpace.size());
-                for (BLangExpression expr : valueSpace) {
-                    typeList.add(expr.getBType());
-                }
-                fillMemberType = selectFillMemberType(typeList, data);
-                return new FillMemberType(precedence, fillMemberType);
-            case TypeTags.UNION:
-                precedence = 15;
-                fillMemberType = selectFillMemberType(((BUnionType) expType).getMemberTypes(), data);
-                return new FillMemberType(precedence, fillMemberType);
-            case TypeTags.ANY:
-                precedence = 16;
-                return new FillMemberType(precedence,  symTable.nilType);
-            case TypeTags.ANYDATA:
-                precedence = 17;
-                return new FillMemberType(precedence,  symTable.nilType);
-            case TypeTags.BYTE:
-                precedence = 18;
-                return new FillMemberType(precedence, getFiniteType(0l, data.constantSymbol, null, symTable.intType));
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-                precedence = 19;
-                return new FillMemberType(precedence, getFiniteType(0l, data.constantSymbol, null, symTable.intType));
-            case TypeTags.JSON:
-                precedence = 20;
-                return new FillMemberType(precedence,  symTable.nilType);
-            default:
-                return new FillMemberType(precedence, symTable.semanticError);
-        }
-    }
-
-    private void fillMembers(BTupleType type, BType expType, AnalyzerData data) {
-        BType refType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(expType));
-        List<BType> tupleTypes = type.getTupleTypes();
-        int tupleMemberCount = tupleTypes.size();
-        if (refType.tag == TypeTags.ARRAY) {
-            BArrayType arrayType = (BArrayType) expType;
-            int noOfFillMembers = arrayType.size - tupleMemberCount;
-            BType fillMemberType = getFillMemberType(arrayType.eType, data).type;
-            if (fillMemberType == symTable.semanticError) {
+        @Override
+        public void visit(BArrayType bArrayType) {
+            BType exprType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(data.expType));
+            if (exprType.tag != TypeTags.TUPLE) {
+                data.resultType = symTable.semanticError;
                 return;
             }
-            for (int i = 0; i < noOfFillMembers; i++) {
+            BTupleType exprTupleType = (BTupleType) exprType;
+            List<BType> tupleTypes = exprTupleType.tupleTypes;
+            if (bArrayType.state == BArrayState.CLOSED && bArrayType.size < tupleTypes.size()) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            BType eType = bArrayType.eType;
+            List<BType> validatedMemberTypes = new ArrayList<>(tupleTypes.size());
+            for (BType type : tupleTypes) {
+                BType validatedMemberType = getValidType(eType, type, data);
+                if (validatedMemberType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                validatedMemberTypes.add(validatedMemberType);
+            }
+            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, null, SOURCE);
+            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, validatedMemberTypes);
+            tupleTypeSymbol.type = resultTupleType;
+            if (bArrayType.state == BArrayState.CLOSED && bArrayType.size > tupleTypes.size()) {
+                fillMembers.addFillMembers(resultTupleType, bArrayType, data);
+            }
+            data.resultType = resultTupleType;
+        }
+
+        @Override
+        public void visit(BBuiltInRefType bBuiltInRefType) {
+
+        }
+
+        @Override
+        public void visit(BAnyType bAnyType) {
+
+        }
+
+        @Override
+        public void visit(BAnydataType bAnydataType) {
+
+        }
+
+        @Override
+        public void visit(BErrorType bErrorType) {
+
+        }
+
+        @Override
+        public void visit(BFiniteType bFiniteType) {
+
+        }
+
+        @Override
+        public void visit(BInvokableType bInvokableType) {
+
+        }
+
+        @Override
+        public void visit(BJSONType bjsonType) {
+
+        }
+
+        @Override
+        public void visit(BMapType bMapType) {
+            BRecordTypeSymbol recordSymbol = constantTypeChecker.createRecordTypeSymbol(data.expType.tsymbol.pkgID,
+                    data.expType.tsymbol.pos, VIRTUAL, data);
+            BType inferredType = Types.getReferredType(data.expType);
+            if (inferredType.tag != TypeTags.RECORD) {
+                data.resultType =  symTable.semanticError;
+                return;
+            }
+            BType constraintType = bMapType.constraint;
+            LinkedHashMap<String, BField> fields = ((BRecordType) inferredType).fields;
+            LinkedHashMap<String, BField> validatedFields = new LinkedHashMap<>();
+            for (String key : fields.keySet()) {
+                BField field = fields.get(key);
+                BType validFieldType = getValidType(constraintType, field.type, data);
+                if (validFieldType == symTable.semanticError) {
+                    data.resultType =  symTable.semanticError;
+                    return;
+                }
+                Name fieldName = names.fromString(key);
+                Set<Flag> flags = new HashSet<>();
+                flags.add(Flag.REQUIRED);
+                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+                        recordSymbol, symTable.builtinPos, VIRTUAL);
+                validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
+            }
+            BRecordType recordType = new BRecordType(recordSymbol);
+            recordType.fields = validatedFields;
+            recordSymbol.type = recordType;
+            recordType.tsymbol = recordSymbol;
+            recordType.sealed = true;
+            data.resultType = recordType;
+        }
+
+        @Override
+        public void visit(BStreamType bStreamType) {
+
+        }
+
+        @Override
+        public void visit(BTypedescType bTypedescType) {
+
+        }
+
+        @Override
+        public void visit(BTypeReferenceType bTypeReferenceType) {
+
+        }
+
+        @Override
+        public void visit(BParameterizedType bTypedescType) {
+
+        }
+
+        @Override
+        public void visit(BNeverType bNeverType) {
+
+        }
+
+        @Override
+        public void visit(BNilType bNilType) {
+
+        }
+
+        @Override
+        public void visit(BNoType bNoType) {
+
+        }
+
+        @Override
+        public void visit(BPackageType bPackageType) {
+
+        }
+
+        @Override
+        public void visit(BStructureType bStructureType) {
+
+        }
+
+        @Override
+        public void visit(BTupleType bTupleType) {
+            BType exprType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(data.expType));
+            if (exprType.tag != TypeTags.TUPLE) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            List<BType> actualTupleTypes = ((BTupleType) exprType).tupleTypes;
+            List<BType> expTupleTypes = bTupleType.tupleTypes;
+
+            int restTypeCount = actualTupleTypes.size() - expTupleTypes.size();
+            List<BType> validatedMemberTypes = new ArrayList<>();
+            int memberCount = expTupleTypes.size();
+            if (restTypeCount < 0) {
+                memberCount += restTypeCount;
+            }
+            for (int i = 0; i < memberCount; i++) {
+                BType validatedMemberType = getValidType(expTupleTypes.get(i), actualTupleTypes.get(i), data);
+                if (validatedMemberType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                validatedMemberTypes.add(validatedMemberType);
+            }
+            BType restType = bTupleType.restType;
+            if (restType == null & restTypeCount > 0) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            for (int i = expTupleTypes.size(); i < actualTupleTypes.size(); i++) {
+                BType validatedMemberType = getValidType(restType, actualTupleTypes.get(i), data);
+                if (validatedMemberType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                validatedMemberTypes.add(validatedMemberType);
+            }
+            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, null, SOURCE);
+            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, validatedMemberTypes);
+            tupleTypeSymbol.type = resultTupleType;
+            if (restTypeCount < 0) {
+                fillMembers.addFillMembers(resultTupleType, bTupleType, data);
+            }
+            data.resultType = resultTupleType;
+        }
+
+        @Override
+        public void visit(BUnionType bUnionType) {
+            List<BType> validTypeList = new ArrayList<>();
+            DiagnosticCode prevDiagCode = data.diagCode;
+            for (BType memberType : bUnionType.getMemberTypes()) {
+                BType resultType = getValidType(memberType, data.expType, data);
+                if (resultType != symTable.semanticError) {
+                    validTypeList.add(resultType);
+                    prevDiagCode = data.diagCode;
+                } else {
+                    data.diagCode = prevDiagCode;
+                }
+            }
+
+            if (validTypeList.isEmpty()) {
+                data.resultType = symTable.semanticError;
+                return;
+            } else if (validTypeList.size() == 1) {
+                data.resultType = validTypeList.get(0);
+                return;
+            }
+            BType selectedType = null;
+            for (BType type : validTypeList) {
+                if (type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1) {
+                    switch (((BFiniteType) type).getValueSpace().iterator().next().getBType().tag) {
+                        case TypeTags.INT:
+                            data.resultType = type;
+                            return;
+                        case TypeTags.FLOAT:
+                            selectedType = type;
+                            break;
+                        case TypeTags.DECIMAL:
+                            if (selectedType == null) {
+                                selectedType = type;
+                            } else if (selectedType.tag == TypeTags.DECIMAL) {
+                                data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
+                                data.resultType = validTypeList.get(0);
+                                return;
+                            }
+                            break;
+                        default:
+                            data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
+                            data.resultType = validTypeList.get(0);
+                            return;
+                    }
+                    continue;
+                }
+                data.diagCode = DiagnosticErrorCode.AMBIGUOUS_TYPES;
+                data.resultType = validTypeList.get(0);
+                return;
+            }
+            data.resultType = selectedType;
+            return;
+        }
+
+        @Override
+        public void visit(BIntersectionType bIntersectionType) {
+
+        }
+
+        @Override
+        public void visit(BXMLType bxmlType) {
+
+        }
+
+        @Override
+        public void visit(BTableType bTableType) {
+
+        }
+
+        @Override
+        public void visit(BRecordType bRecordType) {
+            BRecordTypeSymbol recordSymbol = constantTypeChecker.createRecordTypeSymbol(data.expType.tsymbol.pkgID,
+                    data.expType.tsymbol.pos,
+                    VIRTUAL, data);
+            LinkedHashMap<String, BField> validatedFields = new LinkedHashMap<>();
+            BType refType = Types.getReferredType(data.expType);
+            if (refType.tag != TypeTags.RECORD) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            LinkedHashMap<String, BField> actualFields = new LinkedHashMap<>();
+            for (String key : ((BRecordType) refType).fields.keySet()) {
+                actualFields.put(key, ((BRecordType) refType).fields.get(key));
+            }
+            LinkedHashMap<String, BField> targetFields = bRecordType.fields;
+            for (String key : targetFields.keySet()) {
+                if (!actualFields.containsKey(key)) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                BType validFieldType = getValidType(targetFields.get(key).type, actualFields.get(key).type, data);
+                if (validFieldType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                Name fieldName = names.fromString(key);
+                Set<Flag> flags = new HashSet<>();
+                flags.add(Flag.REQUIRED);
+                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+                        recordSymbol, symTable.builtinPos, VIRTUAL);
+                validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
+                actualFields.remove(key);
+            }
+            BType restFieldType = bRecordType.restFieldType;
+            if (actualFields.size() != 0 && restFieldType == null) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            for (String key : actualFields.keySet()) {
+                BType validFieldType = getValidType(restFieldType, actualFields.get(key).type, data);
+                if (validFieldType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                Name fieldName = names.fromString(key);
+                Set<Flag> flags = new HashSet<>();
+                flags.add(Flag.REQUIRED);
+                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+                        recordSymbol, symTable.builtinPos, VIRTUAL);
+                validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
+            }
+            BRecordType recordType = new BRecordType(recordSymbol);
+            recordType.fields = validatedFields;
+            recordSymbol.type = recordType;
+            recordType.tsymbol = recordSymbol;
+            recordType.sealed = true;
+            data.resultType = recordType;
+        }
+
+        @Override
+        public void visit(BObjectType bObjectType) {
+
+        }
+
+        @Override
+        public void visit(BType bType) {
+            switch (bType.tag) {
+                case TypeTags.INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.UNSIGNED8_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.BYTE:
+                case TypeTags.FLOAT:
+                case TypeTags.DECIMAL:
+                case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
+                case TypeTags.NIL:
+                case TypeTags.BOOLEAN:
+                case TypeTags.FINITE:
+                case TypeTags.ANY:
+                    if (data.expType.tag == TypeTags.UNION) {
+                        for (BType memberType : ((BUnionType) data.expType).getMemberTypes()) {
+                            if (types.isAssignable(memberType, data.expType)) {
+                                data.resultType =  memberType;
+                                return;
+                            }
+                        }
+                    } else {
+                        if (types.isAssignable(bType, data.expType)) {
+                            data.resultType = bType;
+                            return;
+                        }
+                    }
+                default:
+                    data.resultType = symTable.semanticError;
+            }
+        }
+
+        @Override
+        public void visit(BFutureType bFutureType) {
+
+        }
+
+        @Override
+        public void visit(BHandleType bHandleType) {
+
+        }
+    }
+
+    public static class FillMembers implements TypeVisitor {
+
+        private static final CompilerContext.Key<ConstantTypeChecker.FillMembers> FILL_MEMBERS_KEY =
+                new CompilerContext.Key<>();
+
+        private final SymbolTable symTable;
+        private final Types types;
+        private final ConstantTypeChecker constantTypeChecker;
+        private final Names names;
+        private final BLangDiagnosticLog dlog;
+
+        private AnalyzerData data;
+
+        public FillMembers(CompilerContext context) {
+            context.put(FILL_MEMBERS_KEY, this);
+
+            this.symTable = SymbolTable.getInstance(context);
+            this.types = Types.getInstance(context);
+            this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
+            this.names = Names.getInstance(context);
+            this.dlog = BLangDiagnosticLog.getInstance(context);;
+        }
+
+        public static ConstantTypeChecker.FillMembers getInstance(CompilerContext context) {
+            ConstantTypeChecker.FillMembers fillMembers = context.get(FILL_MEMBERS_KEY);
+            if (fillMembers == null) {
+                fillMembers = new ConstantTypeChecker.FillMembers(context);
+            }
+
+            return fillMembers;
+        }
+
+        public void addFillMembers(BTupleType type, BType expType, AnalyzerData data) {
+            BType refType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(expType));
+            List<BType> tupleTypes = type.getTupleTypes();
+            int tupleMemberCount = tupleTypes.size();
+            if (refType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) expType;
+                int noOfFillMembers = arrayType.size - tupleMemberCount;
+                BType fillMemberType = getFillMembers(arrayType.eType, data);
+                if (fillMemberType == symTable.semanticError) {
+                    return;
+                }
+                for (int i = 0; i < noOfFillMembers; i++) {
+                    tupleTypes.add(fillMemberType);
+                }
+            } else if (refType.tag == TypeTags.TUPLE) {
+                List<BType> bTypeList = ((BTupleType) expType).tupleTypes;
+                for (int i = tupleMemberCount; i < bTypeList.size(); i++) {
+                    BType fillMemberType = getFillMembers(bTypeList.get(i), data);
+                    if (fillMemberType == symTable.semanticError) {
+                        return;
+                    }
+                    tupleTypes.add(fillMemberType);
+                }
+            }
+        }
+
+        public BType getFillMembers(BType type, AnalyzerData data) {
+            data.resultType = symTable.semanticError;
+            type.accept(this);
+
+            if (data.resultType == symTable.semanticError) {
+                dlog.error(data.constantSymbol.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
+                        data.expType);
+            }
+            return data.resultType;
+        }
+
+        @Override
+        public void visit(BAnnotationType bAnnotationType) {
+
+        }
+
+        @Override
+        public void visit(BArrayType arrayType) {
+            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, null, SOURCE);
+            if (arrayType.state == BArrayState.OPEN) {
+                BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, new ArrayList<>());
+                tupleTypeSymbol.type = resultTupleType;
+                data.resultType = resultTupleType;
+                return;
+            } else if (arrayType.state == BArrayState.INFERRED) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            BType fillMemberType = getFillMembers(arrayType.eType, data);
+            if (fillMemberType == symTable.semanticError) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            List<BType> tupleTypes = new ArrayList<>(arrayType.size);
+            for (int i = 0; i < arrayType.size; i++) {
                 tupleTypes.add(fillMemberType);
             }
-        } else if (refType.tag == TypeTags.TUPLE) {
-            List<BType> bTypeList = ((BTupleType) expType).tupleTypes;
-            for (int i = tupleMemberCount; i < bTypeList.size(); i++) {
-                BType fillMemberType = getFillMemberType(bTypeList.get(i), data).type;
+            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, tupleTypes);
+            tupleTypeSymbol.type = resultTupleType;
+            data.resultType = resultTupleType;
+        }
+
+        @Override
+        public void visit(BBuiltInRefType bBuiltInRefType) {
+
+        }
+
+        @Override
+        public void visit(BAnyType bAnyType) {
+            data.resultType = symTable.nilType;
+        }
+
+        @Override
+        public void visit(BAnydataType bAnydataType) {
+            data.resultType = symTable.nilType;
+        }
+
+        @Override
+        public void visit(BErrorType bErrorType) {
+
+        }
+
+        @Override
+        public void visit(BFiniteType finiteType) {
+            Set<BLangExpression> valueSpace = finiteType.getValueSpace();
+            LinkedHashSet<BType> typeList = new LinkedHashSet<>(valueSpace.size());
+            for (BLangExpression expr : valueSpace) {
+                typeList.add(expr.getBType());
+            }
+            data.resultType = getFillMembers(BUnionType.create(null, typeList), data);;
+        }
+
+        @Override
+        public void visit(BInvokableType bInvokableType) {
+
+        }
+
+        @Override
+        public void visit(BJSONType bjsonType) {
+            data.resultType = symTable.nilType;
+        }
+
+        @Override
+        public void visit(BMapType bMapType) {
+            data.resultType = symTable.mapType;
+        }
+
+        @Override
+        public void visit(BStreamType bStreamType) {
+
+        }
+
+        @Override
+        public void visit(BTypedescType bTypedescType) {
+
+        }
+
+        @Override
+        public void visit(BTypeReferenceType bTypeReferenceType) {
+
+        }
+
+        @Override
+        public void visit(BParameterizedType bTypedescType) {
+
+        }
+
+        @Override
+        public void visit(BNeverType bNeverType) {
+
+        }
+
+        @Override
+        public void visit(BNilType bNilType) {
+            data.resultType = symTable.nilType;
+        }
+
+        @Override
+        public void visit(BNoType bNoType) {
+
+        }
+
+        @Override
+        public void visit(BPackageType bPackageType) {
+
+        }
+
+        @Override
+        public void visit(BStructureType bStructureType) {
+
+        }
+
+        @Override
+        public void visit(BTupleType tupleType) {
+            List<BType> bTypeList = tupleType.tupleTypes;
+            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, null, SOURCE);
+            List<BType> tupleTypes = new ArrayList<>(bTypeList.size());
+            for (int i = 0; i < bTypeList.size(); i++) {
+                BType fillMemberType = getFillMembers(bTypeList.get(i), data);
                 if (fillMemberType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
                     return;
                 }
                 tupleTypes.add(fillMemberType);
             }
-        }
-    }
-
-    private BType fillMembers(BTupleType tupleType, AnalyzerData data) {
-        List<BType> bTypeList = tupleType.tupleTypes;
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
-                data.env.scope.owner, null, SOURCE);
-        List<BType> tupleTypes = new ArrayList<>(bTypeList.size());
-        for (int i = 0; i < bTypeList.size(); i++) {
-            BType fillMemberType = getFillMemberType(bTypeList.get(i), data).type;
-            if (fillMemberType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            tupleTypes.add(fillMemberType);
-        }
-        BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, tupleTypes);
-        tupleTypeSymbol.type = resultTupleType;
-        return resultTupleType;
-    }
-
-    private BType fillMembers(BRecordType recordType, AnalyzerData data) {
-        LinkedHashMap<String, BField> fields = recordType.fields;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(data.constantSymbol.pkgID, data.constantSymbol.pos,
-                VIRTUAL, data);
-        LinkedHashMap<String, BField> newFields = new LinkedHashMap<>();
-        for (String key : fields.keySet()) {
-            BField field = fields.get(key);
-            if ((field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED) {
-                continue;
-            }
-            BType fillMemberType = getFillMemberType(fields.get(key).type, data).type;
-            if (fillMemberType == symTable.semanticError) {
-                return symTable.semanticError;
-            }
-            Name fieldName = names.fromString(key);
-            Set<Flag> flags = new HashSet<>();
-            flags.add(Flag.REQUIRED);
-            BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , fillMemberType,
-                    recordSymbol, symTable.builtinPos, VIRTUAL);
-            newFields.put(key, new BField(fieldName, null, fieldSymbol));
-        }
-        BRecordType resultRecordType = new BRecordType(recordSymbol);
-        resultRecordType.fields = newFields;
-        recordSymbol.type = resultRecordType;
-        resultRecordType.tsymbol = recordSymbol;
-        resultRecordType.sealed = true;
-        return resultRecordType;
-    }
-
-    private BType fillMembers(BArrayType arrayType, AnalyzerData data) {
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
-                data.env.scope.owner, null, SOURCE);
-        if (arrayType.state == BArrayState.OPEN) {
-            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, new ArrayList<>());
+            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, tupleTypes);
             tupleTypeSymbol.type = resultTupleType;
-            return resultTupleType;
-        } else if (arrayType.state == BArrayState.INFERRED) {
-            return symTable.semanticError;
+            data.resultType = resultTupleType;
+            return;
         }
-        BType fillMemberType = getFillMemberType(arrayType.eType, data).type;
-        if (fillMemberType == symTable.semanticError) {
-            return symTable.semanticError;
-        }
-        List<BType> tupleTypes = new ArrayList<>(arrayType.size);
-        for (int i = 0; i < arrayType.size; i++) {
-            tupleTypes.add(fillMemberType);
-        }
-        BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, tupleTypes);
-        tupleTypeSymbol.type = resultTupleType;
-        return resultTupleType;
-    }
 
-    private BType selectFillMemberType(LinkedHashSet<BType> typeList, AnalyzerData data) {
-        int minPrecedence = Integer.MAX_VALUE;
-        BType fillMemberType = symTable.semanticError;
-        for (BType type : typeList) {
-            FillMemberType returnType = getFillMemberType(type, data);
-            if (minPrecedence > returnType.precedence) {
-                fillMemberType = returnType.type;
-                minPrecedence = returnType.precedence;
+        @Override
+        public void visit(BUnionType unionType) {
+            LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
+            if (memberTypes.size() == 1) {
+                getFillMembers(memberTypes.iterator().next(), data);
+            }
+            if (memberTypes.size() > 2 || !unionType.isNullable()) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            data.resultType = symTable.nilType;
+        }
+
+        @Override
+        public void visit(BIntersectionType intersectionType) {
+            data.resultType = getFillMembers(intersectionType.getEffectiveType(), data);
+        }
+
+        @Override
+        public void visit(BXMLType bxmlType) {
+
+        }
+
+        @Override
+        public void visit(BTableType bTableType) {
+            data.resultType = symTable.tableType;
+        }
+
+        @Override
+        public void visit(BRecordType recordType) {
+            LinkedHashMap<String, BField> fields = recordType.fields;
+            BRecordTypeSymbol recordSymbol = constantTypeChecker.createRecordTypeSymbol(data.constantSymbol.pkgID,
+                    data.constantSymbol.pos, VIRTUAL, data);
+            LinkedHashMap<String, BField> newFields = new LinkedHashMap<>();
+            for (String key : fields.keySet()) {
+                BField field = fields.get(key);
+                if ((field.symbol.flags & Flags.REQUIRED) != Flags.REQUIRED) {
+                    continue;
+                }
+                BType fillMemberType = getFillMembers(fields.get(key).type, data);
+                if (fillMemberType == symTable.semanticError) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
+                Name fieldName = names.fromString(key);
+                Set<Flag> flags = new HashSet<>();
+                flags.add(Flag.REQUIRED);
+                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , fillMemberType,
+                        recordSymbol, symTable.builtinPos, VIRTUAL);
+                newFields.put(key, new BField(fieldName, null, fieldSymbol));
+            }
+            BRecordType resultRecordType = new BRecordType(recordSymbol);
+            resultRecordType.fields = newFields;
+            recordSymbol.type = resultRecordType;
+            resultRecordType.tsymbol = recordSymbol;
+            resultRecordType.sealed = true;
+            data.resultType = resultRecordType;
+        }
+
+        @Override
+        public void visit(BObjectType bObjectType) {
+
+        }
+
+        @Override
+        public void visit(BType type) {
+            BType refType = Types.getReferredType(type);
+            switch (refType.tag) {
+                case TypeTags.BOOLEAN:
+                    data.resultType = symTable.falseType;
+                    return;
+                case TypeTags.INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.UNSIGNED8_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.BYTE:
+                    data.resultType = constantTypeChecker.getFiniteType(0l, data.constantSymbol, null, symTable.intType);
+                    return;
+                case TypeTags.FLOAT:
+                    data.resultType = constantTypeChecker.getFiniteType(0.0d, data.constantSymbol, null, symTable.floatType);
+                    return;
+                case TypeTags.DECIMAL:
+                    data.resultType = constantTypeChecker.getFiniteType(new BigDecimal(0), data.constantSymbol, null, symTable.decimalType);
+                    return;
+                case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
+                    data.resultType = constantTypeChecker.getFiniteType("", data.constantSymbol, null, symTable.stringType);
+                    return;
+                default:
+                    data.resultType = symTable.semanticError;
             }
         }
-        return fillMemberType;
+
+        @Override
+        public void visit(BFutureType bFutureType) {
+
+        }
+
+        @Override
+        public void visit(BHandleType bHandleType) {
+
+        }
     }
     
     public BType getNarrowedType(BType type) {
@@ -1571,16 +1879,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
     }
 
-    @Override
-    public void analyzeNode(BLangNode node, AnalyzerData data) {
-
-    }
-
-    @Override
-    public void visit(BLangPackage node, AnalyzerData data) {
-
-    }
-
     public static class ResolveConstantExpressionType extends SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
 
         private static final CompilerContext.Key<ConstantTypeChecker.ResolveConstantExpressionType>
@@ -1626,7 +1924,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             expr.accept(this, data);
 
-//            expr.setTypeCheckedType(data.resultType);
             data.env = prevEnv;
             data.expType = preExpType;
             data.diagCode = preDiagCode;
@@ -1774,15 +2071,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             paramTypes.add(unaryExpr.expr.getBType());
             invokableType.paramTypes = paramTypes;
             invokableType.retType = unaryExpr.getBType();
-        }
-    }
-
-    public static class FillMemberType {
-        public int precedence;
-        public BType type;
-        public FillMemberType(int precedence, BType type) {
-            this.precedence = precedence;
-            this.type = type;
         }
     }
 
