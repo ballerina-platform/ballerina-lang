@@ -20,7 +20,7 @@
               "character": 15
             }
           },
-          "newText": "address: {street: \"\", city: \"\", postalCode: \"\"},name: \"\",age: 0"
+          "newText": "address: {street: \"\", city: \"\", postalCode: \"\"}, name: \"\", age: 0"
         }
       ]
     }
