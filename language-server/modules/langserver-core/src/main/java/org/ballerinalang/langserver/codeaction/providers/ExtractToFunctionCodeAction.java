@@ -546,8 +546,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          *   5.1. with self keyword inside its expression
          *   5.2. as varRef() in assignment statement
          *   5.3. as lhsExpression() in compound assignment statement
-         * 6. a service uri in a client declaration 
-         *  (module client declaration is covered inside unSupportedModuleLevelSyntaxKinds)
+         * 6. a client declaration (module client declaration is covered inside unSupportedModuleLevelSyntaxKinds)
          **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
@@ -559,7 +558,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
                 && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
                 || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node))))
-                && (nodeKind != SyntaxKind.STRING_LITERAL || parentKind != SyntaxKind.CLIENT_DECLARATION);
+                && parentKind != SyntaxKind.CLIENT_DECLARATION;
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
