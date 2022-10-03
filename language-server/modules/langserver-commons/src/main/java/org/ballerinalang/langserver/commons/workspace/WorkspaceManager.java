@@ -24,6 +24,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -84,6 +85,15 @@ public interface WorkspaceManager {
      * @return project of applicable type
      */
     Optional<Project> project(Path filePath);
+
+    /**
+     * Load the project from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     * @throws ProjectException when the filePath is invalid
+     */
+    Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException;
 
     /**
      * Returns module from the path provided.
