@@ -149,15 +149,19 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-            return this.getCompletionItemList(types, context);
+            completionItems.addAll(this.getCompletionItemList(types, context));
+            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, predicate));
+            return completionItems;
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeDescContextItems(context));
         completionItems.addAll(ServiceTemplateGenerator.getInstance(context.languageServercontext())
