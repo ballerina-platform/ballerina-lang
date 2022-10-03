@@ -20,6 +20,7 @@ module io.ballerina.lang {
     exports io.ballerina.compiler.api.symbols;
     exports io.ballerina.compiler.api.symbols.resourcepath;
     exports io.ballerina.compiler.api.symbols.resourcepath.util;
+    exports io.ballerina.compiler.api.values;
     exports org.wso2.ballerinalang.compiler.util;
     exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;

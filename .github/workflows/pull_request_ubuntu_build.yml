@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     concurrency: 
-      group: ${{ github.head_ref }}-ubuntu
+      group: ${{ github.head_ref }}-sonarcloud
       cancel-in-progress: true
 
     steps:

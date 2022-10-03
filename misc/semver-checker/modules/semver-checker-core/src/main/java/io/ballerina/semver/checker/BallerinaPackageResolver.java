@@ -16,17 +16,28 @@
  * under the License.
  */
 
-package io.ballerina.semver.checker.central;
+package io.ballerina.semver.checker;
 
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.semver.checker.exception.SemverToolException;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,43 +46,46 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_ENV_KEY;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
 /**
- * Ballerina central client wrapper implementation.
+ * A Ballerina package resolver implementation to resolve Ballerina packages and versions from available repositories.
  *
  * @since 2201.2.0
  */
-public class CentralClientWrapper {
+class BallerinaPackageResolver {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
     private CentralAPIClient centralClient;
-    public static final String SUPPORTED_PLATFORM_JAVA_11 = "java11";
-    private static final Logger LOGGER = LoggerFactory.getLogger(CentralClientWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaPackageResolver.class);
 
-    public CentralClientWrapper(PrintStream outStream, PrintStream errStream) {
+    BallerinaPackageResolver(PrintStream outStream, PrintStream errStream) {
         this.outStream = outStream;
         this.errStream = errStream;
-        initializeClient();
+        initializeCentralClient();
     }
 
     /**
-     * Retrieves all the released versions from the central and returns the latest package version that is
-     * compatible with the current semantic version of the package.
+     * Retrieves all the released versions of a given package from the central and, returns the closest compatible
+     * package version w.r.t the given package version.
      *
-     * @param orgName        org name
-     * @param pkgName        package name
-     * @param currentVersion current package version
+     * @param orgName      org name
+     * @param pkgName      package name
+     * @param localVersion local package version
      * @return all the released versions available in the Ballerina central
      */
-    public SemanticVersion getLatestCompatibleVersion(String orgName, String pkgName, SemanticVersion currentVersion)
+    SemanticVersion resolveClosestCompatibleCentralVersion(String orgName, String pkgName, SemanticVersion localVersion)
             throws SemverToolException {
         try {
             List<String> publishedVersions = centralClient.getPackageVersions(orgName, pkgName,
@@ -83,7 +97,7 @@ public class CentralClientWrapper {
             List<SemanticVersion> availableVersions = publishedVersions.stream().map(SemanticVersion::from)
                     .collect(Collectors.toList());
 
-            Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, currentVersion);
+            Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, localVersion);
             if (compatibleVersion.isEmpty()) {
                 SemanticVersion highestVersion = getHighestVersion(availableVersions);
                 LOGGER.warn(String.format("current package version is lower than all the available versions in the " +
@@ -108,29 +122,27 @@ public class CentralClientWrapper {
      * @return path of the pulled bala package
      * @throws SemverToolException if unexpected error occurred while pulling package
      */
-    public Path pullPackage(String orgName, String pkgName, SemanticVersion version) throws SemverToolException {
-        Path balaDirPath = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.REPOSITORIES_DIR)
+    Path resolvePackage(String orgName, String pkgName, SemanticVersion version) throws SemverToolException {
+        Path localRepoPath = ProjectUtils.createAndGetHomeReposPath();
+        Path centralCachePath = localRepoPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
-        Path packagePathInBalaCache = balaDirPath.resolve(orgName).resolve(pkgName);
-        try {
-            // avoids pulling from the central if the package version already available in the local repository.
-            if (Files.exists(packagePathInBalaCache) && Files.isDirectory(packagePathInBalaCache)) {
-                throw new PackageAlreadyExistsException("package already exists in the home repository: " +
-                        packagePathInBalaCache);
-            }
 
-            errStream.printf("pulling package version '%s/%s:%s' from central...%n", orgName, pkgName, version);
-            centralClient.pullPackage(orgName, pkgName, version.toString(), packagePathInBalaCache,
-                    SUPPORTED_PLATFORM_JAVA_11, RepoUtils.getBallerinaVersion(), false);
-        } catch (PackageAlreadyExistsException e) {
-            // can be ignored
-        } catch (CentralClientException e) {
-            throw new SemverToolException("unexpected error occurred while pulling package from the central: "
-                    + e.getMessage());
+        // Avoids pulling from central if the package version already available in the local repo.
+        Path packagePathInLocalRepo = centralCachePath.resolve(orgName).resolve(pkgName);
+        if (Files.exists(packagePathInLocalRepo) && Files.isDirectory(packagePathInLocalRepo)) {
+            LOGGER.debug("target version: " + version.toString() + "is already available in local repository");
+            ProjectUtils.getPackagePath(localRepoPath, orgName, pkgName, version.toString());
         }
 
-        return ProjectUtils.getPackagePath(balaDirPath, orgName, pkgName, version.toString());
+        // Avoids pulling from central if the package version already available in the local central cache.
+        Path packagePathInCentralCache = centralCachePath.resolve(orgName).resolve(pkgName);
+        if (Files.exists(packagePathInCentralCache) && Files.isDirectory(packagePathInCentralCache)) {
+            LOGGER.debug("target version: " + version.toString() + "is already available in central repository cache");
+            ProjectUtils.getPackagePath(centralCachePath, orgName, pkgName, version.toString());
+        }
+
+        outStream.printf("resolving package '%s/%s:%s'...%n", orgName, pkgName, version);
+        return resolveBalaPath(orgName, pkgName, version.toString());
     }
 
     /**
@@ -155,7 +167,7 @@ public class CentralClientWrapper {
         return Optional.ofNullable(latestCompatibleVersion.get());
     }
 
-    private void initializeClient() {
+    private void initializeCentralClient() {
         Settings settings;
         try {
             settings = RepoUtils.readSettings();
@@ -168,6 +180,29 @@ public class CentralClientWrapper {
                 initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
     }
 
+    private Path resolveBalaPath(String org, String pkgName, String version) throws SemverToolException {
+        // If user has provided a custom home repo path using `BALLERINA_HOME_DIR` env variable, switches to local repo.
+        String repository = hasCustomHomeRepoPath() ? ProjectConstants.LOCAL_REPOSITORY_NAME : null;
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(PackageOrg.from(org), PackageName.from(pkgName),
+                PackageVersion.from(version), repository);
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor);
+
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, Boolean.TRUE.toString());
+        PackageResolver packageResolver = getEnvironment().getService(PackageResolver.class);
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+                Collections.singletonList(resolutionRequest), ResolutionOptions.builder().setOffline(false).build());
+        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().orElse(null);
+
+        if (resolutionResponse != null && resolutionResponse.resolutionStatus().equals(ResolutionStatus.RESOLVED)) {
+            Package resolvedPackage = resolutionResponse.resolvedPackage();
+            if (resolvedPackage != null) {
+                return resolvedPackage.project().sourceRoot();
+            }
+        }
+
+        throw new SemverToolException("failed to resolve package '" + packageDescriptor + "' from central");
+    }
+
     private SemanticVersion getHighestVersion(List<SemanticVersion> availableVersions) {
         AtomicReference<SemanticVersion> highestVersion = new AtomicReference<>(SemanticVersion.from("0.0.0"));
         availableVersions.forEach(version -> {
@@ -177,5 +212,20 @@ public class CentralClientWrapper {
         });
 
         return highestVersion.get();
+    }
+
+    private Environment getEnvironment() {
+        if (hasCustomHomeRepoPath()) {
+            return EnvironmentBuilder.getBuilder().setUserHome(ProjectUtils.createAndGetHomeReposPath()).build();
+        } else {
+            return EnvironmentBuilder.buildDefault();
+        }
+    }
+
+    /**
+     * Returns whether user has provided a custom home repo path using `BALLERINA_HOME_DIR` env variable.
+     */
+    private boolean hasCustomHomeRepoPath() {
+        return System.getenv(HOME_REPO_ENV_KEY) != null;
     }
 }

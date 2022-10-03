@@ -117,11 +117,8 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
             } else {
                 functionDiff.setKind(DiffKind.FUNCTION);
             }
-            if (!functionDiff.getChildDiffs().isEmpty()) {
+            if (functionDiff.diffType != DiffType.UNKNOWN) {
                 functionDiff.computeVersionImpact();
-                functionDiff.setType(DiffType.MODIFIED);
-                return Optional.of(functionDiff);
-            } else if (functionDiff.getType() == DiffType.NEW || functionDiff.getType() == DiffType.REMOVED) {
                 return Optional.of(functionDiff);
             }
 
