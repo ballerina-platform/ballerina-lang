@@ -18,6 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -42,17 +43,19 @@ public class BallerinaParameterSymbol extends BallerinaSymbol implements Paramet
     // add the metadata field
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
     private final TypeSymbol typeDescriptor;
     private final ParameterKind paramKind;
 
     public BallerinaParameterSymbol(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
-                                    List<AnnotationSymbol> annots, ParameterKind paramKind, BVarSymbol symbol,
-                                    CompilerContext context) {
+                                    List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                    ParameterKind paramKind, BVarSymbol symbol, CompilerContext context) {
         super(parameterName, PARAMETER, symbol, context);
         // TODO: Add the metadata
         this.typeDescriptor = typeDescriptor;
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.paramKind = paramKind;
     }
 
@@ -79,6 +82,11 @@ public class BallerinaParameterSymbol extends BallerinaSymbol implements Paramet
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
     }
 
     /**

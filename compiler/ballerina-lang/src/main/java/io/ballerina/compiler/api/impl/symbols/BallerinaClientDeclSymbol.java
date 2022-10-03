@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -41,10 +43,12 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
     private final String serviceUri;
     private ModuleSymbol moduleSymbol;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     private BallerinaClientDeclSymbol(String name, BSymbol symbol, String serviceUri, List<AnnotationSymbol> annots,
-                                      CompilerContext context) {
+                                      List<AnnotationAttachmentSymbol> annotAttachments, CompilerContext context) {
         super(name, SymbolKind.CLIENT_DECLARATION, symbol, context);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.serviceUri = serviceUri;
         this.annots = annots;
     }
@@ -71,6 +75,11 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
     }
 
     @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
     public void accept(SymbolVisitor visitor) {
         visitor.visit(this);
     }
@@ -87,6 +96,7 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
 
         protected String uri;
         private List<AnnotationSymbol> annots = new ArrayList<>();
+        private List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
 
         /**
          * Symbol Builder's Constructor.
@@ -105,9 +115,15 @@ public class BallerinaClientDeclSymbol extends BallerinaSymbol implements Client
             return this;
         }
 
+        public ClientDeclSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotationAttachment) {
+            this.annotAttachments.add(annotationAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaClientDeclSymbol build() {
-            return new BallerinaClientDeclSymbol(this.name, this.bSymbol, this.uri, this.annots, this.context);
+            return new BallerinaClientDeclSymbol(this.name, this.bSymbol, this.uri, this.annots, this.annotAttachments,
+                                                 this.context);
         }
     }
 }
