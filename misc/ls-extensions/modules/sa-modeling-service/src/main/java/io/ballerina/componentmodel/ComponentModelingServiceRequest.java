@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,17 +20,23 @@ package io.ballerina.componentmodel;
 
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Request for Solution Architecture model generation.
  */
-public class ComponentModelRequest {
-    private TextDocumentIdentifier documentIdentifier;
+public class ComponentModelingServiceRequest {
 
-    public TextDocumentIdentifier getDocumentIdentifier() {
-        return documentIdentifier;
+    private List<TextDocumentIdentifier> textDocumentIdentifiers = new ArrayList<>();
+
+    public List<TextDocumentIdentifier> getTextDocumentIdentifiers() {
+
+        return textDocumentIdentifiers;
     }
 
-    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier;
+    public void setTextDocumentIdentifiers(List<TextDocumentIdentifier> textDocumentIdentifiers) {
+
+        this.textDocumentIdentifiers = textDocumentIdentifiers;
     }
 }

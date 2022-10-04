@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -22,27 +22,33 @@ package io.ballerina.componentmodel.entitymodel.components;
  * Represent the relationship between records.
  */
 public class Association {
+
     private String associate;
     private Cardinality cardinality;
 
     public Association(String associate, Cardinality cardinality) {
+
         this.associate = associate;
         this.cardinality = cardinality;
     }
 
     public String getAssociate() {
+
         return associate;
     }
 
     public Cardinality getCardinality() {
+
         return cardinality;
     }
 
     public void setAssociate(String associate) {
+
         this.associate = associate;
     }
 
     public void setCardinality(Cardinality cardinality) {
+
         this.cardinality = cardinality;
     }
 
@@ -50,17 +56,23 @@ public class Association {
      * Represents the cardinality of the relationship.
      */
     public static class Cardinality {
+
         private String self;
         private String associate;
 
         public Cardinality(String self, String associate) {
+
             this.self = self;
             this.associate = associate;
         }
+
         public String getSelf() {
+
             return self;
         }
+
         public String getAssociate() {
+
             return associate;
         }
     }

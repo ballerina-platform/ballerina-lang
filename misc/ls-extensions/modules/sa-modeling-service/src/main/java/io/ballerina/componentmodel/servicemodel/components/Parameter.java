@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,12 +24,14 @@ import java.util.List;
  * Represents resource funstion parameter information.
  */
 public class Parameter {
+
     private final List<String> type;
     private final String name;
     private final String in;
     private final boolean isRequired;
 
     public Parameter(List<String> type, String name, String in, boolean isRequired) {
+
         this.type = type;
         this.name = name;
         this.in = in;
@@ -37,18 +39,22 @@ public class Parameter {
     }
 
     public List<String> getType() {
+
         return type;
     }
 
     public String getName() {
+
         return name;
     }
 
     public String getIn() {
+
         return in;
     }
 
     public boolean isRequired() {
+
         return isRequired;
     }
 }

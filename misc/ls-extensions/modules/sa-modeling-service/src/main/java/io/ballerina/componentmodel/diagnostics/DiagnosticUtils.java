@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,7 +18,7 @@
 
 package io.ballerina.componentmodel.diagnostics;
 
-import io.ballerina.componentmodel.ComponentModelResponse;
+import io.ballerina.componentmodel.ComponentModelingServiceResponse;
 
 import java.util.List;
 
@@ -26,14 +26,16 @@ import java.util.List;
  * Provides util functions for diagnostics.
  */
 public class DiagnosticUtils {
-    public static ComponentModelResponse getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
-                                                               ComponentModelResponse response) {
+
+    public static List<ComponentModelingDiagnostics> getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
+                                                                           ComponentModelingServiceResponse response) {
+
         List<ComponentModelingDiagnostics> diagnostics = response.getDiagnostics();
         for (DiagnosticMessage message : diagnosticMessages) {
             ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                     message.getCode(), message.getDescription(), message.getSeverity(), null, null);
             diagnostics.add(diagnostic);
         }
-        return response;
+        return diagnostics;
     }
 }

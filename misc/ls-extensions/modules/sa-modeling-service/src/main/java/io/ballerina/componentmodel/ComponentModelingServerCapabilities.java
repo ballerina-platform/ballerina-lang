@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,15 +24,21 @@ import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabili
  * Server capabilities for the solution architecture modeling service.
  */
 public class ComponentModelingServerCapabilities extends BallerinaServerCapability {
+
     private boolean getMultiServiceModel;
+
     public ComponentModelingServerCapabilities() {
+
         super(ComponentModelingConstants.CAPABILITY_NAME);
     }
+
     public boolean isGetMultiServiceModel() {
+
         return getMultiServiceModel;
     }
 
     public void setGetMultiServiceModel(boolean getMultiServiceModel) {
+
         this.getMultiServiceModel = getMultiServiceModel;
     }
 }

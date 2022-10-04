@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -32,6 +32,7 @@ import java.util.List;
  * Diagnostic class for the ComponentModelingService.
  */
 public class ComponentModelingDiagnostics extends Diagnostic {
+
     private final DiagnosticInfo diagnosticInfo;
     private final Location location;
     private final List<DiagnosticProperty<?>> properties;
@@ -40,6 +41,7 @@ public class ComponentModelingDiagnostics extends Diagnostic {
 
     public ComponentModelingDiagnostics(String code, String message, DiagnosticSeverity severity,
                                         Location location, Object[] args) {
+
         this.diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.location = location;
         this.properties = Collections.emptyList();
@@ -49,30 +51,36 @@ public class ComponentModelingDiagnostics extends Diagnostic {
 
     @Override
     public Location location() {
+
         return this.location;
     }
 
     @Override
     public DiagnosticInfo diagnosticInfo() {
+
         return this.diagnosticInfo;
     }
 
     @Override
     public String message() {
+
         return this.message;
     }
 
     @Override
     public List<DiagnosticProperty<?>> properties() {
+
         return this.properties;
     }
 
     public String getSeverity() {
+
         return this.severity;
     }
 
     @Override
-    public  String toString() {
+    public String toString() {
+
         String severity = this.diagnosticInfo().severity().toString();
         return "[" + severity + "] " + this.message();
     }

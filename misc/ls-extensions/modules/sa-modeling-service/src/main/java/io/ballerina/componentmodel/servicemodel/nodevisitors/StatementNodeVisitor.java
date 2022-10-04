@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -35,6 +35,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.componentmodel.Utils;
 
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.CLIENT;
  * Visitor class to identify client declaration nodes inside a Ballerina service.
  */
 public class StatementNodeVisitor extends NodeVisitor {
+
     private String serviceId = null;
 
     private String connectorType = null;
@@ -59,38 +61,43 @@ public class StatementNodeVisitor extends NodeVisitor {
     }
 
     public String getServiceId() {
+
         return serviceId;
     }
 
     public String getConnectorType() {
+
         return connectorType;
     }
 
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
+
         if (variableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim().equals(clientName)) {
             TypeDescriptorNode typeDescriptorNode = variableDeclarationNode.typedBindingPattern().typeDescriptor();
             connectorType = getClientModuleName(typeDescriptorNode);
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
-            this.serviceId = VisitorUtil.getId(annotations);
+            this.serviceId = Utils.getId(annotations);
         }
     }
 
     @Override
     public void visit(ObjectFieldNode objectFieldNode) {
+
         if (objectFieldNode.fieldName().text().trim().equals(clientName)) {
             TypeDescriptorNode typeDescriptorNode = (TypeDescriptorNode) objectFieldNode.typeName();
             connectorType = getClientModuleName(typeDescriptorNode);
             Optional<MetadataNode> metadataNode = objectFieldNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = VisitorUtil.getId(annotationNodes);
+                serviceId = Utils.getId(annotationNodes);
             }
         }
     }
 
     @Override
     public void visit(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+
         if (moduleVariableDeclarationNode.typedBindingPattern().bindingPattern().toString().trim().equals(clientName)) {
             TypeDescriptorNode typeDescriptorNode =
                     moduleVariableDeclarationNode.typedBindingPattern().typeDescriptor();
@@ -98,12 +105,13 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = moduleVariableDeclarationNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = VisitorUtil.getId(annotationNodes);
+                serviceId = Utils.getId(annotationNodes);
             }
         }
     }
 
     private String getClientModuleName(TypeDescriptorNode typeDescriptorNode) {
+
         String clientModuleName = null;
         if (typeDescriptorNode instanceof QualifiedNameReferenceNode) {
             QualifiedNameReferenceNode clientNode = (QualifiedNameReferenceNode) typeDescriptorNode;
@@ -118,11 +126,10 @@ public class StatementNodeVisitor extends NodeVisitor {
         return clientModuleName;
     }
 
-
-
     @Override
     public void visit(TypeDefinitionNode typeDefinitionNode) {
 
+        // no-op overloaded method to avoid unnecessary syntax tree visits
     }
 
     @Override
@@ -144,6 +151,5 @@ public class StatementNodeVisitor extends NodeVisitor {
     public void visit(ClassDefinitionNode classDefinitionNode) {
 
     }
-
 
 }

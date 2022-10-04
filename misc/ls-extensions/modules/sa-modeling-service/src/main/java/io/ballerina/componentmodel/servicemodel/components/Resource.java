@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -29,11 +29,11 @@ public class Resource {
     private final ResourceId resourceId;
     private final List<Parameter> parameters;
     private final List<String> returns;
-//    private final List<ResourceId> interactions;
     private final List<Interaction> interactions;
 
     public Resource(String identifier, ResourceId resourceId, List<Parameter> parameters, List<String> returns,
                     List<Interaction> interactions) {
+
         this.identifier = identifier;
         this.resourceId = resourceId;
         this.parameters = parameters;
@@ -42,22 +42,27 @@ public class Resource {
     }
 
     public String getIdentifier() {
+
         return identifier;
     }
 
     public ResourceId getResourceId() {
+
         return resourceId;
     }
 
     public List<Parameter> getParameters() {
+
         return parameters;
     }
 
     public List<String> getReturns() {
+
         return returns;
     }
 
     public List<Interaction> getInteractions() {
+
         return interactions;
     }
 }

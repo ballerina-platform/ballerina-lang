@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -32,7 +32,7 @@ public class ComponentModelingConstants {
     /**
      * Enum to select the type of the parameter.
      */
-    public enum ParameterIn  {
+    public enum ParameterIn {
         BODY("body"),
         QUERY("query"),
         HEADER("header"),
@@ -41,10 +41,12 @@ public class ComponentModelingConstants {
         private final String parameterIn;
 
         ParameterIn(String parameterIn) {
+
             this.parameterIn = parameterIn;
         }
 
         public String getValue() {
+
             return this.parameterIn;
         }
     }
@@ -67,7 +69,7 @@ public class ComponentModelingConstants {
     /**
      * Enum for cardinality types.
      */
-    public enum CardinalityValue  {
+    public enum CardinalityValue {
         ZERO("0"),
         ZERO_OR_ONE("0-1"),
         ZERO_OR_MANY("0-m"),
@@ -79,14 +81,15 @@ public class ComponentModelingConstants {
         private final String cardinalityValue;
 
         CardinalityValue(String cardinalityValue) {
+
             this.cardinalityValue = cardinalityValue;
         }
 
         public String getValue() {
+
             return this.cardinalityValue;
         }
     }
-
 
     public static final Map<SyntaxKind, String> TYPE_MAP;
 
