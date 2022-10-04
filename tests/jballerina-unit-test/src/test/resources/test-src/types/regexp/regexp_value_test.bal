@@ -365,6 +365,44 @@ function testComplexRegExpValue2() {
 
     string:RegExp x5 = re `a\td-*ab[^c-f]+(?m:xj(?i:x|y))`;
     assertEquality("a\\td-*ab[^c-f]+(?m:xj(?i:x|y))", x5.toString());
+
+    string a = "A";
+    int b = 20;
+    string:RegExp x6 = re `abc${a}(?i:[^a-bcd-e]{1,}a{1,2}b{1}(?i:cd*${b*20}+)${b}+)${a+"C"}*`;
+    assertEquality("abcA(?i:[^a-bcd-e]{1,}a{1,2}b{1}(?i:cd*400+)20+)AC*", x6.toString());
+}
+
+function testInvalidInsertionsInRegExp() {
+    string a = "*";
+    string:RegExp|error x1 = trap re `${a}`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Invalid insertion in regular expression", x1.message());
+    }
+
+    x1 = trap re `abc${a}`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Invalid insertion in regular expression", x1.message());
+    }
+
+    x1 = trap re `abc(${a})`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Invalid insertion in regular expression", x1.message());
+    }
+
+    x1 = trap re `abc(?i:${a})`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Invalid insertion in regular expression", x1.message());
+    }
+
+    x1 = trap re `abc(?i-m:${a})`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Invalid insertion in regular expression", x1.message());
+    }
 }
 
 type UserType string:RegExp;
