@@ -60,7 +60,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             String recordName = request.getRecordName();
             boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
             boolean isClosed = request.getIsClosed();
-            boolean forceFormatRecordTypeDesc = request.getForceFormatRecordTypeDesc();
+            boolean forceFormatRecordTypeDesc = request.getForceFormatRecordFields();
 
             try {
                 JsonElement parsedJson = JsonParser.parseString(jsonString);

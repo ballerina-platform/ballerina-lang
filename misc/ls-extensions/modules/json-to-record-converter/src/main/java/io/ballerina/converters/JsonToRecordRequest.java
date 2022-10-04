@@ -28,7 +28,7 @@ public class JsonToRecordRequest {
     private String recordName;
     private boolean isRecordTypeDesc;
     private boolean isClosed;
-    private boolean forceFormatRecordTypeDesc;
+    private boolean forceFormatRecordFields;
 
     /**
      * @deprecated
@@ -42,16 +42,16 @@ public class JsonToRecordRequest {
         this.recordName = recordName;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
-        this.forceFormatRecordTypeDesc = false;
+        this.forceFormatRecordFields = false;
     }
 
     public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
-                               boolean forceFormatRecordTypeDesc) {
+                               boolean forceFormatRecordFields) {
         this.jsonString = jsonString;
         this.recordName = recordName;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
-        this.forceFormatRecordTypeDesc = forceFormatRecordTypeDesc;
+        this.forceFormatRecordFields = forceFormatRecordFields;
     }
 
     public String getJsonString() {
@@ -86,11 +86,11 @@ public class JsonToRecordRequest {
         this.isClosed = isClosed;
     }
 
-    public boolean getForceFormatRecordTypeDesc() {
-        return forceFormatRecordTypeDesc;
+    public boolean getForceFormatRecordFields() {
+        return forceFormatRecordFields;
     }
 
-    public void setForceFormatRecordTypeDesc(boolean forceFormatRecordTypeDesc) {
-        this.forceFormatRecordTypeDesc = forceFormatRecordTypeDesc;
+    public void setForceFormatRecordFields(boolean forceFormatRecordFields) {
+        this.forceFormatRecordFields = forceFormatRecordFields;
     }
 }

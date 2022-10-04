@@ -157,52 +157,11 @@ public class JsonToRecordConverter {
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordTypeDesc) throws IOException,
             JsonToRecordConverterException, FormatterException {
-        String name = ((recordName != null) && !recordName.equals("")) ? recordName : "NewRecord";
-        ObjectMapper objectMapper = new ObjectMapper();
-        OpenAPI model;
-        JsonNode inputJson = objectMapper.readTree(jsonString);
-        if (inputJson.has("$schema")) {
-            model = parseJSONSchema(jsonString, name);
-        } else {
-            Map<String, Object> schema = SchemaGenerator.generate(inputJson);
-            String schemaJson = objectMapper.writeValueAsString(schema);
-            model = parseJSONSchema(schemaJson, name);
-        }
-
-        Map<String, NonTerminalNode> typeDefinitionNodes = generateRecords(model, isRecordTypeDesc, isClosed);
-        NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
-        JsonToRecordResponse response = new JsonToRecordResponse();
-
-        if (isRecordTypeDesc) {
-            // Sets generated type definition code block when sub field of type descriptor kind
-            RecordTypeDescriptorNode typeDescriptorNode = (RecordTypeDescriptorNode) typeDefinitionNodes.entrySet()
-                    .iterator().next().getValue();
-            Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-            Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
-                    escapeIdentifier(name));
-            TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                    null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
-            NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.
-                    createNodeList(typeDefinitionNode);
-            Token eofToken = AbstractNodeFactory.createIdentifierToken("");
-            ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            FormattingOptions formattingOptions = FormattingOptions.builder()
-                    .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
-        } else {
-            // Sets generated type definition code block
-            NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
-                    new ArrayList(typeDefinitionNodes.values()));
-            Token eofToken = AbstractNodeFactory.createIdentifierToken("");
-            ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            FormattingOptions formattingOptions = FormattingOptions.builder()
-                    .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
-        }
-
+        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+        FormattingOptions formattingOptions = FormattingOptions.builder()
+                .setForceFormattingOptions(ForceFormattingOptions.builder()
+                        .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
+        response.setCodeBlock(Formatter.format(response.getCodeBlock(), formattingOptions));
         return response;
     }
 
