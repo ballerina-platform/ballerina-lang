@@ -17,9 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -29,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
@@ -43,6 +40,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.compress.utils.FileNameUtils;
@@ -65,7 +63,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -282,79 +279,14 @@ class DocumentContext {
                 return;
             }
 
-            String uri = getUri(moduleClientDeclarationNode);
-            for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
-                if (cachedPlugin.url().equals(uri)) {
-                    cachedPlugin.annotations().sort(Comparator.naturalOrder());
-                    if (!cachedPlugin.annotations().equals(annotations(moduleClientDeclarationNode.annotations()))) {
-                        continue;
-                    }
-                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
-                        break;
-                    }
-                    String generatedModuleName = this.currentPkg.descriptor().name().value() +
-                            ProjectConstants.DOT + cachedPlugin.generatedModuleName();
-                    PackageID packageID = new PackageID(new Name(this.currentPkg.descriptor().org().value()),
-                            new Name(this.currentPkg.descriptor().name().value()),
-                            new Name(generatedModuleName),
-                            new Name(this.currentPkg.descriptor().version().toString()), null);
-                    idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
-                            moduleClientDeclarationNode.clientPrefix().location().lineRange(),
-                            packageID);
-                    moduleLoadRequests.add(new ModuleLoadRequest(
-                            PackageOrg.from(packageID.orgName.getValue()),
-                            packageID.name.getValue(),
-                            PackageDependencyScope.DEFAULT,
-                            DependencyResolutionType.SOURCE));
-                    idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
-                    return;
-                }
-            }
-
-            if (!compilationOptions.withIDLGenerators()) {
+            if (loadExistingModule(moduleClientDeclarationNode, moduleClientDeclarationNode.annotations(),
+                    moduleClientDeclarationNode.clientPrefix().location().lineRange())) {
                 return;
             }
 
             // client declaration is in a BuildProject
-            for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
-                for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
-                    Path idlPath;
-                    try {
-                        idlPath = getIDLPath(moduleClientDeclarationNode);
-                    } catch (IOException e) {
-                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
-                        Location location = moduleClientDeclarationNode.location();
-                        String message = "unable to get resource from uri, reason: " + e.getMessage();
-                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-                        return;
-                    }
-                    IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
-                            new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    moduleClientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
-                                    currentPkg, idlPath, idlClients, moduleLoadRequests,
-                                    idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
-                    try {
-                        if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
-                            idlClientGenerator.perform(idlSourceGeneratorContext);
-                            pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
-                            return; // Assumption: only one plugin will be able to handle a given client node
-                        }
-                    } catch (Exception e) {
-                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
-                        Location location = moduleClientDeclarationNode.location();
-                        String message = "unexpected exception thrown from plugin class: "
-                                + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
-                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-                        return;
-                    }
-                }
-            }
-            ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
-            Location location = moduleClientDeclarationNode.location();
-            String message = "no matching plugin found for client declaration";
-            pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
-                    moduleClientDeclarationNode.clientPrefix().location().lineRange(), null);
+            executeIDLPlugin(moduleClientDeclarationNode, moduleClientDeclarationNode.location(),
+                    moduleClientDeclarationNode.clientPrefix().location().lineRange());
         }
 
         @Override
@@ -369,65 +301,65 @@ class DocumentContext {
                 return;
             }
 
-            String uri = getUri(clientDeclarationNode);
-            for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
-                if (cachedPlugin.url().equals(uri)) {
-                    cachedPlugin.annotations().sort(Comparator.naturalOrder());
-                    if (cachedPlugin.annotations().equals(annotations(clientDeclarationNode.annotations()))) {
-                        if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
-                            break;
-                        }
-                        String generatedModuleName = this.currentPkg.descriptor().name().value() +
-                                ProjectConstants.DOT + cachedPlugin.generatedModuleName();
-                        PackageID packageID = new PackageID(new Name(this.currentPkg.descriptor().org().value()),
-                                new Name(this.currentPkg.descriptor().name().value()),
-                                new Name(generatedModuleName),
-                                new Name(this.currentPkg.descriptor().version().toString()), null);
-                        idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
-                                clientDeclarationNode.clientPrefix().location().lineRange(),
-                                packageID);
-                        moduleLoadRequests.add(new ModuleLoadRequest(
-                                PackageOrg.from(packageID.orgName.getValue()),
-                                packageID.name.getValue(),
-                                PackageDependencyScope.DEFAULT,
-                                DependencyResolutionType.SOURCE));
-                        idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
-                        return;
-                    }
-                }
-            }
-
-            if (!compilationOptions.withIDLGenerators()) {
+            if (loadExistingModule(clientDeclarationNode, clientDeclarationNode.annotations(),
+                    clientDeclarationNode.clientPrefix().location().lineRange())) {
                 return;
             }
 
             // client declaration is in a BuildProject
+            executeIDLPlugin(clientDeclarationNode, clientDeclarationNode.location(),
+                    clientDeclarationNode.clientPrefix().location().lineRange());
+        }
+
+        private boolean loadExistingModule(
+                Node clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
+            String uri = CompilerPlugins.getUri(clientNode);
+            for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
+                if (cachedPlugin.url().equals(uri)) {
+                    cachedPlugin.annotations().sort(Comparator.naturalOrder());
+                    if (!cachedPlugin.annotations().equals(
+                            CompilerPlugins.annotationsAsStr(annotationsList))) {
+                        continue;
+                    }
+                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
+                        return false;
+                    }
+                    getGeneratedModuleEntry(cachedPlugin, lineRange);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void executeIDLPlugin(Node clientNode, Location location, LineRange lineRange) {
+            if (!compilationOptions.withIDLGenerators()) {
+                return;
+            }
+
             for (IDLPluginContextImpl idlPluginContext : idlPluginManager.idlPluginContexts()) {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
                     Path idlPath;
                     try {
-                        idlPath = getIDLPath(clientDeclarationNode);
+                        idlPath = getIDLPath(clientNode);
                     } catch (IOException e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
-                        Location location = clientDeclarationNode.location();
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
                         pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
                         return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
-                                    clientDeclarationNode, currentModuleDesc.moduleCompilationId(), docName,
+                                    clientNode, currentModuleDesc.moduleCompilationId(), docName,
                                     currentPkg, idlPath, idlClients, moduleLoadRequests,
                                     idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
                             pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
-                            return; // Assumption: only one plugin will be able to handle a given client node
+                            return;
                         }
                     } catch (Exception e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.UNEXPECTED_IDL_EXCEPTION;
-                        Location location = clientDeclarationNode.location();
                         String message = "unexpected exception thrown from plugin class: "
                                 + idlClientGenerator.getClass().getName() + ", exception: " + e.getMessage();
                         pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
@@ -436,28 +368,26 @@ class DocumentContext {
                 }
             }
             ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.MATCHING_PLUGIN_NOT_FOUND;
-            Location location = clientDeclarationNode.location();
             String message = "no matching plugin found for client declaration";
             pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName,
-                    clientDeclarationNode.clientPrefix().location().lineRange(), null);
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName, lineRange, null);
         }
 
-        private List<String> annotations(NodeList<AnnotationNode> supportedAnnotations) {
-            List<String> annotations = new ArrayList<>();
-            StringBuilder id = new StringBuilder();
-            for (AnnotationNode annotation : supportedAnnotations) {
-                String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
-                        .replaceAll("\\s", "");
-                id.append(annotationRef);
-
-                String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
-                        .replaceAll("\\s", "");
-                id.append(annotationVal);
-                annotations.add(id.toString());
-            }
-            annotations.sort(Comparator.naturalOrder());
-            return annotations;
+        private void getGeneratedModuleEntry(IDLClientEntry cachedPlugin, LineRange lineRange) {
+            String generatedModuleName = this.currentPkg.descriptor().name().value() +
+                    ProjectConstants.DOT + cachedPlugin.generatedModuleName();
+            PackageID packageID = new PackageID(new Name(this.currentPkg.descriptor().org().value()),
+                    new Name(this.currentPkg.descriptor().name().value()),
+                    new Name(generatedModuleName),
+                    new Name(this.currentPkg.descriptor().version().toString()), null);
+            idlClients.addEntry(currentModuleDesc.moduleCompilationId(), docName, lineRange,
+                    packageID);
+            moduleLoadRequests.add(new ModuleLoadRequest(
+                    PackageOrg.from(packageID.orgName.getValue()),
+                    packageID.name.getValue(),
+                    PackageDependencyScope.DEFAULT,
+                    DependencyResolutionType.SOURCE));
+            idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
@@ -468,7 +398,7 @@ class DocumentContext {
 
         // TODO: implement validations
         private Path getIDLPath(Node clientNode) throws IOException {
-            String uri = getUri(clientNode);
+            String uri = CompilerPlugins.getUri(clientNode);
             URL url = getUrl(uri);
             String extension = FileNameUtils.getExtension(url.getFile());
             String fileName = "idl-spec-file" + System.nanoTime();
@@ -512,19 +442,6 @@ class DocumentContext {
                 }
                 throw e;
             }
-        }
-
-        private String getUri(Node clientNode) {
-            BasicLiteralNode clientUri;
-
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
-            String text = clientUri.literalToken().text();
-            return text.substring(1, text.length() - 1);
         }
     }
 }

@@ -17,7 +17,14 @@
  */
 package io.ballerina.projects.internal.plugins;
 
-import io.ballerina.projects.IDLPluginContextImpl;
+import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.plugins.CompilerPlugin;
@@ -35,6 +42,7 @@ import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Stream;
@@ -46,7 +54,6 @@ import java.util.stream.Stream;
  */
 public class CompilerPlugins {
     static List<CompilerPlugin> builtInPlugins = new ArrayList<>();
-    private static  List<IDLPluginContextImpl> idlPluginContexts;
 
     private CompilerPlugins() {
     }
@@ -137,5 +144,35 @@ public class CompilerPlugins {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static List<String> annotationsAsStr(NodeList<AnnotationNode> supportedAnnotations) {
+        List<String> annotations = new ArrayList<>();
+        StringBuilder id = new StringBuilder();
+        for (AnnotationNode annotation : supportedAnnotations) {
+            String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
+                    .replaceAll("\\s", "");
+            id.append(annotationRef);
+
+            String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
+                    .replaceAll("\\s", "");
+            id.append(annotationVal);
+            annotations.add(id.toString());
+        }
+        annotations.sort(Comparator.naturalOrder());
+        return annotations;
+    }
+
+    public static String getUri(Node clientNode) {
+        BasicLiteralNode clientUri;
+
+        if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+            clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
+        } else {
+            clientUri = ((ClientDeclarationNode) clientNode).clientUri();
+        }
+
+        String text = clientUri.literalToken().text();
+        return text.substring(1, text.length() - 1);
     }
 }
