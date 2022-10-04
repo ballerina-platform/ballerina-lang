@@ -1,14 +1,20 @@
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -217,6 +223,62 @@ public class Package {
         return new Package(packageContext.duplicate(project), project);
     }
 
+    public IDLClientGeneratorResult runIDLGeneratorPlugins() {
+        ResolutionOptions resolutionOptions = ResolutionOptions.builder()
+                .setOffline(this.packageContext.compilationOptions().offlineBuild())
+                .setSticky(this.packageContext.compilationOptions().sticky()).build();
+        return runIDLGeneratorPlugins(resolutionOptions);
+    }
+
+    public IDLClientGeneratorResult runIDLGeneratorPlugins(ResolutionOptions resolutionOptions) {
+        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            throw new ProjectException(
+                    "IDL plugin generation is not supported for project kind: " + ProjectKind.BALA_PROJECT);
+        }
+
+        // Clear existing module and document contexts.
+        // Otherwise the cached compilations will be reused skipping the IDL client generator plugins.
+        Package updatedPackage = resetIfCompiled();
+        this.project.setCurrentPackage(updatedPackage);
+
+        // Generate IDL client modules
+        CompilationOptions newCompilationOptions = this.packageContext.compilationOptions().acceptTheirs(
+                CompilationOptions.builder()
+                        .withIDLGenerators(true)
+                        .setOffline(resolutionOptions.offline())
+                        .setSticky(resolutionOptions.sticky())
+                        .build());
+        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions);
+
+        // Save the generated client modules
+        try {
+            saveGeneratedModules(packageResolution);
+        } catch (IOException e) {
+            throw new ProjectException("failed to save generated IDL client modules: " + e.getMessage(), e);
+        }
+        return new IDLClientGeneratorResult(updatedPackage, packageResolution.pluginDiagnosticList());
+    }
+
+    private Package resetIfCompiled() {
+        if (this.packageContext.cachedCompilation() == null) {
+            return this;
+        }
+        return duplicate(this.project);
+    }
+
+    private void saveGeneratedModules(PackageResolution resolution) throws IOException {
+        Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
+            if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
+                Utils.writeModule(project.currentPackage().module(moduleId), modulesRoot);
+            }
+        }
+        if (!resolution.clientsToCache().isEmpty()) {
+            String json = new Gson().toJson(resolution.clientsToCache());
+            Files.writeString(this.project.targetDir().resolve(ProjectConstants.IDL_CACHE_FILE), json);
+        }
+    }
+
     /**
      * Run {@code CodeGenerator} and {@code CodeModifier} tasks in engaged {@code CompilerPlugin}s.
      * <p>
@@ -393,13 +455,13 @@ public class Package {
         private DependencyManifest dependencyManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;
         private TomlDocumentContext compilerPluginTomlContext;
         private MdDocumentContext packageMdContext;
+        private PackageContext oldPackageContext;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -407,19 +469,24 @@ public class Package {
             this.dependencyManifest = oldPackage.dependencyManifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
+            this.oldPackageContext = oldPackage.packageContext;
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {
             for (ModuleContext newModuleContext : newModuleContexts) {
                 this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
             }
+            return this;
+        }
+
+        Modifier withCompilationOptions(CompilationOptions compilationOptions) {
+            this.compilationOptions = this.compilationOptions.acceptTheirs(compilationOptions);
             return this;
         }
 
@@ -526,8 +593,6 @@ public class Package {
             return this;
         }
 
-
-
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updatePackageManifest();
@@ -578,12 +643,15 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
-                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
+                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph(),
+                    this.oldPackageContext.idlPluginManager());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
-            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
-                    .dependencyGraph();
-            cleanPackageCache(this.dependencyGraph, newDepGraph);
+            if (oldPackageContext.cachedCompilation() != null) {
+                DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
+                        .dependencyGraph();
+                cleanPackageCache(oldPackageContext.getResolution().dependencyGraph(), newDepGraph);
+            }
             return this.project.currentPackage();
         }
 
@@ -695,7 +763,8 @@ public class Package {
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap,
+                        oldModuleContext.kind()));
             }
             updateModules(moduleContextSet);
         }

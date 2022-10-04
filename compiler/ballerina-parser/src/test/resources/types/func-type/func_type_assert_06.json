@@ -551,7 +551,7 @@
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "re",
+                                      "value": "\u0027re",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
@@ -675,7 +675,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "re"
+                                                      "value": "\u0027re"
                                                     }
                                                   ]
                                                 }
@@ -857,7 +857,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "re"
+                              "value": "\u0027re"
                             }
                           ]
                         }

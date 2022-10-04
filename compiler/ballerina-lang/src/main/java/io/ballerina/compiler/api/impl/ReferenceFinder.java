@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -100,8 +101,20 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -145,6 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -270,6 +284,17 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         find(xmlnsNode.namespaceURI);
         addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
+        find(clientDeclStmt.getClientDeclaration());
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclNode) {
+        find((BLangNode) clientDeclNode.getUri());
+        addIfSameSymbol(clientDeclNode.symbol, clientDeclNode.prefix.pos);
     }
 
     @Override
@@ -1299,6 +1324,76 @@ public class ReferenceFinder extends BaseVisitor {
             addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
         }
         addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.pos);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        find(regExpTemplateLiteral.reDisjunction);
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        find(reSequence.termList);
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        find(reAtomQuantifier.atom);
+        find(reAtomQuantifier.quantifier);
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        find(reAtomCharOrEscape.charOrEscape);
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        find(reQuantifier.quantifier);
+        find(reQuantifier.nonGreedyChar);
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        find(reCharacterClass.characterClassStart);
+        find(reCharacterClass.negation);
+        find(reCharacterClass.charSet);
+        find(reCharacterClass.characterClassEnd);
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        find(reCharSet.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        find(reAssertion.assertion);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        find(reCapturingGroups.openParen);
+        find(reCapturingGroups.flagExpr);
+        find(reCapturingGroups.disjunction);
+        find(reCapturingGroups.closeParen);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        find(reDisjunction.sequenceList);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        find(reFlagsOnOff.flags);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        find(reFlagExpression.questionMark);
+        find(reFlagExpression.flagsOnOff);
+        find(reFlagExpression.colon);
     }
 
     // Private methods

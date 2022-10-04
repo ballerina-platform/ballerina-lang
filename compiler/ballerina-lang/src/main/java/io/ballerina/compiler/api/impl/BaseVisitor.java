@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -103,8 +104,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -152,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -220,6 +229,10 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDecl) {
     }
 
     @Override
@@ -332,6 +345,10 @@ abstract class BaseVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
     }
 
     @Override
@@ -1039,4 +1056,32 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     }
 
     public abstract void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation);
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+    }
 }
