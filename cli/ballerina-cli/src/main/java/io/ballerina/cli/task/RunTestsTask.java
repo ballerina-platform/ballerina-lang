@@ -244,9 +244,9 @@ public class RunTestsTask implements Task {
             try {
 
                 if (enableNativeImage) {
-                    testResult = runTestSuite(project.currentPackage(), jBallerinaBackend, target);
+                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target);
                 } else {
-                    testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+                    testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
                 }
 
                 if (report || coverage) {
@@ -400,7 +400,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
+    private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
                             List<String> mockClassNames) throws IOException, InterruptedException,
             ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
@@ -461,8 +461,8 @@ public class RunTestsTask implements Task {
         return proc.waitFor();
     }
 
-    private int runTestSuite(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target) throws
-            IOException, InterruptedException {
+    private int runTestSuiteWithNativeImage(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target)
+            throws IOException, InterruptedException {
         String packageName = currentPackage.packageName().toString();
         String classPath = getNewClassPath(jBallerinaBackend, currentPackage);
         String jacocoAgentJarPath = "";
@@ -526,11 +526,11 @@ public class RunTestsTask implements Task {
         cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
 
-        String nativeImageName = nativeTargetPath.resolve(packageName).toString(); // <abs>/target/native/<packageName>
-        cmdArgs.add(nativeImageName);
+        // set name and path
+        cmdArgs.add("-H:Name=" + packageName);
+        cmdArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
-        cmdArgs.add("-H:MaxDuplicationFactor=8.0");
         cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
         cmdArgs.add("-H:ResourceConfigurationFiles=" + nativeConfigPath.resolve("resource-config.json"));
         cmdArgs.add("--no-fallback");
@@ -544,7 +544,7 @@ public class RunTestsTask implements Task {
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
-            cmdArgs.add(nativeImageName);
+            cmdArgs.add(nativeTargetPath.resolve(packageName).toString());
 
             // Test Runner Class arguments
             cmdArgs.add(target.path().toString());                                  // 0
