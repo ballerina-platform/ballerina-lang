@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 5,
+    "character": 19
+  },
+  "source": "typedesc_context/source/function_typedesc17b.bal",
+  "items": [
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "worker",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

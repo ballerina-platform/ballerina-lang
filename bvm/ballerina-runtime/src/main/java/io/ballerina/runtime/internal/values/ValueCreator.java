@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -88,6 +89,10 @@ public abstract class ValueCreator {
             throw new BallerinaException("Value creator object is not available for: " + key);
         }
         return runtimeValueCreators.get(key);
+    }
+
+    public Object call(Strand strand, String funcName, Object... args) throws BError {
+        throw new ErrorValue(StringUtils.fromString("No such method: " + funcName));
     }
 
     public static boolean containsValueCreator(String key) {

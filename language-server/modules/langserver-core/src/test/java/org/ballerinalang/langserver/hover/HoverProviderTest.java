@@ -101,7 +101,9 @@ public class HoverProviderTest {
     }
 
     private Object[][] testSubset() {
-        return new Object[0][];
+        return new Object[][] {
+                {"hover_for_api_docs_negative.json"}
+        };
     }
 
     private List<String> skipList() {

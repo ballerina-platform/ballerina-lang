@@ -53,6 +53,7 @@ dependencies {
     dist project(path: ':ballerina-lang:runtime', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:regexp', configuration: 'distributionBirJar')
 //    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'distributionBirJar')
 
     // Lang libs
@@ -77,6 +78,7 @@ dependencies {
     dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
+    dist project(':ballerina-lang:regexp')
     dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-shell:shell-rt')
 

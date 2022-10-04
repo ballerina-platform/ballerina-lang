@@ -74,6 +74,7 @@
             <!--            <package name="org.ballerinalang.test.loc.*"/>-->
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.module.declarations.*"/>
             <package name="org.ballerinalang.test.narrowing.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.natives.*"/>
@@ -94,6 +95,7 @@
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
             <package name="org.ballerinalang.test.statements.breakstatement.*"/>
+            <package name="org.ballerinalang.test.statements.clientdeclstmt.*"/>
             <package name="org.ballerinalang.test.statements.comment.*"/>
             <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>
@@ -147,6 +149,7 @@
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.xml.*" />
+            <package name="org.ballerinalang.test.types.regexp.*" />
 
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>

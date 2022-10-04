@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -335,6 +336,11 @@ public class StringUtils {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
             return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
+        }
+        if (exprValue.startsWith("re")) {
+            String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return RegExpFactory.parse(regexp);
         }
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
