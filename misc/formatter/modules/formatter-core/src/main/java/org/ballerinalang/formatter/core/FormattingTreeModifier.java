@@ -4428,7 +4428,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 NodeList<Node> objectConstructorMembers = objectConstructor.members();
                 return shouldExpandObjectMembers(objectConstructorMembers);
             case RECORD_TYPE_DESC:
-                if (options.getForceFormattingOptions().getForceFormatRecordTypeDesc()) {
+                if (options.getForceFormattingOptions().getForceFormatRecordFields()) {
                     return true;
                 }
 
@@ -4469,8 +4469,15 @@ public class FormattingTreeModifier extends TreeModifier {
                     }
                 }
                 return false;
+            case MAPPING_CONSTRUCTOR:
+                MappingConstructorExpressionNode mappingConstructorExpressionNode =
+                        (MappingConstructorExpressionNode) node;
+                return mappingConstructorExpressionNode.toSourceCode().trim().contains(System.lineSeparator());
+            case LIST_CONSTRUCTOR:
+                ListConstructorExpressionNode listConstructorExpressionNode = (ListConstructorExpressionNode) node;
+                return listConstructorExpressionNode.toSourceCode().trim().contains(System.lineSeparator());
             default:
-                return node.toSourceCode().trim().contains(System.lineSeparator());
+                return false;
         }
     }
 
