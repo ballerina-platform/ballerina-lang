@@ -134,6 +134,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
         BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
         objectType.fields = getObjectFields(objectFieldList, objectSymbol);
+        objectType.originalFields.putAll(objectType.fields);
         objectType.typeInclusions.addAll(getTypeInclusions(typeInclusions));
         objectSymbol.type = objectType;
         objectSymbol.attachedFuncs = new ArrayList<>(objectMethodList);

@@ -105,6 +105,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
         }
 
         recordType.fields = getFields(recordFieldList, recordSymbol);
+        recordType.originalFields.putAll(recordType.fields);
         RecordTypeSymbol recordFieldSymbol = (RecordTypeSymbol) typesFactory.getTypeDescriptor(recordType);
 
         typeInclusions.clear();
