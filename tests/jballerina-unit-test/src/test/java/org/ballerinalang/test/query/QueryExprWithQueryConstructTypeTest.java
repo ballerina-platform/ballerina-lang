@@ -265,6 +265,9 @@ public class QueryExprWithQueryConstructTypeTest {
                 "found 'stream<int,BarError?>'", 442, 32);
         validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
                 "found 'stream<int,BarError?>'", 445, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'", 460, 13);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', found 'table<record {| |}>'", 461, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', found 'table<record {| int a; int b; |}>'", 462, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
