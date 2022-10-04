@@ -28,9 +28,11 @@ public class BuildOptions {
     private CompilationOptions compilationOptions;
     private String targetDir;
     private Boolean enableCache;
+    private Boolean nativeImage;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 Boolean nativeImage) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -38,6 +40,7 @@ public class BuildOptions {
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
         this.enableCache = enableCache;
+        this.nativeImage = nativeImage;
     }
 
     public boolean testReport() {
@@ -100,6 +103,10 @@ public class BuildOptions {
         return this.compilationOptions.enableCache();
     }
 
+    public boolean nativeImage() {
+        return toBooleanDefaultIfNull(this.nativeImage);
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -137,6 +144,11 @@ public class BuildOptions {
             buildOptionsBuilder.setEnableCache(theirOptions.enableCache);
         } else {
             buildOptionsBuilder.setEnableCache(this.enableCache);
+        }
+        if (theirOptions.nativeImage != null) {
+            buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
+        } else {
+            buildOptionsBuilder.setNativeImage(this.nativeImage);
         }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
@@ -186,7 +198,8 @@ public class BuildOptions {
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
-        TARGET_DIR("targetDir");
+        TARGET_DIR("targetDir"),
+        NATIVE_IMAGE("nativeImage");
 
         private final String name;
 
@@ -213,6 +226,7 @@ public class BuildOptions {
         private String targetPath;
         private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+        private Boolean nativeImage;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -315,10 +329,15 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setNativeImage(Boolean value) {
+            nativeImage = value;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache);
+                    compilationOptions, targetPath, enableCache, nativeImage);
         }
     }
 }

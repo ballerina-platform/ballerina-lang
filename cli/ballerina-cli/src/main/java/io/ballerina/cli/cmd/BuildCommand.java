@@ -104,14 +104,14 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                 boolean dumpBuildTime, boolean enableNativeImage) {
+                 boolean dumpBuildTime, boolean nativeImage) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.dumpBuildTime = dumpBuildTime;
         this.offline = true;
-        this.enableNativeImage = enableNativeImage;
+        this.nativeImage = nativeImage;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -175,8 +175,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native")
-    private boolean enableNativeImage;
+    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    private Boolean nativeImage;
 
     public void execute() {
         long start = 0;
@@ -188,11 +188,6 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
-        }
-
-        if (enableNativeImage) {
-            this.outStream.println("WARNING : Native image generation is an experimental feature, " +
-                            "which supports only a limited set of functionality.");
         }
 
         // load project
@@ -252,6 +247,11 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
+        if (project.buildOptions().nativeImage()) {
+            this.outStream.println("WARNING : Native image generation is an experimental feature, " +
+                    "which supports only a limited set of functionality.");
+        }
+
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -270,7 +270,7 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
-                .addTask(new CreateNativeImageTask(outStream, this.output), !enableNativeImage)
+                .addTask(new CreateNativeImageTask(outStream, this.output), !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -296,7 +296,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
