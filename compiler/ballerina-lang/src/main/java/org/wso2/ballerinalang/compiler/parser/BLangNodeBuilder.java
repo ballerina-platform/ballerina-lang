@@ -3903,7 +3903,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
         TypeDescriptorNode typeDesc = groupingKeyVarDeclarationNode.typeDescriptor();
         Location variablePos = getPosition(groupingKeyVarDeclarationNode);
-        BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.variableName(), variablePos);
+        BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.simpleBindingPattern(), variablePos);
         BLangExpression expr = createExpression(groupingKeyVarDeclarationNode.expression());
         BLangSimpleVariableDef groupingVarDef = getVariableDefinition(typeDesc, variable, variablePos, expr);
         return groupingVarDef;
