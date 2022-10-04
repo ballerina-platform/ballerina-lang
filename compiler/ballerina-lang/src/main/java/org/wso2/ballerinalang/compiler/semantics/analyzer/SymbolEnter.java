@@ -239,7 +239,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
-    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -444,7 +443,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
-        populateTypeToTypeDefMap(typeAndClassDefs);
         defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
@@ -497,17 +495,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         varSymbol.tag = SymTag.ENDPOINT;
                     }
                 }
-            }
-        }
-    }
-
-    private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
-        typeToTypeDef = new HashMap<>(typeDefNodes.size());
-        for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
-                BType type = typeDefNode.typeNode.getBType();
-                typeToTypeDef.put(type, typeDefNode);
             }
         }
     }
