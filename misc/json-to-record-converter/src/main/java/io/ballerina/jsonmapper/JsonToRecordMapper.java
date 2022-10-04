@@ -163,55 +163,13 @@ public class JsonToRecordMapper {
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed, boolean forceFormatRecordTypeDesc) {
-        Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
-        Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
         List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
-        JsonToRecordResponse response = new JsonToRecordResponse();
-
+        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+        FormattingOptions formattingOptions = FormattingOptions.builder()
+                .setForceFormattingOptions(ForceFormattingOptions.builder()
+                        .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
         try {
-            JsonElement parsedJson = JsonParser.parseString(jsonString);
-            if (parsedJson.isJsonObject()) {
-                generateRecords(parsedJson.getAsJsonObject(), recordName, isClosed,
-                        recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
-            } else if (parsedJson.isJsonArray()) {
-                JsonObject object = new JsonObject();
-                object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
-                        StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed,
-                        recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
-            } else {
-                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
-                diagnosticMessages.add(message);
-                return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
-            }
-        } catch (JsonSyntaxException e) {
-            DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});
-            diagnosticMessages.add(message);
-            return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
-        }
-
-        NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
-        List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
-                .map(entry -> {
-                    Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-                    IdentifierToken typeName = AbstractNodeFactory
-                            .createIdentifierToken(escapeIdentifier(entry.getKey()));
-                    Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-                    return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
-                            entry.getValue(), semicolon);
-                }).collect(Collectors.toList());
-        TypeDefinitionNode lastTypeDefNode = convertToInlineRecord(typeDefNodes);
-        NodeList<ModuleMemberDeclarationNode> moduleMembers = isRecordTypeDesc ?
-                AbstractNodeFactory.createNodeList(lastTypeDefNode) :
-                AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));
-
-        Token eofToken = AbstractNodeFactory.createIdentifierToken("");
-        ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-        try {
-            FormattingOptions formattingOptions = FormattingOptions.builder()
-                    .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
+            response.setCodeBlock(Formatter.format(response.getCodeBlock(), formattingOptions));
         } catch (FormatterException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
             diagnosticMessages.add(message);
