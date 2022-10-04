@@ -189,7 +189,7 @@ class IDLPluginManager {
             this.moduleConfigs.add(newModuleConfig);
 
             // Generate id to cache plugins for subsequent compilations
-            List<String> annotations = createId(supportedAnnotations);
+            List<String> annotations = CompilerPlugins.annotationsAsStr(supportedAnnotations);
             String uri = getUri(this.clientNode);
 
             IDLClientEntry idlCacheInfo = new IDLClientEntry(uri,
@@ -208,22 +208,6 @@ class IDLPluginManager {
 
             String text = clientUri.literalToken().text();
             return text.substring(1, text.length() - 1);
-        }
-
-        private List<String> createId(NodeList<AnnotationNode> supportedAnnotations) {
-            List<String> annotations = new ArrayList<>();
-            StringBuilder id = new StringBuilder();
-            for (AnnotationNode annotation : supportedAnnotations) {
-                String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
-                        .replaceAll("\\s", "");
-                id.append(annotationRef);
-
-                String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
-                .replaceAll("\\s", "");
-                id.append(annotationVal);
-                annotations.add(id.toString());
-            }
-            return annotations;
         }
 
         private ModuleConfig createModuleConfigWithRandomName(ModuleConfig moduleConfig) {
