@@ -168,7 +168,7 @@ public class TestCommand implements BLauncherCmd {
     private Boolean enableCache;
 
     @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
-    private boolean enableNativeImage;
+    private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -281,8 +281,8 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups, enableNativeImage))
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
+                        includes, coverageFormat, moduleMap, listGroups, project.buildOptions().nativeImage()))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -305,6 +305,7 @@ public class TestCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
+                .setNativeImage(nativeImage)
                 .build();
 
         if (targetDir != null) {

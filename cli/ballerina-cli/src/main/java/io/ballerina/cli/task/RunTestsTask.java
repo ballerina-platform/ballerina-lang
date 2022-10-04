@@ -531,6 +531,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
+        cmdArgs.add("-H:MaxDuplicationFactor=8.0");
         cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
         cmdArgs.add("-H:ResourceConfigurationFiles=" + nativeConfigPath.resolve("resource-config.json"));
         cmdArgs.add("--no-fallback");
