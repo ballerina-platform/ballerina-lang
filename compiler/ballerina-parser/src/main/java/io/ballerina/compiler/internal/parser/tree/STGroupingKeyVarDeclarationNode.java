@@ -28,22 +28,22 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class STGroupingKeyVarDeclarationNode extends STNode {
     public final STNode typeDescriptor;
-    public final STNode variableName;
+    public final STNode simpleBindingPattern;
     public final STNode equalsToken;
     public final STNode expression;
 
     STGroupingKeyVarDeclarationNode(
             STNode typeDescriptor,
-            STNode variableName,
+            STNode simpleBindingPattern,
             STNode equalsToken,
             STNode expression) {
         this(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression,
                 Collections.emptyList());
@@ -51,19 +51,19 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
 
     STGroupingKeyVarDeclarationNode(
             STNode typeDescriptor,
-            STNode variableName,
+            STNode simpleBindingPattern,
             STNode equalsToken,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.GROUPING_KEY_VAR_DECLARATION, diagnostics);
         this.typeDescriptor = typeDescriptor;
-        this.variableName = variableName;
+        this.simpleBindingPattern = simpleBindingPattern;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
         addChildren(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression);
     }
@@ -71,7 +71,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STGroupingKeyVarDeclarationNode(
                 this.typeDescriptor,
-                this.variableName,
+                this.simpleBindingPattern,
                 this.equalsToken,
                 this.expression,
                 diagnostics);
@@ -79,12 +79,12 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
 
     public STGroupingKeyVarDeclarationNode modify(
             STNode typeDescriptor,
-            STNode variableName,
+            STNode simpleBindingPattern,
             STNode equalsToken,
             STNode expression) {
         if (checkForReferenceEquality(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression)) {
             return this;
@@ -92,7 +92,7 @@ public class STGroupingKeyVarDeclarationNode extends STNode {
 
         return new STGroupingKeyVarDeclarationNode(
                 typeDescriptor,
-                variableName,
+                simpleBindingPattern,
                 equalsToken,
                 expression,
                 diagnostics);

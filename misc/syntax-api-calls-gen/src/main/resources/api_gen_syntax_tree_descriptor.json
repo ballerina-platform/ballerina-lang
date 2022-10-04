@@ -4210,8 +4210,8 @@
           "type": "TypeDescriptorNode"
         },
         {
-          "name": "variableName",
-          "type": "CaptureBindingPatternNode"
+          "name": "simpleBindingPattern",
+          "type": "BindingPatternNode"
         },
         {
           "name": "equalsToken",
