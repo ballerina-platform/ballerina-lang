@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -29,7 +29,6 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.componentmodel.servicemodel.components.Interaction;
 import io.ballerina.componentmodel.servicemodel.components.ResourceId;
@@ -48,15 +47,18 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final List<Interaction> interactionList = new ArrayList<>();
 
     public ActionNodeVisitor(SemanticModel semanticModel) {
+
         this.semanticModel = semanticModel;
     }
 
     public List<Interaction> getInteractionList() {
+
         return interactionList;
     }
 
     @Override
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+
         String clientName = String.valueOf(clientResourceAccessActionNode.expression()).trim();
         String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get()).trim();
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
@@ -82,9 +84,9 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+
         String clientName = String.valueOf(remoteMethodCallActionNode.expression()).trim();
         String resourceMethod = String.valueOf(remoteMethodCallActionNode.methodName()).trim();
-
         NonTerminalNode parent = remoteMethodCallActionNode.parent().parent();
         StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
 
@@ -106,6 +108,7 @@ public class ActionNodeVisitor extends NodeVisitor {
     }
 
     private String getResourcePath(SeparatedNodeList<Node> accessPathNodes) {
+
         StringBuilder resourcePathBuilder = new StringBuilder();
         for (Node accessPathNode : accessPathNodes) {
             if (accessPathNode.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -128,27 +131,10 @@ public class ActionNodeVisitor extends NodeVisitor {
                     }
                 } else if (expressionNode.kind().equals(SyntaxKind.BOOLEAN_LITERAL)) {
                     resourcePathBuilder.append(String.format("/[%s]", SyntaxKind.BOOLEAN_LITERAL));
-                } else if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                    String varName = ((SimpleNameReferenceNode) expressionNode).name().text();
-
-//                    Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
-
-                    PathVariableDeclarationVisitor pathVariableDeclarationVisitor =
-                            new PathVariableDeclarationVisitor(varName);
-                    NonTerminalNode parent = expressionNode.parent().parent();
-
-                    //todo : implement using semantic model. Need to wait till bug fix
-                    while (pathVariableDeclarationVisitor.getVarType() == null ||
-                            pathVariableDeclarationVisitor.getVarType().isEmpty()) {
-                        parent = parent.parent();
-                        if (parent != null) {
-                            parent.accept(pathVariableDeclarationVisitor);
-                        } else {
-                            break;
-                        }
-                    }
-                    resourcePathBuilder.append("/").append("[").append(
-                            pathVariableDeclarationVisitor.getVarType().trim()).append("]");
+                } else if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                        expressionNode.kind() == SyntaxKind.FIELD_ACCESS) {
+                    String varType = semanticModel.typeOf(expressionNode).get().signature();
+                    resourcePathBuilder.append("/").append("[").append(varType.trim()).append("]");
                 }
             }
         }

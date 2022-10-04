@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,20 +18,20 @@
 
 package io.ballerina.componentmodel.servicemodel.components;
 
-
 import java.util.List;
 
 /**
  * Provides service related information.
  */
 public class Service {
+
     private final String path;
     private final String serviceId;
     private final String serviceType;
     private final List<Resource> resources;
 
-
     public Service(String path, String serviceId, String serviceType, List<Resource> resources) {
+
         this.path = path;
         this.serviceId = serviceId;
         this.serviceType = serviceType;
@@ -40,18 +40,22 @@ public class Service {
     }
 
     public String getPath() {
+
         return path;
     }
 
     public String getServiceId() {
+
         return serviceId;
     }
 
     public List<Resource> getResources() {
+
         return resources;
     }
 
     public String getServiceType() {
+
         return serviceType;
     }
 }
