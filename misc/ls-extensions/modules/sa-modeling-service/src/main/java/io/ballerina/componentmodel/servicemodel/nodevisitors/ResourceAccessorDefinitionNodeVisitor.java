@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -29,13 +29,26 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.componentmodel.ComponentModel;
 import io.ballerina.componentmodel.ComponentModelingConstants.ParameterIn;
 import io.ballerina.componentmodel.servicemodel.components.Parameter;
 import io.ballerina.componentmodel.servicemodel.components.Resource;
 import io.ballerina.componentmodel.servicemodel.components.ResourceId;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +58,7 @@ import java.util.Optional;
  * Visitor class for FunctionDefinition node.
  */
 public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
+
     private final String serviceId;
 
     private final SemanticModel semanticModel;
@@ -52,17 +66,21 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
 
     private final ComponentModel.PackageId packageId;
 
-    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel,
+                                                 ComponentModel.PackageId packageId) {
+
         this.serviceId = serviceId;
         this.semanticModel = semanticModel;
         this.packageId = packageId;
     }
 
     public List<Resource> getResources() {
+
         return resources;
     }
 
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
+
         SyntaxKind kind = functionDefinitionNode.kind();
         if (kind.equals(SyntaxKind.RESOURCE_ACCESSOR_DEFINITION)) {
             StringBuilder identifierBuilder = new StringBuilder();
@@ -91,17 +109,14 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
             ResourceId resourceId = new ResourceId(this.serviceId, method, resourcePath);
 
             // todo : complete the interactions
-            Resource resource = new Resource(identifierBuilder.toString().trim(),resourceId, parameterList, returnTypes,
-                    actionNodeVisitor.getInteractionList());
+            Resource resource = new Resource(identifierBuilder.toString().trim(),
+                    resourceId, parameterList, returnTypes, actionNodeVisitor.getInteractionList());
             resources.add(resource);
         }
     }
 
-    private String getResourceIdentifier() {
-        return "";
-    }
-
     private List<Parameter> getParameters(FunctionSignatureNode functionSignatureNode) {
+
         List<Parameter> parameterList = new ArrayList<>();
         SeparatedNodeList<ParameterNode> parameterNodes = functionSignatureNode.parameters();
         for (ParameterNode parameterNode : parameterNodes) {
@@ -139,12 +154,14 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     }
 
     private String getReferenceEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
-        String currentPackageName = String.format("%s/%s:%s", packageId.getOrg(), packageId.getName(), packageId.getVersion());
+
+        String currentPackageName = String.format
+                ("%s/%s:%s", packageId.getOrg(), packageId.getName(), packageId.getVersion());
         String referenceType = typeReferenceTypeSymbol.signature();
         if (typeReferenceTypeSymbol.getModule().isPresent() &&
                 !referenceType.split(":")[0].equals(currentPackageName.split(":")[0])) {
             String orgName = typeReferenceTypeSymbol.getModule().get().id().orgName();
-            String packageName =  typeReferenceTypeSymbol.getModule().get().id().packageName();
+            String packageName = typeReferenceTypeSymbol.getModule().get().id().packageName();
             String modulePrefix = typeReferenceTypeSymbol.getModule().get().id().modulePrefix();
             String recordName = typeReferenceTypeSymbol.getName().get();
             String version = typeReferenceTypeSymbol.getModule().get().id().version();
@@ -154,6 +171,7 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     }
 
     private void getReferencedType(TypeSymbol typeSymbol, List<String> paramTypes) {
+
         TypeDescKind typeDescKind = typeSymbol.typeKind();
         if (typeDescKind.equals(TypeDescKind.TYPE_REFERENCE)) {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
@@ -171,7 +189,8 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
         } else if (typeDescKind.equals(TypeDescKind.ARRAY)) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
             if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
-                paramTypes.add(getReferenceEntityName((TypeReferenceTypeSymbol) arrayTypeSymbol.memberTypeDescriptor()).trim());
+                paramTypes.add(getReferenceEntityName(
+                        (TypeReferenceTypeSymbol) arrayTypeSymbol.memberTypeDescriptor()).trim());
             } else {
                 paramTypes.add(arrayTypeSymbol.signature().trim());
             }
@@ -182,6 +201,7 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     }
 
     private String getParameterIn(NodeList<AnnotationNode> annotationNodes) {
+
         String in = "";
         Optional<AnnotationNode> payloadAnnotation = annotationNodes.stream().filter(annot ->
                 annot.toString().trim().equals("@http:Payload")).findAny();
@@ -200,6 +220,7 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     }
 
     private List<String> getReturnTypes(FunctionDefinitionNode functionDefinitionNode) {
+
         List<String> returnTypes = new ArrayList<>();
         FunctionSignatureNode functionSignature = functionDefinitionNode.functionSignature();
         Optional<ReturnTypeDescriptorNode> returnTypeDescriptor = functionSignature.returnTypeDesc();

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import java.util.List;
  * Represent a Ballerina record.
  */
 public class Entity {
+
     private List<Attribute> attributes;
 
     private List<String> inclusions;
@@ -35,14 +36,17 @@ public class Entity {
     }
 
     public List<Attribute> getAttributes() {
+
         return attributes;
     }
 
     public void setAttributes(List<Attribute> attributes) {
+
         this.attributes = attributes;
     }
 
     public List<String> getInclusions() {
+
         return inclusions;
     }
 }

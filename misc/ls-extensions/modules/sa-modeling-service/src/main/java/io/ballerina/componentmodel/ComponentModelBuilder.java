@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,6 +18,9 @@
 
 package io.ballerina.componentmodel;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.componentmodel.ComponentModel.PackageId;
@@ -29,10 +32,8 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,8 +41,9 @@ import java.util.Map;
  */
 public class ComponentModelBuilder {
 
-    public ComponentModel constructComponentModel(Project project) {
-        List<Service> services = new ArrayList<>();
+    public void constructComponentModel(Project project, Map<String, JsonObject> generatedComponentModelMap) {
+
+        Map<String, Service> services = new HashMap<>();
         Map<String, Entity> entities = new HashMap<>();
 
         // get project from the workspace
@@ -53,21 +55,31 @@ public class ComponentModelBuilder {
 
         PackageId packageId = new PackageId(packageName, packageOrg, packageVersion);
 
-        // need to escape tests ? test directory is not getting listed as another module
-        currentPackage.modules().forEach(module -> {
-            Collection<DocumentId> documentIds = module.documentIds();
-            SemanticModel currentSemanticModel = currentPackage.getCompilation().getSemanticModel(module.moduleId());
-            for (DocumentId documentId : documentIds) {
-                SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
-                ServiceDeclarationNodeVisitor serviceNodeVisitor = new
-                        ServiceDeclarationNodeVisitor(currentSemanticModel, packageId);
-                syntaxTree.rootNode().accept(serviceNodeVisitor);
-                services.addAll(serviceNodeVisitor.getServices());
-            }
+        if (!generatedComponentModelMap.containsKey(Utils.getPackageKey(packageId))) {
+            // need to escape tests ? test directory is not getting listed as another module
+            currentPackage.modules().forEach(module -> {
+                Collection<DocumentId> documentIds = module.documentIds();
+                SemanticModel currentSemanticModel =
+                        currentPackage.getCompilation().getSemanticModel(module.moduleId());
+                for (DocumentId documentId : documentIds) {
+                    SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+                    ServiceDeclarationNodeVisitor serviceNodeVisitor = new
+                            ServiceDeclarationNodeVisitor(currentSemanticModel, packageId);
+                    syntaxTree.rootNode().accept(serviceNodeVisitor);
+                    serviceNodeVisitor.getServices().forEach(service -> {
+                        services.put(service.getServiceId(), service);
+                    });
+                }
 
-            EntityModelGenerator entityModelConstructor = new EntityModelGenerator();
-            entityModelConstructor.generateEntityModel(currentSemanticModel, entities, packageId);
-        });
-        return new ComponentModel(packageId, services, entities);
+                EntityModelGenerator entityModelConstructor = new EntityModelGenerator();
+                entityModelConstructor.generateEntityModel(currentSemanticModel, entities, packageId);
+            });
+            ComponentModel componentModel = new ComponentModel(packageId, services, entities);
+            Gson gson = new GsonBuilder()
+                    .serializeNulls()
+                    .create();
+            JsonObject componentModelJson = (JsonObject) gson.toJsonTree(componentModel);
+            generatedComponentModelMap.put(Utils.getPackageKey(packageId), componentModelJson);
+        }
     }
 }

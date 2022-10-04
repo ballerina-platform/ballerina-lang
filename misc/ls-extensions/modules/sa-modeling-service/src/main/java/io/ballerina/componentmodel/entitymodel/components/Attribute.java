@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,6 +24,7 @@ import java.util.List;
  * Represents field of a record.
  */
 public class Attribute {
+
     private final String name;
     private final String type;
     private final boolean optional;
@@ -35,6 +36,7 @@ public class Attribute {
 
     public Attribute(String name, String type, boolean optional, boolean nillable, String defaultValue,
                      List<Association> associations) {
+
         this.name = name;
         this.type = type;
         this.optional = optional;
@@ -44,26 +46,32 @@ public class Attribute {
     }
 
     public String getName() {
+
         return name;
     }
 
     public String getType() {
+
         return type;
     }
 
     public boolean isOptional() {
+
         return optional;
     }
 
     public boolean isNillable() {
+
         return nillable;
     }
 
     public String getDefaultValue() {
+
         return defaultValue;
     }
 
     public List<Association> getAssociations() {
+
         return associations;
     }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -22,10 +22,14 @@ package io.ballerina.componentmodel.diagnostics;
  * Exception for component model generation.
  */
 public class ComponentModelException extends Exception {
+
     public ComponentModelException(String message, Throwable e) {
+
         super(message, e);
     }
+
     public ComponentModelException(String message) {
+
         super(message);
     }
 }

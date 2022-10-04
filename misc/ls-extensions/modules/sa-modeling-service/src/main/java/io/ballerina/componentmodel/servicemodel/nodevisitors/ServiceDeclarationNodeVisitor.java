@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -42,12 +42,14 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.componentmodel.ComponentModel;
+import io.ballerina.componentmodel.Utils;
 import io.ballerina.componentmodel.servicemodel.components.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.componentmodel.ComponentModelingConstants.FORWARD_SLASH;
 import static io.ballerina.componentmodel.ComponentModelingConstants.LISTENER;
 
 /**
@@ -57,21 +59,22 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
+    private final List<Service> services = new ArrayList<>();
 
     public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+
         this.packageId = packageId;
         this.semanticModel = semanticModel;
     }
 
-    private final List<Service> services = new ArrayList<>();
-
     public List<Service> getServices() {
+
         return services;
     }
 
-
     @Override
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
+
         StringBuilder serviceNameBuilder = new StringBuilder();
         String serviceId = "";
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
@@ -79,14 +82,16 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
             serviceNameBuilder.append(serviceNameNode.toString());
         }
 
-
-        String serviceName = serviceNameBuilder.toString().startsWith("/") ?
-                serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
+        String serviceName = serviceNameBuilder.toString();
+        if (!serviceName.equals(FORWARD_SLASH)) {
+            serviceName = serviceNameBuilder.toString().startsWith("/") ?
+                    serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
+        }
 
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceId = VisitorUtil.getId(annotationNodes);
+            serviceId = Utils.getId(annotationNodes);
         }
 
         ResourceAccessorDefinitionNodeVisitor resourceAccessorDefinitionNodeVisitor =
@@ -97,9 +102,10 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {
+
         String serviceType = null;
         SeparatedNodeList<ExpressionNode> expressionNodes = serviceDeclarationNode.expressions();
-        for (ExpressionNode expressionNode:expressionNodes) {
+        for (ExpressionNode expressionNode : expressionNodes) {
             if (expressionNode instanceof ExplicitNewExpressionNode) {
                 ExplicitNewExpressionNode explicitNewExpressionNode = (ExplicitNewExpressionNode) expressionNode;
                 //todo: Implement using semantic model - returns null
@@ -123,8 +129,6 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         }
         return serviceType;
     }
-
-
 
     @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {

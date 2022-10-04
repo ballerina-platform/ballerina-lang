@@ -22,29 +22,46 @@ import com.google.gson.JsonObject;
 import io.ballerina.componentmodel.diagnostics.ComponentModelingDiagnostics;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Response format for component model request.
  */
-public class ComponentModelResponse {
-    private JsonObject componentModel = new JsonObject();
+public class ComponentModelingServiceResponse {
+
+    private Map<String, JsonObject> componentModels = new HashMap<>();
 
     private List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
 
-    public JsonObject getComponentModel() {
-        return componentModel;
+    public Map<String, JsonObject> getComponentModels() {
+
+        return componentModels;
     }
 
-    public void setComponentModel(JsonObject componentModel) {
-        this.componentModel = componentModel;
+    public void setComponentModels(Map<String, JsonObject> componentModels) {
+
+        this.componentModels = componentModels;
     }
 
     public List<ComponentModelingDiagnostics> getDiagnostics() {
+
         return diagnostics;
     }
 
     public void setDiagnostics(List<ComponentModelingDiagnostics> diagnostics) {
+
         this.diagnostics = diagnostics;
+    }
+
+    public void addcomponentModel(String key, JsonObject jsonObject) {
+
+        componentModels.put(key, jsonObject);
+    }
+
+    public void addDiagnostics(List<ComponentModelingDiagnostics> componentModelingDiagnostics) {
+
+        this.diagnostics.addAll(componentModelingDiagnostics);
     }
 }
