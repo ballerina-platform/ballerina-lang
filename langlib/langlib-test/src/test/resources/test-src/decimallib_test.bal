@@ -396,6 +396,24 @@ function testFromStringFunctionWithInvalidValues() {
         assertEquality("{ballerina/lang.decimal}NumberParsingError", a1.message());
         assertEquality("'string' value '' cannot be converted to 'decimal'", <string> checkpanic a1.detail()["message"]);
     }
+
+    a1 = decimal:fromString("1e-6144");
+    assertEquality(false, a1 is error);
+    assertEquality(0d, checkpanic a1);
+
+    a1 = trap decimal:fromString("9.999999999999999999999999999999999E6145");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}NumberOverflow", a1.message());
+        assertEquality("decimal range overflow", <string> checkpanic a1.detail()["message"]);
+    }
+
+    a1 = trap decimal:fromString("10E6145");
+    assertEquality(true, a1 is error);
+    if (a1 is error) {
+        assertEquality("{ballerina}NumberOverflow", a1.message());
+        assertEquality("decimal range overflow", <string> checkpanic a1.detail()["message"]);
+    }
 }
 
 function testQuantize() {
@@ -506,9 +524,9 @@ function testQuantize() {
     assertEquality(decimal:quantize(-0.26E-2, 10E-2), -0.00d);
     assertEquality(decimal:quantize(-0.26E-2, 10E-1), 0d);
     assertEquality(decimal:quantize(-0.26E-2, 10E0), 0d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6144), 1.0E+6145d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6145), 1.0E+6145d);
-    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6144, 1E6145), 1.0E+6145d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6143), 1.0E+6144d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6144), 1.0E+6144d);
+    assertEquality(decimal:quantize(9.999999999999999999999999999999999E6143, 1E6144), 1.0E+6144d);
     assertEquality(decimal:quantize(1E-6142, 1E0), 0d);
     assertEquality(decimal:quantize(1E-6142, 1E10), 0d);
     assertEquality(decimal:quantize(1E-6142, 1E-6142), 1E-6142d);
@@ -545,11 +563,11 @@ function testQuantizeFunctionWithInvalidOutput() {
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
     
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6176);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6143);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6175);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6142);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 }
