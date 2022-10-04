@@ -343,3 +343,7 @@ const int ANS8 = NUM4 + NUM5;          // error
 
 const int ANS10 = NUM2 - NUM5;         // error
 const int ANS11 = NUM4 - NUM1;         // error
+
+const decimal ANS12 = 5 % 0;           // error
+
+const int ANS7 = NUM2 - 1;             // error

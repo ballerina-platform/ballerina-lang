@@ -165,16 +165,30 @@ public class SimpleConstantNegativeTest {
                 322, 22);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Infinityf', found 'float'",
                 323, 27);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 332, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 332, 18);
         BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'", 333, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 335, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 336, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 335, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 336, 18);
         BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'", 338, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 339, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 341, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 342, 18);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 344, 19);
-        BAssertUtil.validateError(compileResult, index++, "int range overflow", 345, 19);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 339, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 341, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 342, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 344, 19);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 345, 19);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'Division by zero'",
+                347, 23);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ANS7'", 349, 11);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'ANS7' is already initialized with 'null'", 349, 11);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
+                "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 349, 18);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
