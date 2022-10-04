@@ -247,7 +247,7 @@ public class TesterinaCompilerPluginUtils {
                 populateTestRegistrarStatements(group, registrarStatements, functionsList, statements);
                 testIndex.set(0);
                 group.incrementAndGet();
-                registrarStatements = new ArrayList<>();
+                registrarStatements.clear();
             }
         }
     }
