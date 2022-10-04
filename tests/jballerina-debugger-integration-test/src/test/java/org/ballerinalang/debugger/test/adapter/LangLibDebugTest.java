@@ -88,7 +88,7 @@ public class LangLibDebugTest extends BaseTestCase {
 
         try {
             URI filePathUri = new URI(BALA_URI_SCHEME, null, filePath.toAbsolutePath().toString(), null);
-            debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePathUri, 84));
+            debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePathUri, 85));
             debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
             // Test for debug engage inside lang lib init() method
