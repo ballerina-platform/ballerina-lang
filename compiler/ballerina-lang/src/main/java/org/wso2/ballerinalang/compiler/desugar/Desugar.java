@@ -3177,7 +3177,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
 
-        BLangTypeTestExpr isErrorCheck = getErrorTypeTestExpr(pos, retryResultRef);
+        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(pos, retryResultRef, getErrorTypeNode());
         BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, shouldRetryRef,
                 symTable.booleanType, OperatorKind.AND, null);
         BLangGroupExpr rhsCheck =  new BLangGroupExpr();
@@ -7286,10 +7286,6 @@ public class Desugar extends BLangNodeVisitor {
 
     BLangTypeTestExpr getNilTypeTestExpr(Location pos, BLangExpression expr) {
         return createTypeCheckExpr(pos, expr, getNillTypeNode());
-    }
-
-    BLangTypeTestExpr getErrorTypeTestExpr(Location pos, BLangExpression expr) {
-        return createTypeCheckExpr(pos, expr, getErrorTypeNode());
     }
 
     private BType getBinaryExprOperandNonNilType(BType operandType) {

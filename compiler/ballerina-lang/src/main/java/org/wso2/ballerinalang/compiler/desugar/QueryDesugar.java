@@ -268,7 +268,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
                 queryBlock, stmtsToBePropagated);
-        BLangStatementExpression streamStmtExpr;
         BLangExpression result = streamRef;
         BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
                 Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
@@ -319,7 +318,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
         }
         handleErrorReturnsFromQuery(pos, result, queryBlock, false, resultType);
-        streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+        BLangStatementExpression streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                 addTypeConversionExpr(result, queryExpr.getBType()));
         streamStmtExpr.setBType(resultType);
         this.checkedErrorList = prevCheckedErrorList;
@@ -392,9 +391,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     //Creates return branches to handle different runtime values
     private void handleErrorReturnsFromQuery(Location pos, BLangExpression resultRef, BLangBlockStmt queryBlock,
                                      boolean returnsWithinDoClause, BType returnType) {
-        BLangInvocation getRootCauseError = createQueryLibInvocation(QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION,
-                Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
         if (containsCheckExpr) {
+            BLangInvocation getRootCauseError = createQueryLibInvocation(QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION,
+                    Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
             // if ($streamElement$ is QueryError) {
             //      fail <error>$streamElement$;
             // }
@@ -446,9 +445,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangTypeTestExpr queryErrorUnionTypeTestExpr = desugar.createTypeCheckExpr(pos, resultRef,
                 queryErrorUnionErrorTypeNode);
 
+        BLangInvocation getRootCauseErrorInvo = createQueryLibInvocation(QUERY_GET_QUERY_ERROR_ROOT_CAUSE_FUNCTION,
+                Lists.of(addTypeConversionExpr(resultRef, symTable.errorType)), pos);
         BLangBlockStmt ifErrorBody = ASTBuilderUtil.createBlockStmt(pos);
         BLangAssignment unwrapDistinctError = ASTBuilderUtil.createAssignmentStmt(pos, resultRef,
-                desugar.addConversionExprIfRequired(getRootCauseError, symTable.errorType));
+                desugar.addConversionExprIfRequired(getRootCauseErrorInvo, symTable.errorType));
         ifErrorBody.stmts.add(unwrapDistinctError);
         if (ifStatement.expr == null) {
             ifStatement.expr = queryErrorUnionTypeTestExpr;

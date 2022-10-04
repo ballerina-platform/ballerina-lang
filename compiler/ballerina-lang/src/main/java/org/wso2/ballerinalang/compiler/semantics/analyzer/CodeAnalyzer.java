@@ -3128,7 +3128,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         data.failVisited = true;
-        boolean ignoreErrForCheckExpr = data.withinQuery && data.queryConstructType == Types.QueryConstructType.STREAM;
         analyzeExpr(checkedExpr.expr, data);
 
         if (data.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
@@ -3180,6 +3179,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
+        boolean ignoreErrForCheckExpr = data.withinQuery && data.queryConstructType == Types.QueryConstructType.STREAM;
         if (!data.failureHandled && !ignoreErrForCheckExpr && !types.isAssignable(errorType, exprType)
                 && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos,
