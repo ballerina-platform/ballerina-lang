@@ -39,7 +39,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 /**
  * Utility functions and classes for test native-image generation.
  *
- * @since 2.0.0
+ * @since 2.3.0
  */
 public class NativeUtils {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -57,16 +57,6 @@ public class NativeUtils {
 
         for (Module module : currentPackage.modules()) {
             String name = module.moduleName().toString();
-
-            //  {
-            //      "name":"<org>.<name>$test.0.<class>",
-            //      "methods":[
-            //          {"name":"$moduleInit","parameterTypes":["io.ballerina.runtime.internal.scheduling.Strand"] },
-            //          {"name":"$moduleStart","parameterTypes":["io.ballerina.runtime.internal.scheduling.Strand"] },
-            //          {"name":"$moduleStop","parameterTypes":["io.ballerina.runtime.internal.scheduling
-            //          .RuntimeRegistry"] }
-            //      ]
-            //  }
 
             ReflectConfigClass testInitClass = new ReflectConfigClass(getQualifiedClassName(org, name, version,
                     MODULE_INIT_CLASS_NAME));
@@ -92,12 +82,6 @@ public class NativeUtils {
                     )
             );
 
-            //  {
-            //      "name":"<org>.<name>$test.0.$configurationMapper",
-            //      "methods":[{"name":"$configureInit","parameterTypes":["java.lang.String[]","java.nio.file
-            //      .Path[]","java.lang.String"] }]
-            //  }
-
             ReflectConfigClass testConfigurationMapper = new ReflectConfigClass(getQualifiedClassName(org, name,
                     version, MODULE_CONFIGURATION_MAPPER));
 
@@ -107,17 +91,6 @@ public class NativeUtils {
                             new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
                     )
             );
-
-            // {
-            //      "name":"<org>.<name>$test.0.test_execute-generated_1",
-            //      "methods":[{"name":"__execute__","parameterTypes":["io.ballerina.runtime.internal.scheduling
-            //      .Strand",
-            //      "io.ballerina.runtime.api.values.BString","boolean","io.ballerina.runtime.api.values.BString",
-            //      "boolean","io.ballerina.runtime.api.values.BString","boolean","io.ballerina.runtime.api.values
-            //      .BString","boolean","io.ballerina.runtime.api.values.BString","boolean","io.ballerina.runtime.api
-            //      .values.BString","boolean","io.ballerina.runtime.api.values.BString","boolean","io.ballerina.runtime
-            //      .api.values.BString","boolean"] }]
-            //    },
 
             ReflectConfigClass testTestExecuteGenerated = new ReflectConfigClass(getQualifiedClassName(org, name,
                     version, MODULE_EXECUTE_GENERATED + tally));
@@ -151,16 +124,9 @@ public class NativeUtils {
                     )
             );
 
-            // {
-            //    "name": "<org>.<name>$test.0.<name>",
-            //    "queryAllDeclaredMethods": true
-            //  }
-
             ReflectConfigClass testNameZeroName =
                     new ReflectConfigClass(getQualifiedClassName(org, name, version, name));
             testNameZeroName.setQueryAllDeclaredMethods(true);
-
-
 
             // Add all class values to the array
             classList.add(testInitClass);
@@ -172,14 +138,6 @@ public class NativeUtils {
             // Increment tally to cover executable_<tally> class
             tally += 1;
         }
-
-        //  [
-        //      {
-        //          "name": "org.ballerinalang.test.runtime.entity.TestSuite",
-        //          "allDeclaredFields": true,
-        //          "unsafeAllocated": true
-        //      }
-        //  ]
 
         ReflectConfigClass runtimeEntityTestSuite = new ReflectConfigClass("org.ballerinalang.test.runtime.entity" +
                 ".TestSuite");

@@ -112,7 +112,6 @@ public class RunTestsTask implements Task {
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
-    private boolean enableNativeImage;
 
     TestReport testReport;
 
@@ -125,7 +124,7 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups, boolean enableNativeImage) {
+                        Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -143,7 +142,6 @@ public class RunTestsTask implements Task {
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
         this.listGroups = listGroups;
-        this.enableNativeImage = enableNativeImage;
     }
 
     @Override
@@ -242,8 +240,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-
-                if (enableNativeImage) {
+                if (project.buildOptions().nativeImage()) {
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target);
                 } else {
                     testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
@@ -469,8 +466,8 @@ public class RunTestsTask implements Task {
 
         if (coverage) {
             // Generate the exec in a separate process
-            List<String> cmdArgs1 = new ArrayList<>();
-            cmdArgs1.add(System.getProperty("java.command"));
+            List<String> execArgs = new ArrayList<>();
+            execArgs.add(System.getProperty("java.command"));
 
             String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
@@ -489,22 +486,22 @@ public class RunTestsTask implements Task {
                 agentCommand += ",includes=" + this.includesInCoverage;
             }
 
-            cmdArgs1.add(agentCommand);
-            cmdArgs1.addAll(Lists.of("-cp", classPath));
-            cmdArgs1.add(mainClassName);
+            execArgs.add(agentCommand);
+            execArgs.addAll(Lists.of("-cp", classPath));
+            execArgs.add(mainClassName);
 
             // Adds arguments to be read at the Test Runner
-            cmdArgs1.add(target.path().toString());
-            cmdArgs1.add(jacocoAgentJarPath);
-            cmdArgs1.add(Boolean.toString(report));
-            cmdArgs1.add(Boolean.toString(coverage));
-            cmdArgs1.add(this.groupList != null ? this.groupList : "");
-            cmdArgs1.add(this.disableGroupList != null ? this.disableGroupList : "");
-            cmdArgs1.add(this.singleExecTests != null ? this.singleExecTests : "");
-            cmdArgs1.add(Boolean.toString(isRerunTestExecution));
-            cmdArgs1.add(Boolean.toString(listGroups));
+            execArgs.add(target.path().toString());
+            execArgs.add(jacocoAgentJarPath);
+            execArgs.add(Boolean.toString(report));
+            execArgs.add(Boolean.toString(coverage));
+            execArgs.add(this.groupList != null ? this.groupList : "");
+            execArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+            execArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
+            execArgs.add(Boolean.toString(isRerunTestExecution));
+            execArgs.add(Boolean.toString(listGroups));
 
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs1).inheritIO();
+            ProcessBuilder processBuilder = new ProcessBuilder(execArgs).inheritIO();
             Process proc = processBuilder.start();
 
             if (proc.waitFor() != 0) {
