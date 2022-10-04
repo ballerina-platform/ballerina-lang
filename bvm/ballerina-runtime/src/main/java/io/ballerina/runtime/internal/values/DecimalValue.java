@@ -189,7 +189,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
                                                           PredefinedTypes.TYPE_INT);
         }
-        return (long) Math.rint(value.longValue());
+        return (long) Math.rint(value.doubleValue());
     }
 
     /**
