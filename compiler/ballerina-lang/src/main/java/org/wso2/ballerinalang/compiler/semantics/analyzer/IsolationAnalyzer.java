@@ -117,6 +117,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -895,6 +897,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
             analyzeNode((BLangExpression) orderKeyNode.getOrderKey(), orderByEnv);
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        SymbolEnv orderByEnv = groupByClause.env;
+        for (BLangGroupingKey groupingKeyNode : groupByClause.groupingKeyList) {
+            analyzeNode(groupingKeyNode, orderByEnv);
+        }
+    }
+
+    public void visit(BLangGroupingKey groupingKey) {
+        analyzeNode((BLangNode) groupingKey.getGroupingKey(), env);
     }
 
     @Override

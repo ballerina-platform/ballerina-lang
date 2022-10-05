@@ -102,6 +102,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -3291,6 +3293,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangOrderByClause orderByClause, AnalyzerData data) {
         orderByClause.orderByKeyList.forEach(value -> analyzeExpr((BLangExpression) value.getOrderKey(), data));
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
+        groupByClause.groupingKeyList.forEach(value -> analyzeNode((BLangNode) value, data));
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey, AnalyzerData data) {
+        analyzeNode((BLangNode) groupingKey.getGroupingKey(), data);
     }
 
     @Override

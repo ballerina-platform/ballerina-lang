@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -393,6 +395,14 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangOrderKey node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangGroupingKey node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangGroupByClause node, T data) {
         return transformNode(node, data);
     }
 

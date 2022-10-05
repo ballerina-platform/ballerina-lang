@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -528,6 +530,17 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangOrderKey node, T data) {
         analyzeNode(node, data);
         visitNode(node.expression, data);
+    }
+
+    public void visit(BLangGroupingKey node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.variableDef, data);
+        visitNode(node.variableRef, data);
+    }
+
+    public void visit(BLangGroupByClause node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.groupingKeyList, data);
     }
 
     public void visit(BLangSelectClause node, T data) {
