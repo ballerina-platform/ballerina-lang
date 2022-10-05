@@ -6138,17 +6138,17 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = func;
-        lambdaFunction.capturedClosureEnv = env.createClone();
+
         env.enclPkg.functions.add(func);
         env.enclPkg.topLevelNodes.add(func);
-        //env.enclPkg.lambdaFunctions.add(lambdaFunction);
         lambdaFunction.parent = env.enclInvokable;
         lambdaFunction.setBType(func.getBType());
 
+        lambdaFunction.function = rewrite(lambdaFunction.function, env.createClone());
         if (intermediateObjDef == null) {
-            return rewrite(lambdaFunction, env);
+            return lambdaFunction;
         } else {
-            BLangStatementExpression expr = createStatementExpression(intermediateObjDef, rewrite(lambdaFunction, env));
+            BLangStatementExpression expr = createStatementExpression(intermediateObjDef, lambdaFunction);
             expr.setBType(lambdaFunction.getBType());
             return rewrite(expr, env);
         }
