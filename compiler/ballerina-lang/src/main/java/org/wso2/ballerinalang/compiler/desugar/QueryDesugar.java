@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -198,6 +199,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_OUTER_JOIN_FUNCTION = new Name("createOuterJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
+
+    private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
@@ -460,6 +463,11 @@ public class QueryDesugar extends BLangNodeVisitor {
                     BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause,
                             stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, orderFunc);
+                    break;
+                case GROUP_BY:
+                    BLangVariableReference groupFunc = addGroupByFunction(block, (BLangGroupByClause) clause,
+                            stmtsToBePropagated);
+                    addStreamFunction(block, initPipeline, groupFunc);
                     break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,

@@ -193,6 +193,7 @@ public enum NodeKind {
     LIMIT,
     ORDER_BY,
     ORDER_KEY,
+    GROUP_BY,
     ON_FAIL,
 
     /* Match statement */
