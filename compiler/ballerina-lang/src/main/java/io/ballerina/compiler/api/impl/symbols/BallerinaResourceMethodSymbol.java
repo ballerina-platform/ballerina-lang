@@ -47,8 +47,8 @@ import java.util.StringJoiner;
 public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol implements ResourceMethodSymbol {
 
     private static final String DOT_RESOURCE_PATH = ".";
-    private static final String PATH_PARAM = "*";
-    private static final String PATH_REST_PARAM = "**";
+    private static final String PATH_PARAM = "^";
+    private static final String PATH_REST_PARAM = "^^";
 
     private final CompilerContext context;
     private final BInvokableSymbol internalSymbol;
