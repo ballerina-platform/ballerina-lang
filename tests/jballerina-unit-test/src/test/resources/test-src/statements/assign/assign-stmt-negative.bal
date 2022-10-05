@@ -152,3 +152,8 @@ function testOptionalFieldAssignment() {
     Topt t = {a: 2, c: [{b: 4}]};
     (t.c)[0].b = (); // error
 }
+
+function testInvalidErrorConstructorAssignment() {
+    [error, boolean...] [error(g,), ...j] = [error("error!"), true];
+    [error, boolean...] [error(g2),(), ...j] = [error("error!"), true];
+}

@@ -16843,7 +16843,18 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 // T[..] ..
                 STNode typedBindingPattern = parseTypedBindingPatternOrMemberAccess(typeDesc, true, true, context);
-                assert typedBindingPattern.kind == SyntaxKind.TYPED_BINDING_PATTERN;
+                if (typedBindingPattern.kind != SyntaxKind.TYPED_BINDING_PATTERN) {
+                    STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                    STNode typeDescriptor = STNodeFactory.createTypeReferenceNode(
+                            SyntaxErrors.createMissingToken(SyntaxKind.ASTERISK_TOKEN),
+                            SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN),
+                            SyntaxErrors.createMissingToken(SyntaxKind.SEMICOLON_TOKEN)
+                    );
+                    STNode captureBindingPattern = STNodeFactory.createCaptureBindingPatternNode(identifier);
+                    typedBindingPattern = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(
+                            STNodeFactory.createTypedBindingPatternNode(typeDescriptor, captureBindingPattern),
+                            typedBindingPattern, DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
+                }
                 return typedBindingPattern;
             case CLOSE_PAREN_TOKEN:
             case COMMA_TOKEN:
@@ -16923,6 +16934,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAsMemberAccessExpr(STNode typeNameOrExpr, STNode openBracket, STNode member) {
+        typeNameOrExpr = getExpression(typeNameOrExpr);
         member = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, member, false, true);
         STNode closeBracket = parseCloseBracket();
         endContext();

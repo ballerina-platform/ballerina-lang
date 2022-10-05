@@ -218,6 +218,10 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid operation: type 'record {| int b?; anydata...; |}[1]?' does not support member access",
                 153, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid binding pattern", 157, 25);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; member " +
+                "variable count mismatch with member type count", 158, 5);
+        BAssertUtil.validateError(resultNegative, i++, "missing error keyword", 158, 36);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

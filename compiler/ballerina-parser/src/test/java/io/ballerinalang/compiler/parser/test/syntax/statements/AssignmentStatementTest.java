@@ -93,4 +93,10 @@ public class AssignmentStatementTest extends AbstractStatementTest {
     public void testComplexExprInLHSWithMissingEqual() {
         testFile("assignment-stmt/assignment_stmt_source_13.bal", "assignment-stmt/assignment_stmt_assert_13.json");
     }
+
+    @Test
+    public void testExpressionsInLHSWithInvalidTokens() {
+        testFile("assignment-stmt/assignment_stmt_source_15.bal", "assignment-stmt/assignment_stmt_assert_15.json");
+        testFile("assignment-stmt/assignment_stmt_source_16.bal", "assignment-stmt/assignment_stmt_assert_16.json");
+    }
 }
