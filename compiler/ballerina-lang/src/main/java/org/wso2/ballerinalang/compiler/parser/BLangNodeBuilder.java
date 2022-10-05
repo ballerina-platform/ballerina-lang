@@ -4244,7 +4244,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             listConstructorExpr.pos = getPosition(clientResourceAccessActionNode.slashToken());
         } else {
             listConstructorExpr.pos = 
-                    getPosition(resourceAccessPath.get(0), resourceAccessPath.get(pathSegments.size() - 1));
+                    getPosition(clientResourceAccessActionNode.slashToken(), 
+                            resourceAccessPath.get(pathSegments.size() - 1));
         }
         
         resourceInvocation.resourceAccessPathSegments = listConstructorExpr;
