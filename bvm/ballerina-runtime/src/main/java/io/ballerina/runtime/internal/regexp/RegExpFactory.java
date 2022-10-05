@@ -18,6 +18,7 @@ package io.ballerina.runtime.internal.regexp;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
@@ -122,7 +123,8 @@ public class RegExpFactory {
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             treeBuilder.parseInsertion();
         } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("Invalid insertion in regular expression"));
+            throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+                    StringUtils.fromString("Invalid insertion in regular expression: " + e.getMessage()));
         }
     }
 
