@@ -1,2 +1,2 @@
 public function main() {
-};
+};;

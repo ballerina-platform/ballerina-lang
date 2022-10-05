@@ -20,11 +20,14 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 
 import java.util.ArrayList;
@@ -77,6 +80,18 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(LetVariableDeclarationNode letVariableDeclarationNode) {
         return getTypeDescriptorOfVariable(letVariableDeclarationNode);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ObjectFieldNode objectFieldNode) {
+        return objectFieldNode.typeName().apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(builtinSimpleNameReferenceNode));
+        return SymbolUtil.getTypeDescriptor(symbol.orElse(null));
     }
 
     private Optional<TypeSymbol> getTypeDescriptorOfVariable(Node node) {

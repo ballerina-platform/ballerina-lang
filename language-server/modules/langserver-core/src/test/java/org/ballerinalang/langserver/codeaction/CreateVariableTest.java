@@ -132,7 +132,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableWithCheck2.json"},
                 {"createVariableWithCheck3.json"},
                 {"createVariableWithCheck4.json"},
-                {"createVariableWithCheck5.json"}
+                {"createVariableWithCheck5.json"},
+                {"createVariableWithCheck6.json"}
         };
     }
 
@@ -141,7 +142,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"createVariableNegative1.json"},
                 {"createVariableNegative2.json"},
-                {"createVariableNegative3.json"}
+                {"createVariableNegative3.json"},
+                {"createVariableNegative4.json"}
         };
     }
 }

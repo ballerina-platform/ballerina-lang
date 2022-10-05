@@ -18,7 +18,10 @@ package org.ballerinalang.langserver.exprscheme;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -30,6 +33,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 /**
  * Tests the expression file scheme based workspace proxy operations.
@@ -84,5 +88,51 @@ public class TestExpressionFileScheme {
                 .getAsJsonArray();
         Assert.assertFalse(exprCompletions.isEmpty(), "Expr context completions cannot be empty");
         Assert.assertNotEquals(completionRes1, completionRes3);
+
+        TestUtil.closeDocument(serviceEndpoint, originalUri.toString());
+        TestUtil.closeDocument(serviceEndpoint, exprUri.toString());
+    }
+
+    /**
+     * Tests the code action requests using file and expr schemes.
+     *
+     * @throws IOException IO Errors
+     */
+    @Test
+    public void testExprSchemeCodeActions() throws IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("myproject2").resolve("main.bal");
+
+        byte[] encodedContent = Files.readAllBytes(filePath);
+        String originalContent = new String(encodedContent);
+        URI originalUri = URI.create(filePath.toUri().toString());
+        URI exprUri = URI.create(filePath.toUri().toString().replace("file:///", "expr:///"));
+
+        // Send a did change with the expr scheme. Adds a function call to getData() function.
+        String[] lines = originalContent.split(System.lineSeparator());
+        lines[1] = "getData()";
+        String exprContent = String.join(System.lineSeparator(), lines);
+        TestUtil.didChangeDocument(serviceEndpoint, exprUri, exprContent);
+        
+        Position pos = new Position(1, 1);
+        // Get expr scheme code actions
+        String exprCodeActionResponse = TestUtil.getCodeActionResponse(serviceEndpoint, 
+                new TextDocumentIdentifier(exprUri.toString()), 
+                new Range(pos, pos), new CodeActionContext(new ArrayList<>()));
+
+        // Get original scheme code actions
+        String originalCodeActionResponse = TestUtil.getCodeActionResponse(serviceEndpoint,
+                new TextDocumentIdentifier(originalUri.toString()),
+                new Range(pos, pos), new CodeActionContext(new ArrayList<>()));
+        
+        // Original and expr code action responses should be different
+        JsonArray originalCodeActions = JsonParser.parseString(originalCodeActionResponse).getAsJsonObject()
+                        .get("result").getAsJsonArray();
+        JsonArray exprCodeActions = JsonParser.parseString(exprCodeActionResponse).getAsJsonObject()
+                        .get("result").getAsJsonArray();
+        Assert.assertEquals(originalCodeActions.size(), 0);
+        Assert.assertEquals(exprCodeActions.size(), 3);
+
+        TestUtil.openDocument(serviceEndpoint, originalUri.toString(), originalContent);
+        TestUtil.openDocument(serviceEndpoint, exprUri.toString(), originalContent);
     }
 }

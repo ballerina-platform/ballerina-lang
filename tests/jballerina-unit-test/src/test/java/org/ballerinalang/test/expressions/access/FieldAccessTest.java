@@ -57,23 +57,23 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'", 57, 15);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>' does not support field access",
-                      62, 16);
+                62, 16);
         validateError(negativeResult, i++, "invalid operation: type '(map<string>|EmployeeTwo)' does not support " +
-                              "field access", 68, 16);
+                "field access", 68, 16);
         validateError(negativeResult, i++, "invalid operation: type 'EmployeeTwo?' does not support field access",
-                      74, 17);
+                74, 17);
         validateError(negativeResult, i++, "invalid operation: type '(map<string>|map<int>)' does not support " +
-                              "field access", 80, 20);
+                "field access", 80, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 85, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 90, 14);
         validateError(negativeResult, i++, "invalid operation: type '(json|error)' does not support field access", 96,
-                      22);
+                22);
         validateError(negativeResult, i++, "incompatible types: expected '(map<json>|error)', " +
-                              "found '(map<json>|json|error)'", 102, 26);
+                "found '(map<json>|json|error)'", 102, 26);
         validateError(negativeResult, i++, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
-                      106, 20);
+                106, 20);
         validateError(negativeResult, i++, "invalid operation: type 'Foo?' does not support field access", 131, 14);
-        validateError(negativeResult, i++, "invalid operation: type 'Baz?' does not support field access", 134, 16);
+        validateError(negativeResult, i++, "function invocation on type 'Foo' is not supported", 134, 19);
         validateError(negativeResult, i++, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
 
         validateError(negativeResult, i++, "undeclared field 'a' in record 'R1'", 155, 13);

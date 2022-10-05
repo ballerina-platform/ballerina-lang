@@ -116,6 +116,65 @@ function testAssignAnyToUnionWithErrorAndAny() {
     assertEquality(4, y);
 }
 
+type Topt1 record {
+    int x?;
+    int y?;
+};
+
+function testOptionalFieldAssignment1() {
+    Topt1 t = {x: 2, y: 4};
+    t.x = ();
+    assertEquality(t.x, ());
+    assertEquality(t.y, 4);
+    t.y = ();
+    assertEquality(t.x, ());
+    assertEquality(t.y, ());
+}
+
+type Topt2 record {
+    int a;
+    record {
+        int b?;
+    }[1] c;
+};
+
+function testOptionalFieldAssignment2() {
+    Topt2 t = {a: 2, c: [{b: 4}]};
+    (t.c)[0].b = ();
+    assertEquality(t.a, 2);
+    assertEquality((t.c)[0].b, ());
+}
+
+type Topt3 record {
+    int x?;
+    int? y?;
+};
+
+function testOptionalFieldAssignment3() {
+    Topt3 t3 = {x: 2, y: 4};
+    t3.y = ();
+    assertEquality(t3.toString(), "{\"x\":2,\"y\":null}");
+    Topt1 t1 = {x: 21, y: 41};
+    t1.y = ();
+    assertEquality(t1.toString(), "{\"x\":21}");
+}
+
+type INTNIL int?;
+
+type Topt4 record {
+   int x?;
+   INTNIL y?;
+};
+
+function testOptionalFieldAssignment4() {
+    Topt4 t = {x: 2, y: 4};
+    t.y = ();
+    assertEquality(t.toString(), "{\"x\":2,\"y\":null}");
+    Topt1 t1 = {x: 21, y: 41};
+    t1.y = ();
+    assertEquality(t1.toString(), "{\"x\":21}");
+}
+
 function testAssignVarInQueryExpression() {
     xml x1 = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
 

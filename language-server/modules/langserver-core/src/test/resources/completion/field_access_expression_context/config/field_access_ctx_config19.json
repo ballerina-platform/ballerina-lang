@@ -635,6 +635,44 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "includesMatch(string:RegExp regExp, int startIndex)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match for `re` anywhere in `str`  \n**Params**  \n- `string:RegExp` regExp  \n- `int` startIndex(Defaultable)  \n  \n**Return** `boolean`   \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "includesMatch",
+      "insertText": "includesMatch(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "matches(string:RegExp regExp)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match of `re` against all of `str`.\nUse `includesMatch` to test whether `re` matches somewhere in `str`.  \n**Params**  \n- `string:RegExp` regExp  \n  \n**Return** `boolean`   \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "matches",
+      "insertText": "matches(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
