@@ -1591,14 +1591,20 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        if (setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.pos)) {
-            return;
-        }
         lookupNodes(resourceAccessInvocation.annAttachments);
-        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments); //TODO: Need symbols for path segments (#37604)
         lookupNodes(resourceAccessInvocation.requiredArgs);
         lookupNodes(resourceAccessInvocation.restArgs);
         lookupNode(resourceAccessInvocation.expr);
+
+        // The assumption is that if it's moduled-qualified, it must be a public symbol.
+        // Hence, the owner would be a package symbol.
+        if (resourceAccessInvocation.symbol != null &&
+                setEnclosingNode(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
+            return;
+        }
+
+        setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
     }
 
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {
