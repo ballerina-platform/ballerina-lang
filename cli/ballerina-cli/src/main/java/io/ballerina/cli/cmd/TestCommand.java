@@ -23,6 +23,7 @@ import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
@@ -282,7 +283,10 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups))
+                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
+                        testList, includes, coverageFormat, moduleMap, listGroups),
+                        !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
