@@ -57,8 +57,6 @@ public class DecimalValue implements SimpleValue, BDecimal {
     private static final BigDecimal DECIMAL_MIN =
             new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
 
-    private static final BigDecimal SMALLEST_DECIMAL_MAGNITUDE =
-            new BigDecimal("1.000000e-6143", MathContext.DECIMAL128);
 
     // Variable used to track the kind of a decimal value.
     @Deprecated
@@ -107,8 +105,6 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
             throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.DECIMAL_VALUE_OUT_OF_RANGE));
-        } else if (bd.abs(MathContext.DECIMAL128).compareTo(SMALLEST_DECIMAL_MAGNITUDE) < 0) {
-            return BigDecimal.ZERO;
         }
         return bd;
     }
@@ -189,7 +185,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
                                                           PredefinedTypes.TYPE_INT);
         }
-        return (long) Math.rint(value.doubleValue());
+        return value.setScale(0, RoundingMode.HALF_EVEN).longValue();
     }
 
     /**
