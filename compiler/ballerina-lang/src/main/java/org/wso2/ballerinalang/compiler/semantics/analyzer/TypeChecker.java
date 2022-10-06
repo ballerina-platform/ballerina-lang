@@ -143,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordVarNameField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -205,6 +206,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -487,7 +489,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 Name nsName = names.fromString(filter.namespace);
                 BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, nsName);
                 filter.namespaceSymbol = nsSymbol;
-                if (nsSymbol == symTable.notFoundSymbol) {
+                if (nsSymbol.getKind() != SymbolKind.XMLNS) {
                     dlog.error(filter.nsPos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, nsName);
                 }
             }
@@ -859,9 +861,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
+        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
-            literalType = new BArrayType(symTable.byteType);
+            byte[] byteArray = types.convertToByteArray((String) literalExpr.value);
+            literalType = new BArrayType(symTable.byteType, null, byteArray.length,
+                    BArrayState.CLOSED);
+            if (Symbols.isFlagOn(expectedType.flags, Flags.READONLY)) {
+                literalType = ImmutableTypeCloner.getEffectiveImmutableType(literalExpr.pos, types,
+                        literalType, data.env, symTable, anonymousModelHelper, names);
+            }
+
+            if (expectedType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) expectedType;
+                if (arrayType.state == BArrayState.INFERRED) {
+                    arrayType.size = byteArray.length;
+                    arrayType.state = BArrayState.CLOSED;
+                }
+            }
         }
 
         return literalType;
@@ -2804,13 +2820,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        Name varName = names.fromIdNode(varRefExpr.variableName);
+        BLangIdentifier identifier = varRefExpr.variableName;
+        Name varName = names.fromIdNode(identifier);
         if (varName == Names.IGNORE) {
             varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
-                                               names.originalNameFromIdNode(varRefExpr.variableName),
+                                               names.originalNameFromIdNode(identifier),
                     data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
                                                varRefExpr.pos, VIRTUAL);
 
@@ -2819,16 +2836,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         Name compUnitName = getCurrentCompUnit(varRefExpr);
-        varRefExpr.pkgSymbol =
-                symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
-        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                                                            compUnitName);
+        varRefExpr.pkgSymbol = pkgSymbol;
+        if (pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
+        } else if (Names.CLIENT.equals(varName) &&
+                !identifier.isLiteral) {
+            PackageID sourcePkg = data.env.enclPkg.packageID;
+            String sourceDoc = varRefExpr.pos.lineRange().filePath();
+            if (!symTable.clientDeclarations.containsKey(sourcePkg) ||
+                    !symTable.clientDeclarations.get(sourcePkg).containsKey(sourceDoc) ||
+                    !symTable.clientDeclarations.get(sourcePkg).get(sourceDoc)
+                            .containsValue(Optional.of(pkgSymbol.pkgID))) {
+                dlog.error(identifier.pos,
+                        DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
+            }
         }
 
-        if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
+        if (pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
-        } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
+        } else if (pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, data.env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName);
             // if no symbol, check same for object attached function
@@ -5527,7 +5556,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        if (xmlnsSymbol.getKind() == SymbolKind.PACKAGE) {
+        SymbolKind kind = xmlnsSymbol.getKind();
+
+        if (kind == SymbolKind.CLIENT_DECL) {
+            dlog.error(bLangXMLQName.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, prefix);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        if (kind == SymbolKind.PACKAGE) {
             xmlnsSymbol = findXMLNamespaceFromPackageConst(bLangXMLQName.localname.value, bLangXMLQName.prefix.value,
                     (BPackageSymbol) xmlnsSymbol, bLangXMLQName.pos, data);
         }
@@ -5780,6 +5817,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral, AnalyzerData data) {
         checkStringTemplateExprs(stringTemplateLiteral.exprs, data);
         data.resultType = types.checkType(stringTemplateLiteral, symTable.stringType, data.expType);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
+        // Check expr with insertions to resolve its type.
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
+        interpolationsList.forEach(interpolation -> checkExpr(interpolation, data));
+        data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
     }
 
     @Override
@@ -8700,7 +8747,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
         BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, names.fromString(nsPrefix));
 
-        if (nsSymbol == symTable.notFoundSymbol) {
+        if (nsSymbol == symTable.notFoundSymbol || nsSymbol.getKind() == SymbolKind.CLIENT_DECL) {
             dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE,
                     nsPrefixedFieldAccess.nsPrefix);
         } else if (nsSymbol.getKind() == SymbolKind.PACKAGE) {

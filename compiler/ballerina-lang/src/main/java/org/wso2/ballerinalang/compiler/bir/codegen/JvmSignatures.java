@@ -82,6 +82,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CAPTURING_GROUP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_ESCAPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET_RANGE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_DISJUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_EXPR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_ON_OFF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_SEQUENCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
@@ -207,6 +220,7 @@ public class JvmSignatures {
     public static final String GET_BERROR = "L" + BERROR + ";";
     public static final String GET_BOBJECT = "L" + B_OBJECT + ";";
     public static final String GET_BSTRING = "L" + B_STRING_VALUE + ";";
+    public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_BSTRING_FOR_ARRAY_INDEX = "(J)L" + JvmConstants.B_STRING_VALUE + ";";
     public static final String GET_ERROR_TYPE = "L" + ERROR_TYPE + ";";
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
@@ -382,6 +396,7 @@ public class JvmSignatures {
     public static final String RETURN_ARRAY_VALUE = ")L" + ARRAY_VALUE + ";";
     public static final String RETURN_B_OBJECT = ")L" + B_OBJECT + ";";
     public static final String RETURN_B_STRING_VALUE = ")L" + B_STRING_VALUE + ";";
+    public static final String RETURN_REGEX_VALUE = ")L" + REG_EXP_VALUE + ";";
     public static final String RETURN_DECIMAL_VALUE = ")L" + DECIMAL_VALUE + ";";
     public static final String RETURN_ERROR_VALUE = ")L" + ERROR_VALUE + ";";
     public static final String RETURN_FUNCTION_POINTER = ")L" + FUNCTION_POINTER + ";";
@@ -444,6 +459,25 @@ public class JvmSignatures {
     public static final String HANDLE_DESCRIPTOR_FOR_STRING_CONCAT = "(Ljava/lang/invoke/MethodHandles$Lookup;" +
             GET_STRING + "Ljava/lang/invoke/MethodType;" + GET_STRING + "[" + GET_OBJECT + ")" +
             "Ljava/lang/invoke/CallSite;";
+    public static final String CREATE_REGEXP = "(L" + REG_EXP_DISJUNCTION + ";)L" + REG_EXP_VALUE + ";";
+    public static final String CREATE_RE_DISJUNCTION = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_DISJUNCTION + ";";
+    public static final String CREATE_RE_SEQUENCE = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_SEQUENCE + ";";
+    public static final String CREATE_RE_ASSERTION = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_ASSERTION + ";";
+    public static final String CREATE_RE_ATOM_QUANTIFIER = "(L" + OBJECT + ";L" + REG_EXP_QUANTIFIER + ";)L"
+            + REG_EXP_ATOM_QUANTIFIER + ";";
+    public static final String CREATE_RE_LITERAL_CHAR = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_ESCAPE + ";";
+    public static final String CREATE_RE_CHAR_CLASS = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L"
+                    + REG_EXP_CHAR_SET + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_CLASS + ";";
+    public static final String CREATE_RE_CHAR_SET = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_CHAR_SET + ";";
+    public static final String CREATE_RE_CHAR_SET_RANGE = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" +
+             B_STRING_VALUE + ";)L" + REG_EXP_CHAR_SET_RANGE + ";";
+    public static final String CREATE_RE_CAPTURING_GROUP = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_EXPR +
+            ";L" + REG_EXP_DISJUNCTION + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CAPTURING_GROUP + ";";
+    public static final String CREATE_RE_FLAG_EXPR = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_ON_OFF +
+            ";L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_EXPR + ";";
+    public static final String CREATE_RE_FLAG_ON_OFF = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_ON_OFF + ";";
+    public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
+            + REG_EXP_QUANTIFIER + ";";
 
     private JvmSignatures() {
     }

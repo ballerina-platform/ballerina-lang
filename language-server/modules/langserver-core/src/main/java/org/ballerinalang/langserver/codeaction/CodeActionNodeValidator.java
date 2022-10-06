@@ -81,11 +81,11 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(VariableDeclarationNode node) {
-        return isVisited(node) || node.equalsToken().isPresent()
-                && !node.equalsToken().get().isMissing()
-                && node.typedBindingPattern().apply(this)
+        return isVisited(node) || node.typedBindingPattern().apply(this)
+                // checks for both variables with & without the initializer
+                && (node.equalsToken().isEmpty() || !node.equalsToken().get().isMissing()
                 && node.initializer().isPresent()
-                && node.initializer().get().apply(this);
+                && node.initializer().get().apply(this));
     }
 
     @Override
@@ -237,7 +237,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(ListConstructorExpressionNode node) {
-        return isVisited(node) || !node.openBracket().isMissing() && !node.closeBracket().isMissing()
+        return isVisited(node) || !node.openBracket().isMissing()
+                && !node.closeBracket().isMissing()
                 && node.expressions().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this);
     }
