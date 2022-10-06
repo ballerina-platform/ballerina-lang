@@ -29,6 +29,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
+
 /**
  * TestCases for foreach with Tuples.
  *
@@ -147,6 +150,11 @@ public class ForeachTupleTests {
     }
 
     @Test
+    public void testIteratingEmptyTuple() {
+        BRunUtil.invoke(program, "testIteratingEmptyTuple");
+    }
+
+    @Test
     public void testNegativeTupleForeach() {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
         Assert.assertEquals(negative.getErrorCount(), 7);
@@ -163,5 +171,21 @@ public class ForeachTupleTests {
                 "but found '([int,int...]|[int,int,int...]|int)'", 52, 13);
         BAssertUtil.validateError(negative, i, "invalid list binding pattern; member variable " +
                 "count mismatch with member type count", 58, 13);
+    }
+
+    @Test
+    public void testIteratingEmptyTupleNegative() {
+        CompileResult compileNegativeResult = BCompileUtil.compile("test-src/statements/foreach/tuple_with_no_member_test_negative.bal");
+        int index = 0;
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 19, 13);
+        validateWarning(compileNegativeResult, index++, "unused variable 'x1'", 23, 9);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 23, 18);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 28, 13);
+        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 33, 17);
+        Assert.assertEquals(compileNegativeResult.getDiagnostics().length, index);
     }
 }

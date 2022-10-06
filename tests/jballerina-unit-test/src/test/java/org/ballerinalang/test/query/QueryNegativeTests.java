@@ -130,7 +130,7 @@ public class QueryNegativeTests {
     }
 
     @Test
-    public void testQueryEmptyTuple() {
+    public void testQueryingEmptyTupleNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query_empty_tuple_negative.bal");
         int index = 0;
         validateError(compileResult, index++, "expression of type 'never' or equivalent to " +

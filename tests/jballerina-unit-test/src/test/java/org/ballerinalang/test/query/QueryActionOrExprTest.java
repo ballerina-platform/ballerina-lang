@@ -74,8 +74,8 @@ public class QueryActionOrExprTest {
     }
 
     @Test
-    public void testQueryEmptyTuple() {
-        BRunUtil.invoke(compileResult, "testQueryEmptyTuple");
+    public void testQueryingEmptyTuple() {
+        BRunUtil.invoke(compileResult, "testQueryingEmptyTuple");
     }
 
     @Test

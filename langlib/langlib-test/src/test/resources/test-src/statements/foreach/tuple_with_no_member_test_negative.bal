@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testLoopEmptyTuple() {
+function testIteratingEmptyTuple() {
     foreach var item in [] {
         _ = item;
     }

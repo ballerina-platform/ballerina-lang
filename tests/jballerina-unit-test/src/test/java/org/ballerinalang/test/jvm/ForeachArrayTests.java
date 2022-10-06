@@ -27,9 +27,6 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
-import static org.ballerinalang.test.BAssertUtil.validateError;
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
-
 /**
  * TestCases for foreach with Arrays.
  *
@@ -39,7 +36,6 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
 public class ForeachArrayTests {
 
     private CompileResult program;
-    private CompileResult compileNegativeResult;
 
     private int[] iValues = {1, -3, 5, -30, 4, 11, 25, 10};
     private double[] fValues = {1.123, -3.35244, 5.23, -30.45, 4.32, 11.56, 25.967, 10.345};
@@ -50,7 +46,6 @@ public class ForeachArrayTests {
     @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/jvm/foreach-arrays.bal");
-        compileNegativeResult = BCompileUtil.compile("test-src/jvm/tuple_with_no_member_test_negative.bal");
     }
 
     @Test
@@ -226,26 +221,6 @@ public class ForeachArrayTests {
     @Test
     public void testEmptyArray() {
         BRunUtil.invoke(program, "testEmptyArray");
-    }
-
-    @Test
-    public void testLoopEmptyTuple() {
-        BRunUtil.invoke(program, "testLoopEmptyTuple");
-    }
-
-    @Test
-    public void testLoopEmptyTupleNegativeTests() {
-        int index = 0;
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 19, 13);
-        validateWarning(compileNegativeResult, index++, "unused variable 'x1'", 23, 9);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 23, 18);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 28, 13);
-        validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 33, 17);
-        Assert.assertEquals(compileNegativeResult.getDiagnostics().length, index);
     }
 
     @AfterClass

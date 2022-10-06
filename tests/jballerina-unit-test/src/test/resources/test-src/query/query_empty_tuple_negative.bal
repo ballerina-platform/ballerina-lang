@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testQueryEmptyTuple() {
+function testQueryingEmptyTuple() {
     var _ = from var user in []
         select user;
 

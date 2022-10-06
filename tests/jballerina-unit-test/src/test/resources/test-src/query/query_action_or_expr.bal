@@ -694,7 +694,7 @@ function getTokenValue((record {| Token value; |}|error?)|(record {| Token value
     }
 }
 
-function testQueryEmptyTuple() {
+function testQueryingEmptyTuple() {
     var a = [];
     int count = 0;
     foreach var item in a {
