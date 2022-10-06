@@ -465,10 +465,28 @@ function testInvalidInsertionsInRegExp() {
         assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
         assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
     }
+
+    x1 = trap re `abc${getChar()}`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
+        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
+
+    x1 = trap re `abc(?i:${getChar()})`;
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina}RegularExpressionParsingError", x1.message());
+        assertEquality("Invalid insertion in regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+    }
 }
 
 function getRegExpValue(string val = "+") returns string:RegExp {
     return re `abc(?i-m:${val})`;
+}
+
+function getChar() returns string {
+    return "*";
 }
 
 type UserType string:RegExp;
