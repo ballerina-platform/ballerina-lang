@@ -98,6 +98,27 @@ public class JsonToRecordConverter {
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) throws IOException,
             JsonToRecordConverterException, FormatterException {
+        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
+        response.setCodeBlock(Formatter.format(response.getCodeBlock()));
+        return response;
+    }
+
+    /**
+     * This method takes in a json string and returns the Ballerina code block.
+     *
+     * @param jsonString Json string for the schema
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor
+     * @param isClosed To denote the whether the response record is closed
+     * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
+     * @return {@link String} Ballerina code block
+     * @throws IOException In case of Json parse error
+     * @throws JsonToRecordConverterException In case of invalid schema
+     * @throws FormatterException In case of invalid syntax
+     */
+    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
+                                               boolean isClosed, boolean forceFormatRecordFields) throws IOException,
+            JsonToRecordConverterException, FormatterException {
         String name = ((recordName != null) && !recordName.equals("")) ? recordName : "NewRecord";
         ObjectMapper objectMapper = new ObjectMapper();
         OpenAPI model;
@@ -114,6 +135,9 @@ public class JsonToRecordConverter {
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         JsonToRecordResponse response = new JsonToRecordResponse();
 
+        FormattingOptions formattingOptions = FormattingOptions.builder()
+                .setForceFormattingOptions(ForceFormattingOptions.builder()
+                        .setForceFormatRecordFields(forceFormatRecordFields).build()).build();
         if (isRecordTypeDesc) {
             // Sets generated type definition code block when sub field of type descriptor kind
             RecordTypeDescriptorNode typeDescriptorNode = (RecordTypeDescriptorNode) typeDefinitionNodes.entrySet()
@@ -128,40 +152,16 @@ public class JsonToRecordConverter {
                     createNodeList(typeDefinitionNode);
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } else {
             // Sets generated type definition code block
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
                     new ArrayList(typeDefinitionNodes.values()));
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         }
 
-        return response;
-    }
-
-    /**
-     * This method takes in a json string and returns the Ballerina code block.
-     *
-     * @param jsonString Json string for the schema
-     * @param recordName Name of the generated record
-     * @param isRecordTypeDesc To denote final record, a record type descriptor
-     * @param isClosed To denote the whether the response record is closed
-     * @param forceFormatRecordTypeDesc To denote whether the inline records to be formatted for multi-line or in-line
-     * @return {@link String} Ballerina code block
-     * @throws IOException In case of Json parse error
-     * @throws JsonToRecordConverterException In case of invalid schema
-     * @throws FormatterException In case of invalid syntax
-     */
-    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordTypeDesc) throws IOException,
-            JsonToRecordConverterException, FormatterException {
-        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed);
-        FormattingOptions formattingOptions = FormattingOptions.builder()
-                .setForceFormattingOptions(ForceFormattingOptions.builder()
-                        .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
-        response.setCodeBlock(Formatter.format(response.getCodeBlock(), formattingOptions));
         return response;
     }
 

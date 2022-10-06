@@ -99,6 +99,29 @@ public class JsonToRecordMapper {
     @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
+        List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
+        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
+        try {
+            response.setCodeBlock(Formatter.format(response.getCodeBlock()));
+        } catch (FormatterException e) {
+            DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
+            diagnosticMessages.add(message);
+        }
+        return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
+    }
+
+    /**
+     * This method returns the Ballerina code for the provided JSON value or the diagnostics.
+     *
+     * @param jsonString JSON string of the JSON value to be converted to Ballerina record
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param isClosed To denote whether the response record is closed or not
+     * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
+     * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
+     */
+    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
+                                               boolean isClosed, boolean forceFormatRecordFields) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
         List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
@@ -144,32 +167,10 @@ public class JsonToRecordMapper {
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
         try {
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
-        } catch (FormatterException e) {
-            DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
-            diagnosticMessages.add(message);
-        }
-        return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
-    }
-
-    /**
-     * This method returns the Ballerina code for the provided JSON value or the diagnostics.
-     *
-     * @param jsonString JSON string of the JSON value to be converted to Ballerina record
-     * @param recordName Name of the generated record
-     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
-     * @param isClosed To denote whether the response record is closed or not
-     * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
-     */
-    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordTypeDesc) {
-        List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
-        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed);
-        FormattingOptions formattingOptions = FormattingOptions.builder()
-                .setForceFormattingOptions(ForceFormattingOptions.builder()
-                        .setForceFormatRecordFields(forceFormatRecordTypeDesc).build()).build();
-        try {
-            response.setCodeBlock(Formatter.format(response.getCodeBlock(), formattingOptions));
+            FormattingOptions formattingOptions = FormattingOptions.builder()
+                    .setForceFormattingOptions(ForceFormattingOptions.builder()
+                            .setForceFormatRecordFields(forceFormatRecordFields).build()).build();
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } catch (FormatterException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
             diagnosticMessages.add(message);
