@@ -175,7 +175,8 @@ public class ForeachTupleTests {
 
     @Test
     public void testIteratingEmptyTupleNegative() {
-        CompileResult compileNegativeResult = BCompileUtil.compile("test-src/statements/foreach/tuple_with_no_member_test_negative.bal");
+        CompileResult compileNegativeResult =
+                BCompileUtil.compile("test-src/statements/foreach/tuple_with_no_member_test_negative.bal");
         int index = 0;
         validateError(compileNegativeResult, index++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 19, 13);
