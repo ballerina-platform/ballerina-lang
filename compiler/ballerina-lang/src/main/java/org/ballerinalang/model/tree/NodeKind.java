@@ -118,7 +118,6 @@ public enum NodeKind {
     CHECK_EXPR,
     CHECK_PANIC_EXPR,
     FAIL,
-    ERROR_CONSTRUCTOR,
     TYPE_TEST_EXPR,
     IS_LIKE,
     IGNORE_EXPR,
