@@ -291,6 +291,11 @@ public class BDecimalValueTest {
         BRunUtil.invoke(result, "testDecimalZeroOperations");
     }
 
+    @Test
+    public void testDecimalValueOverflow() {
+        BRunUtil.invoke(result, "testDecimalValueOverflow");
+    }
+
     @Test()
     public void testDecimalValUsingIntLiterals() {
         BRunUtil.invoke(result, "testDecimalValUsingIntLiterals");

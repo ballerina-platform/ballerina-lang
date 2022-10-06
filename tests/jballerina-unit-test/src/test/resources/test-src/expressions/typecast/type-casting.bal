@@ -28,6 +28,25 @@ function stringtoint(string value) returns int|error {
     return result;
 }
 
+function testDecimalToIntCasting() {
+    decimal d1 = -9223372036854775807d;
+    int i1 = -9223372036854775807;
+    int res = <int> d1;
+    assertEquality(i1, res);
+
+    decimal d2 = 9223372036854775807d;
+    res = <int> d2;
+    assertEquality(9223372036854775807, res);
+
+    decimal d3 = -9223372036854775808.9d;
+    int|error result = trap <int> d3;
+    assertEquality(true, result is error);
+    error err = <error> result;
+    assertEquality("{ballerina}NumberConversionError", err.message());
+    assertEquality("'decimal' value '-9223372036854775808.9' cannot be converted to 'int'",
+                    checkpanic <string|error> err.detail()["message"]);
+}
+
 function testIntSubtypeArrayCasting() {
 
     byte[] byteArray = [1, 128, 255];

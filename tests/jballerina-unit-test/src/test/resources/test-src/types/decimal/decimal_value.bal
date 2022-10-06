@@ -291,6 +291,38 @@ function testDecimalTypeRef() {
     assertEquality(sec2 is decimal, true);
 }
 
+function testDecimalValueOverflow() {
+    decimal|error d = trap 9.999999999999999999999999999999999E6001d * 1E145d;
+    assertEquality(true, d is error);
+    error err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap -9.999999999999999999999999999999999E6141d * 1E5d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap 9.999999999999999999999999999999999E6144d + 1E6143d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap -1E6144d - 9.999999999999999999999999999999999E6144d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+
+    d = trap 1E614d / 2E-5800d;
+    assertEquality(true, d is error);
+    err = <error> d;
+    assertEquality("{ballerina}NumberOverflow", err.message());
+    assertEquality("decimal range overflow", checkpanic <string|error> err.detail()["message"]);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

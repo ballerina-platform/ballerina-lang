@@ -642,6 +642,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns.toString(), "{\"name\":\"Pubudu\"}");
     }
 
+    @Test
+    public void testDecimalToIntCasting() {
+        BRunUtil.invoke(result, "testDecimalToIntCasting");
+    }
+
     @Test(dataProvider = "typesTestExpressionTestFunctions")
     public void testTypeTestsExpression(String function) {
         BRunUtil.invoke(result, function);
