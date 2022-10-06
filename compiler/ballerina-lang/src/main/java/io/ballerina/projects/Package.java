@@ -7,6 +7,7 @@ import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -29,6 +30,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -268,11 +270,20 @@ public class Package {
 
     private void saveGeneratedModules(PackageResolution resolution) throws IOException {
         Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        List<String> unusedModules = Files.list(modulesRoot).map(path ->
+                path.getFileName().toString()).collect(Collectors.toList());
         for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
             if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
                 Utils.writeModule(project.currentPackage().module(moduleId), modulesRoot);
+                unusedModules.remove(resolution.packageContext().moduleContext(moduleId).moduleName().moduleNamePart());
             }
         }
+
+        // Delete unused generated module directories
+        for (String unusedModule : unusedModules) {
+            ProjectUtils.deleteDirectory(modulesRoot.resolve(unusedModule));
+        }
+
         if (!resolution.clientsToCache().isEmpty()) {
             String json = new Gson().toJson(resolution.clientsToCache());
             Files.writeString(this.project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
