@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "string print \u003d "
+          "newText": "string print = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable2.bal",
+          494
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

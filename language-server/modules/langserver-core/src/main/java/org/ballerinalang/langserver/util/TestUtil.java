@@ -324,7 +324,12 @@ public class TestUtil {
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
-        CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
+        return getCodeActionResponse(serviceEndpoint, identifier, range, context);
+    }
+
+    public static String getCodeActionResponse(Endpoint serviceEndpoint, TextDocumentIdentifier textDocument,
+                                               Range range, CodeActionContext context) {
+        CodeActionParams codeActionParams = new CodeActionParams(textDocument, range, context);
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }

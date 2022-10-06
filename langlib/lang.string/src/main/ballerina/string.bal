@@ -15,10 +15,13 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.regexp;
 
 # Built-in subtype of string containing strings of length 1.
 @builtinSubtype
 type Char string;
+
+public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
 #
@@ -307,3 +310,14 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
     'class: "org.ballerinalang.langlib.string.PadZero",
     name: "padZero"
 } external;
+
+# True if there is a match of `re` against all of `str`.
+# Use `includesMatch` to test whether `re` matches somewhere in `str`.
+public function matches(string str, RegExp regExp) returns boolean {
+   return regExp.isFullMatch(str);
+}
+
+# True if there is a match for `re` anywhere in `str`
+public function includesMatch(string str, RegExp regExp, int startIndex = 0) returns boolean {
+   return regExp.find(str, startIndex) != ();
+}

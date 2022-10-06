@@ -65,7 +65,7 @@ public class SemverCmd implements BLauncherCmd {
 
     public SemverCmd() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        this.outStream = System.err;
+        this.outStream = System.out;
         this.errStream = System.err;
     }
 
@@ -73,7 +73,7 @@ public class SemverCmd implements BLauncherCmd {
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
-            this.errStream.println(commandUsageInfo);
+            this.outStream.println(commandUsageInfo);
             return;
         }
 
@@ -90,7 +90,7 @@ public class SemverCmd implements BLauncherCmd {
                 }
             }
 
-            SemverChecker semverChecker = new SemverChecker(projectPath, semanticVersion);
+            SemverChecker semverChecker = new SemverChecker(projectPath, semanticVersion, outStream, errStream);
             if (showDiff) {
                 outStream.println(semverChecker.getDiffSummary());
             } else {
