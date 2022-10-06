@@ -185,7 +185,7 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
 
     @Override
     public Optional<Location> transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
-        return Optional.of(clientResourceAccessActionNode.location());
+        return Optional.of(clientResourceAccessActionNode.slashToken().location());
     }
 
     @Override
