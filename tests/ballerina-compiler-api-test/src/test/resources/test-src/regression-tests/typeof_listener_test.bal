@@ -44,6 +44,5 @@ public class Listener {
 }
 
 service on new module1:Listener(9090) {
-
 }
 
