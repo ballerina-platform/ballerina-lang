@@ -135,5 +135,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical service declarations",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tfunction hello() {} \n}",
+    "newCode": " service /demo  on  new http:Listener(8080){\n\tfunction hello() {} \n}",
+    "expectedOutput": "No Changes"
   }
 ]
