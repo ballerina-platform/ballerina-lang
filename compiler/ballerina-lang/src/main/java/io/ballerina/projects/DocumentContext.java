@@ -35,6 +35,7 @@ import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLClientGenerator;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -59,6 +60,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -199,7 +201,7 @@ class DocumentContext {
         }
         syntaxTree.rootNode().accept(new ClientNodeVisitor(
                 idlPluginManager, compilationOptions, currentPkg, idlClients, moduleLoadRequests,
-                pluginDiagnosticList, currentModuleDesc, name));
+                pluginDiagnosticList, currentModuleDesc, name, documentId));
     }
 
     private ModuleLoadRequest getModuleLoadRequest(ImportDeclarationNode importDcl, PackageDependencyScope scope) {
@@ -249,14 +251,15 @@ class DocumentContext {
         private final Set<ModuleLoadRequest> moduleLoadRequests;
         private final List<Diagnostic> pluginDiagnosticList;
         private final ModuleDescriptor currentModuleDesc;
-        private String docName;
+        private final String docName;
+        private final DocumentId documentId;
 
         public ClientNodeVisitor(IDLPluginManager idlPluginManager,
                                  CompilationOptions compilationOptions,
                                  Package currentPkg, IDLClients idlClients,
                                  Set<ModuleLoadRequest> moduleLoadRequests,
                                  List<Diagnostic> pluginDiagnosticList,
-                                 ModuleDescriptor moduleDescriptor, String docName) {
+                                 ModuleDescriptor moduleDescriptor, String docName, DocumentId documentId) {
             this.idlPluginManager = idlPluginManager;
             this.compilationOptions = compilationOptions;
             this.currentPkg = currentPkg;
@@ -265,6 +268,7 @@ class DocumentContext {
             this.pluginDiagnosticList = pluginDiagnosticList;
             this.currentModuleDesc = moduleDescriptor;
             this.docName = docName;
+            this.documentId = documentId;
         }
 
         @Override
@@ -322,6 +326,11 @@ class DocumentContext {
                         continue;
                     }
                     if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
+                        // user has deleted the module
+                        return false;
+                    }
+                    if (cachedPlugin.lastModifiedTime() != new File(cachedPlugin.filePath()).lastModified()) {
+                        // the idl resource file has been modified
                         return false;
                     }
                     getGeneratedModuleEntry(cachedPlugin, lineRange);
@@ -340,7 +349,7 @@ class DocumentContext {
                 for (IDLClientGenerator idlClientGenerator : idlPluginContext.idlClientGenerators()) {
                     Path idlPath;
                     try {
-                        idlPath = getIDLPath(clientNode);
+                        idlPath = getIdlPath(clientNode);
                     } catch (IOException e) {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
@@ -396,18 +405,51 @@ class DocumentContext {
             return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         }
 
-        // TODO: implement validations
-        private Path getIDLPath(Node clientNode) throws IOException {
+        private Path getIdlPath(Node clientNode) throws IOException {
             String uri = CompilerPlugins.getUri(clientNode);
-            URL url = getUrl(uri);
-            String extension = FileNameUtils.getExtension(url.getFile());
-            String fileName = "idl-spec-file" + System.nanoTime();
-            if (!"".equals(extension)) {
-                fileName = fileName + ProjectConstants.DOT + extension;
+            URL url;
+            String fileName;
+            try {
+                url = new URL(uri);
+            } catch (MalformedURLException e) {
+                if (uri.matches("(?!file\\b)\\w+?://.*")) {
+                    // Remote file
+                    throw e;
+                }
+                // Local file
+                Path localFilePath = Paths.get(uri);
+                if (!Files.exists(localFilePath)) {
+                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                    String message = "could not locate the resource file: " + localFilePath;
+                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
+                    throw new ProjectException(e);
+                }
+                if (!Files.isRegularFile(localFilePath)) {
+                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                    String message = "provided file is not a regular file: " + localFilePath;
+                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
+                    throw new ProjectException(e);
+                }
+                if (!localFilePath.toFile().canRead()) {
+                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                    String message = "provided file does not have read permission: " + localFilePath;
+                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
+                    throw new ProjectException(e);
+                }
+                return localFilePath;
             }
+
+            String[] split = url.getFile().split("[~?=#@*+%{}<>\\[\\]|\"^]");
+            fileName = split[split.length -1];
             Path resourceName = Paths.get(fileName);
-            Path resourcePath = this.currentPkg.project().targetDir().resolve(resourceName);
+            Path absResourcePath = this.currentPkg.project().sourceRoot().resolve(resourceName);
+            Path resourcePath = this.currentPkg.project()
+                    .documentPath(this.documentId).orElseThrow().relativize(absResourcePath);
+
             Files.createDirectories(this.currentPkg.project().targetDir());
+            if (Files.exists(resourcePath)) {
+                Files.delete(resourcePath);
+            }
             Files.createFile(resourcePath);
 
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
@@ -419,29 +461,6 @@ class DocumentContext {
                 }
             }
             return resourcePath;
-        }
-
-        private URL getUrl(String uri) throws MalformedURLException {
-            try {
-                return new URL(uri);
-            } catch (MalformedURLException e) {
-                Path path = Paths.get(uri);
-                if (!path.isAbsolute()) {
-                    Path projectDir = this.currentPkg.project().sourceRoot();
-                    ModuleName moduleName = this.currentModuleDesc.name();
-                    if (moduleName.isDefaultModuleName()) {
-                        path = projectDir.resolve(uri);
-                    } else {
-                        path = projectDir.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart())
-                                .resolve(uri);
-                    }
-                }
-                File file = path.toFile();
-                if (file.exists()) {
-                    return file.toURI().toURL();
-                }
-                throw e;
-            }
         }
     }
 }

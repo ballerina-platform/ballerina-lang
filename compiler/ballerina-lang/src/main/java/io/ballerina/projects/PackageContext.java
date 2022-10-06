@@ -108,7 +108,7 @@ class PackageContext {
         if (project.kind() == ProjectKind.BALA_PROJECT) {
             idlPluginManager = null;
         } else {
-            idlPluginManager = IDLPluginManager.from(project.targetDir());
+            idlPluginManager = IDLPluginManager.from(project.sourceRoot);
         }
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),

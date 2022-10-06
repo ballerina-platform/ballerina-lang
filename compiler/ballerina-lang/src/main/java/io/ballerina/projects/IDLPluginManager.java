@@ -62,11 +62,13 @@ class IDLPluginManager {
         this.cachedModuleNames = new HashSet<>();
     }
 
-    static IDLPluginManager from(Path target) {
+    static IDLPluginManager from(Path sourceRoot) {
         List<IDLClientEntry> cache = new ArrayList<>();
-        if (Files.exists(target.resolve(ProjectConstants.IDL_CACHE_FILE))) {
+        Path idlCacheJson = sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT)
+                .resolve(ProjectConstants.IDL_CACHE_FILE);
+        if (Files.exists(idlCacheJson)) {
             try {
-                String readString = Files.readString(target.resolve(ProjectConstants.IDL_CACHE_FILE));
+                String readString = Files.readString(idlCacheJson);
                 Type cacheMapType = new TypeToken<List<IDLClientEntry>>() {
                 }.getType();
                 cache = new Gson().fromJson(readString, cacheMapType);
@@ -74,7 +76,7 @@ class IDLPluginManager {
                 // ignore e
             }
         }
-        return new IDLPluginManager(target, cache);
+        return new IDLPluginManager(sourceRoot, cache);
 
     }
 
@@ -192,7 +194,7 @@ class IDLPluginManager {
             List<String> annotations = CompilerPlugins.annotationsAsStr(supportedAnnotations);
             String uri = getUri(this.clientNode);
 
-            IDLClientEntry idlCacheInfo = new IDLClientEntry(uri,
+            IDLClientEntry idlCacheInfo = new IDLClientEntry(uri, resourcePath,
                     annotations, newModuleConfig.moduleDescriptor().name().moduleNamePart());
             this.cachedClientEntries.add(idlCacheInfo);
         }

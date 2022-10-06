@@ -275,7 +275,8 @@ public class Package {
         }
         if (!resolution.clientsToCache().isEmpty()) {
             String json = new Gson().toJson(resolution.clientsToCache());
-            Files.writeString(this.project.targetDir().resolve(ProjectConstants.IDL_CACHE_FILE), json);
+            Files.writeString(this.project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
+                    .resolve(ProjectConstants.IDL_CACHE_FILE), json);
         }
     }
 

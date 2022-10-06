@@ -18,7 +18,7 @@
 
 package io.ballerina.projects;
 
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,17 +31,15 @@ class IDLClientEntry {
     private final String url;
     private final List<String> annotations;
     private final String generatedModuleName;
-    private final List<DocumentId> documents;
+    private final String filePath;
+    private final long lastModifiedTime;
 
-    public IDLClientEntry(String url, List<String> annotations, String generatedModuleName) {
+    public IDLClientEntry(String url, Path filePath, List<String> annotations, String generatedModuleName) {
         this.url = url;
         this.annotations = annotations;
         this.generatedModuleName = generatedModuleName;
-        this.documents = new ArrayList<>();
-    }
-
-    public void addDocument(DocumentId documentId) {
-        this.documents.add(documentId);
+        this.filePath = filePath.toString();
+        this.lastModifiedTime = filePath.toFile().lastModified();
     }
 
     public String url() {
@@ -52,12 +50,16 @@ class IDLClientEntry {
         return annotations;
     }
 
-    public List<DocumentId> documents() {
-        return documents;
+    public String filePath() {
+        return filePath;
     }
 
     public String generatedModuleName() {
         return generatedModuleName;
+    }
+
+    public long lastModifiedTime() {
+        return lastModifiedTime;
     }
 
     @Override
