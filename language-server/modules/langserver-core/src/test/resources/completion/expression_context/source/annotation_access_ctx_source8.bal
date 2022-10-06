@@ -2,7 +2,8 @@ type AnnotationData record {|
 
 |};
 
-annotation AnnotationData MyAnnotation on object field;
+annotation AnnotationData MyAnnotation1 on object field;
+annotation AnnotationData MyAnnotation2 on class;
 
 class MyClass {
     int n;
