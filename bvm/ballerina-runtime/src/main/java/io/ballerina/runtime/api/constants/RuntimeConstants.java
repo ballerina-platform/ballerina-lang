@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 
 /**
  * This file contains a list of constant values used by Ballerina Runtime.
