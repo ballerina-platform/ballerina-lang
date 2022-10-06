@@ -4012,7 +4012,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BObjectType objectType;
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
             objectType = (BObjectType) objectCtorExpression.classNode.getBType();
-            BType effectiveType = Types.getEffectiveType(Types.getReferredType(objectCtorExpression.expectedType));
+            BType effectiveType = getObjectTypesOrOriginalType(objectCtorExpression.expectedType);
             if (effectiveType.tag == TypeTags.OBJECT) {
                 BObjectType expObjType = (BObjectType) Types.getReferredType(effectiveType);
                 objectType.typeIdSet = expObjType.typeIdSet;
@@ -4066,6 +4066,35 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
         data.resultType = types.checkType(cIExpr, actualTypeInitType, data.expType);
+    }
+
+    private BType getObjectTypesOrOriginalType(BType type) {
+        BType effectiveType = Types.getEffectiveType(Types.getReferredType(type));
+
+        int tag = effectiveType.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return effectiveType;
+        }
+
+        if (tag != TypeTags.UNION) {
+            return type;
+        }
+
+        LinkedHashSet<BType> objectTypes = new LinkedHashSet<>();
+
+        for (BType memberType : ((BUnionType) effectiveType).getMemberTypes()) {
+            BType effectiveMemberType = Types.getEffectiveType(Types.getReferredType(memberType));
+
+            if (effectiveMemberType.tag == TypeTags.OBJECT) {
+                objectTypes.add(effectiveMemberType);
+            }
+        }
+
+        if (objectTypes.isEmpty()) {
+            return type;
+        }
+        return objectTypes.size() == 1 ? objectTypes.iterator().next() : BUnionType.create(null, objectTypes);
     }
 
     private boolean isDefiniteObjectType(BType bType, Set<BTypeIdSet> typeIdSets) {
@@ -7895,6 +7924,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
+            case OBJECT_CTOR_EXPRESSION:
+            case RAW_TEMPLATE_LITERAL:
+            case TABLE_CONSTRUCTOR_EXPR:
+            case TYPE_INIT_EXPR:
+            case ERROR_CONSTRUCTOR_EXPRESSION:
                 return true;
             case ELVIS_EXPR:
             case TERNARY_EXPR:
