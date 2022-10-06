@@ -111,6 +111,11 @@ public class TupleRestDescriptorTest {
         BRunUtil.invoke(result, "testSubTypingWithRestDescriptorNegative");
     }
 
+    @Test
+    public void testRestVariablesWithArray() {
+        BRunUtil.invoke(result, "testRestVariablesWithArray");
+    }
+
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =

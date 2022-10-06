@@ -157,6 +157,15 @@
       "filterText": "worker",
       "insertText": "worker",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "client",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

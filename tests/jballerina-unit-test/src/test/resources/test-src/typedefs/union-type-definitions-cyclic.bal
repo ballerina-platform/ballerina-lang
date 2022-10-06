@@ -150,7 +150,7 @@ public function testComplexCyclicUnion() {
      string y = "";
      string mapVal = "";
      string objVal = "";
-     record { H a; float x; } re = { a : "r", x: 0};
+     record { H a; float x; } res = { a : "r", x: 0};
 
      if (array is H[]) {
         x = <int> array[0];
@@ -163,13 +163,13 @@ public function testComplexCyclicUnion() {
 
         var n = array[3];
         if (n is record{}) {
-            re = <record { H a; float x; }> array[3];
+            res = <record { H a; float x; }> array[3];
         }
      }
      assert(x, 1);
      assert(y, "hello");
      assert(mapVal, "hello");
-     assert(re.a, "rec2");
+     assert(res.a, "rec2");
 }
 
 type I H;
@@ -273,6 +273,63 @@ function testIndirectRecursion() {
         test6 = [["functionRef", 1]];
     }
     assert((<XFunctionRef>test6[0])[0] is string, true);
+}
+
+public type T1 ["|", T1, T1...] | "int" ;
+public type T2 T1[];
+
+public type T3 ["|", T3...] | "int" ;
+public type T4 T3[];
+
+public type T5 ["|", T5] | "int" ;
+public type T6 T5[];
+
+public type T7 ["|", T7[], T7...] | "int" ;
+public type T8 T7[];
+
+public type T9 ["|", T9, T9, T9...] | "int" ;
+public type T10 T9[];
+
+public type T11 ["|", T11, T11[], T11[]...] | "int" ;
+public type T12 T11[];
+
+function testRecursiveTupleTypeDefinitions() {
+    T1 t1 = ["|", "int", ["|", "int", "int"], "int"];
+    T2 t2 = [["|", "int", ["|", "int", "int"], "int"], "int"];
+    T2 t3 = [t1, t1];
+    assert(t1 is T1, true);
+    assert(t2 is T2, true);
+    assert(t3 is T2, true);
+
+    T3 t4 = ["|", "int", ["|", "int", "int"], "int"];
+    T4 t5 = [["|", "int", ["|", "int", "int"], "int"], "int"];
+    T4 t6 = [t4, t4];
+    assert(t4 is T3, true);
+    assert(t5 is T4, true);
+    assert(t6 is T4, true);
+
+    T5 t7 = ["|", ["|", "int"]];
+    T6 t8 = [["|", ["|", "int"]], ["|", ["|", "int"]]];
+    T6 t9 = [t7, t7];
+    assert(t7 is T5, true);
+    assert(t8 is T6, true);
+    assert(t9 is T6, true);
+
+    T7 t10 = ["|", ["int", "int"], "int"];
+    T8 t11 = [["|", ["int", "int"], "int"], ["|", ["int", "int"], "int"]];
+    T8 t12 = [t10, t10];
+    assert(t10 is T7, true);
+    assert(t11 is T8, true);
+    assert(t12 is T8, true);
+
+    T9 t13 = ["|", "int", "int", "int", "int"];
+    T10 t14 = [t13, t13];
+    T11 t15 = ["|", "int", ["int", "int"], ["int", "int"], ["int", "int"]];
+    T12 t16 = [t15, t15];
+    assert(t13 is T9, true);
+    assert(t14 is T10, true);
+    assert(t15 is T11, true);
+    assert(t16 is T12, true);
 }
 
 function assert(anydata expected, anydata actual) {

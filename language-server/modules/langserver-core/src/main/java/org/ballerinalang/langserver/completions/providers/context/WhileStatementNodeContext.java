@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -26,9 +28,11 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link WhileStatementNode} context.
@@ -71,5 +75,20 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
          */
         return !whileKeyword.isMissing() && cursor >= whileKeyword.textRange().endOffset() + 1
                 && ((whileBody.isMissing() || cursor < whileBody.openBraceToken().textRange().endOffset()));
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, WhileStatementNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol booleanTypeSymbol = semanticModel.get().types().BOOLEAN;
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, booleanTypeSymbol));
+        }
     }
 }

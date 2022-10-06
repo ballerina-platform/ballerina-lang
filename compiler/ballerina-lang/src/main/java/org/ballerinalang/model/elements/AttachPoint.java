@@ -104,7 +104,11 @@ public class AttachPoint {
         /**
          * Indicate class Attach point.
          */
-        CLASS("class");
+        CLASS("class"),
+        /**
+         * Indicate client declaration attach point.
+         */
+        CLIENT("client");
 
         private String value;
 

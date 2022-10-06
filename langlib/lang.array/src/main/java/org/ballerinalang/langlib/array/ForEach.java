@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import org.ballerinalang.langlib.array.utils.GetFunction;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -54,11 +53,8 @@ public class ForEach {
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                         () -> new Object[]{parentStrand,
-                                                                 getFn.get(arr, index.incrementAndGet()), true},
-                                                         result -> {
-                                                         }, () -> null, Scheduler.getStrand().scheduler);
+                () -> new Object[]{getFn.get(arr, index.incrementAndGet()), true}, result -> {
+                }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

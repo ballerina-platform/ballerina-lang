@@ -68,7 +68,7 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         Range diagRange = PathUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
                 .map(syntaxTree -> CommonUtil.findNode(diagRange, syntaxTree));
-        if (node.isEmpty() || name.isEmpty()) {
+        if (node == null || node.isEmpty() || name.isEmpty()) {
             return Collections.emptyList();
         }
 

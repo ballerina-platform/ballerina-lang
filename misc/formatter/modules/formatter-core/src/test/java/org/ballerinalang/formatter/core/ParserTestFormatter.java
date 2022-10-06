@@ -74,8 +74,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "conditional_expr_source_28.bal",
                 "resiliency_source_04.bal",
                 "record_type_def_source_14.bal",
+                "record_type_def_source_29.bal",
                 "object_type_def_source_12.bal",
                 "anon_func_source_01.bal",
+                "conditional_expr_source_27.bal",
 
                 // the following tests need to be enabled in the future
                 "annotations_source_04.bal", // could be considered an invalid scenario
@@ -177,7 +179,10 @@ public class ParserTestFormatter extends FormatterTest {
                 "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
                 "member_access_expr_source_11.bal", "float_literal_source_08.bal", "object_type_def_source_47.bal", 
                 "client_resource_access_action_source_05.bal", "client_resource_access_action_source_06.bal", 
-                "resiliency_source_05.bal");
+                "client_decl_stmt_source_08.bal", "client_decl_stmt_source_13.bal",
+                "client_decl_source_08.bal", "client_decl_source_09.bal", "client_decl_source_13.bal",
+                "client_decl_source_14.bal", "invalid_usage_of_client_keyword_as_identifier_source.bal",
+                "resiliency_source_05.bal", "regexp_constructor_source_26.bal", "regexp_constructor_source_28.bal");
     }
 
     @DataProvider(name = "test-file-provider")
