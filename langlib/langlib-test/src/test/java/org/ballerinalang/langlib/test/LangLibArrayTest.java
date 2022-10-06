@@ -499,6 +499,18 @@ public class LangLibArrayTest {
                         "'[string,T]' is not an ordered type", 264, 32);
         BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
                 "'[string,T][]' is not an ordered type", 268, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'Obj', found 'object { " +
+                "int i; }'", 288, 9);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
+                                  305, 19);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
+                                  306, 41);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "missing non-defaultable required record field " +
+                "'empCount'", 318, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "missing required parameter 'j' in call to 'new()'",
+                                  324, 14);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "missing error detail arg for error detail field " +
+                "'code'", 331, 14);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
