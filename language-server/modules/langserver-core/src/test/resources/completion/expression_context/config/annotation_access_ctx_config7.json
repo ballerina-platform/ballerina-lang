@@ -1,26 +1,10 @@
 {
   "position": {
-    "line": 13,
+    "line": 14,
     "character": 8
   },
   "source": "expression_context/source/annotation_access_ctx_source7.bal",
   "items": [
-    {
-      "label": "MyAnnotation",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotation",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "test/project2",
       "kind": "Module",
@@ -284,6 +268,62 @@
           "newText": "import ballerina/lang.array;\n"
         }
       ]
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "display",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

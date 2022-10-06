@@ -1,26 +1,10 @@
 {
   "position": {
-    "line": 18,
+    "line": 19,
     "character": 8
   },
   "source": "expression_context/source/annotation_access_ctx_source8.bal",
   "items": [
-    {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "display",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "deprecated",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "deprecated",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "test/project2",
       "kind": "Module",
@@ -284,6 +268,30 @@
           "newText": "import ballerina/lang.array;\n"
         }
       ]
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotation2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "display",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
