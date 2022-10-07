@@ -99,15 +99,7 @@ public class JsonToRecordMapper {
     @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
-        List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
-        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
-        try {
-            response.setCodeBlock(Formatter.format(response.getCodeBlock()));
-        } catch (FormatterException e) {
-            DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
-            diagnosticMessages.add(message);
-        }
-        return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
     }
 
     /**
