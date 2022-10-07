@@ -325,13 +325,18 @@ class DocumentContext {
                             CompilerPlugins.annotationsAsStr(annotationsList))) {
                         continue;
                     }
-                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
-                        // user has deleted the module
-                        return false;
-                    }
                     if (cachedPlugin.lastModifiedTime() != new File(cachedPlugin.filePath()).lastModified()) {
                         // the idl resource file has been modified
                         return false;
+                    }
+
+                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
+                        if (idlPluginManager.generatedModuleConfigs().stream().noneMatch(moduleConfig ->
+                                moduleConfig.moduleDescriptor().name().moduleNamePart()
+                                        .equals(cachedPlugin.generatedModuleName()))) {
+                            // user has deleted the module
+                            return false;
+                        }
                     }
                     getGeneratedModuleEntry(cachedPlugin, lineRange);
                     return true;
@@ -439,9 +444,9 @@ class DocumentContext {
                 return localFilePath;
             }
 
-            String[] split = url.getFile().split("[~?=#@*+%{}<>\\[\\]|\"^]");
+            String[] split = url.getFile().split("[~?=#@*+%{}<>/\\[\\]|\"^]");
             fileName = split[split.length -1];
-            Path resourceName = Paths.get(fileName);
+            Path resourceName = Paths.get(fileName).getFileName();
             Path absResourcePath = this.currentPkg.project().sourceRoot().resolve(resourceName);
             Path resourcePath = this.currentPkg.project()
                     .documentPath(this.documentId).orElseThrow().relativize(absResourcePath);
