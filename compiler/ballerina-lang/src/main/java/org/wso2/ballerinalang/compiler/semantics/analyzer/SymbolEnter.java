@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -4764,9 +4765,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
-        return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, 
+        BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
+                funcType, resourcePath, accessor, pathParamSymbols, restPathParamSym,
                 (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
+        
+        int resourcePathSize = resourcePath.size();
+        List<BLangType> resourcePathTypes = resourceFunction.resourcePathType.getMemberTypeNodes();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathSize);
+        BResourcePathSegmentSymbol parentResource = null;
+        for (int i = 0; i < resourcePathSize; i++) {
+            Name resourcePathSymbolName = resourcePath.get(i);
+            BType resourcePathSegmentType = resourcePathTypes.get(i).getBType();
+            BResourcePathSegmentSymbol pathSym = new BResourcePathSegmentSymbol(SymTag.RESOURCE_PATH_SEGMENT, 0,
+                    resourcePathSymbolName, env.enclPkg.symbol.pkgID, resourcePathSegmentType, 
+                    funcNode.receiver.getBType().tsymbol, resourceFunction.resourcePath.get(0).pos, parentResource,
+                    bResourceFunction);
+            pathSegmentSymbols.add(pathSym);
+            parentResource = pathSym;
+        }
+
+        bResourceFunction.pathSegmentSymbols = pathSegmentSymbols;
+        return bResourceFunction;
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

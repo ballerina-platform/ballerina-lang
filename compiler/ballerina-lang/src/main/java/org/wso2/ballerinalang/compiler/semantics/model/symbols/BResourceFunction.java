@@ -38,6 +38,7 @@ public class BResourceFunction extends BAttachedFunction {
     public List<Name> resourcePath;
     public Name accessor;
     public BTupleType resourcePathType;
+    public List<BResourcePathSegmentSymbol> pathSegmentSymbols;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
                              List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
