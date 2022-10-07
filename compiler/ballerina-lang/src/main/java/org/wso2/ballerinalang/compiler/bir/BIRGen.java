@@ -961,6 +961,12 @@ public class BIRGen extends BLangNodeVisitor {
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             blockEndBB = beginBreakableBlock(astBlockStmt.failureBreakMode);
         }
+        if (astBlockStmt.isFromFailNode) {
+            breakIntoNewBasicBlock(astBlockStmt);
+            if (this.env.failStartBBAlreadyAvailable) {
+                return;
+            }
+        }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
@@ -983,6 +989,25 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
         this.env.enclBasicBlocks.add(letExprEndBB);
         this.env.enclBB = letExprEndBB;
+    }
+
+    private void breakIntoNewBasicBlock(BLangBlockStmt bLangBlockStmt) {
+        BIRBasicBlock blockBB = this.env.failStartBasicBlockMap.get(bLangBlockStmt);
+        if (blockBB == null) {
+            this.env.failStartBBAlreadyAvailable = false;
+            blockBB = new BIRBasicBlock(this.env.nextBBId(names));
+            this.env.enclBasicBlocks.add(blockBB);
+            // Insert a GOTO instruction as the terminal instruction into current basic block.
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
+            this.env.enclBB = blockBB;
+
+            this.env.failStartBasicBlockMap.put(bLangBlockStmt, blockBB);
+            return;
+        }
+        this.env.failStartBBAlreadyAvailable = true;
+        // Insert a GOTO instruction as the terminal instruction into current basic block.
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
+        this.env.enclBB = blockBB;
     }
 
     @Override

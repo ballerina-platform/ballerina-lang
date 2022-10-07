@@ -426,6 +426,7 @@ public class Desugar extends BLangNodeVisitor {
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
     private final Map<BLangOnFailClause, BVarSymbol> onFailClauseErrorVariable = new HashMap<>();
     private final Map<BLangOnFailClause, BLangFail> bLangFailNodeByOnFailClause = new HashMap<>();
+    private final Map<BLangFail, BLangBlockStmt> blockStmtByFailNode = new HashMap<>();
     // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
 
@@ -5127,42 +5128,46 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
+        BLangBlockStmt onFailBody = blockStmtByFailNode.get(fail);
+        if (onFailBody == null) {
+            onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
+            onFailBody.stmts.addAll(onFailClause.body.stmts);
+            onFailBody.scope = onFailClause.body.scope;
+            onFailBody.mapSymbol = onFailClause.body.mapSymbol;
+            onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
+            onFailBody.isFromFailNode = true;
+            VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
-        BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
-        onFailBody.stmts.addAll(onFailClause.body.stmts);
-        onFailBody.scope = onFailClause.body.scope;
-        onFailBody.mapSymbol = onFailClause.body.mapSymbol;
-        onFailBody.failureBreakMode = onFailClause.body.failureBreakMode;
-        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
-
-        if (onFailVarDefNode != null) {
-            BVarSymbol onFailErrorVariableSymbol =
-                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
-            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                    onFailErrorVariableSymbol);
-            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-            onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-            onFailBody.stmts.add(0, errorVarDef);
-        }
-
-        int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-        int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
-                : (currentOnFailIndex - 1);
-        this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
-        onFailBody = rewrite(onFailBody, env);
-        BLangFail failToEndBlock = new BLangFail();
-        if (onFailClause.isInternal && fail.exprStmt != null) {
-            if (fail.exprStmt instanceof BLangPanic) {
-                setPanicErrorToTrue(onFailBody, onFailClause);
-            } else {
-                onFailBody.stmts.add((BLangStatement) fail.exprStmt);
+            if (onFailVarDefNode != null) {
+                BVarSymbol onFailErrorVariableSymbol =
+                        ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
+                BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                        onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                        onFailErrorVariableSymbol);
+                BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+                onFailBody.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+                onFailBody.stmts.add(0, errorVarDef);
             }
+
+            int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
+            int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
+                    : (currentOnFailIndex - 1);
+            this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
+            onFailBody = rewrite(onFailBody, env);
+            BLangFail failToEndBlock = new BLangFail();
+            if (onFailClause.isInternal && fail.exprStmt != null) {
+                if (fail.exprStmt instanceof BLangPanic) {
+                    setPanicErrorToTrue(onFailBody, onFailClause);
+                } else {
+                    onFailBody.stmts.add((BLangStatement) fail.exprStmt);
+                }
+            }
+            if (onFailClause.bodyContainsFail && !onFailClause.isInternal) {
+                onFailBody.stmts.add(failToEndBlock);
+            }
+            this.onFailClause = currentOnFail;
+            blockStmtByFailNode.put(fail, onFailBody);
         }
-        if (onFailClause.bodyContainsFail && !onFailClause.isInternal) {
-            onFailBody.stmts.add(failToEndBlock);
-        }
-        this.onFailClause = currentOnFail;
         return onFailBody;
     }
 
