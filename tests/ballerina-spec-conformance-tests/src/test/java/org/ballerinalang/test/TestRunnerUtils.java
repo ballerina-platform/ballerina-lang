@@ -119,9 +119,6 @@ public class TestRunnerUtils {
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
 
-            String labels = headersOfTestCase.get(LABELS);
-            String[] testCaseLabels = LABEL_SPLIT_PATTERN.split(labels);
-
             //TODO: if kind of testcase is other, then need to skip creating the bal file
 
             Object[] testCase = new Object[9];
@@ -130,8 +127,8 @@ public class TestRunnerUtils {
             testCase[4] = fileName;
             testCase[5] = absLineNum;
             testCase[7] = headersOfTestCase.containsKey(FAIL_ISSUE);
-            testCase[8] = testCaseLabels;
-
+            testCase[8] = headersOfTestCase.containsKey(LABELS) ?
+                    LABEL_SPLIT_PATTERN.split(headersOfTestCase.get(LABELS)) : new String[0];
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
         buffReader.close();
