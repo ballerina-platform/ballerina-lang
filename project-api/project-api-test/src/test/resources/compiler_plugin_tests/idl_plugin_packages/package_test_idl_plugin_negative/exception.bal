@@ -13,30 +13,18 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import package_test_idl_plugin.mod1 as mod1;
 
-public function main() {
-    _ = mod1:testModuleClientDecl();
-}
+client "https://postman-echo.com/get?name=projectapiclientplugin_throwNPE" as foo;
 
-client "<<IDL_ABSOLUTE_PATH>>" as foo;
-//client "<<IDL_FILE_PROTOCOL>>" as bar;
-client "./projectapiclientplugin.json" as baz;
+client "https://postman-echo.com/get?name=projectapiclientplugin_throwUnhandledEx" as foo;
 
-function testModuleClientDecl() returns string {
+public function testModuleClientDecl() returns string {
     foo:ClientConfiguration config = {specVersion : "3.0.0"};
     foo:client cl = new (config);
     return cl->getSpecVersion();
 }
 
-//function testModuleClientDecl1() returns string {
-//    bar:ClientConfiguration config = {specVersion : "3.0.0"};
-//    bar:client cl = new (config);
-//    return cl->getSpecVersion();
-//}
-
-function testModuleClientDecl2() returns string {
-    baz:ClientConfiguration config = {specVersion : "3.0.0"};
-    baz:client cl = new (config);
-    return cl->getSpecVersion();
+public function testSameClientUri() {
+    client "https://postman-echo.com/get?name=projectapiclientplugin_throwRuntimeEx" as bar;
 }
+

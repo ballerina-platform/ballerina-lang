@@ -68,6 +68,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -318,26 +319,45 @@ class DocumentContext {
         private boolean loadExistingModule(
                 Node clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
             String uri = CompilerPlugins.getUri(clientNode);
+            try {
+                if (!isRemoteUrl(uri)) {
+                    uri = getNormalizedUriPath(uri).toString();
+                }
+            } catch (MalformedURLException e) {
+                // ignore since we only need to check if the uri is local
+            }
             for (IDLClientEntry cachedPlugin : idlPluginManager.cachedClientEntries()) {
-                if (cachedPlugin.url().equals(uri)) {
+                String cachedUrl = cachedPlugin.url();
+                try {
+                    if (!isRemoteUrl(cachedUrl)) {
+                        cachedUrl = cachedPlugin.filePath();
+                    }
+                } catch (MalformedURLException e) {
+                    // ignore since we only need to check if the uri is local
+                }
+                if (cachedUrl.equals(uri)) {
                     cachedPlugin.annotations().sort(Comparator.naturalOrder());
                     if (!cachedPlugin.annotations().equals(
                             CompilerPlugins.annotationsAsStr(annotationsList))) {
                         continue;
                     }
-                    if (cachedPlugin.lastModifiedTime() != new File(cachedPlugin.filePath()).lastModified()) {
-                        // the idl resource file has been modified
-                        return false;
-                    }
+                    if (idlPluginManager.generatedModuleConfigs().stream().noneMatch(moduleConfig ->
+                            moduleConfig.moduleDescriptor().name().moduleNamePart()
+                                    .equals(cachedPlugin.generatedModuleName()))) {
 
-                    if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
-                        if (idlPluginManager.generatedModuleConfigs().stream().noneMatch(moduleConfig ->
-                                moduleConfig.moduleDescriptor().name().moduleNamePart()
-                                        .equals(cachedPlugin.generatedModuleName()))) {
+                        File specFile = new File(cachedPlugin.filePath());
+                        if (specFile.exists()) {
+                            if (cachedPlugin.lastModifiedTime() != specFile.lastModified()) {
+                                // the idl resource file has been modified
+                                return false;
+                            }
+                        }
+                        if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
                             // user has deleted the module
                             return false;
                         }
                     }
+
                     getGeneratedModuleEntry(cachedPlugin, lineRange);
                     return true;
                 }
@@ -359,6 +379,10 @@ class DocumentContext {
                         ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
                         String message = "unable to get resource from uri, reason: " + e.getMessage();
                         pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
+                        return;
+                    } catch (ProjectException e) {
+                        ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
+                        pluginDiagnosticList.add(createDiagnostic(errorCode, location, e.getMessage()));
                         return;
                     }
                     IDLPluginManager.IDLSourceGeneratorContextImpl idlSourceGeneratorContext =
@@ -410,10 +434,8 @@ class DocumentContext {
             return DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         }
 
-        private Path getIdlPath(Node clientNode) throws IOException {
-            String uri = CompilerPlugins.getUri(clientNode);
+        private boolean isRemoteUrl(String uri) throws MalformedURLException {
             URL url;
-            String fileName;
             try {
                 url = new URL(uri);
             } catch (MalformedURLException e) {
@@ -421,51 +443,72 @@ class DocumentContext {
                     // Remote file
                     throw e;
                 }
-                // Local file
-                Path localFilePath = Paths.get(uri);
-                if (!Files.exists(localFilePath)) {
-                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
-                    String message = "could not locate the resource file: " + localFilePath;
-                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
-                    throw new ProjectException(e);
-                }
-                if (!Files.isRegularFile(localFilePath)) {
-                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
-                    String message = "provided file is not a regular file: " + localFilePath;
-                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
-                    throw new ProjectException(e);
-                }
-                if (!localFilePath.toFile().canRead()) {
-                    ProjectDiagnosticErrorCode errorCode = ProjectDiagnosticErrorCode.INVALID_IDL_URI;
-                    String message = "provided file does not have read permission: " + localFilePath;
-                    pluginDiagnosticList.add(createDiagnostic(errorCode, clientNode.location(), message));
-                    throw new ProjectException(e);
-                }
-                return localFilePath;
+                return false;
             }
+            return !url.getProtocol().equals("file");
+        }
 
+        private Path getIdlPath(Node clientNode) throws IOException {
+            String uri = CompilerPlugins.getUri(clientNode);
+            if (!isRemoteUrl(uri)) {
+                return resolveLocalPath(uri);
+            }
+            return resolveRemoteUrl(uri);
+        }
+
+        private Path resolveRemoteUrl(String uri) throws IOException {
+            URL url = new URL(uri);
             String[] split = url.getFile().split("[~?=#@*+%{}<>/\\[\\]|\"^]");
-            fileName = split[split.length -1];
+            String fileName = split[split.length -1];
             Path resourceName = Paths.get(fileName).getFileName();
             Path absResourcePath = this.currentPkg.project().sourceRoot().resolve(resourceName);
-            Path resourcePath = this.currentPkg.project()
-                    .documentPath(this.documentId).orElseThrow().relativize(absResourcePath);
 
-            Files.createDirectories(this.currentPkg.project().targetDir());
-            if (Files.exists(resourcePath)) {
-                Files.delete(resourcePath);
+            if (Files.exists(absResourcePath)) {
+                Files.delete(absResourcePath);
             }
-            Files.createFile(resourcePath);
+            Files.createFile(absResourcePath);
 
             try (BufferedInputStream in = new BufferedInputStream(url.openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(resourcePath.toFile())) {
+                 FileOutputStream fileOutputStream = new FileOutputStream(absResourcePath.toFile())) {
                 byte[] dataBuffer = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
                     fileOutputStream.write(dataBuffer, 0, bytesRead);
                 }
             }
-            return resourcePath;
+            return resourceName;
+        }
+
+        private Path getNormalizedUriPath(String uri) {
+            Path documentParent = Optional.of(this.currentPkg.project().documentPath(this.documentId)
+                    .orElseThrow().getParent()).get();
+            Path uriPath = Paths.get(uri);
+            if (uriPath.isAbsolute()) {
+                return Paths.get(uri);
+            }
+            return this.currentPkg.project().sourceRoot().relativize(documentParent.resolve(uri));
+        }
+
+        private Path resolveLocalPath(String uri) {
+            Path localFilePath = getNormalizedUriPath(uri);
+            Path absLocalFilePath = localFilePath;
+            if (!absLocalFilePath.isAbsolute()) {
+                absLocalFilePath = this.currentPkg.project().sourceRoot().resolve(localFilePath);
+            }
+
+            if (!Files.exists(absLocalFilePath)) {
+                String message = "could not locate the resource file: " + localFilePath;
+                throw new ProjectException(message);
+            }
+            if (!Files.isRegularFile(absLocalFilePath)) {
+                String message = "provided file is not a regular file: " + localFilePath;
+                throw new ProjectException(message);
+            }
+            if (!absLocalFilePath.toFile().canRead()) {
+                String message = "provided file does not have read permission: " + localFilePath;
+                throw new ProjectException(message);
+            }
+            return localFilePath;
         }
     }
 }
