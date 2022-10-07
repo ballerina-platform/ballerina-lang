@@ -108,5 +108,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical type definitions",
+    "oldCode": "#documentation\npublic type Age record{\nint x;\n };",
+    "newCode": "#documentation\npublic type Age record{\nint x;\n };",
+    "expectedOutput": "No Changes"
   }
 ]
