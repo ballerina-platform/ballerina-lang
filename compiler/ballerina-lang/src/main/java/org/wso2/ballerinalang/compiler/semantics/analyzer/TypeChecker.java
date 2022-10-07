@@ -4017,7 +4017,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BObjectType expObjType = (BObjectType) Types.getReferredType(effectiveType);
                 objectType.typeIdSet = expObjType.typeIdSet;
             } else if (effectiveType.tag != TypeTags.NONE) {
-                if (!checkAndLoadTypeIdSet(objectCtorExpression.expectedType, objectType)) {
+                if (!checkAndLoadTypeIdSet(getObjectTypesOrOriginalType(objectCtorExpression.expectedType),
+                                           objectType)) {
                     dlog.error(objectCtorExpression.pos, DiagnosticErrorCode.INVALID_TYPE_OBJECT_CONSTRUCTOR,
                             objectCtorExpression.expectedType);
                     data.resultType = symTable.semanticError;
