@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -78,6 +79,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, filter));
+        } else if (onSuggestionsAfterQualifiers(context, nodeAtCursor)) {
+            completionItems.addAll(getCompletionItemsOnQualifiers(nodeAtCursor, context));
         } else {
             /*
             Covers the following
@@ -101,6 +105,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Remove the function keyword suggestion from here, since it is suggested by typeItems API
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLIENT_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
@@ -191,6 +196,24 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
 
+        return completionItems;
+    }
+
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            return completionItems;
+        }
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
         return completionItems;
     }
 

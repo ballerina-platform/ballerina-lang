@@ -11,6 +11,9 @@ jobs:
     name: Build with tests on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-ubuntu
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
@@ -42,9 +45,10 @@ jobs:
   windows_build:
     name: Build with some tests on Windows
     runs-on: windows-latest
-    concurrency: 
-       group: ${{ github.head_ref }}-windows
-       cancel-in-progress: true
+    timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-windows
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
@@ -81,8 +85,8 @@ jobs:
     name: Build with sonarcloud scan on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    concurrency: 
-      group: ${{ github.head_ref }}-ubuntu
+    concurrency:
+      group: ${{ github.head_ref }}-sonarcloud
       cancel-in-progress: true
 
     steps:
