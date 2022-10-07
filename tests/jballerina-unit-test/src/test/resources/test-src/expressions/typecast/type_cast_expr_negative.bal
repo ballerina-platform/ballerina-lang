@@ -81,3 +81,50 @@ function testTypeCastInConstructorMemberWithUnionCETNegative() {
     any[]|error val2 = [];
     record {string[] a;}|record {string a;} c = {a: <byte[]> checkpanic val2};
 }
+
+class Obj {
+    int i;
+    int j;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+function testTypeCastWithObjectConstructorExprNegative() {
+    _ = <Obj> object { // error
+        int i = 123;
+    };
+}
+
+type Template object {
+    *object:RawTemplate;
+
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+function testTypeCastWithRawTemplateExprNegative() {
+    string i = "";
+    _ = <Template> `second number ${1 + 3} third ${i + "1"}`; // error for second interpolation
+}
+
+type Department record {|
+    readonly string name;
+    int empCount;
+|};
+
+function testTypeCastWithTableConstructorExprNegative() {
+    _ = <table<Department> key(name)> table [{name: "finance"}]; // error for missing `empCount`
+}
+
+function testTypeCastWithNewExprNegative() {
+    _ = <Obj> new (1); // error for missing argument
+}
+
+type Error error<record {| int code; |}>;
+
+function testTypeCastWithErrorConstructorExprNegative() {
+    error e = <Error> error("e1"); // error for missing `code`
+}

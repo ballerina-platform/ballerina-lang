@@ -989,6 +989,81 @@ function testFiniteTypeArrayNegative() {
     assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(()|1|\"Ballerina\"|2.3f|4.5d|5|true|(1|2.0f|3.0d|true|\"Hello\"))?[]' cannot be cast to 'int'");
 }
 
+class Obj {
+    int i;
+    int j;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+function testTypeCastWithObjectConstructorExpr() {
+    any a = <Obj> object {
+        int i = 123;
+        int j = 234;
+    };
+    Obj ob = <Obj> a;
+    assertExactEquality(123, ob.i);
+    assertExactEquality(234, ob.j);
+}
+
+type Template object {
+    *object:RawTemplate;
+
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+function testTypeCastWithRawTemplateExpr() {
+    int i = 12345;
+    any a = <Template> `number ${i}`;
+    Template temp = <Template> a;
+    assertExactEquality(["number ", ""], temp.strings);
+    assertExactEquality([12345], temp.insertions);
+
+    a = <Template> `second number ${1 + 3} third ${i + 1}`;
+    temp = <Template> a;
+    assertExactEquality(["second number ", " third ", ""], temp.strings);
+    assertExactEquality([4, 12346], temp.insertions);
+}
+
+type Department record {|
+    readonly string name;
+    int empCount;
+|};
+
+type Table table<Department> key(name);
+
+function testTypeCastWithTableConstructorExpr() {
+    any a = <table<Department> key(name)> table [
+        {name: "finance", empCount: 10},
+        {name: "legal", empCount: 5}
+    ];
+
+    Table tb = <Table> a;
+    assertExactEquality(5, tb.get("legal").empCount);
+    assertExactEquality(10, tb.get("finance").empCount);
+}
+
+function testTypeCastWithNewExpr() {
+    any a = <Obj> new (1, 2);
+    Obj ob = <Obj> a;
+    assertExactEquality(1, ob.i);
+    assertExactEquality(2, ob.j);
+}
+
+type Error error<record {| int code; |}>;
+
+function testTypeCastWithErrorConstructorExpr() {
+    error a = <Error> error("e1", code = 404);
+    assertTrue(a is Error);
+    Error e = <Error> a;
+    assertExactEquality("e1", e.message());
+    assertExactEquality(404, e.detail().code);
+}
+
 // Util functions
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -1018,4 +1093,12 @@ function assertTypeCastFailureWithMessage(any|error result, string message) {
     error err = <error> result;
     assertEquality(TYPE_CAST_ERROR, err.message());
     assertEquality(message, err.detail()["message"]);
+}
+
+function assertExactEquality(anydata expected, anydata actual) {
+    if actual == expected {
+        return;
+    }
+
+    panic error(string `expected ${expected.toBalString()}, found ${actual.toBalString()}`);
 }
