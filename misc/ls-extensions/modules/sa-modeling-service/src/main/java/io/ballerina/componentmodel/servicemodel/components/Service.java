@@ -30,12 +30,16 @@ public class Service {
     private final String serviceType;
     private final List<Resource> resources;
 
-    public Service(String path, String serviceId, String serviceType, List<Resource> resources) {
+    private final List<RemoteFunction> remoteFunctions;
+
+    public Service(String path, String serviceId, String serviceType, List<Resource> resources,
+                   List<RemoteFunction> remoteFunctions) {
 
         this.path = path;
         this.serviceId = serviceId;
         this.serviceType = serviceType;
         this.resources = resources;
+        this.remoteFunctions = remoteFunctions;
 
     }
 
@@ -57,5 +61,9 @@ public class Service {
     public String getServiceType() {
 
         return serviceType;
+    }
+
+    public List<RemoteFunction> getRemoteFunctions() {
+        return remoteFunctions;
     }
 }

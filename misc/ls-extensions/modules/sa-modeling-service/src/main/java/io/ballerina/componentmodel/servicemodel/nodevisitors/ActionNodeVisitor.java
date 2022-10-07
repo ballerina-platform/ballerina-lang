@@ -47,7 +47,6 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final List<Interaction> interactionList = new ArrayList<>();
 
     public ActionNodeVisitor(SemanticModel semanticModel) {
-
         this.semanticModel = semanticModel;
     }
 
@@ -66,6 +65,7 @@ public class ActionNodeVisitor extends NodeVisitor {
         StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
         NonTerminalNode parent = clientResourceAccessActionNode.parent().parent();
 
+        // todo: get the connector type using semantic model
         //todo : implement using semantic model. Need to wait till bug fix
         while (statementVisitor.getServiceId() == null || statementVisitor.getServiceId().isEmpty()) { //isEmpty
             parent = parent.parent();
@@ -75,6 +75,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                 break;
             }
         }
+
         Interaction resourceId = new Interaction(
                 new ResourceId(statementVisitor.getServiceId(), resourceMethod, resourcePath),
                 statementVisitor.getConnectorType());

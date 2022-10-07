@@ -77,7 +77,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             TypeDescriptorNode typeDescriptorNode = variableDeclarationNode.typedBindingPattern().typeDescriptor();
             connectorType = getClientModuleName(typeDescriptorNode);
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
-            this.serviceId = Utils.getId(annotations);
+            this.serviceId = Utils.getServiceAnnotation(annotations).getId();
         }
     }
 
@@ -90,7 +90,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = objectFieldNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getId(annotationNodes);
+                serviceId = Utils.getServiceAnnotation(annotationNodes).getId();
             }
         }
     }
@@ -105,7 +105,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = moduleVariableDeclarationNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getId(annotationNodes);
+                serviceId = Utils.getServiceAnnotation(annotationNodes).getId();
             }
         }
     }
