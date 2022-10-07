@@ -49,6 +49,6 @@ public class ModuleClientDeclarationContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("module_client_declaration_client_keyword.json"); // todo fix with 37920
+        return Collections.emptyList();
     }
 }
