@@ -187,6 +187,7 @@
             <!--Type Of-->
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfNegativeTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 
