@@ -30,21 +30,6 @@ public class JsonToRecordRequest {
     private boolean isClosed;
     private boolean forceFormatRecordFields;
 
-    /**
-     * @deprecated
-     * This constructor is no longer acceptable to instantiate JsonToRecordRequest.
-     *
-     * <p> Use {@link JsonToRecordRequest#JsonToRecordRequest(String, String, boolean, boolean, boolean)}} instead.
-     */
-    @Deprecated
-    public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed) {
-        this.jsonString = jsonString;
-        this.recordName = recordName;
-        this.isRecordTypeDesc = isRecordTypeDesc;
-        this.isClosed = isClosed;
-        this.forceFormatRecordFields = false;
-    }
-
     public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
                                boolean forceFormatRecordFields) {
         this.jsonString = jsonString;
