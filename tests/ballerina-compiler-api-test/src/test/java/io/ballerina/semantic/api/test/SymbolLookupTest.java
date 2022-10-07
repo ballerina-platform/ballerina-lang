@@ -47,7 +47,9 @@ import java.util.stream.Stream;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
 import static io.ballerina.compiler.api.symbols.DiagnosticState.VALID;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolsInFile;
@@ -391,6 +393,19 @@ public class SymbolLookupTest {
                 {79, 33, 9, concatSymbols(expSymbolNames, "e", "s")},
                 {88, 33, 10, concatSymbols(expSymbolNames, "x", "e", "s")}
         };
+    }
+
+    @Test
+    public void testSymbolLookupInModuleAlias() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_module_alias_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(20, 4));
+        List<String> expectedModuleSymbols = List.of("ht", "obj");
+        assertTrue(expectedModuleSymbols.stream()
+                .allMatch(s -> visibleSymbols.stream().anyMatch(symbol -> symbol.getName().isPresent()
+                        && symbol.getName().get().equals(s)
+                        && symbol.kind() == MODULE)));
     }
 
     private String createSymbolString(Symbol symbol) {
