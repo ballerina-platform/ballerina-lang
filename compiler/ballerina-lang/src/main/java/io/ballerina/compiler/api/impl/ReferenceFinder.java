@@ -1323,7 +1323,7 @@ public class ReferenceFinder extends BaseVisitor {
         if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
             addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
         }
-        addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.pos);
+        addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
     }
 
     @Override
