@@ -120,6 +120,8 @@ public class BallerinaErrorReasons {
     public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
     public static final BString FAILED_TO_DECODE_BYTES = StringUtils.fromString("FailedToDecodeBytes");
 
+    public static final String REG_EXP_PARSING_ERROR_IDENTIFIER = "RegularExpressionParsingError";
+
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
                                               .concat(CLOSING_CURLY_BRACE).concat(identifier));

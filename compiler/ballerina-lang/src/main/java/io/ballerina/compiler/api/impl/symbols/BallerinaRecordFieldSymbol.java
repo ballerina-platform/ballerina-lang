@@ -20,13 +20,13 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -52,6 +52,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
     private final BField bField;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private List<Qualifier> qualifiers;
     private String signature;
     private boolean deprecated;
@@ -97,12 +98,29 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
             annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annots);
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        if (this.annotAttachments != null) {
+            return this.annotAttachments;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        }
+
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
+        return this.annotAttachments;
     }
 
     @Override

@@ -5,4 +5,5 @@ function foo() {
     int d = <int>a->/;
     int e = -(a->/);
     int f = a->/+a->/games.names();
+    int g = a->/[]];
 }
