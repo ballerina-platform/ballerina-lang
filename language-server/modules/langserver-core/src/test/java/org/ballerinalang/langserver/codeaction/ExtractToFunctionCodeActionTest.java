@@ -117,6 +117,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_method_call.json"},
                 {"extract_to_function_exprs_mapping_constructor_module.json"},
                 {"extract_to_function_exprs_mapping_constructor_local.json"},
+                {"extract_to_function_exprs_mapping_constructor_imported_module.json"},
                 {"extract_to_function_exprs_computed_name_field.json"},
                 {"extract_to_function_exprs_field_name_expr.json"},
                 {"extract_to_function_exprs_typeof_expr.json"},
