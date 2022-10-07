@@ -54,6 +54,10 @@ public class TreeBuilder {
         return new RegExpValue(disjunction);
     }
 
+    public void parseInsertion() {
+        readRegTerm();
+    }
+
     private RegExpDisjunction readRegDisjunction() {
         List<Object> reSequenceList = new ArrayList<>();
         Token nextToken = peek();
