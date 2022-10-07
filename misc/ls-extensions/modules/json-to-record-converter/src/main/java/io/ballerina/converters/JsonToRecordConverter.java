@@ -98,9 +98,7 @@ public class JsonToRecordConverter {
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) throws IOException,
             JsonToRecordConverterException, FormatterException {
-        JsonToRecordResponse response = convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
-        response.setCodeBlock(Formatter.format(response.getCodeBlock()));
-        return response;
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
     }
 
     /**
