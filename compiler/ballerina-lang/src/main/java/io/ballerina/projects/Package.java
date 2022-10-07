@@ -270,8 +270,11 @@ public class Package {
 
     private void saveGeneratedModules(PackageResolution resolution) throws IOException {
         Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-        List<String> unusedModules = Files.list(modulesRoot).map(path ->
-                path.getFileName().toString()).collect(Collectors.toList());
+        List<String> unusedModules = new ArrayList<>();
+        if (Files.exists(modulesRoot)) {
+            unusedModules.addAll(Files.list(modulesRoot).map(path ->
+                    path.getFileName().toString()).collect(Collectors.toList()));
+        }
         for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
             if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
                 Utils.writeModule(project.currentPackage().module(moduleId), modulesRoot);
