@@ -27,11 +27,11 @@ public class Resource {
 
     private final String identifier;
     private final ResourceId resourceId;
-    private final List<Parameter> parameters;
+    private final List<ResourceParameter> parameters;
     private final List<String> returns;
     private final List<Interaction> interactions;
 
-    public Resource(String identifier, ResourceId resourceId, List<Parameter> parameters, List<String> returns,
+    public Resource(String identifier, ResourceId resourceId, List<ResourceParameter> parameters, List<String> returns,
                     List<Interaction> interactions) {
 
         this.identifier = identifier;
@@ -51,7 +51,7 @@ public class Resource {
         return resourceId;
     }
 
-    public List<Parameter> getParameters() {
+    public List<ResourceParameter> getParameters() {
 
         return parameters;
     }

@@ -44,9 +44,11 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.componentmodel.ComponentModel;
 import io.ballerina.componentmodel.Utils;
 import io.ballerina.componentmodel.servicemodel.components.Service;
+import io.ballerina.componentmodel.servicemodel.components.ServiceAnnotation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.componentmodel.ComponentModelingConstants.FORWARD_SLASH;
@@ -76,29 +78,35 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
 
         StringBuilder serviceNameBuilder = new StringBuilder();
-        String serviceId = "";
+        ServiceAnnotation serviceAnnotation = null;
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
-            serviceNameBuilder.append(serviceNameNode.toString());
-        }
-
-        String serviceName = serviceNameBuilder.toString();
-        if (!serviceName.equals(FORWARD_SLASH)) {
-            serviceName = serviceNameBuilder.toString().startsWith("/") ?
-                    serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
+            serviceNameBuilder.append(serviceNameNode.toString().replace("\"", ""));
         }
 
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceId = Utils.getId(annotationNodes);
+            serviceAnnotation = Utils.getServiceAnnotation(annotationNodes);
+        }
+
+        String serviceName = serviceNameBuilder.toString();
+        if (serviceName.equals(FORWARD_SLASH) && serviceAnnotation != null &&
+                !serviceAnnotation.getId().isBlank() ||
+                !Objects.requireNonNull(serviceAnnotation).getLabel().isBlank()) {
+            serviceName = serviceAnnotation.getLabel().isBlank() ?
+                    serviceAnnotation.getId() : serviceAnnotation.getLabel();
+        } else {
+            serviceName = serviceNameBuilder.toString().startsWith("/") ?
+                    serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
         }
 
         ResourceAccessorDefinitionNodeVisitor resourceAccessorDefinitionNodeVisitor =
-                new ResourceAccessorDefinitionNodeVisitor(serviceId, semanticModel, packageId);
+                new ResourceAccessorDefinitionNodeVisitor(serviceAnnotation.getId(), semanticModel, packageId);
         serviceDeclarationNode.accept(resourceAccessorDefinitionNodeVisitor);
-        services.add(new Service(serviceName.trim(), serviceId, getServiceType(serviceDeclarationNode),
-                resourceAccessorDefinitionNodeVisitor.getResources()));
+        services.add(new Service(serviceName.trim(), serviceAnnotation.getId(), getServiceType(serviceDeclarationNode),
+                resourceAccessorDefinitionNodeVisitor.getResources(),
+                resourceAccessorDefinitionNodeVisitor.remoteFunctions));
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {

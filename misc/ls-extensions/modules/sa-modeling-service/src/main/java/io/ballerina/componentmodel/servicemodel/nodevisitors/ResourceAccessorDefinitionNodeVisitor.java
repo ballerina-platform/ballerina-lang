@@ -20,9 +20,9 @@ package io.ballerina.componentmodel.servicemodel.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -46,9 +46,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.componentmodel.ComponentModel;
 import io.ballerina.componentmodel.ComponentModelingConstants.ParameterIn;
-import io.ballerina.componentmodel.servicemodel.components.Parameter;
+import io.ballerina.componentmodel.servicemodel.components.FunctionParameter;
+import io.ballerina.componentmodel.servicemodel.components.RemoteFunction;
 import io.ballerina.componentmodel.servicemodel.components.Resource;
 import io.ballerina.componentmodel.servicemodel.components.ResourceId;
+import io.ballerina.componentmodel.servicemodel.components.ResourceParameter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,8 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     List<Resource> resources = new ArrayList<>();
+
+    List<RemoteFunction> remoteFunctions = new ArrayList<>();
 
     private final ComponentModel.PackageId packageId;
 
@@ -79,6 +83,12 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
         return resources;
     }
 
+    public List<RemoteFunction> getRemoteFunctions() {
+
+        return remoteFunctions;
+    }
+
+    @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
 
         SyntaxKind kind = functionDefinitionNode.kind();
@@ -99,7 +109,8 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
             String resourcePath = resourcePathBuilder.toString().trim();
             String method = functionDefinitionNode.functionName().text().trim();
 
-            List<Parameter> parameterList = getParameters(functionDefinitionNode.functionSignature());
+            List<ResourceParameter> resourceParameterList = new ArrayList<>();
+            getParameters(functionDefinitionNode.functionSignature(), true, resourceParameterList, null);
             List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
             ActionNodeVisitor actionNodeVisitor =
@@ -110,18 +121,38 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
 
             // todo : complete the interactions
             Resource resource = new Resource(identifierBuilder.toString().trim(),
-                    resourceId, parameterList, returnTypes, actionNodeVisitor.getInteractionList());
+                    resourceId, resourceParameterList, returnTypes, actionNodeVisitor.getInteractionList());
             resources.add(resource);
+
+        } else if (kind.equals(SyntaxKind.OBJECT_METHOD_DEFINITION)) {
+            boolean isRemote = functionDefinitionNode.qualifierList().stream().
+                    anyMatch(item -> item.kind().equals(SyntaxKind.REMOTE_KEYWORD));
+            if (isRemote) {
+                String name = functionDefinitionNode.functionName().text().trim();
+                List<FunctionParameter> parameterList = new ArrayList<>();
+                getParameters(functionDefinitionNode.functionSignature(), false, null, parameterList);
+                List<String> returnTypes = getReturnTypes(functionDefinitionNode);
+
+                ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel);
+                functionDefinitionNode.accept(actionNodeVisitor);
+
+                RemoteFunction remoteFunction = new RemoteFunction(name, parameterList, returnTypes,
+                        actionNodeVisitor.getInteractionList());
+                remoteFunctions.add(remoteFunction);
+            }
         }
     }
 
-    private List<Parameter> getParameters(FunctionSignatureNode functionSignatureNode) {
+    private void getParameters(FunctionSignatureNode functionSignatureNode, boolean isResource,
+                               List<ResourceParameter> resourceParams, List<FunctionParameter> remoteFunctionParams) {
 
-        List<Parameter> parameterList = new ArrayList<>();
         SeparatedNodeList<ParameterNode> parameterNodes = functionSignatureNode.parameters();
         for (ParameterNode parameterNode : parameterNodes) {
             Optional<Symbol> symbol = semanticModel.symbol(parameterNode);
             if (symbol.isPresent() && symbol.get().kind().equals(SymbolKind.PARAMETER)) {
+                String paramIn = "";
+                String paramName = "";
+                boolean isRequired = false;
                 ParameterSymbol parameterSymbol = ((ParameterSymbol) symbol.get());
                 TypeSymbol typeSymbol = parameterSymbol.typeDescriptor();
                 List<String> paramTypes = new ArrayList<>();
@@ -129,28 +160,29 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
                 switch (parameterNode.kind()) {
                     case REQUIRED_PARAM:
                         RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-                        String requiredParamIn = getParameterIn(requiredParameterNode.annotations());
-                        String requiredParamName = requiredParameterNode.paramName().isPresent() ?
+                        paramIn = getParameterIn(requiredParameterNode.annotations());
+                        paramName = requiredParameterNode.paramName().isPresent() ?
                                 requiredParameterNode.paramName().get().toString() : "";
-                        parameterList.add(new Parameter(paramTypes,
-                                requiredParamName.trim(), requiredParamIn, true));
+                        isRequired = true;
                         break;
                     case DEFAULTABLE_PARAM:
                         DefaultableParameterNode defaultableParameterNode = (DefaultableParameterNode) parameterNode;
-                        String defaultableParamIn = getParameterIn(defaultableParameterNode.annotations());
-                        String defaultableParamName = defaultableParameterNode.paramName().isPresent() ?
+                        paramIn = getParameterIn(defaultableParameterNode.annotations());
+                        paramName = defaultableParameterNode.paramName().isPresent() ?
                                 defaultableParameterNode.paramName().get().toString() : "";
-                        parameterList.add(new Parameter(paramTypes,
-                                defaultableParamName.trim(), defaultableParamIn, false));
                         break;
                     case INCLUDED_RECORD_PARAM:
                         break;
                     // res params
 
                 }
+                if (isResource) {
+                    resourceParams.add(new ResourceParameter(paramTypes, paramName.trim(), paramIn, isRequired));
+                } else {
+                    remoteFunctionParams.add(new FunctionParameter(paramTypes, paramName, isRequired));
+                }
             }
         }
-        return parameterList;
     }
 
     private String getReferenceEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
@@ -226,8 +258,8 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
         Optional<ReturnTypeDescriptorNode> returnTypeDescriptor = functionSignature.returnTypeDesc();
         if (returnTypeDescriptor.isPresent()) {
             Optional<Symbol> symbol = semanticModel.symbol(functionDefinitionNode);
-            if (symbol.isPresent() && symbol.get().kind().equals(SymbolKind.RESOURCE_METHOD)) {
-                ResourceMethodSymbol resourceMethodSymbol = (ResourceMethodSymbol) symbol.get();
+            if (symbol.isPresent() && symbol.get().kind().equals(SymbolKind.METHOD)) {
+                MethodSymbol resourceMethodSymbol = (MethodSymbol) symbol.get();
                 Optional<TypeSymbol> returnTypeSymbol = resourceMethodSymbol.typeDescriptor().returnTypeDescriptor();
                 returnTypeSymbol.ifPresent(typeSymbol -> getReferencedType(typeSymbol, returnTypes));
             }
