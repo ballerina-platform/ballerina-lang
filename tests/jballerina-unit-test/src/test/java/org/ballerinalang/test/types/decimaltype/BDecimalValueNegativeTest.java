@@ -61,7 +61,7 @@ public class BDecimalValueNegativeTest {
     @Test
     void testDecimalValueNegativeLiteral() {
         CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
-        Assert.assertEquals(negative.getErrorCount(), 17);
+        Assert.assertEquals(negative.getErrorCount(), 16);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 20, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 21, 17);
@@ -80,8 +80,14 @@ public class BDecimalValueNegativeTest {
                 " for 'decimal'", 48, 17);
         BAssertUtil.validateError(negative, i++, "'9.999999999999999999999999999999999e6145' is out of range" +
                 " for 'decimal'", 49, 17);
-        BAssertUtil.validateError(negative, i++, "'9.9999999999999999999999999999999999e6144' is out of range" +
+        BAssertUtil.validateError(negative, i, "'9.9999999999999999999999999999999999e6144' is out of range" +
                 " for 'decimal'", 52, 18);
-        BAssertUtil.validateError(negative, i++, "'1e1000000000' is out of range for 'decimal'", 56, 17);
+    }
+
+    @Test
+    void testDecimalLargeExponentLiteral() {
+        CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_large_exponent_literal.bal");
+        Assert.assertEquals(negative.getErrorCount(), 1);
+        BAssertUtil.validateError(negative, 0, "'1e10000000000000' is out of range for 'decimal'", 18, 17);
     }
 }

@@ -4046,7 +4046,7 @@ public class Types {
         return true;
     }
 
-    boolean validateDecimalLiteral(Location pos, String decimalLiteral) {
+    boolean isValidDecimalNumber(Location pos, String decimalLiteral) {
         BigDecimal bd;
         try {
             bd = new BigDecimal(decimalLiteral, MathContext.DECIMAL128);

@@ -51,7 +51,3 @@ function testOverflow() {
     decimal _ = -9.999999999999999999999999999999999e6144d; // no error
     decimal _ = -9.9999999999999999999999999999999999e6144d; // error
 }
-
-function testTooLargeExponents() {
-    decimal _ = 1e1000000000; // error
-}

@@ -709,7 +709,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getTypeOfLiteralWithDecimalDiscriminator(BLangLiteral literalExpr, Object literalValue,
                                                            BType expType, AnalyzerData data) {
         literalExpr.value = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
-        if (!types.validateDecimalLiteral(literalExpr.pos, literalExpr.value.toString())) {
+        if (!types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
             return symTable.semanticError;
         }
         BType referredType = Types.getReferredType(expType);
@@ -734,7 +734,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expectedType = Types.getReferredType(expType);
         String numericLiteral = String.valueOf(literalValue);
         if (expectedType.tag == TypeTags.DECIMAL) {
-            if (types.validateDecimalLiteral(literalExpr.pos, literalExpr.value.toString())) {
+            if (types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
                 return symTable.decimalType;
             }
             return symTable.semanticError;
