@@ -4012,13 +4012,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BObjectType objectType;
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
             objectType = (BObjectType) objectCtorExpression.classNode.getBType();
-            BType effectiveType = getObjectTypesOrOriginalType(objectCtorExpression.expectedType);
+            BType effectiveType = Types.getEffectiveType(Types.getReferredType(objectCtorExpression.expectedType));
             if (effectiveType.tag == TypeTags.OBJECT) {
                 BObjectType expObjType = (BObjectType) Types.getReferredType(effectiveType);
                 objectType.typeIdSet = expObjType.typeIdSet;
             } else if (effectiveType.tag != TypeTags.NONE) {
-                if (!checkAndLoadTypeIdSet(getObjectTypesOrOriginalType(objectCtorExpression.expectedType),
-                                           objectType)) {
+                if (!checkAndLoadTypeIdSet(objectCtorExpression.expectedType, objectType)) {
                     dlog.error(objectCtorExpression.pos, DiagnosticErrorCode.INVALID_TYPE_OBJECT_CONSTRUCTOR,
                             objectCtorExpression.expectedType);
                     data.resultType = symTable.semanticError;
@@ -4067,35 +4066,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType(), data);
         data.resultType = types.checkType(cIExpr, actualTypeInitType, data.expType);
-    }
-
-    private BType getObjectTypesOrOriginalType(BType type) {
-        BType effectiveType = Types.getEffectiveType(Types.getReferredType(type));
-
-        int tag = effectiveType.tag;
-
-        if (tag == TypeTags.OBJECT) {
-            return effectiveType;
-        }
-
-        if (tag != TypeTags.UNION) {
-            return type;
-        }
-
-        LinkedHashSet<BType> objectTypes = new LinkedHashSet<>();
-
-        for (BType memberType : ((BUnionType) effectiveType).getMemberTypes()) {
-            BType effectiveMemberType = Types.getEffectiveType(Types.getReferredType(memberType));
-
-            if (effectiveMemberType.tag == TypeTags.OBJECT) {
-                objectTypes.add(effectiveMemberType);
-            }
-        }
-
-        if (objectTypes.isEmpty()) {
-            return type;
-        }
-        return objectTypes.size() == 1 ? objectTypes.iterator().next() : BUnionType.create(null, objectTypes);
     }
 
     private boolean isDefiniteObjectType(BType bType, Set<BTypeIdSet> typeIdSets) {
@@ -5457,7 +5427,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             this.dlog.unmute();
         }
 
-        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) || requireTypeInference(expr, false)) {
+        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) ||
+                (requireTypeInference(expr, false) &&
+                        // Temporary workaround for backward compatibility with `object {}` for
+                        // https://github.com/ballerina-platform/ballerina-lang/issues/38105.
+                        isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(expr, targetType))) {
             checkExpr(expr, targetType, data);
         } else {
             checkExpr(expr, symTable.noType, data);
@@ -7938,6 +7912,36 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             default:
                 return false;
         }
+    }
+
+    private boolean isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(BLangExpression expression,
+                                                                            BType targetType) {
+        if (expression.getKind() != NodeKind.OBJECT_CTOR_EXPRESSION) {
+            return true;
+        }
+
+        targetType = Types.getEffectiveType(Types.getReferredType(targetType));
+        int tag = targetType.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return isNotAllObjectsObjectType((BObjectType) targetType);
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+            memberType = Types.getEffectiveType(Types.getReferredType(memberType));
+            if (memberType.tag == TypeTags.OBJECT) {
+                return isNotAllObjectsObjectType((BObjectType) memberType);
+            }
+        }
+        return false;
+    }
+
+    private boolean isNotAllObjectsObjectType(BObjectType objectType) {
+        return !objectType.fields.isEmpty() || !((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.isEmpty();
     }
 
     private BType checkMappingField(RecordLiteralNode.RecordField field, BType mappingType, AnalyzerData data) {
