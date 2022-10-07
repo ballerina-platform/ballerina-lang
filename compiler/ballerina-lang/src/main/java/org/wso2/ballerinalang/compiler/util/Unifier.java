@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.util;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -665,6 +666,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BType getConstraintTypeIfNotError(BType type) {
         if (type == symbolTable.semanticError) {
             return type;
+        }
+
+        if (type.getKind() == TypeKind.TYPEREFDESC) {
+            return ((BTypedescType) (Types.getReferredType(type))).constraint;
         }
 
         return ((BTypedescType) type).constraint;

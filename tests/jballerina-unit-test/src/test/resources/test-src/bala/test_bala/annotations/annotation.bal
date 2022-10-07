@@ -27,6 +27,64 @@ function testAnnotOnBoundMethod() {
     assertEquality(102, rec.i);
 }
 
+type AnnotationRecord record {|
+    int minValue;
+    int maxValue;
+|};
+
+annotation AnnotationRecord BarAnnotation on type;
+annotation AnnotationRecord BarAnnotation2 on type;
+
+@BarAnnotation {
+    minValue: 18,
+    maxValue: 36
+}
+type Bar int|float;
+type Bar2 int|float;
+
+@BarAnnotation2 {
+    minValue: 18,
+    maxValue: 36
+}
+type Bar3 Bar4;
+type Bar4 int|float;
+
+function testAnnotationsOnTypeRefTypes() {
+    var f1 = function (typedesc td) {
+        AnnotationRecord? 'annotation = td.@BarAnnotation;
+        assertTrue('annotation is AnnotationRecord);
+        AnnotationRecord rec = <AnnotationRecord> 'annotation;
+        assertEquality(rec.minValue, 18);
+        assertEquality(rec.maxValue, 36);
+    };
+    f1(Bar);
+
+    var f2 = function (typedesc td) {
+        AnnotationRecord? 'annotation = td.@BarAnnotation;
+        assertTrue('annotation is ());
+    };
+    f2(Bar2);
+
+    var f3 = function (typedesc td) {
+        AnnotationRecord? 'annotation = td.@BarAnnotation2;
+        assertTrue('annotation is AnnotationRecord);
+        AnnotationRecord rec = <AnnotationRecord> 'annotation;
+        assertEquality(rec.minValue, 18);
+        assertEquality(rec.maxValue, 36);
+    };
+    f3(Bar3);
+
+    var f4 = function (typedesc td) {
+        AnnotationRecord? 'annotation = td.@BarAnnotation2;
+        assertTrue('annotation is ());
+    };
+    f4(Bar4);
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

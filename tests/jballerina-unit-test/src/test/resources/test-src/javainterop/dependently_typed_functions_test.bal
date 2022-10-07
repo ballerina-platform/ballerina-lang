@@ -31,6 +31,28 @@ type Employee record {
 
 Person expPerson = {name: "John Doe", age: 20};
 
+type Foo int|float;
+
+type Foo2 Foo;
+
+type AnnotationRecord record {|
+    int minValue;
+    int maxValue;
+|};
+
+annotation AnnotationRecord BarAnnotation on type;
+
+@BarAnnotation {
+    minValue: 18,
+    maxValue: 36
+}
+type Foo3 int|float;
+
+@BarAnnotation {
+    minValue: 12,
+    maxValue: 24
+}
+type Foo4 Foo;
 
 // Test functions
 
@@ -49,6 +71,25 @@ function testSimpleTypes() {
 
     boolean b = getValue(boolean);
     assert(true, b);
+}
+
+function testReferredTypes() {
+    Foo a = 1;
+    Foo2 b = 2.0;
+    Foo3 c = 1;
+    Foo4 d = 2.0;
+
+    Foo a2 = getReferredValue(a, Foo);
+    assert(a2, a);
+
+    Foo2 b2 = getReferredValue(b, Foo2);
+    assert(b2, b);
+
+    Foo3 c2 = getReferredValue(c, Foo3);
+    assert(a2, c);
+
+    Foo4 d2 = getReferredValue(d, Foo4);
+    assert(b2, d);
 }
 
 function testRecordVarRef() {
@@ -240,6 +281,12 @@ function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @j
     name: "getValue",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
+
+function getReferredValue(Foo|Foo2 x, typedesc<Foo|Foo2> y) returns y =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithUnionForReferenceType"
+    } external;
 
 function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",

@@ -115,6 +115,11 @@ public class AnnotationTests {
     }
 
     @Test
+    public void testAnnotationWithReferredType() {
+        BRunUtil.invoke(result, "testAnnotationsOnTypeRefTypes");
+    }
+
+    @Test
     public void testParamAnnotAttachmentsViaBir() {
         BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
         Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
