@@ -247,7 +247,7 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
-        if (project.buildOptions().nativeImage()) {
+        if ((project.buildOptions().nativeImage()) && (project.buildOptions().cloud().equals(""))) {
             this.outStream.println("WARNING : Native image generation is an experimental feature, " +
                     "which supports only a limited set of functionality.");
         }
@@ -270,7 +270,8 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
-                .addTask(new CreateNativeImageTask(outStream, this.output), !project.buildOptions().nativeImage())
+                .addTask(new CreateNativeImageTask(outStream, this.output),
+                        !(project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
