@@ -163,13 +163,13 @@ public class EntityModelGenerator {
         return selfCardinality;
     }
 
-    private String getAssociateCardinality(boolean isArray, boolean isRequired, boolean isNillable) {
-
-        if (isArray && isRequired && !isNillable) {
+    private String getAssociateCardinality(boolean isArray, boolean isOptional, boolean isNillable) {
+        // todo: double check
+        if (isArray && !isOptional && !isNillable) {
             return CardinalityValue.ONE_OR_MANY.getValue();
         } else if (isArray) {
             return CardinalityValue.ZERO_OR_MANY.getValue();
-        } else if (!isRequired || isNillable) {
+        } else if (isOptional || isNillable) {
             return CardinalityValue.ZERO_OR_ONE.getValue();
         } else {
             return CardinalityValue.ONE_AND_ONLY_ONE.getValue();
@@ -224,12 +224,18 @@ public class EntityModelGenerator {
             String modulePrefix = typeReferenceTypeSymbol.getModule().get().id().modulePrefix();
             String recordName = typeReferenceTypeSymbol.getName().get();
             String version = typeReferenceTypeSymbol.getModule().get().id().version();
-            referenceType = String.format("%s/%s:%s:%s:%s", orgName, packageName, modulePrefix, version, recordName);
+            // module name check
+            if (packageName.equals(modulePrefix)) {
+                referenceType = String.format("%s/%s:%s:%s", orgName, packageName, version, recordName);
+            } else {
+                referenceType = String.format(
+                        "%s/%s:%s:%s:%s", orgName, packageName, modulePrefix, version, recordName);
+            }
         }
         return referenceType;
     }
 
-    private List<Association> getAssociations(TypeSymbol fieldTypeDescriptor, String entityName, boolean isRequired,
+    private List<Association> getAssociations(TypeSymbol fieldTypeDescriptor, String entityName, boolean optional,
                                               boolean isNillable) {
 
         List<Association> associations = new ArrayList<>();
@@ -237,12 +243,12 @@ public class EntityModelGenerator {
             String associate = getAssociateEntityName((TypeReferenceTypeSymbol) fieldTypeDescriptor, entityName);
             Association.Cardinality cardinality = new Association.Cardinality(
                     getSelfCardinality(fieldTypeDescriptor, entityName),
-                    getAssociateCardinality(false, isRequired, isNillable));
+                    getAssociateCardinality(false, optional, isNillable));
 
             associations.add(new Association(associate, cardinality));
         } else if (fieldTypeDescriptor instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) fieldTypeDescriptor;
-            associations.addAll(getAssociationsInUnionTypes(unionTypeSymbol, entityName, isRequired));
+            associations.addAll(getAssociationsInUnionTypes(unionTypeSymbol, entityName, optional));
         } else if (fieldTypeDescriptor instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) fieldTypeDescriptor;
             if (arrayTypeSymbol.memberTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
@@ -250,7 +256,7 @@ public class EntityModelGenerator {
                         arrayTypeSymbol.memberTypeDescriptor(), entityName).replace(ARRAY, "");
                 Association.Cardinality cardinality = new Association.Cardinality(
                         getSelfCardinality(arrayTypeSymbol, entityName),
-                        getAssociateCardinality(true, isRequired, isNillable));
+                        getAssociateCardinality(true, optional, isNillable));
                 associations.add(new Association(associate, cardinality));
             }
         }

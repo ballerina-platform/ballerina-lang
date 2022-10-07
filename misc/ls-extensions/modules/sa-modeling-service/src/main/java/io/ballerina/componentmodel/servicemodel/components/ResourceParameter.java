@@ -23,14 +23,14 @@ import java.util.List;
 /**
  * Represents resource funstion parameter information.
  */
-public class Parameter {
+public class ResourceParameter {
 
     private final List<String> type;
     private final String name;
     private final String in;
     private final boolean isRequired;
 
-    public Parameter(List<String> type, String name, String in, boolean isRequired) {
+    public ResourceParameter(List<String> type, String name, String in, boolean isRequired) {
 
         this.type = type;
         this.name = name;
