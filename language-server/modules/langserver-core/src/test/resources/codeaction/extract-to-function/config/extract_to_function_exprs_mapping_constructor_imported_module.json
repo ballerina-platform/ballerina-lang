@@ -1,0 +1,49 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 30
+    },
+    "end": {
+      "line": 3,
+      "character": 62
+    }
+  },
+  "source": "extract_to_function_exprs_mapping_constructor_imported_module.bal",
+  "description": "Extract to function for expressions, mapping constructor of type which is imported from a module, inside function block",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
+            },
+            "end": {
+              "line": 4,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns module1:TestRecord2 {\n    return {rec2Field1: 10, rec3Field2: \"\"};\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 30
+            },
+            "end": {
+              "line": 3,
+              "character": 62
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
