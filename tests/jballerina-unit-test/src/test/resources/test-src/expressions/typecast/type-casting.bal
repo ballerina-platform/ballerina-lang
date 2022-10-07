@@ -47,6 +47,26 @@ function testDecimalToIntCasting() {
                     checkpanic <string|error> err.detail()["message"]);
 }
 
+function testDecimalToFloatCasting() {
+    decimal d = 0.0000000000000009e+308;
+    float f = <float> d;
+    assertEquality(9E+292, f);
+
+    d = 9.999999999999999999999999999999999E6001d;
+    f = <float> d;
+    assertEquality(float:Infinity, f);
+}
+
+function testFloatToDecimalCasting() {
+    float f = 0.0000000000000009e+308;
+    decimal d = <decimal> f;
+    assertEquality(9E+292d, d);
+
+    f = -1.999999999e-200;
+    d = <decimal> f;
+    assertEquality(-1.999999999E-200d, d);
+}
+
 function testIntSubtypeArrayCasting() {
 
     byte[] byteArray = [1, 128, 255];
