@@ -27,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns module1:TestRecord2 {\n    return {rec2Field1: 10, rec3Field2: \"\"};\n}"
+          "newText": "\n\nfunction extracted() returns module1:TestRecord2 {\n    return {rec2Field1: 10, rec3Field2: \"\"};\n}\n"
         },
         {
           "range": {
