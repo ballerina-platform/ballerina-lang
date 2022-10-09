@@ -9,6 +9,9 @@ jobs:
   build-lang:
     name: Build Ballerina Lang
     runs-on: ubuntu-latest
+    concurrency: 
+      group: ${{ github.head_ref }}-full-build-pipeline
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
