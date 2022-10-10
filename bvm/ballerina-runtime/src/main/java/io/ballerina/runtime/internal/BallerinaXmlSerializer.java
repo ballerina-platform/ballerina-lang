@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal;
 
-import com.ctc.wstx.api.WstxOutputProperties;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -60,6 +59,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private static final String PARSE_XML_OP = "parse xml";
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
+    private static final String OUTPUT_VALIDATE_PROPERTY = "com.ctc.wstx.outputValidateStructure";
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
@@ -70,7 +70,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
         if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
-            xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
+            xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
         } else {
             xmlOutputFactory.setProperty("escapeCharacters", false);
             isDefaultFactory = true;
