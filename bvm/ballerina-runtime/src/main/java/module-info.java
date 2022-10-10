@@ -1,7 +1,5 @@
 module io.ballerina.runtime {
     requires java.xml;
-    requires woodstox.core.asl;
-    requires org.codehaus.stax2;
     requires org.apache.commons.text;
     requires axiom.api;
     requires java.logging;
