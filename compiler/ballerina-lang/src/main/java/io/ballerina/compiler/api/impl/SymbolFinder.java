@@ -1265,7 +1265,14 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(classDefinition.referencedFields);
         lookupNode(classDefinition.initFunction);
         lookupNodes(classDefinition.functions);
+        lookupAnnAttachmentsAttachedToMethods(classDefinition.functions);
         lookupNodes(classDefinition.typeRefs);
+    }
+
+    private void lookupAnnAttachmentsAttachedToMethods(List<BLangFunction> functions) {
+        for (BLangFunction func : functions) {
+            lookupNodes(func.annAttachments);
+        }
     }
 
     @Override
