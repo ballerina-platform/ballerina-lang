@@ -5017,16 +5017,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
         
         int resourcePathSize = resourcePath.size();
-        List<BLangType> resourcePathTypes = resourceFunction.resourcePathType.getMemberTypeNodes();
+        List<BLangType> resourcePathTypes = resourceFunction.resourcePathType.memberTypeNodes;
+        BLangType restPathParamType = resourceFunction.resourcePathType.restParamType;
+        if (restPathParamType != null) {
+            resourcePathTypes.add(restPathParamType);
+        }
+        
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathSize);
         BResourcePathSegmentSymbol parentResource = null;
         for (int i = 0; i < resourcePathSize; i++) {
             Name resourcePathSymbolName = resourcePath.get(i);
             BType resourcePathSegmentType = resourcePathTypes.get(i).getBType();
+            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
+            
             BResourcePathSegmentSymbol pathSym = new BResourcePathSegmentSymbol(SymTag.RESOURCE_PATH_SEGMENT, 0,
-                    resourcePathSymbolName, env.enclPkg.symbol.pkgID, resourcePathSegmentType, 
-                    funcNode.receiver.getBType().tsymbol, resourceFunction.resourcePath.get(0).pos, parentResource,
-                    bResourceFunction);
+                    resourcePathSymbolName, env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
+                    resourceFunction.resourcePath.get(i).pos, parentResource, bResourceFunction);
+
+            objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
             pathSegmentSymbols.add(pathSym);
             parentResource = pathSym;
         }
