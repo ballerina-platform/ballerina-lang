@@ -60,6 +60,8 @@ public class BallerinaXmlSerializer extends OutputStream {
     private static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
     private static final String OUTPUT_VALIDATE_PROPERTY = "com.ctc.wstx.outputValidateStructure";
+    private static final String OUTPUT_FACTORY = "com.ctc.wstx.stax.WstxOutputFactory";
+    private static final String AUTOMATIC_END_ELEMENTS = "com.ctc.wstx.automaticEndElements";
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
@@ -69,8 +71,9 @@ public class BallerinaXmlSerializer extends OutputStream {
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
+        if (xmlOutputFactory.getClass().getName().equals(OUTPUT_FACTORY)) {
             xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
+            xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
         } else {
             xmlOutputFactory.setProperty("escapeCharacters", false);
             isDefaultFactory = true;
