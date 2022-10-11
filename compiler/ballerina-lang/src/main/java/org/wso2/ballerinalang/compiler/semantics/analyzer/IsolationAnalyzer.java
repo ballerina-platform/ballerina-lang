@@ -2912,6 +2912,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                           List<BLangClassDefinition> classDefinitions,
                                                                           boolean inferring, BType type,
                                                                           Set<BSymbol> unresolvedSymbols) {
+        type = Types.getReferredType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3161,7 +3162,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = enclInvokable.symbol.owner.type;
+        BType ownerType = Types.getReferredType(enclInvokable.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
@@ -3540,6 +3541,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type,
                                                                          Set<BSymbol> inferableClasses) {
+        type = Types.getReferredType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3872,7 +3874,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (symbol.kind == SymbolKind.FUNCTION) {
             BVarSymbol receiverSymbol = ((BInvokableSymbol) symbol).receiverSymbol;
-            if (receiverSymbol != null && receiverSymbol.type.tag == TypeTags.OBJECT &&
+            if (receiverSymbol != null && Types.getReferredType(receiverSymbol.type).tag == TypeTags.OBJECT &&
                     publiclyExposedObjectTypes.contains(receiverSymbol.type)) {
                 return false;
             }
