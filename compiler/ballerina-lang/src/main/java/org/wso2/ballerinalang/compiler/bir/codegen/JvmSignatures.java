@@ -82,6 +82,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ASSERTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_ATOM_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CAPTURING_GROUP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_ESCAPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_CHAR_SET_RANGE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_DISJUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_EXPR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FLAG_ON_OFF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_SEQUENCE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
@@ -188,11 +201,14 @@ public class JvmSignatures {
     public static final String DECIMAL_VALUE_OF_INT = "(I)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_LONG = "(J)L" + DECIMAL_VALUE + ";";
     public static final String DECIMAL_VALUE_OF_SHORT = "(S)L" + DECIMAL_VALUE + ";";
+    public static final String INT_TO_STRING = "(I)L" + STRING_VALUE + ";";
     public static final String DOUBLE_TO_STRING = "(D)L" + STRING_VALUE + ";";
     public static final String DOUBLE_VALUE_OF_METHOD = "(D)L" + DOUBLE_VALUE + ";";
     public static final String ERROR_CALL = "(L" + BAL_ENV + ";L" + ERROR_VALUE + ";)V";
     public static final String ERROR_INIT = "(L" + TYPE + ";L" + B_STRING_VALUE + ";L" + BERROR + ";L" + OBJECT + ";)V";
     public static final String FP_INIT = "(L" + FUNCTION + ";L" + TYPE + ";L" + STRING_VALUE + ";Z)V";
+    public static final String FUNCTION_CALL =
+            "(L" + STRAND_CLASS + ";L" + STRING_VALUE + ";[L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String FROM_STRING = "(L" + STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
     public static final String GET_ANNOTATION_VALUE =
             "(L" + TYPEDESC_VALUE + ";L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
@@ -204,6 +220,7 @@ public class JvmSignatures {
     public static final String GET_BERROR = "L" + BERROR + ";";
     public static final String GET_BOBJECT = "L" + B_OBJECT + ";";
     public static final String GET_BSTRING = "L" + B_STRING_VALUE + ";";
+    public static final String GET_REGEXP = "L" + REG_EXP_VALUE + ";";
     public static final String GET_BSTRING_FOR_ARRAY_INDEX = "(J)L" + JvmConstants.B_STRING_VALUE + ";";
     public static final String GET_ERROR_TYPE = "L" + ERROR_TYPE + ";";
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
@@ -255,10 +272,10 @@ public class JvmSignatures {
     public static final String HANDLE_WAIT_MULTIPLE = "(L" + MAP + ";L" + MAP_VALUE + ";)V";
     public static final String HANDLE_WORKER_ERROR =
             "(L" + REF_VALUE + ";L" + STRAND_CLASS + ";[L" + CHANNEL_DETAILS + ";)V";
-    public static final String INIT_ARRAY = "(L" + ARRAY_TYPE + ";J[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
+    public static final String INIT_ARRAY = "(L" + ARRAY_TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
     public static final String INIT_ARRAY_TYPE_IMPL = "(L" + TYPE + ";IZI)V";
     public static final String INIT_ARRAY_WITH_INITIAL_VALUES =
-            "(L" + ARRAY_TYPE + ";J[L" + B_LIST_INITIAL_VALUE_ENTRY + ";L" + TYPEDESC_VALUE + ";)V";
+            "(L" + ARRAY_TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";L" + TYPEDESC_VALUE + ";)V";
     public static final String INIT_BAL_ENV = "(L" + STRAND_CLASS + ";L" + MODULE + ";)V";
     public static final String INIT_CHANNEL_DETAILS = "(L" + STRING_VALUE + ";ZZ)V";
     public static final String INIT_CLI_SPEC = "(L" + OPTION + ";[L" + OPERAND + ";[L" + STRING_VALUE + ";)V";
@@ -270,9 +287,10 @@ public class JvmSignatures {
     public static final String INIT_ERROR_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INIT_FIELD_IMPL = "(L" + TYPE + ";L" + STRING_VALUE + ";J)V";
     public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + SET + ";I)V";
-    public static final String INIT_FUCNTION_PARAM = "(L" + STRING_VALUE + ";L" + BOOLEAN_VALUE + ";L" + TYPE + ";)V";
-    public static final String INIT_FUNCTION_TYPE_IMPL = "([L" + FUNCTION_PARAMETER + ";L" + TYPE + ";L" + TYPE + ";" +
-            "J)V";
+    public static final String INIT_FUNCTION_PARAM = "(L" + STRING_VALUE + ";ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
+    public static final String INIT_FUNCTION_TYPE_IMPL = "(L" + MODULE + ";J)V";
+    public static final String INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS = "(L" + MODULE + ";[L" + FUNCTION_PARAMETER + ";" +
+            "L" + TYPE + ";L" + TYPE + ";" + "JL" + STRING_VALUE + ";)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE =
             "(L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_TYPE = "(L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
@@ -296,7 +314,7 @@ public class JvmSignatures {
     public static final String INIT_TABLE_TYPE_WITH_FIELD_NAME_LIST = "(L" + TYPE + ";[L" + STRING_VALUE + ";Z)V";
     public static final String INIT_TABLE_VALUE_IMPL = "(L" + TABLE_TYPE + ";L" + ARRAY_VALUE + ";L" + ARRAY_VALUE +
             ";)V";
-    public static final String INIT_TUPLE = "(L" + TUPLE_TYPE + ";J[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
+    public static final String INIT_TUPLE = "(L" + TUPLE_TYPE + ";[L" + B_LIST_INITIAL_VALUE_ENTRY + ";)V";
     public static final String INIT_TUPLE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";IZZ)V";
     public static final String INIT_TYPEDESC = "(L" + TYPEDESC_VALUE + ";)V";
     public static final String INIT_UNION_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";IZJ)V";
@@ -342,7 +360,7 @@ public class JvmSignatures {
     public static final String METHOD_STRING_PARAM = "(L" + JvmConstants.STRING_VALUE + ";)V";
     public static final String METHOD_TYPE_IMPL_ARRAY_PARAM = "([L" + METHOD_TYPE_IMPL + ";)V";
     public static final String METHOD_TYPE_IMPL_INIT =
-            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";J)V";
+            "(L" + STRING_VALUE + ";L" + MODULE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";J)V";
     public static final String METHOD_TYPE_IMPL_PARAM = "(L" + METHOD_TYPE_IMPL + ";)V";
     public static final String MODULE_START = "(L" + STRAND_CLASS + ";)L" + OBJECT + ";";
     public static final String OBJECT_SET = "(L" + STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
@@ -373,11 +391,12 @@ public class JvmSignatures {
             "<TK;TV;>;L" + MAP_VALUE + "<TK;TV;>;";
     public static final String RESOURCE_METHOD_TYPE_ARRAY_PARAM = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String RESOURCE_METHOD_TYPE_IMPL_INIT =
-            "(L" + STRING_VALUE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";JL" +
-                    STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
+            "(L" + STRING_VALUE + ";L" + MODULE + ";L" + OBJECT_TYPE_IMPL + ";L" + FUNCTION_TYPE_IMPL + ";L" +
+                    TUPLE_TYPE_IMPL + ";JL" + STRING_VALUE + ";[L" + STRING_VALUE + ";)V";
     public static final String RETURN_ARRAY_VALUE = ")L" + ARRAY_VALUE + ";";
     public static final String RETURN_B_OBJECT = ")L" + B_OBJECT + ";";
     public static final String RETURN_B_STRING_VALUE = ")L" + B_STRING_VALUE + ";";
+    public static final String RETURN_REGEX_VALUE = ")L" + REG_EXP_VALUE + ";";
     public static final String RETURN_DECIMAL_VALUE = ")L" + DECIMAL_VALUE + ";";
     public static final String RETURN_ERROR_VALUE = ")L" + ERROR_VALUE + ";";
     public static final String RETURN_FUNCTION_POINTER = ")L" + FUNCTION_POINTER + ";";
@@ -437,6 +456,28 @@ public class JvmSignatures {
     public static final String XML_GET_ATTRIBUTE = "(L" + B_XML_QNAME + ";)L" + STRING_VALUE + ";";
     public static final String XML_GET_ITEM = "(I)L" + XML_VALUE + ";";
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
+    public static final String HANDLE_DESCRIPTOR_FOR_STRING_CONCAT = "(Ljava/lang/invoke/MethodHandles$Lookup;" +
+            GET_STRING + "Ljava/lang/invoke/MethodType;" + GET_STRING + "[" + GET_OBJECT + ")" +
+            "Ljava/lang/invoke/CallSite;";
+    public static final String CREATE_REGEXP = "(L" + REG_EXP_DISJUNCTION + ";)L" + REG_EXP_VALUE + ";";
+    public static final String CREATE_RE_DISJUNCTION = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_DISJUNCTION + ";";
+    public static final String CREATE_RE_SEQUENCE = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_SEQUENCE + ";";
+    public static final String CREATE_RE_ASSERTION = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_ASSERTION + ";";
+    public static final String CREATE_RE_ATOM_QUANTIFIER = "(L" + OBJECT + ";L" + REG_EXP_QUANTIFIER + ";)L"
+            + REG_EXP_ATOM_QUANTIFIER + ";";
+    public static final String CREATE_RE_LITERAL_CHAR = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_ESCAPE + ";";
+    public static final String CREATE_RE_CHAR_CLASS = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L"
+                    + REG_EXP_CHAR_SET + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CHAR_CLASS + ";";
+    public static final String CREATE_RE_CHAR_SET = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_CHAR_SET + ";";
+    public static final String CREATE_RE_CHAR_SET_RANGE = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" +
+             B_STRING_VALUE + ";)L" + REG_EXP_CHAR_SET_RANGE + ";";
+    public static final String CREATE_RE_CAPTURING_GROUP = "(L" + B_STRING_VALUE + ";L" + OBJECT +
+            ";L" + REG_EXP_DISJUNCTION + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CAPTURING_GROUP + ";";
+    public static final String CREATE_RE_FLAG_EXPR = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_ON_OFF +
+            ";L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_EXPR + ";";
+    public static final String CREATE_RE_FLAG_ON_OFF = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_ON_OFF + ";";
+    public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
+            + REG_EXP_QUANTIFIER + ";";
 
     private JvmSignatures() {
     }

@@ -103,6 +103,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
     </Match>
     <Match>
+        <Package name="io.ballerina.compiler.api.impl.type.builders" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
         <Class name="io.ballerina.compiler.api.Types" />
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
@@ -277,6 +281,10 @@
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.bala.IDLClientsJson"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
@@ -306,6 +314,11 @@
     <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BalaFiles" />
+        <Method name="createIDLClientsMapFromJson" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.ProjectFiles" />
@@ -371,6 +384,16 @@
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="getSourceModifierTaskByPackage"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager"/>
+        <Method name="populatePkgSyntaxNodeTaskMap"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.SyntaxNodeAnalysisTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -408,5 +431,10 @@
         <Class name="io.ballerina.projects.internal.ManifestUtils" />
         <Method name="getStringFromTomlTableNode"/>
         <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.ProjectUtils" />
+        <Method name="addMatchingIncludePaths" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
 </FindBugsFilter>

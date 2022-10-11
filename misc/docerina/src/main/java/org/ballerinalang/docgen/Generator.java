@@ -18,7 +18,9 @@
 
 package org.ballerinalang.docgen;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
@@ -63,6 +65,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.Annotation;
+import org.ballerinalang.docgen.generator.model.AnnotationAttachment;
 import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
@@ -174,8 +177,10 @@ public class Generator {
                     typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
-            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
-                    (type.category.equals("builtin") && type.name.equals("error")))) {
+            if (unionType.memberTypes.stream().allMatch(type ->
+                    (type.category != null && type.category.equals("errors")) ||
+                            (type.category != null && type.category.equals("builtin")) &&
+                                    type.name.equals("error"))) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
                         Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
             } else {
@@ -556,8 +561,10 @@ public class Generator {
 
         // Iterate through the parameters
         parameters.addAll(getDefaultableVariableList(functionSignature.parameters(),
-                                                     functionDefinitionNode.metadata(), semanticModel));
+                functionDefinitionNode.metadata(), semanticModel));
 
+        List<AnnotationAttachment> annotationAttachments = extractAnnotationAttachmentsFromMetadataNode(semanticModel,
+                functionDefinitionNode.metadata());
         // return params
         if (functionSignature.returnTypeDesc().isPresent()) {
             ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
@@ -572,7 +579,7 @@ public class Generator {
         return new Function(functionName, getDocFromMetadata(functionDefinitionNode.metadata()),
                 isRemote, isExtern, isDeprecated(functionDefinitionNode.metadata()),
                 containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
-                returnParams);
+                returnParams, annotationAttachments);
     }
 
     private static Record getRecordTypeModel(RecordTypeDescriptorNode recordTypeDesc, String recordName,
@@ -608,7 +615,8 @@ public class Generator {
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
-                        defaultValue);
+                        defaultValue, extractAnnotationAttachmentsFromMetadataNode(semanticModel,
+                        recordField.metadata()));
                 if (recordField.readonlyKeyword().isPresent()) {
                     defaultableVariable.isReadOnly = true;
                 }
@@ -622,8 +630,9 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
-                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
-                        "");
+                DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
+                        isDeprecated(recordField.metadata()), type, "",
+                        extractAnnotationAttachmentsFromMetadataNode(semanticModel, recordField.metadata()));
                 if (recordField.readonlyKeyword().isPresent()) {
                     defaultableVariable.isReadOnly = true;
                 }
@@ -654,7 +663,8 @@ public class Generator {
                     }
                     Type type = Type.fromNode(objectField.typeName(), semanticModel);
                     DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
-                            isDeprecated(objectField.metadata()), type, defaultValue);
+                            isDeprecated(objectField.metadata()), type, defaultValue,
+                            extractAnnotationAttachmentsFromMetadataNode(semanticModel, objectField.metadata()));
                     variables.add(defaultableVariable);
                 }
             } else if (node instanceof RequiredParameterNode) {
@@ -671,7 +681,9 @@ public class Generator {
                 Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(defaultableParameter.annotations()),
-                        type, defaultableParameter.expression().toString()));
+                        type, defaultableParameter.expression().toString(),
+                        extractAnnotationAttachmentsFromAnnotations(semanticModel,
+                                defaultableParameter.annotations())));
             } else if (node instanceof RestParameterNode) {
                 RestParameterNode restParameter = (RestParameterNode) node;
                 String paramName = restParameter.paramName().isPresent() ?
@@ -693,6 +705,38 @@ public class Generator {
 
         }
         return variables;
+    }
+
+    private static List<AnnotationAttachment> extractAnnotationAttachmentsFromMetadataNode(SemanticModel semanticModel,
+                                                 Optional<MetadataNode> metadata) {
+        List<AnnotationAttachment> annotationAttachments = new ArrayList<>();
+        metadata.ifPresent(metadataNode -> metadataNode.annotations().forEach(annotationNode -> {
+            Symbol symbol = semanticModel.symbol(annotationNode).orElse(null);
+            if (symbol == null) {
+                return;
+            }
+            final ModuleID id = symbol.getModule().get().id();
+            annotationAttachments.add(
+                    new AnnotationAttachment(symbol.getName().orElse(""), "", false,
+                            id.orgName(), id.moduleName(), id.version()));
+        }));
+        return annotationAttachments;
+    }
+
+    private static List<AnnotationAttachment> extractAnnotationAttachmentsFromAnnotations(SemanticModel semanticModel
+            , NodeList<AnnotationNode> annotations) {
+        List<AnnotationAttachment> annotationAttachments = new ArrayList<>();
+        annotations.forEach(annotationNode -> {
+            Symbol symbol = semanticModel.symbol(annotationNode).orElse(null);
+            if (symbol == null) {
+                return;
+            }
+            final ModuleID id = symbol.getModule().get().id();
+            annotationAttachments.add(
+                    new AnnotationAttachment(symbol.getName().orElse(""), "", false,
+                            id.orgName(), id.moduleName(), id.version()));
+        });
+        return annotationAttachments;
     }
 
     private static boolean isTypePramOrBuiltinSubtype(Optional<MetadataNode> metadataNode) {
@@ -794,7 +838,7 @@ public class Generator {
         StringBuilder doc = new StringBuilder();
 
         doc.append(markdownCodeBlockNode.startBacktick().toString());
-        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
+        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute));
 
         for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
             doc.append(codeLineNode.codeDescription().toString());

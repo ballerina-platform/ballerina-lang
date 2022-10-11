@@ -39,7 +39,7 @@ function bar() {
 
     @strand {thread: "any"}
     worker w2 {
-        runtime:sleep(1.5);
+        runtime:sleep(1);
         lock {
             globalVar = !globalVar;
         }

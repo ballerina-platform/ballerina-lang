@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -31,11 +33,11 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.ReturnStatementFinder;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -55,7 +57,7 @@ import java.util.Set;
  * @since 1.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
+public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE3032");
@@ -67,25 +69,26 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return false;
         }
 
-        //Suggest the code action only if the immediate parent of the matched node is a return statement 
-        // and the return statement corresponds to the enclosing function's signature. 
+        //Suggest the code action only if the immediate parent of the matched node is either of return statement,
+        //check expression, check action.
         NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT && 
-                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION) {
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
+                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION && 
+                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_ACTION) {
             return false;
         }
 
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         Optional<TypeSymbol> foundType = Optional.empty();
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(CodeActionUtil
@@ -141,6 +144,12 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                     combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
             }
+            
+            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+            funcDef.get().accept(checkExprNodeFinder);
+            if (checkExprNodeFinder.containCheckExprNode()) {
+                combinedTypes.add(Collections.singletonList("error"));
+            }
 
             types = getPossibleCombinations(combinedTypes, types);
         }
@@ -178,7 +187,8 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
             // Add code action
             String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, newType);
-            codeActions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+            codeActions.add(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
+                    CodeActionKind.QuickFix));
         });
 
         return codeActions;
@@ -203,7 +213,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             // Add each item in the next combinedTypes to the items listed in the typeList
             for (String type : possibleTypes) {
                 for (Set<String> strings : typeList) {
-                    Set<String> combination  = new HashSet<>(strings);
+                    Set<String> combination = new HashSet<>(strings);
                     combination.add(type);
                     updatedTypes.add(combination);
                 }
@@ -214,5 +224,26 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             typeList = updatedTypes;
         }
         return typeList;
+    }
+
+    /**
+     * A visitor to find check expression exist inside a Node.
+     */
+    static class CheckExprNodeFinder extends NodeVisitor {
+
+        private CheckExpressionNode checkExpressionNode = null;
+
+        public void visit(FunctionDefinitionNode functionDefinitionNode) {
+            functionDefinitionNode.functionBody().accept(this);
+        }
+
+        @Override
+        public void visit(CheckExpressionNode checkExpressionNode) {
+            this.checkExpressionNode = checkExpressionNode;
+        }
+
+        boolean containCheckExprNode() {
+            return this.checkExpressionNode != null;
+        }
     }
 }

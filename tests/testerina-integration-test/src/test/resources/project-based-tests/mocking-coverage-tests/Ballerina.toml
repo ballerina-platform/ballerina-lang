@@ -1,0 +1,10 @@
+[package]
+org = "intg_tests"
+name = "mocking_coverage"
+version = "0.0.0"
+
+[[dependency]]
+org = "testOrg"
+name = "mockLib"
+version = "0.1.0"
+repository = "local"

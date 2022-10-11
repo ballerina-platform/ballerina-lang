@@ -16,6 +16,9 @@
 
 package org.ballerinalang.debugadapter.config;
 
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArgumentsKind;
+
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,6 +40,9 @@ public class ClientConfigHolder {
     protected static final String ARG_DEBUGGEE_PORT = "debuggeePort";
     private static final String ARG_CAPABILITIES = "capabilities";
     private static final String ARG_SUPPORT_READONLY_EDITOR = "supportsReadOnlyEditors";
+    private static final String ARG_TERMINAL_KIND = "terminal";
+    private static final String INTEGRATED_TERMINAL_KIND = "INTEGRATED";
+    private static final String EXTERNAL_TERMINAL_KIND = "EXTERNAL";
 
     protected ClientConfigHolder(Map<String, Object> clientRequestArgs, ClientConfigKind kind) {
         this.clientRequestArgs = clientRequestArgs;
@@ -84,6 +90,17 @@ public class ClientConfigHolder {
         }
 
         return Optional.ofNullable(extendedClientCapabilities);
+    }
+
+    public RunInTerminalRequestArgumentsKind getRunInTerminalKind() {
+        if (clientRequestArgs.get(ARG_TERMINAL_KIND) != null) {
+            String terminalConfig = clientRequestArgs.get(ARG_TERMINAL_KIND).toString().toUpperCase(Locale.ENGLISH);
+            // To Do - enable the run in external terminal option
+            if (terminalConfig.equals(INTEGRATED_TERMINAL_KIND) || terminalConfig.equals(EXTERNAL_TERMINAL_KIND)) {
+                return RunInTerminalRequestArgumentsKind.INTEGRATED;
+            }
+        }
+        return null;
     }
 
     protected void failIfConfigMissing(String configName) throws ClientConfigurationException {

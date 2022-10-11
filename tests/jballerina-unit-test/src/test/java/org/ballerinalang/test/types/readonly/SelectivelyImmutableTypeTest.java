@@ -117,6 +117,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
                               "be 'readonly'", 159, 5);
+        validateError(result, index++, "cannot infer type of the object from 'other'", 160, 26);
         validateError(result, index++, "invalid intersection type with 'readonly', 'Baz' can never be 'readonly'", 171,
                       5);
         validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 194, 5);
@@ -154,12 +155,12 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "cannot define a variable of type 'never' or equivalent to type 'never'",
                       303, 5);
-        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 305, 52);
+        validateError(result, index++, "incompatible types: expected 'never?', found 'int'", 305, 52);
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'Grault' can never be 'readonly'",
                       313, 5);
 
-        validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 321, 27);
+        validateError(result, index++, "incompatible types: expected 'never?', found 'stream<int>'", 321, 27);
         validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
                 "found '(R1 & readonly)'", 322, 32);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 331, 35);

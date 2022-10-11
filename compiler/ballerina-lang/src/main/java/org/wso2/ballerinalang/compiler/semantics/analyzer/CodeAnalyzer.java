@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -144,6 +145,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -191,6 +193,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -1070,6 +1073,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case SIMPLE_VARIABLE_REF:
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
+            case UNARY_EXPR:
+                BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(
+                        (BLangUnaryExpr) constPattern.expr);
+                constValAndType.put(newNumericLiteral.value, null);
         }
         return constValAndType;
     }
@@ -1416,9 +1423,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (listMatchPattern.matchExpr == null) {
             return;
         }
-        listMatchPattern.isLastPattern = types.isSameType(listMatchPattern.getBType(),
-                                                          listMatchPattern.matchExpr.getBType())
-                && !isConstMatchPatternExist(listMatchPattern);
+        listMatchPattern.isLastPattern = types.isAssignable(listMatchPattern.matchExpr.getBType(),
+                listMatchPattern.getBType()) && !isConstMatchPatternExist(listMatchPattern);
     }
 
     private boolean isConstMatchPatternExist(BLangMatchPattern matchPattern) {
@@ -1592,6 +1598,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
+    public void visit(BLangClientDeclaration node, AnalyzerData data) {
+    }
+
+    @Override
     public void visit(BLangService serviceNode, AnalyzerData data) {
     }
 
@@ -1735,8 +1745,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             case VARIABLE:
                 BLangSimpleVariable varNode = (BLangSimpleVariable) node;
                 BLangExpression expr = varNode.expr;
-                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
-                        isValidContextForInferredArray(node.parent);
+                return expr != null && isValidContextForInferredArray(node.parent) &&
+                        isValidVariableForInferredArray(expr);
             default:
                 return false;
         }
@@ -1754,6 +1764,21 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             default:
                 return false;
         }
+    }
+
+    private boolean isValidVariableForInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case LITERAL:
+                if (node.getBType().tag == TypeTags.ARRAY) {
+                    return true;
+                }
+                break;
+            case LIST_CONSTRUCTOR_EXPR:
+                return true;
+            case GROUP_EXPR:
+                return isValidVariableForInferredArray(((BLangGroupExpr) node).expression);
+        }
+        return false;
     }
 
     @Override
@@ -1931,6 +1956,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement, AnalyzerData data) {
+        analyzeNode(clientDeclarationStatement.clientDeclaration, data);
     }
 
     @Override
@@ -3205,9 +3235,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        boolean failureHandled = data.failureHandled;
-        data.failureHandled = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         data.queryToMap = queryExpr.isMap;
@@ -3227,8 +3254,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
-        data.failureHandled = failureHandled;
-        data.errorTypes.pop();
         data.withinQuery = prevWithinQuery;
         data.queryToTableWithKey = prevQueryToTableWithKey;
     }
@@ -3239,7 +3264,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = true;
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
-        data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3257,7 +3281,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
         data.withinQuery = prevWithinQuery;
-        data.errorTypes.pop();
     }
 
     @Override
@@ -3380,6 +3403,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
             logDeprecatedWaring(annotAccessExpr.annotationName.toString(), annotationSymbol, annotAccessExpr.pos);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(interpolation -> analyzeExpr(interpolation, data));
     }
 
     private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {

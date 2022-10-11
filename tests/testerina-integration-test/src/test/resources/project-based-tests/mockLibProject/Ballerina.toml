@@ -1,0 +1,8 @@
+[package]
+org = "testOrg"
+name = "mockLib"
+version = "0.1.0"
+export = ["mockLib", "mockLib.mod1"]
+
+[build-options]
+observabilityIncluded = false

@@ -519,32 +519,24 @@ function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
                     where user.age > 21 && user.age < 60
                     select {user} on conflict msg;
 }
-type CustomError1 distinct error;
 
-type CustomError2 distinct error;
-
-function getCustomErrorOrInt() returns CustomError1|int {
-    return error CustomError1("Custom error");
+function testInvalidCheckExpressionInQueryAction() returns string|error {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
 }
 
-function getCustomErrorOrIntArray() returns CustomError1|int[] {
-    return error CustomError1("Custom error");
+function testInvalidCheckExpressionInQueryAction2() returns error? {
+    check from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
 }
 
-function testDistinctErrorThrownFromQueryAction1() {
-    //expected 'CustomError2?', found 'CustomError1?'
-    CustomError2? res = from int i in 1 ... 3
-        do {
-            _ = check getCustomErrorOrInt();
-        };
-}
-
-function testDistinctErrorThrownFromQueryAction2() {
-    //expected 'CustomError2?', found 'CustomError1?'
-    CustomError2? res = from int i in 1 ... 3
-        do {
-            check from int j in check getCustomErrorOrIntArray()
-                do {
-                };
-        };
+function returnNil() {
 }

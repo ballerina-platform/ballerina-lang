@@ -95,6 +95,11 @@ public class QueryActionTest {
         Assert.assertEquals(countValue, 6);
     }
 
+    @Test
+    public void testSimpleQueryAction3() {
+        BRunUtil.invoke(result, "testSimpleQueryAction3");
+    }
+
     @Test(description = "Test simple query action with let clause")
     public void testSimpleSelectQueryWithLetClause() {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
@@ -175,6 +180,16 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testQueryActionWithDoClauseContainsCheck");
     }
 
+    @Test
+    public void testForeachStmtInsideDoClause() {
+        BRunUtil.invoke(result, "testForeachStmtInsideDoClause");
+    }
+
+    @Test
+    public void testIfStmtInsideDoClause() {
+        BRunUtil.invoke(result, "testIfStmtInsideDoClause");
+    }
+
     @Test(dataProvider = "dataToTestQueryActionWithVar")
     public void testQueryActionWithVar(String functionName) {
         BRunUtil.invoke(result, functionName);
@@ -186,6 +201,11 @@ public class QueryActionTest {
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction",
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2"
         };
+    }
+
+    @Test
+    public void testQueryWithOptionalFieldRecord() {
+        BRunUtil.invoke(result, "testQueryWithOptionalFieldRecord");
     }
 
     @AfterClass

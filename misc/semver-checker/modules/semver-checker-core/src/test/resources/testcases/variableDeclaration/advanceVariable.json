@@ -60,7 +60,7 @@
                   {
                     "type": "new",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module variable annotation",
                     "message": "a new module variable annotation list is added"
                   }
                 ],
@@ -71,7 +71,7 @@
                   "message": "'final' qualifier is added to variable 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"
@@ -109,7 +109,7 @@
                   "message": "'public' qualifier is removed from variable 'id'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"
@@ -122,7 +122,7 @@
     }
   },
   {
-    "description": "Remove documentation , add annotation , remove public qualifier , add final keyword , Change the value of variable , change the type ",
+    "description": "Remove documentation , add annotation, remove public qualifier ,add final keyword, change the value of variable, change the type",
     "oldCode": "#documentation\npublic int id = 10;",
     "newCode": "@tainted\nfinal float id = 10.5;",
     "expectedOutput": {
@@ -150,7 +150,7 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module variable annotation",
                     "message": "module variable annotation list is modified"
                   }
                 ],
@@ -173,7 +173,7 @@
                   "message": "module variable type changed from 'int' to 'float'"
                 },
                 {
-                  "kind": "unknown",
+                  "kind": "module variable initializer",
                   "type": "modified",
                   "versionImpact": "ambiguous",
                   "message": "module variable initializer is modified"
@@ -184,5 +184,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical module variable declarations",
+    "oldCode": "#documentation\npublic int id = 10;",
+    "newCode": "#documentation\npublic int id = 10;",
+    "expectedOutput": "No Changes"
   }
 ]

@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonParser;
 
 /**
- * Parse a string in JSON format and return the the value that it represents.
+ * Parse a string in JSON format and return the value that it represents.
  *
  * @since 1.0
  */

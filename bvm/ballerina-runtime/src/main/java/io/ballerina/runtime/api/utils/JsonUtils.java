@@ -17,17 +17,30 @@
  */
 package io.ballerina.runtime.api.utils;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.StructureType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.JsonGenerator;
+import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
@@ -36,6 +49,13 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Class @{@link JsonParser} provides APIs to handle json values.
@@ -86,7 +106,7 @@ public class JsonUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(BString jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(BString jsonStr, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(jsonStr.getValue(), mode);
     }
 
@@ -109,7 +129,7 @@ public class JsonUtils {
      * @return JSON   value if parsing is successful
      * @throws BError for any parsing error
      */
-    public static Object parse(String jsonStr, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(String jsonStr, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(jsonStr, mode);
     }
 
@@ -121,7 +141,7 @@ public class JsonUtils {
      * @return JSON structure
      * @throws BError for any parsing error
      */
-    public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
+    public static Object parse(Reader reader, NonStringValueProcessingMode mode) throws BError {
         return JsonParser.parse(reader, mode);
     }
 
@@ -132,7 +152,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bTable
      */
     public static Object parse(BTable bTable) {
-        return io.ballerina.runtime.internal.JsonUtils.toJSON(bTable);
+        return JsonInternalUtils.toJSON(bTable);
     }
 
     /**
@@ -142,7 +162,7 @@ public class JsonUtils {
      * @return JSON representation of the provided bArray
      */
     public static Object parse(BArray bArray) {
-        return io.ballerina.runtime.internal.JsonUtils.convertArrayToJSON(bArray);
+        return JsonInternalUtils.convertArrayToJSON(bArray);
     }
 
     /**
@@ -153,7 +173,7 @@ public class JsonUtils {
      * @return JSON representation of the provided array
      */
     public static Object parse(BMap<BString, ?> map, JsonType targetType) {
-        return io.ballerina.runtime.internal.JsonUtils.convertMapToJSON(map, targetType);
+        return JsonInternalUtils.convertMapToJSON(map, targetType);
     }
 
     /**
@@ -166,7 +186,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, ?> convertJSONToMap(Object json, MapType mapType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.jsonToMap(json, mapType);
+        return JsonInternalUtils.jsonToMap(json, mapType);
     }
 
     /**
@@ -179,7 +199,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static BMap<BString, Object> convertJSONToRecord(Object record, StructureType structType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertJSONToRecord(record, structType);
+        return JsonInternalUtils.convertJSONToRecord(record, structType);
     }
 
     /**
@@ -191,7 +211,7 @@ public class JsonUtils {
      * @throws BError If conversion fails.
      */
     public static Object convertJSON(Object source, Type targetType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertJSON(source, targetType);
+        return JsonInternalUtils.convertJSON(source, targetType);
     }
 
     /**
@@ -203,7 +223,7 @@ public class JsonUtils {
      * @throws BError If conversions fails.
      */
     public static Object convertUnionTypeToJSON(Object source, JsonType targetType) throws BError {
-        return io.ballerina.runtime.internal.JsonUtils.convertUnionTypeToJSON(source, targetType);
+        return JsonInternalUtils.convertUnionTypeToJSON(source, targetType);
     }
 
     /**
@@ -256,6 +276,108 @@ public class JsonUtils {
         } catch (IOException e) {
             throw new ErrorValue(StringUtils.fromString(e.getMessage()), e);
         }
+    }
+
+    public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
+        Type jsonType = PredefinedTypes.TYPE_JSON;
+        if (value == null) {
+            return null;
+        }
+        Type sourceType = TypeChecker.getType(value);
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
+            return value;
+        }
+        TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            throw createCyclicValueReferenceError(value);
+        }
+        unresolvedValues.add(typeValuePair);
+        Object newValue;
+
+        switch (sourceType.getTag()) {
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
+            case TypeTags.REG_EXP_TYPE_TAG:
+                newValue = StringUtils.fromString(StringUtils.getStringValue(value, null));
+                break;
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.ARRAY_TAG:
+                newValue = convertArrayToJson((BArray) value, unresolvedValues);
+                break;
+            case TypeTags.TABLE_TAG:
+                BTable bTable = (BTable) value;
+                Type constrainedType = ((TableType) bTable.getType()).getConstrainedType();
+                if (constrainedType.getTag() == TypeTags.MAP_TAG) {
+                    newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
+                } else {
+                    try {
+                        newValue = JsonInternalUtils.toJSON(bTable);
+                    } catch (Exception e) {
+                        throw createConversionError(value, jsonType, e.getMessage());
+                    }
+                }
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
+                break;
+            case TypeTags.ERROR_TAG:
+            default:
+                throw createConversionError(value, jsonType);
+        }
+        unresolvedValues.remove(typeValuePair);
+        return newValue;
+    }
+
+    private static Object convertMapConstrainedTableToJson(BTable value, List<TypeValuePair> unresolvedValues) {
+        BArray membersArray = ValueCreator.createArrayValue(PredefinedTypes.TYPE_JSON_ARRAY);
+        BIterator itr = value.getIterator();
+        while (itr.hasNext()) {
+            BArray tupleValue = (BArray) itr.next();
+            BMap mapValue = ((BMap) tupleValue.get(0));
+            Object member = convertMapToJson(mapValue, unresolvedValues);
+            membersArray.append(member);
+        }
+        return membersArray;
+    }
+
+    private static Object convertMapToJson(BMap<?, ?> map, List<TypeValuePair> unresolvedValues) {
+        BMap<BString, Object> newMap =
+                ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
+        for (Map.Entry entry : map.entrySet()) {
+            Object newValue = convertToJson(entry.getValue(), unresolvedValues);
+            newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
+        }
+        return newMap;
+    }
+
+    private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
+        BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
+        for (int i = 0; i < array.size(); i++) {
+            Object newValue = convertToJson(array.get(i), unresolvedValues);
+            newArray.add(i, newValue);
+        }
+        return newArray;
+    }
+
+    private static BError createConversionError(Object inputValue, Type targetType) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
+                        TypeChecker.getType(inputValue), targetType));
+    }
+
+    private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+                        INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+    }
+
+    private static BError createCyclicValueReferenceError(Object value) {
+        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorDetails(
+                RuntimeErrors.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
     }
 
     /**

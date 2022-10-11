@@ -60,12 +60,11 @@ public class Executor {
                                          Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(className);
-            int paramCount = paramValues.length * 2 + 1;
+            int paramCount = paramValues.length + 1;
             Object[] jvmArgs = new Object[paramCount];
             jvmArgs[0] = scheduler;
             for (int i = 0, j = 1; i < paramValues.length; i++) {
                 jvmArgs[j++] = paramValues[i];
-                jvmArgs[j++] = true;
             }
             Method method = getMethod(methodName, clazz);
             Function<Object[], Object> func = args -> {

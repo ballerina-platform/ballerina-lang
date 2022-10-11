@@ -28,6 +28,8 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -72,6 +74,7 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -178,6 +181,16 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
         }
 
         return restParameterNode.paramName().get().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        return Optional.of(clientResourceAccessActionNode.slashToken().location());
+    }
+
+    @Override
+    public Optional<Location> transform(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        return computedResourceAccessSegmentNode.expression().apply(this);
     }
 
     @Override
@@ -492,6 +505,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(SpecificFieldNode specificFieldNode) {
         return Optional.of(specificFieldNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(SpreadFieldNode spreadFieldNode) {
+        return Optional.of(spreadFieldNode.location());
     }
 
     @Override

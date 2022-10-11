@@ -18,8 +18,10 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -54,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -125,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -159,6 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -727,6 +732,33 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmt) {
         analyzeNode(xmlnsStmt.xmlnsDecl, env);
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration) {
+        BLangIdentifier prefix = clientDeclaration.prefix;
+        Location location = prefix.pos;
+
+        if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
+                !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                        .containsKey(prefix.pos.lineRange().filePath())) {
+            return;
+        }
+        Map<LineRange, Optional<PackageID>> lineRangeMap =
+                symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID).get(prefix.pos.lineRange().filePath());
+        Optional<PackageID> optionalPackageID = lineRangeMap.get(location.lineRange());
+        // `optionalPackageID` is empty if no compatible plugin was found to generate a module for the client
+        // declaration (for which an error would have been logged).
+        // Unused prefix analysis cannot be carried out in such scenarios since it is bound to a `BPackageSymbol`.
+        if (optionalPackageID.isPresent()) {
+            checkUnusedImportOrClientDeclPrefix(symResolver.getModuleForPackageId(optionalPackageID.get()),
+                                                prefix.value, location, DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX);
+        }
+    }
+    
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     @Override
@@ -2191,6 +2223,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(interpolation -> analyzeNode(interpolation, env));
+    }
+
     /**
      * Analyze a branch and returns the set of uninitialized variables for that branch.
      * This method will not update the current uninitialized variables set.
@@ -2444,12 +2483,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void checkUnusedImports(List<BLangImportPackage> imports) {
         for (BLangImportPackage importStmt : imports) {
-            if (importStmt.symbol == null || importStmt.symbol.isUsed ||
-                    Names.IGNORE.value.equals(importStmt.alias.value)) {
-                continue;
-            }
-            dlog.error(importStmt.alias.pos, DiagnosticErrorCode.UNUSED_MODULE_PREFIX, importStmt.alias.value);
+            BLangIdentifier prefix = importStmt.alias;
+            String prefixValue = prefix.value;
+            Location location = prefix.pos;
+            checkUnusedImportOrClientDeclPrefix(importStmt.symbol, prefixValue, location,
+                                                DiagnosticErrorCode.UNUSED_MODULE_PREFIX);
         }
+    }
+
+    private void checkUnusedImportOrClientDeclPrefix(BPackageSymbol symbol, String prefixValue, Location location,
+                                                     DiagnosticErrorCode errorCode) {
+        if (symbol == null || symbol.isUsed || Names.IGNORE.value.equals(prefixValue)) {
+            return;
+        }
+        dlog.error(location, errorCode, prefixValue);
     }
 
     private void checkUnusedErrorVarsDeclaredWithVar() {

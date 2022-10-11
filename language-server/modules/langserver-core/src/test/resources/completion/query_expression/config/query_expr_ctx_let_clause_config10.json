@@ -538,6 +538,41 @@
       "sortText": "G",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "sortText": "BK",
+      "insertText": "module1:Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

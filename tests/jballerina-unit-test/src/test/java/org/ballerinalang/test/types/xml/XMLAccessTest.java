@@ -288,10 +288,13 @@ public class XMLAccessTest {
 
     @Test
     void testXMLFilterExpressionsNegative() {
-        BAssertUtil.validateError(navigationFilterNegative, 0,
-                "incompatible types: expected 'xml', found 'any'", 4, 14);
-        BAssertUtil.validateError(navigationFilterNegative, 1,
-                "incompatible types: expected 'xml', found 'int'", 6, 14);
-        Assert.assertEquals(navigationFilterNegative.getErrorCount(), 2);
+        int index = 0;
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "incompatible types: expected 'xml', found 'any'", 6, 14);
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "incompatible types: expected 'xml', found 'int'", 8, 14);
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "cannot find xml namespace prefix 'foo'", 13, 16);
+        Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
     }
 }

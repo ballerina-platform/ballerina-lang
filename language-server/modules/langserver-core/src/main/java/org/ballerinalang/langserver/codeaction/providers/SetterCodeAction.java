@@ -18,16 +18,16 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -39,16 +39,18 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class SetterCodeAction extends AbstractCodeActionProvider {
+public class SetterCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Setter";
-    public SetterCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.OBJECT_FIELD));
+
+    @Override
+    public List<SyntaxKind> getSyntaxKinds() {
+        return List.of(SyntaxKind.OBJECT_FIELD);
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                           RangeBasedPositionDetails posDetails) {
         if (CodeActionUtil.getObjectFieldNode(context, posDetails).isEmpty()) {
             return Collections.emptyList();
         }
@@ -58,24 +60,26 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        String commandTitle = String.format("Create a setter for '%s'", objectFieldNode.fieldName().toString());
-        String fieldName = String.valueOf(objectFieldNode.fieldName());
-        String typeName = String.valueOf(objectFieldNode.typeName());
-        String functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
+        String fieldName = String.valueOf(objectFieldNode.fieldName().text());
+        String commandTitle = String.format("Create a setter for \"%s\"", fieldName);
+        String typeName = String.valueOf(objectFieldNode.typeName()).trim();
+        String extractedFieldName = CodeActionUtil.removeQuotedIdentifier(fieldName);
+        String functionName = "set" + extractedFieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                extractedFieldName.substring(1);
         if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 
         Optional<FunctionDefinitionNode> initNode = CodeActionUtil.getInitNode(objectFieldNode);
         List<TextEdit> edits = CodeActionUtil.getGetterSetterCodeEdits(objectFieldNode, initNode, fieldName, typeName,
-                                                                       NAME);
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
-                                                            CodeActionKind.Source));
+                NAME);
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
+                CodeActionKind.Source));
     }
 
     @Override
     public String getName() {
-        return null;
+        return NAME;
     }
 
 }

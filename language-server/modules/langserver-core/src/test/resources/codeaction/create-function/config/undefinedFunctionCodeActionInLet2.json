@@ -8,24 +8,49 @@
     {
       "title": "Create function 'getTestRecord(...)'",
       "kind": "quickfix",
-      "command": {
-        "title": "Create function 'getTestRecord(...)'",
-        "command": "CREATE_FUNC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 15,
-                "character": 31
-              },
-              "end": {
-                "line": 15,
-                "character": 47
-              }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 1
+            },
+            "end": {
+              "line": 19,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getTestRecord(int x) returns module1:TestRecord1 {\n    return {};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunctionInLet.bal",
+        "range": {
+          "start": {
+            "line": 15,
+            "character": 31
+          },
+          "end": {
+            "line": 15,
+            "character": 47
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 15.0,
+              "character": 31.0
+            },
+            "end": {
+              "line": 15.0,
+              "character": 47.0
             }
           }
-        ]
+        }
       }
     }
   ]

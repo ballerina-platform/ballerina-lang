@@ -223,6 +223,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Types types;
     private SymbolEnv env;
     private SymbolEnv queryEnv;
+    private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
     private HashSet<BType> checkedErrorList;
 
@@ -253,6 +254,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env,
                                      List<BLangStatement> stmtsToBePropagated) {
+        containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
 
@@ -283,9 +285,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
-            BMapType mapType = (BMapType) ((BUnionType) queryExpr.getBType()).getMemberTypes()
-                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.MAP)
-                    .findFirst().orElse(symTable.mapType);
+            BMapType mapType = (BMapType) getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
@@ -318,12 +318,30 @@ public class QueryDesugar extends BLangNodeVisitor {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr, isReadonly), pos);
             }
-            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                    addTypeConversionExpr(result, queryExpr.getBType()));
-            streamStmtExpr.setBType(queryExpr.getBType());
+            if (containsCheckExpr) {
+                // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
+                // so that it will propagate the error properly.
+                desugar.resetSkipFailStmtRewrite();
+                BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
+                checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
+                streamStmtExpr.setBType(checkedExpr.getBType());
+            } else {
+                streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                        addTypeConversionExpr(result, queryExpr.getBType()));
+                streamStmtExpr.setBType(queryExpr.getBType());
+            }
         }
         this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
+    }
+
+    private BType getMapType(BType type) {
+        BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
+        if (resultantType.tag == TypeTags.INTERSECTION) {
+            return getMapType(((BIntersectionType) resultantType).effectiveType);
+        }
+        return resultantType;
     }
 
     private boolean isXml(BType type) {
@@ -357,6 +375,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env,
                                      List<BLangStatement> stmtsToBePropagated) {
+        containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -410,7 +429,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.env = env;
         BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
         final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
-                initFromClause.collection, resultType, true);
+                initFromClause.collection, resultType);
         BLangVariableReference initFrom = addInputFunction(block, initFromClause, stmtsToBePropagated);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
@@ -426,7 +445,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 case JOIN:
                     BLangJoinClause joinClause = (BLangJoinClause) clause;
                     BLangVariableReference joinPipeline = addPipeline(block, joinClause.pos,
-                            joinClause.collection, resultType, false);
+                            joinClause.collection, resultType);
                     BLangVariableReference joinInputFunc = addInputFunction(block, joinClause, stmtsToBePropagated);
                     addStreamFunction(block, joinPipeline, joinInputFunc);
                     BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline,
@@ -479,17 +498,11 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param pos diagnostic pos of the collection.
      * @param collection reference to the collection.
      * @param resultType constraint type of the collection.
-     * @param assignErrorToResult should the error be assigned to result.
      * @return variableReference to created _StreamPipeline.
      */
     BLangVariableReference addPipeline(BLangBlockStmt blockStmt, Location pos,
-                                       BLangExpression collection, BType resultType,
-                                       boolean assignErrorToResult) {
+                                       BLangExpression collection, BType resultType) {
         String name = getNewVarName();
-        if (assignErrorToResult) {
-            //unwrapping the check expression so that error will be propagated to the pipeline
-            collection = unwrapCheckedExpression(collection);
-        }
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.getBType(), this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable dataVariable =
@@ -958,7 +971,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
                                                 this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos,
                                                 VIRTUAL);
-        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
+        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, FRAME_PARAMETER_NAME,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
@@ -1424,21 +1437,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         return frameTypeNode;
     }
 
-    private BLangExpression unwrapCheckedExpression(BLangExpression collectionExp) {
-        BLangExpression expression = unwrapGroupExpression(collectionExp);
-        if (expression.getKind() == NodeKind.CHECK_EXPR) {
-            return ((BLangCheckedExpr) expression).expr;
-        }
-        return collectionExp;
-    }
-
-    private BLangExpression unwrapGroupExpression(BLangExpression exp) {
-        if (exp.getKind() == NodeKind.GROUP_EXPR) {
-            return unwrapGroupExpression(((BLangGroupExpr) exp).expression);
-        }
-        return exp;
-    }
-
     /**
      * Load and return symbol for _Frame.
      *
@@ -1453,8 +1451,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function.accept(this);
-        lambda.function = desugar.rewrite(lambda.function, env);
-        env.enclPkg.lambdaFunctions.add(lambda);
+        lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
     }
 
     @Override
@@ -1652,6 +1649,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+            if (symbol instanceof BVarSymbol) {
+                BVarSymbol originalSymbol = ((BVarSymbol) symbol).originalSymbol;
+                if (originalSymbol != null) {
+                    symbol = originalSymbol;
+                }
+            }
             if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
@@ -1662,24 +1665,33 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaFunc && symbol.closure) {
-                        // When there's a closure in a lambda inside a query lambda the symbol.closure is
-                        // true for all its usages. Therefore mark symbol.closure = false for the existing
-                        // symbol and create a new symbol with the same properties.
-                        symbol.closure = false;
-                        symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type, env.scope.owner,
-                                pos, VIRTUAL);
-                        symbol.closure = true;
-                        bLangSimpleVarRef.symbol = symbol;
-                        bLangSimpleVarRef.varSymbol = symbol;
+                    if (withinLambdaFunc) {
+                        if (symbol.closure) {
+                            // When there's a closure in a lambda inside a query lambda the symbol.closure is
+                            // true for all its usages. Therefore mark symbol.closure = false for the existing
+                            // symbol and create a new symbol with the same properties.
+                            symbol.closure = false;
+                            symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type,
+                                                    env.scope.owner, pos, VIRTUAL);
+                            symbol.closure = true;
+                            bLangSimpleVarRef.symbol = symbol;
+                            bLangSimpleVarRef.varSymbol = symbol;
+                            BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                                                           desugar.addConversionExprIfRequired(frameAccessExpr,
+                                                                   symbol.type), (BVarSymbol) symbol);
+                            BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                            currentQueryLambdaBody.stmts.add(0, variableDef);
+                            SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                            queryLambdaEnv.scope.define(symbol.name, symbol);
+                        }
+                    } else {
+                        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                                desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
+                        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                        currentQueryLambdaBody.stmts.add(0, variableDef);
+                        SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                        queryLambdaEnv.scope.define(symbol.name, symbol);
                     }
-
-                    BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
-                            desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
-                    BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                    currentQueryLambdaBody.stmts.add(0, variableDef);
-                    SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
-                    queryLambdaEnv.scope.define(symbol.name, symbol);
                 }
                 identifiers.put(identifier, symbol);
             } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
@@ -1929,7 +1941,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (checkedExpr.equivalentErrorTypeList != null) {
+        containsCheckExpr = true;
+        if (this.checkedErrorList != null && checkedExpr.equivalentErrorTypeList != null) {
             this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
         }
         this.acceptNode(checkedExpr.expr);
@@ -2120,6 +2133,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
+        this.acceptNode(foreach.body);
     }
 
     @Override

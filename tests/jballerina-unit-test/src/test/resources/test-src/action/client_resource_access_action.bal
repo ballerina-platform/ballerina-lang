@@ -21,6 +21,18 @@ client class MyClient {
     resource function post .() returns int {
         return 2;
     }
+
+    resource function value .(int a = 10) returns int {
+            return a;
+    }
+
+    resource function value1 .(int a = 10, int b = 20) returns int {
+            return a + b;
+    }
+
+    resource function value2 .(int a = 10, int b = 20, int c = b) returns int {
+                return a + b + c;
+    }
     
     resource function get books/names() returns string[2] {
         return ["book1", "book2"];
@@ -42,6 +54,18 @@ function testBasicClientResourceAccess() {
     
     int b1 = myClient->/.post;
     assertEquality(b1, 2);
+
+    int b2 = myClient->/.value();
+    assertEquality(b2, 10);
+
+    int b3 = myClient->/.value1();
+    assertEquality(b3, 30);
+
+    int b4 = myClient->/.value1(15);
+    assertEquality(b4, 35);
+
+    int b5 = myClient->/.value2();
+    assertEquality(b5, 50);
     
     int c = myClient->/.get();
     assertEquality(c, 3);
@@ -218,6 +242,18 @@ client class MyClient4 {
     resource function someOtherMethod3 books/books/["books"... b]() returns string[] {
         return b;
     }
+    
+    resource function post game/[string name]/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+    
+    resource function post game/[string name]/path/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+    
+    resource function post games/game/[string name]/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
 }
 
 function testWithResourceAccessRestSegment() {
@@ -286,6 +322,17 @@ function testWithResourceAccessRestSegment() {
 
     string[] b13 = myClient->/[...booksArray2].someOtherMethod3;
     assertEquality(b13, <"books"[]>["books", "books"]);
+    
+    [string, int] gameDetails = ["Chess", 2];
+    string b14 = myClient->/game/[...gameDetails].post;
+    assertEquality(b14, "Chess: 2");
+    
+    [string, "path", int] gameDetails2 = ["Carrom", "path", 4];
+    string b15 = myClient->/game/[...gameDetails2].post;
+    assertEquality(b15, "Carrom: 4");
+
+    string b16 = myClient->/games/game/[...gameDetails].post;
+    assertEquality(b16, "Chess: 2");
 }
 
 client class MyClient5 {
@@ -610,6 +657,44 @@ function testClosuresFromPathParams() {
 
     int e = myClient->/closureTest2/[2]/path.post;
     assertEquality(e, 12);
+}
+
+public type Params record {|
+    never headers?;
+    int...;
+|};
+
+client class MyClient10 {
+    resource function get [string... path](string? headers = (), *Params params) returns int {
+        if headers == () {
+            return params.get("id");
+        }
+
+        return params.get("id") + headers.length();
+    }
+
+    resource function post foo/[int a]/bar(*Params params) returns int {
+        return params.get("id") + a;
+    }
+}
+
+function testAccessingResourceWithIncludedRecordParam() {
+    MyClient10 cl = new;
+    int a = cl->/foo/bar(id = 1);
+    assertEquality(a, 1);
+
+    int a1 = cl->/foo/bar(headers = "Ballerina", id = 2);
+    assertEquality(a1, 11);
+
+    int b = cl->/foo/[4]/bar.post(id = 1);
+    assertEquality(b, 5);
+
+    Params recVal = {"id": 2};
+    int c = cl->/foo/[10]/bar.post(recVal);
+    assertEquality(c, 12);
+
+    int d = cl->/foo/[1]/bar.post(params = recVal);
+    assertEquality(d, 3);
 }
 
 function assertEquality(any|error actual, any|error expected) {

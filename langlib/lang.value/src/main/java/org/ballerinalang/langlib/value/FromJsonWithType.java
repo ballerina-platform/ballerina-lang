@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -42,6 +43,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -106,13 +108,13 @@ public class FromJsonWithType {
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
-                null, new ArrayList<>(), errors);
-        if (convertibleTypes.isEmpty()) {
+        Type convertibleType = TypeConverter.getConvertibleTypeFromJson(value, targetType,
+                null, new ArrayList<>(), errors, true);
+        if (convertibleType == null) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = TypeUtils.getReferredType(convertibleTypes.get(0));
+        Type matchingType = TypeUtils.getReferredType(convertibleType);
 
         Object newValue;
         switch (sourceType.getTag()) {
@@ -125,6 +127,14 @@ public class FromJsonWithType {
                 newValue = convertArray((BArray) value, matchingType, unresolvedValues, t);
                 break;
             default:
+                if (isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
+                    try {
+                        newValue = RegExpFactory.parse(((BString) value).getValue());
+                        break;
+                    } catch (BError e) {
+                        throw createConversionError(value, targetType, e.getMessage());
+                    }
+                }
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     try {
                         newValue = XmlFactory.parse(((BString) value).getValue());
@@ -150,6 +160,17 @@ public class FromJsonWithType {
 
         unresolvedValues.remove(typeValuePair);
         return newValue;
+    }
+
+    private static boolean isRegExpType(Type targetType) {
+        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            Type referredType = ((ReferenceType) targetType).getReferredType();
+            if (referredType.getQualifiedName().equals("ballerina/lang.regexp:0:RegExp")) {
+                return true;
+            }
+            return isRegExpType(referredType);
+        }
+        return false;
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
@@ -192,14 +213,12 @@ public class FromJsonWithType {
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
                                                          BTypedesc t, RecordType recordType,
                                                          Type restFieldType, Map<String, Type> targetTypeField) {
-        BMap<BString, Object> newRecord;
         Map<String, Object> valueMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, t, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
-        return newRecord;
+        return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
     }
 
     private static BMap<?, ?> convertToRecordWithTypeDesc(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
@@ -234,7 +253,7 @@ public class FromJsonWithType {
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues, t);
                     arrayValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
-                return ValueCreator.createArrayValue(arrayType, arrayType.getSize(), arrayValues);
+                return ValueCreator.createArrayValue(arrayType, arrayValues);
             case TypeTags.TUPLE_TAG:
                 TupleType tupleType = (TupleType) targetType;
                 int minLen = tupleType.getTupleTypes().size();

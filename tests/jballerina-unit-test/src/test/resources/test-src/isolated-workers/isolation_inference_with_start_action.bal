@@ -296,6 +296,12 @@ service class NonPublicServiceClass2 {
         NonPublicIsolatedClass2 cl = new;
         future<int> _ = start cl->foo(tt);
     }
+
+    resource function post bam() returns error? {
+        string[] tt = [];
+        NonPublicIsolatedClass2 cl = new;
+        future<int> _ = start cl->foo(tt);
+    }
 }
 
 function testServiceClassMethodIsolationInference() {
@@ -311,6 +317,7 @@ function testServiceClassMethodIsolationInference() {
     assertFalse(isResourceIsolated(NonPublicServiceClass2, "get", "foo"));
     assertFalse(isRemoteMethodIsolated(NonPublicServiceClass2, "bar"));
     assertFalse(isMethodIsolated(NonPublicServiceClass2, "func"));
+    assertFalse(isResourceIsolated(NonPublicServiceClass2, "post", "bam"));
 
     assertFalse(isResourceIsolated(PublicServiceClass, "get", "foo"));
     assertFalse(isRemoteMethodIsolated(PublicServiceClass, "bar"));
@@ -397,6 +404,96 @@ function testClientClassMethodIsolationInference() {
 
     assertFalse(isMethodIsolated(c3, "foo"));
     assertFalse(isMethodIsolated(c3, "bar"));
+}
+
+function f17() {
+    _ = start invoke();
+}
+
+function f18() {
+    _ = start invoke2();
+}
+
+public isolated function invoke() {
+}
+
+public function invoke2() {
+}
+
+function f19() {
+    _ = start invoke3();
+}
+
+function invoke3() {
+    string _ = helloGlobString;
+}
+
+function f20() {
+    _ = start invoke4();
+}
+
+function invoke4() {
+    _ = start f19();
+}
+
+function testIsolationInferenceWithStarActionInvokingPublicFunction() {
+    assertTrue(<any>f17 is isolated function ());
+    assertFalse(<any>f18 is isolated function ());
+    assertFalse(<any>f19 is isolated function ());
+    assertFalse(<any>f20 is isolated function ());
+}
+
+listener Listener ep = new ();
+
+service on ep {
+    resource function get foo() returns string {
+        _ = start invoke();
+        return "Complete";
+    }
+
+    resource function get bar() returns string {
+        _ = start invoke2();
+        return "Complete";
+    }
+
+    resource function get quo() returns string {
+        _ = start invoke3();
+        return "Complete";
+    }
+
+    remote function baz() returns string {
+        _ = start invoke();
+        return "Complete";
+    }
+
+    remote function bam() returns string {
+        _ = start invoke2();
+        return "Complete";
+    }
+
+    remote function qux() returns string {
+        _ = start invoke3();
+        return "Complete";
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string|string[]? name = ()) = @java:Method {
+                                       name: "testServiceDeclarationMethodIsolationInference",
+                                       'class: "org.ballerinalang.test.isolation.IsolatedWorkerTest"
+                                   } external;
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
 }
 
 function assertTrue(anydata actual) => assertEquality(true, actual);

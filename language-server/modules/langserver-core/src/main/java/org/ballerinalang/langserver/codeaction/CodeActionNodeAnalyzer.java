@@ -17,14 +17,34 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LockStatementNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
@@ -32,20 +52,31 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.tools.text.LinePosition;
+import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.eclipse.lsp4j.Position;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Range;
 
 import java.util.Optional;
@@ -53,7 +84,7 @@ import java.util.Optional;
 /**
  * Node analyzer for the code actions. This analyzer will determine
  * 1. The node for node based code actions
- * 2. Code action node type
+ * 2. Code action syntax kind
  * 3. Closest statement node to the cursor position
  * 4. Documentable node
  * 5. Enclosing documentable node of the cursor position
@@ -62,36 +93,46 @@ import java.util.Optional;
  */
 public class CodeActionNodeAnalyzer extends NodeVisitor {
 
-    private final int positionOffset;
-
+    private final int startPositionOffset;
+    private final int endPositionOffset;
     private NonTerminalNode codeActionNode;
-    private CodeActionNodeType codeActionNodeType;
+    private SyntaxKind syntaxKind;
     private StatementNode statementNode;
     private NonTerminalNode documentableNode;
     private NonTerminalNode enclosingDocumentableNode;
 
-    private CodeActionNodeAnalyzer(int positionOffset) {
-        this.positionOffset = positionOffset;
+    private CodeActionNodeAnalyzer(int startPositionOffset, int endPositionOffset) {
+        this.startPositionOffset = startPositionOffset;
+        this.endPositionOffset = endPositionOffset;
     }
 
     /**
      * Entry point to the analyzer. Provided the cursor position and the syntax tree, this method will calculate the
      * node details as mentioned in the class level docs.
      *
-     * @param cursorPosition Cursor position
-     * @param syntaxTree     Syntax tree
+     * @param range      Highlighted range
+     * @param syntaxTree Syntax tree
      */
-    public static CodeActionNodeAnalyzer analyze(Position cursorPosition, SyntaxTree syntaxTree) {
-        LinePosition linePos = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        int positionOffset = syntaxTree.textDocument().textPositionFrom(linePos);
-        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(positionOffset);
-        NonTerminalNode node = CommonUtil.findNode(new Range(cursorPosition, cursorPosition), syntaxTree);
+    public static CodeActionNodeAnalyzer analyze(Range range, SyntaxTree syntaxTree) {
+        int startPositionOffset = PositionUtil.getPositionOffset(range.getStart(), syntaxTree);
+        int endPositionOffset = PositionUtil.getPositionOffset(range.getEnd(), syntaxTree);
+
+        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(startPositionOffset, endPositionOffset);
+        NonTerminalNode node = CommonUtil.findNode(range, syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
+            /*
+            * LIST node is used in multiple scenarios(ex: In the import declaration) and,
+            * LIST of Statement nodes is special cased here for the extract to function code action
+            * */
+            if (hasChildStatement(node)) {
+                analyzer.checkAndSetCodeActionNode(node);
+                analyzer.checkAndSetSyntaxKind(node.kind());
+            }
             node.parent().accept(analyzer);
         } else {
             node.accept(analyzer);
         }
-        
+
         return analyzer;
     }
 
@@ -104,7 +145,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ImportDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.IMPORTS);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
@@ -117,7 +158,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ServiceDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.SERVICE);
+        checkAndSetSyntaxKind(node.kind());
 
         int serviceKwStart = node.serviceKeyword().textRange().startOffset();
         int openBraceEnd = node.openBraceToken().textRange().endOffset();
@@ -141,7 +182,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         }
 
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.FUNCTION);
+        checkAndSetSyntaxKind(node.kind());
 
         NodeList<Token> qualifiers = node.qualifierList();
         int startOffset = !qualifiers.isEmpty() ?
@@ -168,9 +209,9 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         // If cursor was outside object/record type desc, we have to manually check for the type
         Node typeDescriptor = node.typeDescriptor();
         if (typeDescriptor.kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            checkAndSetCodeActionNodeType(CodeActionNodeType.RECORD);
+            checkAndSetSyntaxKind(typeDescriptor.kind());
         } else if (typeDescriptor.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT);
+            checkAndSetSyntaxKind(typeDescriptor.kind());
         }
 
         Optional<Token> qualifier = node.visibilityQualifier();
@@ -192,7 +233,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ClassDefinitionNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.CLASS);
+        checkAndSetSyntaxKind(node.kind());
 
         Optional<Token> qualifier = node.visibilityQualifier();
         int startOffset = qualifier.isEmpty() ?
@@ -214,7 +255,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ModuleVariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.MODULE_VARIABLE);
+        checkAndSetSyntaxKind(node.kind());
 
         Optional<Token> visibilityQualifier = node.visibilityQualifier();
         NodeList<Token> qualifiers = node.qualifiers();
@@ -301,7 +342,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(AnnotationDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.ANNOTATION);
+        checkAndSetSyntaxKind(node.kind());
 
         int startOffset = node.visibilityQualifier()
                 .map(token -> token.textRange().startOffset())
@@ -330,7 +371,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(MethodDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT_FUNCTION);
+        checkAndSetSyntaxKind(node.kind());
 
         int startOffset;
         NodeList<Token> qualifierList = node.qualifierList();
@@ -353,45 +394,276 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(RecordTypeDescriptorNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.RECORD);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BasicLiteralNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BracedExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(ObjectTypeDescriptorNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(VariableDeclarationNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.LOCAL_VARIABLE);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(AssignmentStatementNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.ASSIGNMENT);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(QualifiedNameReferenceNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(IndexedExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(FieldAccessExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(MethodCallExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(MappingConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeofExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeTestExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ListConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TypeCastExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TableConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(LetExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ImplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ExplicitNewExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ObjectConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ErrorConstructorExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(FunctionCallExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(IfElseStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(CheckExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(CompoundAssignmentStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(WhileStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ReturnStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(LockStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ForEachStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(MatchStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(DoStatementNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TrapExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(QueryExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(TemplateExpressionNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
         visitSyntaxNode(node);
     }
 
     @Override
     public void visit(ObjectFieldNode node) {
         checkAndSetCodeActionNode(node);
-        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT_FIELD);
-        
+        checkAndSetSyntaxKind(node.kind());
+
         int startOffset = node.visibilityQualifier()
                 .map(token -> token.textRange().startOffset())
                 .or(() -> node.qualifierList().stream().findFirst().map(token -> token.textRange().startOffset()))
                 .orElseGet(() -> node.typeName().textRange().startOffset());
         int endOffset = node.semicolonToken().textRange().endOffset();
         if (isWithinRange(startOffset, endOffset)) {
-           checkAndSetEnclosingDocumentableNode(node);
-           checkAndSetDocumentableNode(node);
+            checkAndSetEnclosingDocumentableNode(node);
+            checkAndSetDocumentableNode(node);
         }
+    }
+
+    @Override
+    public void visit(SpecificFieldNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
+        visitSyntaxNode(node);
     }
 
     public void visit(Node node) {
@@ -401,15 +673,32 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         node.accept(this);
     }
 
+    /**
+     * // TODO replace the if condition logic with #37454.
+     *
+     * @param node External tree node list
+     * @return If any of the child node of the external tree node list is a statement node
+     */
+    private static boolean hasChildStatement(NonTerminalNode node) {
+        for (Node childNode : node.children()) {
+            if (childNode.kind().compareTo(SyntaxKind.BLOCK_STATEMENT) >= 0
+                    && childNode.kind().compareTo(SyntaxKind.BINARY_EXPRESSION) < 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void checkAndSetCodeActionNode(NonTerminalNode node) {
         if (codeActionNode == null) {
             codeActionNode = node;
         }
     }
 
-    private void checkAndSetCodeActionNodeType(CodeActionNodeType type) {
-        if (this.codeActionNodeType == null) {
-            this.codeActionNodeType = type;
+    private void checkAndSetSyntaxKind(SyntaxKind kind) {
+        if (this.syntaxKind == null) {
+            this.syntaxKind = kind;
         }
     }
 
@@ -432,7 +721,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     }
 
     private boolean isWithinRange(int startOffSet, int endOffset) {
-        return this.positionOffset > startOffSet && this.positionOffset <= endOffset;
+        return this.startPositionOffset > startOffSet && this.endPositionOffset <= endOffset;
     }
 
     @Override
@@ -453,8 +742,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         return Optional.ofNullable(codeActionNode);
     }
 
-    public CodeActionNodeType getCodeActionNodeType() {
-        return codeActionNodeType != null ? codeActionNodeType : CodeActionNodeType.NONE;
+    public SyntaxKind getSyntaxKind() {
+        return syntaxKind != null ? syntaxKind : SyntaxKind.NONE;
     }
 
     public Optional<StatementNode> getStatementNode() {

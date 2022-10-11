@@ -548,6 +548,122 @@
       "sortText": "G",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_STRING_CONST1",
+      "kind": "Variable",
+      "detail": "\"HELLO WORLD\"",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "D",
+      "insertText": "module1:TEST_STRING_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "BK",
+      "insertText": "module1:TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "E",
+      "insertText": "module1:TestEnum1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_INT_CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "D",
+      "insertText": "module1:TEST_INT_CONST1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TEST_FUTURE_INT",
+      "kind": "Variable",
+      "detail": "future<int>",
+      "sortText": "BB",
+      "insertText": "module1:TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "module1:TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "module1:TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "BK",
+      "insertText": "module1:TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "module1:TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "module1:TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

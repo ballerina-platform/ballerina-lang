@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 14,
+    "character": 38
+  },
+  "source": "create_function_in_named_arg_context1.bal",
+  "expected": [
+    {
+      "title": "Create function 'getRandomNumber(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 1
+            },
+            "end": {
+              "line": 15,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getRandomNumber() returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_named_arg_context1.bal",
+        "range": {
+          "start": {
+            "line": 14,
+            "character": 38
+          },
+          "end": {
+            "line": 14,
+            "character": 55
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 14.0,
+              "character": 38.0
+            },
+            "end": {
+              "line": 14.0,
+              "character": 55.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

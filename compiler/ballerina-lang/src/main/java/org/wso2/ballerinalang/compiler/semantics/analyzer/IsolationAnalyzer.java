@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -159,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -206,6 +208,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -1499,7 +1502,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
-        BInvokableSymbol initInvocationSymbol = (BInvokableSymbol) typeInitExpr.initInvocation.symbol;
+        BInvokableSymbol initInvocationSymbol =
+                                        (BInvokableSymbol) ((BLangInvocation) typeInitExpr.initInvocation).symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
             analyzeFunctionForInference(initInvocationSymbol);
 
@@ -2008,6 +2012,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration) {
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(interpolation -> analyzeNode(interpolation, env));
+    }
+
     private void analyzeInvocation(BLangInvocation invocationExpr) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
@@ -2081,7 +2101,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
                                                               Set<BLangExpression> argsList, BInvokableSymbol symbol) {
-        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+        boolean isIsolatedFunction = isIsolated(symbol.type.flags);
+        if (!isIsolatedFunction && Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }
@@ -2090,7 +2111,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+        if (!isIsolatedFunction) {
+            this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+        }
+
         this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFuncCallArgExprs.addAll(argsList);
     }
 
@@ -2106,7 +2130,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv env = this.env;
         while (env != null) {
             BLangNode node = env.node;
-            if (node != null && node.getKind() == NodeKind.FUNCTION &&
+            if (node != null && (node.getKind() == NodeKind.FUNCTION || node.getKind() == NodeKind.RESOURCE_FUNC) &&
                     !isWorkerLambda((BLangFunction) node)) {
                 return env.enclInvokable;
             }
@@ -3209,7 +3233,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (parent == null || parent.getKind() == NodeKind.FUNCTION) {
+        if (parent == null || parent.getKind() == NodeKind.FUNCTION || parent.getKind() == NodeKind.RESOURCE_FUNC) {
             return false;
         }
 
@@ -3288,8 +3312,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
         } else {
             enclInvokableSymbol = enclInvokable.symbol;
+            NodeKind enclInvokableKind = enclInvokable.getKind();
 
-            if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
+            if (enclInvokableKind == NodeKind.RESOURCE_FUNC || (enclInvokableKind == NodeKind.FUNCTION &&
+                    ((BLangFunction) enclInvokable).attachedFunction)) {
                 BSymbol owner = enclInvokableSymbol.owner;
 
                 if (this.isolationInferenceInfoMap.containsKey(owner)) {

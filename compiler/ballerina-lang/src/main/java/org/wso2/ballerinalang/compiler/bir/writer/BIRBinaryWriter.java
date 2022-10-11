@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -266,7 +267,7 @@ public class BIRBinaryWriter {
         }
 
         birbuf.writeInt(birFunction.parameters.size());
-        for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
+        for (BIRNode.BIRFunctionParameter param : birFunction.parameters) {
             birbuf.writeByte(param.kind.getValue());
             writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
@@ -293,9 +294,6 @@ public class BIRBinaryWriter {
                 birbuf.writeInt(localVar.insOffset);
             }
         }
-
-        // Write basic blocks related to parameter default values
-        birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);
@@ -426,7 +424,7 @@ public class BIRBinaryWriter {
     }
 
     private void writeConstValue(ByteBuf buf, Object value, BType type) {
-        switch (type.tag) {
+        switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.SIGNED32_INT:
             case TypeTags.SIGNED16_INT:

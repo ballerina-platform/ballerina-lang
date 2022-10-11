@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
@@ -34,7 +35,7 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 public class PositionUtil {
-    
+
     /**
      * Convert the syntax-node line range into a lsp4j range.
      *
@@ -69,8 +70,8 @@ public class PositionUtil {
      * Convert a given pair of start and end offsets to LSP Range.
      *
      * @param startOffset starting offset
-     * @param endOffset end offset
-     * @param document text document where the position resides
+     * @param endOffset   end offset
+     * @param document    text document where the position resides
      * @return {@link Range} calculated range
      */
     public static Range toRange(int startOffset, int endOffset, TextDocument document) {
@@ -83,7 +84,7 @@ public class PositionUtil {
     /**
      * Check if the provided position is within the enclosing line range.
      *
-     * @param pos      Position to be checked for inclusion
+     * @param pos       Position to be checked for inclusion
      * @param lineRange Enclosing line range in which the #position reside
      * @return True if the provided position resides within the line range
      */
@@ -110,7 +111,7 @@ public class PositionUtil {
     public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
         Position start = PositionUtil.toPosition(lineRange.startLine());
         Position end = PositionUtil.toPosition(lineRange.endLine());
-        return PositionUtil.isWithinLineRange(start, enclosingRange) && PositionUtil.isWithinLineRange(end, 
+        return PositionUtil.isWithinLineRange(start, enclosingRange) && PositionUtil.isWithinLineRange(end,
                 enclosingRange);
     }
 
@@ -135,11 +136,23 @@ public class PositionUtil {
     }
 
     /**
+     * Check if a given range resides inside the given inclusion range.
+     *
+     * @param range          range to be checked for inclusion
+     * @param enclosingRange enclosing range which we check whether #range resides
+     * @return True if within range, False otherwise
+     */
+    public static boolean isRangeWithinRange(Range range, Range enclosingRange) {
+        return isWithinRange(range.getStart(), enclosingRange)
+                && isWithinRange(range.getEnd(), enclosingRange);
+    }
+
+    /**
      * Check if a given offset is with in the range of a given node.
      *
-     * @param node Node
+     * @param node   Node
      * @param offset Offset
-     * @return
+     * @return True if within range, False otherwise
      */
     public static boolean isWithInRange(Node node, int offset) {
         return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
@@ -160,5 +173,39 @@ public class PositionUtil {
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos, true);
         return Optional.ofNullable(tokenAtPosition);
+    }
+
+    /**
+     * Returns the position offset(character count) for the given position from the start of the Document.
+     *
+     * @param position   position
+     * @param syntaxTree syntax tree
+     * @return Position offset from the beginning of the document
+     */
+    public static int getPositionOffset(Position position, SyntaxTree syntaxTree) {
+        LinePosition linePos = LinePosition.from(position.getLine(), position.getCharacter());
+        return syntaxTree.textDocument().textPositionFrom(linePos);
+    }
+
+    /**
+     * Returns the Range given the LineRange.
+     *
+     * @param lineRange line range
+     * @return Range corresponds to LineRange
+     */
+    public static Range getRangeFromLineRange(LineRange lineRange) {
+        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
+        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
+        return new Range(startPosition, endPosition);
+    }
+
+    /**
+     * Returns the LinePosition given the Position.
+     *
+     * @param position position
+     * @return LinePosition corresponds to Position
+     */
+    public static LinePosition getLinePosition(Position position) {
+        return LinePosition.from(position.getLine(), position.getCharacter());
     }
 }

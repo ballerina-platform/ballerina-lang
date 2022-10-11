@@ -53,5 +53,6 @@ public class SymTag {
     public static final int ENUM = 1 << 28 | TYPE_DEF;
     public static final int TYPE_REF = 1 << 29;
     public static final int ANNOTATION_ATTACHMENT = 1 << 30;
-    public static final int RESOURCE_PATH_SEGMENT = 1 << 31;
+    public static final int CLIENT_DECL = 1 << 31 | IMPORT;
+    public static final int RESOURCE_PATH_SEGMENT = 1 << 32;
 }

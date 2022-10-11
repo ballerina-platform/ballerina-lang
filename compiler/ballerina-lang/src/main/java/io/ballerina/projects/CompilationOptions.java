@@ -34,13 +34,16 @@ public class CompilationOptions {
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
     Boolean withCodeModifiers;
+    Boolean withIDLGenerators;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
+    Boolean enableCache;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI) {
+                       Boolean withCodeModifiers, Boolean withIDLGenerators, Boolean configSchemaGen,
+                       Boolean exportOpenAPI, Boolean enableCache) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -52,8 +55,10 @@ public class CompilationOptions {
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
         this.withCodeModifiers = withCodeModifiers;
+        this.withIDLGenerators = withIDLGenerators;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
+        this.enableCache = enableCache;
     }
 
     public boolean offlineBuild() {
@@ -100,12 +105,20 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.withCodeModifiers);
     }
 
+    public boolean withIDLGenerators() {
+        return toBooleanDefaultIfNull(this.withIDLGenerators);
+    }
+
     public Boolean configSchemaGen() {
         return toBooleanDefaultIfNull(this.configSchemaGen);
     }
 
     public boolean exportOpenAPI() {
         return toBooleanDefaultIfNull(this.exportOpenAPI);
+    }
+
+    public boolean enableCache() {
+        return toBooleanDefaultIfNull(this.enableCache);
     }
 
     /**
@@ -171,6 +184,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.withCodeModifiers(this.withCodeModifiers);
         }
+        if (theirOptions.withIDLGenerators != null) {
+            compilationOptionsBuilder.withIDLGenerators(theirOptions.withIDLGenerators);
+        } else {
+            compilationOptionsBuilder.withIDLGenerators(this.withIDLGenerators);
+        }
         if (theirOptions.configSchemaGen != null) {
             compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
         } else {
@@ -180,6 +198,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.setExportOpenAPI(theirOptions.exportOpenAPI);
         } else {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
+        }
+        if (theirOptions.enableCache != null) {
+            compilationOptionsBuilder.setEnableCache(theirOptions.enableCache);
+        } else {
+            compilationOptionsBuilder.setEnableCache(this.enableCache);
         }
         return compilationOptionsBuilder.build();
     }
@@ -226,8 +249,10 @@ public class CompilationOptions {
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
         private Boolean withCodeModifiers;
+        private Boolean withIDLGenerators;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
+        private Boolean enableCache;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -289,15 +314,26 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder withIDLGenerators(Boolean value) {
+            withIDLGenerators = value;
+            return this;
+        }
+
         CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
             exportOpenAPI = value;
+            return this;
+        }
+
+        public CompilationOptionsBuilder setEnableCache(Boolean value) {
+            enableCache = value;
             return this;
         }
 
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI);
+                    withCodeGenerators, withCodeModifiers, withIDLGenerators, configSchemaGen, exportOpenAPI,
+                    enableCache);
         }
     }
 }

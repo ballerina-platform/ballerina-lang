@@ -15,17 +15,19 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
@@ -44,31 +46,38 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePosi
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
+public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Implement All";
 
-    public ImplementAllCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.CLASS_FUNCTION,
-                CodeActionNodeType.MODULE_VARIABLE,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.LOCAL_VARIABLE));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.CLASS_DEFINITION,
+                SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.OBJECT_METHOD_DEFINITION,
+                SyntaxKind.OBJECT_CONSTRUCTOR,
+                SyntaxKind.MODULE_VAR_DECL,
+                SyntaxKind.METHOD_DECLARATION,
+                SyntaxKind.LOCAL_VAR_DECL);
     }
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
-                            CodeActionContext context) {
-        return super.validate(diagnostic, positionDetails, context);
+    public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        Node node = positionDetails.matchedCodeActionNode();
+        return CodeActionNodeValidator.validate(context.nodeAtRange()) &&
+                (node.kind() == SyntaxKind.CLASS_DEFINITION
+                        || node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION
+                        || node.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MODULE_VAR_DECL
+                        || node.kind() == SyntaxKind.LOCAL_VAR_DECL
+                        || node.kind() == SyntaxKind.SERVICE_DECLARATION);
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
 
         if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_CONSTRUCTOR
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
                 && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
@@ -77,11 +86,11 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
 
         List<Diagnostic> diags = context.diagnostics(context.filePath()).stream()
                 .filter(diag -> PositionUtil
-                        .isWithinRange(context.cursorPosition(), PositionUtil.toRange(diag.location().lineRange()))
+                        .isRangeWithinRange(context.range(), PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());
-        
+
         if (diags.isEmpty() || diags.size() == 1) {
             return Collections.emptyList();
         }
@@ -91,11 +100,11 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
 
         diags.forEach(diagnostic -> {
             DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, context);
-            edits.addAll(getDiagBasedTextEdits(diagnostic, positionDetails, context));
+            edits.addAll(getDiagBasedTextEdits(positionDetails, context));
         });
 
-        CodeAction quickFixCodeAction = createCodeAction(CommandConstants.IMPLEMENT_ALL, edits, context.fileUri(),
-                CodeActionKind.QuickFix);
+        CodeAction quickFixCodeAction = CodeActionUtil.createCodeAction(CommandConstants.IMPLEMENT_ALL, edits,
+                context.fileUri(), CodeActionKind.QuickFix);
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(diags));
         return Collections.singletonList(quickFixCodeAction);
     }
