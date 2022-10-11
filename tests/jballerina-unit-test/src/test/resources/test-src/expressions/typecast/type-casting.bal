@@ -29,21 +29,36 @@ function stringtoint(string value) returns int|error {
 }
 
 function testDecimalToIntCasting() {
-    decimal d1 = -9223372036854775807d;
-    int i1 = -9223372036854775807;
-    int res = <int> d1;
-    assertEquality(i1, res);
+    decimal d = -9223372036854775807d;
+    int res = <int> d;
+    assertEquality(-9223372036854775807, res);
 
-    decimal d2 = 9223372036854775807d;
-    res = <int> d2;
+    d = 9223372036854775807d;
+    res = <int> d;
     assertEquality(9223372036854775807, res);
 
-    decimal d3 = -9223372036854775808.9d;
-    int|error result = trap <int> d3;
+    d = 9223372036854775806.5d;
+    res = <int> d;
+    assertEquality(9223372036854775806, res);
+
+    d = -9223372036854775805.5d;
+    res = <int> d;
+    assertEquality(-9223372036854775806, res);
+
+    d = -9223372036854775808.9d;
+    int|error result = trap <int> d;
     assertEquality(true, result is error);
     error err = <error> result;
     assertEquality("{ballerina}NumberConversionError", err.message());
     assertEquality("'decimal' value '-9223372036854775808.9' cannot be converted to 'int'",
+                    checkpanic <string|error> err.detail()["message"]);
+
+    d = 9223372036854775807.5d;
+    result = trap <int> d;
+    assertEquality(true, result is error);
+    err = <error> result;
+    assertEquality("{ballerina}NumberConversionError", err.message());
+    assertEquality("'decimal' value '9223372036854775807.5' cannot be converted to 'int'",
                     checkpanic <string|error> err.detail()["message"]);
 }
 
@@ -52,9 +67,21 @@ function testDecimalToFloatCasting() {
     float f = <float> d;
     assertEquality(9E+292, f);
 
+    d = -0.0000000000000009e+308;
+    f = <float> d;
+    assertEquality(-9E+292, f);
+
+    d = -0.0000000000000005e-308;
+    f = <float> d;
+    assertEquality(-5E-324, f);
+
     d = 9.999999999999999999999999999999999E6001d;
     f = <float> d;
     assertEquality(float:Infinity, f);
+
+    d = -9.999999999999999999999999999999999E6001d;
+    f = <float> d;
+    assertEquality(-float:Infinity, f);
 }
 
 function testFloatToDecimalCasting() {

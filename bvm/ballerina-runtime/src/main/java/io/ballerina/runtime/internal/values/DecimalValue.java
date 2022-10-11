@@ -50,13 +50,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
     private static final String INF_STRING = "Infinity";
     private static final String NEG_INF_STRING = "-" + INF_STRING;
     private static final String NAN = "NaN";
-
     private static final BigDecimal DECIMAL_MAX =
             new BigDecimal("9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
-
     private static final BigDecimal DECIMAL_MIN =
             new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
-
 
     // Variable used to track the kind of a decimal value.
     @Deprecated
