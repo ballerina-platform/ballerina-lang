@@ -171,20 +171,21 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
         Project project;
         Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+
         if (optionalProject.isPresent()) {
             project = optionalProject.get();
         } else {
             project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
-        }
 
-        BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
-        DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
-                filePath.toUri().toString(),
-                languageServer.getWorkspaceManager(),
-                LSContextOperation.LOAD_PROJECT, this.serverContext);
-        EventSyncPubSubHolder.getInstance(this.serverContext)
-                .getPublisher(EventKind.PROJECT_UPDATE)
-                .publish(languageServer.getClient(), this.serverContext, context);
+            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    filePath.toUri().toString(),
+                    languageServer.getWorkspaceManager(),
+                    LSContextOperation.LOAD_PROJECT, this.serverContext);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(languageServer.getClient(), this.serverContext, context);
+        }
 
         return project;
     }
