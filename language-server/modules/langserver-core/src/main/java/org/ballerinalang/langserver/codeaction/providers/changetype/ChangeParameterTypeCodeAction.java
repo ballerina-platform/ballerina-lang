@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -30,11 +31,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -47,6 +50,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -125,12 +129,19 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
         // Derive possible types
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
-        for (String type : types) {
+        Map<TypeSymbol, String> types = CodeActionUtil.getPossibleTypeSymbols(typeSymbol.get(), importEdits, context);
+        for (Map.Entry<TypeSymbol, String> entry : types.entrySet()) {
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(paramTypeRange.get(), type));
+            edits.add(new TextEdit(paramTypeRange.get(), entry.getValue()));
+
+            //Check if the parameter is a defaultable parameter and change the default value accordingly.
+            if (node.get().kind() == SyntaxKind.DEFAULTABLE_PARAM) {
+                Range defaultValRange = PositionUtil.toRange(((DefaultableParameterNode) node.get()).expression().lineRange());
+                edits.add(new TextEdit(defaultValRange,
+                        DefaultValueGenerationUtil.getDefaultValueForType(entry.getKey()).orElse("")));
+            }
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                    type);
+                    entry.getValue());
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
