@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -122,6 +123,7 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -3625,6 +3627,46 @@ public class FormattingTreeModifier extends TreeModifier {
         return formatToken(token, env.trailingWS, env.trailingNL);
     }
 
+
+    @Override
+    public ModuleClientDeclarationNode transform(
+            ModuleClientDeclarationNode moduleClientDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
+        Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
+        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
+        Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
+        IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
+        Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
+                                           env.trailingNL);
+        return moduleClientDeclarationNode.modify()
+                .withAnnotations(annotations)
+                .withClientKeyword(clientKeyword)
+                .withClientUri(clientUri)
+                .withAsKeyword(asKeyword)
+                .withClientPrefix(clientPrefix)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
+        NodeList<AnnotationNode> annotations = formatNodeList(clientDeclarationNode.annotations(), 1, 0, 1, 0);
+        Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
+        BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
+        Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
+        IdentifierToken prefix = formatNode(clientDeclarationNode.clientPrefix(), 0, 0);
+        Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
+
+        return clientDeclarationNode.modify()
+                .withAnnotations(annotations)
+                .withClientKeyword(clientKeyword)
+                .withClientUri(clientUri)
+                .withAsKeyword(asKeyword)
+                .withClientPrefix(prefix)
+                .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
     // ------------------------------------- Set of private helper methods -------------------------------------
 
     /**
@@ -4418,52 +4460,88 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Check whether a node list needs to be expanded into multiple lines.
+     * Check whether the node needs to be expanded in to multiple lines.
      *
-     * @param node node to be expanded
-     * @return <code>true</code> If the node list needs to be expanded into multiple lines.
+     * @param node Node
+     * @return <code>true</code> If the node needs to be expanded in to multiple lines.
      *         <code>false</code> otherwise
      */
     private boolean shouldExpand(Node node) {
-        return node.toSourceCode().trim().contains(System.lineSeparator());
-    }
+        switch (node.kind()) {
+            case OBJECT_TYPE_DESC:
+                ObjectTypeDescriptorNode objectTypeDesc = (ObjectTypeDescriptorNode) node;
+                if (objectTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+                    return true;
+                }
 
-    /**
-     * Check whether an object type descriptor needs to be expanded in to multiple lines.
-     *
-     * @param objectTypeDesc Object type descriptor
-     * @return <code>true</code> If the object type descriptor needs to be expanded in to multiple lines.
-     *         <code>false</code> otherwise
-     */
-    private boolean shouldExpand(ObjectTypeDescriptorNode objectTypeDesc) {
-        if (objectTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
-            return true;
+                if (hasNonWSMinutiae(objectTypeDesc.openBrace().trailingMinutiae())
+                        || hasNonWSMinutiae(objectTypeDesc.closeBrace().leadingMinutiae())) {
+                    return true;
+                }
+
+                NodeList<Node> objectTypeDescMembers = objectTypeDesc.members();
+                return shouldExpandObjectMembers(objectTypeDescMembers);
+            case OBJECT_CONSTRUCTOR:
+                ObjectConstructorExpressionNode objectConstructor = (ObjectConstructorExpressionNode) node;
+                if (hasNonWSMinutiae(objectConstructor.openBraceToken().trailingMinutiae())
+                        || hasNonWSMinutiae(objectConstructor.closeBraceToken().leadingMinutiae())) {
+                    return true;
+                }
+
+                NodeList<Node> objectConstructorMembers = objectConstructor.members();
+                return shouldExpandObjectMembers(objectConstructorMembers);
+            case RECORD_TYPE_DESC:
+                if (options.getForceFormattingOptions().getForceFormatRecordFields()) {
+                    return true;
+                }
+
+                RecordTypeDescriptorNode recordTypeDesc = (RecordTypeDescriptorNode) node;
+                if (recordTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+                    return true;
+                }
+
+                if (hasNonWSMinutiae(recordTypeDesc.bodyStartDelimiter().trailingMinutiae())
+                        || hasNonWSMinutiae(recordTypeDesc.bodyEndDelimiter().leadingMinutiae())) {
+                    return true;
+                }
+
+                for (Node field : recordTypeDesc.fields()) {
+                    if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
+                            || field.toSourceCode().contains(System.lineSeparator())) {
+                        return true;
+                    }
+                }
+                return false;
+            case LET_EXPRESSION:
+                LetExpressionNode letExpressionNode = (LetExpressionNode) node;
+                SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
+                        letExpressionNode.letVarDeclarations();
+                LetVariableDeclarationNode lastLetVarDeclarationNode =
+                        letVarDeclarations.get(letVarDeclarations.size() - 1);
+
+                return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
+                        || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
+            case ENUM_DECLARATION:
+                EnumDeclarationNode enumDeclarationNode = (EnumDeclarationNode) node;
+                SeparatedNodeList<Node> enumMemberList = enumDeclarationNode.enumMemberList();
+                for (int index = 0; index < enumMemberList.size() - 1; index++) {
+                    Token separator = enumMemberList.getSeparator(index);
+                    if (hasNonWSMinutiae(separator.leadingMinutiae()) || hasNonWSMinutiae(separator.trailingMinutiae())
+                            || separator.toSourceCode().contains(System.lineSeparator())) {
+                        return true;
+                    }
+                }
+                return false;
+            case MAPPING_CONSTRUCTOR:
+                MappingConstructorExpressionNode mappingConstructorExpressionNode =
+                        (MappingConstructorExpressionNode) node;
+                return mappingConstructorExpressionNode.toSourceCode().trim().contains(System.lineSeparator());
+            case LIST_CONSTRUCTOR:
+                ListConstructorExpressionNode listConstructorExpressionNode = (ListConstructorExpressionNode) node;
+                return listConstructorExpressionNode.toSourceCode().trim().contains(System.lineSeparator());
+            default:
+                return false;
         }
-
-        if (hasNonWSMinutiae(objectTypeDesc.openBrace().trailingMinutiae())
-                || hasNonWSMinutiae(objectTypeDesc.closeBrace().leadingMinutiae())) {
-            return true;
-        }
-
-        NodeList<Node> members = objectTypeDesc.members();
-        return shouldExpandObjectMembers(members);
-    }
-
-    /**
-     * Check whether an object constructor expression node needs to be expanded in to multiple lines.
-     *
-     * @param objectConstructor Object constructor expression node
-     * @return <code>true</code> If the object constructor expression node needs to be expanded in to multiple lines.
-     *         <code>false</code> otherwise
-     */
-    private boolean shouldExpand(ObjectConstructorExpressionNode objectConstructor) {
-        if (hasNonWSMinutiae(objectConstructor.openBraceToken().trailingMinutiae())
-                || hasNonWSMinutiae(objectConstructor.closeBraceToken().leadingMinutiae())) {
-            return true;
-        }
-
-        NodeList<Node> members = objectConstructor.members();
-        return shouldExpandObjectMembers(members);
     }
 
     private boolean shouldExpandObjectMembers(NodeList<Node> members) {
@@ -4472,66 +4550,6 @@ public class FormattingTreeModifier extends TreeModifier {
                     || hasNonWSMinutiae(member.leadingMinutiae())
                     || hasNonWSMinutiae(member.trailingMinutiae())
                     || member.toSourceCode().contains(System.lineSeparator())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check whether a record type descriptor needs to be expanded in to multiple lines.
-     *
-     * @param recordTypeDesc Record type descriptor
-     * @return <code>true</code> If the record type descriptor needs to be expanded in to multiple lines.
-     *         <code>false</code> otherwise
-     */
-    private boolean shouldExpand(RecordTypeDescriptorNode recordTypeDesc) {
-        if (recordTypeDesc.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
-            return true;
-        }
-
-        if (hasNonWSMinutiae(recordTypeDesc.bodyStartDelimiter().trailingMinutiae())
-                || hasNonWSMinutiae(recordTypeDesc.bodyEndDelimiter().leadingMinutiae())) {
-            return true;
-        }
-
-        for (Node field : recordTypeDesc.fields()) {
-            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
-                    || field.toSourceCode().contains(System.lineSeparator())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check whether a let expression needs to be expanded in to multiple lines.
-     *
-     * @param letExpressionNode Let Expression
-     * @return <code>true</code> If the let expression needs to be expanded in to multiple lines.
-     *         <code>false</code> otherwise
-     */
-    private boolean shouldExpand(LetExpressionNode letExpressionNode) {
-        SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations = letExpressionNode.letVarDeclarations();
-        LetVariableDeclarationNode lastLetVarDeclarationNode = letVarDeclarations.get(letVarDeclarations.size() - 1);
-
-        return hasNonWSMinutiae(lastLetVarDeclarationNode.trailingMinutiae())
-                || lastLetVarDeclarationNode.toSourceCode().contains(System.lineSeparator());
-    }
-
-    /**
-     * Check whether an enum declaration needs to be expanded in to multiple lines.
-     *
-     * @param enumDeclarationNode Enum declaration
-     * @return <code>true</code> If the enum declaration needs to be expanded in to multiple lines.
-     *         <code>false</code> otherwise
-     */
-    private boolean shouldExpand(EnumDeclarationNode enumDeclarationNode) {
-        SeparatedNodeList<Node> enumMemberList = enumDeclarationNode.enumMemberList();
-        for (int index = 0; index < enumMemberList.size() - 1; index++) {
-            Token separator = enumMemberList.getSeparator(index);
-            if (hasNonWSMinutiae(separator.leadingMinutiae()) || hasNonWSMinutiae(separator.trailingMinutiae())
-                    || separator.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }

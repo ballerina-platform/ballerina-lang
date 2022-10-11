@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -465,14 +466,21 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // Lookup for an imported package
         ScopeEntry entry = env.scope.lookup(pkgAlias);
         while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.XMLNS) == SymTag.XMLNS) {
-                return entry.symbol;
+            BSymbol symbol = entry.symbol;
+            int tag = symbol.tag;
+
+            if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
+                return symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((tag & SymTag.CLIENT_DECL) == SymTag.CLIENT_DECL) {
+                return resolveClientDeclPrefix(symbol);
+            }
+
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) symbol).isUsed = true;
+                return symbol;
             }
 
             entry = entry.next;
@@ -2583,6 +2591,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
+    public BPackageSymbol getModuleForPackageId(PackageID packageID) {
+        return symTable.pkgEnvMap.keySet().stream()
+                .filter(moduleSymbol -> packageID.equals(moduleSymbol.pkgID))
+                .findFirst()
+                .get();
+    }
+
     public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList,
                                                           List<BLangExpression> interpolationsList) {
         for (BLangExpression seq : sequenceList) {
@@ -2632,6 +2647,28 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             this.paramValueType = paramValueType;
             this.index = index;
         }
+    }
+
+    public BSymbol resolveClientDeclPrefix(BSymbol symbol) {
+        LineRange lineRange = symbol.pos.lineRange();
+        if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
+                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
+            return symTable.notFoundSymbol;
+        }
+        Map<LineRange, Optional<PackageID>> clientDeclarations =
+                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().filePath());
+        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
+            return symTable.notFoundSymbol;
+        }
+
+        Optional<PackageID> optionalPackageID = clientDeclarations.get(lineRange);
+        if (optionalPackageID.isEmpty()) {
+            return symTable.notFoundSymbol;
+        }
+
+        BPackageSymbol moduleSymbol = getModuleForPackageId(optionalPackageID.get());
+        moduleSymbol.isUsed = true;
+        return moduleSymbol;
     }
 
     /**

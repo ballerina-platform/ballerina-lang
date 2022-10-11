@@ -69,6 +69,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_UNINITIALIZED_FIELD("BCE2035", "object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("BCE2036", "cyclic.type.reference"),
     ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL("BCE2037", "attempt.refer.non.accessible.symbol"),
+    CANNOT_USE_FIELD_ACCESS_TO_ACCESS_A_REMOTE_METHOD("BCE2038", "cannot.use.field.access.to.access.a.remote.method"),
     UNDEFINED_PARAMETER("BCE2039", "undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("BCE2040", "attached.functions.must.have.body"),
     INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR("BCE2041", "illegal.init.method.in.object.type.descriptor"),
@@ -778,9 +779,22 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
     OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
+
     INVALID_START_CHAR_CODE_IN_RANGE("BCE4035", "invalid.start.char.code.in.range"),
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
+
+    INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER(
+            "BCE4038", "invalid.usage.of.the.client.keyword.as.an.unquoted.identifier"),
+    INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION("BCE4039", "invalid.non.anydata.client.decl.annotation"),
+    NO_MODULE_GENERATED_FOR_CLIENT_DECL("BCE4040", "no.module.generated.for.client.decl"),
+    UNUSED_CLIENT_DECL_PREFIX("BCE4041", "unused.client.decl.prefix"),
+    UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL(
+            "BCE4042", "unsupported.exposure.of.construct.from.module.generated.for.client.decl"),
+    MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE(
+            "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
+    MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
+            "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state")
     ;
 
     private String diagnosticId;

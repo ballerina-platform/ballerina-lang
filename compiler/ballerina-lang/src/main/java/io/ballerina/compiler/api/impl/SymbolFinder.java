@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -172,6 +173,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPattern
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -287,6 +289,20 @@ class SymbolFinder extends BaseVisitor {
         }
 
         lookupNode(xmlnsNode.namespaceURI);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        lookupNode(clientDeclarationStatement.getClientDeclaration());
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclNode) {
+        if (setEnclosingNode(clientDeclNode.symbol, clientDeclNode.prefix.pos)) {
+            return;
+        }
+
+        lookupNode((BLangNode) clientDeclNode.getUri());
     }
 
     @Override
@@ -1606,14 +1622,20 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        if (setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.pos)) {
-            return;
-        }
         lookupNodes(resourceAccessInvocation.annAttachments);
-        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments); //TODO: Need symbols for path segments (#37604)
         lookupNodes(resourceAccessInvocation.requiredArgs);
         lookupNodes(resourceAccessInvocation.restArgs);
         lookupNode(resourceAccessInvocation.expr);
+
+        // The assumption is that if it's moduled-qualified, it must be a public symbol.
+        // Hence, the owner would be a package symbol.
+        if (resourceAccessInvocation.symbol != null &&
+                setEnclosingNode(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos)) {
+            return;
+        }
+
+        setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
     }
 
     @Override

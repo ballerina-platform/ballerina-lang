@@ -187,7 +187,7 @@ public class ServiceClassTest {
         BAssertUtil.validateError(result, index++,
                 "redeclared symbol 'name'", 39, 69);
         BAssertUtil.validateError(result, index++,
-                "redeclared symbol '$anonType$_2.$get$path$*$foo2'", 43, 27);
+                "redeclared symbol '$anonType$_2.$get$path$^$foo2'", 43, 27);
         BAssertUtil.validateError(result, index++,
                 "resource path segment is not allowed after resource path rest parameter",
                 47, 47);
@@ -210,7 +210,7 @@ public class ServiceClassTest {
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path " +
                         "params, found 'xml'", 71, 41);
         BAssertUtil.validateError(result, index++,
-                "redeclared symbol '$anonType$_2.$get$xmlPath2$*'", 75, 27);
+                "redeclared symbol '$anonType$_2.$get$xmlPath2$^'", 75, 27);
         BAssertUtil.validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path" +
                         " params, found 'xml'", 75, 41);
