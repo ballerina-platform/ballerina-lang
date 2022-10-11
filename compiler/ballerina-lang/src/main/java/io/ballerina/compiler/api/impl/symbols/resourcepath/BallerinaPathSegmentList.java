@@ -75,11 +75,11 @@ public class BallerinaPathSegmentList implements PathSegmentList {
         for (int i = 0; i < segments.size(); i++) {
             Name internalSegment = segments.get(i);
             switch (internalSegment.value) {
-                case "*":
+                case "^":
                     pathParams.add(symbolFactory.createPathParamSymbol(
                             this.internalPathParams.get(internalPathParamCount++), PathSegment.Kind.PATH_PARAMETER));
                     break;
-                case "$*":
+                case "$^":
                     pathParams.add(
                             symbolFactory.createPathParamSymbol(this.resourcePathType.getTupleTypes().get(i).tsymbol,
                                     PathSegment.Kind.PATH_PARAMETER)
@@ -120,6 +120,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
             Name internalSegment = names.get(i);
             PathSegment segment;
             switch (internalSegment.value) {
+                case "$^":
                 case "^":
                     segment = pathParams.get(pathParamCount++);
                     break;
