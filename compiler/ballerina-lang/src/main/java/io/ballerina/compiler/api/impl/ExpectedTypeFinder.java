@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -11,7 +11,7 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -20,57 +20,14 @@ package io.ballerina.compiler.api.impl;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
-import io.ballerina.compiler.syntax.tree.MatchClauseNode;
-import io.ballerina.compiler.syntax.tree.MatchStatementNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SelectClauseNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.WaitActionNode;
-import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -149,8 +106,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+        // TODO remove this after fix #mention issue
         if (bLangNode == null) {
-            return Optional.empty();
+            Optional<Symbol> symbol = this.getSymbolByName(node.name().text());
+            if (symbol.isEmpty()) {
+                return Optional.empty();
+            }
+
+            return SymbolUtils.getTypeDescriptor(symbol.get());
         }
 
         return getExpectedType(bLangNode);
@@ -240,7 +203,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (!(bLangNode instanceof BLangSimpleVarRef)) {
+        if (bLangNode == null) {
             return Optional.empty();
         }
 
@@ -367,7 +330,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                                     (((BArrayType) ((BLangInvocation) bLangNode).expr.expectedType).eType));
                         }
 
-                        return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argumentIndex));
+                        return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argumentIndex-1));
                     }
 
                     if ((((BLangInvocation) bLangNode).argExprs.get(argumentIndex).expectedType == null)) {
@@ -502,12 +465,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (isWithinParenthesis(linePosition, parenthesizedArgList.openParenToken(),
                 parenthesizedArgList.closeParenToken())) {
             if (bLangNode instanceof BLangTypeInit) {
-                List<BVarSymbol> params = ((BInvokableSymbol) ((BLangTypeInit) bLangNode).initInvocation.symbol).params;
+                List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
+                        initInvocation).symbol)).params;
                 int argIndex = 0;
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
                     if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
-                        if (!(argIndex < params.size())) {
-                            throw new IllegalStateException();
+                        if (argIndex < params.size()) {
+                            return getTypeFromBType(params.get(argIndex).getType());
                         }
 
                         break;
@@ -515,8 +479,6 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
                     argIndex += 1;
                 }
-
-                return getTypeFromBType(params.get(argIndex).getType());
             }
         }
 
@@ -535,16 +497,16 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (parenthesizedArgList.isPresent() && isWithinParenthesis(linePosition,
                 parenthesizedArgList.get().openParenToken(),
                 parenthesizedArgList.get().closeParenToken())) {
-            if (bLangNode instanceof BLangTypeInit && ((BLangTypeInit) bLangNode).initInvocation.symbol != null) {
-                List<BVarSymbol> params = ((BInvokableSymbol) ((BLangTypeInit) bLangNode).initInvocation.symbol).params;
+            if (bLangNode instanceof BLangTypeInit && (BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
+                    initInvocation).symbol) != null) {
+                List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
+                        initInvocation).symbol)).params;
                 int argIndex = 0;
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
                     if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
-                        if (!(argIndex < params.size())) {
-                            throw new IllegalStateException();
+                        if (argIndex < params.size()) {
+                            return getTypeFromBType(params.get(argIndex).getType());
                         }
-
-                        return getTypeFromBType(params.get(argIndex).getType());
                     }
 
                     argIndex += 1;
@@ -904,6 +866,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         return Optional.empty();
+    }
+
+    private Optional<Symbol> getSymbolByName(String name) {
+        return this.semanticModel.visibleSymbols(document, linePosition).stream()
+                .filter((symbol -> symbol.getName().orElse("").equals(name)))
+                .findFirst();
     }
 
     private Optional<Symbol> getSymbolByName(String name, Predicate<Symbol> predicate) {
