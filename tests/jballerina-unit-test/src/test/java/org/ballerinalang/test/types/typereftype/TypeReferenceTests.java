@@ -51,6 +51,16 @@ public class TypeReferenceTests {
         BRunUtil.invoke(result, "testUnionTypeRefWithMap");
     }
 
+    @Test
+    public void testObjectTypeReferenceType() {
+        BRunUtil.invoke(result, "testObjectTypeReferenceType");
+    }
+
+    @Test
+    public void testTableTypeReferenceType() {
+        BRunUtil.invoke(result, "testTableTypeReferenceType");
+    }
+
     @Test(description = "Test basics types")
     public void testNegative() {
         final CompileResult compileResult = BCompileUtil.compile("test-src/types/typereftype/typeref_negative.bal");
