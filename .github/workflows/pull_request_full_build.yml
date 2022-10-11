@@ -1,0 +1,110 @@
+name: CI Full Build Ubuntu
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-lang:
+    name: Build Ballerina Lang
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Clone Ballerina Lang Repository
+        run: git clone https://github.com/${{ github.repository_owner }}/ballerina-lang.git
+
+      - name: Checkout To Lang Branch
+        run: |
+          cd ballerina-lang
+          git checkout ${{ github.event.inputs.ballerina_lang_branch }}
+      - name: Get Lang Version
+        id: lang-version
+        run: |
+          VERSION=$((grep -w "version" | cut -d= -f2) < ballerina-lang/gradle.properties)
+          echo "::set-output name=version::$VERSION"
+      - name: Build ballerina-lang
+        run: |
+          cd ballerina-lang
+          ./gradlew clean build -x check publishToMavenLocal --stacktrace --scan
+      - name: Archive Lang Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+
+    outputs:
+      lang_version: ${{ steps.lang-version.outputs.version }}
+
+  build-stdlib-level:
+    needs: build-lang
+    name: Build Stdlib Level
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        level: [1, 2, 3, 4, 5, 6, 7, 8]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Download Ballerina Lang Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+
+      - name: Download Module Data
+        run: |
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
+      - name: Clone Modules
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
+          do git clone https://github.com/ballerina-platform/${module_name}.git; \
+          done
+      - name: Update Lang Version in Module
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" ${module_name}/gradle.properties; \
+          done
+      - name: Build Module
+        run: |
+          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
+          echo "Building Standard Library: $module_name" && \
+          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
+          done
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+
+  build-distribution:
+    needs: build-lang
+    name: Build Ballerina Distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Download Ballerina Lang Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: Ballerina Lang Artifacts
+          path: ~/.m2/
+      - name: Clone Distribution
+        run: git clone https://github.com/ballerina-platform/ballerina-distribution.git
+      - name: Update Lang Version in Module
+        working-directory: ./ballerina-distribution
+        run: |
+          perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
+      - name: Build Module
+        working-directory: ./ballerina-distribution
+        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue
+        env:
+          packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+          devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}
