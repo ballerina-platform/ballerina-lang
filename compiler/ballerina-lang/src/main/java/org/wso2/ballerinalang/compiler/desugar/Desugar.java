@@ -9363,7 +9363,7 @@ public class Desugar extends BLangNodeVisitor {
 
         String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
         BVarSymbol errorVarSymbol;
-        if (!isCheckPanicExpr && this.onFailClause != null) {
+        if (!isCheckPanicExpr && this.onFailClause != null && invokableSymbol.origin != VIRTUAL) {
             errorVarSymbol = onFailClauseErrorVariable.computeIfAbsent(this.onFailClause,
                     k -> new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
                             this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL));
@@ -9382,7 +9382,7 @@ public class Desugar extends BLangNodeVisitor {
         if (!isCheckPanicExpr && (returnOnError || this.onFailClause != null)) {
             // fail e;
             BLangFail failStmt;
-            if (this.onFailClause != null) {
+            if (this.onFailClause != null && invokableSymbol.origin != VIRTUAL) {
                 failStmt = bLangFailNodeByOnFailClause.computeIfAbsent(this.onFailClause,
                         k -> (BLangFail) TreeBuilder.createFailNode());
             } else {
