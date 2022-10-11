@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -216,7 +217,7 @@ public class JvmCreateTypeGen {
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
-            BType bType = optionalTypeDef.type;
+            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
             if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
                     bType.tag != TypeTags.UNION && bType.tag != TypeTags.TUPLE) {
                         // do not generate anything for other types (e.g.: finite type, etc.)
@@ -269,7 +270,7 @@ public class JvmCreateTypeGen {
         Map<String, String> funcTypeClassMap = new HashMap<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
             if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE)) {
                 continue;
