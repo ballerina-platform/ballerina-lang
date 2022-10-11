@@ -257,12 +257,10 @@ public class NativeUtils {
         }
 
         public String getName() {
-
             return name;
         }
 
         public String[] getParameterTypes() {
-
             return parameterTypes;
         }
     }
@@ -289,12 +287,10 @@ public class NativeUtils {
         }
 
         public String getName() {
-
             return name;
         }
 
         public String[] getLocales() {
-
             return locales;
         }
     }

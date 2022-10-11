@@ -65,7 +65,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 /**
  * Task for executing tests.
  *
- * @since 2.0.0
+ * @since 2.3.0
  */
 public class RunNativeImageTestTask implements Task {
     private final PrintStream out;
