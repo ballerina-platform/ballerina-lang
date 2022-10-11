@@ -119,6 +119,14 @@ public class StaticMethods {
         return s1 + s2 + s3;
     }
 
+    public static BDecimal getBDecimalValue() {
+        return ValueCreator.createDecimalValue("5.0");
+    }
+
+    public static BDecimal getNullInsteadOfBDecimal() {
+        return null;
+    }
+
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(BString key, MapValue mapValue) {
         ArrayValue arrayValue = (ArrayValue) ValueCreator.createArrayValue(intArrayType);
