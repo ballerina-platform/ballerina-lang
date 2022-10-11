@@ -122,3 +122,13 @@ function assignErrorToUnionWithErrorArray() {
 function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
     function (any|error...) returns () func = function (any... y) {};
 }
+
+function assignTableCtrToIncompatibleType() {
+    record{int a;} b = {a: 1};
+    b.a = table[]; // error
+
+    [int, string] a = [1, "a"];
+    a[0] = table[]; // error
+
+    record {|int x;|} x = table []; // error
+}
