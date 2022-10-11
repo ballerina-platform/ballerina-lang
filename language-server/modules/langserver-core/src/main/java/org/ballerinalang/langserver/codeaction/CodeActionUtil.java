@@ -83,7 +83,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -255,12 +254,14 @@ public class CodeActionUtil {
             Optional<TypeSymbol> firstFieldType =
                     recordTypeSymbol.fieldDescriptors().values().stream().findFirst()
                             .map(RecordFieldSymbol::typeDescriptor);
-            boolean isConstrainedMap = firstFieldType.map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
+            boolean isConstrainedMap = firstFieldType
+                    .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
                     .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
                             type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
             if (isConstrainedMap) {
                 String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
-                typesMap.put(types.builder().MAP_TYPE.withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
+                typesMap.put(types.builder().MAP_TYPE
+                        .withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
                 return typesMap;
             }
             typesMap.put(types.builder().MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
@@ -300,7 +301,8 @@ public class CodeActionUtil {
                         typesMap.put(newArrType, signature);
                     });
         } else {
-            typesMap.put(typeDescriptor, FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
+            typesMap.put(typeDescriptor, 
+                    FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
         return typesMap;
     }
