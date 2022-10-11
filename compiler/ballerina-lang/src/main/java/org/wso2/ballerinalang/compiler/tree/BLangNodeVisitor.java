@@ -93,11 +93,24 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangChannelLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -150,6 +163,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -217,6 +231,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangClientDeclaration clientDeclaration) {
         throw new AssertionError();
     }
 
@@ -326,6 +344,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
         throw new AssertionError();
     }
 
@@ -1048,6 +1070,58 @@ public abstract class BLangNodeVisitor {
     }
     
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReSequence reSequence) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReQuantifier reQuantifier) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReCharSet reCharSet) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReAssertion reAssertion) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReDisjunction reDisjunction) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangReFlagExpression reFlagsOnOff) {
         throw new AssertionError();
     }
 }
