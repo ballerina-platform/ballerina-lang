@@ -159,9 +159,10 @@ public class JsonToRecordMapper {
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
         try {
+            ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder()
+                    .setForceFormatRecordFields(forceFormatRecordFields).build();
             FormattingOptions formattingOptions = FormattingOptions.builder()
-                    .setForceFormattingOptions(ForceFormattingOptions.builder()
-                            .setForceFormatRecordFields(forceFormatRecordFields).build()).build();
+                    .setForceFormattingOptions(forceFormattingOptions).build();
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } catch (FormatterException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
