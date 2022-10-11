@@ -45,11 +45,12 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-//                {"changeParamType1.json"},
-//                {"changeParamType2.json"},
-//                {"changeParamType3.json"},
-//                {"changeParamTypeInService1.json"},
-                {"changeParamTypeWithDefaultable.json"}
+                {"changeParamType1.json"},
+                {"changeParamType2.json"},
+                {"changeParamType3.json"},
+                {"changeParamTypeInService1.json"},
+                {"changeParamTypeWithDefaultable.json"},
+                {"changeParamTypeRestParam.json"}
         };
     }
 }
