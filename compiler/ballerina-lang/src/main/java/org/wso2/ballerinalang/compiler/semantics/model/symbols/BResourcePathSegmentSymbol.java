@@ -30,6 +30,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
  * @since 2201.3.1
  */
 public class BResourcePathSegmentSymbol extends BSymbol {
+    /**
+     * If the path segment is not the first segment, then the parentResource will not be null.
+     */
     public BResourcePathSegmentSymbol parentResource;
     public BResourceFunction resourceMethod;
     
