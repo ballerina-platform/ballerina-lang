@@ -22,12 +22,13 @@ def main():
             dec_file.write(decrypted)
 
         for owner in owners:
-            with open('dependabot/resources/github_users_decrypted.csv', 'r') as read_obj:
+            with open('.github/scripts/resources/github_users_decrypted.csv', 'r') as read_obj:
                 user_file = csv.DictReader(read_obj)
                 owner = owner.strip()
                 for row in user_file:
                     if row['gh-username'] == owner:
                         message += "<users/" + row['user-id'] + ">" + "\n"
+                        break
 
         send_message(message)
     except:

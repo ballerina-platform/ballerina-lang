@@ -40,18 +40,15 @@ jobs:
       - name: Notify failure
         if: ${{ failure() }}
         run: |
-          curl -X POST \
-          'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
-          -H 'Accept: application/vnd.github.v3+json' \
-          -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-          --data "{
-            \"event_type\": \"notify-build-failure\",
-            \"client_payload\": {
-              \"repoName\": \"ballerina-lang\",
-              \"workflow\": \"Daily build\",
-              \"branch\": \"master\"
-            }
-          }"
+          pip install cryptography
+          pip install httplib2
+          pip install PyGithub
+          python3 .github/scripts/notify_build_failure.py
+        env:
+          ENV_CHAT_ID: ${{ secrets.NOTIFICATIONS_CHAT_ID }}
+          ENV_CHAT_KEY: ${{ secrets.NOTIFICATIONS_CHAT_KEY }}
+          ENV_CHAT_TOKEN: ${{ secrets.NOTIFICATIONS_CHAT_TOKEN }}
+          ENV_USER_ENCRYPTION_KEY: ${{secrets.USER_ENCRYPTION_KEY}}
 
   sonarcloud_scan:
     name: Build with sonarcloud scan on Ubuntu
