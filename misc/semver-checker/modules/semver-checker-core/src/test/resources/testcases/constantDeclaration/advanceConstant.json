@@ -166,5 +166,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical constant definitions",
+    "oldCode": "const int id = 100;",
+    "newCode": "const  int  id  =  100;",
+    "expectedOutput": "No Changes"
   }
 ]
