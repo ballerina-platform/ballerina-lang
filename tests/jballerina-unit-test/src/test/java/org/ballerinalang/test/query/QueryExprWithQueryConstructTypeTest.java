@@ -54,9 +54,17 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
-    @Test(description = "Test query expr returning a stream ")
-    public void testSimpleQueryReturnStream2() {
-        BRunUtil.invoke(result, "testSimpleQueryReturnStream2");
+    @Test(description = "Test query expr returning a stream", dataProvider = "SimpleQueryReturnStreamFunctionList")
+    public void testQueryReturnStream(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
+    public Object[][] SimpleQueryReturnStreamFunctionList() {
+        return new Object[][]{
+                {"testSimpleQueryReturnStream2"},
+                {"testSimpleQueryReturnStream3"}
+        };
     }
 
     @Test(description = "Test query expr with stream in from clause returning a stream ")

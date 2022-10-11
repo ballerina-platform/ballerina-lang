@@ -175,6 +175,18 @@ function testOptionalFieldAssignment4() {
     assertEquality(t1.toString(), "{\"x\":21}");
 }
 
+type ValueRecord record {|
+    string value;
+|};
+
+type TestStream stream<string, error?>;
+
+class TestGenerator {
+    public isolated function next() returns ValueRecord|error? {
+        return {value: "Ballerina"};
+    }
+}
+
 function testAssignVarInQueryExpression() {
     xml x1 = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
 
@@ -234,6 +246,21 @@ function testAssignVarInQueryExpression() {
     assertTrue(x24 is int[]);
     int[] x25 = x24;
     assertEquality(x25, <int[]>[1, 2, 3, 4]);
+
+    TestGenerator generator = new ();
+    TestStream testStream = new (generator);
+
+    var x26 = from var _ in testStream select "A";
+    assertTrue(x26 is stream<string, error?>);
+
+    var x27 = from var _ in testStream select 1;
+    assertTrue(x27 is stream<int, error?>);
+
+    var x28 = stream from var _ in testStream select "A";
+    assertTrue(x28 is stream<string, error?>);
+
+    var x29 = stream from var _ in testStream select 1;
+    assertTrue(x29 is stream<int, error?>);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

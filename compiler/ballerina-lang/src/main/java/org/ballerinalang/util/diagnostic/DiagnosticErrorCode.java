@@ -795,8 +795,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
             "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4035", "invalid.error.query.construct.type"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4036", "invalid.error.query.construct.map.type");
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4045", "invalid.error.query.construct.type"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4046", "invalid.error.query.construct.map.type");
     ;
 
     private String diagnosticId;

@@ -163,6 +163,43 @@ function testSimpleQueryReturnStream2() {
     assertTrue(testPassed);
 }
 
+type ValueRecord record {|
+    string value;
+|};
+
+type TestStream stream<string, error?>;
+
+class TestGenerator {
+    public isolated function next() returns ValueRecord|error? {
+        return {value: "Ballerina"};
+    }
+}
+
+function testSimpleQueryReturnStream3() {
+    TestGenerator generator = new ();
+    TestStream testStream = new (generator);
+
+    var outputIntPersonStream = from var _ in testStream select 1;
+    assertTrue(outputIntPersonStream is stream<int, error?>);
+    stream<int, error?> _ = outputIntPersonStream;
+    (record {| int value; |}|error)? x1 = outputIntPersonStream.next();
+    if (x1 is record {| int value; |}) {
+        assertEqual(x1.value, 1);
+    } else {
+        assertTrue(false);
+    }
+
+    var outputStringPersonStream = from var _ in testStream select "ABCD";
+    assertTrue(outputStringPersonStream is stream<string, error?>);
+    stream<string, error?> _ = outputStringPersonStream;
+    (record {| string value; |}|error)? x2 = outputStringPersonStream.next();
+    if (x2 is record {| string value; |}) {
+        assertEqual(x2.value, "ABCD");
+    } else {
+        assertTrue(false);
+    }
+}
+
 function testStreamInFromClauseWithReturnStream() returns boolean {
     boolean testPassed = true;
 
