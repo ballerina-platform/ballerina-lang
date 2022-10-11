@@ -621,6 +621,41 @@ function testCastingFromSuperStreamType() {
     var _ = <stream<int, error?>>localEvenNumberStream;
 }
 
+type MyIntStream stream<int>;
+
+public type ObjectType object {
+    public isolated function next() returns record {|int value;|}?;
+};
+
+function testStreamsTypeAsTypeReference() {
+    var intGenObj = object {
+        int number = 0;
+        public isolated function next() returns record {|int value;|}? {
+            self.number += 1;
+            return {value: self.number};
+        }
+    };
+
+    MyIntStream strm = new (intGenObj);
+    assertValueEquality(1, getGenericRecordValue(strm.next()));
+    assertValueEquality(2, getGenericRecordValue(strm.next()));
+    
+    MyIntStream strm2 = new;
+    assertValueEquality((), strm2.next());
+    
+    ObjectType intGenObj2 = object {
+        int number = 0;
+        public isolated function next() returns record {|int value;|}? {
+            self.number += 1;
+            return {value: self.number};
+        }
+    };
+    
+    MyIntStream strm3 = new(intGenObj2);
+    assertValueEquality(1, getGenericRecordValue(strm3.next()));
+    assertValueEquality(2, getGenericRecordValue(strm3.next()));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

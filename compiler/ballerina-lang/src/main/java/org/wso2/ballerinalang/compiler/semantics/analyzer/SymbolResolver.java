@@ -2598,11 +2598,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 .get();
     }
 
-    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList,
-                                                          List<BLangExpression> interpolationsList) {
+    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList) {
+        List<BLangExpression> interpolationsList = new ArrayList<>();
         for (BLangExpression seq : sequenceList) {
             if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
-                return interpolationsList;
+                continue;
             }
             BLangReSequence sequence = (BLangReSequence) seq;
             for (BLangReTerm term : sequence.termList) {
@@ -2616,8 +2616,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     continue;
                 }
                 if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                    return getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList,
-                            interpolationsList);
+                    interpolationsList.addAll(
+                            getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList));
                 }
             }
         }
