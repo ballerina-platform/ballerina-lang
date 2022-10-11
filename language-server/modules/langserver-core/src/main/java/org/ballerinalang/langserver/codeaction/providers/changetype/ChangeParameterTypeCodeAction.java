@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -31,7 +30,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -136,7 +134,8 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
 
             //Check if the parameter is a defaultable parameter and change the default value accordingly.
             if (node.get().kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-                Range defaultValRange = PositionUtil.toRange(((DefaultableParameterNode) node.get()).expression().lineRange());
+                Range defaultValRange = 
+                        PositionUtil.toRange(((DefaultableParameterNode) node.get()).expression().lineRange());
                 edits.add(new TextEdit(defaultValRange,
                         DefaultValueGenerationUtil.getDefaultValueForType(entry.getKey()).orElse("")));
             }
