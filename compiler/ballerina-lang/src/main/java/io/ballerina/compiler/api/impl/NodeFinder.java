@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -96,8 +97,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -142,6 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -267,6 +282,16 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         lookupNode(xmlnsNode.namespaceURI);
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
+        lookupNode(clientDeclStmt.getClientDeclaration());
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclNode) {
+        lookupNode((BLangNode) clientDeclNode.getUri());
     }
 
     @Override
@@ -1771,6 +1796,105 @@ class NodeFinder extends BaseVisitor {
 
         // Adding this as the last stmt to ensure that var define in on fail clause will also be considered.
         this.enclosingContainer = onFailClause;
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        lookupNode(regExpTemplateLiteral.reDisjunction);
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        lookupNodes(reSequence.termList);
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        if (lookupNode(reAtomQuantifier.atom)) {
+            return;
+        }
+        lookupNode(reAtomQuantifier.quantifier);
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        lookupNode(reAtomCharOrEscape.charOrEscape);
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        if (lookupNode(reQuantifier.quantifier)) {
+            return;
+        }
+        lookupNode(reQuantifier.nonGreedyChar);
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        if (lookupNode(reCharacterClass.characterClassStart)) {
+            return;
+        }
+        if (lookupNode(reCharacterClass.negation)) {
+            return;
+        }
+        if (lookupNode(reCharacterClass.charSet)) {
+            return;
+        }
+        lookupNode(reCharacterClass.characterClassEnd);
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        lookupNodes(reCharSet.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        if (lookupNode(reCharSetRange.lhsCharSetAtom)) {
+            return;
+        }
+        if (lookupNode(reCharSetRange.dash)) {
+            return;
+        }
+        lookupNode(reCharSetRange.rhsCharSetAtom);
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        lookupNode(reAssertion.assertion);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        lookupNode(reCapturingGroups.openParen);
+        if (lookupNode(reCapturingGroups.flagExpr)) {
+            return;
+        }
+        if (lookupNode(reCapturingGroups.disjunction)) {
+            return;
+        }
+        lookupNode(reCapturingGroups.closeParen);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        lookupNodes(reDisjunction.sequenceList);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        lookupNode(reFlagsOnOff.flags);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        if (lookupNode(reFlagExpression.questionMark)) {
+            return;
+        }
+        if (lookupNode(reFlagExpression.flagsOnOff)) {
+            return;
+        }
+        lookupNode(reFlagExpression.colon);
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {

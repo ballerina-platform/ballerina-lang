@@ -99,7 +99,7 @@ public class HoverUtil {
             HoverSymbolResolver symbolResolver =
                     new HoverSymbolResolver(context, semanticModel.get());
             Optional<Symbol> symbol = context.getNodeAtCursor().apply(symbolResolver);
-            if (!symbolResolver.isSymbolReferable()) {
+            if (symbol == null || symbol.isEmpty() || !symbolResolver.isSymbolReferable()) {
                 return hoverObj;
             }
 
@@ -115,7 +115,7 @@ public class HoverUtil {
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);
         }
-        
+
         return hoverObj;
     }
 

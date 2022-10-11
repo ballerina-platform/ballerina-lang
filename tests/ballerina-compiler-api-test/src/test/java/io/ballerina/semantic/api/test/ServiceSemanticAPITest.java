@@ -94,7 +94,7 @@ public class ServiceSemanticAPITest {
         ClassSymbol symbol = (ClassSymbol) model.symbol(srcFile, from(22, 14)).get();
 
         List<String> expMethods = List.of("foo", "get barPath", "get foo/path", "get .", "get foo/baz",
-                                          "get foo/*", "get foo/*/**");
+                                          "get foo/^", "get foo/^/^^");
         assertList(symbol.methods(), expMethods);
 
         MethodSymbol method = symbol.methods().get("foo");
