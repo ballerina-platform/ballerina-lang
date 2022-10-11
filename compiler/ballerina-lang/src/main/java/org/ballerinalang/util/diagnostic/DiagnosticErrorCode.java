@@ -69,6 +69,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_UNINITIALIZED_FIELD("BCE2035", "object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("BCE2036", "cyclic.type.reference"),
     ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL("BCE2037", "attempt.refer.non.accessible.symbol"),
+    CANNOT_USE_FIELD_ACCESS_TO_ACCESS_A_REMOTE_METHOD("BCE2038", "cannot.use.field.access.to.access.a.remote.method"),
     UNDEFINED_PARAMETER("BCE2039", "undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("BCE2040", "attached.functions.must.have.body"),
     INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR("BCE2041", "illegal.init.method.in.object.type.descriptor"),
