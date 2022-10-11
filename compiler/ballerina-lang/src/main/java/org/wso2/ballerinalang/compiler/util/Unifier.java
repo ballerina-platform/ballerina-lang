@@ -983,6 +983,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private boolean refersInferableParamName(List<String> paramsWithInferredTypedescDefault, BType type,
                                              Set<BType> unresolvedTypes) {
+        type = Types.getReferredType(type);
         if (!unresolvedTypes.add(type)) {
             return false;
         }
@@ -1086,9 +1087,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.FUTURE:
                 return refersInferableParamName(paramsWithInferredTypedescDefault, ((BFutureType) type).constraint,
                                                 unresolvedTypes);
-            case TypeTags.TYPEREFDESC:
-                return refersInferableParamName(paramsWithInferredTypedescDefault, Types.getReferredType(type),
-                        unresolvedTypes);
         }
         return false;
     }
