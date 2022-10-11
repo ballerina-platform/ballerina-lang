@@ -422,7 +422,7 @@ public class BIRPackageSymbolEnter {
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 if (isResourceFunction) {
-                    // If it is a resource function, attached type should be and object
+                    // If it is a resource function, attached type should be an object
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
                     int pathParamCount = dataInStream.readInt();
                     List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
