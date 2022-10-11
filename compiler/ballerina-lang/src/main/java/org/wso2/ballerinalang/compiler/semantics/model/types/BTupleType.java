@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
 
-    public List<BTupleMember> tupleTypes;
+    public List<BTupleMember> memberTypes;
     public BType restType;
     public Boolean isAnyData = null;
     public boolean resolvingToString = false;
@@ -45,30 +46,30 @@ public class BTupleType extends BType implements TupleType {
 
     public BTupleType(List<BTupleMember> tupleTypes) {
         super(TypeTags.TUPLE, null);
-        this.tupleTypes = tupleTypes;
+        this.memberTypes = tupleTypes;
     }
 
     public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes) {
         super(TypeTags.TUPLE, tsymbol);
-        this.tupleTypes = tupleTypes;
+        this.memberTypes = tupleTypes;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes, boolean isCyclic) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> memberTypes, boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol);
-        this.tupleTypes = tupleTypes;
+        this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
     }
 
     public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
-        this.tupleTypes = tupleTypes;
+        this.memberTypes = tupleTypes;
         this.restType = restType;
     }
 
     public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes, BType restType, long flags,
                       boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol, flags);
-        this.tupleTypes = tupleTypes;
+        this.memberTypes = tupleTypes;
         this.restType = restType;
         this.isCyclic = isCyclic;
     }
@@ -90,8 +91,14 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public List<BTupleMember> getTupleTypes() {
-        return tupleTypes;
+    public List<BType> getMemberTypes() {
+        List<BType> types = new ArrayList<>();
+        memberTypes.forEach(member -> types.add(member.type));
+        return types;
+    }
+
+    public List<BTupleMember> getTupleMembers() {
+        return memberTypes;
     }
 
     @Override
@@ -120,8 +127,8 @@ public class BTupleType extends BType implements TupleType {
         }
         this.resolvingToString = true;
 
-        String stringRep = "[" + tupleTypes.stream().map(BTupleMember::toString).collect(Collectors.joining(","))
-                + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+        String stringRep = "[" + memberTypes.stream().map(BTupleMember::toString).collect(Collectors.joining(","))
+                + ((restType != null) ? (memberTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
@@ -145,7 +152,7 @@ public class BTupleType extends BType implements TupleType {
                 memberType.type.getQualifiedTypeName().equals(this.getQualifiedTypeName())) {
             return false;
         }
-        this.tupleTypes.add(memberType);
+        this.memberTypes.add(memberType);
         if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(memberType.type.flags, Flags.READONLY)) {
             this.flags ^= Flags.READONLY;
         }
@@ -162,7 +169,7 @@ public class BTupleType extends BType implements TupleType {
     // empty tuple shell in main scope
     public boolean addRestType(BType restType) {
         if (restType != null && restType instanceof BTupleType && ((BTupleType) restType).isCyclic &&
-                restType.getQualifiedTypeName().equals(this.getQualifiedTypeName()) && this.tupleTypes.isEmpty()) {
+                restType.getQualifiedTypeName().equals(this.getQualifiedTypeName()) && this.memberTypes.isEmpty()) {
             return false;
         }
         this.restType = restType;
@@ -175,7 +182,7 @@ public class BTupleType extends BType implements TupleType {
 
     public void setMemberTypes(List<BTupleMember> memberTypes) {
         assert memberTypes.size() == 0;
-        this.tupleTypes = memberTypes;
+        this.memberTypes = memberTypes;
     }
 
     private void setCyclicFlag(BType type) {

@@ -126,8 +126,9 @@ public class JvmAnnotationsGen {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
-        BType refType = typeDef.referenceType == null || typeDef.type.tag == TypeTags.RECORD ||
-                typeDef.type.tag == TypeTags.TUPLE ? typeDef.type : typeDef.referenceType;
+        BType type = typeDef.type;
+        BType refType = typeDef.referenceType == null || type.tag == TypeTags.RECORD ||
+                type.tag == TypeTags.TUPLE ? type : typeDef.referenceType;
         jvmTypeGen.loadLocalType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);

@@ -23,12 +23,20 @@ import io.ballerina.tools.diagnostics.Location;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -183,5 +191,57 @@ public class BIRWriterUtils {
         BIRNode.ConstValue constValue = ((BIRNode.BIRConstAnnotationAttachment) annotAttachment).annotValue;
         writeType(cp, annotBuf, constValue.type);
         writeConstValue(cp, annotBuf, constValue);
+    }
+
+    public static List<BIRNode.BIRAnnotationAttachment> getBIRAnnotAttachments(
+            List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
+        List<BIRNode.BIRAnnotationAttachment> annotationAttachments = new ArrayList<>(astAnnotAttachments.size());
+        for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
+            annotationAttachments.add(createBIRAnnotationAttachment(
+                    (BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
+        }
+        return annotationAttachments;
+    }
+
+    public static BIRNode.BIRAnnotationAttachment createBIRAnnotationAttachment(
+            BAnnotationAttachmentSymbol annotAttachmentSymbol) {
+        Location pos = annotAttachmentSymbol.pos;
+        PackageID annotPkgID = annotAttachmentSymbol.annotPkgID;
+        Name annotTag = annotAttachmentSymbol.annotTag;
+
+        if (!annotAttachmentSymbol.isConstAnnotation()) {
+            return new BIRNode.BIRAnnotationAttachment(pos, annotPkgID, annotTag);
+        }
+
+        BLangConstantValue attachmentValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachmentSymbol)
+                        .attachmentValueSymbol.value;
+        return new BIRNode.BIRConstAnnotationAttachment(pos, annotPkgID, annotTag, getBIRConstantVal(attachmentValue));
+    }
+
+    public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
+        int tag = constValue.type.tag;
+        if (tag == TypeTags.INTERSECTION) {
+            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
+            tag = constValue.type.tag;
+        }
+
+        if (tag == TypeTags.RECORD) {
+            Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
+            ((Map<String, BLangConstantValue>) constValue.value)
+                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
+            return new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+        }
+
+        if (tag == TypeTags.TUPLE) {
+            List<BLangConstantValue> constantValueList = (List<BLangConstantValue>) constValue.value;
+            BIRNode.ConstValue[] tupleConstVal = new BIRNode.ConstValue[constantValueList.size()];
+            for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
+                tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
+            }
+            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+        }
+
+        return new BIRNode.ConstValue(constValue.value, constValue.type);
     }
 }

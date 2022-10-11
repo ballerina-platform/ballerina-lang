@@ -1027,7 +1027,7 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMember t : tupleType.tupleTypes) {
+                for (BTupleMember t : tupleType.memberTypes) {
                     populateParameterizedType(t.type, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
@@ -1523,22 +1523,22 @@ public class BIRPackageSymbolEnter {
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
                     List<BTupleMember> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    BSymbol tupleOwner = tupleTypeSymbol.owner;
+                    PackageID tuplePkg = tupleTypeSymbol.pkgID;
 
                     for (int i = 0; i < tupleMemberCount; i++) {
-                        String iname = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
+                        String index = getStringCPEntryValue(inputStream);
+                        long fieldFlags = inputStream.readLong();
 
                         BType memberType = readTypeFromCp();
-                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(iname),
-                                tupleTypeSymbol.pkgID, memberType,
-                                tupleTypeSymbol.owner, symTable.builtinPos,
-                                COMPILED_SOURCE);
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(index), tuplePkg,
+                                memberType, tupleOwner, symTable.builtinPos, COMPILED_SOURCE);
 
                         defineAnnotAttachmentSymbols(inputStream, varSymbol);
 
                         tupleMemberTypes.add(new BTupleMember(memberType, varSymbol));
                     }
-                    bTupleType.tupleTypes = tupleMemberTypes;
+                    bTupleType.memberTypes = tupleMemberTypes;
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();

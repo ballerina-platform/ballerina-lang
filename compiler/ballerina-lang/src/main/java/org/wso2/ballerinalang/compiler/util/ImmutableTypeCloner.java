@@ -403,7 +403,7 @@ public class ImmutableTypeCloner {
                                                               Names names, Set<BType> unresolvedTypes,
                                                               BTupleType type) {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
-        List<BTupleMember> origTupleMemTypes = type.tupleTypes;
+        List<BTupleMember> origTupleMemTypes = type.memberTypes;
 
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
         if (immutableType.isPresent()) {

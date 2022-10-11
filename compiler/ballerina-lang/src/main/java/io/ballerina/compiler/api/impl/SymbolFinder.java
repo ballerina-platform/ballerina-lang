@@ -1273,8 +1273,8 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         for (BLangSimpleVariable member : tupleTypeNode.memberTypeNodes) {
-            lookupNode(member.typeNode);
             lookupNodes(member.annAttachments);
+            lookupNode(member.typeNode);
         }
         lookupNode(tupleTypeNode.restParamType);
     }

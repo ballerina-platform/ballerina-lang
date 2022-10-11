@@ -6256,23 +6256,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
     }
 
-    private BLangType createAnonymousTupleType(TupleTypeDescriptorNode tupleTypeDescriptorNode,
-                                                BLangTupleTypeNode tupleTypeNode) {
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        Location pos = getPosition(tupleTypeDescriptorNode);
-        // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID, this.anonTypeNameSuffixes);
-        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
-        typeDef.setName(anonTypeGenName);
-        typeDef.flagSet.add(Flag.PUBLIC);
-        typeDef.flagSet.add(Flag.ANONYMOUS);
-
-        typeDef.typeNode = tupleTypeNode;
-        typeDef.pos = pos;
-        addToTop(typeDef);
-        return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), typeDef.name);
-    }
-
     private BLangUserDefinedType createUserDefinedType(Location pos,
                                                        BLangIdentifier pkgAlias,
                                                        BLangIdentifier name) {

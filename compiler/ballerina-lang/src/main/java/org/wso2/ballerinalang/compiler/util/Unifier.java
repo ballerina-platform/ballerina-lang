@@ -222,7 +222,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
         if (hasMatchedTupleType) {
-            if (expTupleType.tupleTypes.size() != originalType.tupleTypes.size()) {
+            if (expTupleType.memberTypes.size() != originalType.memberTypes.size()) {
                 hasMatchedTupleType = false;
             } else {
                 BType expRestType = expTupleType.restType;
@@ -234,7 +234,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
+        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.memberTypes) :
                 Collections.singletonList(new BTupleMember(null, null));
 
         List<BTupleMember> members = new ArrayList<>();
@@ -242,7 +242,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         boolean errored = false;
 
-        List<BTupleMember> tupleTypes = originalType.tupleTypes;
+        List<BTupleMember> tupleTypes = originalType.memberTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
             if (this.visitedTypes.contains(tupleTypes.get(i).type)) {
                 continue;
@@ -655,7 +655,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
             }
             return getConstraintTypeIfNotError(
-                    ((BTupleType) restArgType).tupleTypes.get(index - requiredArgCount).type);
+                    ((BTupleType) restArgType).memberTypes.get(index - requiredArgCount).type);
         }
 
         BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);
@@ -800,7 +800,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                   BTupleType tupleType) {
         int tupleIndex = 0;
-        List<BTupleMember> tupleTypes = tupleType.tupleTypes;
+        List<BTupleMember> tupleTypes = tupleType.memberTypes;
         for (int i = currentParamIndex; i < params.size(); i++) {
             paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++).type);
         }
@@ -1073,7 +1073,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BTupleMember tupleMemType : tupleType.tupleTypes) {
+                for (BTupleMember tupleMemType : tupleType.memberTypes) {
                     if (refersInferableParamName(
                             paramsWithInferredTypedescDefault, tupleMemType.type, unresolvedTypes)) {
                         return true;

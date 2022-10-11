@@ -141,7 +141,7 @@ public class JvmTupleTypeGen {
      * @param tupleType   tupleType
      */
     private void addTupleMembers(MethodVisitor mv, BTupleType tupleType) {
-        createTupleMembersList(mv, tupleType.tupleTypes);
+        createTupleMembersList(mv, tupleType.memberTypes);
 
         BType restType = tupleType.restType;
         if (restType == null) {

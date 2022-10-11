@@ -1449,7 +1449,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
 
         List<BTupleMember> tupleMemberTypes = new ArrayList<>();
-        memberTypes.forEach(m -> tupleMemberTypes.add(new BTupleMember(m)));
+        memberTypes.forEach(member -> tupleMemberTypes.add(new BTupleMember(member)));
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMemberTypes);
         tupleTypeSymbol.type = tupleType;
 

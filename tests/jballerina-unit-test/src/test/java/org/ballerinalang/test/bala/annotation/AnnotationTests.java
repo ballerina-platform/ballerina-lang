@@ -363,7 +363,7 @@ public class AnnotationTests {
         BTypeDefinitionSymbol symbol =
                 ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Tup")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 1);
-        List<BTupleMember> members = ((BTupleType) symbol.type).tupleTypes;
+        List<BTupleMember> members = ((BTupleType) symbol.type).memberTypes;
         List<? extends AnnotationAttachmentSymbol> m1 = members.get(0).symbol.getAnnotations();
 
         BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));

@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -414,7 +413,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
+        List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getMemberTypes());
         Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, type.tsymbol);
         return addToVisited(type, hash);
     }
@@ -595,10 +594,10 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         return list;
     }
 
-    private List<Integer> getOrderedTypesHashes(List<BTupleMember> tupleTypes) {
+    private List<Integer> getOrderedTypesHashes(List<BType> tupleTypes) {
         List<Integer> list = new ArrayList<>();
-        for (BTupleMember tupleType : tupleTypes) {
-            Integer visit = visit(tupleType.type);
+        for (BType tupleType : tupleTypes) {
+            Integer visit = visit(tupleType);
             list.add(visit);
         }
         return list;

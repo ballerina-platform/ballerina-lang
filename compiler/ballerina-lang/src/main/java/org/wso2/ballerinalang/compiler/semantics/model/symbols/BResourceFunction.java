@@ -58,7 +58,7 @@ public class BResourceFunction extends BAttachedFunction {
         for (int i = 0; i < resourcePath.size(); i++) {
             Name resourcePath = this.resourcePath.get(i);
             if (resourcePath.value.equals("*") || resourcePath.value.equals("$*")) {
-                resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
+                resourcePathStrings.add("[" + resourcePathType.memberTypes.get(i) + "]");
             } else if (resourcePath.value.equals("**") || resourcePath.value.equals("$**")) {
                 resourcePathStrings.add("[" + resourcePathType.restType + "...]");
             } else {

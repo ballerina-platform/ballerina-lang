@@ -182,8 +182,8 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        for (BTupleMember tupleType : bTupleType.tupleTypes) {
-            find(tupleType.type);
+        for (BTupleMember tupleMember : bTupleType.memberTypes) {
+            find(tupleMember.type);
         }
 
         find(bTupleType.restType);

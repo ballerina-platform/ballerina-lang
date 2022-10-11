@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
@@ -80,6 +79,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 
 
 /**
@@ -283,14 +284,14 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        buff.writeInt(bTupleType.tupleTypes.size());
-        for (int i = 0; i < bTupleType.tupleTypes.size(); i++) {
-            BTupleMember memberType = bTupleType.tupleTypes.get(i);
+        buff.writeInt(bTupleType.memberTypes.size());
+        for (int i = 0; i < bTupleType.memberTypes.size(); i++) {
+            BTupleMember memberType = bTupleType.memberTypes.get(i);
             buff.writeInt(addStringCPEntry(Integer.toString(i)));
             buff.writeLong(memberType.symbol.flags);
             writeTypeCpIndex(memberType.type);
             BIRWriterUtils.writeAnnotAttachments(cp, buff,
-                    BIRGen.getBIRAnnotAttachments(memberType.symbol.getAnnotations()));
+                    getBIRAnnotAttachments(memberType.symbol.getAnnotations()));
         }
         if (bTupleType.restType != null) {
             buff.writeBoolean(true);
@@ -372,7 +373,7 @@ public class BIRTypeWriter implements TypeVisitor {
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
             BIRWriterUtils.writeAnnotAttachments(cp, buff,
-                    BIRGen.getBIRAnnotAttachments(field.symbol.getAnnotations()));
+                    getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;

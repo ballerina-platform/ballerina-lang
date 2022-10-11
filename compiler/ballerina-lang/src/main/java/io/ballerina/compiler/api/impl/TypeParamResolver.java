@@ -218,7 +218,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     public BType visit(BTupleType typeInSymbol, BType boundType) {
         List<BTupleMember> newTupleTypes = new ArrayList<>();
 
-        List<BTupleMember> tupleTypes = typeInSymbol.tupleTypes;
+        List<BTupleMember> tupleTypes = typeInSymbol.memberTypes;
         boolean areAllSameType = true;
 
         for (BTupleMember type : tupleTypes) {
