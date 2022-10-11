@@ -25,6 +25,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.Symbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -69,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -687,6 +689,13 @@ public class BIRGen extends BLangNodeVisitor {
                         birFunc.restPathParam = createBIRVarDeclForPathParam(restPathParamSym);
                     }
 
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+                    List<Location> pathSegmentPosList = new ArrayList<>(pathSegmentSymbols.size());
+                    for (BSymbol pathSegmentSym : pathSegmentSymbols) {
+                        pathSegmentPosList.add(pathSegmentSym.pos);
+                    }
+                    
+                    birFunc.resourcePathSegmentPosList = pathSegmentPosList;
                     birFunc.resourcePath = resourceFunction.resourcePath;
                     birFunc.accessor = resourceFunction.accessor;
                     birFunc.resourcePathType = resourceFunction.resourcePathType;

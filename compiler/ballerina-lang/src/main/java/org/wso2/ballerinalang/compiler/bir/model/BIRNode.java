@@ -357,6 +357,8 @@ public abstract class BIRNode {
         
         public List<Name> resourcePath;
         
+        public List<Location> resourcePathSegmentPosList;
+        
         public Name accessor;
         
         public BTupleType resourcePathType;

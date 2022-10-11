@@ -36,10 +36,10 @@ public class BResourcePathSegmentSymbol extends BSymbol {
     public BResourcePathSegmentSymbol parentResource;
     public BResourceFunction resourceMethod;
     
-    public BResourcePathSegmentSymbol(int tag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
-                                      Location location, BResourcePathSegmentSymbol parentResource,
-                                      BResourceFunction resourceMethod) {
-        super(tag, flags, name, pkgID, type, owner, location, SymbolOrigin.SOURCE);
+    public BResourcePathSegmentSymbol(Name name, PackageID pkgID, BType type, BSymbol owner, Location location,
+                                      BResourcePathSegmentSymbol parentResource, BResourceFunction resourceMethod,
+                                      SymbolOrigin origin) {
+        super(SymTag.RESOURCE_PATH_SEGMENT, 0, name, pkgID, type, owner, location, origin);
         this.parentResource = parentResource;
         this.resourceMethod = resourceMethod;
     }
