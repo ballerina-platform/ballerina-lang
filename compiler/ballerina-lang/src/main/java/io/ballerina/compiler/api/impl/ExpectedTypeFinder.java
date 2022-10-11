@@ -44,23 +44,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -766,6 +752,34 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         visitedNodes.add(node);
         return node.apply(this);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FromClauseNode node) {
+        if (posWithinRange(linePosition, node.fromKeyword().lineRange()) ||
+                posWithinRange(linePosition, node.inKeyword().lineRange()) ) {
+            return Optional.empty();
+        }
+
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
+        if (bLangNode == null) {
+            return Optional.empty();
+        }
+
+        BLangFromClause bLangFromClause = null;
+        if (bLangNode instanceof BLangQueryExpr) {
+            for (BLangNode queryClause : ((BLangQueryExpr) bLangNode).getQueryClauses()) {
+                if (queryClause instanceof BLangFromClause) {
+                    bLangFromClause = (BLangFromClause ) queryClause;
+                    break;
+                }
+            }
+
+            return getExpectedType(bLangFromClause != null ? bLangFromClause.collection : null);
+
+        }
+
+        return getExpectedType(((BLangFromClause) bLangNode).collection);
     }
 
     private Optional<TypeSymbol> getExpectedType(BLangNode node) {
