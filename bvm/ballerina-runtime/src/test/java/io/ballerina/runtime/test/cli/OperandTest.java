@@ -139,8 +139,8 @@ public class OperandTest {
         Assert.assertTrue(args[1] instanceof BArray);
         BArray bArray = (BArray) args[1];
         Assert.assertEquals(bArray.get(0), 1L);
-        Assert.assertTrue(args[3] instanceof Long);
-        Assert.assertEquals(args[3], 2L);
+        Assert.assertTrue(args[2] instanceof Long);
+        Assert.assertEquals(args[2], 2L);
     }
 
     @Test
@@ -152,8 +152,8 @@ public class OperandTest {
         BArray bArray = (BArray) args[1];
         Assert.assertEquals(bArray.get(0), 1L);
         Assert.assertEquals(bArray.get(1), 2L);
-        Assert.assertTrue(args[3] instanceof Long);
-        Assert.assertEquals(args[3], 3L);
+        Assert.assertTrue(args[2] instanceof Long);
+        Assert.assertEquals(args[2], 3L);
     }
 
     @Test
@@ -165,10 +165,10 @@ public class OperandTest {
         Assert.assertTrue(args[1] instanceof BArray);
         BArray bArray = (BArray) args[1];
         Assert.assertEquals(bArray.get(0), 1L);
+        Assert.assertTrue(args[2] instanceof Long);
+        Assert.assertEquals(args[2], 2L);
         Assert.assertTrue(args[3] instanceof Long);
-        Assert.assertEquals(args[3], 2L);
-        Assert.assertTrue(args[5] instanceof Long);
-        Assert.assertEquals(args[5], 3L);
+        Assert.assertEquals(args[3], 3L);
     }
 
     @Test
@@ -179,8 +179,8 @@ public class OperandTest {
         Object[] args = new CliSpec(null, operands, val).getMainArgs();
         Assert.assertTrue(args[1] instanceof BArray);
         Assert.assertEquals(((BArray) args[1]).size(), 0);
-        Assert.assertTrue(args[3] instanceof BString);
-        Assert.assertEquals(((BString) args[3]).getValue(), val);
+        Assert.assertTrue(args[2] instanceof BString);
+        Assert.assertEquals(((BString) args[2]).getValue(), val);
     }
 
     @Test
@@ -192,8 +192,8 @@ public class OperandTest {
         BArray arr = ((BArray) args[1]);
         Assert.assertEquals(arr.size(), 1);
         Assert.assertEquals(arr.get(0).toString(), "1");
-        Assert.assertTrue(args[3] instanceof BString);
-        Assert.assertEquals(((BString) args[3]).getValue(), "2");
+        Assert.assertTrue(args[2] instanceof BString);
+        Assert.assertEquals(((BString) args[2]).getValue(), "2");
     }
 
     @Test
@@ -204,8 +204,8 @@ public class OperandTest {
         Object[] args = new CliSpec(null, operands, val).getMainArgs();
         Assert.assertTrue(args[1] instanceof BString);
         Assert.assertEquals(((BString) args[1]).getValue(), val);
-        Assert.assertTrue(args[3] instanceof BArray);
-        Assert.assertEquals(((BArray) args[3]).size(), 0);
+        Assert.assertTrue(args[2] instanceof BArray);
+        Assert.assertEquals(((BArray) args[2]).size(), 0);
     }
 
     @Test
@@ -217,7 +217,6 @@ public class OperandTest {
         Object[] args = new CliSpec(null, operands, val).getMainArgs();
         Assert.assertTrue(args[1] instanceof BString);
         Assert.assertEquals(((BString) args[1]).getValue(), val);
-        Assert.assertNull(args[3]);
     }
 
     @Test(expectedExceptions = BError.class,

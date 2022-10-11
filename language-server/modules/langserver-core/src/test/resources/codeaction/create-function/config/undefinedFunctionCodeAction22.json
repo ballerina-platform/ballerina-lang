@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getTuple() returns [int|string] {\n    return [];\n}\n"
+          "newText": "\n\nfunction getTuple() returns [int|string] {\n    return [];\n}"
         }
       ],
       "resolvable": true,

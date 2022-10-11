@@ -135,7 +135,7 @@ public class FunctionGenerator {
             }
         }
 
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtEnd, isolated);
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtEnd, isolated, "");
     }
 
     /**
@@ -149,18 +149,24 @@ public class FunctionGenerator {
      * @param isolated      Whether the created function should be prefixed with isolated qualifier
      * @return Created function
      */
-    private static String generateFunction(String functionName, List<String> args, String returnsClause,
-                                           String returnStmt, boolean newLineAtEnd, boolean isolated) {
+    public static String generateFunction(String functionName, List<String> args, String returnsClause,
+                                          String returnStmt, boolean newLineAtEnd, boolean isolated,
+                                          String funcBodyExcludingRetStmt) {
         // padding
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
 
         // body
-        String body;
+        String body = "";
+
+        if (!funcBodyExcludingRetStmt.isEmpty()) {
+            body += funcBodyExcludingRetStmt;
+        }
+
         if (!returnStmt.isEmpty()) {
-            body = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
-        } else {
-            body = paddingStr + CommonUtil.LINE_SEPARATOR;
+            body += paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+        } else if (funcBodyExcludingRetStmt.isEmpty()) {
+            body += paddingStr + CommonUtil.LINE_SEPARATOR;
         }
 
         StringBuilder fnBuilder = new StringBuilder();

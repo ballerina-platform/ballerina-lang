@@ -124,7 +124,7 @@ public class ParserUtil {
 
     public static BLangExpression getURLExpressionFromArgs(BLangTypeInit connectorInitExpr) {
 
-        BSymbol bSymbol = connectorInitExpr.initInvocation.symbol;
+        BSymbol bSymbol = ((BLangInvocation) connectorInitExpr.initInvocation).symbol;
         if (bSymbol instanceof BInvokableSymbol) {
             List<BVarSymbol> params = ((BInvokableSymbol) bSymbol).getParameters();
             for (int i = 0; i < params.size(); i++) {

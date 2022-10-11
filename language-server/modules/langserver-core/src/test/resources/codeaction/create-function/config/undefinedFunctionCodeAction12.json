@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction callEndpoint(int a, int b, module1:Listener c) returns module1:TestClass1 {\n    return new (0, 0);\n}\n"
+          "newText": "\n\nfunction callEndpoint(int a, int b, module1:Listener c) returns module1:TestClass1 {\n    return new (0, 0);\n}"
         }
       ],
       "resolvable": true,

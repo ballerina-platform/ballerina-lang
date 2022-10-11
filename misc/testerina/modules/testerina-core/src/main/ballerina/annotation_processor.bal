@@ -49,12 +49,13 @@ function processConfigAnnotation(string name, function f) returns boolean {
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
-            DataProviderReturnType|error providerOutput = trap config.dataProvider();
-            if providerOutput is error {
-                diagnostics = error(
-                    string `Failed to execute the data provider for '${name}', ` + "\n" + providerOutput.message());
-            } else {
+            var providerFn = config.dataProvider;
+
+            if providerFn is function () returns (DataProviderReturnType?) {
+                DataProviderReturnType providerOutput = providerFn();
                 params = providerOutput;
+            } else {
+                diagnostics = error("Failed to execute the data provider");
             }
         }
         config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));

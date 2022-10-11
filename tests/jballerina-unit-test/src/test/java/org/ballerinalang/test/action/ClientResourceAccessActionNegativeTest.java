@@ -166,7 +166,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                111, 29);
+                111, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource method 'put' on target resource in object 'isolated object" +
                         " { resource function get path() returns (int); resource function get path/[int]() " +
@@ -195,7 +195,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                113, 29);
+                113, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -209,7 +209,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                114, 29);
+                114, 28);
         validateError(clientResourcePathNegative, index++,
                 "resource access path segment is not allowed after resource access rest segment",
                 114, 61);
@@ -230,7 +230,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                116, 29);
+                116, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -244,7 +244,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                117, 29);
+                117, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -258,7 +258,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                118, 29);
+                118, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -272,7 +272,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                119, 29);
+                119, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -286,7 +286,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                120, 29);
+                120, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -300,7 +300,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                121, 29);
+                121, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -314,7 +314,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                122, 29);
+                122, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -328,7 +328,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                123, 29);
+                123, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -342,7 +342,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                124, 29);
+                124, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -356,7 +356,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                125, 29);
+                125, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -370,7 +370,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                126, 29);
+                126, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -384,7 +384,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                127, 29);
+                127, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -398,7 +398,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                128, 29);
+                128, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -412,7 +412,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                129, 29);
+                129, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -426,7 +426,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                130, 29);
+                130, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -440,7 +440,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                131, 29);
+                131, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -454,7 +454,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                132, 29);
+                132, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -468,7 +468,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                133, 29);
+                133, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -482,7 +482,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                134, 29);
+                134, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -496,7 +496,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                135, 29);
+                135, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -510,7 +510,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                136, 29);
+                136, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -524,7 +524,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                137, 29);
+                137, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -538,7 +538,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                138, 29);
+                138, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -552,7 +552,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                139, 29);
+                139, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -566,7 +566,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                140, 29);
+                140, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -580,7 +580,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                141, 29);
+                141, 28);
         validateError(clientResourcePathNegative, index++,
                 "unsupported computed resource access path segment type: expected 'int', 'string'," +
                         " 'float', 'boolean','decimal' but found 'int?'",
@@ -606,7 +606,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                145, 29);
+                145, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -620,7 +620,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                146, 29);
+                146, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -634,7 +634,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                147, 29);
+                147, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -648,7 +648,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                148, 29);
+                148, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -662,7 +662,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                149, 29);
+                149, 28);
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
                         " returns (int); resource function get path/[int]() returns (int); resource function get" +
@@ -676,7 +676,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                150, 29);
+                150, 28);
 
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
@@ -691,7 +691,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                151, 29);
+                151, 28);
 
         validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
@@ -706,7 +706,7 @@ public class ClientResourceAccessActionNegativeTest {
                         " resource function get x(int) returns (string); resource function get y(int?) " +
                         "returns (string?); resource function get 5(string) returns (string); resource" +
                         " function get 6(string?) returns (string?); }'",
-                152, 29);
+                152, 28);
         validateError(clientResourcePathNegative, index++,
                 "unsupported resource access rest segment type: expected array of 'int', 'string', " +
                         "'float', 'boolean','decimal' but found 'IntFiveOrSix'", 153, 34);

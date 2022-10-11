@@ -35,6 +35,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':docerina')
     implementation project(':ballerina-lang:value');
+    implementation project(':ballerina-lang:regexp');
 
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
@@ -82,6 +83,8 @@ description = 'JBallerina - Unit Test Module'
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
+
+    jvmArgs = ['-Xms512m', '-Xmx3g']
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

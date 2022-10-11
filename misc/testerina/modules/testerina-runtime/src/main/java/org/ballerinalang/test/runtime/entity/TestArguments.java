@@ -35,8 +35,8 @@ public class TestArguments {
     public TestArguments(String targetPath, String packageName, String moduleName, String report, String coverage,
                          String groups, String disableGroups,  String tests, String rerunFailed, String listGroups) {
 
-        argTypes = new Class[2 * ARGUMENTS_NUMBER + 1];
-        argValues = new Object[2 * ARGUMENTS_NUMBER + 1];
+        argTypes = new Class[ARGUMENTS_NUMBER + 1];
+        argValues = new Object[ARGUMENTS_NUMBER + 1];
 
         argTypes[0] = Strand.class;
         argValues[0] = null;
@@ -64,12 +64,9 @@ public class TestArguments {
     }
 
     private void assignValues(int position, String argValue) {
-        int index = 2 * position + 1;
+        int index = position + 1;
 
         argTypes[index] = BString.class;
         argValues[index] = StringUtils.fromString(argValue);
-
-        argTypes[index + 1] = boolean.class;
-        argValues[index + 1] = true;
     }
 }

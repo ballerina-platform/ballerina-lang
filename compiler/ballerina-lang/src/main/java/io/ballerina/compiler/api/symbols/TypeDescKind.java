@@ -63,7 +63,8 @@ public enum TypeDescKind {
     READONLY("readonly"),
     NEVER("never"),
     COMPILATION_ERROR("CompilationError"),
-    NONE("None");
+    NONE("None"),
+    REGEXP("regexp");
 
     private final String name;
 
