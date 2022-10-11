@@ -4992,6 +4992,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                                      BInvokableType funcType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
         BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
         Name accessor = names.fromIdNode(resourceFunction.methodName);
         List<Name> resourcePath = resourceFunction.resourcePath.stream()
@@ -5017,8 +5018,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
         
         int resourcePathSize = resourcePath.size();
-        List<BLangType> resourcePathTypes = resourceFunction.resourcePathType.memberTypeNodes;
-        BLangType restPathParamType = resourceFunction.resourcePathType.restParamType;
+        List<BType> resourcePathTypes = bResourceFunction.resourcePathType.tupleTypes;
+        BType restPathParamType = bResourceFunction.resourcePathType.restType;
         if (restPathParamType != null) {
             resourcePathTypes.add(restPathParamType);
         }
@@ -5027,12 +5028,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BResourcePathSegmentSymbol parentResource = null;
         for (int i = 0; i < resourcePathSize; i++) {
             Name resourcePathSymbolName = resourcePath.get(i);
-            BType resourcePathSegmentType = resourcePathTypes.get(i).getBType();
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
+            BType resourcePathSegmentType = resourcePathTypes.get(i);
             
-            BResourcePathSegmentSymbol pathSym = new BResourcePathSegmentSymbol(SymTag.RESOURCE_PATH_SEGMENT, 0,
-                    resourcePathSymbolName, env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
-                    resourceFunction.resourcePath.get(i).pos, parentResource, bResourceFunction);
+            BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(resourcePathSymbolName,
+                    env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
+                    resourceFunction.resourcePath.get(i).pos, parentResource, bResourceFunction, SOURCE);
 
             objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
             pathSegmentSymbols.add(pathSym);

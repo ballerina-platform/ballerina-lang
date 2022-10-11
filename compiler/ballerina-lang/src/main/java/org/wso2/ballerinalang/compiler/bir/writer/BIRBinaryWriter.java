@@ -341,6 +341,10 @@ public class BIRBinaryWriter {
             for (Name resourcePathSegment : resourcePath) {
                 buf.writeInt(addStringCPEntry(resourcePathSegment.value));
             }
+            
+            for (Location resourcePathSegmentPos : birFunction.resourcePathSegmentPosList) {
+                writePosition(buf, resourcePathSegmentPos);
+            }
 
             buf.writeInt(addStringCPEntry(birFunction.accessor.value));
             writeType(buf, birFunction.resourcePathType);

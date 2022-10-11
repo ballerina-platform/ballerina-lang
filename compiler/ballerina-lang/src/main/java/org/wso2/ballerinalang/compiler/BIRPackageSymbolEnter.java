@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -421,6 +422,8 @@ public class BIRPackageSymbolEnter {
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 if (isResourceFunction) {
+                    // If it is a resource function, attached type should be and object
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
                     int pathParamCount = dataInStream.readInt();
                     List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
                     for (int i = 0; i < pathParamCount; i++) {
@@ -445,6 +448,11 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < resourcePathCount; i++) {
                         resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
                     }
+                    
+                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathCount);
+                    for (int i = 0; i < resourcePathCount; i++) {
+                        resourcePathSegmentPosList.add(readPosition(dataInStream));
+                    }
 
                     Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
                     BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
@@ -452,8 +460,31 @@ public class BIRPackageSymbolEnter {
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
                             invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
                             resourcePathType, symTable.builtinPos);
-                    
-                    ((BStructureTypeSymbol) attachedType.tsymbol).attachedFuncs.add(resourceFunction);
+
+                    int resourcePathSize = resourcePath.size();
+                    List<BType> resourcePathTypes = resourceFunction.resourcePathType.tupleTypes;
+                    BType restPathParamType = resourceFunction.resourcePathType.restType;
+                    if (restPathParamType != null) {
+                        resourcePathTypes.add(restPathParamType);
+                    }
+
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathSize);
+                    BResourcePathSegmentSymbol parentResource = null;
+                    for (int i = 0; i < resourcePathSize; i++) {
+                        Name resourcePathSymbolName = resourcePath.get(i);
+                        BType resourcePathSegmentType = resourcePathTypes.get(i);
+
+                        BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(
+                                resourcePathSymbolName, env.pkgSymbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
+                                resourcePathSegmentPosList.get(i), parentResource, resourceFunction, COMPILED_SOURCE);
+
+                        objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
+                        pathSegmentSymbols.add(pathSym);
+                        parentResource = pathSym;
+                    }
+
+                    resourceFunction.pathSegmentSymbols = pathSegmentSymbols;
+                    objectTypeSymbol.attachedFuncs.add(resourceFunction);
                 } else {
                     BAttachedFunction attachedFunc =
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,

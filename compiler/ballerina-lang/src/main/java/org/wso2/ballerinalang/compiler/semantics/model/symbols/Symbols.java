@@ -230,6 +230,18 @@ public class Symbols {
                                                                          SymbolOrigin origin) {
         return new BClientDeclarationSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
+    
+    public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,
+                                                                             PackageID pkgID,
+                                                                             BType type,
+                                                                             BSymbol owner,
+                                                                             Location location,
+                                                                             BResourcePathSegmentSymbol parentResource,
+                                                                             BResourceFunction resourceMethod,
+                                                                             SymbolOrigin origin) {
+        return new BResourcePathSegmentSymbol(name, pkgID, type, owner, location, parentResource, resourceMethod,
+                origin);
+    }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
         return typeName + Names.DOT.value + funcName;
