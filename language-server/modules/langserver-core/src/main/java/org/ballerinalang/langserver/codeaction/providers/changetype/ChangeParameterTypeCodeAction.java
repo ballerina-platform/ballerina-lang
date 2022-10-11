@@ -134,7 +134,7 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
 
             //Check if the parameter is a defaultable parameter and change the default value accordingly.
             if (node.get().kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-                Range defaultValRange = 
+                Range defaultValRange =
                         PositionUtil.toRange(((DefaultableParameterNode) node.get()).expression().lineRange());
                 edits.add(new TextEdit(defaultValRange,
                         DefaultValueGenerationUtil.getDefaultValueForType(entry.getKey()).orElse("")));
@@ -171,7 +171,8 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
             return Optional.of(PositionUtil.toRange(defaultableParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.REST_PARAM) {
             RestParameterNode restParameterNode = (RestParameterNode) parameterNode;
-            return Optional.of(PositionUtil.toRange(restParameterNode.typeName().lineRange()));
+            return Optional.of(new Range(PositionUtil.toPosition(restParameterNode.typeName().lineRange().startLine()),
+                    PositionUtil.toPosition(restParameterNode.ellipsisToken().lineRange().endLine())));
         } else {
             // Skip other node types
             return Optional.empty();
