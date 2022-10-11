@@ -133,9 +133,10 @@ public class JsonToRecordConverter {
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         JsonToRecordResponse response = new JsonToRecordResponse();
 
+        ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder()
+                .setForceFormatRecordFields(forceFormatRecordFields).build();
         FormattingOptions formattingOptions = FormattingOptions.builder()
-                .setForceFormattingOptions(ForceFormattingOptions.builder()
-                        .setForceFormatRecordFields(forceFormatRecordFields).build()).build();
+                .setForceFormattingOptions(forceFormattingOptions).build();
         if (isRecordTypeDesc) {
             // Sets generated type definition code block when sub field of type descriptor kind
             RecordTypeDescriptorNode typeDescriptorNode = (RecordTypeDescriptorNode) typeDefinitionNodes.entrySet()
