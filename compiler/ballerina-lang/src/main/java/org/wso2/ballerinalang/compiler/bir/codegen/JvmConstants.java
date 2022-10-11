@@ -75,6 +75,19 @@ public class JvmConstants {
     public static final String TUPLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TupleValueImpl";
     public static final String TABLE_VALUE_IMPL = "io/ballerina/runtime/internal/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "io/ballerina/runtime/internal/values/SimpleValue";
+    public static final String REG_EXP_VALUE = "io/ballerina/runtime/internal/values/RegExpValue";
+    public static final String REG_EXP_DISJUNCTION = "io/ballerina/runtime/internal/values/RegExpDisjunction";
+    public static final String REG_EXP_SEQUENCE = "io/ballerina/runtime/internal/values/RegExpSequence";
+    public static final String REG_EXP_ASSERTION = "io/ballerina/runtime/internal/values/RegExpAssertion";
+    public static final String REG_EXP_ATOM_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpAtomQuantifier";
+    public static final String REG_EXP_QUANTIFIER = "io/ballerina/runtime/internal/values/RegExpQuantifier";
+    public static final String REG_EXP_CHAR_ESCAPE = "io/ballerina/runtime/internal/values/RegExpLiteralCharOrEscape";
+    public static final String REG_EXP_CHAR_CLASS = "io/ballerina/runtime/internal/values/RegExpCharacterClass";
+    public static final String REG_EXP_CHAR_SET = "io/ballerina/runtime/internal/values/RegExpCharSet";
+    public static final String REG_EXP_CHAR_SET_RANGE = "io/ballerina/runtime/internal/values/RegExpCharSetRange";
+    public static final String REG_EXP_CAPTURING_GROUP = "io/ballerina/runtime/internal/values/RegExpCapturingGroup";
+    public static final String REG_EXP_FLAG_EXPR = "io/ballerina/runtime/internal/values/RegExpFlagExpression";
+    public static final String REG_EXP_FLAG_ON_OFF = "io/ballerina/runtime/internal/values/RegExpFlagOnOff";
 
     public static final String B_HANDLE = "io/ballerina/runtime/api/values/BHandle";
 
@@ -212,6 +225,7 @@ public class JvmConstants {
     public static final String RUNTIME_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String REG_EXP_FACTORY = "io/ballerina/runtime/internal/regexp/RegExpFactory";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -237,6 +251,7 @@ public class JvmConstants {
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
+    public static final String STRING_CONCAT_FACTORY = "java/lang/invoke/StringConcatFactory";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -294,6 +309,7 @@ public class JvmConstants {
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
+    public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
@@ -301,6 +317,7 @@ public class JvmConstants {
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
+    public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
@@ -349,6 +366,8 @@ public class JvmConstants {
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
+    public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
+    public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -359,6 +378,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String CALL_FUNCTION = "call";
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants
@@ -401,11 +421,12 @@ public class JvmConstants {
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
 
     public static final int MAX_MEMBERS_PER_METHOD = 100;
-    public static final int MAX_TYPES_PER_METHOD = 100;
-    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_TYPES_PER_METHOD = 3;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
+    public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 100;
     /*
     MAX_STRINGS_PER_METHOD is calculated as below.
     No of instructions required for create ballerina string constant object = 12
@@ -414,6 +435,7 @@ public class JvmConstants {
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
 
+    public static final int VISIT_MAX_SAFE_MARGIN = 10;
 
     private JvmConstants() {
     }

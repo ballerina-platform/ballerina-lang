@@ -119,12 +119,12 @@ public class ModuleDiff extends DiffImpl {
 
         public void withFunctionAdded(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionRemoved(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(null, function);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {

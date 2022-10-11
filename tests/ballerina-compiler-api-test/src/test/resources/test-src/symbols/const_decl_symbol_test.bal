@@ -40,4 +40,19 @@ const map<string> B = {foo: strConst, bar: "BAR"};
 const map<map<int>> C = {foo: {a: intConst, b: 100}};
 const D = ;
 
+// structural constant values with annotation attachment
+@personAnnot {
+    id: 1,
+    perm: {a: 1, b: 2}
+}
+public type AG string;
+
+// utils
+type Person record {|
+    int id;
+    map<int> perm;
+|};
+
 annotation constDecl;
+
+const annotation Person personAnnot on type;

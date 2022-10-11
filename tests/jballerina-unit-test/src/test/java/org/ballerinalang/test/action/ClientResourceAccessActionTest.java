@@ -66,9 +66,9 @@ public class ClientResourceAccessActionTest {
     public void testDeprecatedConstructUsageAtRuntimeWithWarning() {
         int index = 0;
         // TODO: improve the warning message for accessing a deprecated resource #36977
-        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 570, 16);
-        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 573, 20);
-        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.post' is deprecated", 576, 16);
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 594, 16);
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.get' is deprecated", 597, 20);
+        BAssertUtil.validateWarning(result, index++, "usage of construct 'MyClient8.post' is deprecated", 600, 16);
         Assert.assertEquals(result.getWarnCount(), index);
         
         BRunUtil.invoke(result, "testAccessingDeprecatedResource");

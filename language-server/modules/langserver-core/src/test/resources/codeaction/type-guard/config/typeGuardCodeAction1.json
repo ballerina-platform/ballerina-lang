@@ -7,6 +7,7 @@
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -19,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "int|string|error fooResult \u003d "
+          "newText": "int|string|error fooResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "typeGuard.bal",
+          62
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
