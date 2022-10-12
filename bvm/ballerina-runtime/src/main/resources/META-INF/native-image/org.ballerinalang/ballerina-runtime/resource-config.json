@@ -1,0 +1,12 @@
+{
+  "bundles": [
+    {
+      "name": "MessagesBundle",
+      "locales": [
+        "",
+        "en-US"
+      ]
+    }
+  ]
+}
+
