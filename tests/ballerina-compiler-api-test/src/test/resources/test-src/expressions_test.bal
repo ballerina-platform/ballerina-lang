@@ -358,3 +358,6 @@ function fooFn() returns future<int> {
 function barFn() returns int {
     return 10;
 }
+
+const int A = 10;
+const int B = 20 + 30;

@@ -275,6 +275,8 @@ public class ExpressionTypeTestNew {
                 {78, 8, 20, BOOLEAN},
                 {78, 8, 10, ANYDATA},
                 {78, 14, 20, null},
+                {361, 14, 15, INT},
+                {362, 14, 21, INT},
         };
     }
 
