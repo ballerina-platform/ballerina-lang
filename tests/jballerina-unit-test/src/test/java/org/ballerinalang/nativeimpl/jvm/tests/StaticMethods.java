@@ -88,6 +88,10 @@ public class StaticMethods {
     private StaticMethods() {
     }
 
+    public static void throwNPE() {
+        throw new NullPointerException();
+    }
+
     public static void acceptNothingAndReturnNothing() {
     }
 
@@ -113,6 +117,14 @@ public class StaticMethods {
 
     public static Integer acceptThreeParamsAndReturnSomething(Integer s1, Integer s2, Integer s3) {
         return s1 + s2 + s3;
+    }
+
+    public static BDecimal getBDecimalValue() {
+        return ValueCreator.createDecimalValue("5.0");
+    }
+
+    public static BDecimal getNullInsteadOfBDecimal() {
+        return null;
     }
 
     // This scenario is for map value to be passed to interop and return array value.

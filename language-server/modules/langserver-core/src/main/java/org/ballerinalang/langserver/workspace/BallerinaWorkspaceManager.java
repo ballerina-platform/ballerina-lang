@@ -44,15 +44,21 @@ import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -152,6 +158,35 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Optional<Project> project(Path filePath) {
         return projectPair(projectRoot(filePath)).map(ProjectPair::project);
+    }
+
+    /**
+     * Loads the project from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    @Override
+    public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
+        Project project;
+        Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+
+        if (optionalProject.isPresent()) {
+            project = optionalProject.get();
+        } else {
+            project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+
+            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    filePath.toUri().toString(),
+                    languageServer.getWorkspaceManager(),
+                    LSContextOperation.LOAD_PROJECT, this.serverContext);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(languageServer.getClient(), this.serverContext, context);
+        }
+
+        return project;
     }
 
     /**
