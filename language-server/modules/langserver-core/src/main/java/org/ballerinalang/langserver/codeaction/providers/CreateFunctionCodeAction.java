@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -69,7 +68,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -275,7 +273,7 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(fnCallExprNode.get());
         Range insertRange;
         if (enclosingNode.isPresent()) {
-            newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
+            newLineAtEnd = CodeActionUtil.addNewLineAtEnd(enclosingNode.get());
             insertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
@@ -317,15 +315,5 @@ public class CreateFunctionCodeAction implements DiagnosticBasedCodeActionProvid
             reference = reference.parent();
         }
         return Optional.empty();
-    }
-
-    private boolean addNewLineAtEnd(Node enclosingNode) {
-        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
-                return true;
-            }
-        }
-        return false;
     }
 }

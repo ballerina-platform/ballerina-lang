@@ -182,6 +182,22 @@ types:
         type: s4
       - id: value
         size: value_length
+  closure_symbol_body:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: type_cp_index
+        type: s4
+      - id: pkd_id_cp_index
+        type: s4
+      - id: param_count
+        type: s4
+      - id: params
+        type: function_parameter
+        repeat: expr
+        repeat-expr: param_count
   type_invokable_body:
     seq:
       - id: param_types_count
@@ -197,6 +213,46 @@ types:
         if: has_rest_type == 1
       - id: return_type_cp_index
         type: s4
+      - id: has_invokable_type_symbol
+        type: u1
+      - id: invokable_type_symbol
+        type: invokable_type_symbol_body
+        if: has_invokable_type_symbol == 1
+  function_parameter:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: doc
+        type: markdown
+      - id: type_cp_index
+        type: s4
+  default_value_body:
+    seq:
+      - id: param_name_cp_index
+        type: s4
+      - id: closure_symbol
+        type: closure_symbol_body
+  invokable_type_symbol_body:
+    seq:
+      - id: param_count
+        type: s4
+      - id: params
+        type: function_parameter
+        repeat: expr
+        repeat-expr: param_count
+      - id: has_rest_type
+        type: u1
+      - id: rest_param
+        type: function_parameter
+        if: has_rest_type == 1
+      - id: default_values
+        type: s4
+      - id: default_value
+        type: default_value_body
+        repeat: expr
+        repeat-expr: default_values
   type_invokable:
     seq:
       - id: is_any_function
@@ -928,10 +984,6 @@ types:
         type: local_variable
         repeat: expr
         repeat-expr: local_variables_count
-      - id: default_parameter_basic_blocks_info
-        type: basic_blocks_info
-        repeat: expr
-        repeat-expr: default_parameter_count
       - id: function_basic_blocks_info
         type: basic_blocks_info
       - id: error_table
@@ -1134,6 +1186,19 @@ types:
             'instruction_kind_enum::instruction_kind_typeof': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_not': instruction_unary_operation
             'instruction_kind_enum::instruction_kind_negate': instruction_unary_operation
+            'instruction_kind_enum::instruction_kind_new_reg_exp': instruction_new_reg_exp
+            'instruction_kind_enum::instruction_kind_new_re_disjunction': instruction_new_re_disjunction
+            'instruction_kind_enum::instruction_kind_new_re_sequence': instruction_new_re_sequence
+            'instruction_kind_enum::instruction_kind_new_re_assertion': instruction_new_re_assertion
+            'instruction_kind_enum::instruction_kind_new_re_atom_quantifier': instruction_new_re_atom_quantifier
+            'instruction_kind_enum::instruction_kind_new_re_literal_char_escape': instruction_new_re_char_escape
+            'instruction_kind_enum::instruction_kind_new_re_char_class': instruction_new_re_char_class
+            'instruction_kind_enum::instruction_kind_new_re_char_set': instruction_new_re_char_set
+            'instruction_kind_enum::instruction_kind_new_re_char_set_range': instruction_new_re_char_set_range
+            'instruction_kind_enum::instruction_kind_new_re_capturing_group': instruction_new_re_capturing_group
+            'instruction_kind_enum::instruction_kind_new_re_flag_expr': instruction_new_re_flag_expr
+            'instruction_kind_enum::instruction_kind_new_re_flag_on_off': instruction_new_re_flag_on_off
+            'instruction_kind_enum::instruction_kind_new_re_quantifier': instruction_new_re_quantifier
     enums:
       instruction_kind_enum:
         1: instruction_kind_goto
@@ -1213,6 +1278,19 @@ types:
         86: instruction_kind_bitwise_left_shift
         87: instruction_kind_bitwise_right_shift
         88: instruction_kind_bitwise_unsigned_right_shift
+        89: instruction_kind_new_reg_exp
+        90: instruction_kind_new_re_disjunction
+        91: instruction_kind_new_re_sequence
+        92: instruction_kind_new_re_assertion
+        93: instruction_kind_new_re_atom_quantifier
+        94: instruction_kind_new_re_literal_char_escape
+        95: instruction_kind_new_re_char_class
+        96: instruction_kind_new_re_char_set
+        97: instruction_kind_new_re_char_set_range
+        98: instruction_kind_new_re_capturing_group
+        99: instruction_kind_new_re_flag_expr
+        100: instruction_kind_new_re_flag_on_off
+        101: instruction_kind_new_re_quantifier
         128: instruction_kind_platform
   instruction_const_load:
     seq:
@@ -1695,6 +1773,108 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+  instruction_new_reg_exp:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: re_disjunction
+        type: operand
+  instruction_new_re_disjunction:
+    seq:
+      - id: sequences
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_sequence:
+    seq:
+      - id: terms
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_assertion:
+    seq:
+      - id: assertion
+        type: operand
+      - id: lhs_op
+        type: operand
+  instruction_new_re_atom_quantifier:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: atom
+        type: operand
+      - id: quantifier
+        type: operand
+  instruction_new_re_char_escape:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: char_or_escape
+        type: operand
+  instruction_new_re_char_class:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: class_start
+        type: operand
+      - id: negation
+        type: operand
+      - id: char_set
+        type: operand
+      - id: class_end
+        type: operand
+  instruction_new_re_char_set:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: char_set_atoms
+        type: operand
+  instruction_new_re_char_set_range:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: lhs_char_set_atom
+        type: operand
+      - id: dash
+        type: operand
+      - id: rhs_char_set_atom
+        type: operand
+  instruction_new_re_capturing_group:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: open_paren
+        type: operand
+      - id: flag_expr
+        type: operand
+      - id: re_disjunction
+        type: operand
+      - id: close_paren
+        type: operand
+  instruction_new_re_flag_expr:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: question_mark
+        type: operand
+      - id: flags_on_off
+        type: operand
+      - id: colon
+        type: operand
+  instruction_new_re_flag_on_off:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: flags
+        type: operand
+  instruction_new_re_quantifier:
+    seq:
+      - id: lhs_op
+        type: operand
+      - id: quantifier
+        type: operand
+      - id: non_greedy_char
+        type: operand
   operand:
     seq:
       - id: ignored_variable
@@ -1776,3 +1956,4 @@ enums:
     50: type_tag_never
     51: type_tag_null_set
     52: type_tag_parameterized_type
+    53: type_tag_reg_exp_type

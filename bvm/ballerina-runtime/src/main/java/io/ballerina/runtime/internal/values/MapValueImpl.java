@@ -300,12 +300,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public void populateInitialValue(K key, V value) {
         if (type.getTag() == TypeTags.MAP_TAG) {
             MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
+            putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true);
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true)) {
+                putValue(key, value);
+            }
         }
 
-        putValue(key, value);
         if (this.type.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
         }
