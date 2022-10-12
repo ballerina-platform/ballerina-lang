@@ -5091,11 +5091,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        BType referredReceiverType = Types.getReferredType(funcNode.receiver.getBType());
+        BType receiverType = funcNode.receiver.getBType();
+        BType referredReceiverType = Types.getReferredType(receiverType);
         if (referredReceiverType.tag == TypeTags.OBJECT
-                && !this.env.enclPkg.symbol.pkgID.equals(referredReceiverType.tsymbol.pkgID)) {
+                && !this.env.enclPkg.symbol.pkgID.equals(receiverType.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticErrorCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
-                       funcNode.name.value, funcNode.receiver.getBType().toString());
+                       funcNode.name.value, receiverType.toString());
             return false;
         }
         return true;
