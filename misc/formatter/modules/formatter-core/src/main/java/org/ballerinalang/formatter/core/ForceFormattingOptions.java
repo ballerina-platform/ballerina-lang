@@ -18,7 +18,7 @@ package org.ballerinalang.formatter.core;
 /**
  * A model for formatting options that can be forced by the API user, that could be passed onto the formatter.
  *
- * @since 2201.3.0
+ * @since 2201.2.2
  */
 public class ForceFormattingOptions {
     private boolean forceFormatRecordFields;
