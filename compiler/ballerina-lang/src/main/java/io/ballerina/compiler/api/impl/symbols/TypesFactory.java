@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -197,6 +199,9 @@ public class TypesFactory {
             case ANY:
                 return new BallerinaAnyTypeSymbol(this.context, (BAnyType) bType);
             case ANYDATA:
+                if (bType instanceof BRegexpType) {
+                    return new BallerinaRegexpTypeSymbol(this.context, (BRegexpType) bType);
+                }
                 return new BallerinaAnydataTypeSymbol(this.context, (BAnydataType) bType);
             case HANDLE:
                 return new BallerinaHandleTypeSymbol(this.context, (BHandleType) bType);
@@ -258,6 +263,8 @@ public class TypesFactory {
             case PARAMETERIZED:
             case TYPEREFDESC:
                 return new BallerinaTypeReferenceTypeSymbol(this.context, bType, tSymbol, false);
+            case REGEXP:
+                return new BallerinaRegexpTypeSymbol(this.context, (BRegexpType) bType);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, bType);
@@ -310,6 +317,10 @@ public class TypesFactory {
         }
 
         if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
+            return false;
+        }
+
+        if ((tSymbol.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
             return false;
         }
 

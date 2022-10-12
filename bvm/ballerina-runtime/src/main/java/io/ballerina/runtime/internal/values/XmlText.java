@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -89,9 +88,7 @@ public class XmlText extends XmlNonElementItem {
 
     @Override
     public OMNode value() {
-        CharacterDataImpl characterData = new CharacterDataImpl();
-        characterData.data = this.data;
-        return characterData;
+        return this.factory.createOMText(this.data);
     }
 
     @Override

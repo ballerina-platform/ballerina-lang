@@ -19,6 +19,7 @@ const annotation Foo v1 on annotation;
 annotation Bar v2 on const, type;
 const annotation map<anydata> v3 on return, external;
 const annotation map<anydata> v4 on listener;
+const annotation map<anydata> v5 on client;
 
 type Foo record {
     string val1;

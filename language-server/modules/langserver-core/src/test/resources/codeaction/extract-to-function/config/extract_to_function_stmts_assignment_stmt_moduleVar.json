@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 4
+    },
+    "end": {
+      "line": 3,
+      "character": 30
+    }
+  },
+  "source": "extract_to_function_stmts_assignment_stmt_moduleVar.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
+            },
+            "end": {
+              "line": 4,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() {\n    globalVar \u003d globalVar + 1;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 30
+            }
+          },
+          "newText": "extracted();"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for assignment statement, checks when a assignment statement for a global variable is selected"
+}

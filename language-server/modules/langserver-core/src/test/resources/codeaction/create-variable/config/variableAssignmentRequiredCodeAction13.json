@@ -6,7 +6,7 @@
   "source": "createVariable3.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027map\u003cstring\u003e\u0027",
+      "title": "Create variable with 'map<string>'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "map\u003cstring\u003e mappingResult \u003d "
+          "newText": "map<string> mappingResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          84
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -229,6 +229,14 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test
+    public void testResourceFunctionDefaultParam() {
+        Object returns = BRunUtil.invoke(result, "testResourceFunctionDefaultParam");
+        Assert.assertTrue(returns instanceof BString);
+
+        Assert.assertEquals(returns.toString(), "foo");
+    }
+
+    @Test
     public void testUsingParamValuesInAttachedFunc() {
         Object returns = BRunUtil.invoke(result, "testUsingParamValuesInAttachedFunc");
         Assert.assertTrue(returns instanceof BString);

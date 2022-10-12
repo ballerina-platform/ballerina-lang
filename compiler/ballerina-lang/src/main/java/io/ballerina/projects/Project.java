@@ -85,6 +85,10 @@ public abstract class Project {
         this.currentPackage = currentPackage;
     }
 
+    protected boolean isGeneratedModule(Module module) {
+        return module.moduleContext().isGenerated();
+    }
+
     public ProjectEnvironment projectEnvironmentContext() {
         return this.projectEnvironment;
     }

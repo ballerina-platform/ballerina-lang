@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createListener(int port) returns module1:Listener {\n    return new (0);\n}\n"
+          "newText": "\n\nfunction createListener(int port) returns module1:Listener {\n    return new (0);\n}"
         }
       ],
       "resolvable": true,
