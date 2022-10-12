@@ -56,7 +56,7 @@ public class ComponentModelBuilder {
         PackageId packageId = new PackageId(packageName, packageOrg, packageVersion);
 
         if (!generatedComponentModelMap.containsKey(Utils.getPackageKey(packageId))) {
-            // need to escape tests ? test directory is not getting listed as another module
+            // tests are not coming as a module. Therefore, no need for skipping
             currentPackage.modules().forEach(module -> {
                 Collection<DocumentId> documentIds = module.documentIds();
                 SemanticModel currentSemanticModel =
@@ -64,10 +64,11 @@ public class ComponentModelBuilder {
                 for (DocumentId documentId : documentIds) {
                     SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
                     ServiceDeclarationNodeVisitor serviceNodeVisitor = new
-                            ServiceDeclarationNodeVisitor(currentSemanticModel, packageId);
+                            ServiceDeclarationNodeVisitor(currentSemanticModel, currentPackage, packageId);
                     syntaxTree.rootNode().accept(serviceNodeVisitor);
                     serviceNodeVisitor.getServices().forEach(service -> {
                         services.put(service.getServiceId(), service);
+
                     });
                 }
 

@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.componentmodel.ComponentModel;
 import io.ballerina.componentmodel.ComponentModelingConstants.ParameterIn;
@@ -51,6 +52,7 @@ import io.ballerina.componentmodel.servicemodel.components.RemoteFunction;
 import io.ballerina.componentmodel.servicemodel.components.Resource;
 import io.ballerina.componentmodel.servicemodel.components.ResourceId;
 import io.ballerina.componentmodel.servicemodel.components.ResourceParameter;
+import io.ballerina.projects.Package;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,17 +66,19 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
     private final String serviceId;
 
     private final SemanticModel semanticModel;
+    private final Package currentPackage;
     List<Resource> resources = new ArrayList<>();
 
     List<RemoteFunction> remoteFunctions = new ArrayList<>();
 
     private final ComponentModel.PackageId packageId;
 
-    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel,
+    public ResourceAccessorDefinitionNodeVisitor(String serviceId, SemanticModel semanticModel, Package currentPackage,
                                                  ComponentModel.PackageId packageId) {
 
         this.serviceId = serviceId;
         this.semanticModel = semanticModel;
+        this.currentPackage = currentPackage;
         this.packageId = packageId;
     }
 
@@ -110,11 +114,12 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
             String method = functionDefinitionNode.functionName().text().trim();
 
             List<ResourceParameter> resourceParameterList = new ArrayList<>();
-            getParameters(functionDefinitionNode.functionSignature(), true, resourceParameterList, null);
+            getParameters(functionDefinitionNode.functionSignature(), true,
+                    resourceParameterList, null);
             List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
             ActionNodeVisitor actionNodeVisitor =
-                    new ActionNodeVisitor(semanticModel);
+                    new ActionNodeVisitor(semanticModel, currentPackage);
             functionDefinitionNode.accept(actionNodeVisitor);
 
             ResourceId resourceId = new ResourceId(this.serviceId, method, resourcePath);
@@ -130,10 +135,11 @@ public class ResourceAccessorDefinitionNodeVisitor extends NodeVisitor {
             if (isRemote) {
                 String name = functionDefinitionNode.functionName().text().trim();
                 List<FunctionParameter> parameterList = new ArrayList<>();
-                getParameters(functionDefinitionNode.functionSignature(), false, null, parameterList);
+                getParameters(functionDefinitionNode.functionSignature(),
+                        false, null, parameterList);
                 List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
-                ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel);
+                ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel, currentPackage);
                 functionDefinitionNode.accept(actionNodeVisitor);
 
                 RemoteFunction remoteFunction = new RemoteFunction(name, parameterList, returnTypes,

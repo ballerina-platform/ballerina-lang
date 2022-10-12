@@ -4,6 +4,7 @@ package io.ballerina.componentmodel.servicemodel.components;
  * Represents display annotation.
  */
 public class ServiceAnnotation {
+
     private String id = "";
     private String label = "";
 
