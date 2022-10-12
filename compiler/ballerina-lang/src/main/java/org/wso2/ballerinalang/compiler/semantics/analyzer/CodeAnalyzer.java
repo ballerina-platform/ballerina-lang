@@ -1689,6 +1689,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     checkForExportableType((((BErrorType) symbolType).detailType.tsymbol), pos, visitedSymbols);
                     return;
                 }
+                break;
             case TypeTags.TYPEREFDESC:
                 symbolType = Types.getReferredType(symbolType);
                 checkForExportableType(Types.getReferredType(symbolType).tsymbol, pos, visitedSymbols);
