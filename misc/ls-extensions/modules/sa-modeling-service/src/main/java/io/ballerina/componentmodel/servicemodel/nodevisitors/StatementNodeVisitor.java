@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -121,6 +122,12 @@ public class StatementNodeVisitor extends NodeVisitor {
                         listenerSymbol.get()).signature().trim().replace(CLIENT, "");
             } else {
                 clientModuleName = clientNode.modulePrefix().text().trim();
+            }
+        } else if (typeDescriptorNode instanceof SimpleNameReferenceNode) {
+            Optional<Symbol> optionalSymbol = semanticModel.symbol(typeDescriptorNode);
+            if (optionalSymbol.isPresent() && optionalSymbol.get() instanceof TypeReferenceTypeSymbol) {
+                TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) optionalSymbol.get();
+                clientModuleName = typeReferenceTypeSymbol.signature().trim();
             }
         }
         return clientModuleName;
