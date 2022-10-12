@@ -65,9 +65,9 @@ public class LSExtensionTestUtil {
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
+    private static final String SYNTAX_TREE_BY_NAME = "ballerinaDocument/syntaxTreeByName";
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
-    private static final String SYNTAX_TREE_BY_NAME = "ballerinaDocument/syntaxTreeByName";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
