@@ -11,6 +11,7 @@ on:
       - ballerina-[0-9]+.[0-9]+.x
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
+      - native-build-stage
 
 jobs:
   windows_build:
