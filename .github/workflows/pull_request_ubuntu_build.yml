@@ -11,6 +11,7 @@ on:
       - stage-swan-lake
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
+      - native-build-stage
 
 jobs:
   ubuntu_build:
@@ -129,4 +130,3 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         if: "${{ env.SONAR_TOKEN == '' }}"
         run: echo "Sonarcloud scan is skipped"
-        

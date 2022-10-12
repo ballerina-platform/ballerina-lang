@@ -483,6 +483,8 @@ public class ManifestBuilder {
                 getStringFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TARGET_DIR.toString());
         Boolean enableCache =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.ENABLE_CACHE.toString());
+        Boolean nativeImage =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.NATIVE_IMAGE.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -493,7 +495,8 @@ public class ManifestBuilder {
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
