@@ -449,8 +449,11 @@ public class BIRPackageSymbolEnter {
                         resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
                     }
                     
-                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathCount);
-                    for (int i = 0; i < resourcePathCount; i++) {
+                    // resourcePathCount and resourcePathPosCount will be different for root scenario since we 
+                    // don't keep post information for `.`
+                    int resourcePathPosCount = dataInStream.readInt();
+                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathPosCount);
+                    for (int i = 0; i < resourcePathPosCount; i++) {
                         resourcePathSegmentPosList.add(readPosition(dataInStream));
                     }
 
