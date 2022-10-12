@@ -147,7 +147,7 @@ public class FormattingOptions {
     /**
      * A builder for the {@code FormattingOptions}.
      *
-     * @since 2201.3.0
+     * @since 2201.1.3
      */
     public static class FormattingOptionsBuilder {
         private int tabSize = 4;
