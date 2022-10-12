@@ -1692,7 +1692,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 break;
             case TypeTags.TYPEREFDESC:
                 symbolType = Types.getReferredType(symbolType);
-                checkForExportableType(Types.getReferredType(symbolType).tsymbol, pos, visitedSymbols);
+                checkForExportableType(symbolType.tsymbol, pos, visitedSymbols);
                 return;
             // TODO : Add support for other types. such as union and objects
         }
