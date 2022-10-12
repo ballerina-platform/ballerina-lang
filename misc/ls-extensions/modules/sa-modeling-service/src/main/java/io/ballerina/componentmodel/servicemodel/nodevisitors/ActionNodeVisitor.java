@@ -18,23 +18,39 @@
 
 package io.ballerina.componentmodel.servicemodel.nodevisitors;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.componentmodel.servicemodel.components.Interaction;
 import io.ballerina.componentmodel.servicemodel.components.ResourceId;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Package;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static io.ballerina.componentmodel.ComponentModelingConstants.TYPE_MAP;
 
@@ -44,10 +60,12 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.TYPE_MAP;
 public class ActionNodeVisitor extends NodeVisitor {
 
     private final SemanticModel semanticModel;
+    private final Package currentPackage;
     private final List<Interaction> interactionList = new ArrayList<>();
 
-    public ActionNodeVisitor(SemanticModel semanticModel) {
+    public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage) {
         this.semanticModel = semanticModel;
+        this.currentPackage = currentPackage;
     }
 
     public List<Interaction> getInteractionList() {
@@ -59,7 +77,7 @@ public class ActionNodeVisitor extends NodeVisitor {
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
 
         String clientName = String.valueOf(clientResourceAccessActionNode.expression()).trim();
-        String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get()).trim();
+        String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
         StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
@@ -87,7 +105,13 @@ public class ActionNodeVisitor extends NodeVisitor {
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
 
         String clientName = String.valueOf(remoteMethodCallActionNode.expression()).trim();
-        String resourceMethod = String.valueOf(remoteMethodCallActionNode.methodName()).trim();
+        if (remoteMethodCallActionNode.expression() instanceof FieldAccessExpressionNode) {
+            clientName = ((SimpleNameReferenceNode)((FieldAccessExpressionNode) remoteMethodCallActionNode.expression())
+                    .fieldName()).name().text();
+        } else if (remoteMethodCallActionNode.expression() instanceof SimpleNameReferenceNode) {
+            clientName = ((SimpleNameReferenceNode)remoteMethodCallActionNode.expression()).name().text();
+        }
+        String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
         NonTerminalNode parent = remoteMethodCallActionNode.parent().parent();
         StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
 
@@ -106,6 +130,58 @@ public class ActionNodeVisitor extends NodeVisitor {
                 resourceMethod, null), statementVisitor.getConnectorType());
         interactionList.add(interaction);
 
+    }
+
+    @Override
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        String methodName = ((SimpleNameReferenceNode)functionCallExpressionNode.functionName()).name().text();
+        Optional<Symbol> symbol = semanticModel.symbol(functionCallExpressionNode.functionName());
+        symbol.ifPresent(value -> findInteractions(methodName, value));
+        if (!functionCallExpressionNode.arguments().isEmpty()) {
+            functionCallExpressionNode.arguments().forEach(arg -> {
+                arg.accept(this);
+            });
+        }
+    }
+
+    @Override
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        String methodName = ((SimpleNameReferenceNode)methodCallExpressionNode.methodName()).name().text();
+        Optional<Symbol> symbol = semanticModel.symbol(methodCallExpressionNode.methodName());
+        symbol.ifPresent(value -> findInteractions(methodName, value));
+        if (!methodCallExpressionNode.arguments().isEmpty()) {
+            methodCallExpressionNode.arguments().forEach(arg -> {
+                arg.accept(this);
+            });
+        }
+    }
+
+    private void findInteractions(String methodName, Symbol methodSymbol) {
+        Optional<Location> location = methodSymbol.getLocation();
+        Optional<ModuleSymbol> optionalModuleSymbol = methodSymbol.getModule();
+        if (optionalModuleSymbol.isPresent()) {
+            ModuleID moduleID = optionalModuleSymbol.get().id();
+            currentPackage.modules().forEach(module -> {
+                if (Objects.equals(moduleID.moduleName(), module.moduleName().toString())) {
+                    Collection<DocumentId> documentIds = module.documentIds();
+                    for (DocumentId documentId : documentIds) {
+                        SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+                        NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode())
+                                .findNode(location.get().textRange());
+                        if (!node.isMissing() && node instanceof FunctionDefinitionNode) {
+                            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
+                            String referencedFunctionName = functionDefinitionNode.functionName().text();
+                            if (methodName.equals(referencedFunctionName)) {
+                                ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel,
+                                        currentPackage);
+                                functionDefinitionNode.accept(actionNodeVisitor);
+                                interactionList.addAll(actionNodeVisitor.getInteractionList());
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     private String getResourcePath(SeparatedNodeList<Node> accessPathNodes) {
