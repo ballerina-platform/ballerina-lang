@@ -8228,6 +8228,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         }
 
+        if (Symbols.isFlagOn(fieldSymbol.flags, Flags.REMOTE)) {
+            dlog.error(bLangFieldBasedAccess.field.pos,
+                       DiagnosticErrorCode.CANNOT_USE_FIELD_ACCESS_TO_ACCESS_A_REMOTE_METHOD);
+            return symTable.semanticError;
+        }
+
         if (Symbols.isFlagOn(fieldSymbol.type.flags, Flags.ISOLATED) &&
                 !Symbols.isFlagOn(objectType.flags, Flags.ISOLATED)) {
             fieldSymbol = ASTBuilderUtil.duplicateInvokableSymbol((BInvokableSymbol) fieldSymbol);

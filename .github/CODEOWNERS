@@ -18,6 +18,3 @@
 
 # CODEOWNERS file
 /.github/CODEOWNERS @sameerajayasoma @hasithaa @anupama-pathirage @warunalakshitha @mohanvive @manuranga @hevayo
-
-# Notify daily build failures
-* @gimantha @azinneera
