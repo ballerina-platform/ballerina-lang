@@ -180,7 +180,6 @@ public class TypeParamAnalyzer {
     // Private methods.
 
     private static boolean containsTypeParam(BType type, HashSet<BType> resolvedTypes) {
-        type = Types.getReferredType(type);
         if (resolvedTypes.contains(type)) {
             return false;
         }
@@ -255,6 +254,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(errorType.detailType, resolvedTypes);
             case TypeTags.TYPEDESC:
                 return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
+            case TypeTags.TYPEREFDESC:
+                return containsTypeParam(Types.getReferredType(type), resolvedTypes);
             default:
                 return false;
         }

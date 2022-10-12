@@ -123,11 +123,8 @@ public class MethodGenUtils {
     }
 
     private static boolean isValidType(BType attachedType) {
-        if (attachedType != null) {
-            BType referredAttachedType = JvmCodeGenUtil.getReferredType(attachedType);
-            return (referredAttachedType.tag == TypeTags.OBJECT
-                    || referredAttachedType.tag == TypeTags.RECORD);
-        }
-        return false;
+        BType referredAttachedType = JvmCodeGenUtil.getReferredType(attachedType);
+        return attachedType != null && (referredAttachedType.tag == TypeTags.OBJECT
+                || referredAttachedType.tag == TypeTags.RECORD);
     }
 }
