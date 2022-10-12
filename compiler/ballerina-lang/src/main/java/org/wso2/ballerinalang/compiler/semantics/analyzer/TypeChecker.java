@@ -4616,13 +4616,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : rhsFields) {
             String key = keyVal.key.value;
             BLangExpression valueExpr = keyVal.valueExpr;
-            if (valueExpr instanceof BLangBinaryExpr
+            if (valueExpr != null && valueExpr.getKind() == NodeKind.BINARY_EXPR
                         && ((BLangBinaryExpr) valueExpr).opKind == OperatorKind.BITWISE_OR) {
                 dlog.error(valueExpr.pos,
-                        DiagnosticErrorCode.ALTERNATIVE_WAIT_ACTION_NOT_SUPPORTED_IN_MULTIPLE_WAIT_EXPRESSION);
+                        DiagnosticErrorCode.CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION);
                 data.resultType = symTable.semanticError;
-            }
-            else if (!lhsFields.containsKey(key)) {
+            } else if (!lhsFields.containsKey(key)) {
                 // Check if the field is sealed if so you cannot have dynamic fields
                 if (((BRecordType) Types.getReferredType(data.expType)).sealed) {
                     dlog.error(waitExpr.pos, DiagnosticErrorCode.INVALID_FIELD_NAME_RECORD_LITERAL, key, data.expType);
@@ -4685,8 +4684,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
         if (expression.expectedType.tag != TypeTags.FUTURE) {
-            dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR,
-                    symTable.futureType, expression.expectedType, expression);
+            dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_OF_FUTURE_TYPE_EXPECTED);
             return;
         }
 

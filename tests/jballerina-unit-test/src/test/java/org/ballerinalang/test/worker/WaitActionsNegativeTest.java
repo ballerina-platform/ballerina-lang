@@ -146,31 +146,25 @@ public class WaitActionsNegativeTest {
                 "incompatible types: expected 'string', found eventual type '(string|error)' for wait future " +
                         "expression 'f4'", 90, 54);
         BAssertUtil.validateError(resultNegative, index++,
-                "alternative wait action not yet support inside multiple wait expressions",
+                "cannot use an alternate wait action within a multiple wait action",
                 123, 38);
         BAssertUtil.validateError(resultNegative, index++,
-                "alternative wait action not yet support inside multiple wait expressions",
+                "cannot use an alternate wait action within a multiple wait action",
                 124, 48);
         BAssertUtil.validateError(resultNegative, index++,
-                "alternative wait action not yet support inside multiple wait expressions",
+                "cannot use an alternate wait action within a multiple wait action",
                 125, 27);
         BAssertUtil.validateError(resultNegative, index++,
-                "alternative wait action not yet support inside multiple wait expressions",
+                "cannot use an alternate wait action within a multiple wait action",
                 125, 58);
         BAssertUtil.validateError(resultNegative, index++,
-                "incompatible types: expected 'future<(any|error)>', found eventual type " +
-                        "'(future<(boolean|error)>|future<(boolean|error)>)' for wait" +
-                        " future expression 'x'", 141, 38);
+                "expression of future type is expected", 141, 38);
         BAssertUtil.validateError(resultNegative, index++,
-                "incompatible types: expected 'future<(any|error)>', found eventual type" +
-                        " '(future<boolean>|future<boolean>)' for wait future expression 'y'", 142, 48);
+                "expression of future type is expected", 142, 48);
         BAssertUtil.validateError(resultNegative, index++,
-                "incompatible types: expected 'future<(any|error)>', found eventual type" +
-                        " '(future<(boolean|error)>|future<(boolean|error)>)' for" +
-                        " wait future expression 'x'", 143, 27);
+                "expression of future type is expected", 143, 27);
         BAssertUtil.validateError(resultNegative, index++,
-                "incompatible types: expected 'future<(any|error)>', found eventual type" +
-                        " '(future<boolean>|future<boolean>)' for wait future expression 'y'", 143, 40 );
+                "expression of future type is expected", 143, 40);
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Wait actions negative test error count");
     }
 

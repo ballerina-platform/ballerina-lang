@@ -795,8 +795,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
             "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
-    ALTERNATIVE_WAIT_ACTION_NOT_SUPPORTED_IN_MULTIPLE_WAIT_EXPRESSION("BCE4035",
-            "unsupported.alternative.wait.action.in.multiple.wait.expr")
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4045",
+            "cannot.use.alternate.wait.action.within.multiple.wait.action"),
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4046", "future.expression.expected")
     ;
 
     private String diagnosticId;
