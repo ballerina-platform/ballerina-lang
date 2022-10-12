@@ -38,21 +38,21 @@ type GroupsAsSpanArrayType SpanAsTupleType[];
 type GroupsArrayType GroupsAsSpanArrayType[];
 
 # Returns the span of the first match that starts at or after startIndex.
-public function find(RegExp reExp, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = findImpl(reExp, str, startIndex);
+public isolated function find(RegExp 're, string str, int startIndex = 0) returns Span? {
+    SpanAsTupleType? resultArr = findImpl('re, str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
     }
 }
 
-function findImpl(RegExp reExp, string str, int startIndex = 0) returns SpanAsTupleType? = @java:Method {
+isolated function findImpl(RegExp reExp, string str, int startIndex = 0) returns SpanAsTupleType? = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Find",
     name: "find"
 } external;
 
-public function findGroups(RegExp reExp, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl(reExp, str, startIndex);
+public isolated function findGroups(RegExp 're, string str, int startIndex = 0) returns Groups? {
+    GroupsAsSpanArrayType? resultArr = findGroupsImpl('re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         SpanAsTupleType firstMatch = resultArr[0];
         Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
@@ -66,15 +66,15 @@ public function findGroups(RegExp reExp, string str, int startIndex = 0) returns
     }
 }
 
-function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsAsSpanArrayType? = @java:Method {
+isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsAsSpanArrayType? = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Find",
     name: "findGroups"
 } external;
 
 # Return all non-overlapping matches.
-public function findAll(RegExp reExp, string str, int startIndex = 0) returns Span[] {
+public isolated function findAll(RegExp 're, string str, int startIndex = 0) returns Span[] {
     Span[] spanArr = [];
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl(reExp, str, startIndex);
+    GroupsAsSpanArrayType? resultArr = findGroupsImpl('re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         foreach SpanAsTupleType tpl in resultArr {
             spanArr.push(new java:SpanImpl(tpl[0], tpl[1], tpl[2]));
@@ -84,8 +84,8 @@ public function findAll(RegExp reExp, string str, int startIndex = 0) returns Sp
 }
 
 # Return all non-overlapping matches.
-public function findAllGroups(RegExp reExp, string str, int startIndex = 0) returns Groups[]? {
-    GroupsArrayType? resultArr = findAllGroupsImpl(reExp, str, startIndex);
+public isolated function findAllGroups(RegExp 're, string str, int startIndex = 0) returns Groups[] {
+    GroupsArrayType? resultArr = findAllGroupsImpl('re, str, startIndex);
     if (resultArr is GroupsArrayType) {
         Groups[] groupArrRes = [];
         foreach GroupsAsSpanArrayType groupArr in resultArr {
@@ -103,28 +103,29 @@ public function findAllGroups(RegExp reExp, string str, int startIndex = 0) retu
         }
         return groupArrRes;
     }
+    return [];
 }
 
-function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsArrayType? = @java:Method {
+isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsArrayType? = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Find",
     name: "findAllGroups"
 } external;
 
-public function matchAt(RegExp reExp, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = matchAtImpl(reExp, str, startIndex);
+public isolated function matchAt(RegExp 're, string str, int startIndex = 0) returns Span? {
+    SpanAsTupleType? resultArr = matchAtImpl('re, str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
     }
 }
 
-function matchAtImpl(RegExp reExp, string str, int startIndex = 0) returns [int, int, string]? = @java:Method {
+isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) returns [int, int, string]? = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Matches",
     name: "matchAt"
 } external;
 
-public function matchGroupsAt(RegExp reExp, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl(reExp, str, startIndex);
+public isolated function matchGroupsAt(RegExp 're, string str, int startIndex = 0) returns Groups? {
+    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl('re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         SpanAsTupleType firstMatch = resultArr[0];
         Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
@@ -138,34 +139,34 @@ public function matchGroupsAt(RegExp reExp, string str, int startIndex = 0) retu
     }
 }
 
-function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsAsSpanArrayType? = @java:Method {
+isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsAsSpanArrayType? = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Matches",
     name: "matchGroupsAt"
 } external;
 
 # Says whether there is a match of the RegExp that starts at the beginning of the string and ends at the end of the string.
-public function isFullMatch(RegExp reExp, string str) returns boolean {
-    return isFullMatchImpl(reExp, str);
+public isolated function isFullMatch(RegExp 're, string str) returns boolean {
+    return isFullMatchImpl('re, str);
 }
 
-function isFullMatchImpl(RegExp reExp, string str) returns boolean = @java:Method {
+isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Matches",
     name: "isFullMatch"
 } external;
 
 # Says whether there is a match of the RegExp that starts at the beginning of the string and ends at the end of the string.
-public function fullMatchGroups(RegExp reExp, string str) returns Groups? {
-    return matchGroupsAt(reExp, str);
+public isolated function fullMatchGroups(RegExp 're, string str) returns Groups? {
+    return matchGroupsAt('re, str);
 }
 
-type ReplacerFunction function (Groups groups) returns string;
+public type ReplacerFunction function (Groups groups) returns string;
 
 public type Replacement ReplacerFunction|string;
 
 # Replaces the first occurrence of a regular expression.
-public function replace(RegExp reExp, string str, Replacement replacement, int startIndex = 0) returns string {
+public isolated function replace(RegExp 're, string str, Replacement replacement, int startIndex = 0) returns string {
     string replacementStr = "";
-    Groups? findResult = findGroups(reExp, str, startIndex);
+    Groups? findResult = findGroups('re, str, startIndex);
     if findResult is () {
         return str;
     }
@@ -174,30 +175,30 @@ public function replace(RegExp reExp, string str, Replacement replacement, int s
     } else {
         replacementStr = replacement;
     }
-    return replaceFromString(reExp, str, replacementStr, startIndex);
+    return replaceFromString('re, str, replacementStr, startIndex);
 }
 
-function replaceFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
+isolated function replaceFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Replace",
     name: "replaceFromString"
 } external;
 
 # Replaces all occurrences of a regular expression.
-public function replaceAll(RegExp reExp, string str, Replacement replacement, int startIndex = 0) returns string {
-    Groups? findResult = findGroups(reExp, str, startIndex);
+public isolated function replaceAll(RegExp 're, string str, Replacement replacement, int startIndex = 0) returns string {
+    Groups? findResult = findGroups('re, str, startIndex);
     if findResult is () {
         return str;
     }
     string replacementStr = replacement is ReplacerFunction ? replacement(findResult) : replacement;
-    return replaceAllFromString(reExp, str, replacementStr, startIndex);
+    return replaceAllFromString('re, str, replacementStr, startIndex);
 }
 
-function replaceAllFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
+isolated function replaceAllFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Replace",
     name: "replaceAllFromString"
 } external;
 
-public function fromString(string str) returns RegExp|error = @java:Method {
+public isolated function fromString(string str) returns RegExp|error = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.FromString",
     name: "fromString"
 } external;
