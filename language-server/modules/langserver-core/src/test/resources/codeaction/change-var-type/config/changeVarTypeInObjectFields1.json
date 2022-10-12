@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "change_var_type_in_object_fields.bal",
+  "expected": [
+    {
+      "title": "Change variable 'f1' type to 'float'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 10
+            }
+          },
+          "newText": "float"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

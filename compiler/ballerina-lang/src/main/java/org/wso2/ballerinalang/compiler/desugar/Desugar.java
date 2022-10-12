@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -243,6 +245,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -301,10 +304,8 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -347,7 +348,6 @@ public class Desugar extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<Desugar> DESUGAR_KEY =
             new CompilerContext.Key<>();
-    private static final String BASE_64 = "base64";
     private static final String ERROR_MESSAGE_FUNCTION_NAME = "message";
     private static final String ERROR_CAUSE_FUNCTION_NAME = "cause";
     private static final String ERROR_DETAIL_FUNCTION_NAME = "detail";
@@ -806,6 +806,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.xmlnsList = rewrite(pkgNode.xmlnsList, env);
         pkgNode.constants = rewrite(pkgNode.constants, env);
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
+        pkgNode.clientDeclarations = rewrite(pkgNode.clientDeclarations, env);
         pkgNode.classDefinitions = rewrite(pkgNode.classDefinitions, env);
 
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
@@ -5722,8 +5723,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (literalExpr.getBType().tag == TypeTags.ARRAY
-                && ((BArrayType) literalExpr.getBType()).eType.tag == TypeTags.BYTE) {
+        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.ARRAY) {
             // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
@@ -5732,13 +5732,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {
-        String[] result = getBlobTextValue((String) literalExpr.value);
-        byte[] values;
-        if (BASE_64.equals(result[0])) {
-            values = Base64.getDecoder().decode(result[1].getBytes(StandardCharsets.UTF_8));
-        } else {
-            values = hexStringToByteArray(result[1]);
-        }
+        byte[] values = types.convertToByteArray((String) literalExpr.value);
         BLangArrayLiteral arrayLiteralNode = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.setBType(literalExpr.getBType());
         arrayLiteralNode.pos = literalExpr.pos;
@@ -5747,24 +5741,6 @@ public class Desugar extends BLangNodeVisitor {
             arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
         }
         return arrayLiteralNode;
-    }
-
-    private String[] getBlobTextValue(String blobLiteralNodeText) {
-        String nodeText = blobLiteralNodeText.replace("\t", "").replace("\n", "").replace("\r", "")
-                .replace(" ", "");
-        String[] result = new String[2];
-        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
-        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
-        return result;
-    }
-
-    private static byte[] hexStringToByteArray(String str) {
-        int len = str.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
-        }
-        return data;
     }
 
     @Override
@@ -6566,14 +6542,14 @@ public class Desugar extends BLangNodeVisitor {
             Name resourcePathName = resourcePath.get(i);
             if (firstRequiredArgFromRestArg == null && requiredArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
                 firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
-                if (resourcePathName.value.equals("*")) {
+                if (resourcePathName.value.equals("^")) {
                     isFirstRequiredArgFromRestArgIncluded = true;
                     bLangInvocation.requiredArgs.add(requiredArg);
                     continue;
                 }
             }
 
-            if (resourcePathName.value.equals("*")) {
+            if (resourcePathName.value.equals("^")) {
                 if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded) {
                     BLangStatementExpression statementExpression = new BLangStatementExpression();
                     statementExpression.expr = requiredArg;
@@ -6588,7 +6564,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         Name lastResourcePathName = resourcePath.get(resourcePath.size() - 1);
-        if (lastResourcePathName.value.equals("**")) {
+        if (lastResourcePathName.value.equals("^^")) {
             // After reordering pathParamInvocation.restArgs size will always be 0 or 1
             for (BLangExpression restArg : pathParamInvocation.restArgs) {
                 if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded &&
@@ -6924,13 +6900,14 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
 
-        BType constraintType = ((BStreamType) typeInitExpr.getBType()).constraint;
+        BStreamType referredStreamType = (BStreamType) Types.getReferredType(typeInitExpr.getBType());
+        BType constraintType = referredStreamType.constraint;
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
-        BType completionType = ((BStreamType) typeInitExpr.getBType()).completionType;
+        BType completionType = referredStreamType.completionType;
         BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
@@ -8511,6 +8488,18 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstRef constantRef) {
         result = ASTBuilderUtil.createLiteral(constantRef.pos, constantRef.getBType(), constantRef.value);
+    }
+
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration) {
+        addImportForModuleGeneratedForClientDecl(clientDeclaration);
+        this.result = clientDeclaration;
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        addImportForModuleGeneratedForClientDecl(clientDeclarationStatement.clientDeclaration);
+        this.result = clientDeclarationStatement;
     }
 
     @Override
@@ -10301,5 +10290,48 @@ public class Desugar extends BLangNodeVisitor {
             env.enclPkg.imports.add(importDcl);
             env.enclPkg.symbol.imports.add(importDcl.symbol);
         }
+    }
+
+    private void addImportForModuleGeneratedForClientDecl(BLangClientDeclaration clientDeclaration) {
+        // Currently happens when client declarations are in single bal files. May not be required once it is
+        // restricted.
+        if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
+                !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                        .containsKey(clientDeclaration.prefix.pos.lineRange().filePath())) {
+            return;
+        }
+        Map<LineRange, Optional<PackageID>> lineRangeMap =
+                symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
+                .get(clientDeclaration.prefix.pos.lineRange().filePath());
+        if (!lineRangeMap.containsKey(clientDeclaration.prefix.pos.lineRange())) {
+            return;
+        }
+
+        Optional<PackageID> optionalPackageID = lineRangeMap.get(clientDeclaration.prefix.pos.lineRange());
+
+        // No compatible plugin was found to generate a module for the client declaration.
+        if (optionalPackageID.isEmpty()) {
+            return;
+        }
+
+        PackageID packageID = optionalPackageID.get();
+
+        // Also happens with single bal files when there are IDL client plugins.
+        // TODO: 2022-08-30 Remove once fixed from the project API side.
+        if (Names.ANON_ORG.equals(packageID.orgName) && Names.DOT.equals(packageID.name)) {
+            return;
+        }
+
+        BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
+        BLangPackage enclPkg = env.enclPkg;
+        Location pos = enclPkg.pos;
+        importDcl.pos = pos;
+        importDcl.pkgNameComps = List.of(ASTBuilderUtil.createIdentifier(pos, packageID.name.value));
+        importDcl.orgName = ASTBuilderUtil.createIdentifier(pos, packageID.orgName.value);
+        importDcl.version = ASTBuilderUtil.createIdentifier(pos, packageID.version.value);
+        BPackageSymbol moduleSymbol = symResolver.getModuleForPackageId(packageID);
+        importDcl.symbol = moduleSymbol;
+        enclPkg.imports.add(importDcl);
+        enclPkg.symbol.imports.add(moduleSymbol);
     }
 }
