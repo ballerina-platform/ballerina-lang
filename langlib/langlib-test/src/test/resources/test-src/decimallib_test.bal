@@ -571,11 +571,11 @@ function testQuantizeFunctionWithInvalidOutput() {
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
     
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6176);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6143);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
-    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6175);
+    a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6143, 1E-6142);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 }
