@@ -105,7 +105,7 @@ public class CreateNativeImageTask implements Task {
         } catch (IOException e) {
             throw createLauncherException("unable to create native directory:" + e.getMessage());
         } catch (InterruptedException e) {
-            throw createLauncherException("unable to create native image:" + e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
