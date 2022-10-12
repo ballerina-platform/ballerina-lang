@@ -49,7 +49,6 @@ import io.ballerina.projects.Package;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static io.ballerina.componentmodel.ComponentModelingConstants.FORWARD_SLASH;

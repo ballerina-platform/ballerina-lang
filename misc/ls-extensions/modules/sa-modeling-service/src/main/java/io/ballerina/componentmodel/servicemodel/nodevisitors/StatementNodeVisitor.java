@@ -51,7 +51,7 @@ public class StatementNodeVisitor extends NodeVisitor {
 
     private String connectorType = null;
 
-    private SemanticModel semanticModel;
+    private final SemanticModel semanticModel;
 
     private final String clientName;
 
