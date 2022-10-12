@@ -461,16 +461,16 @@ public class BIRPackageSymbolEnter {
                             invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
                             resourcePathType, symTable.builtinPos);
 
-                    int resourcePathSize = resourcePath.size();
                     List<BType> resourcePathTypes = resourceFunction.resourcePathType.tupleTypes;
                     BType restPathParamType = resourceFunction.resourcePathType.restType;
                     if (restPathParamType != null) {
                         resourcePathTypes.add(restPathParamType);
                     }
 
-                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathSize);
+                    int resourcePathTypeCount = resourcePathTypes.size();
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathTypeCount);
                     BResourcePathSegmentSymbol parentResource = null;
-                    for (int i = 0; i < resourcePathSize; i++) {
+                    for (int i = 0; i < resourcePathTypeCount; i++) {
                         Name resourcePathSymbolName = resourcePath.get(i);
                         BType resourcePathSegmentType = resourcePathTypes.get(i);
 

@@ -5017,16 +5017,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                 funcType, resourcePath, accessor, pathParamSymbols, restPathParamSym,
                 (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
         
-        int resourcePathSize = resourcePath.size();
         List<BType> resourcePathTypes = bResourceFunction.resourcePathType.tupleTypes;
         BType restPathParamType = bResourceFunction.resourcePathType.restType;
         if (restPathParamType != null) {
             resourcePathTypes.add(restPathParamType);
         }
-        
-        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathSize);
+
+        int resourcePathTypeCount = resourcePathTypes.size();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathTypeCount);
         BResourcePathSegmentSymbol parentResource = null;
-        for (int i = 0; i < resourcePathSize; i++) {
+        for (int i = 0; i < resourcePathTypeCount; i++) {
             Name resourcePathSymbolName = resourcePath.get(i);
             BType resourcePathSegmentType = resourcePathTypes.get(i);
             
