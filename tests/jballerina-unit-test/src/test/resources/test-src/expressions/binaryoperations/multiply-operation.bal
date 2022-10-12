@@ -1189,6 +1189,20 @@ function testNoShortCircuitingInMultiplicationWithNonNullable() {
     assertEqual(intVal, 30);
 }
 
+function testDecimalMultiplicationUnderflow() {
+    decimal d1 = 9.999999999999999999999999999999999E-6001;
+    decimal d2 = 1E-143;
+    assertEqual(d1 * d2, 0.0d);
+
+    d1 = -9.999999999999999999999999999999999E-6001;
+    d2 = 1E-143;
+    assertEqual(d1 * d2, 0.0d);
+
+    d1 = -9.999999999999999999999999999999999E-6101;
+    d2 = 1E-76;
+    assertEqual(d1 * d2, 0.0d);
+}
+
 function foo() returns int? {
     intVal += 2;
     return ();

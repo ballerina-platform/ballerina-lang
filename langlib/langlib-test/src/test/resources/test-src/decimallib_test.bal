@@ -401,6 +401,14 @@ function testFromStringFunctionWithInvalidValues() {
     assertEquality(false, a1 is error);
     assertEquality(1e-6143d, checkpanic a1);
 
+    a1 = decimal:fromString("1e-6144");
+    assertEquality(false, a1 is error);
+    assertEquality(0d, checkpanic a1);
+
+    a1 = decimal:fromString("1e-6178");
+    assertEquality(false, a1 is error);
+    assertEquality(0d, checkpanic a1);
+
     a1 = trap decimal:fromString("9.999999999999999999999999999999999E6145");
     assertEquality(true, a1 is error);
     if (a1 is error) {
