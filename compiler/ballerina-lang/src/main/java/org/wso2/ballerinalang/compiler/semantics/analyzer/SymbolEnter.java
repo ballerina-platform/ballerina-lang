@@ -5013,12 +5013,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
+        BTupleType resourcePathType = (BTupleType) resourceFunction.resourcePathType.getBType();
         BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
-                funcType, resourcePath, accessor, pathParamSymbols, restPathParamSym,
-                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
+                funcType, resourcePath, accessor, pathParamSymbols, restPathParamSym, resourcePathType, funcNode.pos);
         
-        List<BType> resourcePathTypes = bResourceFunction.resourcePathType.tupleTypes;
-        BType restPathParamType = bResourceFunction.resourcePathType.restType;
+        List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
+        BType restPathParamType = resourcePathType.restType;
         if (restPathParamType != null) {
             resourcePathTypes.add(restPathParamType);
         }

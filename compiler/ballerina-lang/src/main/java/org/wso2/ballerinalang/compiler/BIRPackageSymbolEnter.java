@@ -461,8 +461,8 @@ public class BIRPackageSymbolEnter {
                             invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
                             resourcePathType, symTable.builtinPos);
 
-                    List<BType> resourcePathTypes = resourceFunction.resourcePathType.tupleTypes;
-                    BType restPathParamType = resourceFunction.resourcePathType.restType;
+                    List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
+                    BType restPathParamType = resourcePathType.restType;
                     if (restPathParamType != null) {
                         resourcePathTypes.add(restPathParamType);
                     }
