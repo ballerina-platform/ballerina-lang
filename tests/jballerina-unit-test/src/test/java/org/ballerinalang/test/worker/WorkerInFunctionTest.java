@@ -56,9 +56,16 @@ public class WorkerInFunctionTest {
         Assert.assertEquals(returns.toString(), expected);
     }
 
-    @Test(description = "Test worker interactions with each other")
-    public void testReturnUnionWithWaitForAll() {
-        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll");
+    @Test()
+    public void testReturnUnionWithWaitForAll1() {
+        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll1");
+        Assert.assertTrue(returns instanceof BmpStringValue);
+        Assert.assertEquals(returns.toString(), "pathA");
+    }
+
+    @Test()
+    public void testReturnUnionWithWaitForAll2() {
+        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll2");
         Assert.assertTrue(returns instanceof BmpStringValue);
         Assert.assertEquals(returns.toString(), "pathA");
     }

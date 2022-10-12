@@ -31,11 +31,20 @@ type Result record {
     string b;
 };
 
+type ResultWithError record {
+    string|error a;
+    string|error b;
+};
+
 function fetch(string path) returns string {
     return path;
 }
 
-function multiFetch(string pathA, string pathB) returns Result|error {
+function fetchWithError(string path) returns string|error {
+    return path;
+}
+
+function multiFetch1(string pathA, string pathB) returns Result|error {
     worker WA returns string {
         return fetch(pathA);
     }
@@ -47,7 +56,24 @@ function multiFetch(string pathA, string pathB) returns Result|error {
     return wait {a: WA, b:WB};
 }
 
-public function testReturnWaitForAll() returns string|error {
-    Result res = check multiFetch("pathA", "pathB");
+public function testReturnWaitForAll1() returns string|error {
+    Result res = check multiFetch1("pathA", "pathB");
+    return res.a;
+}
+
+function multiFetch2(string pathA, string pathB) returns ResultWithError|error {
+    worker WA returns string|error {
+        return fetchWithError(pathA);
+    }
+
+    worker WB returns string|error {
+            return fetchWithError("pathB");
+    }
+
+    return wait {a: WA, b:WB};
+}
+
+public function testReturnWaitForAll2() returns string|error {
+    ResultWithError res = check multiFetch1("pathA", "pathB");
     return res.a;
 }
