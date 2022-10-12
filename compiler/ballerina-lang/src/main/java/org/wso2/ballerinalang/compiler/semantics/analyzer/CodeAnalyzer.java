@@ -1627,7 +1627,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!visitedSymbols.add(symbol)) {
             return;
         }
-        BType symbolType = Types.getReferredType(symbol.type);
+        BType symbolType = symbol.type;
         switch (symbolType.tag) {
             case TypeTags.ARRAY:
                 checkForExportableType(((BArrayType) symbolType).eType.tsymbol, pos, visitedSymbols);

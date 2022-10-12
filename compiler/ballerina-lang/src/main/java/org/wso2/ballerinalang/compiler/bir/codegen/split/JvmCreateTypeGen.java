@@ -272,15 +272,16 @@ public class JvmCreateTypeGen {
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
-            if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE)) {
+            int bTypeTag = bType.tag;
+            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
+                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
                 continue;
             }
 
             fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             String methodName = "$populate" + fieldName;
             MethodVisitor mv;
-            switch (bType.tag) {
+            switch (bTypeTag) {
                 case TypeTags.RECORD:
                     funcTypeClassMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
                     mv = createPopulateTypeMethod(jvmRecordTypeGen.recordTypesCw, methodName, typeOwnerClass,
