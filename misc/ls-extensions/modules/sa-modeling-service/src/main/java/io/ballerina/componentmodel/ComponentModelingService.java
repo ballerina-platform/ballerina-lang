@@ -24,7 +24,9 @@ import io.ballerina.componentmodel.diagnostics.DiagnosticMessage;
 import io.ballerina.componentmodel.diagnostics.DiagnosticUtils;
 import io.ballerina.projects.Project;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
@@ -75,7 +77,7 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
                     Project project = getCurrentProject(path);
                     ComponentModelBuilder componentModelBuilder = new ComponentModelBuilder();
                     componentModelBuilder.constructComponentModel(project, componentModelMap);
-                } catch (ComponentModelException e) {
+                } catch (ComponentModelException | WorkspaceDocumentException | EventSyncException e) {
                     DiagnosticMessage message = DiagnosticMessage.componentModellingService001(fileUri);
                     componentModelingServiceResponse.setDiagnostics
                             (DiagnosticUtils.getDiagnosticResponse(List.of(message), componentModelingServiceResponse));
@@ -88,12 +90,11 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
         });
     }
 
-    private Project getCurrentProject(Path path) throws ComponentModelException {
-
+    private Project getCurrentProject(Path path) throws ComponentModelException, WorkspaceDocumentException,
+            EventSyncException {
         Optional<Project> project = workspaceManager.project(path);
         if (project.isEmpty()) {
-            throw new ComponentModelException(
-                    String.format("Ballerina project not found in the path : %s", path.toString()));
+            return workspaceManager.loadProject(path);
         }
         return project.get();
     }
