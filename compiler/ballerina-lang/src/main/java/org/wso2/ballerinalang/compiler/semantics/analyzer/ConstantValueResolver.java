@@ -649,7 +649,15 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
+        // When setting the BType of the expression, the determined type as well would be set to the same BType.
+        // Therefore, if the determined type was already not null, it shall be preserved and overridden with its
+        // previous value.
+        BType determinedType = expr.getDeterminedType();
         expr.setBType(resolvedType);
+        if (determinedType != null) {
+            expr.setDeterminedType(determinedType);
+        }
+
         symbol.type = resolvedType;
     }
 
