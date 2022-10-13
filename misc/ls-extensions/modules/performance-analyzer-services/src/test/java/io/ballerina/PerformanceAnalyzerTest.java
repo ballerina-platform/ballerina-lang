@@ -90,6 +90,12 @@ public class PerformanceAnalyzerTest {
         compare(Path.of("worker", "main.bal").toString(), "worker.json", true);
     }
 
+    @Test(description = "Test performance analyzer worker only scenario")
+    public void testWorkerOnly() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("worker", "workerOnly.bal").toString(), "workerOnly.json", true);
+    }
+
     @Test(description = "Test performance analyzer worker not support")
     public void testWorkerNotSupport() throws IOException, ExecutionException, InterruptedException {
 

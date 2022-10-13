@@ -20,9 +20,11 @@ package org.ballerinalang.langserver.workspace;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -399,6 +401,28 @@ public class TestWorkspaceManager {
         } finally {
             Files.move(modulesPathNew, modulesPath);
         }
+    }
+
+    @Test
+    public void testWSLoadProject() throws WorkspaceDocumentException, ProjectException, EventSyncException {
+        Path filePath1 = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+        Path filePath2 = RESOURCE_DIRECTORY.resolve("myproject2").resolve("main.bal").toAbsolutePath();
+
+        // Projects should not be already in the workspace
+        Assert.assertTrue(workspaceManager.project(filePath1).isEmpty());
+        Assert.assertTrue(workspaceManager.project(filePath2).isEmpty());
+
+        // Load projects
+        Project project1 = workspaceManager.loadProject(filePath1);
+        Project project2 = workspaceManager.loadProject(filePath2);
+
+        // Both projects should be loaded
+        Assert.assertNotNull(project1);
+        Assert.assertNotNull(project2);
+
+        // Loaded project should not be empty
+        Optional<Project> project = workspaceManager.project(filePath1);
+        Assert.assertTrue(project.isPresent());
     }
 
     private void openFile(Path singleFile) throws WorkspaceDocumentException {
