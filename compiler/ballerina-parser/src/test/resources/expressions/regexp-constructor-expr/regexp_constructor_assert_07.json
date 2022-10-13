@@ -128,8 +128,13 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
-                                          "value": "\\u{1234}"
+                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                          "children": [
+                                            {
+                                              "kind": "RE_NUMERIC_ESCAPE",
+                                              "value": "\\u{1234}"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -230,8 +235,13 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
-                                          "value": "\\u{1F600}"
+                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                          "children": [
+                                            {
+                                              "kind": "RE_NUMERIC_ESCAPE",
+                                              "value": "\\u{1F600}"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -332,8 +342,13 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
-                                          "value": "\\u{5C}"
+                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                          "children": [
+                                            {
+                                              "kind": "RE_NUMERIC_ESCAPE",
+                                              "value": "\\u{5C}"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -431,8 +446,13 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
-                                          "value": "\\u{5C}"
+                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                          "children": [
+                                            {
+                                              "kind": "RE_NUMERIC_ESCAPE",
+                                              "value": "\\u{5C}"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -530,8 +550,13 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
-                                          "value": "\\u{1234}"
+                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                          "children": [
+                                            {
+                                              "kind": "RE_NUMERIC_ESCAPE",
+                                              "value": "\\u{1234}"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN"

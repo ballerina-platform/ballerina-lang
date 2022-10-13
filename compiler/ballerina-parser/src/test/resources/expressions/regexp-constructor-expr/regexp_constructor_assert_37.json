@@ -119,10 +119,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -240,270 +240,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "a"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RE_QUANTIFIER",
-                                      "children": [
-                                        {
-                                          "kind": "RE_BRACED_QUANTIFIER",
-                                          "children": [
-                                            {
-                                              "kind": "OPEN_BRACE_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": [
-                                                {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
-                                                  "value": "1"
-                                                },
-                                                {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
-                                                  "value": "2"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "COMMA_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACE_TOKEN"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "QUESTION_MARK_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
-                                          "value": "a"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RE_QUANTIFIER",
-                                      "children": [
-                                        {
-                                          "kind": "RE_BRACED_QUANTIFIER",
-                                          "children": [
-                                            {
-                                              "kind": "OPEN_BRACE_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": [
-                                                {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
-                                                  "value": "1"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "COMMA_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACE_TOKEN"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "QUESTION_MARK_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -527,10 +267,6 @@
                                                 {
                                                   "kind": "RE_BRACED_QUANTIFIER_DIGIT",
                                                   "value": "2"
-                                                },
-                                                {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
-                                                  "value": "3"
                                                 }
                                               ]
                                             },
@@ -636,10 +372,138 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
+                                          "value": "a"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "RE_QUANTIFIER",
+                                      "children": [
+                                        {
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "QUESTION_MARK_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "children": [
+                                        {
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -675,6 +539,142 @@
                                             },
                                             {
                                               "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACE_TOKEN"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "QUESTION_MARK_TOKEN"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "children": [
+                                        {
+                                          "kind": "RE_LITERAL_CHAR",
+                                          "value": "a"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "RE_QUANTIFIER",
+                                      "children": [
+                                        {
+                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "children": [
+                                            {
+                                              "kind": "OPEN_BRACE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "1"
+                                                },
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "2"
+                                                },
+                                                {
+                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "value": "3"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COMMA_TOKEN"
+                                            },
+                                            {
+                                              "kind": "LIST",
                                               "children": [
                                                 {
                                                   "kind": "RE_BRACED_QUANTIFIER_DIGIT",
@@ -777,10 +777,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]

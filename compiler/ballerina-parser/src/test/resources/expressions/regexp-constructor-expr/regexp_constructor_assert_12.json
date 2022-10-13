@@ -128,7 +128,7 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                           "value": "\\-"
                                         },
                                         {
@@ -227,7 +227,7 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                           "value": "\\-"
                                         },
                                         {

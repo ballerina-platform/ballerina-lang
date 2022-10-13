@@ -119,11 +119,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -212,11 +211,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -226,10 +224,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -319,10 +317,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -333,10 +331,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -347,11 +345,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -440,10 +437,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -454,11 +451,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -556,10 +552,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -570,11 +566,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     },
@@ -672,10 +667,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -686,11 +681,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     },
@@ -819,10 +813,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -833,11 +827,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     },
@@ -935,10 +928,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -949,11 +942,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     },
@@ -1054,10 +1046,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "A"
                                         }
                                       ]
@@ -1068,11 +1060,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -1091,10 +1082,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "B"
                                         }
                                       ]
@@ -1105,10 +1096,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "C"
                                         }
                                       ]

@@ -128,16 +128,186 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_PROPERTY",
+                                          "value": "p"
+                                        },
+                                        {
+                                          "kind": "OPEN_BRACE_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                                          ]
+                                        },
+                                        {
+                                          "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_PROPERTY",
+                                          "value": "p"
+                                        },
+                                        {
+                                          "kind": "OPEN_BRACE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                           ],
-                                          "value": "\\p"
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "sd\u003dGreek"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -250,140 +420,35 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "sd\u003dGreek"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "BACK_SLASH_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_PROPERTY",
-                                          "value": "p"
-                                        },
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "kind": "CLOSE_BRACE_TOKEN",
                                           "hasDiagnostics": true,
-                                          "children": [
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "sc-Greek"
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "sc-Greek"
+                                                  }
+                                                ]
+                                              }
                                             }
                                           ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }
@@ -501,16 +566,34 @@
                                             },
                                             {
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "#"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "#"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -623,17 +706,35 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "gd\u003dLu"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "gd\u003dLu"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -746,17 +847,35 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "gc-Lu"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "gc-Lu"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -873,17 +992,35 @@
                                               "value": "gc\u003d"
                                             },
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "#"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "#"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
