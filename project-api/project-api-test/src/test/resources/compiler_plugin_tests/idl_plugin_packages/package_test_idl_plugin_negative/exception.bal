@@ -14,17 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "https://postman-echo.com/get?name=projectapiclientplugin_throwNPE" as foo;
+client "https://postman-echo.com/get?name=projectapiclientplugin_throwNPE" as bar1;
 
-client "https://postman-echo.com/get?name=projectapiclientplugin_throwUnhandledEx" as foo;
-
-public function testModuleClientDecl() returns string {
-    foo:ClientConfiguration config = {specVersion : "3.0.0"};
-    foo:client cl = new (config);
-    return cl->getSpecVersion();
-}
+client "https://postman-echo.com/get?name=projectapiclientplugin_throwUnhandledExInPerform" as bar2;
 
 public function testSameClientUri() {
-    client "https://postman-echo.com/get?name=projectapiclientplugin_throwRuntimeEx" as bar;
+    client "https://postman-echo.com/get?name=projectapiclientplugin_throwRuntimeEx" as bar3;
 }
 

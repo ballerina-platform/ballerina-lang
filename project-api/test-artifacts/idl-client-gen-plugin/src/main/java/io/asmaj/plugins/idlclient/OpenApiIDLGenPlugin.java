@@ -64,11 +64,14 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
             if (uri.endsWith("projectapiclientplugin.json")) {
                 return true;
             }
+            if (uri.endsWith("throwUnhandledExInPerform")) {
+                return true;
+            }
             return uri.equals("https://postman-echo.com/get?name=projectapiclientplugin");
         }
 
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
-            if (getUri(idlSourceGeneratorContext.clientNode()).endsWith("throwUnhandledEx")) {
+            if (getUri(idlSourceGeneratorContext.clientNode()).endsWith("throwUnhandledExInPerform")) {
                 throw new RuntimeException("perform crashed");
             }
 
