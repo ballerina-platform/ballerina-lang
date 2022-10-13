@@ -150,6 +150,11 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 69);
         validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 74);
         validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 78);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p2'", 30, 70);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p1'", 38, 74);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p3'", 40, 74);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p4'", 43, 70);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p5'", 45, 70);
         Assert.assertEquals(diagnostics.length, index);
     }
 
