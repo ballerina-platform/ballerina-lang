@@ -834,7 +834,7 @@ public class AnnotationDesugar {
                 // // Adds
                 // { ..., v1: true, ... }
                 addTrueAnnot(attachments.get(annotationSymbol).get(0), mapLiteral, isLocalObjectCtor);
-            } else if (attachedType.tag != TypeTags.ARRAY) {
+            } else if (Types.getReferredType(attachedType).tag != TypeTags.ARRAY) {
                 // annotation FooRecord v1 on type; OR annotation map<anydata> v1 on type;
                 // @v1 {
                 //     value: 1

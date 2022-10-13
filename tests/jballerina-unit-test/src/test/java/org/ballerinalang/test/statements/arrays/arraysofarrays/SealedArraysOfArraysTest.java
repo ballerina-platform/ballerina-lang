@@ -154,7 +154,7 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, i++, "invalid usage of closed type: array not initialized", 73, 5);
         BAssertUtil.validateError(
-                resultNegative, i++, "incompatible types: expected '((float[*][] & readonly)|string)', " +
+                resultNegative, i++, "incompatible types: expected '((float[*][]|string) & readonly)', " +
                         "found '(float[2][2] & readonly)'", 76, 40);
         BAssertUtil.validateError(
                 resultNegative, i++, "list index out of range: index: '4'", 83, 11);

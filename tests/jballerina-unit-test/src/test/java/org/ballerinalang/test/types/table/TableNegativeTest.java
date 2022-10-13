@@ -126,7 +126,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected 'int'," +
                 " found 'table<record {| (any|error) a; |}>'", 311, 13);
         validateError(compileResult, index++, "incompatible types: expected 'int'," +
-                " found 'table<record {| (0|1|2|3) a; |}>'", 324, 13);
+                " found 'table<record {| (Zero|NaturalNums) a; |}>'", 324, 13);
         validateError(compileResult, index++, "member access is not supported for table 'tbl1'", 334, 9);
         validateError(compileResult, index++, "member access is not supported for table 'tbl2'", 340, 9);
         validateError(compileResult, index++, "member access is not supported for table 'tbl3'", 346, 9);
@@ -222,7 +222,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "duplicate key found in table row key('id') : ' '",
                 102, 9);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
-                        "'<(byte[] & readonly)> (base16 `5A`)'",
+                        "'<byte[] & readonly> (base16 `5A`)'",
                 128, 9);
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);

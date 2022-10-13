@@ -181,7 +181,7 @@ public class ImmutableTypeCloner {
                                                                   Names names,
                                                                   Set<Flag> origObjFlagSet,
                                                                   Set<BType> unresolvedTypes) {
-        BType refType = Types.getReferredType(bType);
+        BType refType = Types.getReferredType(bType, false);
         SelectivelyImmutableReferenceType type = (SelectivelyImmutableReferenceType) refType;
         if (refType.tag == TypeTags.INTERSECTION && Symbols.isFlagOn(refType.flags, Flags.READONLY)) {
             return (BIntersectionType) refType;
@@ -482,7 +482,7 @@ public class ImmutableTypeCloner {
                                                 pkgEnv);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
 
-        BType immutableType = immutableTypeDefinition.getBType();
+        BType immutableType = Types.getReferredType(immutableTypeDefinition.getBType());
         if (immutableType.tag == TypeTags.RECORD) {
             defineUndefinedImmutableRecordFields((BRecordType) immutableType, pos, pkgID, immutableTypeDefinition,
                                                  types, env, symTable, anonymousModelHelper, names);

@@ -172,7 +172,7 @@ public class ASTBuilderUtil {
     }
 
     private static boolean isValueType(BType type) {
-        return type.tag < TypeTags.JSON;
+        return Types.getReferredType(type, false).tag < TypeTags.JSON;
     }
 
     static BLangExpression wrapToConversionExpr(BType sourceType, BLangExpression exprToWrap,

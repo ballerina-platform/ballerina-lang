@@ -424,9 +424,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             if (this.visitedTypes.contains(member)) {
                 continue;
             }
-
-            if (this.function != null && member.tag == TypeTags.PARAMETERIZED_TYPE) {
-                BParameterizedType parameterizedType = (BParameterizedType) member;
+            
+            BType referredMember = Types.getReferredType(member);
+            if (this.function != null && referredMember.tag == TypeTags.PARAMETERIZED_TYPE) {
+                BParameterizedType parameterizedType = (BParameterizedType) referredMember;
                 BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
                 if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
                     dlog.error(this.function.returnTypeNode.pos,
@@ -647,7 +648,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return getConstraintTypeIfNotError(argAtIndex.getBType());
             }
         } else if (!restArgs.isEmpty()) {
-            BType restArgType = restArgs.get(0).getBType();
+            BType restArgType = Types.getReferredType(restArgs.get(0).getBType());
 
             if (restArgType.tag == TypeTags.RECORD) {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
@@ -834,7 +835,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = requiredParam.getBType();
+            BType paramType = Types.getReferredType(requiredParam.getBType());
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }
@@ -845,7 +846,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean isDisjointMemberType(BParameterizedType parameterizedType, BUnionType unionType) {
-        BType paramValueType = parameterizedType.paramValueType;
+        BType paramValueType = Types.getReferredType(parameterizedType.paramValueType);
 
         if (paramValueType.tag == TypeTags.UNION) {
             return isDisjoint((BUnionType) paramValueType, unionType, parameterizedType);
@@ -931,9 +932,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         List<BType> inferableTypes = new ArrayList<>();
-
-        if (originalType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) originalType).getMemberTypes()) {
+        
+        BType referredOriginalType = Types.getReferredType(originalType);
+        if (referredOriginalType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) referredOriginalType).getMemberTypes()) {
                 if (!Symbols.isFlagOn(memberType.flags, Flags.PARAMETERIZED)) {
                     continue;
                 }
@@ -951,7 +953,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (inferableTypes.isEmpty()) {
             return null;
         }
-
+        
+        expType = Types.getReferredType(expType);
         Set<BType> expectedTypes = expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() :
                 Set.of(expType);
 
@@ -959,7 +962,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         for (BType inferableType : inferableTypes) {
             for (BType expectedType : expectedTypes) {
-                if (inferableType.tag == expectedType.tag) {
+                if (Types.getReferredType(inferableType).tag == Types.getReferredType(expectedType).tag) {
                     matchedTypes.add(expectedType);
                 }
             }
@@ -985,7 +988,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (!unresolvedTypes.add(type)) {
             return false;
         }
-
+        
+        type = Types.getReferredType(type, false);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 String paramName = ((BParameterizedType) type).paramSymbol.name.value;

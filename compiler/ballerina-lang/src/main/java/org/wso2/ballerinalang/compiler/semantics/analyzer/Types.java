@@ -348,9 +348,6 @@ public class Types {
     private boolean isSameOrderedType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         source = getReferredType(source);
         target = getReferredType(target);
-        if (source.tag == TypeTags.INTERSECTION) {
-            source = getEffectiveTypeForIntersection(source);
-        }
         if (isNil(source) || isNil(target)) {
             // If type T is ordered, then type T? Is also ordered.
             // Both source and target are ordered types since they were checked in previous stage.
@@ -3376,10 +3373,6 @@ public class Types {
                 if (!isSameOrderedType(type, baseType)) {
                     return false;
                 }
-            } else if (type.tag == TypeTags.INTERSECTION) {
-                if (!isSameOrderedType(getEffectiveTypeForIntersection(type), baseType)) {
-                    return false;
-                }
             } else if (isSimpleBasicType(type.tag)) {
                 if (!isSameOrderedType(type, baseType) && !isNil(type)) {
                     return false;
@@ -6230,7 +6223,7 @@ public class Types {
                 }
                 boolean isFirstTypeInUnionFinite = firstTypeInUnion.tag == TypeTags.FINITE;
                 for (BType memType : memberTypes) {
-                    memType = getEffectiveTypeForIntersection(getReferredType(memType));
+                    memType = getReferredType(memType);
                     if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                         BType baseExprType = valSpace.iterator().next().getBType();
