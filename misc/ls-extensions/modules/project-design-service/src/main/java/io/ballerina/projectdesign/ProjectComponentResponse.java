@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @since 2201.2.2
  */
-public class ProjectDesignServiceResponse {
+public class ProjectComponentResponse {
 
     private Map<String, JsonObject> componentModels = new HashMap<>();
 

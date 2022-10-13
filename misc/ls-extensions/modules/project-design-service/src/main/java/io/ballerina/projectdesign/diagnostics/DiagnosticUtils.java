@@ -18,7 +18,7 @@
 
 package io.ballerina.projectdesign.diagnostics;
 
-import io.ballerina.projectdesign.ProjectDesignServiceResponse;
+import io.ballerina.projectdesign.ProjectComponentResponse;
 
 import java.util.List;
 
@@ -30,7 +30,7 @@ import java.util.List;
 public class DiagnosticUtils {
 
     public static List<ComponentModelingDiagnostics> getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
-                                                                           ProjectDesignServiceResponse response) {
+                                                                           ProjectComponentResponse response) {
 
         List<ComponentModelingDiagnostics> diagnostics = response.getDiagnostics();
         for (DiagnosticMessage message : diagnosticMessages) {

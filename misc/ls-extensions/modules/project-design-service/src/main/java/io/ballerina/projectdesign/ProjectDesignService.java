@@ -30,7 +30,7 @@ import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncExcept
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
@@ -63,12 +63,12 @@ public class ProjectDesignService implements ExtendedLanguageServerService {
         return getClass();
     }
 
-    @JsonNotification
-    public CompletableFuture<ProjectDesignServiceResponse> getPackageComponentModels
-            (ProjectDesignServiceRequest request) {
+    @JsonRequest
+    public CompletableFuture<ProjectComponentResponse> getProjectComponentModels
+            (ProjectComponentRequest request) {
 
         return CompletableFuture.supplyAsync(() -> {
-            ProjectDesignServiceResponse response = new ProjectDesignServiceResponse();
+            ProjectComponentResponse response = new ProjectComponentResponse();
             Map<String, JsonObject> componentModelMap = new HashMap<>();
             for (String documentUri : request.getDocumentUris()) {
                 Path path = Path.of(documentUri);

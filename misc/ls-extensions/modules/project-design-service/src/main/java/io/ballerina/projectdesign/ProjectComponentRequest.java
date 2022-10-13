@@ -26,7 +26,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class ProjectDesignServiceRequest {
+public class ProjectComponentRequest {
 
     private List<String> documentUris = new ArrayList<>();
 
