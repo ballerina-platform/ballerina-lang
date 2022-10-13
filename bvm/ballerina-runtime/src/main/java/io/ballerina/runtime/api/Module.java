@@ -32,11 +32,11 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
  */
 public class Module {
 
-    private String org;
-    private String name;
-    private String majorVersion;
-    private int hashCode;
-    private boolean isTestPkg;
+    private final String org;
+    private final String name;
+    private final String majorVersion;
+    private final boolean isTestPkg;
+    private final int hashCode;
 
     public Module(String org, String name, String majorVersion, boolean isTestPkg) {
         this.org = org;
