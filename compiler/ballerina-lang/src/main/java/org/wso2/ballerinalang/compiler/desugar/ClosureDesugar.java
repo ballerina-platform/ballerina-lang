@@ -1624,8 +1624,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
-                        new ArrayList<>());
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(this::rewriteExpr);
         result = regExpTemplateLiteral;
     }
