@@ -107,6 +107,7 @@ public class QueryNegativeTests {
                 " no expression type is equivalent to error type", 526, 15);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 535, 15);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 
     @Test
@@ -125,6 +126,40 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
         validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
         validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testQueryingEmptyTupleNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_empty_tuple_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 19, 16);
+        validateWarning(compileResult, index++, "unused variable 'x1'", 21, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 22, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 25, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 25, 16);
+        validateWarning(compileResult, index++, "unused variable 'x2'", 27, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 28, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 32, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 39, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 40, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 44, 20);
+        validateWarning(compileResult, index++, "unused variable 'err'", 46, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 48, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }
