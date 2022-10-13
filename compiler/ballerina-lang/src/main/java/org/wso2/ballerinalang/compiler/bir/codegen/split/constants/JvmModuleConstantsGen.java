@@ -27,6 +27,8 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,8 @@ import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -116,6 +120,11 @@ public class JvmModuleConstantsGen {
             mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
             mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
             mv.visitLdcInsn(getMajorVersion(packageID.version.value));
+            if (packageID.isTestPkg) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
             mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                     INIT_MODULE, false);
             mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleConstantClass, varName, GET_MODULE);
