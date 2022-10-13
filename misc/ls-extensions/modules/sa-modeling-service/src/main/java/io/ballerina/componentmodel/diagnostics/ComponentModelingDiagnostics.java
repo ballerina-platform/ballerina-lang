@@ -30,6 +30,8 @@ import java.util.List;
 
 /**
  * Diagnostic class for the ComponentModelingService.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingDiagnostics extends Diagnostic {
 
@@ -51,30 +53,25 @@ public class ComponentModelingDiagnostics extends Diagnostic {
 
     @Override
     public Location location() {
-
         return this.location;
     }
 
     @Override
     public DiagnosticInfo diagnosticInfo() {
-
         return this.diagnosticInfo;
     }
 
     @Override
     public String message() {
-
         return this.message;
     }
 
     @Override
     public List<DiagnosticProperty<?>> properties() {
-
         return this.properties;
     }
 
     public String getSeverity() {
-
         return this.severity;
     }
 

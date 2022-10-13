@@ -58,6 +58,8 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.TYPE_MAP;
 
 /**
  * Visitor class for RemoteMethodCallAction nodes.
+ *
+ * @since 2201.2.2
  */
 public class ActionNodeVisitor extends NodeVisitor {
 
@@ -66,12 +68,12 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final List<Interaction> interactionList = new ArrayList<>();
 
     public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage) {
+
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
     }
 
     public List<Interaction> getInteractionList() {
-
         return interactionList;
     }
 
@@ -141,6 +143,7 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+
         if (functionCallExpressionNode.functionName() instanceof SimpleNameReferenceNode) {
             String methodName = ((SimpleNameReferenceNode) functionCallExpressionNode.functionName()).name().text();
             Optional<Symbol> symbol = semanticModel.symbol(functionCallExpressionNode.functionName());
@@ -156,6 +159,7 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+
         if (methodCallExpressionNode.methodName() instanceof SimpleNameReferenceNode) {
             String methodName = ((SimpleNameReferenceNode) methodCallExpressionNode.methodName()).name().text();
             Optional<Symbol> symbol = semanticModel.symbol(methodCallExpressionNode.methodName());
@@ -170,6 +174,7 @@ public class ActionNodeVisitor extends NodeVisitor {
     }
 
     private void findInteractions(String methodName, Symbol methodSymbol) {
+
         Optional<Location> location = methodSymbol.getLocation();
         Optional<ModuleSymbol> optionalModuleSymbol = methodSymbol.getModule();
         if (optionalModuleSymbol.isPresent()) {
@@ -179,6 +184,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                     Collection<DocumentId> documentIds = module.documentIds();
                     for (DocumentId documentId : documentIds) {
                         SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+                        // todo : Improve the logic
                         NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode())
                                 .findNode(location.get().textRange());
                         if (!node.isMissing()) {

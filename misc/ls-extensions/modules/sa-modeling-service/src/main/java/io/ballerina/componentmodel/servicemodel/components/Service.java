@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Provides service related information.
+ *
+ * @since 2201.2.2
  */
 public class Service {
 
@@ -29,9 +31,7 @@ public class Service {
     private final String serviceId;
     private final String serviceType;
     private final List<Resource> resources;
-
     private final ServiceAnnotation annotation;
-
     private final List<RemoteFunction> remoteFunctions;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
@@ -47,22 +47,18 @@ public class Service {
     }
 
     public String getPath() {
-
         return path;
     }
 
     public String getServiceId() {
-
         return serviceId;
     }
 
     public List<Resource> getResources() {
-
         return resources;
     }
 
     public String getServiceType() {
-
         return serviceType;
     }
 

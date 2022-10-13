@@ -20,16 +20,16 @@ package io.ballerina.componentmodel.diagnostics;
 
 /**
  * Exception for component model generation.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelException extends Exception {
 
     public ComponentModelException(String message, Throwable e) {
-
         super(message, e);
     }
 
     public ComponentModelException(String message) {
-
         super(message);
     }
 }

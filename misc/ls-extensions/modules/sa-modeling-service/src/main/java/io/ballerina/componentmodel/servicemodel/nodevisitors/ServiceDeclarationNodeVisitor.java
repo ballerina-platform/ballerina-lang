@@ -56,6 +56,8 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.LISTENER;
 
 /**
  * Visitor class for ServiceDeclaration nodes.
+ *
+ * @since 2201.2.2
  */
 public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
@@ -73,7 +75,6 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     }
 
     public List<Service> getServices() {
-
         return services;
     }
 
@@ -94,15 +95,15 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
-                    serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
+                serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
 
-        ResourceAccessorDefinitionNodeVisitor resourceAccessorDefinitionNodeVisitor =
-                new ResourceAccessorDefinitionNodeVisitor(serviceAnnotation.getId(),
+        ServiceMemberFunctionNodeVisitor serviceMemberFunctionNodeVisitor =
+                new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
                         semanticModel, currentPackage, packageId);
-        serviceDeclarationNode.accept(resourceAccessorDefinitionNodeVisitor);
+        serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(), getServiceType(serviceDeclarationNode),
-                resourceAccessorDefinitionNodeVisitor.getResources(),
-                resourceAccessorDefinitionNodeVisitor.remoteFunctions, serviceAnnotation));
+                serviceMemberFunctionNodeVisitor.getResources(),
+                serviceMemberFunctionNodeVisitor.remoteFunctions, serviceAnnotation));
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {

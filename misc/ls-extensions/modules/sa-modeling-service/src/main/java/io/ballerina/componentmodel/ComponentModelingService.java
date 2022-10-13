@@ -18,6 +18,8 @@
 
 package io.ballerina.componentmodel;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.ballerina.componentmodel.diagnostics.ComponentModelException;
 import io.ballerina.componentmodel.diagnostics.DiagnosticMessage;
@@ -28,12 +30,12 @@ import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncExcept
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * The extended service for generation solution architecture model.
+ *
+ * @since 2201.2.2
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("solutionArchitectureModelingService")
@@ -51,13 +55,11 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
 
     @Override
     public void init(LanguageServer langServer, WorkspaceManager workspaceManager) {
-
         this.workspaceManager = workspaceManager;
     }
 
     @Override
     public Class<?> getRemoteInterface() {
-
         return getClass();
     }
 
@@ -68,21 +70,29 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             ComponentModelingServiceResponse response = new ComponentModelingServiceResponse();
             Map<String, JsonObject> componentModelMap = new HashMap<>();
-            for (TextDocumentIdentifier documentIdentifier : request.getTextDocumentIdentifiers()) {
-                ComponentModelingServiceResponse componentModelingServiceResponse =
-                        new ComponentModelingServiceResponse();
-                String fileUri = documentIdentifier.getUri();
-                Path path = Path.of(fileUri);
+            for (String documentUri : request.getDocumentUris()) {
+                Path path = Path.of(documentUri);
                 try {
                     Project project = getCurrentProject(path);
-                    ComponentModelBuilder componentModelBuilder = new ComponentModelBuilder();
-                    componentModelBuilder.constructComponentModel(project, componentModelMap);
+                    if (!Utils.modelAlreadyExists(componentModelMap, project.currentPackage())) {
+                        ComponentModelBuilder componentModelBuilder = new ComponentModelBuilder();
+                        ComponentModel projectModel = componentModelBuilder
+                                .constructComponentModel(project.currentPackage());
+                        Gson gson = new GsonBuilder().serializeNulls().create();
+                        JsonObject componentModelJson = (JsonObject) gson.toJsonTree(projectModel);
+                        componentModelMap.put(Utils.getQualifiedPackageName(
+                                projectModel.getPackageId()), componentModelJson);
+                    }
                 } catch (ComponentModelException | WorkspaceDocumentException | EventSyncException e) {
-                    DiagnosticMessage message = DiagnosticMessage.componentModellingService001(fileUri);
-                    componentModelingServiceResponse.setDiagnostics
-                            (DiagnosticUtils.getDiagnosticResponse(List.of(message), componentModelingServiceResponse));
+                    // todo : Improve error messages
+                    DiagnosticMessage message = DiagnosticMessage.componentModellingService001(documentUri);
                     response.addDiagnostics
-                            (DiagnosticUtils.getDiagnosticResponse(List.of(message), componentModelingServiceResponse));
+                            (DiagnosticUtils.getDiagnosticResponse(List.of(message), response));
+                } catch (Exception e) {
+                    DiagnosticMessage message = DiagnosticMessage.componentModellingService002(
+                            e.getMessage(), Arrays.toString(e.getStackTrace()), documentUri);
+                    response.addDiagnostics
+                            (DiagnosticUtils.getDiagnosticResponse(List.of(message), response));
                 }
             }
             response.setComponentModels(componentModelMap);
@@ -92,6 +102,7 @@ public class ComponentModelingService implements ExtendedLanguageServerService {
 
     private Project getCurrentProject(Path path) throws ComponentModelException, WorkspaceDocumentException,
             EventSyncException {
+
         Optional<Project> project = workspaceManager.project(path);
         if (project.isEmpty()) {
             return workspaceManager.loadProject(path);

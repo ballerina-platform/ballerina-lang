@@ -24,6 +24,8 @@ import java.util.List;
 
 /**
  * Provides util functions for diagnostics.
+ *
+ * @since 2201.2.2
  */
 public class DiagnosticUtils {
 

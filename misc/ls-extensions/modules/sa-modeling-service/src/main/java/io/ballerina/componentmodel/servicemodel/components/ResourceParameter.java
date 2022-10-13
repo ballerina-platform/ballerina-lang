@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Represents resource funstion parameter information.
+ *
+ * @since 2201.2.2
  */
 public class ResourceParameter {
 
@@ -39,22 +41,18 @@ public class ResourceParameter {
     }
 
     public List<String> getType() {
-
         return type;
     }
 
     public String getName() {
-
         return name;
     }
 
     public String getIn() {
-
         return in;
     }
 
     public boolean isRequired() {
-
         return isRequired;
     }
 }

@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Represents resource details.
+ *
+ * @since 2201.2.2
  */
 public class Resource {
 
@@ -42,27 +44,22 @@ public class Resource {
     }
 
     public String getIdentifier() {
-
         return identifier;
     }
 
     public ResourceId getResourceId() {
-
         return resourceId;
     }
 
     public List<ResourceParameter> getParameters() {
-
         return parameters;
     }
 
     public List<String> getReturns() {
-
         return returns;
     }
 
     public List<Interaction> getInteractions() {
-
         return interactions;
     }
 }
