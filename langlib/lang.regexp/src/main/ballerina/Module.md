@@ -1,5 +1,3 @@
 ## Module overview
 
-The `lang.regexp` module corresponds to the `regexp` basic type.
-
-> Note: This is an experimental feature.
+The `lang.regexp` module, which corresponds to the `regexp` basic type is an **experimental feature**.
