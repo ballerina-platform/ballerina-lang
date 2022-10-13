@@ -224,6 +224,12 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
+                327, 13);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
+                "found 'table<record {| |}>'", 328, 19);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
+                "found 'table<record {| int a; int b; |}>'", 329, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

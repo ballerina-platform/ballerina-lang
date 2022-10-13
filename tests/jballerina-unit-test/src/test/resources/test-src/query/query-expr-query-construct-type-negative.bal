@@ -322,3 +322,9 @@ function testInvalidTypeInSelectWithQueryConstructingMap5() {
     [FooBar5, int|float][] list8 = [];
     map<int|float>|error mp8 = map from var item in list8 select item;
 }
+
+function testInvalidTableCtrAssignment() {
+    int _ = table []; // error
+    int|float _ = table []; // error
+    string _ = table [{a: 1, b: 2}]; // error
+}

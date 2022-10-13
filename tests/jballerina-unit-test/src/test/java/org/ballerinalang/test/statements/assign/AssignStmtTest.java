@@ -209,6 +209,12 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'function ((any|error)...) returns ()', found " +
                         "'function (any...) returns ()'", 123, 47);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 128, 11);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 131, 12);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'record {| int x; |}', " +
+                "found 'table<record {| |}>'", 133, 27);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
