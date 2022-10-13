@@ -1,0 +1,9 @@
+function testFunction() {
+    int intLiteral = 10 * 20 + 30;
+    int two = 2;
+    if (intLiteral == 40 + 50 + 60 * two) {
+        // do something
+    }
+}
+
+int intModLiteral = 10 / 2 + 20 + 30;

@@ -82,8 +82,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                                     RangeBasedPositionDetails posDetails) {
 
-        // Check if the selection is a range or a position
-        if (isRange(context.range())) {
+        // Check if the selection is a range or a position, and whether quick picks are supported by the client
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
             // Selection is a range
             Node node = posDetails.matchedCodeActionNode();
             BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
@@ -110,7 +111,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                     List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract));
         }
         // Selection is a position
-        // TODO Check for number of extractable nodes
         Node nodeAtCursor = posDetails.matchedCodeActionNode();
         List<Node> nodeList = new ArrayList<>();
         Node node = nodeAtCursor;
@@ -126,12 +126,12 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         
         String constName = getLocalVarName(context);
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(nodeAtCursor);
-        if (typeSymbol.isEmpty()) {
+        if (typeSymbol.isEmpty() || nodeList.isEmpty()) {
             return Collections.emptyList();
         }
 
         Position constDeclPosition = getPosition(context);
-        HashMap<String,List<TextEdit>> textEditMap = new HashMap<>();
+        LinkedHashMap<String,List<TextEdit>> textEditMap = new LinkedHashMap<>();
         nodeList.forEach(extractableNode -> {
             String value = extractableNode.toSourceCode().strip();
             LineRange replaceRange = extractableNode.lineRange();
@@ -142,16 +142,10 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                     PositionUtil.toPosition(replaceRange.endLine())), constName);
             textEditMap.put(value, List.of(constDeclEdit, replaceEdit));
         });
-        
-        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                new Command(NAME, "ballerina.action.extract", 
-                        List.of("extractConstant", context.fileUri() ,textEditMap)), CodeActionKind.RefactorExtract);
-        // if capabilities aren't set, return list of text edits
-        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-//        if (lsClientCapabilities.getInitializationOptions().isRefactorExtractSupported()) {
-//        codeAction.setCommand();
-//        }
-        return Collections.singletonList(codeAction);
+
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    new Command(NAME, "ballerina.action.extract", List.of("extractConstant", 
+                            context.filePath().toString() ,textEditMap)), CodeActionKind.RefactorExtract));
     }
 
     @Override

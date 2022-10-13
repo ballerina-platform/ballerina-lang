@@ -422,6 +422,32 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 }
             }
             return false;
+        } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 3) {
+                String actualName = actualArgs.get(0).getAsString();
+                String expectedName = expArgs.get(0).getAsString();
+
+                String actualFilePath = actualArgs.get(1).getAsString().replace(sourceRoot.toString(),"");
+                if (actualFilePath.startsWith("/") || actualFilePath.startsWith("\\")) {
+                    actualFilePath = actualFilePath.substring(1);
+                }
+                String expectedFilePath = expArgs.get(1).getAsString();
+                
+                JsonObject actualTextEdits = actualArgs.get(2).getAsJsonObject();
+                JsonObject expectedTextEdits = expArgs.get(2).getAsJsonObject();
+
+                if (actualName.equals(expectedName) && actualFilePath.equals(expectedFilePath)
+                        && actualTextEdits.equals(expectedTextEdits)) {
+                    return true;
+                }
+
+                JsonArray newArgs = new JsonArray();
+                newArgs.add(actualName);
+                newArgs.add(actualFilePath);
+                newArgs.add(actualTextEdits);
+                actualCommand.add("arguments", newArgs);
+            }
+            return false;
         }
 
         for (JsonElement actualArg : actualArgs) {

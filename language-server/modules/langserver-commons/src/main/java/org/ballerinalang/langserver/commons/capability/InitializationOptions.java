@@ -38,6 +38,11 @@ public interface InitializationOptions {
     String KEY_RENAME_SUPPORT = "supportRenamePopup";
 
     /**
+     * Whether the client supports the quick pick.
+     */
+    String KEY_QUICKPICK_SUPPORT = "supportQuickPick";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -57,4 +62,11 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isRefactorRenameSupported();
+
+    /**
+     * Returns if the client supports the quick pick.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isQuickPickSupported();
 }
