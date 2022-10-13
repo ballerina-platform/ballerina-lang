@@ -20,6 +20,8 @@ package io.ballerina.componentmodel.entitymodel.components;
 
 /**
  * Represent the relationship between records.
+ *
+ * @since 2201.2.2
  */
 public class Association {
 
@@ -33,22 +35,18 @@ public class Association {
     }
 
     public String getAssociate() {
-
         return associate;
     }
 
     public Cardinality getCardinality() {
-
         return cardinality;
     }
 
     public void setAssociate(String associate) {
-
         this.associate = associate;
     }
 
     public void setCardinality(Cardinality cardinality) {
-
         this.cardinality = cardinality;
     }
 
@@ -57,8 +55,8 @@ public class Association {
      */
     public static class Cardinality {
 
-        private String self;
-        private String associate;
+        private final String self;
+        private final String associate;
 
         public Cardinality(String self, String associate) {
 
@@ -67,12 +65,10 @@ public class Association {
         }
 
         public String getSelf() {
-
             return self;
         }
 
         public String getAssociate() {
-
             return associate;
         }
     }

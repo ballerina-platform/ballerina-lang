@@ -22,12 +22,15 @@ import java.util.List;
 
 /**
  * Represent a Ballerina record.
+ *
+ * @since 2201.2.2
  */
 public class Entity {
 
     private List<Attribute> attributes;
-
     private List<String> inclusions;
+
+    // todo : send the location
 
     public Entity(List<Attribute> attributes, List<String> inclusions) {
 
@@ -36,17 +39,14 @@ public class Entity {
     }
 
     public List<Attribute> getAttributes() {
-
         return attributes;
     }
 
     public void setAttributes(List<Attribute> attributes) {
-
         this.attributes = attributes;
     }
 
     public List<String> getInclusions() {
-
         return inclusions;
     }
 }

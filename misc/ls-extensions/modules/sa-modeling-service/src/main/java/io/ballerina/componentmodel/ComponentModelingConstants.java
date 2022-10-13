@@ -26,6 +26,8 @@ import java.util.Map;
 
 /**
  * Constants use for Solution Architecture model generation.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingConstants {
 
@@ -41,29 +43,24 @@ public class ComponentModelingConstants {
         private final String parameterIn;
 
         ParameterIn(String parameterIn) {
-
             this.parameterIn = parameterIn;
         }
 
         public String getValue() {
-
             return this.parameterIn;
         }
     }
 
     public static final String CAPABILITY_NAME = "multiServiceModelingService";
-
     public static final String COLON = ":";
     public static final String FORWARD_SLASH = "/";
     public static final String SERVICE_ANNOTATION = "choreo:Service";
-
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String CLIENT_ANNOTATION = "choreo:Client";
     public static final String ID = "id";
     public static final String LABEL = "label";
     public static final String SERVICE_ID = "serviceId";
     public static final String ARRAY = "[]";
-
     public static final String LISTENER = ":Listener";
     public static final String CLIENT = ":Client";
 
@@ -82,25 +79,21 @@ public class ComponentModelingConstants {
         private final String cardinalityValue;
 
         CardinalityValue(String cardinalityValue) {
-
             this.cardinalityValue = cardinalityValue;
         }
 
         public String getValue() {
-
             return this.cardinalityValue;
         }
     }
 
     public static final Map<SyntaxKind, String> TYPE_MAP;
 
-    // for hex literals ?
+    // todo: for hex literals ?
     static {
         Map<SyntaxKind, String> typeMap = new HashMap<>();
         typeMap.put(SyntaxKind.STRING_LITERAL, "string");
         typeMap.put(SyntaxKind.BOOLEAN_LITERAL, "boolean");
-//        typeMap.put("array", "[]");
-//        typeMap.put("object", "record {}");
         typeMap.put(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN, "float");
         typeMap.put(SyntaxKind.NUMERIC_LITERAL, "decimal");
         typeMap.put(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN, "float");

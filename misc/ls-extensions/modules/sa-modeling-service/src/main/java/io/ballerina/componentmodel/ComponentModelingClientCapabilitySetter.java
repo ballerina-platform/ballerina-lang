@@ -23,6 +23,8 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 
 /**
  * Client Capability setter for the {@link ComponentModelingService}.
+ *
+ * @since 2201.2.2
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter")
 public class ComponentModelingClientCapabilitySetter extends
@@ -30,13 +32,11 @@ public class ComponentModelingClientCapabilitySetter extends
 
     @Override
     public String getCapabilityName() {
-
         return ComponentModelingConstants.CAPABILITY_NAME;
     }
 
     @Override
     public Class<ComponentModelingClientCapabilities> getCapability() {
-
         return ComponentModelingClientCapabilities.class;
     }
 }
