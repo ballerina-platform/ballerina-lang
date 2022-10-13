@@ -428,4 +428,8 @@
         <Method name="addMatchingIncludePaths" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.compiler.api.impl.util.SymbolUtils" />
+        <Bug pattern="BC_UNCONFIRMED_CAST" />
+    </Match>
 </FindBugsFilter>
