@@ -1,5 +1,6 @@
 package io.ballerina.componentmodel;
 
+import com.google.gson.JsonObject;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -8,6 +9,9 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.componentmodel.servicemodel.components.ServiceAnnotation;
+import io.ballerina.projects.Package;
+
+import java.util.Map;
 
 import static io.ballerina.componentmodel.ComponentModelingConstants.DISPLAY_ANNOTATION;
 import static io.ballerina.componentmodel.ComponentModelingConstants.ID;
@@ -15,14 +19,21 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.LABEL;
 
 /**
  * Provide utils functions for component model building.
+ *
+ * @since 2201.2.2
  */
 public class Utils {
 
-    public static String getPackageKey(ComponentModel.PackageId packageId) {
+    public static String getQualifiedPackageName(ComponentModel.PackageId packageId) {
 
-        String key = String.format("%s/%s:%s", packageId.getOrg(),
+        return String.format("%s/%s:%s", packageId.getOrg(),
                 packageId.getName(), packageId.getVersion());
-        return key;
+    }
+
+    public static boolean modelAlreadyExists(Map<String, JsonObject> componentModelMap, Package currentPackage) {
+
+        ComponentModel.PackageId packageId = new ComponentModel.PackageId(currentPackage);
+        return componentModelMap.containsKey(getQualifiedPackageName(packageId));
     }
 
     public static ServiceAnnotation getServiceAnnotation(NodeList<AnnotationNode> annotationNodes) {

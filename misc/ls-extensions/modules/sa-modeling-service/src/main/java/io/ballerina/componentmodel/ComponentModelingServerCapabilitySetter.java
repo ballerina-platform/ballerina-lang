@@ -25,6 +25,8 @@ import java.util.Optional;
 
 /**
  * Capability setter for the {@link ComponentModelingService}.
+ *
+ * @since 2201.2.2
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter")
 public class ComponentModelingServerCapabilitySetter extends
@@ -40,13 +42,11 @@ public class ComponentModelingServerCapabilitySetter extends
 
     @Override
     public String getCapabilityName() {
-
         return ComponentModelingConstants.CAPABILITY_NAME;
     }
 
     @Override
     public Class<ComponentModelingServerCapabilities> getCapability() {
-
         return ComponentModelingServerCapabilities.class;
     }
 }

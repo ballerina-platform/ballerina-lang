@@ -22,23 +22,22 @@ import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabili
 
 /**
  * Server capabilities for the solution architecture modeling service.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingServerCapabilities extends BallerinaServerCapability {
 
     private boolean getMultiServiceModel;
 
     public ComponentModelingServerCapabilities() {
-
         super(ComponentModelingConstants.CAPABILITY_NAME);
     }
 
     public boolean isGetMultiServiceModel() {
-
         return getMultiServiceModel;
     }
 
     public void setGetMultiServiceModel(boolean getMultiServiceModel) {
-
         this.getMultiServiceModel = getMultiServiceModel;
     }
 }

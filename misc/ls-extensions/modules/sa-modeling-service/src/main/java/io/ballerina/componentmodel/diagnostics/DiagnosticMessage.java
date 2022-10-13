@@ -22,6 +22,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 /**
  * Diagnostic message format for component model generation errors.
+ *
+ * @since 2201.2.2
  */
 public class DiagnosticMessage {
 
@@ -37,23 +39,25 @@ public class DiagnosticMessage {
     }
 
     public String getCode() {
-
         return code;
     }
 
     public String getDescription() {
-
         return description;
     }
 
     public DiagnosticSeverity getSeverity() {
-
         return severity;
     }
 
     public static DiagnosticMessage componentModellingService001(String projectPath) {
+        return new DiagnosticMessage("001", String.format("Ballerina project not found in the path : %s", projectPath),
+                DiagnosticSeverity.ERROR);
+    }
 
-        return new DiagnosticMessage(String.format("Ballerina project not found in the path : %s"), projectPath,
+    public static DiagnosticMessage componentModellingService002(String projectPath, String message, String stacktrace) {
+        return new DiagnosticMessage("002", String.format("Unexpected error occurred while resolving Ballerina " +
+                "package for the path: %s. " + "\nMessage : %s \nStackTrace : %s", projectPath, message, stacktrace),
                 DiagnosticSeverity.ERROR);
     }
 }

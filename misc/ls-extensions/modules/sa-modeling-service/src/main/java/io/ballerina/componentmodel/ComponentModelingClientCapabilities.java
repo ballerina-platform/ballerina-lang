@@ -22,6 +22,8 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 
 /**
  * Client capabilities for the solution architecture modeling service.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingClientCapabilities extends BallerinaClientCapability {
 
@@ -33,12 +35,10 @@ public class ComponentModelingClientCapabilities extends BallerinaClientCapabili
     }
 
     public boolean isGetMultiServiceModel() {
-
         return getMultiServiceModel;
     }
 
     public void setGetMultiServiceModel(boolean getMultiServiceModel) {
-
         this.getMultiServiceModel = getMultiServiceModel;
     }
 }

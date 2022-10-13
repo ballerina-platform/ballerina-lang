@@ -20,11 +20,14 @@ package io.ballerina.componentmodel;
 
 import io.ballerina.componentmodel.entitymodel.components.Entity;
 import io.ballerina.componentmodel.servicemodel.components.Service;
+import io.ballerina.projects.Package;
 
 import java.util.Map;
 
 /**
  * Represents intermediate model to represent multi-service projects.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModel {
 
@@ -63,11 +66,11 @@ public class ComponentModel {
         private final String org;
         private final String version;
 
-        public PackageId(String name, String org, String version) {
+        public PackageId(Package currentPackage) {
 
-            this.name = name;
-            this.org = org;
-            this.version = version;
+            this.name = currentPackage.packageName().value();
+            this.org = currentPackage.packageOrg().value();
+            this.version = currentPackage.packageVersion().value().toString();
         }
 
         public String getName() {

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,8 @@ import java.util.Map;
 
 /**
  * Response format for component model request.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingServiceResponse {
 
@@ -36,32 +38,26 @@ public class ComponentModelingServiceResponse {
     private List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
 
     public Map<String, JsonObject> getComponentModels() {
-
         return componentModels;
     }
 
     public void setComponentModels(Map<String, JsonObject> componentModels) {
-
         this.componentModels = componentModels;
     }
 
     public List<ComponentModelingDiagnostics> getDiagnostics() {
-
         return diagnostics;
     }
 
     public void setDiagnostics(List<ComponentModelingDiagnostics> diagnostics) {
-
         this.diagnostics = diagnostics;
     }
 
     public void addcomponentModel(String key, JsonObject jsonObject) {
-
         componentModels.put(key, jsonObject);
     }
 
     public void addDiagnostics(List<ComponentModelingDiagnostics> componentModelingDiagnostics) {
-
         this.diagnostics.addAll(componentModelingDiagnostics);
     }
 }

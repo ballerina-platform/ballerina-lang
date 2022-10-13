@@ -22,6 +22,8 @@ import java.util.List;
 
 /**
  * Represents field of a record.
+ *
+ * @since 2201.2.2
  */
 public class Attribute {
 
@@ -29,9 +31,7 @@ public class Attribute {
     private final String type;
     private final boolean optional;
     private final boolean nillable;
-
     private final String defaultValue;
-
     private final List<Association> associations; // can have multiple association when union is found
 
     public Attribute(String name, String type, boolean optional, boolean nillable, String defaultValue,
@@ -46,32 +46,26 @@ public class Attribute {
     }
 
     public String getName() {
-
         return name;
     }
 
     public String getType() {
-
         return type;
     }
 
     public boolean isOptional() {
-
         return optional;
     }
 
     public boolean isNillable() {
-
         return nillable;
     }
 
     public String getDefaultValue() {
-
         return defaultValue;
     }
 
     public List<Association> getAssociations() {
-
         return associations;
     }
 

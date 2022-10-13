@@ -18,25 +18,23 @@
 
 package io.ballerina.componentmodel;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Request for Solution Architecture model generation.
+ *
+ * @since 2201.2.2
  */
 public class ComponentModelingServiceRequest {
 
-    private List<TextDocumentIdentifier> textDocumentIdentifiers = new ArrayList<>();
+    private List<String> documentUris = new ArrayList<>();
 
-    public List<TextDocumentIdentifier> getTextDocumentIdentifiers() {
-
-        return textDocumentIdentifiers;
+    public List<String> getDocumentUris() {
+        return documentUris;
     }
 
-    public void setTextDocumentIdentifiers(List<TextDocumentIdentifier> textDocumentIdentifiers) {
-
-        this.textDocumentIdentifiers = textDocumentIdentifiers;
+    public void setDocumentUris(List<String> documentUris) {
+        this.documentUris = documentUris;
     }
 }

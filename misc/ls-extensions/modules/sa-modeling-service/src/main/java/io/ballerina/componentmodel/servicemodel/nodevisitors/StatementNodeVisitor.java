@@ -44,15 +44,14 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.CLIENT;
 
 /**
  * Visitor class to identify client declaration nodes inside a Ballerina service.
+ *
+ * @since 2201.2.2
  */
 public class StatementNodeVisitor extends NodeVisitor {
 
     private String serviceId = null;
-
     private String connectorType = null;
-
     private final SemanticModel semanticModel;
-
     private final String clientName;
 
     public StatementNodeVisitor(String clientName, SemanticModel semanticModel) {
@@ -62,12 +61,10 @@ public class StatementNodeVisitor extends NodeVisitor {
     }
 
     public String getServiceId() {
-
         return serviceId;
     }
 
     public String getConnectorType() {
-
         return connectorType;
     }
 

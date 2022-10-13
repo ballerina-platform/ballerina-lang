@@ -37,6 +37,7 @@ import io.ballerina.componentmodel.entitymodel.components.Attribute;
 import io.ballerina.componentmodel.entitymodel.components.Entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,12 +48,23 @@ import static io.ballerina.componentmodel.ComponentModelingConstants.FORWARD_SLA
 
 /**
  * Build entity model to represent relationship between records.
+ *
+ * @since 2201.2.2
  */
 public class EntityModelGenerator {
 
-    public void generateEntityModel(SemanticModel semanticModel, Map<String, Entity> entities,
-                                    ComponentModel.PackageId packageId) {
+    private final SemanticModel semanticModel;
+    private final ComponentModel.PackageId packageId;
 
+    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+
+        this.semanticModel = semanticModel;
+        this.packageId = packageId;
+    }
+
+    public Map<String, Entity> generate() {
+
+        Map<String, Entity> entities = new HashMap<>();
         List<Symbol> symbols = semanticModel.moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
@@ -84,6 +96,7 @@ public class EntityModelGenerator {
                 }
             }
         }
+        return entities;
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
