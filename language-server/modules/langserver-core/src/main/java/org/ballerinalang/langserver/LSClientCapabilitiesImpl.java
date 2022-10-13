@@ -226,8 +226,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         }
 
         @Override
-        public boolean isQuickPickSupported() { return supportQuickPick; }
+        public boolean isQuickPickSupported() {
+            return supportQuickPick;
+        }
 
-        public void setSupportQuickPick(boolean supportQuickPick) { this.supportQuickPick = supportQuickPick; }
+        public void setSupportQuickPick(boolean supportQuickPick) {
+            this.supportQuickPick = supportQuickPick;
+        }
     }
 }

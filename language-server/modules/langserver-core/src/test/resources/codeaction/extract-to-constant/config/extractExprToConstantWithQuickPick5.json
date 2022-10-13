@@ -9,10 +9,10 @@
       "title": "Extract to constant",
       "kind": "refactor.extract",
       "command": {
-        "title": "Extract To Constant",
+        "title": "extract to constant",
         "command": "ballerina.action.extract",
         "arguments": [
-          "extractConstant",
+          "extract to constant",
           "extractExprToConstantWithQuickPick.bal",
           {
             "10 / 2 + 20": [

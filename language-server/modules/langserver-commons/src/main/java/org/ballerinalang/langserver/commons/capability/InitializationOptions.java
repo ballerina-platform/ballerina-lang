@@ -38,7 +38,7 @@ public interface InitializationOptions {
     String KEY_RENAME_SUPPORT = "supportRenamePopup";
 
     /**
-     * Whether the client supports the quick pick.
+     * Whether the client supports quick picks.
      */
     String KEY_QUICKPICK_SUPPORT = "supportQuickPick";
 
@@ -64,7 +64,7 @@ public interface InitializationOptions {
     boolean isRefactorRenameSupported();
 
     /**
-     * Returns if the client supports the quick pick.
+     * Returns if the client supports quick picks.
      *
      * @return True if supported, false otherwise
      */

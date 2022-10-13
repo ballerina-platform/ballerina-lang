@@ -427,7 +427,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 String actualName = actualArgs.get(0).getAsString();
                 String expectedName = expArgs.get(0).getAsString();
 
-                String actualFilePath = actualArgs.get(1).getAsString().replace(sourceRoot.toString(),"");
+                String actualFilePath = actualArgs.get(1).getAsString().replace(sourceRoot.toString(), "");
                 if (actualFilePath.startsWith("/") || actualFilePath.startsWith("\\")) {
                     actualFilePath = actualFilePath.substring(1);
                 }
