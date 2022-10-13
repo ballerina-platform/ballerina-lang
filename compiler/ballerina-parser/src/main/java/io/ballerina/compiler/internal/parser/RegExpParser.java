@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -96,8 +97,10 @@ public class RegExpParser extends AbstractParser {
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case RE_CHAR:
-            case RE_ESCAPE:
+            case RE_LITERAL_CHAR:
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+            case DOT_TOKEN:
                 reAtom = parseChars();
                 break;
             case BACK_SLASH_TOKEN:
@@ -107,10 +110,13 @@ public class RegExpParser extends AbstractParser {
                 reAtom = parseCharacterClass();
                 break;
             case OPEN_PAREN_TOKEN:
-                reAtom = parseCapturingGroups();
+                reAtom = parseCapturingGroup();
                 break;
             case INTERPOLATION_START_TOKEN:
                 reAtom = parseInterpolation();
+                break;
+            case QUESTION_MARK_TOKEN:
+                reAtom = createInvalidToken(SyntaxKind.QUESTION_MARK_TOKEN, consume());
                 break;
             default:
                 reAtom = consume();
@@ -118,7 +124,8 @@ public class RegExpParser extends AbstractParser {
 
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.RE_BASE_QUANTIFIER_VALUE ||
-                nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
+                nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN ||
+                nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
             STNode quantifier = parseReQuantifier();
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
@@ -143,14 +150,18 @@ public class RegExpParser extends AbstractParser {
      */
     private STNode parseReEscape() {
         STNode backSlash = consume();
+        return parseEscapeChar(backSlash);
+    }
+
+    private STNode parseEscapeChar(STNode backSlash) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case RE_PROPERTY:
                 return parseReUnicodePropertyEscape(backSlash);
-            case RE_SYNTAX_CHAR:
-                return parseReQuoteEscape(backSlash);
             case RE_SIMPLE_CHAR_CLASS_CODE:
                 return parseReSimpleCharClassEscape(backSlash);
+            case RE_SYNTAX_CHAR:
+                return parseReQuoteEscape(backSlash);
             default:
                 return consume();
         }
@@ -270,24 +281,11 @@ public class RegExpParser extends AbstractParser {
      * @return Character class node
      */
     private STNode parseCharacterClass() {
-        STNode characterClassStart = parseCharacterClassStart();
+        STNode characterClassStart = consume();
         STNode negation = parseNegation();
-        STNode characterSet = parseReCharSet();
+        STNode characterSet = parseReCharSet(negation);
         STNode characterClassEnd = parseCharacterClassEnd();
         return STNodeFactory.createReCharacterClassNode(characterClassStart, negation, characterSet, characterClassEnd);
-    }
-
-    /**
-     * Parse open bracket token in a character class.
-     *
-     * @return Open bracket token
-     */
-    private STNode parseCharacterClassStart() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-            return consume();
-        }
-        throw new IllegalStateException();
     }
 
     /**
@@ -308,12 +306,12 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSet node
      */
-    private STNode parseReCharSet() {
+    private STNode parseReCharSet(STNode prevNode) {
         STToken nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return null;
         }
-        STNode startReCharSetAtom = parseCharSetAtom(nextToken);
+        STNode startReCharSetAtom = parseCharSetAtom(nextToken, prevNode);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtom;
@@ -324,13 +322,13 @@ public class RegExpParser extends AbstractParser {
             if (isCharacterClassEnd(nextToken.kind)) {
                 return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, minus);
             }
-            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken, minus);
             STNode reCharSetRange = STNodeFactory.createReCharSetRangeNode(startReCharSetAtom, minus,
                     rhsReCharSetAtom);
-            STNode reCharSet = parseReCharSet();
+            STNode reCharSet = parseReCharSet(reCharSetRange);
             return STNodeFactory.createReCharSetRangeWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
+        STNode reCharSetNoDash = parseCharSetNoDash(nextToken, startReCharSetAtom);
         return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, reCharSetNoDash);
     }
 
@@ -339,8 +337,8 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSetNoDash node
      */
-    private STNode parseCharSetAtomNoDash(STToken nextToken) {
-        STNode startReCharSetAtomNoDash = parseCharSetAtom(nextToken);
+    private STNode parseCharSetNoDash(STToken nextToken, STNode prevNode) {
+        STNode startReCharSetAtomNoDash = parseCharSetAtom(nextToken, prevNode);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtomNoDash;
@@ -352,22 +350,32 @@ public class RegExpParser extends AbstractParser {
                 return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
                         minus);
             }
-            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken, minus);
             STNode reCharSetRange = STNodeFactory.createReCharSetRangeNoDashNode(startReCharSetAtomNoDash, minus,
                     rhsReCharSetAtom);
-            STNode reCharSet = parseReCharSet();
+            STNode reCharSet = parseReCharSet(reCharSetRange);
             return STNodeFactory.createReCharSetRangeNoDashWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
+        STNode reCharSetNoDash = parseCharSetNoDash(nextToken, startReCharSetAtomNoDash);
         return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
                 reCharSetNoDash);
     }
 
-    private STNode parseCharSetAtom(STToken nextToken) {
-        if (nextToken.kind == SyntaxKind.BACK_SLASH_TOKEN) {
-            return parseReEscape();
+    private STNode parseCharSetAtom(STToken nextToken, STNode prevNode) {
+        switch (nextToken.kind) {
+            case MINUS_TOKEN:
+            case RE_CHAR_SET_ATOM_NO_DASH:
+                return consume();
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+                return parseChars();
+            case BACK_SLASH_TOKEN:
+                return parseReEscape();
+            default:
+                STNode consumedToken = consume();
+                return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, consumedToken,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
-        return consume();
     }
 
     private boolean isCharacterClassEnd(SyntaxKind kind) {
@@ -442,6 +450,10 @@ public class RegExpParser extends AbstractParser {
             digits.add(digit);
             nextToken = peek();
         }
+        // There should be at least one least digit.
+        if (isLeastDigits && digits.isEmpty()) {
+            digits.add(createMissingTokenWithDiagnostics(SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT));
+        }
         return STAbstractNodeFactory.createNodeList(digits);
     }
 
@@ -467,7 +479,7 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
             return consume();
         } else {
-            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_BRACE_TOKEN);
         }
     }
 
@@ -489,8 +501,8 @@ public class RegExpParser extends AbstractParser {
      *
      * @return Capturing group node
      */
-    private STNode parseCapturingGroups() {
-        STNode openParenthesis = parseOpenParenthesis();
+    private STNode parseCapturingGroup() {
+        STNode openParenthesis = consume();
         STToken nextToken = peek();
         STNode flagExpression = null;
         if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
@@ -500,19 +512,6 @@ public class RegExpParser extends AbstractParser {
         STNode closeParenthesis = parseCloseParenthesis();
         return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
                 closeParenthesis);
-    }
-
-    /**
-     * Parse open parenthesis token in capturing group.
-     *
-     * @return Open parenthesis token
-     */
-    private STNode parseOpenParenthesis() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
-            return consume();
-        }
-        throw new IllegalStateException();
     }
 
     /**
@@ -641,5 +640,10 @@ public class RegExpParser extends AbstractParser {
 
     private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
         return SyntaxErrors.createMissingRegExpTokenWithDiagnostics(expectedKind);
+    }
+
+    private STNode createInvalidToken(SyntaxKind expectedKind, STNode invalidNode) {
+        STNode missingRegExpAtom = SyntaxErrors.createMissingRegExpTokenWithDiagnostics(expectedKind);
+        return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingRegExpAtom, invalidNode);
     }
 }

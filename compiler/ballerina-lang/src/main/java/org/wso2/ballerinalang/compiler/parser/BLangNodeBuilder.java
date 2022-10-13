@@ -2390,8 +2390,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private boolean isTokenInRegExp(SyntaxKind kind) {
         switch (kind) {
             case RE_ASSERTION_VALUE:
-            case RE_CHAR:
-            case RE_ESCAPE:
+            case RE_LITERAL_CHAR:
+            case RE_CONTROL_ESCAPE:
+            case RE_NUMERIC_ESCAPE:
             case RE_SYNTAX_CHAR:
             case RE_SIMPLE_CHAR_CLASS_CODE:
             case RE_PROPERTY:
@@ -2399,13 +2400,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RE_UNICODE_PROPERTY_VALUE:
             case RE_UNICODE_GENERAL_CATEGORY_START:
             case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_CHAR_SET_ATOM:
             case RE_CHAR_SET_ATOM_NO_DASH:
-            case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
-            case RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH:
             case RE_FLAGS_VALUE:
             case RE_BASE_QUANTIFIER_VALUE:
             case RE_BRACED_QUANTIFIER_DIGIT:
+            case DOT_TOKEN:
             case OPEN_BRACE_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case OPEN_BRACKET_TOKEN:
@@ -5594,9 +5593,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        BLangExpression charOrEscape = (BLangExpression) reAtomCharOrEscapeNode.reAtomCharOrEscape().apply(this);
+        // Return the literal for escape sequence if it's in a character class.
+        if (this.isInCharacterClass) {
+            return charOrEscape;
+        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
-        reAtomCharOrEscape.charOrEscape = (BLangExpression) reAtomCharOrEscapeNode.reAtomCharOrEscape().apply(this);
+        reAtomCharOrEscape.charOrEscape = charOrEscape;
         reAtomCharOrEscape.pos = getPosition(reAtomCharOrEscapeNode);
         return reAtomCharOrEscape;
     }

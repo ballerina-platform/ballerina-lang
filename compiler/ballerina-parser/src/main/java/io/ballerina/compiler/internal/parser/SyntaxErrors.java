@@ -573,6 +573,10 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case RE_UNICODE_PROPERTY_VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            case RE_BRACED_QUANTIFIER_DIGIT:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
+            case QUESTION_MARK_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_ATOM;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

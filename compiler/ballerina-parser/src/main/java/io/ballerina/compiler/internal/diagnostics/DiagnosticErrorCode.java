@@ -213,6 +213,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
     ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
     ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE("BCE0417", "error.missing.unicode.property.value"),
+    ERROR_MISSING_RE_QUANTIFIER_DIGIT("BCE0418", "error.missing.digit.in.quantifier"),
+    ERROR_MISSING_RE_ATOM("BCE0419", "error.missing.token.before.quantifier"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -352,10 +354,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680",
             "error.resource.access.segment.is.not.allowed.after.rest.segment"),
     ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0681", "error.invalid.token.in.reg.exp"),
-    ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0682", "error.invalid.unicode.property.escape.in.reg.exp"),
-    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
-    ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0684", "error.invalid.character.set.in.reg.exp"),
-    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0685", "error.invalid.flag.in.reg.exp")
     ;
 
     String diagnosticId;
