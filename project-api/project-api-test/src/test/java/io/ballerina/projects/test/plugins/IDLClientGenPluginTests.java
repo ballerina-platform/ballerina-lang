@@ -118,7 +118,7 @@ public class IDLClientGenPluginTests {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
-                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+                TestUtils.getDiagnosticsAsString(diagnosticResult));
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), expectedModules);
     }
@@ -220,5 +220,22 @@ public class IDLClientGenPluginTests {
         BuildProject buildProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectPath);
         Assert.assertFalse(buildProject.currentPackage().getCompilation().diagnosticResult().hasErrors(),
                 TestUtils.getDiagnosticsAsString(buildProject.currentPackage().getCompilation().diagnosticResult()));
+    }
+
+    @Test
+    public void testIdlPluginUnhandledEx() {
+        Path projectPath = testResourceDir.resolve("package_test_idl_plugin_negative");
+        Project project = TestUtils.loadBuildProject(projectPath);
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 3,
+                TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = project.currentPackage().getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6,
+                TestUtils.getDiagnosticsAsString(diagnosticResult));
+
+        Assert.assertEquals(project.currentPackage().moduleIds().size(), 2);
+
     }
 }
