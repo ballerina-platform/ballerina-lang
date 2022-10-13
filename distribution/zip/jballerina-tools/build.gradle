@@ -136,6 +136,7 @@ dependencies {
     langserverLib project(':ls-extensions:partial-parser')
     langserverLib project(':ls-extensions:trigger-service')
     langserverLib project(':ls-extensions:bal-shell-service')
+    langserverLib project(':ls-extensions:project-design-service')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')
