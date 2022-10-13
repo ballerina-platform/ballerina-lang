@@ -116,6 +116,8 @@ class TypeEmitter {
                 return "decimal";
             case TypeTags.CHAR_STRING:
                 return "string:Char";
+            case TypeTags.REGEXP:
+                return "regexp:RegExp";
             case TypeTags.UNION:
                 return emitBUnionType((BUnionType) bType, tabs);
             case TypeTags.INTERSECTION:

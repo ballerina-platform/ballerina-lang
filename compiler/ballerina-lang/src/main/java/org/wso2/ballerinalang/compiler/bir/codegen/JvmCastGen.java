@@ -90,6 +90,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -1321,6 +1322,9 @@ public class JvmCastGen {
         targetType = JvmCodeGenUtil.getReferredType(targetType);
         if (TypeTags.isXMLTypeTag(targetType.tag)) {
             return XML_VALUE;
+        }
+        if (TypeTags.REGEXP == targetType.tag) {
+            return REG_EXP_VALUE;
         }
 
         String targetTypeClass;

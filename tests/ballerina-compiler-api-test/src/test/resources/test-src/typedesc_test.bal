@@ -372,3 +372,6 @@ function testQuotedClientClass() {
     'client c;
     'class cls;
 }
+
+public type PersonType distinct service object {
+};
