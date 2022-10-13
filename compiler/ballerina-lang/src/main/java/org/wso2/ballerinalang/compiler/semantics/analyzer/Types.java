@@ -5781,9 +5781,12 @@ public class Types {
         if (type.tag != TypeTags.UNION) {
             if (getReferenced && type.tag == TypeTags.TYPEREFDESC) {
                 return getAllTypes(((BTypeReferenceType) type).referredType, true);
-            } else {
-                return Lists.of(type);
             }
+            
+            if (getReferenced && type.tag == TypeTags.INTERSECTION) {
+                return getAllTypes(((BIntersectionType) type).effectiveType, true);
+            }
+            return Lists.of(type);
         }
 
         List<BType> memberTypes = new LinkedList<>();
