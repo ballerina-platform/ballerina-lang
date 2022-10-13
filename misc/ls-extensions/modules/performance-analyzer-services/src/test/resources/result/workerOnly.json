@@ -1,0 +1,76 @@
+{
+  "endpoints": {
+    "0": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "main.bal",
+        "startLine": {
+          "line": 6,
+          "offset": 20
+        },
+        "endLine": {
+          "line": 6,
+          "offset": 28
+        }
+      }
+    },
+    "1": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/",
+      "pos": {
+        "filePath": "workerOnly.bal",
+        "startLine": {
+          "line": 8,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 8,
+          "offset": 32
+        }
+      }
+    },
+    "2": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/",
+      "pos": {
+        "filePath": "workerOnly.bal",
+        "startLine": {
+          "line": 14,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 14,
+          "offset": 32
+        }
+      }
+    }
+  },
+  "actionInvocations": {
+    "workers": {
+      "A": {
+        "nextNode": {
+          "endPointRef": "1",
+          "name": "get",
+          "path": "/",
+          "pos": "workerOnly.bal/(9:40,9:58)",
+          "nextNode": null
+        }
+      },
+      "B": {
+        "nextNode": {
+          "endPointRef": "2",
+          "name": "get",
+          "path": "/",
+          "pos": "workerOnly.bal/(15:42,15:60)",
+          "nextNode": null
+        }
+      }
+    }
+  },
+  "type": "Success",
+  "message": "Success"
+}
