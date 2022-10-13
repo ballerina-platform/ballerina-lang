@@ -899,6 +899,12 @@ types:
         type: s4  
         repeat: expr
         repeat-expr: resource_path_count
+      - id: resource_path_pos_count
+        type: s4
+      - id: resource_path_segment_pos
+        type: position  
+        repeat: expr
+        repeat-expr: resource_path_pos_count
       - id: resource_accessor
         type: s4
       - id: resource_path_type_cp_index
