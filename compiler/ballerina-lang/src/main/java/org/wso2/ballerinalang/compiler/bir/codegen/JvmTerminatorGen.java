@@ -733,7 +733,8 @@ public class JvmTerminatorGen {
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-        if (JvmCodeGenUtil.getReferredType(selfArg.type).tag == TypeTags.OBJECT) {
+        BType selfArgRefType = JvmCodeGenUtil.getReferredType(selfArg.type);
+        if (selfArgRefType.tag == TypeTags.OBJECT  || selfArgRefType.tag == TypeTags.UNION) {
             this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
                     packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
         } else {

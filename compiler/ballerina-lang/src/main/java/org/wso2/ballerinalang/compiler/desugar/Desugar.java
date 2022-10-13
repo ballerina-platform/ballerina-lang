@@ -38,6 +38,7 @@ import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -6715,6 +6716,7 @@ public class Desugar extends BLangNodeVisitor {
         switch (Types.getReferredType(invocation.expr.getBType()).tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
+            case TypeTags.UNION:
                 if (!invocation.langLibInvocation) {
                     invocation.expr = rewriteExpr(invocation.expr);
                     List<BLangExpression> argExprs = new ArrayList<>(invocation.requiredArgs);
