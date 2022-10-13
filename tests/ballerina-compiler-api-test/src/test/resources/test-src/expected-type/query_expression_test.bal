@@ -25,3 +25,18 @@ public function queryExpressionTest1() {
     int[] evenNums = from int i in  where i % 2 == 0 select ;
 
 }
+
+function testStringType() {
+    string student = "John";
+    from  in student
+}
+
+function testXMLType() {
+    xml data = xml `XML Data`;
+    from  in data
+}
+
+function testStringTypeExpression() {
+    string students = "Jane, Will";
+    from string name in ;
+}

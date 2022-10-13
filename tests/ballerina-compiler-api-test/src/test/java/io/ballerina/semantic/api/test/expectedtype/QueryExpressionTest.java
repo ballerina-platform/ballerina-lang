@@ -44,7 +44,9 @@ public class QueryExpressionTest {
     public Object[][] getLinePos() {
         return new Object[][]{
                 {22, 28, TypeDescKind.INT},
-//                {24, 35, null}
+                {30, 9, TypeDescKind.STRING},
+                {35, 9, TypeDescKind.XML},
+                {40, 24, TypeDescKind.STRING},
         };
     }
 }
