@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -109,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExp
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -280,6 +282,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
+        if (node.typedBindingPattern().typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC) {
+            throw new IllegalStateException();
+        }
+
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
@@ -360,7 +366,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
                 int size = ((BLangInvocation) bLangNode).argExprs.size();
                 boolean langLibInvocation = ((BLangInvocation) bLangNode).langLibInvocation;
-                if (size == 0) {
+                if (size == 0 && !langLibInvocation) {
                     return getParamType(bLangNode);
                 } else {
                     int argumentIndex = 0;
@@ -377,7 +383,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                                     (((BArrayType) ((BLangInvocation) bLangNode).expr.expectedType).eType));
                         }
 
-                        return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argumentIndex-1));
+                        if (size == 0) {
+                            return getParamType(bLangNode);
+                        }
+
+                        return getExpectedType(((BLangInvocation) bLangNode).argExprs.get(argumentIndex - 1));
                     }
 
                     if ((((BLangInvocation) bLangNode).argExprs.get(argumentIndex).expectedType == null)) {
@@ -515,7 +525,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                         initInvocation).symbol)).params;
                 int argIndex = 0;
-                for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
+                List<BLangExpression> argsExpr = ((BLangTypeInit) bLangNode).argsExpr;
+                if (argsExpr.size() == 0 && params.size() > 0) {
+                    return getTypeFromBType(params.get(0).getType());
+                }
+
+                for (BLangExpression bLangExpression : argsExpr) {
                     if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                         if (argIndex < params.size()) {
                             return getTypeFromBType(params.get(argIndex).getType());
@@ -544,7 +559,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (parenthesizedArgList.isPresent() && isWithinParenthesis(linePosition,
                 parenthesizedArgList.get().openParenToken(),
                 parenthesizedArgList.get().closeParenToken())) {
-            if (bLangNode instanceof BLangTypeInit && (BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
+            if (bLangNode instanceof BLangTypeInit &&
+                    (BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol) != null) {
                 List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                         initInvocation).symbol)).params;
@@ -731,6 +747,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (bLangNode.getKind() == ERROR_CONSTRUCTOR_EXPRESSION) {
+            if (isWithinParenthesis(linePosition, errorConstructorExpressionNode.openParenToken(),
+                    errorConstructorExpressionNode.closeParenToken())) {
+                return Optional.of(typesFactory.getTypeDescriptor(((BErrorType)
+                        ((BLangErrorConstructorExpr) bLangNode).expectedType).detailType));
+            }
+
             return Optional.of(typesFactory.getTypeDescriptor(((BLangErrorConstructorExpr) bLangNode).expectedType));
         }
         return Optional.empty();
@@ -818,7 +840,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(FromClauseNode node) {
         if (posWithinRange(linePosition, node.fromKeyword().lineRange()) ||
-                posWithinRange(linePosition, node.inKeyword().lineRange()) ) {
+                posWithinRange(linePosition, node.inKeyword().lineRange())) {
             return Optional.empty();
         }
 
@@ -840,7 +862,18 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         }
 
-        return getExpectedType(((BLangFromClause) bLangNode).collection);
+        if (bLangNode instanceof BLangFromClause) {
+            if (!(node.inKeyword().lineRange().endLine().line() <= linePosition.line() &&
+                    node.inKeyword().lineRange().endLine().offset() <= linePosition.offset())) {
+                return Optional.empty();
+            }
+
+            BType bType = ((BLangSimpleVariableDef) ((BLangFromClause) bLangNode)
+                    .variableDefinitionNode).var.getBType();
+            return getTypeFromBType(bType);
+        }
+
+        return getExpectedType(bLangNode);
     }
 
     private Optional<TypeSymbol> getExpectedType(BLangNode node) {
@@ -885,7 +918,6 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             case LIST_CONSTRUCTOR_EXPR:
                 bType = ((BLangListConstructorExpr) node).expectedType;
                 break;
-                //TODO add other literals as well
             case LITERAL:
                 bType = ((BLangLiteral) node).expectedType;
                 break;
