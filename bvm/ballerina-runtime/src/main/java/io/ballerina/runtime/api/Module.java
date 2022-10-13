@@ -43,7 +43,7 @@ public class Module {
         this.name = name;
         this.majorVersion = majorVersion;
         this.isTestPkg = isTestPkg;
-        hashCode = Objects.hash(org, name, majorVersion, isTestPkg);
+        hashCode = Objects.hash(org, name, majorVersion);
     }
 
     public Module(String org, String name, String majorVersion) {
