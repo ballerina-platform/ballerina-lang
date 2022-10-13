@@ -875,6 +875,14 @@
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "array",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "array",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
