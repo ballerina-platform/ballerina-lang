@@ -718,7 +718,7 @@ public class JvmCodeGenUtil {
             return null;
         }
 
-        if (type.tag == TypeTags.TYPEREFDESC) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             return getReferredType(((BTypeReferenceType) type).referredType);
         }
         

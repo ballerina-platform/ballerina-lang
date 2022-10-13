@@ -4415,7 +4415,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BSymbol symbol = typeDef.symbol;
-            BStructureType structureType = (BStructureType) symbol.type;
+            BStructureType structureType = (BStructureType) Types.getReferredType(symbol.type);
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
                 if (structureType.tag != TypeTags.OBJECT) {
@@ -5117,10 +5117,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        if (receiverType.tag == TypeTags.OBJECT
+        BType receiverType = funcNode.receiver.getBType();
+        BType referredReceiverType = Types.getReferredType(receiverType);
+        if (referredReceiverType.tag == TypeTags.OBJECT
                 && !this.env.enclPkg.symbol.pkgID.equals(receiverType.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticErrorCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
-                       funcNode.name.value, funcNode.receiver.getBType().toString());
+                       funcNode.name.value, receiverType.toString());
             return false;
         }
         return true;
@@ -5226,7 +5228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             int referredTypeTag = referredType.tag;
-            if (structureTypeNode.getBType().tag == TypeTags.OBJECT) {
+            if (Types.getReferredType(structureTypeNode.getBType()).tag == TypeTags.OBJECT) {
                 if (referredTypeTag != TypeTags.OBJECT) {
                     DiagnosticErrorCode errorCode = DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE;
 

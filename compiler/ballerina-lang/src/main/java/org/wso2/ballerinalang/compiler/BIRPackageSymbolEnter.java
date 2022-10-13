@@ -267,8 +267,9 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
-                BObjectType objectType = (BObjectType) structureTypeSymbol.type;
+            BType referredStructureTypeSymbol = Types.getReferredType(structureTypeSymbol.type);
+            if (referredStructureTypeSymbol.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) referredStructureTypeSymbol;
                 for (BType ref : objectType.typeInclusions) {
                     BType typeRef = Types.getReferredType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {

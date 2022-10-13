@@ -3213,7 +3213,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (actualType != symTable.semanticError &&
                     (fieldAccessExpr.isLValue || fieldAccessExpr.isCompoundAssignmentLValue)) {
                 if (isAllReadonlyTypes(varRefType)) {
-                    if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType, data)) {
+                    BType referredType = Types.getReferredType(varRefType);
+                    if (referredType.tag != TypeTags.OBJECT
+                            || !isInitializationInInit(referredType, data)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                 varRefType);
                         data.resultType = symTable.semanticError;
@@ -4222,7 +4224,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         types.checkType(iteratorExpr.pos, nextReturnType, expectedNextReturnType,
                                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     } else {
-                        dlog.error(constructType.tsymbol.getPosition(),
+                        dlog.error(referredConstructType.tsymbol.getPosition(),
                                 DiagnosticErrorCode.INVALID_NEXT_METHOD_RETURN_TYPE, expectedNextReturnType);
                     }
                 }
