@@ -43,4 +43,12 @@ public class BResourcePathSegmentSymbol extends BSymbol {
         this.parentResource = parentResource;
         this.resourceMethod = resourceMethod;
     }
+    
+    public BResourcePathSegmentSymbol getParentResource() {
+        return parentResource;
+    }
+
+    public BResourceFunction getResourceMethod() {
+        return resourceMethod;
+    }
 }
