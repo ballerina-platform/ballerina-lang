@@ -550,12 +550,12 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
                 && (nodeKind != SyntaxKind.STRING_LITERAL || parentKind != SyntaxKind.SPECIFIC_FIELD)
                 && (nodeKind != SyntaxKind.QUALIFIED_NAME_REFERENCE || parentKind != SyntaxKind.FUNCTION_CALL)
-                && nodeKind != SyntaxKind.FIELD_ACCESS
+                && (nodeKind != SyntaxKind.FIELD_ACCESS
                 || (!((FieldAccessExpressionNode) node).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
                 && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT
                 || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
                 && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
-                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node)));
+                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node))));
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {
