@@ -97,7 +97,7 @@ public class SymbolsInRegularCompoundStatements {
                 {42, 24, "ints", SymbolKind.VARIABLE},
                 {43, 12, "val", SymbolKind.VARIABLE},
                 {44, 8, "call", SymbolKind.FUNCTION},
-                {47, 20, "a", SymbolKind.VARIABLE},
+                {47, 19, "a", SymbolKind.VARIABLE},
                 {49, 13, "b", SymbolKind.VARIABLE},
         };
     }

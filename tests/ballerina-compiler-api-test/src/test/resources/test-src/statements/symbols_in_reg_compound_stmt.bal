@@ -45,7 +45,7 @@ function testForeach() {
         call();
     }
 
-    foreach int[3] [a, b, c] in [[1, 2, 3], [3, 4, 5]] {
+    foreach int[] [a, b, c] in [[1, 2, 3], [3, 4, 5]] {
         int val = a;
         call(b);
     }
