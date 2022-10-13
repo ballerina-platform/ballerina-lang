@@ -50,6 +50,7 @@ public class ComponentModelBuilder {
             Collection<DocumentId> documentIds = module.documentIds();
             SemanticModel currentSemanticModel =
                     currentPackage.getCompilation().getSemanticModel(module.moduleId());
+            // todo : Check project diagnostics
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(
                     currentSemanticModel, packageId);
             services.putAll(serviceModelGenerator.generate(documentIds, module, currentPackage));
