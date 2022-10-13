@@ -272,4 +272,9 @@ public class FieldAccessTest {
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
+
+    @Test
+    public void testFieldAccessOnUnion() {
+        BRunUtil.invoke(result, "testFieldAccessOnUnion");
+    }
 }
