@@ -146,17 +146,35 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "g\u003da"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "g\u003da"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -269,17 +287,35 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "s\u003da"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "s\u003da"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -309,7 +345,6 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -343,7 +378,6 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -359,23 +393,18 @@
                     },
                     {
                       "kind": "LIST",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
-                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
-                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -389,7 +418,6 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_SCRIPT",
-                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "RE_UNICODE_SCRIPT_START",
@@ -397,21 +425,12 @@
                                             },
                                             {
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "}"
+                                              "value": ""
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                          ]
+                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }
@@ -528,22 +547,17 @@
                                               "value": "gc\u003d"
                                             },
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "}"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                          ]
+                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -93,6 +97,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -108,12 +113,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -126,9 +134,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -142,15 +152,38 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "ASCII"
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "ASCII"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -198,6 +231,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -231,6 +265,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -246,12 +281,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -264,9 +302,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -280,15 +320,38 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "ASCII"
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "ASCII"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -336,6 +399,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -369,6 +433,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -384,12 +449,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -402,9 +470,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -418,15 +488,38 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Any"
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "Any"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -474,6 +567,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -507,6 +601,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -522,12 +617,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -540,9 +638,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -556,15 +656,38 @@
                                         },
                                         {
                                           "kind": "RE_UNICODE_GENERAL_CATEGORY",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Assigned"
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "Assigned"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -612,6 +735,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -645,6 +769,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -660,12 +785,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -678,9 +806,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -701,12 +831,30 @@
                                             },
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Close_Punctuation"
+                                              "value": "C"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "lose_Punctuation"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1025,6 +1173,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1058,6 +1207,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -1073,12 +1223,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -1091,9 +1244,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -1114,12 +1269,30 @@
                                             },
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Letter"
+                                              "value": "L"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "etter"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1309,6 +1482,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -1342,6 +1516,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -1357,12 +1532,15 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ASSERTION",
@@ -1375,9 +1553,11 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
@@ -1394,12 +1574,30 @@
                                           "children": [
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Letter"
+                                              "value": "L"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN"
+                                          "kind": "CLOSE_BRACE_TOKEN",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                          ],
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "etter"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     },

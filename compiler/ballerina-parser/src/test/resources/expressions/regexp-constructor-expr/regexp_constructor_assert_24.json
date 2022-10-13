@@ -187,10 +187,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "a"
                                                             }
                                                           ]
@@ -201,10 +201,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "b"
                                                             }
                                                           ]
@@ -228,10 +228,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "F"
                                                             }
                                                           ]
@@ -242,10 +242,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "G"
                                                             }
                                                           ]
@@ -389,10 +389,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "A"
                                                             }
                                                           ]
@@ -536,20 +536,39 @@
                                                           "value": "i"
                                                         },
                                                         {
-                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "kind": "TEMPLATE_STRING",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                                           ],
-                                                          "value": "a"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": ")"
+                                                          "value": ")",
+                                                          "leadingMinutiae": [
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": "a"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": ")"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
@@ -698,28 +717,52 @@
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "kind": "TEMPLATE_STRING",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                                           ],
-                                                          "value": "a"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "b"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": ")"
+                                                          "value": ")",
+                                                          "leadingMinutiae": [
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": "a"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": "b"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": ")"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }

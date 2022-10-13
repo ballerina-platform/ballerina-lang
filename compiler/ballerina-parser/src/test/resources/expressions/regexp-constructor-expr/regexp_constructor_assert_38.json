@@ -128,7 +128,7 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH",
                                           "value": "a"
                                         },
                                         {
@@ -245,17 +245,45 @@
                                           "children": [
                                             {
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
-                                              "value": "Letter"
+                                              "value": "L"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "kind": "CLOSE_BRACE_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "TEMPLATE_STRING",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                      ],
+                                      "value": "etter",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
+                                              {
+                                                "kind": "INVALID_TOKEN",
+                                                "value": "etter"
+                                              }
+                                            ]
+                                          }
                                         }
                                       ]
                                     }
@@ -382,11 +410,11 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "kind": "CLOSE_BRACE_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
                                         }
                                       ]
@@ -510,11 +538,11 @@
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "kind": "CLOSE_BRACE_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
                                         }
                                       ]
