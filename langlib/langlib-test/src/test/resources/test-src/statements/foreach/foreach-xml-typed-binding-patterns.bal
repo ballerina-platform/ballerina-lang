@@ -9,7 +9,7 @@ xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <q:ID>1131313</q:ID>
     </p:person>`;
 
-function concatIntXml(int i, xml x) {
+function concatIntXml(int i, xml|string x) {
     output = output + i.toString() + ":" + x.toString() + " ";
 }
 

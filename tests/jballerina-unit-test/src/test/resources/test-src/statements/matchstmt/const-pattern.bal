@@ -770,10 +770,34 @@ function testMatchStmtInsideForeachInt() {
     assertEquals("OtherTwoTwo", output);
 }
 
+const string one = "1";
+const string two = "2";
+
+function testMatchStmtInsideForeachWithConst() {
+    string input = "1x2";
+    string output = "";
+
+    foreach string char in input {
+        match char {
+            one => {
+                output = output.concat("One");
+            }
+            two => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
 function testMatchStmtInsideForeach() {
     testMatchStmtInsideForeachString1();
     testMatchStmtInsideForeachString2();
     testMatchStmtInsideForeachInt();
+    testMatchStmtInsideForeachWithConst();
 }
 
 function constPatternWithPredeclaredPrefix3(map<int> x) returns int {
