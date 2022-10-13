@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1376,6 +1377,11 @@ class NodeFinder extends BaseVisitor {
 
         // Adding this as the last stmt to ensure that var define in on fail clause will also be considered.
         this.enclosingContainer = onFailClause;
+    }
+
+    @Override
+    public void visit(BLangLiteral literal) {
+        setEnclosingNode(literal, literal.pos);
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
