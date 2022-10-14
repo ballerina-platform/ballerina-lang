@@ -177,7 +177,7 @@ public class ServiceTemplateGenerator {
             //Load distribution repo packages
             LSClientLogger clientLogger = LSClientLogger.getInstance(context);
             clientLogger.logTrace("Loading packages from the distribution");
-            List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(context)
+            List<LSPackageLoader.ModuleInfo> packages = LSPackageLoader.getInstance(context)
                     .getDistributionRepoPackages();
             loadListenersFromPackages(packages, context);
             this.isInitialized = true;
@@ -198,7 +198,7 @@ public class ServiceTemplateGenerator {
             //Load packages from BallerinaUserHome
             LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
             clientLogger.logTrace("Loading modules from the BallerinaUserHome");
-            List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(lsContext)
+            List<LSPackageLoader.ModuleInfo> packages = LSPackageLoader.getInstance(lsContext)
                     .getPackagesFromBallerinaUserHome(context);
             loadListenersFromPackages(packages, lsContext);
             clientLogger.logTrace("Finished loading listener symbols from the  BallerinaUserHome");
@@ -210,7 +210,7 @@ public class ServiceTemplateGenerator {
      *
      * @param packages List of package info.
      */
-    private void loadListenersFromPackages(List<LSPackageLoader.PackageInfo> packages, LanguageServerContext context) {
+    private void loadListenersFromPackages(List<LSPackageLoader.ModuleInfo> packages, LanguageServerContext context) {
         packages.forEach(distPackage -> {
             String orgName = ModuleUtil.escapeModuleName(distPackage.packageOrg().value());
             Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
@@ -243,7 +243,7 @@ public class ServiceTemplateGenerator {
      * @param newPackages packages list
      * @param context     language server context
      */
-    public void updateListenerMetaDataMap(List<LSPackageLoader.PackageInfo> newPackages,
+    public void updateListenerMetaDataMap(List<LSPackageLoader.ModuleInfo> newPackages,
                                           LanguageServerContext context) {
         this.loadListenersFromPackages(newPackages, context);
     }

@@ -88,7 +88,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         String modulePrefix = qNameReferenceNode.get().modulePrefix().text();
 
-        List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
+        List<LSPackageLoader.ModuleInfo> packagesList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         // Check if we already have packages imported with the given module prefix but with different aliases
@@ -131,9 +131,11 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
                     String pkgName = pkgEntry.packageName().value();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
-                    String importText = ItemResolverConstants.IMPORT + " " + orgName + "/"
+                    String importText = orgName.isEmpty() ? ItemResolverConstants.IMPORT + " " + moduleName + ";" +
+                            CommonUtil.LINE_SEPARATOR : ItemResolverConstants.IMPORT + " " + orgName + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                    String commandTitle = orgName.isEmpty() ? String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                            moduleName) : String.format(CommandConstants.IMPORT_MODULE_TITLE,
                             orgName + "/" + moduleName);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
