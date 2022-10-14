@@ -307,9 +307,10 @@ public class CommonUtil {
      * @param pkg {@link Package} package info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
+    public static String getPackageLabel(LSPackageLoader.ModuleInfo pkg) {
         String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+        if (!pkg.packageOrg().value().isEmpty() && pkg.packageOrg().value() != null
+                && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
         }
 

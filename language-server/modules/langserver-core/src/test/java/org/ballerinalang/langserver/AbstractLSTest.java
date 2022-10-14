@@ -48,8 +48,8 @@ public abstract class AbstractLSTest {
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
     private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
-    private static final List<LSPackageLoader.PackageInfo> REMOTE_PACKAGES = new ArrayList<>();
-    private static final List<LSPackageLoader.PackageInfo> LOCAL_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.ModuleInfo> REMOTE_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
 
@@ -63,10 +63,10 @@ public abstract class AbstractLSTest {
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
             REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS,
-                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
-                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
         } catch (Exception e) {
             //ignore
@@ -142,11 +142,11 @@ public abstract class AbstractLSTest {
         return this.lsPackageLoader;
     }
 
-    public static List<LSPackageLoader.PackageInfo> getLocalPackages() {
+    public static List<LSPackageLoader.ModuleInfo> getLocalPackages() {
         return LOCAL_PACKAGES;
     }
 
-    public static List<LSPackageLoader.PackageInfo> getRemotePackages() {
+    public static List<LSPackageLoader.ModuleInfo> getRemotePackages() {
         return REMOTE_PACKAGES;
     }
 }

@@ -45,9 +45,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -364,7 +361,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<LSPackageLoader.PackageInfo> packages =
+        List<LSPackageLoader.ModuleInfo> packages =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
@@ -374,10 +371,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleUtil::escapeModuleName)
+                        .map(CommonUtil::escapeReservedKeyword)
                         .collect(Collectors.toList());
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-                String insertText = NameUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String insertText = CommonUtil.escapeReservedKeyword(NameUtil.getValidatedSymbolName(ctx,
+                        aliasComponent));
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits,
@@ -385,37 +384,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
         });
-
-        Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        Optional<Module> currentModule = ctx.workspace().module(ctx.filePath());
         completionItems.addAll(this.getPredeclaredLangLibCompletions(ctx));
-        if (project.isEmpty() || project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT || currentModule.isEmpty()) {
-            return completionItems;
-        }
-        project.get().currentPackage().modules().forEach(module -> {
-            if (module.isDefaultModule()) {
-                // Skip the default module
-                return;
-            }
-            String moduleNamePart = module.moduleName().moduleNamePart();
-            // In order to support the hierarchical module names, split and get the last component as the module name
-            List<String> moduleNameComponents = Arrays.stream(moduleNamePart.split("\\."))
-                    .map(CommonUtil::escapeReservedKeyword)
-                    .collect(Collectors.toList());
-            String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
-
-            // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-            String insertText = NameUtil.getValidatedSymbolName(ctx, aliasComponent);
-            String alias = !insertText.equals(aliasComponent) ? insertText : "";
-            String pkgName = CommonUtil.escapeReservedKeyword(module.moduleName().packageName().value());
-            String label = pkgName + "." + String.join(".", moduleNameComponents);
-            if (module.equals(currentModule.get()) || module.isDefaultModule() || processedList.contains(label)) {
-                return;
-            }
-            List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
-            CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits, alias);
-            completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
-        });
 
         return completionItems;
     }
