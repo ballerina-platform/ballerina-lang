@@ -145,7 +145,7 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
-    private static final int SERVICE_TYPE_TAG = 53;
+    private static final int SERVICE_TYPE_TAG = 54;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -268,8 +268,9 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
-                BObjectType objectType = (BObjectType) structureTypeSymbol.type;
+            BType referredStructureTypeSymbol = Types.getReferredType(structureTypeSymbol.type);
+            if (referredStructureTypeSymbol.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) referredStructureTypeSymbol;
                 for (BType ref : objectType.typeInclusions) {
                     BType typeRef = Types.getReferredType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
@@ -1260,15 +1261,9 @@ public class BIRPackageSymbolEnter {
                                                                                 env.pkgSymbol.pkgID, null,
                                                                                 env.pkgSymbol, symTable.builtinPos,
                                                                                 COMPILED_SOURCE);
-                    recordSymbol.flags |= flags;
                     recordSymbol.scope = new Scope(recordSymbol);
-                    BRecordType recordType = new BRecordType(recordSymbol, recordSymbol.flags);
-                    recordType.flags |= flags;
 
-                    if (isImmutable(flags)) {
-                        recordSymbol.flags |= Flags.READONLY;
-                    }
-
+                    BRecordType recordType = new BRecordType(recordSymbol, flags);
                     recordSymbol.type = recordType;
 
                     compositeStack.push(recordType);
@@ -1729,6 +1724,8 @@ public class BIRPackageSymbolEnter {
                             symTable.xmlCommentType;
                 case TypeTags.XML_TEXT:
                     return symTable.xmlTextType;
+                case TypeTags.REGEXP:
+                    return symTable.regExpType;
             }
             return null;
         }

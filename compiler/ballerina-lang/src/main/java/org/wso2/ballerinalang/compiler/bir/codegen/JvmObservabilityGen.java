@@ -173,10 +173,11 @@ class JvmObservabilityGen {
             }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && typeDef.type.tag == TypeTags.OBJECT) {
+            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
+            if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && bType.tag == TypeTags.OBJECT) {
                 continue;
             }
-            boolean isService = (typeDef.type.flags & Flags.SERVICE) == Flags.SERVICE;
+            boolean isService = (bType.flags & Flags.SERVICE) == Flags.SERVICE;
             String serviceName = null;
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {

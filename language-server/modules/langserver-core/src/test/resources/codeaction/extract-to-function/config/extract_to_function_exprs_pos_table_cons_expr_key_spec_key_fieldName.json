@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 14,
+    "character": 45
+  },
+  "source": "extract_to_function_exprs_table_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 18,
+              "character": 1
+            },
+            "end": {
+              "line": 18,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns table<Employee> key(id) {\n    return table key(id) [\n        {name: \"Cena\", id: 3, salary: 0.0},\n        {name: \"Edward\", id: 4, salary: 600}\n    ];\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 34
+            },
+            "end": {
+              "line": 17,
+              "character": 5
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "resolvable": false
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside the key keyword of the key field name of table constructor"
+}
