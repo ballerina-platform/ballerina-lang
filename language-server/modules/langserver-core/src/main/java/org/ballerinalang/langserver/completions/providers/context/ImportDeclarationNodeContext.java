@@ -41,6 +41,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -195,18 +196,22 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 // Avoid suggesting the ballerinai org name
                 return;
             }
-            String fullPkgNameLabel = orgName.isEmpty() ? pkgName :
-                    orgName + Names.ORG_NAME_SEPARATOR.getValue() + pkgName;
+            List<String> pkgNameComps = Arrays.stream(pkgName.split("\\."))
+                    .map(ModuleUtil::escapeModuleName)
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.toList());
+            String label = (pkgNameComps.size() > 1 && !orgName.equals("ballerina")) ?
+                    String.join(".", pkgNameComps) : CommonUtil.getPackageLabel(pkg);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
 
             if (orgName.equals(Names.BALLERINA_ORG.value)
                     && pkgName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
                 insertText += getLangLibModuleNameInsertText(pkgName);
             } else {
-                insertText += pkgName;
+                insertText += orgName.isEmpty() ? label : pkgName;
             }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            LSCompletionItem fullPkgImport = getImportCompletion(ctx, fullPkgNameLabel, insertText);
+            LSCompletionItem fullPkgImport = getImportCompletion(ctx, label, insertText);
             completionItems.add(fullPkgImport);
             if (!orgName.isEmpty() && !orgNames.contains(orgName)) {
                 LSCompletionItem orgNameImport =
