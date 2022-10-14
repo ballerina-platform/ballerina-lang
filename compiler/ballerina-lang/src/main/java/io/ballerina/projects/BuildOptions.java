@@ -198,7 +198,7 @@ public class BuildOptions {
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
-        NATIVE_IMAGE("nativeImage");
+        NATIVE_IMAGE("native");
 
         private final String name;
 

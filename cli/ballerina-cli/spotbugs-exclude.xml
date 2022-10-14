@@ -49,10 +49,6 @@
         <Class name="io.ballerina.cli.task.RunNativeImageTestTask"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
-    <Match>
-        <Class name="io.ballerina.cli.utils.NativeUtils"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-    </Match>
 
     <Match>
         <Package name="io.ballerina.cli.launcher.util" />
