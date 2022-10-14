@@ -676,7 +676,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "",
+      "filterText": "module3",
       "insertText": "module3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -909,6 +909,54 @@
       "sortText": "E",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lsproject.module2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "module2",
+      "insertText": "module21",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module2 as module21;\n"
+        }
+      ]
+    },
+    {
+      "label": "lsproject.module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "module1",
+      "insertText": "module11",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module1 as module11;\n"
+        }
+      ]
     }
   ]
 }

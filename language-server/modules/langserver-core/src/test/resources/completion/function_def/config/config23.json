@@ -302,7 +302,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "mod1",
       "insertText": "mod1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -326,7 +326,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "mod2",
       "insertText": "mod2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -555,7 +555,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _mindula/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "G",
@@ -585,7 +585,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _mindula/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "AC",

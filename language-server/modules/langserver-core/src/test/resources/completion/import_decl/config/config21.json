@@ -529,7 +529,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module4",
       "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -553,7 +553,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module2",
       "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -577,7 +577,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "module11",
+      "filterText": "module1",
       "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

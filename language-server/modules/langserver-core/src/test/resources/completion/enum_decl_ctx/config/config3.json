@@ -280,7 +280,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "constants",
       "insertText": "constants",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

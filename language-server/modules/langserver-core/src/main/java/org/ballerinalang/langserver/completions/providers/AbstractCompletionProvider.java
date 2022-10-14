@@ -373,13 +373,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
                         .collect(Collectors.toList());
+                String label = (pkgNameComps.size() > 1 && !orgName.equals("ballerina")) ?
+                        String.join(".", pkgNameComps) : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
                 String insertText = CommonUtil.escapeReservedKeyword(NameUtil.getValidatedSymbolName(ctx,
                         aliasComponent));
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
-                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
-                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits,
+                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
+                CompletionItem item = getModuleCompletionItem(label, insertText, txtEdits,
                         aliasComponent);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }

@@ -415,7 +415,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCG",
-      "filterText": "",
+      "filterText": "mod4",
       "insertText": "mod4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -439,7 +439,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCG",
-      "filterText": "",
+      "filterText": "lsmod2",
       "insertText": "lsmod2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -463,7 +463,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "BCG",
-      "filterText": "",
+      "filterText": "lsmod1",
       "insertText": "lsmod1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -610,6 +610,30 @@
       "sortText": "BG",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "projectls.lsmod3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BCG",
+      "filterText": "lsmod3",
+      "insertText": "lsmod3",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import projectls.lsmod3;\n"
+        }
+      ]
     }
   ]
 }

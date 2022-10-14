@@ -529,7 +529,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module4",
       "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -553,7 +553,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module2",
       "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -852,7 +852,7 @@
       ]
     },
     {
-      "label": "ballerina/module1",
+      "label": "lsproject.module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
@@ -871,7 +871,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1 as module11;\n"
+          "newText": "import lsproject.module1 as module11;\n"
         }
       ]
     },
@@ -963,6 +963,30 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "module1",
+      "insertText": "module11",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1 as module11;\n"
+        }
+      ]
     }
   ]
 }
