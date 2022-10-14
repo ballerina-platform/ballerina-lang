@@ -2732,8 +2732,8 @@ public class BIRGen extends BLangNodeVisitor {
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&
-                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                     .next().tag == TypeTags.OBJECT)) {
+                            Types.getReferredType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                    .next()).tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -2764,8 +2764,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return;
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&
-                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                     .next().tag == TypeTags.OBJECT)) {
+                            Types.getReferredType(((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                    .next()).tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;

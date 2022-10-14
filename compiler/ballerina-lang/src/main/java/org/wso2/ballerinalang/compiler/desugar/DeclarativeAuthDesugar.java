@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -108,8 +109,10 @@ public class DeclarativeAuthDesugar {
 
     boolean isDefinedInStdLibPackage(List<BType> expressionTypes, String packageName) {
         for (BType expressionType : expressionTypes) {
+            expressionType = Types.getReferredType(expressionType);
             if (expressionType.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
+                    memberType = Types.getReferredType(memberType);
                     if (memberType.tag == TypeTags.OBJECT &&
                             isDefinedInStdLibPackage((BObjectType) memberType, packageName)) {
                         return true;
