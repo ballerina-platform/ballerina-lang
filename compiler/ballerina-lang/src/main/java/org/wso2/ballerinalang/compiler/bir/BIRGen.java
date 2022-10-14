@@ -213,7 +213,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
@@ -1075,26 +1074,29 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
         BIRVariableDcl birVarDcl;
-        AtomicBoolean isExistingVarDef = new AtomicBoolean(true);
-        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
-            birVarDcl = this.env.syntheticVariableDclMap.computeIfAbsent(astVarDefStmt.var.symbol, k -> {
-                isExistingVarDef.set(false);
-                return new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                            this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.SYNTHETIC,
-                            astVarDefStmt.var.name.value);
-            });
+        BVarSymbol varSymbol = astVarDefStmt.var.symbol;
+        boolean isExistingVarDef = true;
+        if (varSymbol.origin == SymbolOrigin.VIRTUAL) {
+            birVarDcl = this.env.syntheticErrorVarDclMap.get(varSymbol);
+            if (birVarDcl == null) {
+                birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, varSymbol.type,
+                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.SYNTHETIC,
+                        astVarDefStmt.var.name.value);
+                this.env.syntheticErrorVarDclMap.put(varSymbol, birVarDcl);
+                isExistingVarDef = false;
+            }
         } else {
-            birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
-            isExistingVarDef.set(false);
+            birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, varSymbol.type, this.env.nextLocalVarId(names),
+                    VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
+            isExistingVarDef = false;
         }
-        if (!isExistingVarDef.get()) {
+        if (!isExistingVarDef) {
             birVarDcl.startBB = this.env.enclBB;
             this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
             this.env.enclFunc.localVars.add(birVarDcl);
             // We maintain a mapping from variable symbol to the bir_variable declaration.
             // This is required to pull the correct bir_variable declaration for variable references.
-            this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
+            this.env.symbolVarMap.put(varSymbol, birVarDcl);
 
             BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
             birVarDcl.insScope = newScope;

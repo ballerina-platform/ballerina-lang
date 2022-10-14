@@ -5128,6 +5128,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangBlockStmt rewriteNestedOnFail(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangOnFailClause currentOnFail = this.onFailClause;
+        // Create BLangBlockStmt per on-fail clause since we can reuse the contents of the
+        // BLangBlockStmt without duplicating.
         BLangBlockStmt onFailBody = blockStmtByFailNode.get(fail);
         if (onFailBody == null) {
             onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
@@ -5150,13 +5152,13 @@ public class Desugar extends BLangNodeVisitor {
             }
 
             int currentOnFailIndex = this.enclosingOnFailClause.indexOf(this.onFailClause);
-            int enclosingOnFailIndex = currentOnFailIndex <= 0 ? this.enclosingOnFailClause.size() - 1
+            int enclosingOnFailIndex = currentOnFailIndex <= 0 ? (this.enclosingOnFailClause.size() - 1)
                     : (currentOnFailIndex - 1);
             this.onFailClause = this.enclosingOnFailClause.get(enclosingOnFailIndex);
             onFailBody = rewrite(onFailBody, env);
             BLangFail failToEndBlock = new BLangFail();
             if (onFailClause.isInternal && fail.exprStmt != null) {
-                if (fail.exprStmt instanceof BLangPanic) {
+                if (fail.exprStmt.getKind() == NodeKind.PANIC) {
                     setPanicErrorToTrue(onFailBody, onFailClause);
                 } else {
                     onFailBody.stmts.add((BLangStatement) fail.exprStmt);
@@ -9369,7 +9371,7 @@ public class Desugar extends BLangNodeVisitor {
                             this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL));
         } else {
             errorVarSymbol = new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
-                    this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, location, VIRTUAL);
+                    this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL);
         }
 
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(location, patternFailureCaseVarName,

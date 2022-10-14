@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Stores the state such as the current node, enclosing package, function etc, during bir generation.
@@ -66,7 +65,7 @@ class BIRGenEnv {
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
 
     Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
-    Map<BVarSymbol, BIRVariableDcl> syntheticVariableDclMap = new ConcurrentHashMap<>();
+    Map<BVarSymbol, BIRVariableDcl> syntheticErrorVarDclMap = new HashMap<>();
     Map<BLangFail, BIRBasicBlock> onFailStartBlockByFailNode = new HashMap<>();
     Map<BLangBlockStmt, BIRBasicBlock> failStartBasicBlockMap = new HashMap<>();
     boolean failStartBBAlreadyAvailable;
