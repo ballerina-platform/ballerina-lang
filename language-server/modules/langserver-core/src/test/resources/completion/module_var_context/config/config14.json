@@ -533,7 +533,7 @@
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "C",
       "filterText": "regexp",
       "insertText": "regexp",
       "insertTextFormat": "Snippet",
