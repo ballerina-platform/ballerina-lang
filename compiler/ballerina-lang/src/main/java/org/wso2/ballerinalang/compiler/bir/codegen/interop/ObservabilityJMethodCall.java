@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Java method invocation call modeled as BIR NonTerminator Instruction.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class ObservabilityJMethodCall extends BIRNonTerminator {
 

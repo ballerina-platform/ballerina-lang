@@ -82,7 +82,7 @@ function foo(int i) returns Response|false|int|error|() {
 public client class Caller {
     remote function respond(int|string|error? message = ()) returns error? {
         if (message is int|string) {
-            return ;
+            return;
         } else if (message is error) {
             return error("error while responding");
         }
