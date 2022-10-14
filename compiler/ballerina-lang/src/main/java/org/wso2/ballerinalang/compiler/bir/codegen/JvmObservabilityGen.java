@@ -183,9 +183,8 @@ class JvmObservabilityGen {
                 }
                 if (serviceName == null) {
                     String basePath = this.svcAttachPoints.get(typeDef.name);
-                    serviceName = Objects.requireNonNullElseGet(basePath, () ->
-                            pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
-                            defaultServiceIndex++);
+                    serviceName = basePath == null ? pkg.packageID.orgName.value + "_" + pkg.packageID.name.value +
+                            "_svc_" + defaultServiceIndex++ : Utils.unescapeBallerina(basePath);
                 }
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
@@ -436,7 +435,7 @@ class JvmObservabilityGen {
                             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
                             StringBuilder resourcePathOrFunctionBuilder = new StringBuilder();
                             for (Name name : resourceFunction.resourcePath) {
-                                resourcePathOrFunctionBuilder.append("/").append(name.value);
+                                resourcePathOrFunctionBuilder.append("/").append(Utils.unescapeBallerina(name.value));
                             }
                             resourcePathOrFunction = resourcePathOrFunctionBuilder.toString();
                             resourceAccessor = resourceFunction.accessor.value;
