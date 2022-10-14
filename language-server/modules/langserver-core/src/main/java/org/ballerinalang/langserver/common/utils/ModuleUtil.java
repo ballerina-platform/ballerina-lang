@@ -223,7 +223,7 @@ public class ModuleUtil {
      * @return {@link Optional}
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
-                                                                         LSPackageLoader.PackageInfo pkg) {
+                                                                         LSPackageLoader.ModuleInfo pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
