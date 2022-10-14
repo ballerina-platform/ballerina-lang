@@ -41,7 +41,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.ResolutionOptions;
-import io.ballerina.projects.util.DependencyUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -1039,7 +1038,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // Lock Project Instance
         Lock lock = projectPair.get().lockAndGet();
         try {
-            return Optional.of(DependencyUtils.generateIDLClientModules(project));
+            return Optional.of(project.currentPackage()
+                    .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build()));
         } finally {
             // Unlock Project Instance
             lock.unlock();
