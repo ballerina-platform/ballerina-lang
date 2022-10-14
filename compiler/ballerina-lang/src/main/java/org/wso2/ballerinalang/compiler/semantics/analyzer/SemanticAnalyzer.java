@@ -3963,6 +3963,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void flatMapAndGetObjectTypes(Set<BType> result, BType type) {
+        type = Types.getReferredType(type);
         if (!types.checkListenerCompatibilityAtServiceDecl(type)) {
             return;
         }
