@@ -396,17 +396,22 @@ public class BallerinaSemanticModel implements SemanticModel {
         Node node = findNode(linePosition, syntaxTree);
         ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(this, compilationUnit,
                 this.compilerContext, linePosition, sourceDocument);
-        do {
-            typeSymbol = node.apply(expectedTypeFinder);
-            // To handle the cases related to ExternalTreeNodeList
-            if (typeSymbol == null || typeSymbol.isEmpty()) {
-                expectedTypeSymbol = null;
-            } else {
-                expectedTypeSymbol = typeSymbol.get();
-            }
+        try {
+            do {
+                typeSymbol = node.apply(expectedTypeFinder);
+                // To handle the cases related to ExternalTreeNodeList
+                if (typeSymbol == null || typeSymbol.isEmpty()) {
+                    expectedTypeSymbol = null;
+                } else {
+                    expectedTypeSymbol = typeSymbol.get();
+                }
 
-            node = node.parent();
-        } while (expectedTypeSymbol == null && node != null);
+                node = node.parent();
+            } while (expectedTypeSymbol == null && node != null);
+
+        } catch (IllegalStateException e) {
+            typeSymbol = Optional.empty();
+        }
 
         return typeSymbol;
     }
