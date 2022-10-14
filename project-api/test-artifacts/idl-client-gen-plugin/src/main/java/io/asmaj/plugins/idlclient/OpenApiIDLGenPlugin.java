@@ -74,12 +74,12 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
             if (getUri(idlSourceGeneratorContext.clientNode()).endsWith("throwUnhandledExInPerform")) {
                 throw new RuntimeException("perform crashed");
             }
-
-            ModuleId moduleId = ModuleId.create("client", idlSourceGeneratorContext.currentPackage().packageId());
+            String moduleName = getAlias(idlSourceGeneratorContext.clientNode());
+            ModuleId moduleId = ModuleId.create(moduleName, idlSourceGeneratorContext.currentPackage().packageId());
             DocumentId documentId = DocumentId.create("idl_client.bal", moduleId);
             DocumentConfig documentConfig = getClientCode(documentId);
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
-                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client"),
+                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), moduleName),
                     idlSourceGeneratorContext.currentPackage().descriptor());
             ModuleConfig moduleConfig = ModuleConfig.from(
                     moduleId, moduleDescriptor, Collections.singletonList(documentConfig),
@@ -94,6 +94,13 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
             }
 
             idlSourceGeneratorContext.addClient(moduleConfig, annotations);
+        }
+
+        private String getAlias(Node clientNode) {
+            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+                return ((ModuleClientDeclarationNode) clientNode).clientPrefix().toString();
+            }
+            return ((ClientDeclarationNode) clientNode).clientPrefix().toString();
         }
 
         private String getUri(Node clientNode) {
