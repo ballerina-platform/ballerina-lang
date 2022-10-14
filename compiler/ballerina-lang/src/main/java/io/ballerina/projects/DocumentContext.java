@@ -35,7 +35,6 @@ import io.ballerina.projects.internal.TransactionImportValidator;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.IDLClientGenerator;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -44,7 +43,6 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
-import org.apache.commons.compress.utils.FileNameUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.SourceKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -60,12 +58,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -390,7 +386,8 @@ class DocumentContext {
                             new IDLPluginManager.IDLSourceGeneratorContextImpl(
                                     clientNode, currentModuleDesc.moduleCompilationId(), docName,
                                     currentPkg, idlPath, idlClients, moduleLoadRequests,
-                                    idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries());
+                                    idlPluginManager.generatedModuleConfigs(), idlPluginManager.cachedClientEntries(),
+                                    idlPluginManager.aliasNameCounter());
                     try {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
@@ -460,7 +457,7 @@ class DocumentContext {
         private Path resolveRemoteUrl(String uri) throws IOException {
             URL url = new URL(uri);
             String[] split = url.getFile().split("[~?=#@*+%{}<>/\\[\\]|\"^]");
-            String fileName = split[split.length -1];
+            String fileName = split[split.length - 1];
             Path resourceName = Paths.get(fileName).getFileName();
             Path absResourcePath = this.currentPkg.project().sourceRoot().resolve(resourceName);
 
