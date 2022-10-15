@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
@@ -32,6 +33,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,19 +64,25 @@ public class ExecutorPositionsUtil {
     private ExecutorPositionsUtil() {
     }
 
-    public static JsonArray getExecutorPositions(Module module, Path filePath) {
-        Project project = module.project();
-
+    public static JsonArray getExecutorPositions(WorkspaceManager workspaceManager, Module module,
+                                                 Path filePath) {
         JsonArray execPositions = new JsonArray();
+        Optional<Project> optionalProject = workspaceManager.project(filePath);
+        if (optionalProject.isEmpty()) {
+            return execPositions;
+        }
+        Project project = optionalProject.get();
+
         if (!module.isDefaultModule()) {
             getTestCasePositions(execPositions, project, filePath, module);
             return execPositions;
         }
-        
-        List<Symbol> symbolList = module.project().currentPackage()
-                .getCompilation()
-                .getSemanticModel(module.moduleId())
-                .moduleSymbols();
+
+        Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(filePath);
+        if (semanticModel.isEmpty()) {
+            return execPositions;
+        }
+        List<Symbol> symbolList = semanticModel.get().moduleSymbols();
 
         List<FunctionSymbol> defaultModuleFunctionList = symbolList.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION &&
@@ -137,11 +145,10 @@ public class ExecutorPositionsUtil {
                     }
                     execPositions.add(serviceObject);
                 });
-        
+
         getTestCasePositions(execPositions, project, filePath, module);
         return execPositions;
     }
-
 
     /**
      * Checks if the provided location (interpreted relatively to the provided module) is location in the same file

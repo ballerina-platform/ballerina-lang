@@ -480,7 +480,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (module.isEmpty()) {
                     return response;
                 }
-                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(module.get(),
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(workspaceManagerProxy.get(),
+                        module.get(),
                         filePath.get()));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/executorPositions' failed!";
