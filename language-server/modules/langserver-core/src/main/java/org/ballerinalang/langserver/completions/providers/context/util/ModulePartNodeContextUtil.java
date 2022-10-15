@@ -21,17 +21,24 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -62,21 +69,60 @@ public class ModulePartNodeContextUtil {
     public static List<LSCompletionItem> getTopLevelItems(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         // Here we should add the function keyword as well, although it is added via #getTypeItems
-        List<Snippet> snippets = Arrays.asList(
-                Snippet.KW_IMPORT, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
+        List<Snippet> snippets = new ArrayList<>(Arrays.asList(Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
                 Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT, Snippet.KW_VAR,
                 Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_TRANSACTIONAL,
-                Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
+                Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION, Snippet.KW_CONFIGURABLE,
+                Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                 Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                 Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
-                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
-        );
-
-        
+                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON));
+        //Add import keyword conditionally
+        if (isInImportStatementsContext(context)) {
+            snippets.add(Snippet.KW_IMPORT);
+        }
+        if (!isMainFunctionAvailable(context)) {
+            snippets.add(Snippet.DEF_MAIN_FUNCTION);
+        }
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
 
         return completionItems;
+    }
+
+    private static boolean isMainFunctionAvailable(BallerinaCompletionContext context) {
+        Optional<ModulePartNode> modulePartNode = getModulePartNode(context);
+        if (modulePartNode.isEmpty()) {
+            return false;
+        }
+        return modulePartNode.get().members().stream().anyMatch(moduleMemberDeclarationNode ->
+                moduleMemberDeclarationNode.kind() == SyntaxKind.FUNCTION_DEFINITION
+                        && "main".equals(((FunctionDefinitionNode) moduleMemberDeclarationNode).functionName().text()));
+    }
+
+    private static Optional<ModulePartNode> getModulePartNode(BallerinaCompletionContext context) {
+        NonTerminalNode node = context.getNodeAtCursor();
+        while (node != null && node.kind() != SyntaxKind.MODULE_PART) {
+            node = node.parent();
+        }
+        if (node == null) {
+            return Optional.empty();
+        }
+        return Optional.of((ModulePartNode) node);
+    }
+
+    private static boolean isInImportStatementsContext(BallerinaCompletionContext context) {
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        Optional<ModulePartNode> modulePartNode = getModulePartNode(context);
+        if (syntaxTree.isEmpty() || modulePartNode.isEmpty()) {
+            return false;
+        }
+        int cursor = context.getCursorPositionInTree();
+        return modulePartNode.get().members().stream().noneMatch(
+                moduleMemberDeclarationNode ->
+                        moduleMemberDeclarationNode.kind() != SyntaxKind.IMPORT_DECLARATION &&
+                                PositionUtil.getPositionOffset(
+                                        PositionUtil.toPosition(moduleMemberDeclarationNode.lineRange().endLine()),
+                                        syntaxTree.get()) < cursor);
     }
 
     /**
@@ -88,22 +134,31 @@ public class ModulePartNodeContextUtil {
         for (LSCompletionItem item : items) {
             CompletionItem cItem = item.getCompletionItem();
             if (isSnippetBlock(item)) {
-                cItem.setSortText(genSortText(1));
+                if(((SnippetCompletionItem) item).id().equals(Snippet.DEF_MAIN_FUNCTION.name())) {
+                    cItem.setSortText(SortingUtil.genSortText(1) + SortingUtil.genSortText(1));
+                    continue;
+                }
+                cItem.setSortText(genSortText(1) + SortingUtil.genSortText(2));
                 continue;
             }
-            if (isKeyword(item)) {
+            if (isServiceTemplate(item)) {
                 cItem.setSortText(genSortText(2));
                 continue;
             }
-            if (SortingUtil.isModuleCompletionItem(item) && !SortingUtil.isLangLibModuleCompletionItem(item)) {
+            if (isKeyword(item)) {
                 cItem.setSortText(genSortText(3));
                 continue;
             }
-            if (SortingUtil.isTypeCompletionItem(item)) {
+            if (SortingUtil.isModuleCompletionItem(item) 
+                    && !SortingUtil.isLangLibModuleCompletionItem(item)) {
                 cItem.setSortText(genSortText(4));
                 continue;
             }
-            cItem.setSortText(genSortText(5));
+            if (SortingUtil.isTypeCompletionItem(item)) {
+                cItem.setSortText(genSortText(5));
+                continue;
+            }
+            cItem.setSortText(genSortText(6));
         }
     }
 
@@ -162,6 +217,11 @@ public class ModulePartNodeContextUtil {
     private static boolean isKeyword(LSCompletionItem completionItem) {
         return completionItem instanceof SnippetCompletionItem
                 && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
+    }
+
+    private static boolean isServiceTemplate(LSCompletionItem completionItem) {
+        return completionItem.getType() == LSCompletionItem.CompletionItemType.STATIC
+                && ((StaticCompletionItem) completionItem).kind() == StaticCompletionItem.Kind.SERVICE_TEMPLATE;
     }
 
     /**
