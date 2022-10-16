@@ -463,7 +463,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -3092,22 +3092,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ExpressionStatementNode expressionStatement) {
-        SyntaxKind kind = expressionStatement.expression().kind();
-        switch (kind) {
-            case ASYNC_SEND_ACTION:
-                return expressionStatement.expression().apply(this);
-            default:
-                BLangExpressionStmt bLExpressionStmt =
-                        (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-                bLExpressionStmt.expr = createExpression(expressionStatement.expression());
-                bLExpressionStmt.pos = getPosition(expressionStatement);
-                return bLExpressionStmt;
-        }
+        BLangExpressionStmt bLExpressionStmt =
+                (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+        bLExpressionStmt.expr = createExpression(expressionStatement.expression());
+        bLExpressionStmt.pos = getPosition(expressionStatement);
+        return bLExpressionStmt;
     }
 
     @Override
     public BLangNode transform(AsyncSendActionNode asyncSendActionNode) {
-        BLangWorkerSend workerSendNode = (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
+        BLangWorkerAsyncSendExpr workerSendNode = (BLangWorkerAsyncSendExpr) TreeBuilder.createWorkerSendNode();
         workerSendNode.setWorkerName(createIdentifier(getPosition(asyncSendActionNode.peerWorker()),
                 asyncSendActionNode.peerWorker().name()));
         workerSendNode.expr = createExpression(asyncSendActionNode.expression());
@@ -3172,11 +3166,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangNode expression = createActionOrExpression(startActionNode.expression());
 
         BLangInvocation invocation;
-        if (!(expression instanceof BLangWorkerSend)) {
+        if (!(expression instanceof BLangWorkerAsyncSendExpr)) {
             invocation = (BLangInvocation) expression;
         } else {
-            invocation = (BLangInvocation) ((BLangWorkerSend) expression).expr;
-            expression = ((BLangWorkerSend) expression).expr;
+            invocation = (BLangInvocation) ((BLangWorkerAsyncSendExpr) expression).expr;
+            expression = ((BLangWorkerAsyncSendExpr) expression).expr;
         }
 
         if (expression.getKind() == NodeKind.INVOCATION) {
@@ -5394,14 +5388,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangExpression createExpression(Node expression) {
-        if (expression.kind() == SyntaxKind.ASYNC_SEND_ACTION) {
-            // TODO: support async send as expression #24849
-            dlog.error(getPosition(expression), DiagnosticErrorCode.ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION);
-            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
-                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
-            expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
-        }
-
         return (BLangExpression) createActionOrExpression(expression);
     }
 

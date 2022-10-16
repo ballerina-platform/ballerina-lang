@@ -25,7 +25,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ public class BLangWorkerFlushExpr extends BLangExpression implements WorkerFlush
     // Semantic Data
     public BSymbol workerSymbol;
     public List<BLangIdentifier> workerIdentifierList = new ArrayList<>();
-    public List<BLangWorkerSend> cachedWorkerSendStmts = new ArrayList<>();
+    public List<BLangWorkerAsyncSendExpr> cachedWorkerSendStmts = new ArrayList<>();
 
     @Override
     public NodeKind getKind() {

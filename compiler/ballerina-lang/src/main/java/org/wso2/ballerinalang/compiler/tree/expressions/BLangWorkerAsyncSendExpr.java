@@ -15,25 +15,24 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.ballerinalang.compiler.tree.statements;
+package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.WorkerSendNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
  * Models the async-send-action.
  *
  * @since 0.94
  */
-public class BLangWorkerSend extends BLangStatement implements WorkerSendNode {
+public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
 
     // BLangNodes
     public BLangExpression expr;

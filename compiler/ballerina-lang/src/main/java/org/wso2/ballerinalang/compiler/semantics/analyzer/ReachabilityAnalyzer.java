@@ -91,7 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -728,7 +728,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
-    public void visit(BLangWorkerSend workerSendNode, AnalyzerData data) {
+    public void visit(BLangWorkerAsyncSendExpr workerSendNode, AnalyzerData data) {
         checkStatementExecutionValidity(workerSendNode, data);
     }
 
@@ -744,7 +744,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.statementReturnsPanicsOrFails = returnStateBefore;
     }
 
-    private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {
+    private void checkStatementExecutionValidity(BLangNode statement, AnalyzerData data) {
         if (data.skipFurtherAnalysisInUnreachableBlock) {
             return;
         }
@@ -752,7 +752,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         checkConditionInWhileOrIf(statement, data);
     }
 
-    private void checkConditionInWhileOrIf(BLangStatement statement, AnalyzerData data) {
+    private void checkConditionInWhileOrIf(BLangNode statement, AnalyzerData data) {
         switch (statement.getKind()) {
             case WHILE:
                 data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
