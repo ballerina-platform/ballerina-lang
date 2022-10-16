@@ -67,7 +67,11 @@ public class ClientDeclSymbolTest {
         ModuleID id = symbol.moduleSymbol().id();
         assertEquals(id.orgName(), "testorg");
         assertEquals(id.packageName(), "clientdecl");
-        assertTrue(id.moduleName().startsWith("clientdecl.client"));
+        if (serviceUri.endsWith("projectapiclientplugin")) {
+            assertEquals(id.moduleName(), "clientdecl.myapi");
+        } else {
+            assertEquals(id.moduleName(), "clientdecl.client1");
+        }
 
         // Annotations
         assertEquals(symbol.annotations().size(), 1);
