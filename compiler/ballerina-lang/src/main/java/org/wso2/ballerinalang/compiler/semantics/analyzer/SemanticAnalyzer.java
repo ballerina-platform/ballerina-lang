@@ -4319,11 +4319,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            if (variableNode.getKind() != NodeKind.TUPLE_VARIABLE && varType != symTable.neverType && !isOnFailDef) {
-                handleDeclaredVarInForeach(variableNode, typeNodeType, blockEnv);
-            } else {
-                handleDeclaredVarInForeach(variableNode, varType, blockEnv);
-            }
+            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
