@@ -59,7 +59,6 @@ public class FileUtils {
      * Closes the given Closeable and swallows any IOException that may occur.
      *
      * @param c Closeable to close, can be null
-     * @since 1.7
      */
     public static void closeQuietly(final Closeable c) {
         if (c != null) {
