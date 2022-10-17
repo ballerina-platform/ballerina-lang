@@ -214,7 +214,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
     ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE("BCE0417", "error.missing.unicode.property.value"),
     ERROR_MISSING_RE_QUANTIFIER_DIGIT("BCE0418", "error.missing.digit.in.quantifier"),
-    ERROR_MISSING_RE_ATOM("BCE0419", "error.missing.token.before.quantifier"),
+    ERROR_MISSING_RE_SYNTAX_CHAR("BCE0419", "error.missing.syntax.char"),
+    ERROR_MISSING_BACK_SLASH("BCE0420", "error.missing.back.slash"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),

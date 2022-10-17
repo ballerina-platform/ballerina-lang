@@ -536,39 +536,20 @@
                                                           "value": "i"
                                                         },
                                                         {
-                                                          "kind": "TEMPLATE_STRING",
+                                                          "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
                                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                                           ],
-                                                          "value": ")",
-                                                          "leadingMinutiae": [
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": "a"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            },
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": ")"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            }
-                                                          ]
+                                                          "value": "a"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                          ],
+                                                          "value": ")"
                                                         }
                                                       ]
                                                     }
@@ -717,52 +698,28 @@
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "TEMPLATE_STRING",
+                                                          "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP",
                                                             "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                                           ],
-                                                          "value": ")",
-                                                          "leadingMinutiae": [
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": "a"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            },
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": "b"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            },
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "INVALID_TOKEN",
-                                                                    "value": ")"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            }
-                                                          ]
+                                                          "value": "a"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                          ],
+                                                          "value": "b"
+                                                        },
+                                                        {
+                                                          "kind": "RE_FLAGS_VALUE",
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                          ],
+                                                          "value": ")"
                                                         }
                                                       ]
                                                     }

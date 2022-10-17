@@ -115,11 +115,13 @@ public class RegExpParser extends AbstractParser {
             case INTERPOLATION_START_TOKEN:
                 reAtom = parseInterpolation();
                 break;
-            case QUESTION_MARK_TOKEN:
-                reAtom = createInvalidToken(SyntaxKind.QUESTION_MARK_TOKEN, consume());
-                break;
             default:
-                reAtom = consume();
+                // Here the token is a syntax char, which is invalid. A syntax char should have a backslash prior
+                // to the token.
+                STNode missingBackSlash =
+                        SyntaxErrors.createMissingRegExpTokenWithDiagnostics(SyntaxKind.BACK_SLASH_TOKEN);
+                reAtom = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingBackSlash, consume());
+                break;
         }
 
         nextToken = peek();
@@ -163,7 +165,10 @@ public class RegExpParser extends AbstractParser {
             case RE_SYNTAX_CHAR:
                 return parseReQuoteEscape(backSlash);
             default:
-                return consume();
+                STNode syntaxChar = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.RE_SYNTAX_CHAR,
+                        DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR);
+                syntaxChar = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(syntaxChar, consume());
+                return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
         }
     }
 
@@ -640,10 +645,5 @@ public class RegExpParser extends AbstractParser {
 
     private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {
         return SyntaxErrors.createMissingRegExpTokenWithDiagnostics(expectedKind);
-    }
-
-    private STNode createInvalidToken(SyntaxKind expectedKind, STNode invalidNode) {
-        STNode missingRegExpAtom = SyntaxErrors.createMissingRegExpTokenWithDiagnostics(expectedKind);
-        return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingRegExpAtom, invalidNode);
     }
 }

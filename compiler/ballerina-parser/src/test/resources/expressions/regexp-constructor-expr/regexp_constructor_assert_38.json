@@ -260,34 +260,6 @@
                                       ]
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "TEMPLATE_STRING",
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                      ],
-                                      "value": "etter",
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "INVALID_TOKEN",
-                                                "value": "etter"
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]
                                 }
                               ]
                             }
