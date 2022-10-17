@@ -23,3 +23,23 @@ function testUnusedClientDeclStmtPrefix(boolean b) {
         client "https://postman-echo.com/get?name=simpleclienttest3.yaml" as baz;
     }
 }
+
+client "https://postman-echo.com/get?name=simpleclienttest4.yaml" as p1;
+
+// should result in an error even though p1 is the same module and is used
+client "https://postman-echo.com/get?name=simpleclienttest4.yaml" as p2;
+
+public function useModuleClientDeclPrefix() {
+    p1:Config _ = {url: ""};
+}
+
+public function testUnusedModuleClientDeclPrefixWithSameGeneratedModule() {
+    // should result in an error even though the module-level p1 is used and is the same module
+    client "https://postman-echo.com/get?name=simpleclienttest4.yaml" as p1;
+
+    client "https://postman-echo.com/get?name=simpleclienttest4.yaml" as p3;
+}
+
+client "https://postman-echo.com/get?name=simpleclienttest5.yaml" as p4;
+
+client "https://postman-echo.com/get?name=simpleclienttest5.yaml" as p5;

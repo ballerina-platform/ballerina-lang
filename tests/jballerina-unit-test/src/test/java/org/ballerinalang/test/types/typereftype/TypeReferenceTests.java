@@ -51,6 +51,16 @@ public class TypeReferenceTests {
         BRunUtil.invoke(result, "testUnionTypeRefWithMap");
     }
 
+    @Test
+    public void testObjectTypeReferenceType() {
+        BRunUtil.invoke(result, "testObjectTypeReferenceType");
+    }
+
+    @Test
+    public void testTableTypeReferenceType() {
+        BRunUtil.invoke(result, "testTableTypeReferenceType");
+    }
+
     @Test(description = "Test basics types")
     public void testNegative() {
         final CompileResult compileResult = BCompileUtil.compile("test-src/types/typereftype/typeref_negative.bal");
@@ -68,6 +78,10 @@ public class TypeReferenceTests {
         validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'int'", 28, 16);
         validateError(compileResult, index++, "incompatible types: expected 'string', " +
                 "found 'ImmutableIntArray'", 32, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'StudentRef', found 'string'", 52, 22);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'StudentRef'", 55, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'BarTable', found 'string'", 67, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'BTable'", 70, 16);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

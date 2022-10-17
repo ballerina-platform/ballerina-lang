@@ -49,8 +49,10 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.formatter.core.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormattingOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,7 +80,10 @@ public class JsonToRecordConverter {
     }
 
     /**
+     * @deprecated
      * This method takes in a json string and returns the Ballerina code block.
+     * 
+     * <p> Use {@link JsonToRecordConverter#convert(String, String, boolean, boolean, boolean)}} instead.
      *
      * @param jsonString Json string for the schema
      * @param recordName Name of the generated record
@@ -89,8 +94,28 @@ public class JsonToRecordConverter {
      * @throws JsonToRecordConverterException In case of invalid schema
      * @throws FormatterException In case of invalid syntax
      */
+    @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) throws IOException,
+            JsonToRecordConverterException, FormatterException {
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
+    }
+
+    /**
+     * This method takes in a json string and returns the Ballerina code block.
+     *
+     * @param jsonString Json string for the schema
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor
+     * @param isClosed To denote the whether the response record is closed
+     * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
+     * @return {@link String} Ballerina code block
+     * @throws IOException In case of Json parse error
+     * @throws JsonToRecordConverterException In case of invalid schema
+     * @throws FormatterException In case of invalid syntax
+     */
+    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
+                                               boolean isClosed, boolean forceFormatRecordFields) throws IOException,
             JsonToRecordConverterException, FormatterException {
         String name = ((recordName != null) && !recordName.equals("")) ? recordName : "NewRecord";
         ObjectMapper objectMapper = new ObjectMapper();
@@ -108,6 +133,10 @@ public class JsonToRecordConverter {
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         JsonToRecordResponse response = new JsonToRecordResponse();
 
+        ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder()
+                .setForceFormatRecordFields(forceFormatRecordFields).build();
+        FormattingOptions formattingOptions = FormattingOptions.builder()
+                .setForceFormattingOptions(forceFormattingOptions).build();
         if (isRecordTypeDesc) {
             // Sets generated type definition code block when sub field of type descriptor kind
             RecordTypeDescriptorNode typeDescriptorNode = (RecordTypeDescriptorNode) typeDefinitionNodes.entrySet()
@@ -122,14 +151,14 @@ public class JsonToRecordConverter {
                     createNodeList(typeDefinitionNode);
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } else {
             // Sets generated type definition code block
             NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.createNodeList(
                     new ArrayList(typeDefinitionNodes.values()));
             Token eofToken = AbstractNodeFactory.createIdentifierToken("");
             ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         }
 
         return response;
