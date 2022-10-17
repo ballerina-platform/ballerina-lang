@@ -18,6 +18,8 @@
 
 package io.ballerina.projectdesign.entitymodel.components;
 
+import io.ballerina.tools.text.LineRange;
+
 import java.util.List;
 
 /**
@@ -28,14 +30,16 @@ import java.util.List;
 public class Entity {
 
     private List<Attribute> attributes;
-    private List<String> inclusions;
+    private final List<String> inclusions;
+    private final LineRange lineRange;
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions) {
+    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
 
         this.attributes = attributes;
         this.inclusions = inclusions;
+        this.lineRange = lineRange;
     }
 
     public List<Attribute> getAttributes() {
@@ -48,6 +52,10 @@ public class Entity {
 
     public List<String> getInclusions() {
         return inclusions;
+    }
+
+    public LineRange getLineRange() {
+        return lineRange;
     }
 }
 
