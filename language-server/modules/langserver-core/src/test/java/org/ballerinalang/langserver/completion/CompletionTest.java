@@ -77,7 +77,7 @@ public abstract class CompletionTest extends AbstractLSTest {
         boolean result = CompletionTestUtil.isSubList(testConfig.getItems(), responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-//            updateConfig(configJsonPath, testConfig, responseItemList);
+            updateConfig(configJsonPath, testConfig, responseItemList);
             List<CompletionItem> mismatchedList1 = responseItemList.stream()
                     .filter(item -> !testConfig.getItems().contains(item)).collect(Collectors.toList());
             List<CompletionItem> mismatchedList2 = testConfig.getItems().stream()
