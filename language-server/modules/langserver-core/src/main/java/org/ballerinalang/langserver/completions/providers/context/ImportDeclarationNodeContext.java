@@ -200,8 +200,8 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .map(ModuleUtil::escapeModuleName)
                     .map(CommonUtil::escapeReservedKeyword)
                     .collect(Collectors.toList());
-            String label = (pkgNameComps.size() > 1 && !orgName.equals("ballerina")) ?
-                    String.join(".", pkgNameComps) : CommonUtil.getPackageLabel(pkg);
+            String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                    : CommonUtil.getPackageLabel(pkg);
             String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
 
             if (orgName.equals(Names.BALLERINA_ORG.value)
