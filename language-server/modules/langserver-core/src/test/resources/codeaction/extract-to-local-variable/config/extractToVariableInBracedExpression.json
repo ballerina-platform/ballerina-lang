@@ -43,7 +43,7 @@
         }
       ],
       "command": {
-        "title": "Rename variable",
+        "title": "Rename Variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "extractToVariableInBracedExpression.bal",

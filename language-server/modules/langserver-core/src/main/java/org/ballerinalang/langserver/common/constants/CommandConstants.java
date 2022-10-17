@@ -181,9 +181,9 @@ public class CommandConstants {
     
     public static final String BALLERINA_RENAME_ACTION = "ballerina.action.rename";
     
-    public static final String RENAME_COMMAND_TITLE_FOR_VARIABLE = "Rename variable";
+    public static final String RENAME_COMMAND_TITLE_FOR_VARIABLE = "Rename Variable";
     
-    public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
+    public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename Constant";
 
     public static final String GENERATE_MODULE_FOR_CLIENT_DECLARATION_TITLE = "Generate module for client declaration";
 
