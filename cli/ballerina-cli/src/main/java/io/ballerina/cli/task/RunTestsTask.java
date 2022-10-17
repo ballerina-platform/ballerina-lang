@@ -528,10 +528,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-        String jacocoAgentJarPath = "";
+        String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
         if (coverage) {
-            jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                    .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
             if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
                 // support dynamic class file transformations while instrumenting.

@@ -39,7 +39,9 @@ public class JavaFieldAccessMutate {
     public Date createdAt = new Date();
     public boolean isEmpty = false;
     public float lkr = 0.0f;
+    public int count = 101;
     public UUID uuid = UUID.fromString("951e8356-d08f-429a-b49d-77df6cee37e2");
+    public BString balString = StringUtils.fromString("String value");
 
     public JavaFieldAccessMutate(Date createdAt) {
         this.createdAt = createdAt;

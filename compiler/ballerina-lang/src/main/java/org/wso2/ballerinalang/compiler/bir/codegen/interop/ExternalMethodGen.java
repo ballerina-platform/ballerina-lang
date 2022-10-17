@@ -67,16 +67,14 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                                  JvmConstantsGen jvmConstantsGen,
-                                                  String moduleClassName, AsyncDataCollector lambdaGenMetadata,
-                                                  Types types) {
+                                                  JvmConstantsGen jvmConstantsGen, String moduleClassName,
+                                                  AsyncDataCollector lambdaGenMetadata, Types types) {
         if (birFunc instanceof JFieldBIRFunction) {
-            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
-                                     jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     moduleClassName, lambdaGenMetadata, types);
+            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID, jvmPackageGen, jvmTypeGen,
+                    jvmCastGen, jvmConstantsGen, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                         moduleClassName, attachedType, lambdaGenMetadata);
+                    moduleClassName, attachedType, lambdaGenMetadata);
         }
     }
 

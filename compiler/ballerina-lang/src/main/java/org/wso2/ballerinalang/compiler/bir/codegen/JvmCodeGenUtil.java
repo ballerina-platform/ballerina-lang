@@ -657,17 +657,15 @@ public class JvmCodeGenUtil {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
-        if (yieldLocationVarIndex != -1) {
-            StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
-            if (terminatorPos != null) {
-                yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
-                        .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
-            }
-            mv.visitLdcInsn(yieldLocationData.toString());
-            mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
-            mv.visitLdcInsn(yieldStatus);
-            mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
+        StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
+        if (terminatorPos != null) {
+            yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+                    .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
         }
+        mv.visitLdcInsn(yieldLocationData.toString());
+        mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
+        mv.visitLdcInsn(yieldStatus);
+        mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
 
         Label yieldLabel = labelGen.getLabel(funcName + "yield");
         mv.visitJumpInsn(GOTO, yieldLabel);
@@ -719,7 +717,7 @@ public class JvmCodeGenUtil {
 
     public static BType getReferredType(BType type) {
         BType constraint = type;
-        if (type.tag == TypeTags.TYPEREFDESC) {
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
             constraint = getReferredType(((BTypeReferenceType) type).referredType);
         }
         return constraint;

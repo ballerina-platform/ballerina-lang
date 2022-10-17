@@ -1624,8 +1624,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
-                        new ArrayList<>());
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(this::rewriteExpr);
         result = regExpTemplateLiteral;
     }
@@ -2072,7 +2071,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (bLangBlockStmt.isLetExpr) {
                 // In let expression's object constructor expression, the function block already has an OCE mapSymbol,
                 // which should be propagated to block statement's mapSymbol.
-                if (bLangBlockStmt.mapSymbol == null && bLangStatementExpression.getBType().tag == TypeTags.OBJECT
+                if (bLangBlockStmt.mapSymbol == null
+                        && Types.getReferredType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
                         && env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     bLangBlockStmt.mapSymbol = ((BLangBlockFunctionBody) env.node).mapSymbol;
                 }

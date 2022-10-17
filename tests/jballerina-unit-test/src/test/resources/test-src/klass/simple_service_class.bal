@@ -83,11 +83,11 @@ function testServiceObjectValue() {
     var z = wait callMethod(s, "$gen$$get$$0046");
     assertEquality(z, s.message + "dot");
 
-    var rParamVal0 = wait callMethodWithParams(s, "$get$foo$*", [1]);
+    var rParamVal0 = wait callMethodWithParams(s, "$get$foo$^", [1]);
     assertEquality(rParamVal0, 1);
 
     any[] ar = ["hey", ["hello", " ", "world", "!"]];
-    var rParamVal1 = wait callMethodWithParams(s, "$get$foo$*$**", ar);
+    var rParamVal1 = wait callMethodWithParams(s, "$get$foo$^$^^", ar);
     assertEquality(rParamVal1, "hey, hello world!");
 
     boolean[] paramDefaultability = <boolean[]> getParamDefaultability(s, "$get$foo$zee");

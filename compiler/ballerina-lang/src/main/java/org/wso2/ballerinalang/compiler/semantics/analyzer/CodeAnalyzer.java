@@ -1648,23 +1648,24 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!visitedSymbols.add(symbol)) {
             return;
         }
-        switch (symbol.type.tag) {
+        BType symbolType = symbol.type;
+        switch (symbolType.tag) {
             case TypeTags.ARRAY:
-                checkForExportableType(((BArrayType) symbol.type).eType.tsymbol, pos, visitedSymbols);
+                checkForExportableType(((BArrayType) symbolType).eType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) symbol.type;
+                BTupleType tupleType = (BTupleType) symbolType;
                 tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
                     checkForExportableType(tupleType.restType.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.MAP:
-                checkForExportableType(((BMapType) symbol.type).constraint.tsymbol, pos, visitedSymbols);
+                checkForExportableType(((BMapType) symbolType).constraint.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.RECORD:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-                    BRecordType recordType = (BRecordType) symbol.type;
+                    BRecordType recordType = (BRecordType) symbolType;
                     recordType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
                             visitedSymbols));
                     if (recordType.restFieldType != null) {
@@ -1674,19 +1675,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 }
                 break;
             case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbol.type;
+                BTableType tableType = (BTableType) symbolType;
                 if (tableType.constraint != null) {
                     checkForExportableType(tableType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.STREAM:
-                BStreamType streamType = (BStreamType) symbol.type;
+                BStreamType streamType = (BStreamType) symbolType;
                 if (streamType.constraint != null) {
                     checkForExportableType(streamType.constraint.tsymbol, pos, visitedSymbols);
                 }
                 return;
             case TypeTags.INVOKABLE:
-                BInvokableType invokableType = (BInvokableType) symbol.type;
+                BInvokableType invokableType = (BInvokableType) symbolType;
                 if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
                     return;
                 }
@@ -1701,14 +1702,19 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 checkForExportableType(invokableType.retType.tsymbol, pos, visitedSymbols);
                 return;
             case TypeTags.PARAMETERIZED_TYPE:
-                BTypeSymbol parameterizedType = ((BParameterizedType) symbol.type).paramValueType.tsymbol;
+                BTypeSymbol parameterizedType = ((BParameterizedType) symbolType).paramValueType.tsymbol;
                 checkForExportableType(parameterizedType, pos, visitedSymbols);
                 return;
             case TypeTags.ERROR:
                 if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
-                    checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos, visitedSymbols);
+                    checkForExportableType((((BErrorType) symbolType).detailType.tsymbol), pos, visitedSymbols);
                     return;
                 }
+                break;
+            case TypeTags.TYPEREFDESC:
+                symbolType = Types.getReferredType(symbolType);
+                checkForExportableType(symbolType.tsymbol, pos, visitedSymbols);
+                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {
@@ -3429,8 +3435,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
-                        new ArrayList<>());
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(interpolation -> analyzeExpr(interpolation, data));
     }
 
