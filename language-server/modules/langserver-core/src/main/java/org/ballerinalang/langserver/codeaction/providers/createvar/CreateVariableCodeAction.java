@@ -57,7 +57,6 @@ import java.util.stream.Collectors;
 public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Create Variable";
-    private static final String RENAME_COMMAND = "Rename Variable";
 
     /**
      * {@inheritDoc}
@@ -227,7 +226,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         startPos = startPos + sum + renameOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(RENAME_COMMAND, CommandConstants.BALLERINA_RENAME_ACTION,
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.BALLERINA_RENAME_ACTION,
                     List.of(context.fileUri(), startPos)));
         }
     }
