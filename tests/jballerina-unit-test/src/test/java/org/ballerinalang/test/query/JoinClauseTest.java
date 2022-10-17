@@ -122,7 +122,7 @@ public class JoinClauseTest {
 
     @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 32);
+        Assert.assertEquals(negativeResult.getErrorCount(), 38);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 46, 13);
         validateError(negativeResult, i++, "undeclared field 'name' in record 'Person'", 51, 19);
@@ -155,7 +155,9 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "missing on keyword", 309, 1);
         validateError(negativeResult, i++, "undefined symbol 'dept'", 329, 24);
         validateError(negativeResult, i++, "missing equals keyword", 330, 1);
-        validateError(negativeResult, i, "missing identifier", 330, 1);
+        validateError(negativeResult, i++, "missing identifier", 330, 1);
+        validateError(negativeResult, i++, "incompatible types: expected 'Department?', found 'Department'", 353, 19);
+        validateError(negativeResult, i++, "outer join must be declared with var", 353, 19);
     }
 
     @AfterClass
