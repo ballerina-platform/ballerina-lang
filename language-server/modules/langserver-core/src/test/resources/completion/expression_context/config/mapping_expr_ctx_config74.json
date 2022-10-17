@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 11,
+    "character": 23
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source74.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "city",
+      "kind": "Field",
+      "detail": "School.city",
+      "sortText": "K",
+      "insertText": "city: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "School.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill School Required Fields",
+      "kind": "Property",
+      "detail": "School",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "city: ${1:\"\"},\nname: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
