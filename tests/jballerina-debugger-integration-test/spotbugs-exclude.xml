@@ -28,6 +28,10 @@
                 <Class name="org.ballerinalang.debugger.test.utils.client.connection.ProcessStreamConnectionProvider"/>
                 <Bug pattern="DE_MIGHT_IGNORE"/>
             </And>
+            <And>
+                <Class name="org.ballerinalang.debugger.test.utils.client.connection.SocketStreamConnectionProvider"/>
+                <Bug pattern="REC_CATCH_EXCEPTION"/>
+            </And>
         </Or>
 
 
