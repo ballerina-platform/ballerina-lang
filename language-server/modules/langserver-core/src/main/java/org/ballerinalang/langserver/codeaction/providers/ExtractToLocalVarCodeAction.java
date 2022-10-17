@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;

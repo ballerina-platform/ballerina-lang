@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
