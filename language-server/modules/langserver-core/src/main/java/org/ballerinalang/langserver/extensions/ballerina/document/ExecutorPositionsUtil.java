@@ -64,17 +64,18 @@ public class ExecutorPositionsUtil {
     private ExecutorPositionsUtil() {
     }
 
-    public static JsonArray getExecutorPositions(WorkspaceManager workspaceManager, Module module,
+    public static JsonArray getExecutorPositions(WorkspaceManager workspaceManager,
                                                  Path filePath) {
         JsonArray execPositions = new JsonArray();
         Optional<Project> optionalProject = workspaceManager.project(filePath);
-        if (optionalProject.isEmpty()) {
+        Optional<Module> module = workspaceManager.module(filePath);
+        if (optionalProject.isEmpty() || module.isEmpty()) {
             return execPositions;
         }
         Project project = optionalProject.get();
 
-        if (!module.isDefaultModule()) {
-            getTestCasePositions(execPositions, project, filePath, module);
+        if (!module.get().isDefaultModule()) {
+            getTestCasePositions(execPositions, project, filePath, module.get());
             return execPositions;
         }
 
@@ -91,7 +92,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module.get(), symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -116,7 +117,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module.get(), symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -146,7 +147,7 @@ public class ExecutorPositionsUtil {
                     execPositions.add(serviceObject);
                 });
 
-        getTestCasePositions(execPositions, project, filePath, module);
+        getTestCasePositions(execPositions, project, filePath, module.get());
         return execPositions;
     }
 
