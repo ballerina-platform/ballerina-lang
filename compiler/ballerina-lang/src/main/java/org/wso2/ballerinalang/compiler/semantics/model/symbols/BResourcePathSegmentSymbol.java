@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 /**
  * {@link BResourcePathSegmentSymbol} represents a resource path segment in a resource method.
  *
- * @since 2201.3.1
+ * @since 2201.3.0
  */
 public class BResourcePathSegmentSymbol extends BSymbol {
     /**
