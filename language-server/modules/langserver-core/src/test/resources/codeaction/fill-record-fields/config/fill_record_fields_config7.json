@@ -6,7 +6,7 @@
   "source": "fill_record_fields_source4.bal",
   "expected": [
     {
-      "title": "Fill \u0027record {|readonly string first; readonly string last; anydata \u0026 readonly...;|}\u0027 required fields",
+      "title": "Fill 'record {|readonly string first; readonly string last; anydata & readonly...;|}' required fields",
       "kind": "quickfix",
       "edits": [
         {
@@ -24,5 +24,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Fill record fields in list constructor expression"
 }
