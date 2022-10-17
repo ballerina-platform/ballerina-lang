@@ -18,6 +18,8 @@
 
 package io.ballerina.projectdesign.servicemodel.components;
 
+import io.ballerina.tools.text.LineRange;
+
 import java.util.List;
 
 /**
@@ -33,16 +35,18 @@ public class Service {
     private final List<Resource> resources;
     private final ServiceAnnotation annotation;
     private final List<RemoteFunction> remoteFunctions;
+    private final LineRange lineRange;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
-                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation) {
+                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation, LineRange lineRange) {
 
+        this.annotation = annotation;
         this.path = path;
         this.serviceId = serviceId;
         this.serviceType = serviceType;
         this.resources = resources;
         this.remoteFunctions = remoteFunctions;
-        this.annotation = annotation;
+        this.lineRange = lineRange;
 
     }
 
@@ -68,5 +72,9 @@ public class Service {
 
     public ServiceAnnotation getAnnotation() {
         return annotation;
+    }
+
+    public LineRange getLineRange() {
+        return lineRange;
     }
 }

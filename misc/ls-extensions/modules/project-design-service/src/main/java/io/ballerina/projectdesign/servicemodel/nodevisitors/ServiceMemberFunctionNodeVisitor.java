@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -67,8 +68,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     private final String serviceId;
     private final SemanticModel semanticModel;
     private final Package currentPackage;
-    List<Resource> resources = new LinkedList<>();
-    List<RemoteFunction> remoteFunctions = new LinkedList<>();
+    private List<Resource> resources = new LinkedList<>();
+    private List<RemoteFunction> remoteFunctions = new LinkedList<>();
     private final ComponentModel.PackageId packageId;
 
     public ServiceMemberFunctionNodeVisitor(String serviceId, SemanticModel semanticModel, Package currentPackage,
@@ -96,10 +97,12 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
             case RESOURCE_ACCESSOR_DEFINITION: {
                 StringBuilder identifierBuilder = new StringBuilder();
                 StringBuilder resourcePathBuilder = new StringBuilder();
+                List<ResourceParameter> resourceParameterList = new ArrayList<>();
                 NodeList<Node> relativeResourcePaths = functionDefinitionNode.relativeResourcePath();
                 for (Node path : relativeResourcePaths) {
                     if (path instanceof ResourcePathParameterNode) {
                         ResourcePathParameterNode pathParam = (ResourcePathParameterNode) path;
+                        resourceParameterList.add(getPathParameter(pathParam));
                         identifierBuilder.append(String.format("[%s]",
                                 pathParam.typeDescriptor().toSourceCode().trim()));
                     } else {
@@ -111,7 +114,6 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 String resourcePath = resourcePathBuilder.toString().trim();
                 String method = functionDefinitionNode.functionName().text().trim();
 
-                List<ResourceParameter> resourceParameterList = new ArrayList<>();
                 getParameters(functionDefinitionNode.functionSignature(), true,
                         resourceParameterList, null);
                 List<String> returnTypes = getReturnTypes(functionDefinitionNode);
@@ -149,6 +151,17 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         }
     }
 
+    private ResourceParameter getPathParameter(ResourcePathParameterNode resourcePathParameterNode) {
+        String name = resourcePathParameterNode.paramName().get().text();
+        List<String> paramTypes = new LinkedList<>();
+        Optional<Symbol> symbol = semanticModel.symbol(resourcePathParameterNode);
+        if (symbol.isPresent()) {
+            PathParameterSymbol parameterSymbol = ((PathParameterSymbol) symbol.get());
+            paramTypes = getReferencedType(parameterSymbol.typeDescriptor());
+        } // todo : implement else
+        return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true);
+    }
+
     private void getParameters(FunctionSignatureNode functionSignatureNode, boolean isResource,
                                List<ResourceParameter> resourceParams, List<FunctionParameter> remoteFunctionParams) {
 
@@ -161,8 +174,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 boolean isRequired = false;
                 ParameterSymbol parameterSymbol = ((ParameterSymbol) symbol.get());
                 TypeSymbol typeSymbol = parameterSymbol.typeDescriptor();
-                List<String> paramTypes = new ArrayList<>();
-                getReferencedType(typeSymbol, paramTypes);
+                List<String> paramTypes = getReferencedType(typeSymbol);
                 switch (parameterNode.kind()) {
                     case REQUIRED_PARAM:
                         RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
@@ -209,8 +221,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         return referenceType;
     }
 
-    private void getReferencedType(TypeSymbol typeSymbol, List<String> paramTypes) {
-
+    private List<String> getReferencedType(TypeSymbol typeSymbol) {
+        List<String> paramTypes = new LinkedList<>();
         TypeDescKind typeDescKind = typeSymbol.typeKind();
         switch (typeDescKind) {
             case TYPE_REFERENCE:
@@ -220,7 +232,9 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
             case UNION:
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
                 List<TypeSymbol> memberTypeDescriptors = unionTypeSymbol.memberTypeDescriptors();
-                memberTypeDescriptors.forEach(member -> getReferencedType(member, paramTypes));
+                for (TypeSymbol memberTypeDescriptor : memberTypeDescriptors) {
+                    paramTypes.addAll(getReferencedType(memberTypeDescriptor));
+                }
                 break;
             case ARRAY:
                 ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
@@ -237,6 +251,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
             default:
                 paramTypes.add(typeDescKind.getName());
         }
+        return paramTypes;
     }
 
     private String getParameterIn(NodeList<AnnotationNode> annotationNodes) {
@@ -269,7 +284,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                     symbol.get().kind().equals(SymbolKind.RESOURCE_METHOD)) {
                 MethodSymbol resourceMethodSymbol = (MethodSymbol) symbol.get();
                 Optional<TypeSymbol> returnTypeSymbol = resourceMethodSymbol.typeDescriptor().returnTypeDescriptor();
-                returnTypeSymbol.ifPresent(typeSymbol -> getReferencedType(typeSymbol, returnTypes));
+                returnTypeSymbol.ifPresent(typeSymbol -> returnTypes.addAll(getReferencedType(typeSymbol)));
             }
             // need to split by pipe sign
         }
