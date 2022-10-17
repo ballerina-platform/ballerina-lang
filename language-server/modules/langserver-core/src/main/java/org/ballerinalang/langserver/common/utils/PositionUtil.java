@@ -194,9 +194,7 @@ public class PositionUtil {
      * @return Range corresponds to LineRange
      */
     public static Range getRangeFromLineRange(LineRange lineRange) {
-        Position startPosition = PositionUtil.toPosition(lineRange.startLine());
-        Position endPosition = PositionUtil.toPosition(lineRange.endLine());
-        return new Range(startPosition, endPosition);
+        return new Range(PositionUtil.toPosition(lineRange.startLine()), PositionUtil.toPosition(lineRange.endLine()));
     }
 
     /**
