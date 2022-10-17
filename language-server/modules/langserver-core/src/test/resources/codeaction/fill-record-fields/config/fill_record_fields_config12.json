@@ -1,29 +1,29 @@
 {
   "position": {
-    "line": 3,
+    "line": 10,
     "character": 25
   },
-  "source": "fill_record_fields_source1.bal",
+  "source": "fill_record_fields_source9.bal",
   "expected": [
     {
-      "title": "Fill 'Student' required fields",
+      "title": "Fill 'RecordName' required fields",
       "kind": "quickfix",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 3,
+              "line": 10,
               "character": 25
             },
             "end": {
-              "line": 3,
+              "line": 10,
               "character": 25
             }
           },
-          "newText": ",name: \"\", age: 0"
+          "newText": "rec1f2: 0, rec2f1: 0, rec2f2: 0"
         }
       ]
     }
   ],
-  "description": "Fill record fields when one field is partially filled"
+  "description": "Fill record fields for records with type reference"
 }

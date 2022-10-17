@@ -6,7 +6,7 @@
   "source": "fill_record_fields_source7.bal",
   "expected": [
     {
-      "title": "Fill \u0027Application\u0027 required fields",
+      "title": "Fill 'Application' required fields",
       "kind": "quickfix",
       "edits": [
         {
@@ -24,5 +24,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Fill record fields in error constructor expression"
 }

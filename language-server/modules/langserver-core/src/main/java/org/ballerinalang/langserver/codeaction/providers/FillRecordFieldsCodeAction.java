@@ -73,7 +73,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         return context.diagnostics(context.filePath()).stream().filter(diag -> PositionUtil
                 .isRangeWithinRange(context.range(), PositionUtil.toRange(diag.location().lineRange())))
                 .anyMatch(diagnostic -> diagnostic.diagnosticInfo().code().equals(DIAGNOSTIC_CODE))
-                && positionDetails.matchedCodeActionNode().apply(new ExtendsCodeActionNodeValidator());
+                && positionDetails.matchedCodeActionNode().apply(new ExtendedCodeActionNodeValidator());
     }
 
     @Override
@@ -84,42 +84,40 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         if (evalNode.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Node> mappingConstructorNode = getMappingConstructorNode(evalNode.get());
-        if (mappingConstructorNode.isEmpty()) {
+        Optional<MappingConstructorExpressionNode> expressionNode = getMappingConstructorNode(evalNode.get());
+        if (expressionNode.isEmpty()) {
             return Collections.emptyList();
         }
         CodeActionContextTypeResolver contextTypeResolver = new CodeActionContextTypeResolver(context);
-        Optional<TypeSymbol> typeSymbol = mappingConstructorNode.get().apply(contextTypeResolver);
-        if (typeSymbol == null || typeSymbol.isEmpty()) {
+        Optional<TypeSymbol> typeSymbol = expressionNode.get().apply(contextTypeResolver);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
         List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols =
                 RecordUtil.getRecordTypeSymbols(typeSymbol.get());
-        MappingConstructorExpressionNode expressionNode =
-                (MappingConstructorExpressionNode) mappingConstructorNode.get();
 
-        List<String> existingFields = getFields(expressionNode);
+        List<String> existingFields = getFields(expressionNode.get());
         List<RecordFieldSymbol> validFields = new ArrayList<>();
         Map<String, RecordFieldSymbol> fields = new HashMap<>();
         String detail = "";
         for (RawTypeSymbolWrapper<RecordTypeSymbol> symbol : recordTypeSymbols) {
             fields = RecordUtil.getRecordFields(symbol, existingFields);
             validFields.addAll(fields.values());
-            detail = NameUtil.getRecordType(context, symbol);
+            detail = NameUtil.getRecordTypeName(context, symbol);
         }
         if (validFields.isEmpty() && fields.values().isEmpty()) {
             return Collections.emptyList();
         }
 
         String editText;
-        if (expressionNode.fields().isEmpty() || expressionNode.toSourceCode().replaceAll("[{}]", "")
+        if (expressionNode.get().fields().isEmpty() || expressionNode.get().toSourceCode().replaceAll("[{}]", "")
                 .replaceAll("\\s", "").endsWith(",")) {
             editText = RecordUtil.getFillAllRecordFieldInsertText(fields);
         } else {
             editText = "," + RecordUtil.getFillAllRecordFieldInsertText(fields);
         }
 
-        LinePosition linePosition = expressionNode.closeBrace().lineRange().startLine();
+        LinePosition linePosition = expressionNode.get().closeBrace().lineRange().startLine();
         Position position = PositionUtil.toPosition(linePosition);
         TextEdit textEdit = new TextEdit(new Range(position, position), editText);
         String commandTitle = String.format(CommandConstants.FILL_REQUIRED_FIELDS, detail);
@@ -135,11 +133,12 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
                 .collect(Collectors.toList());
     }
 
-    private static Optional<Node> getMappingConstructorNode(Node node) {
-        while (node.kind() != SyntaxKind.MAPPING_CONSTRUCTOR) {
+    private static Optional<MappingConstructorExpressionNode> getMappingConstructorNode(Node node) {
+        while (node != null && node.kind() != SyntaxKind.MAPPING_CONSTRUCTOR) {
             node = node.parent();
         }
-        return Optional.of(node);
+
+        return Optional.ofNullable((MappingConstructorExpressionNode) node);
     }
 
     @Override
@@ -147,13 +146,12 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         return NAME;
     }
 
-    static class ExtendsCodeActionNodeValidator extends CodeActionNodeValidator {
+    static class ExtendedCodeActionNodeValidator extends CodeActionNodeValidator {
 
         @Override
         public Boolean transform(SpecificFieldNode node) {
-            return super.transform(node) || (node.colon().isEmpty() && node.fieldName().toSourceCode().isEmpty()
-                    && node.valueExpr().isEmpty()) || (!node.fieldName().toSourceCode().isEmpty() &&
-                    node.colon().isEmpty());
+            return super.transform(node) || (node.colon().isEmpty() &&
+                    (!node.fieldName().toSourceCode().isEmpty() || node.valueExpr().isEmpty()));
         }
     }
 }

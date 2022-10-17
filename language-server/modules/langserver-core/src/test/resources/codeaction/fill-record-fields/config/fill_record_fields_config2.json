@@ -6,7 +6,7 @@
   "source": "fill_record_fields_source1.bal",
   "expected": [
     {
-      "title": "Fill \u0027Student\u0027 required fields",
+      "title": "Fill 'Student' required fields",
       "kind": "quickfix",
       "edits": [
         {
@@ -24,5 +24,6 @@
         }
       ]
     }
-  ]
+  ],
+  "description": "Fill record fields when some fields are already filled"
 }

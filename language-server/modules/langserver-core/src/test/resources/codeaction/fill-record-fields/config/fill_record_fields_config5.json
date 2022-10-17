@@ -6,7 +6,7 @@
   "source": "fill_record_fields_source2.bal",
   "expected": [
     {
-      "title": "Fill \u0027RecordName2\u0027 required fields",
+      "title": "Fill 'RecordName2' required fields",
       "kind": "quickfix",
       "edits": [
         {
