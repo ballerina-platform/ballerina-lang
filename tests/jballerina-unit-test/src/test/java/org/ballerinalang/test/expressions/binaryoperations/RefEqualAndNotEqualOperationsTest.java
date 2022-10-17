@@ -107,6 +107,11 @@ public class RefEqualAndNotEqualOperationsTest {
                           "Expected floats to be identified as reference equal");
     }
 
+    @Test
+    public void testDecimalRefEqualityPositive() {
+        BRunUtil.invoke(result, "checkDecimalRefEquality");
+    }
+
     @Test(dataProvider = "unequalFloatValues")
     public void testFloatRefEqualityNegative(double i, double j) {
         Object[] args = {(i), (j)};

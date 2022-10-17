@@ -1211,17 +1211,35 @@ function testDecimalMultiplicationUnderflow() {
     decimal d1 = 9.999999999999999999999999999999999E-6001;
     decimal d2 = 1E-143;
     test:assertTrue(d1 * d2 == 0.0d);
-    test:assertTrue(d1 * d2 === 0.0d);
+    test:assertTrue(d1 * d2 === 0d);
+    test:assertFalse(d1 * d2 === 0.0d);
 
     d1 = -9.999999999999999999999999999999999E-6001;
     d2 = 1E-143;
     test:assertTrue(d1 * d2 == 0.0d);
-    test:assertTrue(d1 * d2 === 0.00d);
+    test:assertTrue(d1 * d2 === 0d);
+    test:assertFalse(d1 * d2 === 0.00d);
 
-    d1 = -9.999999999999999999999999999999999E-6101;
-    d2 = 1E-76;
+    decimal d3 = -9.999999999999999999999999999999999E-6101;
+    decimal d4 = 1E-76;
+    test:assertTrue(d3 * d4 == 0.0d);
+    test:assertTrue(d3 * d4 === 0d);
+    test:assertFalse(d3 * d4 === 0.000d);
+
+    test:assertTrue(d3 * d4 == d1 * d2);
+    test:assertTrue(d3 * d4 === d1 * d2);
+
+    d1 = 1.00100E-6120;
+    d2 = 1.0E-24;
     test:assertTrue(d1 * d2 == 0.0d);
     test:assertTrue(d1 * d2 === 0d);
+    test:assertFalse(d1 * d2 === 0.0d);
+
+    d1 = 1.00100E-6120;
+    d2 = 1.0E-23;
+    test:assertTrue(d1 * d2 == 1.001E-6143d);
+    test:assertTrue(d1 * d2 === 1.001000E-6143d);
+    test:assertFalse(d1 * d2 === 1.001E-6143d);
 }
 
 function foo() returns int? {
