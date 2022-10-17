@@ -1,4 +1,4 @@
-name: Publish Timestamped Snapshot Artifacts
+name: (Manually) Publish Timestamped Snapshot Artifacts
 
 on:
   workflow_dispatch:
