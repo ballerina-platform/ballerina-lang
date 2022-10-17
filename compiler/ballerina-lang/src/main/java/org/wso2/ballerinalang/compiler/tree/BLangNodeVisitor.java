@@ -563,7 +563,7 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
         throw new AssertionError();
     }
 

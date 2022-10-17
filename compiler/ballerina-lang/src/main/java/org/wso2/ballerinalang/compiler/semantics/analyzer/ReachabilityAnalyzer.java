@@ -728,8 +728,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode, AnalyzerData data) {
-        checkStatementExecutionValidity(workerSendNode, data);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
+        checkStatementExecutionValidity(asyncSendExpr, data);
     }
 
     @Override

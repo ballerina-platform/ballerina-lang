@@ -2005,43 +2005,43 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     // Asynchronous Send Statement
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode, AnalyzerData data) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
         BSymbol receiver =
-                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(workerSendNode.workerIdentifier));
+                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
         if ((receiver.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
             receiver = symTable.notFoundSymbol;
         }
-        verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
+        verifyPeerCommunication(asyncSendExpr.pos, receiver, asyncSendExpr.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
-        BType type = workerSendNode.expr.getBType();
+        BType type = asyncSendExpr.expr.getBType();
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
-        } else if (workerSendNode.expr instanceof ActionNode) {
-            this.dlog.error(workerSendNode.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
+        } else if (asyncSendExpr.expr instanceof ActionNode) {
+            this.dlog.error(asyncSendExpr.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
         } else if (!types.isAssignable(type, symTable.cloneableType)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
         }
 
-        String workerName = workerSendNode.workerIdentifier.getValue();
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
         if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.workerType, workerName, data.env)
+        if (!this.workerExists(asyncSendExpr.workerType, workerName, data.env)
                 || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
 
-        workerSendNode.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(workerSendNode.pos, workerSendNode.expr.getBType(), data));
-        was.addWorkerAction(workerSendNode);
-        analyzeExpr(workerSendNode.expr, data);
-        validateActionParentNode(workerSendNode.pos, workerSendNode.expr);
+        asyncSendExpr.setBType(
+                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data));
+        was.addWorkerAction(asyncSendExpr);
+        analyzeExpr(asyncSendExpr.expr, data);
+        validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
     }
 
     private BType createAccumulatedErrorTypeForMatchingReceive(Location pos, BType exprType, AnalyzerData data) {

@@ -737,9 +737,9 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
-        find(workerSendNode.expr);
-        addIfSameSymbol(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        find(asyncSendExpr.expr);
+        addIfSameSymbol(asyncSendExpr.workerSymbol, asyncSendExpr.workerIdentifier.pos);
     }
 
     @Override

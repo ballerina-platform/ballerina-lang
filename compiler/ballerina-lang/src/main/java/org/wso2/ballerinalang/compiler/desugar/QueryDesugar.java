@@ -2240,8 +2240,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
-        this.acceptNode(workerSendNode.expr);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        this.acceptNode(asyncSendExpr.expr);
     }
 
     @Override

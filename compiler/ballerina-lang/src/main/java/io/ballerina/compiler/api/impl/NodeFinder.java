@@ -656,11 +656,11 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
-        if (lookupNode(workerSendNode.expr)) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        if (lookupNode(asyncSendExpr.expr)) {
             return;
         }
-        setEnclosingNode(workerSendNode, workerSendNode.workerIdentifier.pos);
+        setEnclosingNode(asyncSendExpr, asyncSendExpr.workerIdentifier.pos);
     }
 
     @Override

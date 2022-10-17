@@ -793,12 +793,12 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
-        if (setEnclosingNode(workerSendNode.workerSymbol, workerSendNode.workerIdentifier.pos)) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        if (setEnclosingNode(asyncSendExpr.workerSymbol, asyncSendExpr.workerIdentifier.pos)) {
             return;
         }
 
-        lookupNode(workerSendNode.expr);
+        lookupNode(asyncSendExpr.expr);
     }
 
     @Override

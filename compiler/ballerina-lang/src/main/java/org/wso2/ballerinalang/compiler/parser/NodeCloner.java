@@ -1033,12 +1033,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr source) {
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
 
         BLangWorkerAsyncSendExpr clone = new BLangWorkerAsyncSendExpr();
-        source.cloneRef = clone;
-        clone.expr = clone(source.expr);
-        clone.workerIdentifier = source.workerIdentifier;
+        asyncSendExpr.cloneRef = clone;
+        clone.expr = clone(asyncSendExpr.expr);
+        clone.workerIdentifier = asyncSendExpr.workerIdentifier;
     }
 
     @Override

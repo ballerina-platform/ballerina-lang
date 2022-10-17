@@ -942,8 +942,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr workerSendNode) {
-        analyzeNode(workerSendNode.expr, env);
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
+        analyzeNode(asyncSendExpr.expr, env);
     }
 
     @Override
