@@ -25,7 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
  *
  * @since 0.985
  */
-public interface WorkerSendSyncExpressionNode extends ExpressionNode, ActionNode {
+public interface WorkerSendExpressionNode extends ExpressionNode, ActionNode {
     ExpressionNode getExpression();
 
     IdentifierNode getWorkerName();

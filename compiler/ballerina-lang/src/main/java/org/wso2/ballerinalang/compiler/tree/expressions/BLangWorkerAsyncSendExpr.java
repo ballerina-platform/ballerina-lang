@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.WorkerSendSyncExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerSendExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -33,13 +33,14 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  *
  * @since 0.94
  */
-public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerSendSyncExpressionNode {
+public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerSendExpressionNode {
 
     // BLangNodes
     public BLangExpression expr;
     public BLangIdentifier workerIdentifier;
 
     // Semantic Data
+    public BLangWorkerReceive receive;
     public SymbolEnv env;
     public BSymbol workerSymbol;
     public BType workerType;
@@ -85,6 +86,6 @@ public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerS
 
     @Override
     public String toString() {
-        return "BLangWorkerSend: " + this.toActionString();
+        return "BLangWorkerAsyncSend: " + this.toActionString();
     }
 }

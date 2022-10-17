@@ -2775,7 +2775,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
-        BSymbol symbol = symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
+        BSymbol symbol =
+                symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
 
         if (symTable.notFoundSymbol.equals(symbol)) {
             asyncSendExpr.workerType = symTable.semanticError;

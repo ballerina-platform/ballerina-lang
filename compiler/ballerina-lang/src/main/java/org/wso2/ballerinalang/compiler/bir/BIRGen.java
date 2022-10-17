@@ -1173,12 +1173,18 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(thenBB);
 
         asyncSendExpr.expr.accept(this);
+        BIROperand dataOp = this.env.targetOperand;
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(asyncSendExpr.receive.matchingSendsError,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand lhsOp = new BIROperand(tempVarDcl);
+        this.env.targetOperand = lhsOp;
 
         String channelName = this.env.enclFunc.workerName.value + "->" + asyncSendExpr.workerIdentifier.value;
         boolean isOnSameStrand = DEFAULT_WORKER_NAME.equals(this.env.enclFunc.workerName.value);
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
-                asyncSendExpr.pos, names.fromString(channelName), this.env.targetOperand, isOnSameStrand, false, null,
+                asyncSendExpr.pos, names.fromString(channelName), dataOp, isOnSameStrand, false, lhsOp,
                 thenBB, this.currentScope);
 
         this.env.enclBasicBlocks.add(thenBB);

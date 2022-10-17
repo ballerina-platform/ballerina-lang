@@ -3777,6 +3777,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void validateWorkerActionParameters(BLangWorkerAsyncSendExpr send, BLangWorkerReceive receive) {
+        send.receive = receive;
+        if (receive.matchingSendsError != symTable.nilType && send.parent.getKind() == NodeKind.EXPRESSION_STATEMENT) {
+            dlog.error(send.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, send.workerSymbol);
+        } else {
+            types.checkType(send.pos, receive.matchingSendsError, send.expectedType,
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+        }
+
         types.checkType(receive, send.getBType(), receive.getBType());
         addImplicitCast(send.getBType(), receive);
         NodeKind kind = receive.parent.getKind();
