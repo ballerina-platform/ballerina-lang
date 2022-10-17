@@ -68,6 +68,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
             @Override
             public void notifyFailure(Exception error) {
                 latch.countDown();
+                finalResult[0] = error;
             }
         };
 
@@ -122,10 +123,8 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
                     }
                 }
                 callback.notifyFailure(null);
-            } catch (IOException e) {
-                callback.notifyFailure(e);
             } catch (Exception e) {
-                LOG.info(e.getMessage(), e);
+                LOG.warn("Failed to launch debug server due to: " + e.getMessage(), e);
                 callback.notifyFailure(e);
             }
         });
