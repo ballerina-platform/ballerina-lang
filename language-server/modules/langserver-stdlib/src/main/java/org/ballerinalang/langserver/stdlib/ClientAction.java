@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 /**
  * This class used to provide java interoperability.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class ClientAction {
 
