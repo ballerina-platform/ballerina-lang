@@ -373,8 +373,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         .map(ModuleUtil::escapeModuleName)
                         .map(CommonUtil::escapeReservedKeyword)
                         .collect(Collectors.toList());
-                String label = (pkgNameComps.size() > 1 && !orgName.equals("ballerina")) ?
-                        String.join(".", pkgNameComps) : CommonUtil.getPackageLabel(pkg);
+                String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                        : CommonUtil.getPackageLabel(pkg);
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
                 String insertText = CommonUtil.escapeReservedKeyword(NameUtil.getValidatedSymbolName(ctx,
