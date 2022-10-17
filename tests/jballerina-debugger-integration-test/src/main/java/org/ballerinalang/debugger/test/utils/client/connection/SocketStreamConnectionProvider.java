@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.debugger.test.utils.client.connection;
 
+import org.ballerinalang.debugger.test.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
 
         try {
             launchDebugServerAsync(callback);
-            boolean await = latch.await(4000, TimeUnit.MILLISECONDS);
+            boolean await = latch.await(6000, TimeUnit.MILLISECONDS);
             if (await) {
                 try {
                     socket = new Socket(address, port);
@@ -83,7 +84,7 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
                 if (socket == null) {
                     inputStream = null;
                     outputStream = null;
-                    throw new IOException("Unable to make socket connection: " + toString());
+                    LOG.warn("Unable to make socket connection: " + this);
                 } else {
                     inputStream = socket.getInputStream();
                     outputStream = socket.getOutputStream();
@@ -150,6 +151,8 @@ public class SocketStreamConnectionProvider extends ProcessStreamConnectionProvi
                 LOG.error(e.getMessage());
             }
         }
+        FileUtils.closeQuietly(inputStream);
+        FileUtils.closeQuietly(outputStream);
     }
 
     @Override
