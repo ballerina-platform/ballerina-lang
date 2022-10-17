@@ -66,6 +66,17 @@
       "sortText": "BK",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "BL",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
