@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
@@ -498,6 +499,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.REGEXP:
+                    return this.classLoader.loadClass(BRegexpValue.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
                     return isValidParamBType(jType, JvmCodeGenUtil.getReferredType(bType), isLastParam,
                             restParamExist);

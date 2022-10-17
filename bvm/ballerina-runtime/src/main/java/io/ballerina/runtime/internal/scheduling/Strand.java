@@ -438,8 +438,14 @@ public class Strand {
         }
 
         strandInfo.append(" [");
-        strandInfo.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
-                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
+        StrandMetadata strandMetadata = this.metadata;
+        if (strandMetadata == null) {
+            strandInfo.append("N/A");
+        } else {
+            strandInfo.append(strandMetadata.getModuleOrg()).append(".").append(strandMetadata.getModuleName())
+                    .append(".").append(strandMetadata.getModuleVersion()).append(":")
+                    .append(strandMetadata.getParentFunctionName());
+        }
         if (this.parent != null) {
             strandInfo.append("][").append(this.parent.getId());
         }

@@ -29,6 +29,7 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -39,20 +40,27 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
-import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -90,6 +98,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
  * @since 2.0.0
  */
 public class BallerinaWorkspaceManager implements WorkspaceManager {
+
     /**
      * Cache mapping of document path to source root.
      */
@@ -150,6 +159,35 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Optional<Project> project(Path filePath) {
         return projectPair(projectRoot(filePath)).map(ProjectPair::project);
+    }
+
+    /**
+     * Loads the project from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    @Override
+    public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
+        Project project;
+        Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+
+        if (optionalProject.isPresent()) {
+            project = optionalProject.get();
+        } else {
+            project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+
+            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    filePath.toUri().toString(),
+                    languageServer.getWorkspaceManager(),
+                    LSContextOperation.LOAD_PROJECT, this.serverContext);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(languageServer.getClient(), this.serverContext, context);
+        }
+
+        return project;
     }
 
     /**
@@ -236,21 +274,23 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Optional<SemanticModel> semanticModel(Path filePath) {
         Optional<Module> module = this.module(filePath);
-        if (module.isEmpty()) {
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath);
+        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() || projectPair.get().crashed()) {
             return Optional.empty();
         }
-        return waitAndGetPackageCompilation(filePath)
-                .map(pkgCompilation -> pkgCompilation.getSemanticModel(module.get().moduleId()));
+        return Optional.of(packageCompilation.get().getSemanticModel(module.get().moduleId()));
     }
 
     @Override
     public Optional<SemanticModel> semanticModel(Path filePath, @Nonnull CancelChecker cancelChecker) {
-        Optional<Module> module = this.module(filePath, cancelChecker);
-        if (module.isEmpty()) {
+        Optional<Module> module = this.module(filePath);
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(filePath, cancelChecker);
+        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
+        if (module.isEmpty() || packageCompilation.isEmpty() || projectPair.isEmpty() || projectPair.get().crashed()) {
             return Optional.empty();
         }
-        return waitAndGetPackageCompilation(filePath, cancelChecker)
-                .map(pkgCompilation -> pkgCompilation.getSemanticModel(module.get().moduleId()));
+        return Optional.of(packageCompilation.get().getSemanticModel(module.get().moduleId()));
     }
 
     /**
@@ -270,7 +310,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // Lock Project Instance
         Lock lock = projectPair.get().lockAndGet();
         try {
-            return Optional.of(projectPair.get().project().currentPackage().getCompilation());
+            PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
+            if (compilation.diagnosticResult().diagnostics().stream()
+                    .anyMatch(diagnostic -> DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId()
+                            .equals(diagnostic.diagnosticInfo().code()))) {
+                projectPair.get().setCrashed(true);
+                projectPair.get().project().clearCaches();
+            }
+            return Optional.of(compilation);
         } finally {
             // Unlock Project Instance
             lock.unlock();
@@ -981,6 +1028,24 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    @Override
+    public Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project) {
+        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
+        if (projectPair.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Lock Project Instance
+        Lock lock = projectPair.get().lockAndGet();
+        try {
+            return Optional.of(project.currentPackage()
+                    .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build()));
+        } finally {
+            // Unlock Project Instance
+            lock.unlock();
+        }
+    }
+    
     // ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {
@@ -1012,7 +1077,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             BuildOptions options = BuildOptions.builder()
                     .setOffline(CommonUtil.COMPILE_OFFLINE)
                     .setSticky(true)
-                    .targetDir(ProjectUtils.getTemporaryTargetPath())
                     .build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
@@ -1100,6 +1164,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private final Lock lock;
         private Project project;
 
+        private boolean crashed;
+
         private ProjectPair(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
@@ -1148,6 +1214,24 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
          */
         public void setProject(Project project) {
             this.project = project;
+        }
+
+        /**
+         * Check if the project is in a crashed state.
+         *
+         * @return whether the project is in a crashed state
+         */
+        public boolean crashed() {
+            return Boolean.TRUE.equals(this.crashed);
+        }
+
+        /**
+         * Set the crashed state.
+         *
+         * @param crashed crashed state
+         */
+        public void setCrashed(boolean crashed) {
+            this.crashed = crashed;
         }
     }
 

@@ -305,6 +305,11 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testImplicitNewExprToStreamWithoutParams");
     }
 
+    @Test(description = "Test using referred stream type")
+    public void testStreamsTypeAsTypeReference() {
+        BRunUtil.invoke(result, "testStreamsTypeAsTypeReference");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

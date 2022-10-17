@@ -47,6 +47,7 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class FailStatementNodeContext extends AbstractCompletionProvider<FailStatementNode> {
+
     public FailStatementNodeContext() {
         super(FailStatementNode.class);
     }
@@ -71,10 +72,11 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
     public void sort(BallerinaCompletionContext context, FailStatementNode node,
                      List<LSCompletionItem> completionItems) {
         for (LSCompletionItem lsCItem : completionItems) {
-            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL 
+            if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL
                     && isCompletionItemSubTypeOfError((SymbolCompletionItem) lsCItem)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
-            } else if (SortingUtil.isModuleCompletionItem(lsCItem)) {
+            } else if (SortingUtil.isModuleCompletionItem(lsCItem)
+                    && !SortingUtil.isLangLibModuleCompletionItem(lsCItem)) {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(2));
             } else {
                 lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(3));
@@ -100,18 +102,18 @@ public class FailStatementNodeContext extends AbstractCompletionProvider<FailSta
         }
         return rawType.typeKind() == TypeDescKind.ERROR;
     }
-    
+
     private boolean isCompletionItemSubTypeOfError(SymbolCompletionItem symbolCompletionItem) {
         Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
         if (symbol.isEmpty() || symbol.get().kind() == SymbolKind.TYPE_DEFINITION) {
             return false;
         }
-        
+
         Optional<TypeSymbol> tSymbol = SymbolUtil.getTypeDescriptor(symbol.get());
         if (tSymbol.isEmpty()) {
             return false;
         }
-        
+
         TypeSymbol typeSymbol = CommonUtil.getRawType(tSymbol.get());
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;

@@ -49,6 +49,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  * @since 2.0.0
  */
 public class ModulePartNodeContextUtil {
+
     private ModulePartNodeContextUtil() {
     }
 
@@ -69,7 +70,7 @@ public class ModulePartNodeContextUtil {
                 Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                 Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                 Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
-                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
+                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON, Snippet.DEF_CLIENT_DECLARATION
         );
 
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
@@ -93,7 +94,7 @@ public class ModulePartNodeContextUtil {
                 cItem.setSortText(genSortText(2));
                 continue;
             }
-            if (SortingUtil.isModuleCompletionItem(item)) {
+            if (SortingUtil.isModuleCompletionItem(item) && !SortingUtil.isLangLibModuleCompletionItem(item)) {
                 cItem.setSortText(genSortText(3));
                 continue;
             }
@@ -114,7 +115,7 @@ public class ModulePartNodeContextUtil {
     public static boolean onServiceTypeDescContext(Token evalToken, BallerinaCompletionContext context) {
         Optional<Minutiae> tokenValueAtCursor = ModulePartNodeContextUtil.findTokenValueInMinutiae(evalToken);
         int cursor = context.getCursorPositionInTree();
-        
+
         return ((evalToken.text().equals(SyntaxKind.SERVICE_KEYWORD.stringValue())
                 && cursor > evalToken.textRange().endOffset())
                 || (tokenValueAtCursor.isPresent()
@@ -135,7 +136,7 @@ public class ModulePartNodeContextUtil {
 
     /**
      * Get the predicate to filter the service type descriptor context symbols.
-     * 
+     *
      * @return {@link Predicate}
      */
     public static Predicate<Symbol> serviceTypeDescPredicate() {
@@ -161,7 +162,7 @@ public class ModulePartNodeContextUtil {
         return completionItem instanceof SnippetCompletionItem
                 && ((SnippetCompletionItem) completionItem).kind() == SnippetBlock.Kind.KEYWORD;
     }
-    
+
     /**
      * Get the token value at the cursor. This identified token is not a whitespace or new line token.
      *
@@ -176,8 +177,8 @@ public class ModulePartNodeContextUtil {
                 tokensFromMinutiae.add(minutiae);
             }
         });
-        
-        return  !tokensFromMinutiae.isEmpty() ? Optional.of(tokensFromMinutiae.get(tokensFromMinutiae.size() - 1))
+
+        return !tokensFromMinutiae.isEmpty() ? Optional.of(tokensFromMinutiae.get(tokensFromMinutiae.size() - 1))
                 : Optional.empty();
     }
 }

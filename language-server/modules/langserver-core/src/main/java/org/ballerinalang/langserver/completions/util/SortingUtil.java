@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
@@ -42,6 +43,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
 import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
@@ -51,6 +53,7 @@ import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -108,6 +111,22 @@ public class SortingUtil {
                 || ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeDefinitionSymbol))
                 || (item instanceof StaticCompletionItem
                 && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
+    }
+
+    /**
+     * Check if the item is an associated lang lib module completion item.
+     *
+     * @param item {@link LSCompletionItem} to evaluate
+     * @return {@link Boolean} whether type completion or not
+     */
+    public static boolean isLangLibModuleCompletionItem(LSCompletionItem item) {
+        if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
+                && ((SymbolCompletionItem) item).getSymbol()
+                .filter(symbol -> symbol.kind() == SymbolKind.MODULE).isPresent()) {
+            Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
+            return (symbol.isPresent() && CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()));
+        }
+        return false;
     }
 
     /**
@@ -188,7 +207,7 @@ public class SortingUtil {
             Optional<Symbol> symbol = ((SymbolCompletionItem) item).getSymbol();
             // Case 6
             if (symbol.isEmpty()) {
-                // Basic types such as int, boolean, string, and etc get a lower priority
+                // Basic types and other type completions such as json, any etc.
                 return genSortText(7);
             }
             Optional<Project> currentProject = context.workspace().project(context.filePath());
@@ -198,6 +217,12 @@ public class SortingUtil {
             Optional<ModuleSymbol> symbolModule = symbol.get().getModule();
             String orgName = symbolModule.isPresent() ? symbolModule.get().id().orgName() : "";
             String moduleName = symbolModule.isPresent() ? symbolModule.get().id().moduleName() : "";
+
+            // Case 7
+            // Skip types coming from lang.value (StrandData, Thread)
+            if (CommonUtil.isLangLib(orgName, moduleName) && !moduleName.equals("lang.annotations")) {
+                return genSortText(7);
+            }
 
             // Case 4
             if (symbol.get().kind() == SymbolKind.CONSTANT) {
@@ -285,7 +310,7 @@ public class SortingUtil {
                 Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
                 if (optionalTypeParamTypeSymbol.isPresent()) {
                     Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
-                    return optionalTypeSymbol.isPresent() 
+                    return optionalTypeSymbol.isPresent()
                             && optionalTypeSymbol.get().subtypeOf(optionalTypeParamTypeSymbol.get());
                 }
             }
@@ -299,7 +324,7 @@ public class SortingUtil {
 
     /**
      * Get the type symbol of the type parameter from the given type symbol.
-     * 
+     *
      * @param typeSymbol Type Symbol
      * @return Type Symbol or Empty if type parameter is not present
      */
@@ -347,7 +372,7 @@ public class SortingUtil {
      * @param completionItem Completion item
      * @return Symbol or empty if it's not a symbol completion item
      */
-    private static Optional<TypeSymbol> getSymbolFromCompletionItem(LSCompletionItem completionItem) {
+    public static Optional<TypeSymbol> getSymbolFromCompletionItem(LSCompletionItem completionItem) {
         Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
         switch (completionItem.getType()) {
             case SYMBOL:
@@ -616,5 +641,55 @@ public class SortingUtil {
             return Optional.of((QueryExpressionNode) evalNode2);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Sets the sorting text to provided completion items to be suggested after configurable qualifier.
+     *
+     * @param completionItems Completion items to be set sorting texts
+     */
+    public static void sortCompletionsAfterConfigurableQualifier(CompletionContext context,
+                                                                 List<LSCompletionItem> completionItems,
+                                                                 Boolean onQualifiedNamedIdentifier) {
+        if (onQualifiedNamedIdentifier) {
+            completionItems.forEach(lsCompletionItem -> {
+                String sortText = SortingUtil.genSortText(2);
+                Types types = context.currentSemanticModel().get().types();
+                if (lsCompletionItem.getType() == SYMBOL) {
+                    Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(lsCompletionItem);
+                    if (typeSymbol.isPresent() && typeSymbol.get().subtypeOf(types.ANYDATA)) {
+                        sortText = SortingUtil.genSortText(1);
+                    }
+                }
+                lsCompletionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+        
+        List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
+                "decimal", "string", "xml", "map", "table");
+        completionItems.forEach(lsCompletionItem -> {
+            String sortText;
+            if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
+                    lsCompletionItem.getType() == SYMBOL) {
+                Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
+                if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
+                        CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
+                        anyDataSubTypeLabels.contains(lsCompletionItem.getCompletionItem().getLabel())
+                ) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(3);
+                }
+            } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter
+                    || lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Struct) {
+                sortText = SortingUtil.genSortText(2);
+            } else if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Module) {
+                sortText = SortingUtil.genSortText(3);
+            } else {
+                sortText = SortingUtil.genSortText(4);
+            }
+            lsCompletionItem.getCompletionItem().setSortText(sortText);
+        });
     }
 }

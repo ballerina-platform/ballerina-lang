@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,6 +112,14 @@ public class ModuleVariableDeclarationNodeContext extends
     public void sort(BallerinaCompletionContext context, ModuleVariableDeclarationNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+
+        boolean onQualifiedNameIdentifier = QNameRefCompletionUtil
+                .onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        boolean hasConfigurableQualifier = hasConfigurableQualifier(context, node);
+        if (resolvedContext != ResolvedContext.ON_QUALIFIER && onQualifiedNameIdentifier && hasConfigurableQualifier) {
+            resolvedContext = ResolvedContext.ON_QUALIFIER;
+        }
+
         if (resolvedContext == ResolvedContext.INITIALIZER) {
             // Calls the NodeWithRHSInitializerProvider's sorting logic to 
             // make it consistent throughout the implementation
@@ -119,6 +128,11 @@ public class ModuleVariableDeclarationNodeContext extends
         }
 
         if (resolvedContext == ResolvedContext.ON_QUALIFIER) {
+            if (hasConfigurableQualifier) {
+                SortingUtil.sortCompletionsAfterConfigurableQualifier(
+                        context, completionItems, onQualifiedNameIdentifier);
+                return;
+            }
             SortingUtil.toDefaultSorting(context, completionItems);
             return;
         }
@@ -139,13 +153,13 @@ public class ModuleVariableDeclarationNodeContext extends
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        if (lastQualifier.isEmpty()) {
             return completionItems;
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        switch (lastQualifier.kind()) {
+        Set<SyntaxKind> qualKinds = CommonUtil.getQualifiersOfNode(context, node)
+                .stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.get().kind()) {
             case PUBLIC_KEYWORD:
                 completionItems.addAll(getTypeDescContextItems(context));
                 List<Snippet> snippets = Arrays.asList(
@@ -227,6 +241,11 @@ public class ModuleVariableDeclarationNodeContext extends
         int textPosition = context.getCursorPositionInTree();
         TextRange equalTokenRange = node.equalsToken().get().textRange();
         return equalTokenRange.endOffset() <= textPosition;
+    }
+
+    private boolean hasConfigurableQualifier(BallerinaCompletionContext context, ModuleVariableDeclarationNode node) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        return lastQualifier.isPresent() && lastQualifier.get().kind().equals(SyntaxKind.CONFIGURABLE_KEYWORD);
     }
 
     enum ResolvedContext {

@@ -49,9 +49,6 @@ jobs:
     name: Build with sonarcloud scan on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    concurrency: 
-      group: ${{ github.head_ref }}-ubuntu
-      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository

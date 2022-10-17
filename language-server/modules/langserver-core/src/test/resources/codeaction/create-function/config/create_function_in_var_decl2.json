@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getTenOrEleven() returns \"10\"|\"11\" {\n    return \"10\";\n}\n"
+          "newText": "\n\nfunction getTenOrEleven() returns \"10\"|\"11\" {\n    return \"10\";\n}"
         }
       ],
       "resolvable": true,
