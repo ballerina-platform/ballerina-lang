@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.debugger.test.utils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -55,16 +56,17 @@ public class FileUtils {
     }
 
     /**
-     * Returns the content of a given file as a string.
+     * Closes the given Closeable and swallows any IOException that may occur.
      *
-     * @param filepath filepath to read content from
-     * @return file content string
+     * @param c Closeable to close, can be null
+     * @since 1.7
      */
-    public static String getFileContent(Path filepath) {
-        try {
-            return Files.readString(filepath);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+    public static void closeQuietly(final Closeable c) {
+        if (c != null) {
+            try {
+                c.close();
+            } catch (final IOException ignored) {
+            }
         }
     }
 }
