@@ -2385,6 +2385,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             defineNode(constant.associatedTypeDefinition, env);
             constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
             constantSymbol.literalType = unaryConstant.expr.getBType();
+        } else if (nodeKind == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
+            constantSymbol.type = constantSymbol.literalType = symTable.regExpType;
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
         }

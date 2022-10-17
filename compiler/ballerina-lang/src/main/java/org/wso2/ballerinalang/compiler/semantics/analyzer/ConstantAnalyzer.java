@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -140,6 +141,10 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExp) {
+    }
+
     void analyzeExpr(BLangExpression expr) {
         switch (expr.getKind()) {
             case LITERAL:
@@ -149,6 +154,7 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
             case UNARY_EXPR:
+            case REG_EXP_TEMPLATE_LITERAL:
                 this.expressions.push(expr);
                 expr.accept(this);
                 this.expressions.pop();

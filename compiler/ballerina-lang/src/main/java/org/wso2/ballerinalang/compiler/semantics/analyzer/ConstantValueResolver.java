@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -283,6 +284,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangConstantValue lhs = constructBLangConstantValue(binaryExpr.lhsExpr);
         BLangConstantValue rhs = constructBLangConstantValue(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        this.result = new BLangConstantValue(regExpTemplateLiteral, regExpTemplateLiteral.getBType());
     }
 
     public void visit(BLangGroupExpr groupExpr) {
@@ -572,6 +578,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case BINARY_EXPR:
             case GROUP_EXPR:
             case UNARY_EXPR:
+            case REG_EXP_TEMPLATE_LITERAL:
                 BLangConstantValue prevResult = this.result;
                 Location prevPos = this.currentPos;
                 this.currentPos = node.pos;
@@ -697,6 +704,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case TypeTags.BOOLEAN:
                 BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
                 return createFiniteType(constantSymbol, updateLiteral(literal, value, type, pos));
+            case TypeTags.REGEXP:
+                return symTable.regExpType;
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 if (value != null) {

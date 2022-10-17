@@ -875,6 +875,14 @@ public class Desugar extends BLangNodeVisitor {
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
         for (BLangConstant constant : pkgNode.constants) {
             BType constType = Types.getReferredType(constant.symbol.type);
+            if (constType.tag == TypeTags.REGEXP) {
+                BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+                constant.expr = rewrite(constant.expr,
+                        SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env));
+                BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
+                        constant.expr);
+                initFnBody.stmts.add(constInit);
+            }
             if (constType.tag != TypeTags.INTERSECTION) {
                 continue;
             }

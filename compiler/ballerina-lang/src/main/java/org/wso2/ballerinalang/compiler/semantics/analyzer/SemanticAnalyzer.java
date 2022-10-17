@@ -4257,7 +4257,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 isLiteralInUnaryFromConstantNotAllowed((BLangUnaryExpr) expression)) {
             return constant.typeNode == null;
         }
-        if (!(exprNodeKind == LITERAL || exprNodeKind == NUMERIC_LITERAL) && exprNodeKind != NodeKind.UNARY_EXPR) {
+        if (!(exprNodeKind == LITERAL || exprNodeKind == NUMERIC_LITERAL) && exprNodeKind != NodeKind.UNARY_EXPR
+                && exprNodeKind != NodeKind.REG_EXP_TEMPLATE_LITERAL) {
             return constant.typeNode == null;
         }
         return false;

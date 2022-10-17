@@ -452,6 +452,7 @@ public class BIRBinaryWriter {
             case TypeTags.BOOLEAN:
                 buf.writeBoolean((Boolean) value);
                 break;
+            case TypeTags.REGEXP:
             case TypeTags.NIL:
                 break;
             case TypeTags.RECORD:
