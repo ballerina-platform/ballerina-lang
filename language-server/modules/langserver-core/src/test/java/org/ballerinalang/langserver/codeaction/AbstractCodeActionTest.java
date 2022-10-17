@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
+    private static final String BALLERINA_ACTION_RENAME = "ballerina.action.rename";
     private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
@@ -396,7 +397,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                                  Path sourceRoot,
                                                  Path sourcePath) {
         //Validate the args of rename command
-        if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
+        if (BALLERINA_ACTION_RENAME.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
