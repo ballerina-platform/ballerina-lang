@@ -37,11 +37,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -53,9 +51,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -79,7 +75,6 @@ import static org.objectweb.asm.Opcodes.I2D;
 import static org.objectweb.asm.Opcodes.I2L;
 import static org.objectweb.asm.Opcodes.IASTORE;
 import static org.objectweb.asm.Opcodes.ICONST_0;
-import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.IF_ICMPGE;
 import static org.objectweb.asm.Opcodes.ILOAD;
@@ -126,8 +121,8 @@ public class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                         JvmConstantsGen jvmConstantsGen, String moduleClassName,
-                                         AsyncDataCollector asyncDataCollector, Types types) {
+                                         JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector,
+                                         Types types) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         indexMap.addIfNotExists("$_strand_$", jvmPackageGen.symbolTable.stringType);
@@ -154,10 +149,8 @@ public class InteropMethodGen {
         mv.visitLabel(paramLoadLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().startLine().line() + 1, paramLoadLabel);
 
-        // birFunc.localVars contains all the function parameters as well as added boolean parameters to indicate the
-        //  availability of default values.
-        // The following line cast localvars to function params. This is guaranteed not to fail.
-        // Get a JVM method local variable index for the parameter
+        // all the function parameters from birFunc.localVars are extracted
+        // the JVM method local variable index for each parameter is assigned
         List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>();
         for (BIRVariableDcl birLocalVarOptional : birFunc.localVars) {
             if (birLocalVarOptional instanceof BIRNode.BIRFunctionParameter) {
@@ -165,31 +158,6 @@ public class InteropMethodGen {
                 birFuncParams.add(functionParameter);
                 indexMap.addIfNotExists(functionParameter.name.value, functionParameter.type);
             }
-        }
-
-        // Generate if blocks to check and set default values to parameters
-        int birFuncParamIndex = 0;
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
-            // Skip boolean function parameters to indicate the existence of default values
-            if (birFuncParamIndex % 2 != 0 || !birFuncParam.hasDefaultExpr) {
-                // Skip the loop if:
-                //  1) This birFuncParamIndex had an odd value: indicates a generated boolean parameter
-                //  2) This function param doesn't have a default value
-                birFuncParamIndex += 1;
-                continue;
-            }
-
-            // The following boolean parameter indicates the existence of a default value
-            BIRNode.BIRFunctionParameter isDefaultValueExist = birFuncParams.get(birFuncParamIndex + 1);
-            mv.visitVarInsn(ILOAD, indexMap.addIfNotExists(isDefaultValueExist.name.value, isDefaultValueExist.type));
-
-            // Gen the if not equal logic
-            Label paramNextLabel = labelGen.getLabel(birFuncParam.name.value + "next");
-            mv.visitJumpInsn(IFNE, paramNextLabel);
-
-            mv.visitLabel(paramNextLabel);
-
-            birFuncParamIndex += 1;
         }
 
         JavaField jField = birFunc.javaField;
@@ -222,7 +190,7 @@ public class InteropMethodGen {
         }
 
         // Load java method parameters
-        birFuncParamIndex = jField.isStatic() ? 0 : 1;
+        int birFuncParamIndex = jField.isStatic() ? 0 : 1;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
@@ -274,41 +242,8 @@ public class InteropMethodGen {
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc, -1);
-        mv.visitMaxs(200, 400);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
-    }
-
-    private static void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks, LabelGenerator labelGen,
-                                            JvmErrorGen errorGen, JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                                            BIRFunction func, String moduleClassName,
-                                            AsyncDataCollector asyncDataCollector) {
-        String funcName = func.name.value;
-        BirScope lastScope = null;
-        Set<BirScope> visitedScopesSet = new HashSet<>();
-        for (BIRBasicBlock basicBlock : basicBlocks) {
-            Label bbLabel = labelGen.getLabel(funcName + basicBlock.id.value);
-            mv.visitLabel(bbLabel);
-            lastScope = JvmCodeGenUtil
-                    .getLastScopeFromBBInsGen(mv, labelGen, instGen, -1, funcName, basicBlock,
-                                              visitedScopesSet, lastScope);
-            Label bbEndLabel = labelGen.getLabel(funcName + basicBlock.id.value + "beforeTerm");
-            mv.visitLabel(bbEndLabel);
-            BIRTerminator terminator = basicBlock.terminator;
-            // process terminator
-            if (!(terminator instanceof BIRTerminator.Return)) {
-                JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, -1, -1, -1, null);
-                lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
-                        lastScope, visitedScopesSet);
-            }
-            errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen, -1);
-
-            BIRBasicBlock thenBB = terminator.thenBB;
-            if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1, -1,
-                        terminator.pos, null, null, -1);
-            }
-        }
     }
 
     public static void desugarInteropFuncs(JMethodBIRFunction birFunc, InitMethodGen initMethodGen) {
