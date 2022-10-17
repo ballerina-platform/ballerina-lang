@@ -584,9 +584,10 @@ public class TypeChecker {
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
-        if (describingType instanceof BTypeReferenceType && describingType.getTag() == TypeTags.TUPLE_TAG) {
-            return ((BAnnotatableType) ((BTypeReferenceType) describingType).getReferredType())
-                    .getAnnotation(StringUtils.fromString(annotTag));
+        if (describingType instanceof BTypeReferenceType &&
+                ((BTypeReferenceType) describingType).getReferredType().getTag() == TypeTags.TUPLE_TAG) {
+            BAnnotatableType referredType = (BAnnotatableType) ((BTypeReferenceType) describingType).getReferredType();
+            return referredType.getAnnotation(StringUtils.fromString(annotTag));
         }
         return ((BAnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
     }
@@ -596,7 +597,8 @@ public class TypeChecker {
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
-        if (describingType instanceof BTypeReferenceType && describingType.getTag() == TypeTags.TUPLE_TAG) {
+        if (describingType instanceof BTypeReferenceType &&
+                ((BTypeReferenceType) describingType).getReferredType().getTag() == TypeTags.TUPLE_TAG) {
             return ((BAnnotatableType) ((BTypeReferenceType) describingType).getReferredType())
                     .getAnnotation(annotTag);
         }
