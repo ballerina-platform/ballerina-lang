@@ -793,9 +793,29 @@ function testMatchStmtInsideForeachWithConst() {
     assertEquals("OneOtherTwo", output);
 }
 
+function testMatchStmtInsideForeachString3() {
+    string input = "1x2";
+    string output = "";
+    foreach string:Char char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
 function testMatchStmtInsideForeach() {
     testMatchStmtInsideForeachString1();
     testMatchStmtInsideForeachString2();
+    testMatchStmtInsideForeachString3();
     testMatchStmtInsideForeachInt();
     testMatchStmtInsideForeachWithConst();
 }

@@ -85,7 +85,7 @@ public class MatchStmtConstPatternTest {
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
-        Assert.assertEquals(resultNegative.getWarnCount(), 28);
+        Assert.assertEquals(resultNegative.getWarnCount(), 26);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -96,9 +96,7 @@ public class MatchStmtConstPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 36, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 37, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 38, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 44, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 45, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 46, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 52, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 53, 9);

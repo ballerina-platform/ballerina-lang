@@ -644,10 +644,11 @@ public class Types {
         }
         // This should handle specially
         BType matchExprReferredType = getReferredType(matchExprType);
-        BType constExprReferredType = getReferredType(constMatchPatternExprType);
-        if (matchExprReferredType.tag == TypeTags.BYTE && constExprReferredType.tag == TypeTags.INT) {
+
+        if (isValidLiteral(constPatternLiteral, matchExprReferredType)) {
             return matchExprType;
         }
+
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
