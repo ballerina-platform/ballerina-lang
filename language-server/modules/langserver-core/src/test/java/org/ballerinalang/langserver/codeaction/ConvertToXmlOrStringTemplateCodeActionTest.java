@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * Test cases for @link{ConvertToXmlOrStringTemplateCodeAction}.
  *
- * @since 2201.2.0
+ * @since 2201.4.0
  */
 public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActionTest {
 
