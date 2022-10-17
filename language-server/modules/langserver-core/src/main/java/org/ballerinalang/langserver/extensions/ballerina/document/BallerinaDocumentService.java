@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.Module;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.DependencyUtils;
@@ -385,13 +385,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 if (filePath.isEmpty()) {
                     return response;
                 }
-
-                Optional<Module> module = workspaceManagerProxy.get().module(filePath.get());
-                if (module.isEmpty()) {
-                    return response;
-                }
+                
                 response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(workspaceManagerProxy.get(),
-                        module.get(),
                         filePath.get()));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/executorPositions' failed!";
