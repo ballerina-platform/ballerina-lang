@@ -44,7 +44,7 @@ import java.util.Set;
 
 /***
  * Code Action for adding subtype for a raw template.
- * @since 2201.2.1
+ * @since 2201.4.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCodeActionProvider {
