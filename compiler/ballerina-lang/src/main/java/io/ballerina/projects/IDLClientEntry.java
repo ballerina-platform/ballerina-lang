@@ -34,12 +34,13 @@ class IDLClientEntry {
     private final String filePath;
     private final long lastModifiedTime;
 
-    public IDLClientEntry(String url, Path filePath, List<String> annotations, String generatedModuleName) {
+    public IDLClientEntry(String url, Path filePath, List<String> annotations, String generatedModuleName,
+                          long lastModifiedTime) {
         this.url = url;
         this.annotations = annotations;
         this.generatedModuleName = generatedModuleName;
         this.filePath = filePath.toString();
-        this.lastModifiedTime = filePath.toFile().lastModified();
+        this.lastModifiedTime = lastModifiedTime;
     }
 
     public String url() {

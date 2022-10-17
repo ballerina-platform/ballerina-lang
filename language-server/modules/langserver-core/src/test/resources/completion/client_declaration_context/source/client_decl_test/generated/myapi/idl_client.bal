@@ -14,5 +14,5 @@ public isolated client class 'client {
             return self.specVersion;
         }
     }
-    
+
 }
