@@ -62,7 +62,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     public static final String NAME = "Extract To Constant";
     private static final String CONSTANT_NAME_PREFIX = "CONST";
-    private static final String RENAME_COMMAND = "Rename Constant";
 
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL,
@@ -153,7 +152,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         int startPos = constDeclStrLength + nodeStartOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(RENAME_COMMAND, CommandConstants.BALLERINA_RENAME_ACTION,
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.BALLERINA_RENAME_ACTION,
                     List.of(context.fileUri(), startPos)));
         }
     }
