@@ -621,7 +621,8 @@ public class JvmInstructionGen {
             if (hasBalEnvParam) {
                 mv.visitTypeInsn(NEW, BAL_ENV);
                 mv.visitInsn(DUP);
-                this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
+                // load the strand
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
                 // load the current Module
                 mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
                 mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,

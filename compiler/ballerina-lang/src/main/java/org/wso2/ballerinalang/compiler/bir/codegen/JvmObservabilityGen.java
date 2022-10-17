@@ -245,22 +245,24 @@ class JvmObservabilityGen {
 
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 List<BIRBasicBlock> predecessors = entry.getValue();
-                boolean desugaredPosAlreadyLoaded = predecessors.stream()
-                                                    .anyMatch(bb -> {
-                                                        Location predecessorDesugaredPos = getDesugaredPosition(bb);
-                                                        if (predecessorDesugaredPos == null) {
-                                                            return false;
-                                                        }
-                                                        return predecessorDesugaredPos.equals(desugaredPos);
-                                                    });
                 int callInsOffset = 0;
-                if (!desugaredPosAlreadyLoaded) {
+                if (!desugaredPosAlreadyLoaded(desugaredPos, predecessors)) {
                     updatePositionArgsConstLoadIns(desugaredPos, currentBB);
                     callInsOffset = 2;
                 }
                 injectCheckpointCall(currentBB, pkg, callInsOffset);
             }
         }
+    }
+
+    private boolean desugaredPosAlreadyLoaded(Location desugaredPos, List<BIRBasicBlock> predecessors) {
+        for (BIRBasicBlock bb : predecessors) {
+            Location predecessorDesugaredPos = getDesugaredPosition(bb);
+            if (predecessorDesugaredPos != null && predecessorDesugaredPos.equals(desugaredPos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
