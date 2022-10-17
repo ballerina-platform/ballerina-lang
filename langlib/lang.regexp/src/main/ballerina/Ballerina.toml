@@ -2,3 +2,4 @@
 org = "ballerina"
 name = "lang.regexp"
 version = "0.0.0"
+keywords = ["regex", "experimental"]
