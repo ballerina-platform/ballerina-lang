@@ -104,7 +104,7 @@ public class RecordUtil {
         }
 
         String label;
-        String detail = NameUtil.getRecordType(context, wrapper);
+        String detail = NameUtil.getRecordTypeName(context, wrapper);
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
             int count = 1;

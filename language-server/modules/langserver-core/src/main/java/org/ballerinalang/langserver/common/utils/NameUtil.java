@@ -222,8 +222,8 @@ public class NameUtil {
      * @param wrapper A wrapper containing record type symbol and broader type symbol
      * @return Record type
      */
-    public static String getRecordType(DocumentServiceContext context,
-                                       RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
+    public static String getRecordTypeName(DocumentServiceContext context,
+                                           RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
         if (wrapper.getRawType().getName().isPresent()) {
             return NameUtil.getModifiedTypeName(context, wrapper.getRawType());
         } else if (wrapper.getBroaderType().getName().isPresent()) {
