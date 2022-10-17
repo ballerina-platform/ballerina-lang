@@ -689,13 +689,13 @@
       }
     },
     {
-      "label": "includesMatch(string:RegExp regExp, int startIndex)",
+      "label": "includesMatch(string:RegExp re, int startIndex)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match for `re` anywhere in `str`  \n**Params**  \n- `string:RegExp` regExp  \n- `int` startIndex(Defaultable)  \n  \n**Return** `boolean`   \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match for `re` anywhere in `str`  \n**Params**  \n- `string:RegExp` re  \n- `int` startIndex(Defaultable)  \n  \n**Return** `boolean`   \n  \n"
         }
       },
       "sortText": "CD",
@@ -708,13 +708,13 @@
       }
     },
     {
-      "label": "matches(string:RegExp regExp)",
+      "label": "matches(string:RegExp re)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match of `re` against all of `str`.\nUse `includesMatch` to test whether `re` matches somewhere in `str`.  \n**Params**  \n- `string:RegExp` regExp  \n  \n**Return** `boolean`   \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match of `re` against all of `str`.\nUse `includesMatch` to test whether `re` matches somewhere in `str`.  \n**Params**  \n- `string:RegExp` re  \n  \n**Return** `boolean`   \n  \n"
         }
       },
       "sortText": "CD",
