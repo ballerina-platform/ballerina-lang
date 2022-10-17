@@ -199,8 +199,6 @@ public enum SyntaxKind {
     XML_CDATA_START_TOKEN(591, "<![CDATA["),
     XML_CDATA_END_TOKEN(592, "]]>"),
     BACK_SLASH_TOKEN(593, "\\"),
-    UNICODE_PROPERTY_ESCAPE_START_LOWER_P_TOKEN(594, "\\p{"),
-    UNICODE_PROPERTY_ESCAPE_START_UPPER_P_TOKEN(594, "\\P{"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),

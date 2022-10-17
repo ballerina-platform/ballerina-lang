@@ -137,20 +137,25 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TEMPLATE_STRING",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                        "ERROR_MISSING_BACK_SLASH"
                                       ],
-                                      "value": "*",
-                                      "leadingMinutiae": [
+                                      "trailingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INVALID_TOKEN",
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
                                                 "value": "*"
                                               }
                                             ]
@@ -258,20 +263,25 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TEMPLATE_STRING",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                        "ERROR_MISSING_BACK_SLASH"
                                       ],
-                                      "value": "+",
-                                      "leadingMinutiae": [
+                                      "trailingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INVALID_TOKEN",
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
                                                 "value": "+"
                                               }
                                             ]
@@ -421,20 +431,25 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TEMPLATE_STRING",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                        "ERROR_MISSING_BACK_SLASH"
                                       ],
-                                      "value": "+",
-                                      "leadingMinutiae": [
+                                      "trailingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INVALID_TOKEN",
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
                                                 "value": "+"
                                               }
                                             ]
@@ -584,30 +599,43 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_BACK_SLASH"
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
+                                            "children": [
+                                              {
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
+                                                "value": "*"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
                                           "kind": "RE_LITERAL_CHAR",
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                          ],
-                                          "value": "a",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "children": [
-                                                  {
-                                                    "kind": "INVALID_TOKEN",
-                                                    "value": "*"
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          ]
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -767,30 +795,43 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_BACK_SLASH"
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
+                                            "children": [
+                                              {
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
+                                                "value": "*"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "children": [
+                                    {
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
                                           "kind": "RE_LITERAL_CHAR",
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                          ],
-                                          "value": "a",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "INVALID_NODE_MINUTIAE",
-                                              "invalidNode": {
-                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                "children": [
-                                                  {
-                                                    "kind": "INVALID_TOKEN",
-                                                    "value": "*"
-                                                  }
-                                                ]
-                                              }
-                                            }
-                                          ]
+                                          "value": "a"
                                         }
                                       ]
                                     }
@@ -990,20 +1031,25 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "TEMPLATE_STRING",
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                        "ERROR_MISSING_BACK_SLASH"
                                       ],
-                                      "value": "*",
-                                      "leadingMinutiae": [
+                                      "trailingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INVALID_TOKEN",
+                                                "kind": "RE_SYNTAX_CHAR",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                ],
                                                 "value": "*"
                                               }
                                             ]

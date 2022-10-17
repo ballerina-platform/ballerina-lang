@@ -575,8 +575,10 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
             case RE_BRACED_QUANTIFIER_DIGIT:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
-            case QUESTION_MARK_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_RE_ATOM;
+            case RE_SYNTAX_CHAR:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR;
+            case BACK_SLASH_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_BACK_SLASH;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

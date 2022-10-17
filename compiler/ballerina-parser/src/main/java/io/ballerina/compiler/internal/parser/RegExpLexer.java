@@ -177,7 +177,8 @@ public class RegExpLexer extends AbstractLexer {
                 }
         }
 
-        return processInvalidToken();
+        reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+        return getRegExpText(SyntaxKind.RE_SYNTAX_CHAR);
     }
 
     private STToken processReEscape() {
@@ -252,7 +253,7 @@ public class RegExpLexer extends AbstractLexer {
             return getRegExpText(SyntaxKind.RE_SIMPLE_CHAR_CLASS_CODE);
         }
 
-        return processInvalidToken();
+        return getRegExpText(SyntaxKind.RE_LITERAL_CHAR);
     }
 
     /**
@@ -338,7 +339,7 @@ public class RegExpLexer extends AbstractLexer {
                 while (!isEndOfUnicodePropertyEscape()) {
                     this.reader.advance();
                 }
-                return processInvalidToken();
+                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
 
         return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
@@ -463,7 +464,7 @@ public class RegExpLexer extends AbstractLexer {
 
         endMode();
         if (invalidTokenFound) {
-            return processInvalidToken();
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
 
         return getRegExpText(SyntaxKind.RE_UNICODE_PROPERTY_VALUE);
@@ -521,13 +522,11 @@ public class RegExpLexer extends AbstractLexer {
             default:
                 this.reader.advance();
                 // Handle ReCharSetLiteralChar, which is a ReCharSetAtomNoDash.
-                if (isReCharSetLiteralChar(nextToken)) {
-                    return getRegExpText(SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH);
+                if (!isReCharSetLiteralChar(nextToken)) {
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                break;
+                return getRegExpText(SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH);
         }
-
-        return processInvalidToken();
     }
 
     /**
@@ -556,12 +555,11 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.MINUS:
                 return getRegExpSyntaxToken(SyntaxKind.MINUS_TOKEN);
             default:
-                if (isReFlag(nextToken)) {
-                    return getRegExpText(SyntaxKind.RE_FLAGS_VALUE);
+                if (!isReFlag(nextToken)) {
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                break;
+                return getRegExpText(SyntaxKind.RE_FLAGS_VALUE);
         }
-        return processInvalidToken();
     }
 
     /**
@@ -621,7 +619,8 @@ public class RegExpLexer extends AbstractLexer {
             return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
-        switch (peek()) {
+        int nextToken = peek();
+        switch (nextToken) {
             case LexerTerminals.CLOSE_BRACE:
                 this.reader.advance();
                 endMode();
@@ -630,13 +629,12 @@ public class RegExpLexer extends AbstractLexer {
                 this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.COMMA_TOKEN);
             default:
-                if (isDigit(peek())) {
-                    this.reader.advance();
-                    return getRegExpText(SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT);
+                this.reader.advance();
+                if (!isDigit(nextToken)) {
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
                 }
-                break;
+                return getRegExpText(SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT);
         }
-        return processInvalidToken();
     }
 
     /**
@@ -662,23 +660,6 @@ public class RegExpLexer extends AbstractLexer {
         // Fail-safe.
         endMode();
         return nextToken();
-    }
-
-    private STToken processInvalidToken() {
-        String tokenText = getLexeme();
-        STToken invalidToken = STAbstractNodeFactory.createInvalidToken(tokenText);
-        STNode invalidNodeMinutiae = STAbstractNodeFactory.createInvalidNodeMinutiae(invalidToken);
-        this.leadingTriviaList.add(invalidNodeMinutiae);
-
-        STToken token;
-        if (this.reader.isEOF()) {
-            token = getRegExpText(SyntaxKind.TEMPLATE_STRING);
-        } else {
-            token = nextToken();
-        }
-        token = SyntaxErrors.addDiagnostic(token, DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP,
-                invalidToken);
-        return token;
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {
