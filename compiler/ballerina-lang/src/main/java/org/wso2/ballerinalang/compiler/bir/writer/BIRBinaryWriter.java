@@ -343,7 +343,7 @@ public class BIRBinaryWriter {
             }
             
             // resourcePathCount and resourcePathPosCount will be different for root scenario since we 
-            // don't keep post information for `.`
+            // don't keep pos information for `.`
             List<Location> resourcePathSegmentPosList = birFunction.resourcePathSegmentPosList;
             buf.writeInt(resourcePathSegmentPosList.size());
             for (Location resourcePathSegmentPos : resourcePathSegmentPosList) {
