@@ -143,11 +143,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
                                 int constDeclStrLength, int nodeStartOffset) {
-        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        if (syntaxTree.isEmpty()) {
-            return;
-        }
-
         int startPos = constDeclStrLength + nodeStartOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {

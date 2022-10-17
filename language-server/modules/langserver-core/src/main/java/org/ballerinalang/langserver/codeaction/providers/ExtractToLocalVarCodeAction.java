@@ -173,11 +173,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
     private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
                                 int varDeclStrLength, int nodeStartOffset) {
-        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        if (syntaxTree.isEmpty()) {
-            return;
-        }
-
         int startPos = varDeclStrLength + nodeStartOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
