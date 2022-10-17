@@ -115,6 +115,11 @@ public class JoinClauseTest {
         Assert.assertTrue((Boolean) values);
     }
 
+    @Test(description = "Test outer join with null results")
+    public void testOuterJoinWithNullResults() {
+        BRunUtil.invoke(result, "testOuterJoin");
+    }
+
     @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 32);

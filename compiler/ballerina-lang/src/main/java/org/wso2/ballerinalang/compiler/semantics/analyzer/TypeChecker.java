@@ -6454,6 +6454,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkExpr(joinClause.collection, data.commonAnalyzerData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
+        if (joinClause.isOuterJoin) {
+            joinClause.varType = types.addNilForNillableAccessType(joinClause.varType);
+        }
         handleInputClauseVariables(joinClause, data.commonAnalyzerData.queryEnvs.peek());
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this, data);
