@@ -2031,7 +2031,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.getBType(), workerName, data.env)
+        if (!this.workerExists(workerSendNode.workerType, workerName, data.env)
                 || (!isWorkerFromFunction(data.env, names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;

@@ -162,6 +162,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -2766,6 +2767,39 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         syncSendExpr.expectedType = data.expType;
+
+        // Type checking against the matching receive is done during code analysis.
+        // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
+        data.resultType = data.expType == symTable.noType ? symTable.nilType : data.expType;
+    }
+
+    @Override
+    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
+        BSymbol symbol = symResolver.lookupSymbolInMainSpace(data.env, names.fromIdNode(asyncSendExpr.workerIdentifier));
+
+        if (symTable.notFoundSymbol.equals(symbol)) {
+            asyncSendExpr.workerType = symTable.semanticError;
+        } else {
+            asyncSendExpr.workerType = symbol.type;
+            asyncSendExpr.workerSymbol = symbol;
+        }
+
+        // TODO Need to remove this cached env
+        asyncSendExpr.env = data.env;
+        checkExpr(asyncSendExpr.expr, data);
+
+        // Validate if the send expression type is cloneableType
+        if (!types.isAssignable(asyncSendExpr.expr.getBType(), symTable.cloneableType)) {
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND,
+                    asyncSendExpr.expr.getBType());
+        }
+
+        String workerName = asyncSendExpr.workerIdentifier.getValue();
+        if (!this.workerExists(data.env, workerName)) {
+            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
+        }
+
+        asyncSendExpr.expectedType = data.expType;
 
         // Type checking against the matching receive is done during code analysis.
         // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
