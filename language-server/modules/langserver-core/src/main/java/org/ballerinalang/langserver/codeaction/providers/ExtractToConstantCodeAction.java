@@ -73,10 +73,10 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
         SyntaxKind parentKind = node.parent().kind();
-        return  context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
-                && parentKind != SyntaxKind.CONST_DECLARATION 
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
+                && parentKind != SyntaxKind.CONST_DECLARATION
                 && parentKind != SyntaxKind.INVALID_EXPRESSION_STATEMENT
-                && parentKind != SyntaxKind.CLIENT_DECLARATION 
+                && parentKind != SyntaxKind.CLIENT_DECLARATION
                 && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
@@ -153,7 +153,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         int startPos = constDeclStrLength + nodeStartOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
+            codeAction.setCommand(new Command(RENAME_COMMAND, CommandConstants.BALLERINA_RENAME_ACTION,
                     List.of(context.fileUri(), startPos)));
         }
     }

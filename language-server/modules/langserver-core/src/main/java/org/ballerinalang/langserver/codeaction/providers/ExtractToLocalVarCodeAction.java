@@ -184,7 +184,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         int startPos = varDeclStrLength + nodeStartOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
+            codeAction.setCommand(new Command(RENAME_COMMAND, CommandConstants.BALLERINA_RENAME_ACTION,
                     List.of(context.fileUri(), startPos)));
         }
     }
