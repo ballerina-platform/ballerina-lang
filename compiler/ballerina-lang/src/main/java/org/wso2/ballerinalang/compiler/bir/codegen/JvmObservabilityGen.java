@@ -25,7 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ObservabilityJMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -276,7 +276,7 @@ class JvmObservabilityGen {
         BIROperand fileNameOperand = tempLocalVarsMap.get(FILE_NAME_STRING);
         BIROperand startLineOperand = tempLocalVarsMap.get(START_LINE_STRING);
         BIROperand startColOperand = tempLocalVarsMap.get(START_COLUMN_STRING);
-        ObservabilityJMethodCall recordCheckPointCallIns = new ObservabilityJMethodCall(null);
+        JMethodCall recordCheckPointCallIns = new JMethodCall(null);
         recordCheckPointCallIns.invocationType = INVOKESTATIC;
         recordCheckPointCallIns.jClassName = OBSERVE_UTILS;
         recordCheckPointCallIns.jMethodVMSig = CHECKPOINT_CALL;

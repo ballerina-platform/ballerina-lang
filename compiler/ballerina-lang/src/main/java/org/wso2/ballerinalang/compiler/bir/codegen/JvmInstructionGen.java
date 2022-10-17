@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ObservabilityJMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -605,39 +605,36 @@ public class JvmInstructionGen {
         return symbolTable.byteType;
     }
 
-    void generatePlatformIns(JInstruction ins) {
+    void generatePlatformIns(JInstruction ins, int localVarOffset) {
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
             this.loadVar(castIns.rhsOp.variableDcl);
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
-        }
-    }
+        } else if (ins.jKind == JInsKind.CALL) {
+            JMethodCall callIns = (JMethodCall) ins;
+            boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+            int argIndex = 0;
+            String jMethodVMSig = callIns.jMethodVMSig;
+            boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+            if (hasBalEnvParam) {
+                mv.visitTypeInsn(NEW, BAL_ENV);
+                mv.visitInsn(DUP);
+                this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
+                // load the current Module
+                mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
+                        INIT_BAL_ENV, false);
+            }
 
-    void generateObserveJIMethodCallIns(ObservabilityJMethodCall callIns, int localVarOffset) {
-        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
-        int argIndex = 0;
-        String jMethodVMSig = callIns.jMethodVMSig;
-        boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
-        if (hasBalEnvParam) {
-            mv.visitTypeInsn(NEW, BAL_ENV);
-            mv.visitInsn(DUP);
-            this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
-            // load the current Module
-            mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
-                    INIT_BAL_ENV, false);
+            while (argIndex < callIns.args.size()) {
+                BIROperand arg = callIns.args.get(argIndex);
+                this.loadVar(arg.variableDcl);
+                argIndex += 1;
+            }
+            this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig, isInterface);
         }
-
-        while (argIndex < callIns.args.size()) {
-            BIROperand arg = callIns.args.get(argIndex);
-            this.loadVar(arg.variableDcl);
-            argIndex += 1;
-        }
-        String jClassName = callIns.jClassName;
-        String jMethodName = callIns.name;
-        this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
     }
 
     void generateMoveIns(BIRNonTerminator.Move moveIns) {
@@ -2357,11 +2354,7 @@ public class JvmInstructionGen {
                     generateNegateIns((BIRNonTerminator.UnaryOP) inst);
                     break;
                 case PLATFORM:
-                    if (inst instanceof ObservabilityJMethodCall) {
-                        generateObserveJIMethodCallIns((ObservabilityJMethodCall) inst, localVarOffset);
-                        break;
-                    }
-                    generatePlatformIns((JInstruction) inst);
+                    generatePlatformIns((JInstruction) inst, localVarOffset);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);

@@ -18,10 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 
 import java.util.List;
 
@@ -30,7 +27,7 @@ import java.util.List;
  *
  * @since 2201.4.0
  */
-public class ObservabilityJMethodCall extends BIRNonTerminator {
+public class JMethodCall extends JInstruction {
 
     public List<BIROperand> args;
     public String jClassName;
@@ -38,13 +35,9 @@ public class ObservabilityJMethodCall extends BIRNonTerminator {
     public String name;
     public int invocationType;
 
-    public ObservabilityJMethodCall(Location pos) {
-        super(pos, InstructionKind.PLATFORM);
-    }
-
-    @Override
-    public void accept(BIRVisitor visitor) {
-        // Do nothing
+    public JMethodCall(Location pos) {
+        super(pos);
+        jKind = JInsKind.CALL;
     }
 
     @Override
