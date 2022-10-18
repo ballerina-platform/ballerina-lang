@@ -3232,7 +3232,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (actualType != symTable.semanticError &&
                     (fieldAccessExpr.isLValue || fieldAccessExpr.isCompoundAssignmentLValue)) {
                 if (isAllReadonlyTypes(varRefType)) {
-                    if (varRefType.tag != TypeTags.OBJECT || !isInitializationInInit(varRefType, data)) {
+                    BType referredType = Types.getReferredType(varRefType);
+                    if (referredType.tag != TypeTags.OBJECT
+                            || !isInitializationInInit(referredType, data)) {
                         dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE,
                                 varRefType);
                         data.resultType = symTable.semanticError;
@@ -4082,16 +4084,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean collectObjectTypeIds(BType type, Set<BTypeIdSet> typeIdSets, Set<BType> visitedTypes) {
-        if (type.tag == TypeTags.OBJECT) {
-            var objectType = (BObjectType) type;
+        BType referredType = Types.getReferredType(type);
+        if (referredType.tag == TypeTags.OBJECT) {
+            var objectType = (BObjectType) referredType;
             typeIdSets.add(objectType.typeIdSet);
             return true;
         }
-        if (type.tag == TypeTags.UNION) {
+        if (referredType.tag == TypeTags.UNION) {
             if (!visitedTypes.add(type)) {
                 return true;
             }
-            for (BType member : ((BUnionType) type).getMemberTypes()) {
+            for (BType member : ((BUnionType) referredType).getMemberTypes()) {
                 if (!collectObjectTypeIds(member, typeIdSets, visitedTypes)) {
                     return false;
                 }
@@ -6061,8 +6064,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.prevEnvs.pop();
         }
 
-        if (actualType.tag == TypeTags.TABLE) {
-            BTableType tableType = (BTableType) actualType;
+        BType referredActualType = Types.getReferredType(actualType);
+        if (referredActualType.tag == TypeTags.TABLE) {
+            BTableType tableType = (BTableType) referredActualType;
             tableType.constraintPos = queryExpr.pos;
             tableType.isTypeInlineDefined = true;
             if (!validateTableType(tableType, data)) {
@@ -6305,6 +6309,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return null;
         }
         BType returnType = null, completionType = null;
+        collectionType = Types.getReferredType(collectionType);
         switch (collectionType.tag) {
             case TypeTags.STREAM:
                 completionType = ((BStreamType) collectionType).completionType;
@@ -6358,7 +6363,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType getNonContextualQueryType(BType staticType, BType basicType) {
         BType resultType;
-        switch (basicType.tag) {
+        switch (Types.getReferredType(basicType).tag) {
             case TypeTags.TABLE:
                 resultType = symTable.tableType;
                 break;

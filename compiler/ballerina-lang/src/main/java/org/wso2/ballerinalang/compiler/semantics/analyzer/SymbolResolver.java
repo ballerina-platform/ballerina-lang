@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -2666,9 +2667,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForPackageId(optionalPackageID.get());
-        moduleSymbol.isUsed = true;
-        return moduleSymbol;
+        ((BClientDeclarationSymbol) symbol).used = true;
+        return getModuleForPackageId(optionalPackageID.get());
     }
 
     /**
