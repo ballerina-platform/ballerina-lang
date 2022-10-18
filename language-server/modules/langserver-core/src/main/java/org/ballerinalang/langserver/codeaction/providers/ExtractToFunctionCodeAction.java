@@ -372,7 +372,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
 
         String functionName = getFunctionName(context, matchedCodeActionNode);
-        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
+        String function = getFunction(context, matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
                 argsForExtractFunction);
 
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
@@ -414,9 +414,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
-    private String getFunction(NonTerminalNode matchedNode, boolean newLineEnd, TypeSymbol typeSymbol,
-                               String functionName, List<String> args) {
-        String returnsClause = String.format("returns %s", typeSymbol.signature());
+    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd, 
+                               TypeSymbol typeSymbol, String functionName, List<String> args) {
+        String returnsClause = 
+                String.format("returns %s", FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature()));
         String returnStatement;
 
         if (matchedNode.kind() == SyntaxKind.BRACED_EXPRESSION) {
