@@ -40,9 +40,9 @@ function simpleTypes() returns string {
 
     float x3 = 10.1;
     match x3 {
-        20 => {return "20";} // pattern will not be matched
+        20 => {return "20";}
         false => {return "false";} // pattern will not be matched
-        21 => {return "21";} // pattern will not be matched
+        21 => {return "21";}
         "Ballerina" => {return "Ballerina";} // pattern will not be matched
         10.4 => {return "10.4";}
     }
