@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 9,
+    "character": 27
+  },
+  "source": "convert_to_query_expr_lhs_non_record1.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression",
+      "kind": "refactor.rewrite",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 25
+            },
+            "end": {
+              "line": 9,
+              "character": 30
+            }
+          },
+          "newText": "from var item in users\n        select item"
+        }
+      ]
+    }
+  ]
+}

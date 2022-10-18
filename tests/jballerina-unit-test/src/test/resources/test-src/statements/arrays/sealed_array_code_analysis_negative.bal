@@ -18,6 +18,10 @@ record {|
    int[*] x = [1];
 |} _ = {x:[2]};
 
+function value(int[*] a = [1]) returns int[] {
+    return [10];
+}
+
 public function invalidInferredArrays() {
     function (int[*] a = [1]) returns int[] _ = value;
     var _ = function(int b) returns int {[int[*]] _ = [[1]]; int[*] _ = [32]; return b;};
@@ -27,10 +31,6 @@ public function invalidInferredArrays() {
     if (b3) {
         int[*] _ = [12,12];
     }
-}
-
-function value(int[*] a = [1]) returns int[] {
-    return [10];
 }
 
 function fn1() returns int[*] & readonly {

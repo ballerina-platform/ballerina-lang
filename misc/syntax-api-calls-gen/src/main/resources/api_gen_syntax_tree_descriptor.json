@@ -230,6 +230,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -1743,6 +1748,70 @@
       ]
     },
     {
+      "name": "ClientDeclarationNode",
+      "base": "StatementNode",
+      "kind": "CLIENT_DECLARATION",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "AnnotationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "clientKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "clientUri",
+          "type": "BasicLiteralNode"
+        },
+        {
+          "name": "asKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "clientPrefix",
+          "type": "IdentifierToken"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ModuleClientDeclarationNode",
+      "base": "ModuleMemberDeclarationNode",
+      "kind": "MODULE_CLIENT_DECLARATION",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "AnnotationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "clientKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "clientUri",
+          "type": "BasicLiteralNode"
+        },
+        {
+          "name": "asKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "clientPrefix",
+          "type": "IdentifierToken"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
       "name": "FunctionBodyBlockNode",
       "base": "FunctionBodyNode",
       "kind": "FUNCTION_BODY_BLOCK",
@@ -1764,6 +1833,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -3514,6 +3588,11 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -4269,6 +4348,11 @@
         {
           "name": "closeBrace",
           "type": "Token"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token",
+          "isOptional": true
         }
       ]
     },
@@ -4378,7 +4462,7 @@
     {
       "name": "ClientResourceAccessActionNode",
       "base": "ActionNode",
-      "kind": "RESOURCE_METHOD_CALL_ACTION",
+      "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
       "attributes": [
         {
           "name": "expression",
@@ -4452,6 +4536,402 @@
         },
         {
           "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReSequenceNode",
+      "base": "Node",
+      "kind": "RE_SEQUENCE",
+      "attributes": [
+        {
+          "name": "reTerm",
+          "type": "ReTermNode",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ReTermNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "ReAtomQuantifierNode",
+      "base": "ReTermNode",
+      "kind": "RE_ATOM_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "reAtom",
+          "type": "Node"
+        },
+        {
+          "name": "reQuantifier",
+          "type": "ReQuantifierNode",
+          "isOptional": "true"
+        }
+      ]
+    },
+    {
+      "name": "ReAtomCharOrEscapeNode",
+      "base": "Node",
+      "kind": "RE_CHAR_ESCAPE",
+      "attributes": [
+        {
+          "name": "reAtomCharOrEscape",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReQuoteEscapeNode",
+      "base": "Node",
+      "kind": "RE_QUOTE_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "reSyntaxChar",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReSimpleCharClassEscapeNode",
+      "base": "Node",
+      "kind": "RE_SIMPLE_CHAR_CLASS_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "reSimpleCharClassCode",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodePropertyEscapeNode",
+      "base": "Node",
+      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+      "attributes": [
+        {
+          "name": "slashToken",
+          "type": "Token"
+        },
+        {
+          "name": "property",
+          "type": "Node"
+        },
+        {
+          "name": "openBraceToken",
+          "type": "Token"
+        },
+        {
+          "name": "reUnicodeProperty",
+          "type": "ReUnicodePropertyNode"
+        },
+        {
+          "name": "closeBraceToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodePropertyNode",
+      "base": "Node",
+      "isAbstract": true
+    },
+    {
+      "name": "ReUnicodeScriptNode",
+      "base": "ReUnicodePropertyNode",
+      "kind": "RE_UNICODE_SCRIPT",
+      "attributes": [
+        {
+          "name": "scriptStart",
+          "type": "Node"
+        },
+        {
+          "name": "reUnicodePropertyValue",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReUnicodeGeneralCategoryNode",
+      "base": "ReUnicodePropertyNode",
+      "kind": "RE_UNICODE_GENERAL_CATEGORY",
+      "attributes": [
+        {
+          "name": "categoryStart",
+          "type": "Node",
+          "isOptional": true
+        },
+        {
+          "name": "reUnicodeGeneralCategoryName",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharacterClassNode",
+      "base": "Node",
+      "kind": "RE_CHARACTER_CLASS",
+      "attributes": [
+        {
+          "name": "openBracket",
+          "type": "Token"
+        },
+        {
+          "name": "negation",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        },
+        {
+          "name": "closeBracket",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeWithReCharSetNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET",
+      "attributes": [
+        {
+          "name": "reCharSetRange",
+          "type": "ReCharSetRangeNode"
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE",
+      "attributes": [
+        {
+          "name": "lhsReCharSetAtom",
+          "type": "Node"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token"
+        },
+        {
+          "name": "rhsReCharSetAtom",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetAtomWithReCharSetNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtom",
+          "type": "Node"
+        },
+        {
+          "name": "reCharSetNoDash",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNoDashWithReCharSetNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET",
+      "attributes": [
+        {
+          "name": "reCharSetRangeNoDash",
+          "type": "ReCharSetRangeNoDashNode"
+        },
+        {
+          "name": "reCharSet",
+          "type": "Node",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetRangeNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_RANGE_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtomNoDash",
+          "type": "Node"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token"
+        },
+        {
+          "name": "reCharSetAtom",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCharSetAtomNoDashWithReCharSetNoDashNode",
+      "base": "Node",
+      "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+      "attributes": [
+        {
+          "name": "reCharSetAtomNoDash",
+          "type": "Node"
+        },
+        {
+          "name": "reCharSetNoDash",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReCapturingGroupsNode",
+      "base": "Node",
+      "kind": "RE_CAPTURING_GROUP",
+      "attributes": [
+        {
+          "name": "openParenthesis",
+          "type": "Token"
+        },
+        {
+          "name": "reFlagExpression",
+          "type": "ReFlagExpressionNode",
+          "isOptional": true
+        },
+        {
+          "name": "reSequences",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "closeParenthesis",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReFlagExpressionNode",
+      "base": "Node",
+      "kind": "RE_FLAG_EXPR",
+      "attributes": [
+        {
+          "name": "questionMark",
+          "type": "Token"
+        },
+        {
+          "name": "reFlagsOnOff",
+          "type": "ReFlagsOnOffNode"
+        },
+        {
+          "name": "colon",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ReFlagsOnOffNode",
+      "base": "Node",
+      "kind": "RE_FLAGS_ON_OFF",
+      "attributes": [
+        {
+          "name": "lhsReFlags",
+          "type": "ReFlagsNode"
+        },
+        {
+          "name": "minusToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "rhsReFlags",
+          "type": "ReFlagsNode",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReFlagsNode",
+      "base": "Node",
+      "kind": "RE_FLAGS",
+      "attributes": [
+        {
+          "name": "reFlag",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ReAssertionNode",
+      "base": "ReTermNode",
+      "kind": "RE_ASSERTION",
+      "attributes": [
+        {
+          "name": "reAssertion",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ReQuantifierNode",
+      "base": "Node",
+      "kind": "RE_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "reBaseQuantifier",
+          "type": "Node"
+        },
+        {
+          "name": "nonGreedyChar",
+          "type": "Token",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ReBracedQuantifierNode",
+      "base": "Node",
+      "kind": "RE_BRACED_QUANTIFIER",
+      "attributes": [
+        {
+          "name": "openBraceToken",
+          "type": "Token"
+        },
+        {
+          "name": "leastTimesMatchedDigit",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "commaToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "mostTimesMatchedDigit",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "closeBraceToken",
           "type": "Token"
         }
       ]

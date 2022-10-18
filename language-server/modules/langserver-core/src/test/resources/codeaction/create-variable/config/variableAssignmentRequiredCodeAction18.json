@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "function (string x, string y, int... args) returns () functionResult \u003d "
+          "newText": "function (string x, string y, int... args) returns () functionResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          165
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

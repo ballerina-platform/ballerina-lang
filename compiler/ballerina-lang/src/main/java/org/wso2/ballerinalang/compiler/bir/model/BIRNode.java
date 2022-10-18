@@ -30,9 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -323,7 +321,7 @@ public abstract class BIRNode {
         /**
          * Variable used for parameters of this function.
          */
-        public Map<BIRFunctionParameter, List<BIRBasicBlock>>  parameters;
+        public List<BIRFunctionParameter>  parameters;
 
         /**
          * List of basic blocks in this function.
@@ -366,7 +364,7 @@ public abstract class BIRNode {
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
                            BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,
-                           BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                           BIRVariableDcl returnVariable, List<BIRFunctionParameter> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
@@ -402,7 +400,7 @@ public abstract class BIRNode {
             this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
-            this.parameters = new LinkedHashMap<>();
+            this.parameters = new ArrayList<>();
             this.requiredParams = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();

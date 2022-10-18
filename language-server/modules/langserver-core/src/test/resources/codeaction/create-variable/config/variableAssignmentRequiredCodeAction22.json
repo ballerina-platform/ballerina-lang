@@ -6,7 +6,7 @@
   "source": "createVariable4.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027int[][]\u0027",
+      "title": "Create variable with 'int[][]'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "int[][] listResult \u003d "
+          "newText": "int[][] listResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable4.bal",
+          111
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

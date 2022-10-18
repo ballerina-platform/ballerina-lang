@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "int|float number \u003d "
+          "newText": "int|float number = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithUnionType.bal",
+          97
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

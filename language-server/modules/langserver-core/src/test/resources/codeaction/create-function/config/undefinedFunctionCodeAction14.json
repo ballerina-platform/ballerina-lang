@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction printField(int i) {\n    \n}\n"
+          "newText": "\n\nfunction printField(int i) {\n    \n}"
         }
       ],
       "resolvable": true,

@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -42,109 +43,37 @@ public class MatchStmtConstPatternTest {
                 "-semantics.bal");
     }
 
-    @Test
-    public void testConstPattern1() {
-        BRunUtil.invoke(result, "testConstPattern1");
+    @DataProvider
+    public Object[] constPatternList() {
+        return new Object[] {
+                "testConstPattern1",
+                "testConstPattern2",
+                "testConstPattern3",
+                "testConstPattern4",
+                "testConstPattern5",
+                "testConstPattern6",
+                "testConstPattern7",
+                "testConstPattern8",
+                "testConstPattern9",
+                "testConstPattern10",
+                "testConstPattern11",
+                "testConstPattern12",
+                "testConstPattern13",
+                "testConstPattern14",
+                "testConstPattern15",
+                "testConstPattern16",
+                "testConstPattern17",
+                "testConstPattern18",
+                "testConstPattern19",
+                "testConstPattern20",
+                "testConstPatternWithNegativeLiteral",
+                "testConstPatternWithPredeclaredPrefix"
+        };
     }
 
-    @Test
-    public void testConstPattern2() {
-        BRunUtil.invoke(result, "testConstPattern2");
-    }
-
-    @Test
-    public void testConstPattern3() {
-        BRunUtil.invoke(result, "testConstPattern3");
-    }
-
-    @Test
-    public void testConstPattern4() {
-        BRunUtil.invoke(result, "testConstPattern4");
-    }
-
-    @Test
-    public void testConstPattern5() {
-        BRunUtil.invoke(result, "testConstPattern5");
-    }
-
-    @Test
-    public void testConstPattern6() {
-        BRunUtil.invoke(result, "testConstPattern6");
-    }
-
-    @Test
-    public void testConstPattern7() {
-        BRunUtil.invoke(result, "testConstPattern7");
-    }
-
-    @Test
-    public void testConstPattern8() {
-        BRunUtil.invoke(result, "testConstPattern8");
-    }
-
-    @Test
-    public void testConstPattern9() {
-        BRunUtil.invoke(result, "testConstPattern9");
-    }
-
-    @Test
-    public void testConstPattern10() {
-        BRunUtil.invoke(result, "testConstPattern10");
-    }
-
-    @Test
-    public void testConstPattern11() {
-        BRunUtil.invoke(result, "testConstPattern11");
-    }
-
-    @Test
-    public void testConstPattern12() {
-        BRunUtil.invoke(result, "testConstPattern12");
-    }
-
-    @Test
-    public void testConstPattern13() {
-        BRunUtil.invoke(result, "testConstPattern13");
-    }
-
-    @Test
-    public void testConstPattern14() {
-        BRunUtil.invoke(result, "testConstPattern14");
-    }
-
-    @Test
-    public void testConstPattern15() {
-        BRunUtil.invoke(result, "testConstPattern15");
-    }
-
-    @Test
-    public void testConstPattern16() {
-        BRunUtil.invoke(result, "testConstPattern16");
-    }
-
-    @Test
-    public void testConstPattern17() {
-        BRunUtil.invoke(result, "testConstPattern17");
-    }
-
-    @Test
-    public void testConstPattern18() {
-        BRunUtil.invoke(result, "testConstPattern18");
-    }
-
-    @Test
-    public void testConstPattern19() {
-        BRunUtil.invoke(result, "testConstPattern19");
-    }
-
-    @Test
-    public void testConstPatternWithNegativeLiteral() {
-        BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
-    }
-
-    @Test
-    public void testConstPatternWithPredeclaredPrefix() {
-        BRunUtil.invoke(result, "testConstPatternWithPredeclaredPrefix");
+    @Test(dataProvider = "constPatternList")
+    public void testConstPatterns(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
     @Test(description = "Test pattern will not be matched")

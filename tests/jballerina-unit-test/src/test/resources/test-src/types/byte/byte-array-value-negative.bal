@@ -17,3 +17,24 @@ function base64InvalidLiteralTest() {
     byte[] f = base64 `afcd341a4bdfaaabmcfccadabcd89 12df ss==`;
     byte[] g = base64 `afcd34abcdef123aGc2?>><*&*^&34bcd1a4bdfABbadaBCd892s3as==`;
 }
+
+function byteArrayLiteralTypeTest() {
+    byte[2] a = base16 `aa bb`;
+    byte[3] b = base16 `aa bb`;             // error
+    int[3] c = base16 `aa bb`;              // error
+    byte[*] d = base16 `aa bb`;
+    int[*] e = base16 `aa bb`;
+
+    byte[2] f = base64 `aa bb`;             // error
+    byte[3] g = base64 `aa bb`;
+    int[2] h = base64 `aa bb`;              // error
+    byte[*] i = base64 `aa bb`;
+    int[*] j = base64 `aa bb`;
+    byte[] k = <byte[3] & readonly>base16 `aa bb`; // error
+    int[] l = <int[2] & readonly>base64 `aa bb`; // error
+    string[] m = <string[] & readonly>base64 `aa bb`; // error
+
+    var n = base16 `aa bb`;
+    byte[2] _ = n;
+    byte[3] _ = n;                          // error
+}

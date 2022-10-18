@@ -203,6 +203,11 @@ public class QueryActionTest {
         };
     }
 
+    @Test
+    public void testQueryWithOptionalFieldRecord() {
+        BRunUtil.invoke(result, "testQueryWithOptionalFieldRecord");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

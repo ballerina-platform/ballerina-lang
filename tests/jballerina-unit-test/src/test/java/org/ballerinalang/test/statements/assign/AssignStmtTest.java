@@ -215,24 +215,27 @@ public class AssignStmtTest {
                 "found 'table<record {| |}>'", 138, 11);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
                 "found 'table<record {| |}>'", 141, 12);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid operation: type 'record {| int b?; anydata...; |}[1]?' does not support member access",
+                153, 5);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo', " +
-                "found 'float'", 147, 13);
+                "found 'float'", 159, 13);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 155, 14);
+                "found 'int'", 167, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 156, 14);
+                "found 'int'", 168, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 157, 14);
+                "found 'int'", 169, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 158, 14);
+                "found 'int'", 170, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 160, 14);
+                "found 'int'", 172, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 170, 14);
+                "found 'float'", 182, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 171, 14);
+                "found 'float'", 183, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 172, 14);
+                "found 'float'", 184, 14);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -317,6 +320,14 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 29, 14);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'error?', found 'typedesc<Foo>'",
                 29, 14);
+    }
+
+    @Test
+    public void testOptionalFieldAssignment() {
+        BRunUtil.invoke(result, "testOptionalFieldAssignment1");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment2");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment3");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment4");
     }
 
     @AfterClass

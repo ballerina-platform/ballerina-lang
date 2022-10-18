@@ -53,6 +53,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CREATOR_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ERROR_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
@@ -166,13 +167,13 @@ public class JvmErrorCreatorGen {
                             CREATE_ERROR, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }

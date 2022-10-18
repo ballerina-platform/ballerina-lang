@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -50,6 +51,7 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.HashMap;
@@ -942,6 +944,10 @@ public class TypeConverter {
         sb.append("<root>").append(value).append("</root>");
         BXml item = XmlUtils.parse(sb.toString());
         return item.children();
+    }
+
+    public static RegExpValue stringToRegExp(String value) throws BError {
+        return RegExpFactory.parse(value);
     }
 
     public static BString anyToChar(Object sourceVal) {

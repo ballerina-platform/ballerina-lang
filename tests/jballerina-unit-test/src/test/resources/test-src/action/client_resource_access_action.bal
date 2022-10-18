@@ -21,6 +21,18 @@ client class MyClient {
     resource function post .() returns int {
         return 2;
     }
+
+    resource function value .(int a = 10) returns int {
+            return a;
+    }
+
+    resource function value1 .(int a = 10, int b = 20) returns int {
+            return a + b;
+    }
+
+    resource function value2 .(int a = 10, int b = 20, int c = b) returns int {
+                return a + b + c;
+    }
     
     resource function get books/names() returns string[2] {
         return ["book1", "book2"];
@@ -42,6 +54,18 @@ function testBasicClientResourceAccess() {
     
     int b1 = myClient->/.post;
     assertEquality(b1, 2);
+
+    int b2 = myClient->/.value();
+    assertEquality(b2, 10);
+
+    int b3 = myClient->/.value1();
+    assertEquality(b3, 30);
+
+    int b4 = myClient->/.value1(15);
+    assertEquality(b4, 35);
+
+    int b5 = myClient->/.value2();
+    assertEquality(b5, 50);
     
     int c = myClient->/.get();
     assertEquality(c, 3);
