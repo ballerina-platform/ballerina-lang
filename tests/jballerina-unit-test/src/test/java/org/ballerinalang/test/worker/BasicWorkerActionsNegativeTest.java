@@ -31,8 +31,8 @@ public class BasicWorkerActionsNegativeTest {
     public void testWorkerActionsSemanticsNegative() {
         int index = 0;
         CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/workers/actions-semantics-negative.bal");
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 10, "Worker actions semantics negative test error" +
-                " count");
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 10, "Worker actions semantics negative test " +
+                "error count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid type for worker send 'Person', expected value:Cloneable", 42, 9);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
@@ -132,16 +132,5 @@ public class BasicWorkerActionsNegativeTest {
     private String formatMessage(String workerName) {
         return String.format(
                 "multiple references to a named worker '%s' as a variable reference is not allowed", workerName);
-    }
-
-    @Test(enabled = false)
-    public void testAsyncSendAsExpression() {
-        // TODO: support async send as expression issue #24849
-        CompileResult compileResult = BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
-        int index = 0;
-        BAssertUtil.validateError(compileResult, index++, "async send action not yet supported as expression",
-                19, 16);
-
-        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

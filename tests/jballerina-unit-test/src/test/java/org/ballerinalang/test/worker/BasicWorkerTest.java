@@ -35,11 +35,16 @@ import java.util.Arrays;
 public class BasicWorkerTest {
 
     private CompileResult result;
+    private CompileResult asyncSendResult;
 
     @BeforeClass
     public void setup() {
         this.result = BCompileUtil.compile("test-src/workers/basic-worker-actions.bal");
         Assert.assertEquals(result.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
+
+        this.asyncSendResult =
+                BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
+        Assert.assertEquals(asyncSendResult.getErrorCount(), 0, Arrays.asList(result.getDiagnostics()).toString());
     }
 
     @Test
@@ -126,6 +131,19 @@ public class BasicWorkerTest {
         return new Object[]{
                 "testWorkerMessagePassingRepeatedly",
                 "testPanicWithMessagePassing"
+        };
+    }
+
+    @Test(dataProvider = "asyncSendAsExpressionFunctions")
+    public void testAsyncSendAsExpression(String funcName) {
+        BRunUtil.invoke(asyncSendResult, funcName);
+    }
+
+    @DataProvider(name = "asyncSendAsExpressionFunctions")
+    public Object[] asyncSendAsExpressionFunctions() {
+        return new Object[]{
+                "testAsyncSendAsExpressionReturnType",
+                "testAsyncSendAsExpressionWithPanic"
         };
     }
 

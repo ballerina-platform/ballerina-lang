@@ -14,12 +14,51 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function foo() {
+function testAsyncSendAsExpressionReturnType() {
     worker w1 {
         () a = 5 -> w2;
+        assertValueEquality(a, ());
+
+        var b = "Foo" -> w2;
+        assertValueEquality(b, ());
     }
 
     worker w2 {
-        int a = <- w1;
+        int x = <- w1;
+        assertValueEquality(5, x);
+
+        string y = <- w1;
+        assertValueEquality("Foo", y);
     }
+
+    _ = wait {w1, w2};
+}
+
+function testAsyncSendAsExpressionWithPanic() {
+    worker w1 {
+        () a = 5 -> w2;
+        () b = 15 -> w2;
+        assertValueEquality(b, ());
+    }
+
+    worker w2 returns error? {
+        int x = <- w1;
+        if (x == 5) {
+            return error("This is an error");
+        }
+        x = <- w1;
+    }
+
+     map<error??> mapResult = wait {w1, w2};
+}
+
+type AssertionError distinct error;
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertValueEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
