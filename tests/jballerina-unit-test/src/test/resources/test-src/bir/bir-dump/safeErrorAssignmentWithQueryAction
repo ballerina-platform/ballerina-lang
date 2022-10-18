@@ -8,48 +8,46 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
     %13(LOCAL) int;
     %15(SYNTHETIC) ();
     %16(SYNTHETIC) error|();
-    %22(SYNTHETIC) error;
+    %28(SYNTHETIC) int;
     %29(SYNTHETIC) int;
-    %30(SYNTHETIC) int;
-    %31(SYNTHETIC) int|error;
-    %40(SYNTHETIC) ();
-    %41(SYNTHETIC) error|();
-    %42(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
-    %44(SYNTHETIC) int;
-    %46(SYNTHETIC) int;
-    %50(TEMP) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
-    %51(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %52(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
-    %54(SYNTHETIC) typeDesc<error|()>;
-    %56(SYNTHETIC) typeDesc<error|()>;
-    %62(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %63(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> ballerina/lang.query:0.0.0:_Frame|error|();
-    %67(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %69(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %73(TEMP) ();
-    %74(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %75(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> any|error;
-    %79(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %81(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %85(TEMP) ();
-    %86(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
-    %87(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %91(SYNTHETIC) error|();
-    %93(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
-    %96(TEMP) any|error{map<ballerina/lang.value:0.0.0:Cloneable>};
-    %99(TEMP) boolean;
-    %110(SYNTHETIC) ();
-    %111(SYNTHETIC) typeRefDesc<>|();
-    %120(SYNTHETIC) ();
-    %121(SYNTHETIC) error{map<ballerina/lang.value:0.0.0:Cloneable>}|();
-    %127(SYNTHETIC) error;
-    %130(LOCAL) string;
-    %132(SYNTHETIC) ();
-    %133(SYNTHETIC) error|();
-    %142(SYNTHETIC) ();
-    %143(SYNTHETIC) Error|();
-    %153(SYNTHETIC) ();
-    %154(SYNTHETIC) Error|();
+    %30(SYNTHETIC) int|error;
+    %39(SYNTHETIC) ();
+    %40(SYNTHETIC) error|();
+    %41(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %43(SYNTHETIC) int;
+    %45(SYNTHETIC) int;
+    %49(TEMP) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %50(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %51(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %53(SYNTHETIC) typeDesc<error|()>;
+    %55(SYNTHETIC) typeDesc<error|()>;
+    %61(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %62(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> ballerina/lang.query:0.0.0:_Frame|error|();
+    %66(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %68(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %72(TEMP) ();
+    %73(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %74(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> any|error;
+    %78(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %80(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %84(TEMP) ();
+    %85(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
+    %86(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %90(SYNTHETIC) error|();
+    %92(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
+    %95(TEMP) any|error{map<ballerina/lang.value:0.0.0:Cloneable>};
+    %98(TEMP) boolean;
+    %109(SYNTHETIC) ();
+    %110(SYNTHETIC) typeRefDesc<>|();
+    %119(SYNTHETIC) ();
+    %120(SYNTHETIC) error{map<ballerina/lang.value:0.0.0:Cloneable>}|();
+    %128(LOCAL) string;
+    %130(SYNTHETIC) ();
+    %131(SYNTHETIC) error|();
+    %140(SYNTHETIC) ();
+    %141(SYNTHETIC) Error|();
+    %151(SYNTHETIC) ();
+    %152(SYNTHETIC) Error|();
 
     bb0 {
         %2 = foo() -> bb1;
@@ -80,8 +78,8 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
         GOTO bb8;
     }
     bb7 {
-        %22 = <error> %16;
-        %0 = %22;
+        %8 = <error> %16;
+        %0 = %8;
         GOTO bb47;
     }
     bb8 {
@@ -89,156 +87,156 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
         GOTO bb47;
     }
     bb9 {
-        %31 = bar() -> bb10;
+        %30 = bar() -> bb10;
     }
     bb10 {
-        %4 = %31 is int;
+        %4 = %30 is int;
         %4? bb11 : bb12;
     }
     bb11 {
-        %30 = <int> %31;
+        %29 = <int> %30;
         GOTO bb13;
     }
     bb12 {
-        %8 = <error> %31;
+        %8 = <error> %30;
         GOTO bb4;
     }
     bb13 {
-        %29 = %30;
-        %44 = ConstLoad 1;
-        %46 = ConstLoad 2;
-        %50 = createIntRange(%44, %46) -> bb14;
+        %28 = %29;
+        %43 = ConstLoad 1;
+        %45 = ConstLoad 2;
+        %49 = createIntRange(%43, %45) -> bb14;
     }
     bb14 {
-        %42 = <ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0> %50;
-        %52 = %42;
-        %54 = newType error|();
-        %56 = newType error|();
-        %51 = createPipeline(%52, %54, %56) -> bb15;
+        %41 = <ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0> %49;
+        %51 = %41;
+        %53 = newType error|();
+        %55 = newType error|();
+        %50 = createPipeline(%51, %53, %55) -> bb15;
     }
     bb15 {
-        %63 = fp $anon/.:0.0.0::$streamLambda$_0;
-        %62 = createInputFunction(%63) -> bb16;
+        %62 = fp $anon/.:0.0.0::$streamLambda$_0;
+        %61 = createInputFunction(%62) -> bb16;
     }
     bb16 {
-        %67 = %51;
-        %69 = %62;
-        %73 = addStreamFunction(%67, %69) -> bb17;
+        %66 = %50;
+        %68 = %61;
+        %72 = addStreamFunction(%66, %68) -> bb17;
     }
     bb17 {
-        %75 = fp $anon/.:0.0.0::$streamLambda$_1;
-        %74 = createDoFunction(%75) -> bb18;
+        %74 = fp $anon/.:0.0.0::$streamLambda$_1;
+        %73 = createDoFunction(%74) -> bb18;
     }
     bb18 {
-        %79 = %51;
-        %81 = %74;
-        %85 = addStreamFunction(%79, %81) -> bb19;
+        %78 = %50;
+        %80 = %73;
+        %84 = addStreamFunction(%78, %80) -> bb19;
     }
     bb19 {
-        %87 = %51;
-        %86 = getStreamFromPipeline(%87) -> bb20;
+        %86 = %50;
+        %85 = getStreamFromPipeline(%86) -> bb20;
     }
     bb20 {
-        %93 = %86;
-        %96 = consumeStream(%93) -> bb21;
+        %92 = %85;
+        %95 = consumeStream(%92) -> bb21;
     }
     bb21 {
-        %91 = <error|()> %96;
-        %4 = %91 is ();
-        %99 = not %4;
-        %99? bb22 : bb23;
+        %90 = <error|()> %95;
+        %4 = %90 is ();
+        %98 = not %4;
+        %98? bb22 : bb23;
     }
     bb22 {
-        %0 = %91;
+        %0 = %90;
         GOTO bb47;
     }
     bb23 {
-        %41 = <error|()> %91;
-        %4 = %41 is ();
+        %40 = <error|()> %90;
+        %4 = %40 is ();
         %4? bb24 : bb25;
     }
     bb24 {
-        %40 = <()> %41;
+        %39 = <()> %40;
         GOTO bb26;
     }
     bb25 {
-        %8 = <error> %41;
+        %8 = <error> %40;
         GOTO bb4;
     }
     bb26 {
-        %111 = baz() -> bb27;
+        %110 = baz() -> bb27;
     }
     bb27 {
-        %99 = %111 is ();
-        %99? bb28 : bb29;
+        %98 = %110 is ();
+        %98? bb28 : bb29;
     }
     bb28 {
-        %110 = <()> %111;
+        %109 = <()> %110;
         GOTO bb30;
     }
     bb29 {
-        %8 = <error> %111;
+        %8 = <error> %110;
         GOTO bb4;
     }
     bb30 {
-        %121 = foo() -> bb31;
+        %120 = foo() -> bb31;
     }
     bb31 {
-        %4 = %121 is ();
+        %4 = %120 is ();
         %4? bb32 : bb33;
     }
     bb32 {
-        %120 = <()> %121;
+        %119 = <()> %120;
         GOTO bb42;
     }
     bb33 {
-        %127 = <error> %121;
+        %8 = <error> %120;
         GOTO bb34;
     }
     bb34 {
-        %130 = ConstLoad abc;
-        %133 = foo() -> bb35;
+        %128 = ConstLoad abc;
+        %131 = foo() -> bb35;
     }
     bb35 {
-        %99 = %133 is ();
-        %99? bb36 : bb37;
+        %98 = %131 is ();
+        %98? bb36 : bb37;
     }
     bb36 {
-        %132 = <()> %133;
+        %130 = <()> %131;
         GOTO bb38;
     }
     bb37 {
-        %8 = <error> %133;
+        %8 = <error> %131;
         GOTO bb4;
     }
     bb38 {
-        %143 = baz() -> bb39;
+        %141 = baz() -> bb39;
     }
     bb39 {
-        %4 = %143 is ();
+        %4 = %141 is ();
         %4? bb40 : bb41;
     }
     bb40 {
-        %142 = <()> %143;
+        %140 = <()> %141;
         GOTO bb46;
     }
     bb41 {
-        %8 = <error> %143;
+        %8 = <error> %141;
         GOTO bb4;
     }
     bb42 {
-        %154 = baz() -> bb43;
+        %152 = baz() -> bb43;
     }
     bb43 {
-        %99 = %154 is ();
-        %99? bb44 : bb45;
+        %98 = %152 is ();
+        %98? bb44 : bb45;
     }
     bb44 {
-        %153 = <()> %154;
+        %151 = <()> %152;
         GOTO bb46;
     }
     bb45 {
-        %127 = <error> %154;
+        %8 = <error> %152;
         GOTO bb34;
     }
     bb46 {

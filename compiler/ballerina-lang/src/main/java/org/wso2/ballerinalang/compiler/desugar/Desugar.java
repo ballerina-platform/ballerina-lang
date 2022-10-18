@@ -424,7 +424,7 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
-    private final Map<BLangOnFailClause, BVarSymbol> onFailClauseErrorVariable = new HashMap<>();
+    private final Map<BSymbol, BVarSymbol> syntheticErrorVariableByInvokableSymbol = new HashMap<>();
     private final Map<BLangOnFailClause, BLangFail> bLangFailNodeByOnFailClause = new HashMap<>();
     private final Map<BLangFail, BLangBlockStmt> blockStmtByFailNode = new HashMap<>();
     // Reuse the strand annotation in isolated workers and start action
@@ -9364,16 +9364,9 @@ public class Desugar extends BLangNodeVisitor {
                         .anyMatch(retType -> types.isAssignable(errorType, retType)));
 
         String patternFailureCaseVarName = GEN_VAR_PREFIX.value + "t_failure";
-        BVarSymbol errorVarSymbol;
-        if (!isCheckPanicExpr && this.onFailClause != null && invokableSymbol.origin != VIRTUAL) {
-            errorVarSymbol = onFailClauseErrorVariable.computeIfAbsent(this.onFailClause,
-                    k -> new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
-                            this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL));
-        } else {
-            errorVarSymbol = new BVarSymbol(0, names.fromString(patternFailureCaseVarName),
-                    this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL);
-        }
-
+        BVarSymbol errorVarSymbol = syntheticErrorVariableByInvokableSymbol.computeIfAbsent(invokableSymbol,
+                k -> new BVarSymbol(0, Names.fromString(patternFailureCaseVarName),
+                        this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner, null, VIRTUAL));
         BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(location, patternFailureCaseVarName,
                 symTable.errorType, createTypeCastExpr(ref, symTable.errorType), errorVarSymbol);
 
