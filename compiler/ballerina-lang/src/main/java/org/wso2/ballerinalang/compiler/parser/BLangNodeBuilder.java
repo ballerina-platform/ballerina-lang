@@ -794,9 +794,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!param.name.value.equals(Names.EMPTY.value)) {
                         params.add(param);
                         bLFunction.addPathParam(param);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^"));
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$*"));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
                     }
 
                     tupleTypeNode.memberTypeNodes.add(param.typeNode);
@@ -806,9 +806,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^^"));
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$**"));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^^"));
                     }
                     
                     tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
@@ -839,10 +839,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 case SLASH_TOKEN:
                     continue;
                 case RESOURCE_PATH_SEGMENT_PARAM:
-                    sb.append("$*");
+                    sb.append("$^");
                     break;
                 case RESOURCE_PATH_REST_PARAM:
-                    sb.append("$**");
+                    sb.append("$^^");
                     break;
                 default:
                     sb.append("$");
@@ -4431,7 +4431,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             listConstructorExpr.pos = getPosition(clientResourceAccessActionNode.slashToken());
         } else {
             listConstructorExpr.pos = 
-                    getPosition(resourceAccessPath.get(0), resourceAccessPath.get(pathSegments.size() - 1));
+                    getPosition(clientResourceAccessActionNode.slashToken(), 
+                            resourceAccessPath.get(pathSegments.size() - 1));
         }
         
         resourceInvocation.resourceAccessPathSegments = listConstructorExpr;

@@ -128,17 +128,17 @@ class BallerinaPackageResolver {
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
 
         // Avoids pulling from central if the package version already available in the local repo.
-        Path packagePathInLocalRepo = centralCachePath.resolve(orgName).resolve(pkgName);
+        Path packagePathInLocalRepo = localRepoPath.resolve(orgName).resolve(pkgName).resolve(version.toString());
         if (Files.exists(packagePathInLocalRepo) && Files.isDirectory(packagePathInLocalRepo)) {
-            LOGGER.debug("target version: " + version.toString() + "is already available in local repository");
-            ProjectUtils.getPackagePath(localRepoPath, orgName, pkgName, version.toString());
+            LOGGER.debug("target version: " + version + "is already available in local repository");
+            return ProjectUtils.getPackagePath(localRepoPath, orgName, pkgName, version.toString());
         }
 
         // Avoids pulling from central if the package version already available in the local central cache.
-        Path packagePathInCentralCache = centralCachePath.resolve(orgName).resolve(pkgName);
+        Path packagePathInCentralCache = centralCachePath.resolve(orgName).resolve(pkgName).resolve(version.toString());
         if (Files.exists(packagePathInCentralCache) && Files.isDirectory(packagePathInCentralCache)) {
-            LOGGER.debug("target version: " + version.toString() + "is already available in central repository cache");
-            ProjectUtils.getPackagePath(centralCachePath, orgName, pkgName, version.toString());
+            LOGGER.debug("target version: " + version + "is already available in central repository cache");
+            return ProjectUtils.getPackagePath(centralCachePath, orgName, pkgName, version.toString());
         }
 
         outStream.printf("resolving package '%s/%s:%s'...%n", orgName, pkgName, version);

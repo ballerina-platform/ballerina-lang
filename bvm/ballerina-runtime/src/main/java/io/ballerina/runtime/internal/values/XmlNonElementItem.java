@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
 
 import java.io.ByteArrayOutputStream;
@@ -41,6 +43,8 @@ import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
  * @since 1.2.0
  */
 public abstract class XmlNonElementItem extends XmlValue implements BXmlNonElementItem {
+
+    OMFactory factory = OMAbstractFactory.getOMFactory();
 
     @Override
     public boolean isSingleton() {
