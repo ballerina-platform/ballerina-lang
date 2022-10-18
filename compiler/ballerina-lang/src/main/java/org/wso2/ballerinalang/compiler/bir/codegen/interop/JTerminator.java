@@ -19,29 +19,35 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-
-import java.util.List;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 
 /**
- * Java method invocation call modeled as BIR NonTerminator Instruction.
+ * Java specific terminator definitions.
  *
  * @since 2201.4.0
  */
-public class JMethodCall extends JInstruction {
+public class JTerminator extends BIRTerminator {
 
-    public List<BIROperand> args;
-    public String jClassName;
-    public String jMethodVMSig;
-    public String name;
-    public int invocationType;
+    public JTermKind jTermKind;
 
-    public JMethodCall(Location pos) {
-        super(pos);
-        jKind = JInsKind.CALL;
+    JTerminator(Location pos) {
+        super(pos, InstructionKind.PLATFORM);
+    }
+
+    @Override
+    public void accept(BIRVisitor visitor) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public BIROperand[] getRhsOperands() {
-        return args.toArray(new BIROperand[0]);
+        return new BIROperand[0];
+    }
+
+    @Override
+    public BIRBasicBlock[] getNextBasicBlocks() {
+        return new BIRBasicBlock[0];
     }
 }

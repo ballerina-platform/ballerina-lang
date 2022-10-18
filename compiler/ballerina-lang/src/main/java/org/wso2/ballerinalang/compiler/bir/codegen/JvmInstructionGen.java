@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -613,7 +613,7 @@ public class JvmInstructionGen {
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
         } else if (ins.jKind == JInsKind.CALL) {
-            JMethodCall callIns = (JMethodCall) ins;
+            JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
             boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
             int argIndex = 0;
             String jMethodVMSig = callIns.jMethodVMSig;
