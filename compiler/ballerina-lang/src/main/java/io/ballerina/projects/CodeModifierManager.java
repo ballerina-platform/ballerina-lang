@@ -115,7 +115,8 @@ class CodeModifierManager {
     private void runSourceModifierTask(List<SourceModifierTask> sourceModifierTasks,
                                        Map<SyntaxKind, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTasks,
                                        CodeModifierTaskResultBuilder resultBuilder) {
-        runSyntaxNodeAnalysisTasks(syntaxNodeAnalysisTasks);
+        List<Diagnostic> analysisTaskDiagnostics = runSyntaxNodeAnalysisTasks(syntaxNodeAnalysisTasks);
+        resultBuilder.addDiagnostics(analysisTaskDiagnostics);
 
         for (SourceModifierTask sourceModifierTask : sourceModifierTasks) {
             SourceModifierContextImpl sourceModifyContext = new SourceModifierContextImpl(currentPackage, compilation);

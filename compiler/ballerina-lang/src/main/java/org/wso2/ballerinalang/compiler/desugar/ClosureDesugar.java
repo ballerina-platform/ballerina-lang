@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -94,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -127,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -231,6 +234,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
         this.symResolver = SymbolResolver.getInstance(context);
@@ -1111,6 +1115,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = panicNode;
     }
 
+    @Override
+    public void visit(BLangClientDeclaration clientDeclaration) {
+        this.result = clientDeclaration;
+    }
+
+    @Override
+    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
+        this.result = clientDeclarationStatement;
+    }
+
     public void visit(BLangDo doNode) {
         doNode.body = rewrite(doNode.body, env);
         result = doNode;
@@ -1588,6 +1602,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = dynamicParamExpr;
     }
 
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(this::rewriteExpr);
+        result = regExpTemplateLiteral;
+    }
+
     /**
      * Find the resolved level of the closure variable.
      *
@@ -2026,7 +2048,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (bLangBlockStmt.isLetExpr) {
                 // In let expression's object constructor expression, the function block already has an OCE mapSymbol,
                 // which should be propagated to block statement's mapSymbol.
-                if (bLangBlockStmt.mapSymbol == null && bLangStatementExpression.getBType().tag == TypeTags.OBJECT
+                if (bLangBlockStmt.mapSymbol == null
+                        && Types.getReferredType(bLangStatementExpression.getBType()).tag == TypeTags.OBJECT
                         && env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     bLangBlockStmt.mapSymbol = ((BLangBlockFunctionBody) env.node).mapSymbol;
                 }

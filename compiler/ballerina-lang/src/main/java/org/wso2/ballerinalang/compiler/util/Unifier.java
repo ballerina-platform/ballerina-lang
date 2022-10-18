@@ -1086,6 +1086,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.FUTURE:
                 return refersInferableParamName(paramsWithInferredTypedescDefault, ((BFutureType) type).constraint,
                                                 unresolvedTypes);
+            case TypeTags.TYPEREFDESC:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, Types.getReferredType(type),
+                        unresolvedTypes);
         }
         return false;
     }

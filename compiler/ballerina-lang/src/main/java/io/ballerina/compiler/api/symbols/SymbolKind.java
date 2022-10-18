@@ -33,6 +33,7 @@ public enum SymbolKind {
     TYPE,
     VARIABLE,
     SERVICE_DECLARATION,
+    CLIENT_DECLARATION,
     CLASS,
     WORKER,
     ANNOTATION,
@@ -42,5 +43,6 @@ public enum SymbolKind {
     ENUM,
     ENUM_MEMBER,
     PARAMETER,
-    PATH_PARAMETER
+    PATH_PARAMETER,
+    ANNOTATION_ATTACHMENT
 }

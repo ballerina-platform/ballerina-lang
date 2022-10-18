@@ -53,6 +53,7 @@ public enum SymbolKind {
     TYPEOF_OPERATOR,
 
     XMLNS,
+    CLIENT_DECL,
     SCOPE,
     OTHER,
 

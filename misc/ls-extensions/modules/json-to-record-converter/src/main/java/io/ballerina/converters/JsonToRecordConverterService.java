@@ -60,20 +60,22 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             String recordName = request.getRecordName();
             boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
             boolean isClosed = request.getIsClosed();
+            boolean forceFormatRecordFields = request.getForceFormatRecordFields();
 
             try {
                 JsonElement parsedJson = JsonParser.parseString(jsonString);
                 if (parsedJson.isJsonObject() && parsedJson.getAsJsonObject().has("$schema")) {
                     try {
                         response.setCodeBlock(JsonToRecordConverter.convert(jsonString, recordName, isRecordTypeDesc,
-                                isClosed).getCodeBlock());
+                                isClosed, forceFormatRecordFields).getCodeBlock());
                     } catch (IOException | JsonToRecordConverterException | FormatterException |
                              NullPointerException e) {
                         DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(null);
                         return DiagnosticUtils.getDiagnosticResponse(List.of(message), response);
                     }
                 } else {
-                    response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed);
+                    response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed,
+                            forceFormatRecordFields);
                 }
             } catch (JsonSyntaxException e) {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});
