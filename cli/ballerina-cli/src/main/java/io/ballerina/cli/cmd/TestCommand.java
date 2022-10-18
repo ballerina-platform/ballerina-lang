@@ -105,6 +105,16 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.nativeImage = nativeImage;
+        this.offline = true;
+    }
+
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
