@@ -76,7 +76,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("native").resolve("winery").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery").toFile().exists());
     }
 
     @Test(description = "Test build valid ballerina file with native image", enabled = false)
