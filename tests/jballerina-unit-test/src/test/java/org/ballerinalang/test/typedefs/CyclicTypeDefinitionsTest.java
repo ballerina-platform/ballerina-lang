@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
  */
 public class CyclicTypeDefinitionsTest {
 
-    private CompileResult unionCompileResult, negativeResult, tupleCompileResult;
+    private CompileResult unionCompileResult, negativeResult, tupleCompileResult, readonlyCompileResult;
     private static final String INVALID_CYCLIC_MESSAGE = "invalid cyclic type reference in '[%s]'";
 
     @BeforeClass
@@ -41,6 +41,7 @@ public class CyclicTypeDefinitionsTest {
         unionCompileResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic.bal");
         negativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
         tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
+        readonlyCompileResult = BCompileUtil.compile("test-src/typedefs/readonly-type-definitions-cyclic.bal");
     }
 
     @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
@@ -90,6 +91,11 @@ public class CyclicTypeDefinitionsTest {
                 {"testIndirectRecursion"},
                 {"testRecursiveTupleTypeDefinitions"}
         };
+    }
+
+    @Test(description = "Positive tests for readonly cyclic type definitions")
+    public void testReadonlyCyclicTypeDef() {
+        BRunUtil.invoke(readonlyCompileResult, "testReadonlyCyclicTypes");
     }
 
     @Test(description = "Negative test cases for cyclic type definitions")

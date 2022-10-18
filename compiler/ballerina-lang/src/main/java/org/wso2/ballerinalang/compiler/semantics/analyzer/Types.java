@@ -1565,8 +1565,12 @@ public class Types {
                 return isInherentlyImmutableType(tableConstraintType) ||
                         isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                if (unionType.getMemberTypes().size() == 0) {
+                    return true;
+                }
                 boolean readonlyIntersectionExists = false;
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                for (BType memberType : (unionType).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
                         readonlyIntersectionExists = true;

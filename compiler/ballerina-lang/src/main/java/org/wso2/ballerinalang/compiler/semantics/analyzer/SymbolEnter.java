@@ -35,6 +35,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -72,6 +73,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -206,6 +208,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
+import static org.ballerinalang.model.tree.NodeKind.USER_DEFINED_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -1530,7 +1533,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
                 NodeKind unresolvedTypeNodeKind = typeDefinition.getTypeNode().getKind();
                 if (fromStructuredType && (unresolvedTypeNodeKind == NodeKind.UNION_TYPE_NODE
-                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE)) {
+                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE
+                        || unresolvedTypeNodeKind == NodeKind.INTERSECTION_TYPE_NODE
+                        || (unresolvedTypeNodeKind == NodeKind.USER_DEFINED_TYPE))) {
                     // Type definitions with tuples and unions are allowed to have cyclic references atm
                     typeDefinition.hasCyclicReference = true;
                     return;
@@ -2025,9 +2030,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
-            default:
+            case INTERSECTION_TYPE_NODE:
+                newTypeNode = new BIntersectionType(null, new LinkedHashSet<>(),
+                        (IntersectableReferenceType) symTable.anyType);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+                break;
+            case UNION_TYPE_NODE:
                 newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+                break;
+            default:
+                newTypeNode = new BAnyType(TypeTags.ANY, null);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
         }
@@ -2053,24 +2071,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        switch (resolvedTypeNodes.tag) {
-            case TypeTags.TUPLE:
-                BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                for (BType member : definedTupleType.getTupleTypes()) {
-                    if (!((BTupleType) newTypeNode).addMembers(member)) {
-                        return constructDependencyListError(typeDef, member);
+        if (typeDef.typeNode.getKind() != USER_DEFINED_TYPE) {
+            switch (resolvedTypeNodes.tag) {
+                case TypeTags.TUPLE:
+                    BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
+                    for (BType member : definedTupleType.getTupleTypes()) {
+                        if (!((BTupleType) newTypeNode).addMembers(member)) {
+                            return constructDependencyListError(typeDef, member);
+                        }
                     }
-                }
-                if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
-                    return constructDependencyListError(typeDef, definedTupleType.restType);
-                }
-                break;
-            default:
-                BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
-                for (BType member : definedUnionType.getMemberTypes()) {
-                    ((BUnionType) newTypeNode).add(member);
-                }
-                break;
+                    if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
+                        return constructDependencyListError(typeDef, definedTupleType.restType);
+                    }
+                    break;
+                case TypeTags.UNION:
+                    BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
+                    for (BType member : definedUnionType.getMemberTypes()) {
+                        ((BUnionType) newTypeNode).add(member);
+                    }
+                    break;
+            }
         }
         typeDef.typeNode.setBType(newTypeNode);
         typeDef.typeNode.getBType().tsymbol.type = newTypeNode;
