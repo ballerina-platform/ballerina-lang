@@ -59,7 +59,6 @@ public class CreateNativeImageTask implements Task {
         this.out.println("Generating GraalVM native image");
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
 
-        Path nativeDirectoryPath;
         String nativeImageName;
         Path executablePath;
         String generatedPath;
@@ -82,7 +81,6 @@ public class CreateNativeImageTask implements Task {
             Target target;
             try {
                 target = new Target(project.targetDir());
-                nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
                 nativeImageName = project.currentPackage().packageName().toString();
                 executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
                 command = new String[] {
@@ -90,10 +88,10 @@ public class CreateNativeImageTask implements Task {
                         "-jar",
                         executablePath.toString(),
                         "-H:Name=" + nativeImageName,
-                        "-H:Path=" + nativeDirectoryPath,
+                        "-H:Path=" + executablePath.getParent(),
                         "--no-fallback"
                 };
-                generatedPath = nativeDirectoryPath + File.separator + nativeImageName;
+                generatedPath = executablePath.getParent() + File.separator + nativeImageName;
             } catch (IOException e) {
                 throw createLauncherException("unable to resolve target path : " + e.getMessage());
             }
