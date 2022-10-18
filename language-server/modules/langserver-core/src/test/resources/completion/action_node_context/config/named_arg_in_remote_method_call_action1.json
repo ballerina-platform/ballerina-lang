@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 5,
-    "character": 55
+    "character": 68
   },
   "source": "action_node_context/source/named_arg_in_remote_method_call_action1.bal",
   "items": [
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "AC",
+      "sortText": "G",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -43,7 +43,7 @@
           "value": ""
         }
       },
-      "sortText": "AH",
+      "sortText": "L",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
@@ -51,7 +51,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "Q",
+      "sortText": "AM",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -62,7 +62,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
-      "sortText": "M",
+      "sortText": "AI",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -73,15 +73,37 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
-      "sortText": "M",
+      "sortText": "AI",
       "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "P",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "R",
+      "insertText": "TargetType2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "Q",
+      "sortText": "AM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -89,7 +111,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "Q",
+      "sortText": "AM",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +119,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "R",
+      "sortText": "AN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +127,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "R",
+      "sortText": "AN",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -134,6 +156,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "R",
+      "insertText": "TargetType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Class",
@@ -151,7 +184,7 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "O",
+      "sortText": "AK",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     },

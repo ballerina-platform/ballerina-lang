@@ -307,7 +307,8 @@ public class SortingUtil {
         if (rawType.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
             Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
             if (optionalSymbol.isPresent() && (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
-                    || optionalSymbol.get().kind() == SymbolKind.TYPE)) {
+                    || optionalSymbol.get().kind() == SymbolKind.TYPE 
+                    || optionalSymbol.get().kind() == SymbolKind.CLASS)) {
                 Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(rawType);
                 if (optionalTypeParamTypeSymbol.isPresent()) {
                     Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
