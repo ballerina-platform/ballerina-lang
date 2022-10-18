@@ -27,6 +27,12 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -69,8 +75,13 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, CodeActionContext context) {
         return diagnostic.diagnosticInfo().code().equals("BCE3934")
-                && context.nodeAtRange().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
-                || context.nodeAtRange().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                && context.currentSemanticModel().isPresent()
+                && context.nodeAtRange().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                || context.nodeAtRange().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                || context.nodeAtRange().parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                || context.nodeAtRange().parent().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                || context.nodeAtRange().parent().parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                || context.nodeAtRange().parent().parent().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -224,8 +235,11 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
     }
 
     private Optional<TypeSymbol> getReturnTypeDescriptorOfMethod(CodeActionContext context) {
+        ActionNodeFinder actionNodeFinder = new ActionNodeFinder();
+        context.nodeAtRange().accept(actionNodeFinder);
+        NonTerminalNode actionNode = actionNodeFinder.actionNode;
         return context.currentSemanticModel()
-                .flatMap(model -> model.symbol(context.nodeAtRange()))
+                .flatMap(model -> model.symbol(actionNode))
                 .filter(symbol -> symbol.kind() == SymbolKind.METHOD || symbol.kind() == SymbolKind.RESOURCE_METHOD)
                 .flatMap(symbol ->
                         symbol.kind() == SymbolKind.METHOD ?
@@ -236,5 +250,33 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
     @Override
     public String getName() {
         return NAME;
+    }
+
+    /**
+     * A visitor to find RemoteMethodCallNodes and ClientResourceAccessActionNodes.
+     */
+    static class ActionNodeFinder extends NodeVisitor {
+
+        private NonTerminalNode actionNode = null;
+
+        @Override
+        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+            simpleNameReferenceNode.parent().accept(this);
+        }
+
+        @Override
+        public void visit(NamedArgumentNode namedArgumentNode) {
+            namedArgumentNode.parent().accept(this);
+        }
+
+        @Override
+        public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+            this.actionNode = remoteMethodCallActionNode;
+        }
+
+        @Override
+        public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+            this.actionNode = clientResourceAccessActionNode;
+        }
     }
 }
