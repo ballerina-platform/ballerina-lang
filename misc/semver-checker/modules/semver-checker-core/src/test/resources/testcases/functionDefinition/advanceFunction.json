@@ -102,6 +102,12 @@
     "description": "Change the order of two functions in the code editor.",
     "oldCode": "public function add(){}public function foo(){}",
     "newCode": "public function foo(){}public function add(){}",
-    "expectedOutput": {}
+    "expectedOutput": "No Changes"
+  },
+  {
+    "description": "Compare two identical function definitions",
+    "oldCode": "public function  add()",
+    "newCode": " public  function add( ) ",
+    "expectedOutput": "No Changes"
   }
 ]

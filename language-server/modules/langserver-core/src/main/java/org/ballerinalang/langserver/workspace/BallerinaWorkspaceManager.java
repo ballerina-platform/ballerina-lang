@@ -45,15 +45,21 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -69,6 +75,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -153,6 +160,35 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Optional<Project> project(Path filePath) {
         return projectPair(projectRoot(filePath)).map(ProjectPair::project);
+    }
+
+    /**
+     * Loads the project from the path provided.
+     *
+     * @param filePath ballerina project or standalone file path
+     * @return project of applicable type
+     */
+    @Override
+    public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
+        Project project;
+        Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+
+        if (optionalProject.isPresent()) {
+            project = optionalProject.get();
+        } else {
+            project = createOrGetProjectPair(filePath, LSContextOperation.LOAD_PROJECT.getName()).project();
+
+            BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
+                    filePath.toUri().toString(),
+                    languageServer.getWorkspaceManager(),
+                    LSContextOperation.LOAD_PROJECT, this.serverContext);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(languageServer.getClient(), this.serverContext, context);
+        }
+
+        return project;
     }
 
     /**
@@ -277,8 +313,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
             if (compilation.diagnosticResult().diagnostics().stream()
-                    .anyMatch(diagnostic -> DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId()
-                            .equals(diagnostic.diagnosticInfo().code()))) {
+                    .anyMatch(diagnostic -> 
+                            Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
+                                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId())
+                            .contains(diagnostic.diagnosticInfo().code()))) {
                 projectPair.get().setCrashed(true);
                 projectPair.get().project().clearCaches();
             }
