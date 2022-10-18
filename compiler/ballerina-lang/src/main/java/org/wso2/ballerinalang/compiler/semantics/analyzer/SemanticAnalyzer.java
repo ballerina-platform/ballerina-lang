@@ -227,7 +227,6 @@ import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
-import static org.ballerinalang.model.tree.NodeKind.TUPLE_TYPE_NODE;
 
 /**
  * @since 0.94
@@ -989,15 +988,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
-        BType btype = tupleTypeNode.getBType();
-        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(btype.tsymbol), data.env);
+        BType bType = tupleTypeNode.getBType();
+        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
 
         for (int i = 0; i < memberTypeNodes.size(); i++) {
             data.env = tupleEnv;
             BLangSimpleVariable memberType = memberTypeNodes.get(i);
             analyzeDef(memberType, data);
             for (BLangAnnotationAttachment ann : memberType.annAttachments) {
-                ((BTupleType) btype).memberTypes.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
+                ((BTupleType) bType).memberTypes.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
             }
         }
         if (tupleTypeNode.restParamType != null) {
@@ -1155,7 +1154,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL);
             }
 
-            if (ownerSymTag != SymTag.TUPLE_TYPE && Types.getReferredType(lhsType).tag == TypeTags.ARRAY
+            if (Types.getReferredType(lhsType).tag == TypeTags.ARRAY
                     && typeChecker.isArrayOpenSealedType((BArrayType) Types.getReferredType(lhsType))) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
