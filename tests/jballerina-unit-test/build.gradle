@@ -111,6 +111,7 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+    testCompile.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
 }
 
 configurations.all {

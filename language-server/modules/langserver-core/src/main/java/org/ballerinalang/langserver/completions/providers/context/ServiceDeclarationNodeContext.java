@@ -222,7 +222,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                     TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
                     sortText = rawType.kind() == SymbolKind.CLASS ? genSortText(1) : genSortText(2);
                 }
-            } else if (isModuleCItem) {
+            } else if (isModuleCItem && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                 sortText = genSortText(3) + genSortTextForModule(context, lsItem);
             }
 
@@ -238,7 +238,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             String sortText;
             CompletionItem cItem = lsItem.getCompletionItem();
             boolean isModuleCItem = SortingUtil.isModuleCompletionItem(lsItem);
-            if (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            if ((SortingUtil.isLangLibModuleCompletionItem(lsItem))
+                    || (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL)) {
                 sortText = genSortText(1);
             } else if (Snippet.KW_NEW.equals(lsItem)) {
                 // Prioritize the new keyword
@@ -263,7 +264,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                 sortText = genSortText(1);
             } else if (SortingUtil.isTypeCompletionItem(lsItem)) {
                 sortText = genSortText(2);
-            } else if (SortingUtil.isModuleCompletionItem(lsItem)) {
+            } else if (SortingUtil.isModuleCompletionItem(lsItem)
+                    && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                 sortText = genSortText(3) + SortingUtil.genSortTextForModule(context, lsItem);
             } else {
                 sortText = genSortText(4);
