@@ -352,10 +352,56 @@ function testFieldAccessOnMapConstruct() returns boolean {
     return "Sanjiva" == name;
 }
 
+type FooRec1 record {
+    json j;
+};
+
+type FooRec2 record {
+    json j;
+    BarRec1 barRec;
+};
+
+type BarRec1 record {
+    json barFiled;
+};
+
+function testFieldAccessOnRecordContainsJsonField() returns error? {
+    FooRec1 rec1 = {j: "1"};
+    string val = check rec1.j;
+    assertEqual(val, "1");
+
+    rec1 = {j: {k: "2"}};
+    val = check rec1.j.k;
+    assertEqual(val, "2");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = check rec1.j.k.m;
+    assertEqual(val, "3");
+
+    FooRec2 rec2 = {j: "1", barRec: {barFiled: "2"}};
+    val = check rec2.j;
+    assertEqual(val, "1");
+    val = check rec2.barRec.barFiled;
+    assertEqual(val, "2");
+
+    rec2 = {j: "1", barRec: {barFiled: {k: "3", l: {m: "4"}}}};
+    val = check  rec2.barRec.barFiled.k;
+    assertEqual(val, "3");
+    val = check  rec2.barRec.barFiled.l.m;
+    assertEqual(val, "4");
+}
+
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
     if (val1 is anydata && val2 is anydata) {
         return (val1 == val2);
     } else {
         return (val1 === val2);
     }
+}
+
+function assertEqual(anydata actual, anydata expected) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
