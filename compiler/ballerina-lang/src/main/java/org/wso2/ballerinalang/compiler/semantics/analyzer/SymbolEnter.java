@@ -2057,13 +2057,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
                 for (BType member : definedTupleType.getTupleTypes()) {
-                    if (!((BTupleType) newTypeNode).addMembers(member)) {
-                        return constructDependencyListError(typeDef, member);
-                    }
+                    ((BTupleType) newTypeNode).addMembers(member);
                 }
-                if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
-                    return constructDependencyListError(typeDef, definedTupleType.restType);
-                }
+                ((BTupleType) newTypeNode).addRestType(definedTupleType.restType);
                 break;
             default:
                 BUnionType definedUnionType = (BUnionType) resolvedTypeNodes;
@@ -2089,14 +2085,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         this.env = prevEnv;
-    }
-
-    private BType constructDependencyListError(BLangTypeDefinition typeDef, BType member) {
-        List<String> dependencyList = new ArrayList<>();
-        dependencyList.add(getTypeOrClassName(typeDef));
-        dependencyList.add(member.tsymbol.name.value);
-        dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
-        return symTable.semanticError;
     }
 
     private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,
