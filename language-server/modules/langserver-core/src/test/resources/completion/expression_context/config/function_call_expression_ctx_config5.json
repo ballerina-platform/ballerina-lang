@@ -270,6 +270,7 @@
       "documentation": {
         "left": "Defines the possible client error types."
       },
+      "sortText": "P",
       "insertText": "ClientError",
       "insertTextFormat": "Snippet"
     },
@@ -280,6 +281,7 @@
       "documentation": {
         "left": "The super type of all the types."
       },
+      "sortText": "R",
       "insertText": "TargetType2",
       "insertTextFormat": "Snippet"
     },
@@ -290,6 +292,7 @@
       "documentation": {
         "left": "The types of data values that are expected by the `client` to return after the data binding operation."
       },
+      "sortText": "R",
       "insertText": "TargetType",
       "insertTextFormat": "Snippet"
     }
