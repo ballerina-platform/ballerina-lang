@@ -111,8 +111,10 @@ public class EntityModelGenerator {
                 if (includedType instanceof TypeReferenceTypeSymbol) {
                     TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) includedType;
                     inclusionList.add(getAssociateEntityName(typeReferenceTypeSymbol, entityName));
-                    RecordTypeSymbol parentRecordTypeSymbol = (RecordTypeSymbol) typeReferenceTypeSymbol.typeDescriptor();
-                    Map<String, RecordFieldSymbol> parentRecordFieldSymbolMap = parentRecordTypeSymbol.fieldDescriptors();
+                    RecordTypeSymbol parentRecordTypeSymbol = (RecordTypeSymbol)
+                            typeReferenceTypeSymbol.typeDescriptor();
+                    Map<String, RecordFieldSymbol> parentRecordFieldSymbolMap =
+                            parentRecordTypeSymbol.fieldDescriptors();
                     // is it enough to check only based on the key ?
                     childRecordFieldSymbolMap = childRecordFieldSymbolMap.entrySet().stream()
                             .filter(entry -> !parentRecordFieldSymbolMap.containsKey(entry.getKey()))
