@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.ballerina.projectdesign.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.projectdesign.ProjectDesignConstants.TYPE_MAP;
 
 /**
@@ -218,6 +219,9 @@ public class ActionNodeVisitor extends NodeVisitor {
 
         StringBuilder resourcePathBuilder = new StringBuilder();
         for (Node accessPathNode : accessPathNodes) {
+            if (resourcePathBuilder.length() > 0) {
+                resourcePathBuilder.append(FORWARD_SLASH);
+            }
             if (accessPathNode.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
                 resourcePathBuilder.append(((IdentifierToken) accessPathNode).text());
             } else if (accessPathNode.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
@@ -225,23 +229,23 @@ public class ActionNodeVisitor extends NodeVisitor {
                         (ComputedResourceAccessSegmentNode) accessPathNode;
                 ExpressionNode expressionNode = accessSegmentNode.expression();
                 if (expressionNode.kind() == SyntaxKind.STRING_LITERAL) {
-                    resourcePathBuilder.append(String.format("/[%s]", TYPE_MAP.get(SyntaxKind.STRING_LITERAL)));
+                    resourcePathBuilder.append(String.format("[%s]", TYPE_MAP.get(SyntaxKind.STRING_LITERAL)));
                 } else if (expressionNode.kind().equals(SyntaxKind.NUMERIC_LITERAL)) {
                     SyntaxKind numericKind = ((BasicLiteralNode) expressionNode).literalToken().kind();
                     if (numericKind.equals(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN)) {
-                        resourcePathBuilder.append(String.format("/[%s]", TYPE_MAP.get(
+                        resourcePathBuilder.append(String.format("[%s]", TYPE_MAP.get(
                                 SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN)));
                     } else if (numericKind.equals(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN)) {
-                        resourcePathBuilder.append(String.format("/[%s]", SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN));
+                        resourcePathBuilder.append(String.format("[%s]", SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN));
                     } else {
-                        resourcePathBuilder.append(String.format("/[%s]", SyntaxKind.NUMERIC_LITERAL));
+                        resourcePathBuilder.append(String.format("[%s]", SyntaxKind.NUMERIC_LITERAL));
                     }
                 } else if (expressionNode.kind().equals(SyntaxKind.BOOLEAN_LITERAL)) {
-                    resourcePathBuilder.append(String.format("/[%s]", SyntaxKind.BOOLEAN_LITERAL));
+                    resourcePathBuilder.append(String.format("[%s]", SyntaxKind.BOOLEAN_LITERAL));
                 } else if (expressionNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                         expressionNode.kind() == SyntaxKind.FIELD_ACCESS) {
                     String varType = semanticModel.typeOf(expressionNode).get().signature();
-                    resourcePathBuilder.append("/").append("[").append(varType.trim()).append("]");
+                    resourcePathBuilder.append("[").append(varType.trim()).append("]");
                 }
             }
         }
