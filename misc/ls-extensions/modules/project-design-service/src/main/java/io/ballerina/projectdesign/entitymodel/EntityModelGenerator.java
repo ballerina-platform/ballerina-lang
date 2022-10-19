@@ -106,15 +106,18 @@ public class EntityModelGenerator {
         if (!recordTypeSymbol.typeInclusions().isEmpty()) {
             List<TypeSymbol> typeInclusions = recordTypeSymbol.typeInclusions();
             for (TypeSymbol includedType : typeInclusions) {
-                TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) includedType;
-                inclusionList.add(getAssociateEntityName(typeReferenceTypeSymbol, entityName));
-                RecordTypeSymbol parentRecordTypeSymbol = (RecordTypeSymbol) typeReferenceTypeSymbol.typeDescriptor();
-                Map<String, RecordFieldSymbol> parentRecordFieldSymbolMap = parentRecordTypeSymbol.fieldDescriptors();
-                // is it enough to check only based on the key ?
-                childRecordFieldSymbolMap = childRecordFieldSymbolMap.entrySet().stream()
-                        .filter(entry -> !parentRecordFieldSymbolMap.containsKey(entry.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
+                if (includedType instanceof TypeReferenceTypeSymbol) {
+                    TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) includedType;
+                    inclusionList.add(getAssociateEntityName(typeReferenceTypeSymbol, entityName));
+                    RecordTypeSymbol parentRecordTypeSymbol = (RecordTypeSymbol)
+                            typeReferenceTypeSymbol.typeDescriptor();
+                    Map<String, RecordFieldSymbol> parentRecordFieldSymbolMap =
+                            parentRecordTypeSymbol.fieldDescriptors();
+                    // is it enough to check only based on the key ?
+                    childRecordFieldSymbolMap = childRecordFieldSymbolMap.entrySet().stream()
+                            .filter(entry -> !parentRecordFieldSymbolMap.containsKey(entry.getKey()))
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                }
             }
         }
         return childRecordFieldSymbolMap;
