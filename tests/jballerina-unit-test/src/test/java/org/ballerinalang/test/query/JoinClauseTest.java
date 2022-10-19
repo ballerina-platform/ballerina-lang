@@ -158,6 +158,10 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "missing identifier", 330, 1);
         validateError(negativeResult, i++, "incompatible types: expected 'Department?', found 'Department'", 353, 19);
         validateError(negativeResult, i++, "outer join must be declared with var", 353, 19);
+        validateError(negativeResult, i++, "missing equals keyword", 354, 1);
+        validateError(negativeResult, i++, "missing identifier", 354, 1);
+        validateError(negativeResult, i++, "missing identifier", 354, 1);
+        validateError(negativeResult, i, "missing on keyword", 354, 1);
     }
 
     @AfterClass
