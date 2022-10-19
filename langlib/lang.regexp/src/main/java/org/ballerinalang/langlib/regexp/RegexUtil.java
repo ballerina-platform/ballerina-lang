@@ -25,8 +25,8 @@ import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.RegExpValue;
-import org.wso2.ballerinalang.util.Lists;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * @since 2201.3.0
  */
 public class RegexUtil {
-    static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT,
+    static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(List.of(PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 
     static final BArrayType GROUPS_AS_SPAN_ARRAY_TYPE = new BArrayType(SPAN_AS_TUPLE_TYPE);

@@ -21,6 +21,7 @@ dependencies {
     balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-cli')
+    implementation project(':ballerina-runtime')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
@@ -37,6 +38,18 @@ configurations.testCompileClasspath {
         preferProjectModules()
     }
 }
+
+task updateVersion {
+    doLast {
+        ant.replaceregexp(
+                file: "${project.buildDir}/ballerina-src/Ballerina.toml",
+                match: "${project.name}-(.*).jar",
+                replace: "${project.name}-${project.version}.jar"
+        )
+    }
+}
+
+copyBallerinaProject.finalizedBy(updateVersion)
 
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
