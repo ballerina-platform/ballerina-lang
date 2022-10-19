@@ -203,7 +203,7 @@ public class PackageCompilation {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                            moduleContext.project()));
+                            moduleContext.project(), moduleContext.isGenerated()));
                 }
             }
         }
