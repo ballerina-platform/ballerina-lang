@@ -5015,7 +5015,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         BTupleType resourcePathType = (BTupleType) resourceFunction.resourcePathType.getBType();
         BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
-                funcType, resourcePath, accessor, pathParamSymbols, restPathParamSym, resourcePathType, funcNode.pos);
+                funcType, accessor, pathParamSymbols, restPathParamSym, resourcePathType, funcNode.pos);
         
         List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
         BType restPathParamType = resourcePathType.restType;
@@ -5023,10 +5023,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             resourcePathTypes.add(restPathParamType);
         }
 
-        int resourcePathTypeCount = resourcePathTypes.size();
-        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathTypeCount);
+        // if resourcePathTypes.isEmpty() then it is the root resource. ie: `.`
+        if (resourcePathTypes.isEmpty()) {
+            resourcePathTypes.add(symTable.noType);
+        }
+
+        int resourcePathCount = resourcePath.size();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
-        for (int i = 0; i < resourcePathTypeCount; i++) {
+        for (int i = 0; i < resourcePathCount; i++) {
             Name resourcePathSymbolName = resourcePath.get(i);
             BType resourcePathSegmentType = resourcePathTypes.get(i);
             
@@ -5353,8 +5358,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc;
         if (referencedFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
-            attachedFunc = new BResourceFunction(referencedFunc.funcName,
-                    funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
+            attachedFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
                     resourceFunction.resourcePathType, referencedFunc.pos);
         } else {

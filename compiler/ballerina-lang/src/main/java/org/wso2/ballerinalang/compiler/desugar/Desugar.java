@@ -6520,7 +6520,8 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(pathParamInvocation);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<Name> resourcePath = targetResourceFunc.pathSegmentSymbols.stream().map(s -> s.name)
+                .collect(Collectors.toList());
 
         int pathParamInvocationRequiredArgCount = pathParamInvocation.requiredArgs.size();
 
@@ -6627,7 +6628,8 @@ public class Desugar extends BLangNodeVisitor {
                 resourceAccessInvocation.symbol.pos, VIRTUAL);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<Name> resourcePath = targetResourceFunc.pathSegmentSymbols.stream().map(s -> s.name)
+                .collect(Collectors.toList());
         List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
 
         List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());

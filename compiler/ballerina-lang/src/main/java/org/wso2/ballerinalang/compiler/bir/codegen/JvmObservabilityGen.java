@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -434,8 +435,8 @@ class JvmObservabilityGen {
                         if (Objects.equals(attachedFunc.funcName.value, functionName)) {
                             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
                             StringBuilder resourcePathOrFunctionBuilder = new StringBuilder();
-                            for (Name name : resourceFunction.resourcePath) {
-                                resourcePathOrFunctionBuilder.append("/").append(name.value);
+                            for (BResourcePathSegmentSymbol pathSegmentSym : resourceFunction.pathSegmentSymbols) {
+                                resourcePathOrFunctionBuilder.append("/").append(pathSegmentSym.name.value);
                             }
                             resourcePathOrFunction = resourcePathOrFunctionBuilder.toString();
                             resourceAccessor = resourceFunction.accessor.value;

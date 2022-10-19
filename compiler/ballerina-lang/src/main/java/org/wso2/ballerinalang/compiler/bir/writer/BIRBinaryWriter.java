@@ -337,17 +337,12 @@ public class BIRBinaryWriter {
             }
 
             List<Name> resourcePath = birFunction.resourcePath;
-            buf.writeInt(resourcePath.size());
-            for (Name resourcePathSegment : resourcePath) {
-                buf.writeInt(addStringCPEntry(resourcePathSegment.value));
-            }
-            
-            // resourcePathCount and resourcePathPosCount will be different for root scenario since we 
-            // don't keep pos information for `.`
-            List<Location> resourcePathSegmentPosList = birFunction.resourcePathSegmentPosList;
-            buf.writeInt(resourcePathSegmentPosList.size());
-            for (Location resourcePathSegmentPos : resourcePathSegmentPosList) {
-                writePosition(buf, resourcePathSegmentPos);
+            List<Location> pathSegmentPosList = birFunction.resourcePathSegmentPosList;
+            int pathSegmentCount = resourcePath.size();
+            buf.writeInt(pathSegmentCount);
+            for (int i = 0; i < pathSegmentCount; i++) {
+                buf.writeInt(addStringCPEntry(resourcePath.get(i).value));
+                writePosition(buf, pathSegmentPosList.get(i));
             }
 
             buf.writeInt(addStringCPEntry(birFunction.accessor.value));

@@ -445,15 +445,9 @@ public class BIRPackageSymbolEnter {
 
                     int resourcePathCount = dataInStream.readInt();
                     List<Name> resourcePath = new ArrayList<>(resourcePathCount);
+                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathCount);
                     for (int i = 0; i < resourcePathCount; i++) {
                         resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
-                    }
-                    
-                    // resourcePathCount and resourcePathPosCount will be different for root scenario since we 
-                    // don't keep pos information for `.`
-                    int resourcePathPosCount = dataInStream.readInt();
-                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathPosCount);
-                    for (int i = 0; i < resourcePathPosCount; i++) {
                         resourcePathSegmentPosList.add(readPosition(dataInStream));
                     }
 
@@ -461,7 +455,7 @@ public class BIRPackageSymbolEnter {
                     BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
                     
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
-                            invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
+                            invokableSymbol, funcType, accessor, pathParams, restPathParam,
                             resourcePathType, symTable.builtinPos);
 
                     List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
