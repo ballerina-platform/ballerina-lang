@@ -244,14 +244,6 @@
       "sortText": "C",
       "insertText": "ballerina/lang.regexp;",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lsproject.module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "lsproject.module1",
-      "insertTextFormat": "Snippet"
     }
   ]
 }
