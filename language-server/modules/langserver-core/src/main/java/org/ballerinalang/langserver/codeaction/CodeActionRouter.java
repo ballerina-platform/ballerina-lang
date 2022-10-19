@@ -70,7 +70,7 @@ public class CodeActionRouter {
         Optional<SyntaxTree> syntaxTree = ctx.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
             clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
-                    " Syntax tree is empty for file" + ctx.fileUri());
+                    " Syntax tree is empty for file " + ctx.fileUri());
             return Collections.emptyList();
         }
         Range highlightedRange = ctx.range();
