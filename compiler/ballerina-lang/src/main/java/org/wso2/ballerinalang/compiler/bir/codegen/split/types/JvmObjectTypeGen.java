@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -469,12 +470,13 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
 
         // Load resource path
-        mv.visitLdcInsn((long) resourceFunction.resourcePath.size());
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+        int pathSegmentSize = pathSegmentSymbols.size();
+        mv.visitLdcInsn((long) pathSegmentSize);
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        List<Name> resourcePath = resourceFunction.resourcePath;
-        for (int i = 0, resourcePathSize = resourcePath.size(); i < resourcePathSize; i++) {
-            Name path = resourcePath.get(i);
+        for (int i = 0; i < pathSegmentSize; i++) {
+            Name path = pathSegmentSymbols.get(i).name;
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
