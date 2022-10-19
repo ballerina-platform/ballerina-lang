@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.'object;
 
 # Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.
 # This allows an int between -2^31 and 2^31 - 1 inclusive,
@@ -155,4 +156,28 @@ public isolated function toHexString(int n) returns string = @java:Method {
 public isolated function fromHexString(string s) returns int|error = @java:Method {
     'class: "org.ballerinalang.langlib.integer.FromHexString",
     name: "fromHexString"
+} external;
+
+# Returns an iterable object that iterates over a range of integers.
+# The integers returned by the iterator belong to the set S,
+# where S is `{ rangeStart + step*i such that i >= 0 }`.
+# When `step > 0`, the members of S that are `< rangeEnd` are returned in increasing order.
+# When `step < 0`, the members of S that are `> rangeEnd` are returned in decreasing order.
+# When `step = 0`, the function panics.
+# + rangeStart - the first integer to be returned by the iterator
+# + rangeEnd - the exclusive limit on the integers returned by the iterator
+# + step - the difference between successive integers returned by the iterator;
+#    a positive value gives an increasing sequence; a negative value gives
+#    a decreasing sequence
+# + return - an iterable object
+public isolated function range(int rangeStart, int rangeEnd, int step) returns object {
+    *object:Iterable;
+    public isolated function iterator() returns object {
+        public isolated function next() returns record {|
+            int value;
+       |}?;
+    };
+} = @java:Method {
+            'class: "org.ballerinalang.langlib.integer.Range",
+            name: "range"
 } external;
