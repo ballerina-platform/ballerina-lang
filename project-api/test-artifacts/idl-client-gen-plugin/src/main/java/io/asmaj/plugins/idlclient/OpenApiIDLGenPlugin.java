@@ -55,18 +55,31 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
         @Override
         public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             String uri = getUri(idlSourceGeneratorContext.clientNode());
+            if (uri.endsWith("throwNPE")) {
+                throw new NullPointerException();
+            }
+            if (uri.endsWith("throwRuntimeEx")) {
+                throw new RuntimeException("canHandle crashed");
+            }
             if (uri.endsWith("projectapiclientplugin.json")) {
+                return true;
+            }
+            if (uri.endsWith("throwUnhandledExInPerform")) {
                 return true;
             }
             return uri.equals("https://postman-echo.com/get?name=projectapiclientplugin");
         }
 
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
-            ModuleId moduleId = ModuleId.create("client", idlSourceGeneratorContext.currentPackage().packageId());
+            if (getUri(idlSourceGeneratorContext.clientNode()).endsWith("throwUnhandledExInPerform")) {
+                throw new RuntimeException("perform crashed");
+            }
+            String moduleName = getAlias(idlSourceGeneratorContext.clientNode());
+            ModuleId moduleId = ModuleId.create(moduleName, idlSourceGeneratorContext.currentPackage().packageId());
             DocumentId documentId = DocumentId.create("idl_client.bal", moduleId);
             DocumentConfig documentConfig = getClientCode(documentId);
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
-                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client"),
+                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), moduleName),
                     idlSourceGeneratorContext.currentPackage().descriptor());
             ModuleConfig moduleConfig = ModuleConfig.from(
                     moduleId, moduleDescriptor, Collections.singletonList(documentConfig),
@@ -81,6 +94,13 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
             }
 
             idlSourceGeneratorContext.addClient(moduleConfig, annotations);
+        }
+
+        private String getAlias(Node clientNode) {
+            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+                return ((ModuleClientDeclarationNode) clientNode).clientPrefix().toString();
+            }
+            return ((ClientDeclarationNode) clientNode).clientPrefix().toString();
         }
 
         private String getUri(Node clientNode) {
