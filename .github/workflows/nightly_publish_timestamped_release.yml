@@ -1,4 +1,4 @@
-name: Publish Timestamped Snapshot Artifacts
+name: (Nightly) Publish Timestamped Snapshot Artifacts
 
 on:
   schedule:
