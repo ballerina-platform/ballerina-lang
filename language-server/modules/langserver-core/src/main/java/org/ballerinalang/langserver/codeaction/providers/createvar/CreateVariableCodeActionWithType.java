@@ -73,7 +73,8 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
     private static final String NAME = "Create variable with type";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
         return diagnostic.diagnosticInfo().code().equals("BCE3934")
                 && context.currentSemanticModel().isPresent()
                 && context.nodeAtRange().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
@@ -121,14 +122,14 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
         return actions;
     }
 
-    private CreateVariableCodeAction.CreateVariableOut getCreateVariableTextEdits(Range range,
-                                                                                  DiagBasedPositionDetails positionDetails,
+    private CreateVariableCodeAction.CreateVariableOut getCreateVariableTextEdits(Range range, 
+                                                                                  DiagBasedPositionDetails posDetails,
                                                                                   TypeSymbol typeDescriptor,
                                                                                   CodeActionContext context,
                                                                                   ImportsAcceptor importsAcceptor) {
-        Symbol matchedSymbol = positionDetails.matchedSymbol();
+        Symbol matchedSymbol = posDetails.matchedSymbol();
 
-        Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
+        Position position = PositionUtil.toPosition(posDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .filter(s -> s.getName().isPresent())
                 .map(s -> s.getName().get())
@@ -146,7 +147,8 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
             renamePositions.add(type.length() + 1);
         }
-        return new CreateVariableCodeAction.CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions);
+        return new CreateVariableCodeAction.CreateVariableOut(name, types, edits, 
+                importsAcceptor.getNewImportTextEdits(), renamePositions);
     }
 
     /**
