@@ -465,10 +465,9 @@ public class AnnotationDesugar {
             SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, initFunction.symbol.scope, env);
             BLangLambdaFunction lambdaFunction;
 
-            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE
+                    || typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
                 lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
-            } else if (typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
-                lambdaFunction = defineTupleAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
             } else {
                 lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
             }
@@ -595,66 +594,30 @@ public class AnnotationDesugar {
                                                   PackageID pkgID, BSymbol owner) {
         BLangFunction function = null;
         BLangRecordLiteral mapLiteral = null;
-        BLangLambdaFunction lambdaFunction = null;
-
-        boolean annotFunctionDefined = false;
 
         if (!typeDef.annAttachments.isEmpty()) {
             function = defineFunction(typeDef.pos, pkgID, owner);
             mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
             addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env, false);
-            annotFunctionDefined = true;
         }
-
-        for (BLangSimpleVariable field : ((BLangStructureTypeNode) typeDef.typeNode).fields) {
+        List<BLangSimpleVariable> fields;
+        if (typeDef.typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
+            fields = ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes;
+        } else {
+            fields = ((BLangStructureTypeNode) typeDef.typeNode).fields;
+        }
+        for (BLangSimpleVariable field : fields) {
             BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
                                                                      pkgID, owner, false);
-            if (paramAnnotLambda != null) {
-                if (!annotFunctionDefined) {
-                    function = defineFunction(typeDef.pos, pkgID, owner);
-                    mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-                    annotFunctionDefined = true;
-                }
-
-                addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
-                                       field.annAttachments.get(0).pos, paramAnnotLambda);
-            }
-        }
-
-        if (annotFunctionDefined) {
-            if (mapLiteral.fields.isEmpty()) {
-                return null;
-            }
-            lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
-        }
-
-        return lambdaFunction;
-    }
-
-    private BLangLambdaFunction defineTupleAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
-                                                  PackageID pkgID, BSymbol owner) {
-        BLangFunction function = null;
-        BLangRecordLiteral mapLiteral = null;
-
-        if (!typeDef.annAttachments.isEmpty()) {
-            function = defineFunction(typeDef.pos, pkgID, owner);
-            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-            addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env, false);
-        }
-        int i = 0;
-        for (BLangSimpleVariable member : ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes) {
-            BLangLambdaFunction paramAnnotLambda = defineAnnotations(member.annAttachments, member.pos, pkgNode, env,
-                    pkgID, owner, false);
             if (paramAnnotLambda != null) {
                 if (function == null) {
                     function = defineFunction(typeDef.pos, pkgID, owner);
                     mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                 }
 
-                addInvocationToLiteral(mapLiteral, FIELD + DOT + i,
-                        member.annAttachments.get(0).pos, paramAnnotLambda);
+                addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
+                                       field.annAttachments.get(0).pos, paramAnnotLambda);
             }
-            i++;
         }
 
         if (function == null || mapLiteral.fields.isEmpty()) {

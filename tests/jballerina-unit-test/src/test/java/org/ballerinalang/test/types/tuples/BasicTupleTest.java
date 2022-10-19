@@ -371,7 +371,7 @@ public class BasicTupleTest {
                 256, 24);
     }
 
-    @Test(description = "Test Function invocation using tuples")
+    @Test(description = "Test tuple member annotations")
     public void testTupleAnnotations2() {
         Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
         TupleValueImpl returnTuple = (TupleValueImpl) returns;
