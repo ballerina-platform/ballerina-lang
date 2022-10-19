@@ -47,10 +47,12 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -77,7 +79,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private static final String EXTRACTED_PREFIX = "extracted";
 
     private static final Set<SyntaxKind> unSupportedModuleLevelSyntaxKinds = Set.of(SyntaxKind.CONST_DECLARATION,
-            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION, 
+            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION,
             SyntaxKind.MODULE_CLIENT_DECLARATION);
 
     @Override
@@ -218,7 +220,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
                 CodeActionKind.RefactorExtract);
 
-        return List.of(codeAction);
+        addRenamePopup(context, codeAction);
+        return Collections.singletonList(codeAction);
     }
 
     /**
@@ -295,7 +298,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
      * This method finds the visible variable and parameter symbols which are referred inside the selected range for
      * getCodeActionsForStatements scenario.
      */
-    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context, 
+    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context,
                                                                             Node enclosingNode) {
         List<Symbol> argsSymbolsForExtractFunction = new ArrayList<>();
         List<Symbol> visibleSymbols = getVisibleSymbols(context, context.range().getStart());
@@ -383,7 +386,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
 
-        return List.of(codeAction);
+        addRenamePopup(context, codeAction);
+        return Collections.singletonList(codeAction);
     }
 
     private String getFunctionName(CodeActionContext context, NonTerminalNode matchedNode) {
@@ -414,9 +418,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
-    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd, 
+    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd,
                                TypeSymbol typeSymbol, String functionName, List<String> args) {
-        String returnsClause = 
+        String returnsClause =
                 String.format("returns %s", FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature()));
         String returnStatement;
 
@@ -524,6 +528,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return false;
     }
 
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction) {
+        int startPos = context.nodeAtRange().textRange().startOffset();
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION, CommandConstants.RENAME_COMMAND,
+                    List.of(context.fileUri(), startPos)));
+        }
+    }
+
     /*
      * TODO remove with the fix of #37454
      * */
@@ -609,6 +623,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private static class ArgListsHolder {
+
         private List<String> extractFunctionArgs;
         private List<String> replaceFunctionCallArgs;
     }
