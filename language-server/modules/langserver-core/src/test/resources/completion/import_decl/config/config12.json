@@ -852,7 +852,7 @@
       ]
     },
     {
-      "label": "lsproject.module1",
+      "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
@@ -871,7 +871,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1 as module11;\n"
+          "newText": "import ballerina/module1 as module11;\n"
         }
       ]
     },
@@ -985,30 +985,6 @@
             }
           },
           "newText": "import ballerina/lang.regexp;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "module1",
-      "insertText": "module11",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1 as module11;\n"
         }
       ]
     }

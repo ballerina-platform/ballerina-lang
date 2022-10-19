@@ -29,6 +29,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -97,7 +98,7 @@ public class LSPackageLoader {
             return this.remoteRepoPackages;
         }
         this.remoteRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                this.remoteRepoPackages.stream().map(ModuleInfo::packageIdentifier).collect(Collectors.toSet())));
+                Collections.emptySet()));
         return this.remoteRepoPackages;
     }
 
@@ -141,7 +142,9 @@ public class LSPackageLoader {
             Optional<Module> currentModule = ctx.currentModule();
             String packageName = moduleInfo.packageName().value();
             String moduleName = module.descriptor().name().moduleNamePart();
-            if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get())) {
+            String qualifiedModName = packageName + Names.DOT + moduleName;
+            if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get()) ||
+                    ModuleUtil.matchingImportedModule(ctx, "", qualifiedModName).isPresent()) {
                 return;
             } else {
                 moduleInfo.packageName = PackageName.from(packageName + "." + moduleName);

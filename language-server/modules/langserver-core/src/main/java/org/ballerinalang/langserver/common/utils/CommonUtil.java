@@ -309,8 +309,7 @@ public class CommonUtil {
      */
     public static String getPackageLabel(LSPackageLoader.ModuleInfo pkg) {
         String orgName = "";
-        if (!pkg.packageOrg().value().isEmpty() && pkg.packageOrg().value() != null
-                && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+        if (!pkg.packageOrg().value().isEmpty() && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
         }
 
