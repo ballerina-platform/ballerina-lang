@@ -319,9 +319,7 @@ function testFindAll() {
 function testFindAllGroups() {
     string str1 = "GFGFGFGFGFGFGFGFGF";
     var regExpr1 = re `(GFG)(FGF)`;
-    regexp:Groups[]? res1 = regExpr1.findAllGroups(str1);
-    assertTrue(res1 is regexp:Groups[]);
-    regexp:Groups[] groupsArr1 = <regexp:Groups[]>res1;
+    regexp:Groups[] groupsArr1 = regExpr1.findAllGroups(str1);
     assertEquality(3, groupsArr1.length());
 
     regexp:Groups groups1_1 = groupsArr1[0];
