@@ -44,13 +44,6 @@ public interface HoverContext extends PositionedOperationContext {
     Token getTokenAtCursor();
 
     /**
-     * Get the cursor position.
-     *
-     * @return {@link Position}
-     */
-    Position getCursorPosition();
-
-    /**
      * Set the node at cursor.
      *
      * @param node {@link NonTerminalNode} at the cursor position

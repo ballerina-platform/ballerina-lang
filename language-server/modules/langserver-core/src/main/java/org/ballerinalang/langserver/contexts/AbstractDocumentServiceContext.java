@@ -60,9 +60,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private final String fileUri;
 
     private final WorkspaceManager workspaceManager;
-
-    private List<Symbol> visibleSymbols;
-
+    
     private List<ImportDeclarationNode> currentDocImports;
 
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
@@ -132,26 +130,23 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public List<Symbol> visibleSymbols(Position position) {
-        if (this.visibleSymbols == null) {
-            Optional<SemanticModel> semanticModel;
-            if (this.cancelChecker == null) {
-                semanticModel = this.workspaceManager.semanticModel(this.filePath);
-            } else {
-                semanticModel = this.workspaceManager.semanticModel(this.filePath, this.cancelChecker);
-            }
-            Optional<Document> srcFile = this.workspaceManager.document(filePath);
+        Optional<SemanticModel> semanticModel;
+        if (this.cancelChecker == null) {
+            semanticModel = this.workspaceManager.semanticModel(this.filePath);
+        } else {
+            semanticModel = this.workspaceManager.semanticModel(this.filePath, this.cancelChecker);
+        }
+        Optional<Document> srcFile = this.workspaceManager.document(filePath);
 
-            if (semanticModel.isEmpty() || srcFile.isEmpty()) {
-                return Collections.emptyList();
-            }
-
-            this.checkCancelled();
-            visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
-                    LinePosition.from(position.getLine(),
-                            position.getCharacter()), DiagnosticState.VALID, DiagnosticState.REDECLARED);
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        return visibleSymbols;
+        this.checkCancelled();
+
+        return semanticModel.get().visibleSymbols(srcFile.get(),
+                LinePosition.from(position.getLine(),
+                        position.getCharacter()), DiagnosticState.VALID, DiagnosticState.REDECLARED);
     }
 
     @Override
