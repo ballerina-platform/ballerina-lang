@@ -23,6 +23,7 @@ import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
@@ -104,6 +105,16 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.nativeImage = nativeImage;
+        this.offline = true;
+    }
+
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
@@ -166,6 +177,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -278,8 +292,11 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap, listGroups))
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
+                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
+                        testList, includes, coverageFormat, moduleMap, listGroups),
+                        !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -302,6 +319,7 @@ public class TestCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
+                .setNativeImage(nativeImage)
                 .build();
 
         if (targetDir != null) {
