@@ -539,6 +539,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BParameterizedType originalType, BType expType) {
         String paramVarName = originalType.paramSymbol.name.value;
+        String paramType = originalType.paramSymbol.type.tsymbol.name.value;
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BTypedescType paramSymbolTypedescType =
@@ -549,7 +550,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
-                        dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                        dlog.error(invocation.pos,
+                                DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramType, paramVarName);
                         return symbolTable.semanticError;
                     }
 
@@ -578,7 +580,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     return getConstraintTypeIfNotError(paramValueTypes.get(paramVarName));
                 }
 
-                dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramType, paramVarName);
                 return symbolTable.semanticError;
             }
 
