@@ -40,4 +40,26 @@ public class IdentifierUtils {
         return Utils.decodeIdentifier(encodedIdentifier);
     }
 
+    /**
+     * Escape the special characters in an identifier with a preceding `\`.
+     *
+     * @param identifier encoded identifier string
+     * @return decoded identifier
+     */
+    public static String escapeSpecialCharacters(String identifier) {
+        return Utils.escapeSpecialCharacters(identifier);
+    }
+
+    /**
+     * <p>Unescapes any Java literals found in the {@code String}.
+     * For example, it will turn a sequence of {@code '\'} and
+     * {@code 'n'} into a newline character, unless the {@code '\'}
+     * is preceded by another {@code '\'}.</p>
+     *
+     * @param str the {@code String} to unescape, may be null
+     * @return a new unescaped {@code String}, {@code null} if null string input
+     */
+    public static String unescapeJava(String str) {
+        return Utils.unescapeJava(str);
+    }
 }

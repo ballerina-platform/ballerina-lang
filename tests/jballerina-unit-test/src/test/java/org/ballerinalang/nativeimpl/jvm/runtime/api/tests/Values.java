@@ -268,6 +268,14 @@ public class Values {
         return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
     }
 
+    public static BString escapeSpecialCharacters(BString identifier) {
+        return StringUtils.fromString(IdentifierUtils.escapeSpecialCharacters(identifier.getValue()));
+    }
+
+    public static BString unescapeSpecialCharacters(BString string) {
+        return StringUtils.fromString(IdentifierUtils.unescapeJava(string.getValue()));
+    }
+
     public static BMap<BString, Object> getRecordNegative(BString recordName) {
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
         Map<String, Object> map = Map.ofEntries(
