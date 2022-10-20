@@ -5022,7 +5022,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
             BType resourcePathSegmentType = pathSegment.typeNode == null ? 
                     symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
-            
+            pathSegment.setBType(resourcePathSegmentType);
+
             BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(resourcePathSymbolName,
                     env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol, pathSegment.pos,
                     parentResource, bResourceFunction, SOURCE);
@@ -5347,9 +5348,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc;
         if (referencedFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
-            attachedFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
-                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    referencedFunc.pos);
+            BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
+                    (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, referencedFunc.pos);
+            cacheFunc.pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+            attachedFunc = cacheFunc;
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);
