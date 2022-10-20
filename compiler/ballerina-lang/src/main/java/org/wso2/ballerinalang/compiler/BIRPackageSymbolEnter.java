@@ -447,30 +447,23 @@ public class BIRPackageSymbolEnter {
                     int resourcePathCount = dataInStream.readInt();
                     List<Name> resourcePath = new ArrayList<>(resourcePathCount);
                     List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathCount);
+                    List<BType> pathSegmentTypeList = new ArrayList<>(resourcePathCount);
                     for (int i = 0; i < resourcePathCount; i++) {
                         resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
                         resourcePathSegmentPosList.add(readPosition(dataInStream));
+                        pathSegmentTypeList.add(readBType(dataInStream));
                     }
 
                     Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
-                    BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
                     
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
-                            invokableSymbol, funcType, accessor, pathParams, restPathParam,
-                            resourcePathType, symTable.builtinPos);
+                            invokableSymbol, funcType, accessor, pathParams, restPathParam, symTable.builtinPos);
 
-                    List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
-                    BType restPathParamType = resourcePathType.restType;
-                    if (restPathParamType != null) {
-                        resourcePathTypes.add(restPathParamType);
-                    }
-
-                    int resourcePathTypeCount = resourcePathTypes.size();
-                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathTypeCount);
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
                     BResourcePathSegmentSymbol parentResource = null;
-                    for (int i = 0; i < resourcePathTypeCount; i++) {
+                    for (int i = 0; i < resourcePathCount; i++) {
                         Name resourcePathSymbolName = resourcePath.get(i);
-                        BType resourcePathSegmentType = resourcePathTypes.get(i);
+                        BType resourcePathSegmentType = pathSegmentTypeList.get(i);
 
                         BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(
                                 resourcePathSymbolName, env.pkgSymbol.pkgID, resourcePathSegmentType, objectTypeSymbol,

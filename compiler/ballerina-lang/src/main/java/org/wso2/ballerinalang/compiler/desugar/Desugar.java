@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -6629,26 +6630,24 @@ public class Desugar extends BLangNodeVisitor {
                 resourceAccessInvocation.symbol.pos, VIRTUAL);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.pathSegmentSymbols.stream().map(s -> s.name)
-                .collect(Collectors.toList());
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
 
-        List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
-        BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BType type : resourcePathType.tupleTypes) {
-            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
-                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
-            invocationParams.add(param);
+        List<BVarSymbol> invocationParams = new ArrayList<>(pathSegmentSymbols.size());
+
+        int pathSegmentCount = pathSegmentSymbols.size();
+        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
+        if (lastPathSegmentSym.name.value.contains("^^")) {
+            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
+                    new BArrayType(lastPathSegmentSym.type), this.env.scope.owner, lastPathSegmentSym.pos, VIRTUAL);
+            pathSegmentCount--;
         }
+        
+        invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount - 1).stream()
+                .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type, this.env.scope.owner,
+                        s.pos, VIRTUAL)).collect(Collectors.toList()));
 
         invokableSymbol.params = invocationParams;
-
-        BType resourcePathRestType = resourcePathType.restType;
-        if (resourcePathRestType != null) {
-            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
-                    new BArrayType(resourcePathRestType), this.env.scope.owner,
-                    resourcePathRestType.tsymbol.pos, VIRTUAL);
-        }
 
         bLangInvocation.symbol = invokableSymbol;
 

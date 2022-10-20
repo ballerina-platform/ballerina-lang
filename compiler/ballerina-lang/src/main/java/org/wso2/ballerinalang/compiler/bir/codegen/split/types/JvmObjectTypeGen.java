@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.Type;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -79,6 +81,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_TYPE_IMPL_ARRAY_PARAM;
@@ -461,7 +464,22 @@ public class JvmObjectTypeGen {
         jvmTypeGen.loadType(mv, resourceFunction.type);
 
         // Load the resource path type
-        jvmTypeGen.loadType(mv, resourceFunction.resourcePathType);
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+        int pathSegmentSize = pathSegmentSymbols.size();
+        mv.visitLdcInsn((long) pathSegmentSize);
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, TYPE);
+        for (int i = 0; i < pathSegmentSize; i++) {
+            Type type = pathSegmentSymbols.get(i).type;
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // load resource path name
+            mv.visitLdcInsn(type);
+
+            mv.visitInsn(AASTORE);
+        }
 
         // Load flags
         mv.visitLdcInsn(resourceFunction.symbol.flags);
@@ -470,8 +488,6 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
 
         // Load resource path
-        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
-        int pathSegmentSize = pathSegmentSymbols.size();
         mv.visitLdcInsn((long) pathSegmentSize);
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);

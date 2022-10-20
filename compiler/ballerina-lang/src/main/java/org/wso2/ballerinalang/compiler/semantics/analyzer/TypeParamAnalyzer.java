@@ -1052,8 +1052,8 @@ public class TypeParamAnalyzer {
         if (expFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) expFunc;
             return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
-                    resourceFunction.accessor, resourceFunction.pathParams,
-                    resourceFunction.restPathParam, resourceFunction.resourcePathType, expFunc.pos);
+                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+                    expFunc.pos);
         }
         return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }

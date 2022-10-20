@@ -1861,8 +1861,8 @@ public class TypeChecker {
             return Optional.empty();
         }
 
-        List<Type> lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).resourcePathType.getTupleTypes();
-        List<Type> rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).resourcePathType.getTupleTypes();
+        List<Type> lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).pathSegmentTypes;
+        List<Type> rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).pathSegmentTypes;
 
         int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
         if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
