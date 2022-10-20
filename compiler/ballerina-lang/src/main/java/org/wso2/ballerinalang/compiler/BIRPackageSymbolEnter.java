@@ -423,8 +423,6 @@ public class BIRPackageSymbolEnter {
             if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 if (isResourceFunction) {
-                    // If it is a resource function, attached type should be an object
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
                     int pathParamCount = dataInStream.readInt();
                     List<BVarSymbol> pathParams = new ArrayList<>(pathParamCount);
                     for (int i = 0; i < pathParamCount; i++) {
@@ -459,6 +457,8 @@ public class BIRPackageSymbolEnter {
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
                             invokableSymbol, funcType, accessor, pathParams, restPathParam, symTable.builtinPos);
 
+                    // If it is a resource function, attached type should be an object
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
                     List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
                     BResourcePathSegmentSymbol parentResource = null;
                     for (int i = 0; i < resourcePathCount; i++) {
