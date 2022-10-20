@@ -43,6 +43,14 @@
           "newText": "extracted()"
         }
       ],
+      "command": {
+        "title": "Rename Function",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extract_to_function_exprs_mapping_constructor_imported_module.bal",
+          83
+        ]
+      },
       "resolvable": false
     }
   ]

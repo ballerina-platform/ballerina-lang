@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_method_call.bal",
+  "description": "Extract to function for expressions, method call",
   "expected": [
     {
       "title": "Extract to function",
@@ -41,8 +42,16 @@
           },
           "newText": "extracted(person)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Function",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "extract_to_function_exprs_method_call.bal",
+          393
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, method call"
+  ]
 }
