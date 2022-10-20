@@ -3753,9 +3753,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             restType = lastPathSegmentSym.type;
             pathSegmentCount--;
         }
+
+        BTupleType resourcePathType;
+        if (pathSegmentCount > 0 && !lastPathSegmentSym.name.value.contains(".")) {
+            resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
+                    .map(s -> s.type).collect(Collectors.toList()));
+        } else {
+            resourcePathType = new BTupleType(new ArrayList<>());
+        }
         
-        BTupleType resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount - 1).stream()
-                .map(s -> s.type).collect(Collectors.toList()));
         resourcePathType.restType = restType;
         return resourcePathType;
     }
