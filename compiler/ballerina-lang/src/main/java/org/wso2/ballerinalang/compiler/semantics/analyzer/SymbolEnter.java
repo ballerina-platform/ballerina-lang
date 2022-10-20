@@ -4161,7 +4161,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void validateInclusionsForNonPrivateMembers(List<BLangType> inclusions) {
         for (BLangType inclusion : inclusions) {
-            BType type = inclusion.getBType();
+            BType type = Types.getReferredType(inclusion.getBType());
 
             if (type.tag != TypeTags.OBJECT) {
                 continue;
@@ -4391,7 +4391,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BSymbol symbol = typeDef.symbol;
-            BStructureType structureType = (BStructureType) symbol.type;
+            BStructureType structureType = (BStructureType) Types.getReferredType(symbol.type);
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
                 if (structureType.tag != TypeTags.OBJECT) {
@@ -5091,10 +5091,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        if (funcNode.receiver.getBType().tag == TypeTags.OBJECT
-                && !this.env.enclPkg.symbol.pkgID.equals(funcNode.receiver.getBType().tsymbol.pkgID)) {
+        BType receiverType = funcNode.receiver.getBType();
+        BType referredReceiverType = Types.getReferredType(receiverType);
+        if (referredReceiverType.tag == TypeTags.OBJECT
+                && !this.env.enclPkg.symbol.pkgID.equals(receiverType.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticErrorCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
-                       funcNode.name.value, funcNode.receiver.getBType().toString());
+                       funcNode.name.value, receiverType.toString());
             return false;
         }
         return true;
@@ -5200,7 +5202,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             int referredTypeTag = referredType.tag;
-            if (structureTypeNode.getBType().tag == TypeTags.OBJECT) {
+            if (Types.getReferredType(structureTypeNode.getBType()).tag == TypeTags.OBJECT) {
                 if (referredTypeTag != TypeTags.OBJECT) {
                     DiagnosticErrorCode errorCode = DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE;
 
@@ -5485,7 +5487,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         for (BType constituentType : ((BIntersectionType) includedType).getConstituentTypes()) {
-            int constituentTypeTag = constituentType.tag;
+            int constituentTypeTag = Types.getReferredType(constituentType).tag;
 
             if (constituentTypeTag != TypeTags.OBJECT && constituentTypeTag != TypeTags.READONLY) {
                 return true;
