@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 20
+    },
+    "end": {
+      "line": 2,
+      "character": 37
+    }
+  },
+  "source": "extract_to_function_exprs_typeTest_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 1
+            },
+            "end": {
+              "line": 3,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int|error intOrError) returns boolean {\n    return intOrError is int;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 20
+            },
+            "end": {
+              "line": 2,
+              "character": 37
+            }
+          },
+          "newText": "extracted(intOrError)"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, type test expression"
+}

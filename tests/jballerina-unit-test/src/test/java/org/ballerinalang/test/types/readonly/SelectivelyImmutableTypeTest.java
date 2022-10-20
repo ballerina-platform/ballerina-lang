@@ -155,12 +155,12 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "cannot define a variable of type 'never' or equivalent to type 'never'",
                       303, 5);
-        validateError(result, index++, "incompatible types: expected 'never', found 'int'", 305, 52);
+        validateError(result, index++, "incompatible types: expected 'never?', found 'int'", 305, 52);
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'Grault' can never be 'readonly'",
                       313, 5);
 
-        validateError(result, index++, "incompatible types: expected 'never', found 'stream<int>'", 321, 27);
+        validateError(result, index++, "incompatible types: expected 'never?', found 'stream<int>'", 321, 27);
         validateError(result, index++, "incompatible types: expected 'record {| never a?; |}', " +
                 "found '(R1 & readonly)'", 322, 32);
         validateError(result, index++, "incompatible types: expected 'never', found 'int'", 331, 35);

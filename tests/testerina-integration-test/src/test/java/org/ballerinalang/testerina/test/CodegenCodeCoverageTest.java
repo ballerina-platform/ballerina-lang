@@ -62,7 +62,7 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
         BCompileUtil.copyBalaToExtractedDist(balaPath, "ballerina", "codeModifier", "0.1.0", tempDistPath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void codegenCoverageTest() throws BallerinaTestException {
         String[] args = new String[] {"--code-coverage"};
         runCommand(args);

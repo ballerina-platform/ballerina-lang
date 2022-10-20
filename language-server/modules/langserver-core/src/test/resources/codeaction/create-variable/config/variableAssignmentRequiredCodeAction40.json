@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "future\u003cint\u003e futureResult \u003d "
+          "newText": "future<int> futureResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable5.bal",
+          1992
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

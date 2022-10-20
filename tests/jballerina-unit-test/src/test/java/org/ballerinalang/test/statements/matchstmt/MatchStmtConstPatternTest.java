@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -42,115 +43,49 @@ public class MatchStmtConstPatternTest {
                 "-semantics.bal");
     }
 
-    @Test
-    public void testConstPattern1() {
-        BRunUtil.invoke(result, "testConstPattern1");
+    @DataProvider
+    public Object[] constPatternList() {
+        return new Object[] {
+                "testConstPattern1",
+                "testConstPattern2",
+                "testConstPattern3",
+                "testConstPattern4",
+                "testConstPattern5",
+                "testConstPattern6",
+                "testConstPattern7",
+                "testConstPattern8",
+                "testConstPattern9",
+                "testConstPattern10",
+                "testConstPattern11",
+                "testConstPattern12",
+                "testConstPattern13",
+                "testConstPattern14",
+                "testConstPattern15",
+                "testConstPattern16",
+                "testConstPattern17",
+                "testConstPattern18",
+                "testConstPattern19",
+                "testConstPattern20",
+                "testConstPatternWithNegativeLiteral",
+                "testConstPatternWithPredeclaredPrefix"
+        };
+    }
+
+    @Test(dataProvider = "constPatternList")
+    public void testConstPatterns(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
     @Test
-    public void testConstPattern2() {
-        BRunUtil.invoke(result, "testConstPattern2");
-    }
-
-    @Test
-    public void testConstPattern3() {
-        BRunUtil.invoke(result, "testConstPattern3");
-    }
-
-    @Test
-    public void testConstPattern4() {
-        BRunUtil.invoke(result, "testConstPattern4");
-    }
-
-    @Test
-    public void testConstPattern5() {
-        BRunUtil.invoke(result, "testConstPattern5");
-    }
-
-    @Test
-    public void testConstPattern6() {
-        BRunUtil.invoke(result, "testConstPattern6");
-    }
-
-    @Test
-    public void testConstPattern7() {
-        BRunUtil.invoke(result, "testConstPattern7");
-    }
-
-    @Test
-    public void testConstPattern8() {
-        BRunUtil.invoke(result, "testConstPattern8");
-    }
-
-    @Test
-    public void testConstPattern9() {
-        BRunUtil.invoke(result, "testConstPattern9");
-    }
-
-    @Test
-    public void testConstPattern10() {
-        BRunUtil.invoke(result, "testConstPattern10");
-    }
-
-    @Test
-    public void testConstPattern11() {
-        BRunUtil.invoke(result, "testConstPattern11");
-    }
-
-    @Test
-    public void testConstPattern12() {
-        BRunUtil.invoke(result, "testConstPattern12");
-    }
-
-    @Test
-    public void testConstPattern13() {
-        BRunUtil.invoke(result, "testConstPattern13");
-    }
-
-    @Test
-    public void testConstPattern14() {
-        BRunUtil.invoke(result, "testConstPattern14");
-    }
-
-    @Test
-    public void testConstPattern15() {
-        BRunUtil.invoke(result, "testConstPattern15");
-    }
-
-    @Test
-    public void testConstPattern16() {
-        BRunUtil.invoke(result, "testConstPattern16");
-    }
-
-    @Test
-    public void testConstPattern17() {
-        BRunUtil.invoke(result, "testConstPattern17");
-    }
-
-    @Test
-    public void testConstPattern18() {
-        BRunUtil.invoke(result, "testConstPattern18");
-    }
-
-    @Test
-    public void testConstPattern19() {
-        BRunUtil.invoke(result, "testConstPattern19");
-    }
-
-    @Test
-    public void testConstPatternWithNegativeLiteral() {
-        BRunUtil.invoke(result, "testConstPatternWithNegativeLiteral");
-    }
-
-    @Test
-    public void testConstPatternWithPredeclaredPrefix() {
-        BRunUtil.invoke(result, "testConstPatternWithPredeclaredPrefix");
+    public void testMatchStmtInsideForeach() {
+        Assert.assertFalse(result.getDiagnosticResult().hasWarnings());
+        BRunUtil.invoke(result, "testMatchStmtInsideForeach");
     }
 
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         Assert.assertEquals(resultNegative.getErrorCount(), 5);
-        Assert.assertEquals(resultNegative.getWarnCount(), 28);
+        Assert.assertEquals(resultNegative.getWarnCount(), 26);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -161,9 +96,7 @@ public class MatchStmtConstPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 36, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 37, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 38, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 44, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 45, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 46, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 52, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 53, 9);

@@ -107,5 +107,6 @@ dependencies {
     dist project(':ballerina-lang:runtime')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
+    dist project(':ballerina-lang:regexp')
 
 }

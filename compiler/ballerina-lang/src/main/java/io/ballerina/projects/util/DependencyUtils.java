@@ -18,7 +18,9 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.CompilationOptions;
+import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.environment.ResolutionOptions;
 
 /**
  * Project dependencies related util methods.
@@ -40,5 +42,17 @@ public class DependencyUtils {
         CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
         compilationOptionsBuilder.setOffline(false).setSticky(false);
         project.currentPackage().getResolution(compilationOptionsBuilder.build());
+    }
+
+    /**
+     * Generate missing IDL client modules.
+     *
+     * @param project project
+     * @return IDLClientGeneratorResult idl generation result containing diagnostics and the updated package
+     */
+    public static IDLClientGeneratorResult generateIDLClientModules(Project project) {
+        CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
+        compilationOptionsBuilder.setOffline(false);
+        return project.currentPackage().runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build());
     }
 }

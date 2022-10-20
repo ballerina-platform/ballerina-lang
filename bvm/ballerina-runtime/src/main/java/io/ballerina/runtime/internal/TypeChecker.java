@@ -67,6 +67,7 @@ import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
@@ -513,6 +514,9 @@ public class TypeChecker {
                 return lhsType.getPackage().equals(rhsType.getPackage()) &&
                         lhsType.getName().equals(rhsType.getName()) && rhsType.equals(lhsType);
             default:
+                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
+                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                }
                 return false;
         }
     }
@@ -714,7 +718,7 @@ public class TypeChecker {
     }
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
-                                      List<TypePair> unresolvedTypes) {
+                                       List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -2988,6 +2992,10 @@ public class TypeChecker {
             case TypeTags.TABLE_TAG:
                 return rhsValTypeTag == TypeTags.TABLE_TAG &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+            default:
+                if (lhsValue instanceof RegExpValue && rhsValue instanceof RegExpValue) {
+                    return isEqual((RegExpValue) lhsValue, (RegExpValue) rhsValue);
+                }
         }
         return false;
     }
@@ -3095,6 +3103,17 @@ public class TypeChecker {
         }
 
         return false;
+    }
+
+    /**
+     * Deep equality check for regular expressions.
+     *
+     * @param lhsRegExp Regular expression on the left hand side
+     * @param rhsRegExp Regular expression on the right hand side
+     * @return True if the regular expression values are equal, else false.
+     */
+    private static boolean isEqual(RegExpValue lhsRegExp, RegExpValue rhsRegExp) {
+        return lhsRegExp.stringValue(null).equals(rhsRegExp.stringValue(null));
     }
 
     /**

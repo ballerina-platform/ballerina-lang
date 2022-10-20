@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 24
+    },
+    "end": {
+      "line": 3,
+      "character": 37
+    }
+  },
+  "source": "extractToVariableInQueryExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "int[] var1 \u003d from var i in nums\n                        select i * 10;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 24
+            },
+            "end": {
+              "line": 3,
+              "character": 37
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

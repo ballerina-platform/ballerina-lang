@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createAnotherVal(Foo & readonly r) returns Foo & readonly {\n    return {};\n}\n"
+          "newText": "\n\nfunction createAnotherVal(Foo & readonly r) returns Foo & readonly {\n    return {};\n}"
         }
       ],
       "resolvable": true,

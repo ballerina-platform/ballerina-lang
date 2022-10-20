@@ -46,7 +46,7 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"fixReturnType1.json"},
-//                {"fixReturnType2.json"},
+//                {"fixReturnType2.json"}, #36410
                 {"fixReturnType3.json"},
                 {"fixReturnType4.json"},
                 {"fixReturnType5.json"},
@@ -62,7 +62,8 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnTypeInUnionContext1.json"},
                 {"fixReturnTypeInUnionContext2.json"},
                 {"fixReturnTypeInUnionContext3.json"},
-                {"fixReturnTypeInUnionContext4.json"}
+                {"fixReturnTypeInUnionContext4.json"},
+                {"fixReturnTypeInCommitAction.json"}
         };
     }
 }

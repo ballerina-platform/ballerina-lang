@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 2,
+    "character": 12
+  },
+  "source": "extract_to_function_exprs_object_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside a function key word in a function in a object constructor negative"
+}

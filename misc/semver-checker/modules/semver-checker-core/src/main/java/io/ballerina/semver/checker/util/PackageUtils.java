@@ -43,8 +43,6 @@ import java.util.Map;
  */
 public class PackageUtils {
 
-    public static final String QUALIFIER_PUBLIC = "public";
-
     /**
      * Loads the target ballerina source package instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.

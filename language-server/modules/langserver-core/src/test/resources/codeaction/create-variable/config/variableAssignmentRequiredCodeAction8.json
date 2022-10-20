@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "int intResult \u003d "
+          "newText": "int intResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          32
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

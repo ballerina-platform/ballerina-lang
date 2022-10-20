@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "int? unionResult \u003d "
+          "newText": "int? unionResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableForOptionalFieldAccess1.bal",
+          81
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

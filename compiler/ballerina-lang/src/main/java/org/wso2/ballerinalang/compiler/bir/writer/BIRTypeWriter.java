@@ -31,11 +31,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -198,7 +201,51 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
+        boolean hasTSymbol = bInvokableType.tsymbol != null;
+        buff.writeBoolean(hasTSymbol);
+        if (!hasTSymbol) {
+            return;
+        }
 
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
+        buff.writeInt(invokableTypeSymbol.params.size());
+        for (BVarSymbol symbol : invokableTypeSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
+
+        BVarSymbol restParam = invokableTypeSymbol.restParam;
+        boolean restParamExists = restParam != null;
+        buff.writeBoolean(restParamExists);
+        if (restParamExists) {
+            buff.writeInt(addStringCPEntry(restParam.name.value));
+            buff.writeLong(restParam.flags);
+            writeMarkdownDocAttachment(buff, restParam.markdownDocumentation);
+            writeTypeCpIndex(restParam.type);
+        }
+
+        buff.writeInt(invokableTypeSymbol.defaultValues.size());
+        invokableTypeSymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
+    }
+
+    private void writeSymbolOfClosure(BInvokableSymbol invokableSymbol) {
+        buff.writeInt(addStringCPEntry(invokableSymbol.name.value));
+        buff.writeLong(invokableSymbol.flags);
+        writeTypeCpIndex(invokableSymbol.type);
+        writePackageIndex(invokableSymbol.type.tsymbol);
+
+        buff.writeInt(invokableSymbol.params.size());
+        for (BVarSymbol symbol : invokableSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
     }
 
     @Override

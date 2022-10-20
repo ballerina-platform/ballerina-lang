@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
 import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
@@ -118,16 +117,7 @@ public class BIROptimizer {
             for (BIRErrorEntry errorEntry : birFunction.errorTable) {
                 addErrorTableDependency(errorEntry);
             }
-
-            // First add all the instructions within the function to a list.
-            // This is done since the order of bb's cannot be guaranteed.
-            birFunction.parameters.values().forEach(this::addDependency);
             addDependency(birFunction.basicBlocks);
-
-            // Then visit and replace any temp moves
-            for (List<BIRBasicBlock> paramBBs : birFunction.parameters.values()) {
-                paramBBs.forEach(bb -> bb.accept(this));
-            }
             birFunction.basicBlocks.forEach(bb -> bb.accept(this));
 
             // Remove unused temp vars
@@ -643,6 +633,96 @@ public class BIROptimizer {
             this.optimizeNode(newXMLElement.defaultNsURIOp, this.env);
         }
 
+        @Override
+        public void visit(BIRNonTerminator.NewRegExp newRegExp) {
+            this.optimizeNode(newRegExp.lhsOp, this.env);
+            this.optimizeNode(newRegExp.reDisjunction, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReDisjunction reDisjunction) {
+            this.optimizeNode(reDisjunction.lhsOp, this.env);
+            this.optimizeNode(reDisjunction.sequences, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReSequence reSequence) {
+            this.optimizeNode(reSequence.lhsOp, this.env);
+            this.optimizeNode(reSequence.terms, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReAssertion reAssertion) {
+            this.optimizeNode(reAssertion.lhsOp, this.env);
+            this.optimizeNode(reAssertion.assertion, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReAtomQuantifier reAtomQuantifier) {
+            this.optimizeNode(reAtomQuantifier.lhsOp, this.env);
+            this.optimizeNode(reAtomQuantifier.atom, this.env);
+            this.optimizeNode(reAtomQuantifier.quantifier, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReQuantifier reQuantifier) {
+            this.optimizeNode(reQuantifier.lhsOp, this.env);
+            this.optimizeNode(reQuantifier.quantifier, this.env);
+            this.optimizeNode(reQuantifier.nonGreedyChar, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReLiteralCharOrEscape reLiteralCharOrEscape) {
+            this.optimizeNode(reLiteralCharOrEscape.lhsOp, this.env);
+            this.optimizeNode(reLiteralCharOrEscape.charOrEscape, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReCharacterClass reCharacterClass) {
+            this.optimizeNode(reCharacterClass.lhsOp, this.env);
+            this.optimizeNode(reCharacterClass.classStart, this.env);
+            this.optimizeNode(reCharacterClass.negation, this.env);
+            this.optimizeNode(reCharacterClass.charSet, this.env);
+            this.optimizeNode(reCharacterClass.classEnd, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReCharSet reCharSet) {
+            this.optimizeNode(reCharSet.lhsOp, this.env);
+            this.optimizeNode(reCharSet.charSetAtoms, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReCharSetRange reCharSetRange) {
+            this.optimizeNode(reCharSetRange.lhsOp, this.env);
+            this.optimizeNode(reCharSetRange.lhsCharSetAtom, this.env);
+            this.optimizeNode(reCharSetRange.dash, this.env);
+            this.optimizeNode(reCharSetRange.rhsCharSetAtom, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReCapturingGroup reCapturingGroup) {
+            this.optimizeNode(reCapturingGroup.lhsOp, this.env);
+            this.optimizeNode(reCapturingGroup.openParen, this.env);
+            this.optimizeNode(reCapturingGroup.flagExpr, this.env);
+            this.optimizeNode(reCapturingGroup.reDisjunction, this.env);
+            this.optimizeNode(reCapturingGroup.closeParen, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReFlagExpression reFlagExpression) {
+            this.optimizeNode(reFlagExpression.lhsOp, this.env);
+            this.optimizeNode(reFlagExpression.questionMark, this.env);
+            this.optimizeNode(reFlagExpression.flagsOnOff, this.env);
+            this.optimizeNode(reFlagExpression.colon, this.env);
+        }
+
+        @Override
+        public void visit(BIRNonTerminator.NewReFlagOnOff reFlagOnOff) {
+            this.optimizeNode(reFlagOnOff.lhsOp, this.env);
+            this.optimizeNode(reFlagOnOff.flags, this.env);
+        }
+
         // Operands
         @Override
         public void visit(BIROperand birVarRef) {
@@ -651,16 +731,6 @@ public class BIROptimizer {
                 birVarRef.variableDcl = realVar;
             }
             env.addTempBirOperand(birVarRef);
-        }
-
-        @Override
-        public void visit(BIRArgument birArgument) {
-            BIRVariableDcl realVar = this.env.tempVars.get(birArgument.variableDcl);
-            if (realVar != null) {
-                birArgument.variableDcl = realVar;
-            }
-            env.addTempBirOperand(birArgument);
-            this.optimizeNode(birArgument.condition, this.env);
         }
     }
 

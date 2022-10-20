@@ -140,3 +140,15 @@ function assignTableCtrToIncompatibleType() {
     [int, string] a = [1, "a"];
     a[0] = table[]; // error
 }
+
+type Topt record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+function testOptionalFieldAssignment() {
+    Topt t = {a: 2, c: [{b: 4}]};
+    (t.c)[0].b = (); // error
+}

@@ -357,13 +357,13 @@ function testUsageWithVarWithUserSpecifiedArg() {
     assertSame(strm, x);
 }
 
-function testFunctionWithAnyFunctionParamType() {
-   var fn = function (function x, int y) {
-   };
+ function testFunctionWithAnyFunctionParamType() {
+    var fn = function (function x, int y) {
+    };
 
-   function (function, int) x = getFunctionWithAnyFunctionParamType(fn);
-   assertSame(fn, x);
-}
+    function (function, int) z = getFunctionWithAnyFunctionParamType(fn);
+    assertSame(fn, z);
+ }
 
 function testUsageWithCasts() {
     int a = <int> getValue();
@@ -508,10 +508,10 @@ function getValueWithUnionReturnType(object{}|record {| stream<int> x; |}|anydat
             'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
         } external;
 
-function getFunctionWithAnyFunctionParamType(function (function, int) x, typedesc<int> td = <>)
-    returns function (function, td) = @java:Method {
-                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
-                                      } external;
+ function getFunctionWithAnyFunctionParamType(function (function, int) x, typedesc<int> td = <>)
+     returns function (function, td) = @java:Method {
+                                           'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+                                       } external;
 
 function assert(anydata expected, anydata actual) {
     if (expected == actual) {

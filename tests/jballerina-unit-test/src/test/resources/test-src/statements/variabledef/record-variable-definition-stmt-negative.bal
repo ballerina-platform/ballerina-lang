@@ -315,3 +315,47 @@ function testInvalidFieldBindingPattern() {
     record {| int i; int...; |} a = {i: 1};
     record {| int i; int...; |} {i: _, j} = a;
 }
+
+type Student1 record {
+    string name;
+    int id;
+    int age?;
+};
+
+function testOptionalFieldsInRecordBindingPattern() {
+    Student1 e = {name: "Jo", id: 1234};
+    var {name: eName, id: eId, age: eAge} = e;
+    int newAge = eAge; // error
+
+    var {name, id: id, age} = e;
+    newAge = age; // error
+}
+
+type Topt1 record {
+    int a;
+    record {
+        int b?;
+    }[1] c?;
+};
+
+function testInvalidOptionalFieldAssignment1() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c} = topt;
+    record {int b?;}[1] _ = c; // error
+}
+
+function testInvalidOptionalFieldAssignment2() {
+    Topt1 topt = {a: 4, c: [{b: 5}]};
+    var {a, c: [{b}]} = topt; // error
+}
+
+type Topt2 record {
+   int? x;
+   int? y;
+};
+
+function testRecordDefinitionWithOptionalFieldsNegative1() {
+    int? x = 1;
+    string? y = "2";
+    Topt2 _ = {x, y}; // error
+}
