@@ -6641,10 +6641,12 @@ public class Desugar extends BLangNodeVisitor {
                     new BArrayType(lastPathSegmentSym.type), this.env.scope.owner, lastPathSegmentSym.pos, VIRTUAL);
             pathSegmentCount--;
         }
-        
-        invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount - 1).stream()
-                .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type, this.env.scope.owner,
-                        s.pos, VIRTUAL)).collect(Collectors.toList()));
+
+        if (pathSegmentCount > 0 && !lastPathSegmentSym.name.value.contains(".")) {
+            invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
+                    .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type, 
+                            this.env.scope.owner, s.pos, VIRTUAL)).collect(Collectors.toList()));
+        }
 
         invokableSymbol.params = invocationParams;
 

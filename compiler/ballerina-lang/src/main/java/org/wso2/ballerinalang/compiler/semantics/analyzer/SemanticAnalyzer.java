@@ -481,6 +481,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BLangResourcePathSegment> resourcePathSegments = funcNode.resourcePathSegments;
         int pathSegmentCount = resourcePathSegments.size();
         BLangResourcePathSegment lastPathSegment = resourcePathSegments.get(resourcePathSegments.size() - 1);
+        if (lastPathSegment.kind == NodeKind.RESOURCE_ROOT_PATH_SEGMENT) {
+            return;
+        }
+        
         if (lastPathSegment.kind == NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
             if (!types.isAssignable(lastPathSegment.getBType(), symTable.pathParamAllowedType)) {
                 dlog.error(lastPathSegment.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
@@ -489,11 +493,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             pathSegmentCount--;
         }
 
-        resourcePathSegments.subList(0, pathSegmentCount - 1).stream()
-                .filter(pathSeg -> !types.isAssignable(pathSeg.typeNode.getBType(), symTable.pathParamAllowedType))
-                .forEach(pathSeg -> 
-                        dlog.error(pathSeg.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
-                                pathSeg.getBType()));
+        if (pathSegmentCount > 0) {
+            resourcePathSegments.subList(0, pathSegmentCount).stream()
+                    .filter(pathSeg -> !types.isAssignable(pathSeg.typeNode.getBType(), symTable.pathParamAllowedType))
+                    .forEach(pathSeg ->
+                            dlog.error(pathSeg.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                                    pathSeg.getBType()));
+        }
     }
 
     private boolean containsClientObjectTypeOrFunctionType(BType type) {
