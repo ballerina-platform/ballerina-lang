@@ -18,6 +18,7 @@ package io.ballerina.runtime.internal.regexp;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
@@ -84,9 +85,10 @@ public class RegExpFactory {
         return new RegExpCharSetRange(lhsCharSetAtom.getValue(), dash.getValue(), rhsCharSetAtom.getValue());
     }
 
-    public static RegExpCapturingGroup createReCapturingGroup(BString openParen, RegExpFlagExpression flagExpr,
+    public static RegExpCapturingGroup createReCapturingGroup(BString openParen, Object flagExpr,
                                                               RegExpDisjunction reDisjunction, BString closeParen) {
-        return new RegExpCapturingGroup(openParen.getValue(), flagExpr, reDisjunction, closeParen.getValue());
+        return new RegExpCapturingGroup(openParen.getValue(), (RegExpFlagExpression) flagExpr, reDisjunction,
+                closeParen.getValue());
     }
 
     public static RegExpFlagExpression createReFlagExpression(BString questionMark, RegExpFlagOnOff flagsOnOff,
@@ -111,6 +113,18 @@ public class RegExpFactory {
         } catch (BallerinaException e) {
             throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
                     e.getMessage()));
+        }
+    }
+
+    public static void parseInsertion(String regExpStr) {
+        try {
+            CharReader charReader = CharReader.from(regExpStr);
+            TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
+            TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
+            treeBuilder.parseInsertion();
+        } catch (BallerinaException e) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+                    StringUtils.fromString("Invalid insertion in regular expression: " + e.getMessage()));
         }
     }
 
