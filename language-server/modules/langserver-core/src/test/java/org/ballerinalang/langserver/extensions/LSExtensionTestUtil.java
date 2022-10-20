@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConn
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByNameRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
@@ -64,6 +65,7 @@ public class LSExtensionTestUtil {
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
+    private static final String SYNTAX_TREE_BY_NAME = "ballerinaDocument/syntaxTreeByName";
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
     private static final Gson GSON = new Gson();
@@ -149,6 +151,24 @@ public class LSExtensionTestUtil {
                 TestUtil.getTextDocumentIdentifier(filePath), ignoreMinutiae);
         CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_API_QUOTE, request);
         return GSON.fromJson(getResult(result), SyntaxApiCallsResponse.class);
+    }
+
+    /**
+     * Get the ballerinaDocument/syntaxTreeByName response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param range           Range for which the function should be retrieved
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTreeByName(String filePath,
+                                                                            Range range,
+                                                                            Endpoint serviceEndpoint) {
+        BallerinaSyntaxTreeByNameRequest request = new BallerinaSyntaxTreeByNameRequest();
+        request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        request.setLineRange(range);
+        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_NAME, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
     private static JsonObject getResult(CompletableFuture result) {
