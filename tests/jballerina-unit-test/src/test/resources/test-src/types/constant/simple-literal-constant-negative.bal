@@ -347,3 +347,9 @@ const int ANS11 = NUM4 - NUM1;         // error
 const decimal ANS12 = 5 % 0;           // error
 
 const int ANS7 = NUM2 - 1;             // error
+
+const decimal d1 = 9.999999999999999999999999999999999E6001d * 1E145d;   // error
+const decimal d2 = -9.999999999999999999999999999999999E6141d * 1E5d;    // error
+const decimal d3 = 9.999999999999999999999999999999999E6144d + 1E6143d;  // error
+const decimal d4 = -1E6144d - 9.999999999999999999999999999999999E6144d; // error
+const decimal d5 = 1E614d / 2E-5800d;                                    // error

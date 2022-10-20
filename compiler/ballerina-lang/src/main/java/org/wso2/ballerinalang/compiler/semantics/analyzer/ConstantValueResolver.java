@@ -397,7 +397,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs.value), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs.value), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.add(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
             case TypeTags.STRING:
                 result = String.valueOf(lhs.value) + String.valueOf(rhs.value);
@@ -426,7 +427,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs.value), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs.value), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
@@ -452,7 +454,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs.value), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs.value), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.multiply(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
@@ -477,7 +480,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs.value), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs.value), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.divide(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return new BLangConstantValue(result, currentConstSymbol.type);
