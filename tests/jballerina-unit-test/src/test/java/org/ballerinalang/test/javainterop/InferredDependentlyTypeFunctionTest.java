@@ -110,8 +110,7 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'typedesc<(xml:Element|xml:Comment)>', found 'typedesc<xml:Text>'",
                 69, 38);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 78, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 78, 18);
         validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
                 "expected 'typedesc<(string|int)>', found 'typedesc<float>'", 79, 26);
         validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
@@ -142,20 +141,13 @@ public class InferredDependentlyTypeFunctionTest {
                 "expected 'typedesc<(int|string)>', found 'typedesc<float>'", 112, 17);
         validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
                 "expected 'typedesc<(int|string)>', found 'typedesc<json>'", 114, 16);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 120, 15);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 121, 32);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 122, 18);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': " +
-                "expected a contextually-expected type or an argument for the parameter", 124, 15);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': " +
-                "expected a contextually-expected type or an argument for the parameter", 125, 32);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': " +
-                "expected a contextually-expected type or an argument for the parameter", 126, 18);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': " +
-                "expected a contextually-expected type or an argument for the parameter", 127, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 120, 15);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 121, 32);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 122, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 124, 15);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 125, 32);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 126, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 127, 18);
         validateError(negativeResult, index++, "incompatible types: expected '[string]', found '[int,string...]'",
                 128, 18);
         validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
@@ -166,12 +158,9 @@ public class InferredDependentlyTypeFunctionTest {
                 145, 67);
         validateError(negativeResult, index++, "incompatible types: expected '(stream<boolean>|readonly)', found '" +
                 "(readonly|stream<int>|handle)'", 146, 34);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 147, 25);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 151, 13);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 152, 13);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 147, 25);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 151, 13);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 152, 13);
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'typedesc<(any|error)>'",
                 155, 55);
         validateError(negativeResult, index++, "incompatible types: expected '(int|typedesc<int>)', found 'typedesc<" +
@@ -197,10 +186,8 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++, "incompatible types: expected 'function (typedesc<(any|error)>," +
                 "typedesc<boolean>) returns ((t|td))', found 'function (typedesc<(any|error)>,typedesc<boolean>) " +
                 "returns ((int|string))'", 180, 74);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 185, 44);
-        validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': " +
-                "expected a contextually-expected type or an argument for the parameter", 186, 52);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 185, 44);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 186, 52);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }
