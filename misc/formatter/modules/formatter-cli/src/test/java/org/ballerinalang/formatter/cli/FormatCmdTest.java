@@ -31,11 +31,12 @@ import java.util.List;
  */
 public class FormatCmdTest {
     private static final Path RES_DIR = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
-    private static final String NOT_A_PROJECT = "notAProject";
+    private static final String NOT_A_BAL_PROJECT = "notAProject";
+    private static final String BAL_PROJECT = "project";
 
     @Test(description = "Test to check the exception for too many argument provided.")
     public void formatCLITooManyArgumentsTest() {
-        Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
+        Path sourceRoot = RES_DIR.resolve(NOT_A_BAL_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
         argList.add("asd");
@@ -55,7 +56,7 @@ public class FormatCmdTest {
 
     @Test(description = "Test to check the exception for not a ballerina project.")
     public void formatCLINotAProjectTest() {
-        Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
+        Path sourceRoot = RES_DIR.resolve(NOT_A_BAL_PROJECT);
         try {
             FormatUtil.execute(null, false, false, sourceRoot);
         } catch (BLauncherException e) {
@@ -72,7 +73,7 @@ public class FormatCmdTest {
 
     @Test(description = "Test to check the exception for not a ballerina project when given a module name.")
     public void formatCLINotAProjectInModuleTest() {
-        Path sourceRoot = RES_DIR.resolve(NOT_A_PROJECT);
+        Path sourceRoot = RES_DIR.resolve(NOT_A_BAL_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg1");
         try {
@@ -90,7 +91,7 @@ public class FormatCmdTest {
 
     @Test(description = "Test to check the exception for no ballerina module found for a given module name.")
     public void formatCLINotAModuleTest() {
-        Path sourceRoot = RES_DIR.resolve("project");
+        Path sourceRoot = RES_DIR.resolve(BAL_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
         try {
@@ -147,7 +148,7 @@ public class FormatCmdTest {
 
     @Test(description = "Test to check the exception for no existing ballerina file or module.")
     public void formatCLINotABallerinaFileOrModuleTest() {
-        Path sourceRoot = RES_DIR.resolve("project");
+        Path sourceRoot = RES_DIR.resolve(BAL_PROJECT);
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
@@ -180,4 +181,23 @@ public class FormatCmdTest {
             }
         }
     }
+
+//    @Test(description = "Test to check for successful formatting on default module")
+//    public void formatCLIDefaultModuleTest() {
+//        List<String> argList = new ArrayList<>();
+////        argList.add(BAL_PROJECT);
+//        try {
+//            FormatUtil.execute(argList, false, false, RES_DIR.resolve(BAL_PROJECT));
+//        } catch (BLauncherException e) {
+//            List<String> exception = e.getMessages();
+//            Systems.out.println(exception);
+//            if (exception.size() == 1) {
+//                Assert.assertTrue(exception.get(0).contains("error: " + Messages.getException()),
+//                        "actual exception didn't match the expected.");
+//            } else {
+//                Assert.fail("failed the test with " + exception.size()
+//                        + " exceptions where there needs to be 1 exception");
+//            }
+//        }
+//    }
 }

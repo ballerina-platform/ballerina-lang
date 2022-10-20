@@ -108,8 +108,31 @@ class FormatUtil {
                 } else {
                     moduleName = argList.get(0);
 
+                    // Check whether the module is default
+                    if (isBallerinaProject(sourceRootPath)) {
+                        BuildProject project;
+                        try {
+                            project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                        } catch (ProjectException e) {
+                            throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                        }
+                        if (project.currentPackage().packageName().value().equals(moduleName)) {
+                            List<String> formattedFiles = new ArrayList<>();
+                            // Iterate and format all the ballerina packages.
+                            project.currentPackage().moduleIds().forEach(moduleId -> {
+                                try {
+                                    formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
+                                            sourceRootPath, dryRun));
+                                } catch (IOException | FormatterException e) {
+                                    throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                                }
+                            });
+                            generateChangeReport(formattedFiles, dryRun);
+                        }
+                    }
+
                     // Check whether the module dir exists.
-                    if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
+                    if (!FormatUtil.isModuleExist(moduleName, sourceRootPath) ) {
                         // If module directory doesn't exist and contains a "."
                         // throw an exception to say file or module doesn't exist.
                         // Else throw a exception to say module doesn't exist.
