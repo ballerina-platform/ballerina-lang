@@ -67,6 +67,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 // statements
                 {"extract_to_function_stmts_block_stmt_inside_block.json"},
+//                {"extract_to_function_stmts_block_stmt_with_block.json"}, // todo support later
+                
 
                 {"extract_to_function_stmts_local_var_decl_with_init.json"},
                 {"extract_to_function_stmts_local_var_decl_with_init_range_till_closing_bracket.json"},
@@ -79,6 +81,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_if_else_stmt_with_if_and_else.json"},
                 {"extract_to_function_stmts_if_else_stmt_with_nested_if.json"},
                 {"extract_to_function_stmts_if_else_stmt_inside_nested_while_stmts.json"},
+//                {"extract_to_function_stmts_if_else_stmt_with_else_if.json"},// todo support later
 
                 {"extract_to_function_stmts_while_stmt.json"},
                 {"extract_to_function_stmts_while_stmt_with_local_var_referred.json"},
@@ -101,6 +104,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_within_class_method.json"},
                 {"extract_to_function_stmts_within_isolated_class_method.json"},
                 {"extract_to_function_stmts_within_remote_method.json"},
+                {"extract_to_function_stmts_within_class.json"},
 
                 // expressions
 
@@ -260,7 +264,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
                 {"neg_extract_to_function_exprs_pos_service_uri_in_module_client_declaration.json"},
-                {"neg_extract_to_function_exprs_pos_service_uri_in_client_declaration.json"},
+                {"neg_extract_to_function_exprs_pos_service_uri_in_client_declaration.json"}
         };
     }
 
