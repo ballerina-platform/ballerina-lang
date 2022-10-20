@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.Type;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -28,7 +27,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeChecker;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -470,13 +468,12 @@ public class JvmObjectTypeGen {
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
         for (int i = 0; i < pathSegmentSize; i++) {
-            Type type = pathSegmentSymbols.get(i).type;
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
 
             // load resource path name
-            mv.visitLdcInsn(type);
+            jvmTypeGen.loadType(mv, pathSegmentSymbols.get(i).type);
 
             mv.visitInsn(AASTORE);
         }

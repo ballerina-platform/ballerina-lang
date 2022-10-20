@@ -34,10 +34,10 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     public final String accessor;
     public final String[] resourcePath;
-    public List<Type> pathSegmentTypes;
+    public Type[] pathSegmentTypes;
 
     public BResourceMethodType(String funcName, Module pkg, BObjectType parent, BFunctionType type,
-                               List<Type> pathSegmentTypes, long flags, String accessor, String[] resourcePath) {
+                               Type[] pathSegmentTypes, long flags, String accessor, String[] resourcePath) {
         super(funcName, pkg, parent, type, flags);
         this.type = type;
         this.pathSegmentTypes = pathSegmentTypes;
