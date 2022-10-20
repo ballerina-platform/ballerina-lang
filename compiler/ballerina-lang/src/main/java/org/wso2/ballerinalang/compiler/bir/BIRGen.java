@@ -689,17 +689,20 @@ public class BIRGen extends BLangNodeVisitor {
                     }
 
                     List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
-                    List<Location> pathSegmentPosList = new ArrayList<>(pathSegmentSymbols.size());
-                    List<Name> pathSegmentNameList = new ArrayList<>(pathSegmentSymbols.size());
+                    int pathSegmentSize = pathSegmentSymbols.size();
+                    List<Name> pathSegmentNameList = new ArrayList<>(pathSegmentSize);
+                    List<Location> pathSegmentPosList = new ArrayList<>(pathSegmentSize);
+                    List<BType> pathSegmentTypeList = new ArrayList<>(pathSegmentSize);
                     for (BSymbol pathSegmentSym : pathSegmentSymbols) {
                         pathSegmentNameList.add(pathSegmentSym.name);
                         pathSegmentPosList.add(pathSegmentSym.pos);
+                        pathSegmentTypeList.add(pathSegmentSym.type);
                     }
                     
                     birFunc.resourcePathSegmentPosList = pathSegmentPosList;
                     birFunc.resourcePath = pathSegmentNameList;
                     birFunc.accessor = resourceFunction.accessor;
-                    birFunc.resourcePathType = resourceFunction.resourcePathType;
+                    birFunc.pathSegmentTypeList = pathSegmentTypeList;
                     break;
                 }
             }

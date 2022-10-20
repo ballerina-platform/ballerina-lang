@@ -104,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -476,22 +477,23 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (containsClientObjectTypeOrFunctionType(returnType)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
         }
-        for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
-            symResolver.resolveTypeNode(pathParamType, data.env);
-            if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
-                        pathParamType.getBType());
+
+        List<BLangResourcePathSegment> resourcePathSegments = funcNode.resourcePathSegments;
+        int pathSegmentCount = resourcePathSegments.size();
+        BLangResourcePathSegment lastPathSegment = resourcePathSegments.get(resourcePathSegments.size() - 1);
+        if (lastPathSegment.kind == NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            if (!types.isAssignable(lastPathSegment.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(lastPathSegment.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
+                        lastPathSegment.getBType());
             }
+            pathSegmentCount--;
         }
 
-        if (funcNode.resourcePathType.restParamType != null) {
-            BLangType restParamType = funcNode.resourcePathType.restParamType;
-            symResolver.resolveTypeNode(restParamType, data.env);
-            if (!types.isAssignable(restParamType.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
-                        restParamType.getBType());
-            }
-        }
+        resourcePathSegments.subList(0, pathSegmentCount - 1).stream()
+                .filter(pathSeg -> !types.isAssignable(pathSeg.typeNode.getBType(), symTable.pathParamAllowedType))
+                .forEach(pathSeg -> 
+                        dlog.error(pathSeg.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                                pathSeg.getBType()));
     }
 
     private boolean containsClientObjectTypeOrFunctionType(BType type) {

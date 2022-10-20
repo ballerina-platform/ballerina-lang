@@ -106,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -4995,9 +4996,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
         BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
         Name accessor = names.fromIdNode(resourceFunction.methodName);
-        List<Name> resourcePath = resourceFunction.resourcePath.stream()
-                .map(names::fromIdNode)
-                .collect(Collectors.toList());
 
         List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
                 .map(p -> {
@@ -5012,35 +5010,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
-        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
-        BTupleType resourcePathType = (BTupleType) resourceFunction.resourcePathType.getBType();
         BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
-                funcType, accessor, pathParamSymbols, restPathParamSym, resourcePathType, funcNode.pos);
-        
-        List<BType> resourcePathTypes = new ArrayList<>(resourcePathType.tupleTypes);
-        BType restPathParamType = resourcePathType.restType;
-        if (restPathParamType != null) {
-            resourcePathTypes.add(restPathParamType);
-        }
+                funcType, accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
 
-        // if resourcePathTypes.isEmpty() then it is the root resource. ie: `.`
-        if (resourcePathTypes.isEmpty()) {
-            resourcePathTypes.add(symTable.noType);
-        }
-
-        int resourcePathCount = resourcePath.size();
+        List<BLangResourcePathSegment> pathSegments = resourceFunction.resourcePathSegments;
+        int resourcePathCount = pathSegments.size();
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
         for (int i = 0; i < resourcePathCount; i++) {
-            Name resourcePathSymbolName = resourcePath.get(i);
-            BType resourcePathSegmentType = resourcePathTypes.get(i);
+            BLangResourcePathSegment pathSegment = pathSegments.get(i);
+            Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
+            BType resourcePathSegmentType = pathSegment.typeNode == null ? 
+                    symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
             
             BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(resourcePathSymbolName,
-                    env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
-                    resourceFunction.resourcePath.get(i).pos, parentResource, bResourceFunction, SOURCE);
+                    env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol, pathSegment.pos,
+                    parentResource, bResourceFunction, SOURCE);
 
             objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
             pathSegmentSymbols.add(pathSym);
+            pathSegment.symbol = pathSym;
             parentResource = pathSym;
         }
 
@@ -5360,7 +5349,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
             attachedFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    resourceFunction.resourcePathType, referencedFunc.pos);
+                    referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

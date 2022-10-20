@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -36,17 +35,15 @@ public class BResourceFunction extends BAttachedFunction {
     public List<BVarSymbol> pathParams;
     public BVarSymbol restPathParam;
     public Name accessor;
-    public BTupleType resourcePathType;
     public List<BResourcePathSegmentSymbol> pathSegmentSymbols;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
                              Name accessor, List<BVarSymbol> pathParams,
-                             BVarSymbol restPathParam, BTupleType resourcePathType, Location pos) {
+                             BVarSymbol restPathParam, Location pos) {
         super(funcName, symbol, type, pos);
         this.accessor = accessor;
         this.pathParams = pathParams;
         this.restPathParam = restPathParam;
-        this.resourcePathType = resourcePathType;
     }
 
     @Override
@@ -55,14 +52,14 @@ public class BResourceFunction extends BAttachedFunction {
         sb.append("resource function ").append(accessor).append(" ");
         int pathSegmentCount = pathSegmentSymbols.size();
         List<String> resourcePathStrings = new ArrayList<>(pathSegmentCount);
-        for (int i = 0; i < pathSegmentCount; i++) {
-            Name resourcePath = this.pathSegmentSymbols.get(i).name;
-            if (resourcePath.value.equals("^") || resourcePath.value.equals("$^")) {
-                resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
-            } else if (resourcePath.value.equals("^^") || resourcePath.value.equals("$^^")) {
-                resourcePathStrings.add("[" + resourcePathType.restType + "...]");
+        for (BResourcePathSegmentSymbol pathSym : pathSegmentSymbols) {
+            Name pathSegmentName = pathSym.name;
+            if (pathSegmentName.value.equals("^") || pathSegmentName.value.equals("$^")) {
+                resourcePathStrings.add("[" + pathSym.type + "]");
+            } else if (pathSegmentName.value.equals("^^") || pathSegmentName.value.equals("$^^")) {
+                resourcePathStrings.add("[" + pathSym.type + "...]");
             } else {
-                resourcePathStrings.add(resourcePath.value);
+                resourcePathStrings.add(pathSegmentName.value);
             }
         }
         

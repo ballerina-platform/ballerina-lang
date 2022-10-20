@@ -338,15 +338,16 @@ public class BIRBinaryWriter {
 
             List<Name> resourcePath = birFunction.resourcePath;
             List<Location> pathSegmentPosList = birFunction.resourcePathSegmentPosList;
+            List<BType> pathSegmentTypeList = birFunction.pathSegmentTypeList;
             int pathSegmentCount = resourcePath.size();
             buf.writeInt(pathSegmentCount);
             for (int i = 0; i < pathSegmentCount; i++) {
                 buf.writeInt(addStringCPEntry(resourcePath.get(i).value));
                 writePosition(buf, pathSegmentPosList.get(i));
+                writeType(buf, pathSegmentTypeList.get(i));
             }
 
             buf.writeInt(addStringCPEntry(birFunction.accessor.value));
-            writeType(buf, birFunction.resourcePathType);
         }
     }
 

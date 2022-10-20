@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -3713,7 +3714,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BResourceFunction resourceFunction = (BResourceFunction) targetFunc;
                 BLangExpression clonedResourceAccPathSeg = 
                         nodeCloner.cloneNode(resourceAccessInvocation.resourceAccessPathSegments);
-                BType resolvedType = checkExprSilent(clonedResourceAccPathSeg, resourceFunction.resourcePathType, data);
+                BType resolvedType = checkExprSilent(clonedResourceAccPathSeg,
+                        getResourcePathType(resourceFunction.pathSegmentSymbols), data);
                 if (resolvedType != symTable.semanticError) {
                     resourceFunctions.add(resourceFunction);
                 }
@@ -3739,11 +3741,27 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.semanticError;
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments,
+                    getResourcePathType(targetResourceFunc.pathSegmentSymbols), data);
             resourceAccessInvocation.symbol = targetResourceFunc.symbol;
             resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
+    }
+    
+    private BTupleType getResourcePathType(List<BResourcePathSegmentSymbol> pathSegmentSymbols) {
+        BType restType = null;
+        int pathSegmentCount = pathSegmentSymbols.size();
+        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
+        if (lastPathSegmentSym.name.value.contains("^^")) {
+            restType = lastPathSegmentSym.type;
+            pathSegmentCount--;
+        }
+        
+        BTupleType resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount - 1).stream()
+                .map(s -> s.type).collect(Collectors.toList()));
+        resourcePathType.restType = restType;
+        return resourcePathType;
     }
 
     /**
