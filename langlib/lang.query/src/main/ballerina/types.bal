@@ -870,3 +870,105 @@ class _OrderTreeNode {
         }
     }
 }
+
+type RowDataType record {|
+    readonly anydata groupByKey;
+    _Frame[] frames;
+|};
+
+class _GroupByFunction {
+    *_StreamFunction;
+
+    stream<_Frame>? groupedStream;
+    string[] groupingKeys = [];
+    table<RowDataType> key(groupByKey) groupingDataTbl = table [];
+    _Frame[] groupedFrames = [];
+
+    function init(string[] groupingKeys) {
+        self.groupingKeys = groupingKeys;
+        self.groupedStream = ();
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        if (self.groupedStream is ()) {
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame|error? pFrame = pf.process();
+
+            string[] allKeysInFrame = (<_Frame>check pFrame).keys();
+
+            while pFrame is _Frame {
+                anydata[] groupingKeysInFrame = [];
+                foreach int i in 0 ..< self.groupingKeys.length() {
+                    groupingKeysInFrame.push(<anydata>check pFrame[self.groupingKeys[i]]);
+                }
+
+                anydata & readonly groupingKey = groupingKeysInFrame.cloneReadOnly();
+
+                if (self.groupingDataTbl.hasKey(groupingKey)) {
+                    RowDataType tableEntry = self.groupingDataTbl.get(groupingKey);
+                    tableEntry.frames.push(pFrame);
+                    self.groupingDataTbl.put(tableEntry);
+
+                } else {
+                    RowDataType newEntry = {
+                        groupByKey: groupingKey,
+                        frames: [pFrame]
+                    };
+                    self.groupingDataTbl.add(newEntry);
+                }
+                pFrame = pf.process();
+            }
+
+            // Identify non grouping keys.
+            string[] nonGroupingKeys = [];
+            foreach string keyInFrame in allKeysInFrame {
+                if (keyInFrame == "value") {
+                    continue;
+                }
+                foreach string groupingKey in self.groupingKeys {
+                    if keyInFrame != groupingKey {
+                        nonGroupingKeys.push(keyInFrame);
+                    }
+                }
+            }
+
+            foreach RowDataType data in self.groupingDataTbl {
+                _Frame[] frameGroup = data.frames;
+                _Frame newFrame = {};
+
+                foreach int i in 0 ..< nonGroupingKeys.length() {
+                    anydata[] nonGroupingVals = [];
+
+                    foreach _Frame frame in frameGroup {
+                        if (i == 0) {
+                            foreach string groupingKey in self.groupingKeys {
+                                newFrame[groupingKey] = frame[groupingKey];
+                            }
+                        }
+                        nonGroupingVals.push(<anydata>check frame[nonGroupingKeys[i]]);
+                    }
+                    newFrame[nonGroupingKeys[i]] = nonGroupingVals;
+                }
+                self.groupedFrames.push(newFrame);
+            }
+
+            self.groupedStream = self.groupedFrames.toStream();
+        }
+
+        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+        record {|_Frame value;|}|error? f = s.next();
+        if (f is record {|_Frame value;|}) {
+            return f.value;
+        }
+        return f;
+    }
+
+    public function reset() {
+        self.groupedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}

@@ -62,7 +62,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -199,7 +200,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_OUTER_JOIN_FUNCTION = new Name("createOuterJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
-
     private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
@@ -465,8 +465,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case GROUP_BY:
-                    BLangVariableReference groupFunc = addGroupByFunction(block, (BLangGroupByClause) clause,
-                            stmtsToBePropagated);
+                    // Search for variable definitions in grouping keys and add let clauses for them
+                    // before adding group by clause into the stream.
+                    desugarGroupingKeyVarDef(block, (BLangGroupByClause) clause, stmtsToBePropagated, initPipeline);
+                    BLangVariableReference groupFunc = addGroupByFunction(block, (BLangGroupByClause) clause);
                     addStreamFunction(block, initPipeline, groupFunc);
                     break;
                 case SELECT:
@@ -489,6 +491,47 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
         }
         return addGetStreamFromPipeline(block, initPipeline);
+    }
+
+    private void desugarGroupingKeyVarDef(BLangBlockStmt blockStmt, BLangGroupByClause groupByClause,
+                                          List<BLangStatement> stmtsToBePropagated,
+                                          BLangVariableReference initPipeline) {
+        for (int i = 0; i < groupByClause.groupingKeyList.size(); i++) {
+            BLangGroupingKey groupingKey = groupByClause.groupingKeyList.get(i);
+            if (groupingKey.variableDef != null) {
+                BLangSimpleVariableDef groupingKeyVarDef = (BLangSimpleVariableDef) groupingKey.getGroupingKey();
+                BLangVariableReference letFunc = addLetFunction(blockStmt,
+                        getLetClause(groupingKeyVarDef), stmtsToBePropagated);
+                addStreamFunction(blockStmt, initPipeline, letFunc);
+
+                // Replace variable def grouping key with variable ref that refers the created variable in let clause.
+                groupingKey.variableRef = getGroupingKeyVarRef(groupingKeyVarDef);
+                groupingKey.variableDef = null;
+            }
+        }
+
+    }
+
+    private BLangSimpleVarRef getGroupingKeyVarRef(BLangSimpleVariableDef groupingKeyVarDef) {
+        BLangIdentifier key = groupingKeyVarDef.var.name;
+        key.setLiteral(false);
+        BLangSimpleVarRef groupingVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        groupingVarRef.pos = groupingKeyVarDef.pos;
+        groupingVarRef.variableName = key;
+        groupingVarRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        return groupingVarRef;
+    }
+
+    private BLangLetClause getLetClause(BLangSimpleVariableDef groupingKeyVarDef) {
+        BLangLetClause bLLetClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        bLLetClause.pos = groupingKeyVarDef.pos;
+        List<BLangLetVariable> letVars = new ArrayList<>();
+        BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
+        letVar.definitionNode = (VariableDefinitionNode) groupingKeyVarDef.var;
+        letVar.definitionNode.getVariable().addFlag(Flag.FINAL);
+        letVars.add(letVar);
+        bLLetClause.letVarDeclarations = letVars;
+        return bLLetClause;
     }
 
     // ---- Util methods to create the stream pipeline. ---- //
@@ -749,6 +792,40 @@ public class QueryDesugar extends BLangNodeVisitor {
         body.stmts.add(orderDirectionStmt);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    /**
+     * Desugar groupByClause to below and return a reference to created groupBy _StreamFunction.
+     * _StreamFunction groupByFunc = createGroupByFunction(function(_Frame frame));
+     *
+     * @param blockStmt           parent block to write to.
+     * @param groupByClause       to be desugared.
+     * @return variableReference to created groupBy _StreamFunction.
+     */
+
+    BLangVariableReference addGroupByFunction(BLangBlockStmt blockStmt, BLangGroupByClause groupByClause) {
+        Location pos = groupByClause.pos;
+        BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        List argExprList = new ArrayList<BLangExpression>();
+
+        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            // At this point all members of groupingKeyList are of type BLangSimpleVarRef since we desugared
+            // instances of BLangSimpleVariableDef to a let clause and replaced it with a BLangSimpleVarRef
+            // in the list.
+            BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            bLiteral.value = ((BLangSimpleVarRef) groupingKey.getGroupingKey()).getVariableName().value;
+            String originalVal =
+                    "\"" + ((BLangSimpleVarRef) groupingKey.getGroupingKey()).getVariableName().value + "\"";
+            bLiteral.originalValue = originalVal;
+            bLiteral.pos = ((BLangSimpleVarRef) groupingKey.getGroupingKey()).pos;
+            bLiteral.setBType(symTable.stringType);
+            argExprList.add(bLiteral);
+        }
+        arr.exprs = argExprList;
+        arr.pos = pos;
+        arr.setBType(new BArrayType(symTable.stringType));
+
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION, Lists.of(arr), pos);
     }
 
     /**
@@ -2170,6 +2247,16 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(key -> this.acceptNode(((BLangOrderKey) key).expression));
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> this.acceptNode(value));
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        this.acceptNode((BLangNode) groupingKey.getGroupingKey());
     }
 
     @Override
