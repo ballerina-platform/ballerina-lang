@@ -26,6 +26,19 @@ jobs:
           else
             echo "team_label_added=false" >> $GITHUB_ENV
           fi
+
+      - name: Check for Type label inclusion
+        if: ${{ !(contains(github.event.issue.labels.*.name, 'Type/Bug') || contains(github.event.issue.labels.*.name, 'Type/Docs') ||
+            contains(github.event.issue.labels.*.name, 'Type/Improvement') ||
+            contains(github.event.issue.labels.*.name, 'Type/NewFeature') ||
+            contains(github.event.issue.labels.*.name, 'Type/PackerinaSpecIssue') ||
+            contains(github.event.issue.labels.*.name, 'Type/Proposal') ||
+            contains(github.event.issue.labels.*.name, 'Type/Question') ||
+            contains(github.event.issue.labels.*.name, 'Type/SpecDeviation') ||
+            contains(github.event.issue.labels.*.name, 'Type/Task') ||
+            contains(github.event.issue.labels.*.name, 'Type/TestFailure')) }}
+        steps:
+          - run: gh issue edit $ISSUE --add-label "needTriage"
       
       - name: Check for Compilation related issue
         if: ${{ contains(github.event.issue.body, '-> Compilation') && {{ env.team_label_added == false }} }}
