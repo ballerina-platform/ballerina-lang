@@ -2322,7 +2322,7 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangResourcePathSegment source) {
         BLangResourcePathSegment clone = new BLangResourcePathSegment(source.kind);
-
+        source.cloneRef = clone;
         clone.name = clone(source.name);
         clone.symbol = source.symbol;
         clone.typeNode = clone(source.typeNode);
