@@ -1051,9 +1051,11 @@ public class TypeParamAnalyzer {
                                                   BInvokableSymbol invokableSymbol) {
         if (expFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) expFunc;
-            return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
-                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+            BResourceFunction newResourceFunc = new BResourceFunction(resourceFunction.funcName, invokableSymbol,
+                    matchType, resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
                     expFunc.pos);
+            newResourceFunc.pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+            return newResourceFunc;
         }
         return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }
