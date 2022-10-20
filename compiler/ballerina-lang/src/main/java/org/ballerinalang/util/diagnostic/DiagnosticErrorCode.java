@@ -625,7 +625,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MULTIPLE_INFER_TYPEDESC_PARAMS("BCE3932", "multiple.infer.typedesc.params"),
     INVALID_DEPENDENTLY_TYPED_RETURN_TYPE_WITH_INFERRED_TYPEDESC_PARAM(
             "BCE3933", "invalid.dependently.typed.return.type.with.inferred.typedesc.param"),
-    CANNOT_INFER_TYPE_FOR_PARAM("BCE3934", "cannot.infer.type.for.param"),
+    CANNOT_INFER_TYPEDESC_ARGUMENT("BCE3934", "cannot.infer.typedesc.argument"),
     CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM("BCE3935",
             "cannot.use.inferred.typedesc.default.with.unreferenced.param"),
 
@@ -794,7 +794,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE(
             "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
-            "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state")
+            "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
+    CANNOT_INFER_TYPEDESC_ARGUMENT_OR_EXPECTED_CONTEXTUALLY_EXPECTED_TYPE("BCE4045",
+            "cannot.infer.typedesc.argument.or.expected.contectually.expected.type");
     ;
 
     private String diagnosticId;
