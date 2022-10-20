@@ -6521,8 +6521,7 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(pathParamInvocation);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.pathSegmentSymbols.stream().map(s -> s.name)
-                .collect(Collectors.toList());
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceFunc.pathSegmentSymbols;
 
         int pathParamInvocationRequiredArgCount = pathParamInvocation.requiredArgs.size();
 
@@ -6541,7 +6540,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = 0; i < pathParamInvocationRequiredArgCount; i++) {
             BLangExpression requiredArg = pathParamInvocation.requiredArgs.get(i);
             // Resource path size is always >= pathParamInvocationRequiredArgCount
-            Name resourcePathName = resourcePath.get(i);
+            Name resourcePathName = pathSegmentSymbols.get(i).name;
             if (firstRequiredArgFromRestArg == null && requiredArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
                 firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
                 if (resourcePathName.value.equals("^")) {
@@ -6565,7 +6564,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        Name lastResourcePathName = resourcePath.get(resourcePath.size() - 1);
+        Name lastResourcePathName = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1).name;
         if (lastResourcePathName.value.equals("^^")) {
             // After reordering pathParamInvocation.restArgs size will always be 0 or 1
             for (BLangExpression restArg : pathParamInvocation.restArgs) {

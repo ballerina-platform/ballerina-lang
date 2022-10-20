@@ -3752,7 +3752,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BTupleType getResourcePathType(List<BResourcePathSegmentSymbol> pathSegmentSymbols) {
         BType restType = null;
         int pathSegmentCount = pathSegmentSymbols.size();
-        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
+        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentCount - 1);
         if (lastPathSegmentSym.name.value.contains("^^")) {
             restType = lastPathSegmentSym.type;
             pathSegmentCount--;

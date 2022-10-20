@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 
-import java.util.List;
 import java.util.StringJoiner;
 
 /**d

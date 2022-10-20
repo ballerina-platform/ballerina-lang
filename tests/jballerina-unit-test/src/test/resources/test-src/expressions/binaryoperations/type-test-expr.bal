@@ -1817,5 +1817,5 @@ function testResourceMethodTyping() {
         resource function get foo/[string...]();
     };
     
-    test:assertTrue(false);
+    test:assertFalse(result);
 }
