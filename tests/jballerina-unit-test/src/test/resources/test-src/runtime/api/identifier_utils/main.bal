@@ -34,12 +34,17 @@ function testEscapeSpecialCharacters() {
     test:assertEquals(escapeSpecialCharacters(" ' $0047$0058@$0091`{~_IL"), "\\ \\'\\ \\$0047\\$0058\\@\\$0091\\`\\{\\~_IL");
     test:assertEquals(escapeSpecialCharacters("üňĩćőđę_ƈȏɳʂʈ_IL"), "üňĩćőđę_ƈȏɳʂʈ_IL");
     test:assertEquals(escapeSpecialCharacters("'ü?ňĩ$ć%őđ&ę_ƈ-ȏɳ+ʂʈ_=L#"), "\\'ü\\?ňĩ\\$ć\\%őđ\\&ę_ƈ\\-ȏɳ\\+ʂʈ_\\=L\\#");
+    test:assertEquals(escapeSpecialCharacters("\u{03C0}A9őđ&ę\u{00A9}\u{00AE}\u{2122}@3)^~`\u{03A3}\u{03A8}"), "πA9őđ\\&ę©®™\\@3\\)\\^\\~\\`ΣΨ");
+    test:assertEquals(escapeSpecialCharacters("\u{1f479}\u{1F47A}\u{1f47B}\u{1F63A}\u{1F408}\u{1F981}\u{1F600}"), "👹👺👻😺🐈🦁😀");
 }
 
 function testUnescapeSpecialCharacters() {
     test:assertEquals(unescapeSpecialCharacters("\\'version"), "'version");
     test:assertEquals(unescapeSpecialCharacters("\\ \\'\\ \\$0047\\$0058\\@\\$0091\\`\\{\\~_IL"), " ' $0047$0058@$0091`{~_IL");
     test:assertEquals(unescapeSpecialCharacters("\\'ü\\?ňĩ\\$ć\\%őđ\\&ę_ƈ\\-ȏɳ\\+ʂʈ_\\=L\\#"), "'ü?ňĩ$ć%őđ&ę_ƈ-ȏɳ+ʂʈ_=L#");
+    test:assertEquals(unescapeSpecialCharacters("πA9őđ\\&ę©®™\\@3\\)\\^\\~\\`ΣΨ"), "πA9őđ&ę©®™@3)^~`ΣΨ");
+    test:assertEquals(unescapeSpecialCharacters("πA9őđ\\&ę©®™\\@3\\)\\^\\~\\`ΣΨ"), "\u{03C0}A9őđ&ę\u{00A9}\u{00AE}\u{2122}@3)^~`\u{03A3}\u{03A8}");
+    test:assertEquals(unescapeSpecialCharacters("👹👺👻😺🐈🦁😀\u{1f920}👐"), "\u{1f479}\u{1F47A}\u{1f47B}\u{1F63A}\u{1F408}🦁😀🤠\u{1F450}");
 }
 
 function decodeIdentifier(string s) returns string = @java:Method {

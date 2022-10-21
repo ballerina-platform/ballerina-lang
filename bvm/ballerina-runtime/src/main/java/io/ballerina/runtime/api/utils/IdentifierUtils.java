@@ -20,8 +20,6 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.identifier.Utils;
 
-import static io.ballerina.identifier.Utils.unescapeJava;
-
 /**
  * Utils class that provides methods to decode identifiers with special characters.
  *
@@ -45,8 +43,8 @@ public class IdentifierUtils {
     /**
      * Escape the special characters in an identifier with a preceding `\`.
      *
-     * @param identifier encoded identifier string
-     * @return decoded identifier
+     * @param identifier identifier string
+     * @return a string of characters with special characters converted to their escaped form
      */
     public static String escapeSpecialCharacters(String identifier) {
         return Utils.escapeSpecialCharacters(identifier);
@@ -56,9 +54,9 @@ public class IdentifierUtils {
      * Unescapes a ballerina string.
      *
      * @param text ballerina string to unescape
-     * @return unescaped ballerina string
+     * @return a string of characters with any escaped characters converted to their unescaped form
      */
     public static String unescapeBallerina(String text) {
-        return unescapeJava(Utils.unescapeUnicodeCodepoints(text));
+        return Utils.unescapeBallerina(text);
     }
 }
