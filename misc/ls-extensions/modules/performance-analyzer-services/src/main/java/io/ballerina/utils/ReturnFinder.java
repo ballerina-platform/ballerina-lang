@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,32 +16,20 @@
  *  under the License.
  */
 
-package io.ballerina.component;
+package io.ballerina.utils;
+
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 
 /**
- * base class to handle essential AST nodes.
+ * Visitor to find the base url of endpoint.
  *
- * @since 2.0.0
+ * @since 2.2.3
  */
-public class Node {
+public class ReturnFinder extends NodeVisitor {
 
-    private Node nextNode;
     private boolean hasReturn;
-
-    public Node getNextNode() {
-
-        return nextNode;
-    }
-
-    public void setNextNode(Node nextNode) {
-
-        this.nextNode = nextNode;
-    }
-
-    public boolean hasNext() {
-
-        return nextNode != null;
-    }
 
     public boolean isHasReturn() {
 
@@ -51,5 +39,10 @@ public class Node {
     public void setHasReturn(boolean hasReturn) {
 
         this.hasReturn = hasReturn;
+    }
+
+    @Override
+    public void visit(ReturnStatementNode returnStatementNode) {
+        hasReturn = true;
     }
 }
