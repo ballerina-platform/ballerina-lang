@@ -274,7 +274,12 @@ public class FieldAccessTest {
     }
 
     @Test
-    public void testFieldAccessOnRecordContainsJsonField() {
-        BRunUtil.invoke(result, "testFieldAccessOnRecordContainsJsonField");
+    public void testFieldAccessOnJsonTypedRecordFields() {
+        BRunUtil.invoke(result, "testFieldAccessOnJsonTypedRecordFields");
+    }
+
+    @Test
+    public void testFieldAccessOnJsonTypedRecordFieldsResultsPanic() {
+        BRunUtil.invoke(result, "testFieldAccessOnJsonTypedRecordFieldsResultsPanic");
     }
 }
