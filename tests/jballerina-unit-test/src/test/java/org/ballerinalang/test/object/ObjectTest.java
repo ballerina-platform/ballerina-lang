@@ -803,7 +803,8 @@ public class ObjectTest {
     public void testDuplicateFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_field_negative.bal");
         BAssertUtil.validateError(result, 0, "redeclared symbol 'error'", 20, 18);
-        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'x'", 33, 17);
+        Assert.assertEquals(result.getErrorCount(), 2);
     }
 
     @Test(description = "Test lang lib object type inclusion")

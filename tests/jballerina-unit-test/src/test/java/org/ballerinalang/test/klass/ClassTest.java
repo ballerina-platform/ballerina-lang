@@ -114,6 +114,16 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
+    @Test(description = "Negative tests to check fields that have initialized using another field")
+    public void classDefFieldsInitializedUsingAnotherField() {
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-field-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 19, 13);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 27, 19);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'name'", 36, 20);
+        Assert.assertEquals(negative.getErrorCount(), i);
+    }
+
     @Test(description = "Dataflow negative tests for class defn")
     public void classDefDataflowNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-dataflow-negative.bal");

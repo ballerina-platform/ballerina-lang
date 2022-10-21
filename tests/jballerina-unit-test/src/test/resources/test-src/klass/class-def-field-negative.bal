@@ -1,4 +1,4 @@
-// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,25 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class Person {
-    public int 'int;
-    public error 'error;
-    public error 'error;
+class ClassA {
+    any a = 12;
+    any b = a; // error
 
-    function init (int age, error er) {
-        self.'int = age;
-        self.'error = er;
+    function init() {
     }
 }
 
-function testFieldInitializationUsingAnotherField() {
-    int a = 10;
+class ClassB {
+    any a = 12;
+    int b = <int> a; // error
 
-    var _ = object {
-        int x = a;
-        int y = x; // error
+    function init() {
+    }
+}
 
-        function init() {
-        }
-    };
+class ClassC {
+    string name = "John Doe";
+    int age = 25;
+    string lname = name; // error
+
+    function init() {
+    }
 }

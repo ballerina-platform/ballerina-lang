@@ -37,6 +37,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -737,7 +738,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, currentEnv);
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition,
+                fieldsRemovedScope(classDefinition.symbol.scope), currentEnv);
         for (BLangSimpleVariable field : classDefinition.fields) {
             data.env = classEnv;
             analyzeNode(field, data);
@@ -768,6 +770,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         analyzerClassInitMethod(classDefinition, data);
+    }
+
+    private Scope fieldsRemovedScope(Scope classScope) {
+        Scope scope = new Scope(classScope.owner);
+        for (Name key : classScope.entries.keySet()) {
+            Scope.ScopeEntry entry = classScope.entries.get(key);
+             BSymbol fieldSymbol = entry.symbol;
+             if (!Symbols.isFlagOn(fieldSymbol.flags, Flags.FIELD)) {
+                 scope.entries.put(key, entry);
+             }
+        }
+        return scope;
     }
 
     private void analyzerClassInitMethod(BLangClassDefinition classDefinition, AnalyzerData data) {
