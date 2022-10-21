@@ -18,15 +18,21 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.StringTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
@@ -83,14 +89,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -103,14 +110,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -844,36 +849,50 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
+        if (!(node.inKeyword().lineRange().endLine().line() <= linePosition.line() &&
+                node.inKeyword().lineRange().endLine().offset() <= linePosition.offset())) {
+            BLangNode expressionNode = nodeFinder.lookup(bLangCompilationUnit, node.expression().lineRange());
+            if (expressionNode != null) {
+                BType bType = expressionNode.getBType();
+                switch (bType.getKind()) {
+                    case ARRAY:
+                        return Optional.of(typesFactory.getTypeDescriptor((((BArrayType)expressionNode.getBType()).eType)));
+                    case STRING:
+                        return Optional.of(semanticModel.types().STRING);
+                    case TABLE:
+                        return Optional.of(typesFactory.getTypeDescriptor((((BTableType)
+                                expressionNode.getBType()).constraint)));
+                    case STREAM:
+                        return Optional.of(typesFactory.getTypeDescriptor(((BStreamType)
+                                expressionNode.getBType()).constraint));
+                    case XML:
+                        return Optional.of(typesFactory.getTypeDescriptor(((BXMLType)
+                                expressionNode.getBType()).constraint));
+                    case MAP:
+                        return Optional.of(typesFactory.getTypeDescriptor(((BMapType)
+                                expressionNode.getBType()).constraint));
+                    default:
+                        break;
+                }
+            }
+        }
+
+        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(node.expression());
+        if (typeSymbol.isPresent()) {
+            return typeSymbol;
+        }
+
+        Optional<Symbol> optionalSymbol = semanticModel.symbol(node.typedBindingPattern().bindingPattern());
+        if (optionalSymbol.isEmpty()) {
             return Optional.empty();
         }
 
-        BLangFromClause bLangFromClause = null;
-        if (bLangNode instanceof BLangQueryExpr) {
-            for (BLangNode queryClause : ((BLangQueryExpr) bLangNode).getQueryClauses()) {
-                if (queryClause instanceof BLangFromClause) {
-                    bLangFromClause = (BLangFromClause ) queryClause;
-                    break;
-                }
-            }
-
-            return getExpectedType(bLangFromClause != null ? bLangFromClause.collection : null);
-
+        typeSymbol = SymbolUtils.getTypeDescriptor(optionalSymbol.get());
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangFromClause) {
-            if (!(node.inKeyword().lineRange().endLine().line() <= linePosition.line() &&
-                    node.inKeyword().lineRange().endLine().offset() <= linePosition.offset())) {
-                return Optional.empty();
-            }
-
-            BType bType = ((BLangSimpleVariableDef) ((BLangFromClause) bLangNode)
-                    .variableDefinitionNode).var.getBType();
-            return getTypeFromBType(bType);
-        }
-
-        return getExpectedType(bLangNode);
+        return Optional.of(buildUnionOfIterables(typeSymbol.get(), semanticModel));
     }
 
     private Optional<TypeSymbol> getExpectedType(BLangNode node) {
@@ -1034,5 +1053,43 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         BSymbol paramSymbol = ((BInvokableSymbol) symbol).params.get(0);
         return getSymbolType(paramSymbol);
+    }
+
+    private UnionTypeSymbol buildUnionOfIterables(TypeSymbol typeSymbol, SemanticModel semanticModel) {
+        Types types = semanticModel.types();
+        TypeBuilder builder = types.builder();
+        List<TypeSymbol> unionTypeMembers = new ArrayList<>(
+                List.of(builder.ARRAY_TYPE.withType(typeSymbol).build(),
+                        builder.MAP_TYPE.withTypeParam(typeSymbol).build(),
+                        builder.STREAM_TYPE.withValueType(typeSymbol).build()));
+        if (getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD) {
+            try {
+                unionTypeMembers
+                        .add(builder.TABLE_TYPE.withRowType(getRawType(typeSymbol)).build());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        if (typeSymbol instanceof StringTypeSymbol) {
+            unionTypeMembers.add(types.STRING);
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.XML) {
+            unionTypeMembers.add(types.XML);
+        }
+        return builder.UNION_TYPE
+                .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
+    }
+
+    public static TypeSymbol getRawType(TypeSymbol typeDescriptor) {
+        if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
+            return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
+        }
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 }
