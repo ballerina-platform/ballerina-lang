@@ -90,79 +90,59 @@ public class ConfigResolver {
     }
 
     private Optional<?> getConfigValue(Module module, VariableKey key) {
-        Type type = key.type;
+        Function<ConfigProvider, Optional<?>> function = getValueFunction(module, key, key.type);
+        if (function != null) {
+            return getConfigValue(key, function);
+        }
+        return Optional.empty();
+    }
+
+    private Function<ConfigProvider, Optional<?>> getValueFunction(Module module, VariableKey key, Type type) {
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:
-                return Optional.empty();
+                return null;
             case TypeTags.INT_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsIntAndMark(module, key));
+                return configProvider -> configProvider.getAsIntAndMark(module, key);
             case TypeTags.BYTE_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsByteAndMark(module, key));
+                return configProvider -> configProvider.getAsByteAndMark(module, key);
             case TypeTags.BOOLEAN_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsBooleanAndMark(module, key));
+                return configProvider -> configProvider.getAsBooleanAndMark(module, key);
             case TypeTags.FLOAT_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsFloatAndMark(module, key));
+                return configProvider -> configProvider.getAsFloatAndMark(module, key);
             case TypeTags.DECIMAL_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsDecimalAndMark(module, key));
+                return configProvider -> configProvider.getAsDecimalAndMark(module, key);
             case TypeTags.STRING_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsStringAndMark(module, key));
+                return configProvider -> configProvider.getAsStringAndMark(module, key);
             case TypeTags.RECORD_TYPE_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsRecordAndMark(module, key));
+                return configProvider -> configProvider.getAsRecordAndMark(module, key);
             case TypeTags.XML_TEXT_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsXmlAndMark(module, key));
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+                return configProvider -> configProvider.getAsXmlAndMark(module, key);
             case TypeTags.FINITE_TYPE_TAG:
-                return getConfigValue(key, configProvider -> configProvider
-                        .getAsFiniteAndMark(module, key));
+                return configProvider -> configProvider.getAsFiniteAndMark(module, key);
+            case TypeTags.ARRAY_TAG:
+                return configProvider -> configProvider.getAsArrayAndMark(module, key);
+            case TypeTags.MAP_TAG:
+                return configProvider -> configProvider.getAsMapAndMark(module, key);
+            case TypeTags.TABLE_TAG:
+                return configProvider -> configProvider.getAsTableAndMark(module, key);
+            case TypeTags.ANYDATA_TAG:
+            case TypeTags.UNION_TAG:
+            case TypeTags.JSON_TAG:
+                return configProvider -> configProvider.getAsUnionAndMark(module, key);
+            case TypeTags.TUPLE_TAG:
+                return configProvider -> configProvider.getAsTupleAndMark(module, key);
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
-                switch (effectiveType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsArrayAndMark(module, key));
-                    case TypeTags.RECORD_TYPE_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsRecordAndMark(module, key));
-                    case TypeTags.MAP_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsMapAndMark(module, key));
-                    case TypeTags.TABLE_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsTableAndMark(module, key));
-                    case TypeTags.XML_TAG:
-                    case TypeTags.XML_ELEMENT_TAG:
-                    case TypeTags.XML_COMMENT_TAG:
-                    case TypeTags.XML_PI_TAG:
-                    case TypeTags.XML_TEXT_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsXmlAndMark(module, key));
-                    case TypeTags.ANYDATA_TAG:
-                    case TypeTags.UNION_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                    .getAsUnionAndMark(module, key));
-                    case TypeTags.FINITE_TYPE_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsFiniteAndMark(module, key));
-                    case TypeTags.TUPLE_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsTupleAndMark(module, key));
-                    default:
-                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            Utils.decodeIdentifier(effectiveType.toString()));
-                }
-                break;
+                return getValueFunction(module, key, effectiveType);
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                                     Utils.decodeIdentifier(type.toString()));
         }
-        return Optional.empty();
+        return null;
     }
 
     private Optional<?> getConfigValue(VariableKey key, Function<ConfigProvider, Optional<?>> getConfigFunc) {

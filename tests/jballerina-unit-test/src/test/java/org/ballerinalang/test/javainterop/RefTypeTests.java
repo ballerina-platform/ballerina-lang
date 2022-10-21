@@ -41,6 +41,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -140,11 +141,6 @@ public class RefTypeTests {
 
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
-    }
-
-    @Test
-    public void interopWithHandleOrErrorReturn() {
-        BRunUtil.invoke(result, "interopWithHandleOrErrorReturn");
     }
 
     @Test(description = "Test interoperability with ballerina json return")
@@ -339,24 +335,21 @@ public class RefTypeTests {
                 "439)");
     }
 
-    @Test
-    public void testDifferentRefTypesForIntersectionEffectiveType() {
-        BRunUtil.invoke(result, "testDifferentRefTypesForIntersectionEffectiveType");
+    @Test(dataProvider = "functionsToTestRefTypes")
+    public void testRefTypes(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testUsingIntersectionEffectiveType() {
-        BRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
-    }
-
-    @Test
-    public void testReadOnlyAsParamAndReturnTypes() {
-        BRunUtil.invoke(result, "testReadOnlyAsParamAndReturnTypes");
-    }
-
-    @Test
-    public void testNarrowerTypesAsReadOnlyReturnTypes() {
-        BRunUtil.invoke(result, "testNarrowerTypesAsReadOnlyReturnTypes");
+    @DataProvider(name = "functionsToTestRefTypes")
+    public Object[] getFunctionsToTestRefTypes() {
+        return new String[]{
+                "interopWithHandleOrErrorReturn",
+                "testDifferentRefTypesForIntersectionEffectiveType",
+                "testUsingIntersectionEffectiveType",
+                "testReadOnlyAsParamAndReturnTypes",
+                "testNarrowerTypesAsReadOnlyReturnTypes",
+                "testInteropFunctionsReturningDecimals"
+        };
     }
 
     // static methods
@@ -398,7 +391,7 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
+        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, 4})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {

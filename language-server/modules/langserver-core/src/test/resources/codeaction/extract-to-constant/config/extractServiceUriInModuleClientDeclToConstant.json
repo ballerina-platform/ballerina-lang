@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 0,
+    "character": 41
+  },
+  "source": "extractToConstantClientDeclarationsNegative.bal",
+  "expected": [
+    {
+      "title": "Extract to constant"
+    }
+  ]
+}

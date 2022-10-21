@@ -6,7 +6,7 @@
   "source": "getterSetter2.bal",
   "expected": [
     {
-      "title": "Create a getter for 'count'",
+      "title": "Create a getter for \"count\"",
       "kind": "source",
       "edits": [
         {

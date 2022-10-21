@@ -144,11 +144,10 @@ public class ValueUtils {
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
         Strand currentStrand = Scheduler.getStrandNoException();
-        Object[] fields = new Object[fieldValues.length * 2];
+        Object[] fields = new Object[fieldValues.length];
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
-            fields[j++] = true;
         }
         return createObjectValue(currentStrand, packageId, objectTypeName, fields);
     }

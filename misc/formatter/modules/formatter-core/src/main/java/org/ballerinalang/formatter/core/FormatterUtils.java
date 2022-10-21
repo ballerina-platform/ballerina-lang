@@ -29,7 +29,7 @@ class FormatterUtils {
 
     static final String NEWLINE_SYMBOL = System.getProperty("line.separator");
 
-    static boolean isInLineRange(Node node, LineRange lineRange) {
+    static boolean isInlineRange(Node node, LineRange lineRange) {
         if (lineRange == null) {
             return true;
         }

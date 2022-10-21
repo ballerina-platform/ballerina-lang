@@ -107,6 +107,18 @@ public client class MyClient4 {
     resource function someOtherMethod3 books/books/["books"... b]() returns string[] {
         return b;
     }
+    
+    resource function post game/[string name]/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+    
+    resource function post game/[string name]/path/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+    
+    resource function post games/game/[string name]/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
 }
 
 public client class MyClient5 {

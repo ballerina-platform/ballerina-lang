@@ -37,7 +37,6 @@ public class BLangResourceFunction extends BLangFunction {
     public List<BLangSimpleVariable> pathParams = new ArrayList<>();
     public BLangTupleTypeNode resourcePathType;
 
-
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);

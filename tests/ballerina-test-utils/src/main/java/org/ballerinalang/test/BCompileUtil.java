@@ -25,6 +25,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -69,7 +70,17 @@ public class BCompileUtil {
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
+        BuildOptions defaultOptions;
+        try {
+            defaultOptions = BuildOptions.builder()
+                    .setOffline(true)
+                    .setDumpBirFile(true)
+                    .targetDir(String.valueOf(Files.createTempDirectory("ballerina-cache" + System.nanoTime())))
+                    .build();
+        } catch (IOException e) {
+            throw new ProjectException("Failed to create the temporary target directory: " + e.getMessage());
+        }
+
         BuildOptions mergedOptions = buildOptions.acceptTheirs(defaultOptions);
         return ProjectLoader.loadProject(projectPath, mergedOptions);
     }

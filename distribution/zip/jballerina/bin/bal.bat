@@ -34,8 +34,8 @@ rem ----- if JAVA_HOME is not set we're not happy ------------------------------
 :checkJava
 
 set BALLERINA_HOME=%~sdp0..
-if exist %BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre (
-   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk-11.0.8+10-jre"
+if exist %BALLERINA_HOME%\..\..\dependencies\jdk-11.0.15+10-jre (
+   set "JAVA_HOME=%BALLERINA_HOME%\..\..\dependencies\jdk-11.0.15+10-jre"
 )
 
 if "%JAVA_HOME%" == "" goto noJavaHome

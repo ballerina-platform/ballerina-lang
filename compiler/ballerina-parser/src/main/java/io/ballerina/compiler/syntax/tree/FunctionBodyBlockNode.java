@@ -49,6 +49,10 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
         return childInBucket(3);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(4);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -65,19 +69,22 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
                 "openBraceToken",
                 "namedWorkerDeclarator",
                 "statements",
-                "closeBraceToken"};
+                "closeBraceToken",
+                "semicolonToken"};
     }
 
     public FunctionBodyBlockNode modify(
             Token openBraceToken,
             NamedWorkerDeclarator namedWorkerDeclarator,
             NodeList<StatementNode> statements,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements.underlyingListNode(),
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -85,7 +92,8 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public FunctionBodyBlockNodeModifier modify() {
@@ -103,6 +111,7 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
         private NamedWorkerDeclarator namedWorkerDeclarator;
         private NodeList<StatementNode> statements;
         private Token closeBraceToken;
+        private Token semicolonToken;
 
         public FunctionBodyBlockNodeModifier(FunctionBodyBlockNode oldNode) {
             this.oldNode = oldNode;
@@ -110,6 +119,7 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
             this.namedWorkerDeclarator = oldNode.namedWorkerDeclarator().orElse(null);
             this.statements = oldNode.statements();
             this.closeBraceToken = oldNode.closeBraceToken();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public FunctionBodyBlockNodeModifier withOpenBraceToken(
@@ -139,12 +149,19 @@ public class FunctionBodyBlockNode extends FunctionBodyNode {
             return this;
         }
 
+        public FunctionBodyBlockNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public FunctionBodyBlockNode apply() {
             return oldNode.modify(
                     openBraceToken,
                     namedWorkerDeclarator,
                     statements,
-                    closeBraceToken);
+                    closeBraceToken,
+                    semicolonToken);
         }
     }
 }

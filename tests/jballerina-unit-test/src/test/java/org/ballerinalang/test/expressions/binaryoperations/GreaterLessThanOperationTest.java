@@ -95,7 +95,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 89);
+        Assert.assertEquals(resultNegative.getErrorCount(), 145);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -219,14 +219,14 @@ public class GreaterLessThanOperationTest {
                         "'TwoInts'", 211, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FiveOrSix' and " +
                         "'TwoInts'", 212, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'TwoInts' and 'TwoInts?'",
-                219, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'TwoInts' and 'TwoInts?'",
-                220, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'TwoInts' and 'TwoInts?'",
-                221, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'TwoInts' and 'TwoInts?'",
-                222, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(TwoInts|float)' and 'TwoInts?'", 219, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(TwoInts|float)' and 'TwoInts?'", 220, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(TwoInts|float)' and 'TwoInts?'", 221, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(TwoInts|float)' and 'TwoInts?'", 222, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'TwoInts' and 'string'",
                 229, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'TwoInts' and 'string'",
@@ -235,14 +235,14 @@ public class GreaterLessThanOperationTest {
                 231, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'TwoInts' and 'string'",
                 232, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'string?' and 'string'",
-                239, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'string?' and 'string'",
-                240, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'string?' and 'string'",
-                241, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'string?' and 'string'",
-                242, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'string?' and '(string|int)'", 239, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'string?' and '(string|int)'", 240, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'string?' and '(string|int)'", 241, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'string?' and '(string|int)'", 242, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '[float,int,string]' " +
                         "and '[float,int,float...]'", 249, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '[float,int,string]' and " +
@@ -265,8 +265,136 @@ public class GreaterLessThanOperationTest {
                 "'[float,int,string,float...]' and '[float,int,float...]'", 270, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for " +
                 "'[float,int,string,float...]' and '[float,int,float...]'", 271, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for " +
                 "'[float,int,string,float...]' and '[float,int,float...]'", 272, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'Y1' and 'X1'", 282, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'Y1' and 'X1'", 283, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'Y1' and 'X1'", 284, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'Y1' and 'X1'", 285, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'X1' and 'Y1'", 286, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'X1' and 'Y1'", 287, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'X1' and 'Y1'", 288, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'X1' and 'Y1'", 289, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'Y2' and 'X2'", 299, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'Y2' and 'X2'", 300, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'Y2' and 'X2'", 301, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'Y2' and 'X2'", 302, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'X2' and 'Y2'", 303, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'X2' and 'Y2'", 304, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'X2' and 'Y2'", 305, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'X2' and 'Y2'", 306, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '[int,int,string...]' and 'int[]'", 313, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '[int,int,string...]' and 'int[]'", 314, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '[int,int,string...]' and 'int[]'", 315, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '[int,int,string...]' and 'int[]'", 316, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'int[]' and '[int,int,string...]'", 317, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'int[]' and '[int,int,string...]'", 318, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'int[]' and '[int,int,string...]'", 319, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'int[]' and '[int,int,string...]'", 320, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '[int,int,string]' and 'int[3]'", 327, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '[int,int,string]' and 'int[3]'", 328, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '[int,int,string]' and 'int[3]'", 329, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '[int,int,string]' and 'int[3]'", 330, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'int[3]' and '[int,int,string]'", 331, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'int[3]' and '[int,int,string]'", 332, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'int[3]' and '[int,int,string]'", 333, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'int[3]' and '[int,int,string]'", 334, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(int:Signed8[2]|(int:Unsigned16[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 341, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(int:Signed8[2]|(int:Unsigned16[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 342, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(int:Signed8[2]|(int:Unsigned16[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 343, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(int:Signed8[2]|(int:Unsigned16[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 344, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Signed8[2]|(int:Unsigned16[2] & readonly))'", 345, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Signed8[2]|(int:Unsigned16[2] & readonly))'", 346, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Signed8[2]|(int:Unsigned16[2] & readonly))'", 347, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Signed8[2]|(int:Unsigned16[2] & readonly))'", 348, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(int:Unsigned8[2]|(float[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 355, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(int:Unsigned8[2]|(float[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 356, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(int:Unsigned8[2]|(float[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 357, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(int:Unsigned8[2]|(float[2] & readonly))' and " +
+                        "'(string[1]|(string:Char[2] & readonly))'", 358, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Unsigned8[2]|(float[2] & readonly))'", 359, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Unsigned8[2]|(float[2] & readonly))'", 360, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Unsigned8[2]|(float[2] & readonly))'", 361, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(string[1]|(string:Char[2] & readonly))' and " +
+                        "'(int:Unsigned8[2]|(float[2] & readonly))'", 362, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(ByteArr|int:Signed16[2])' and 'string[2]'", 371, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(ByteArr|int:Signed16[2])' and 'string[2]'", 372, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(ByteArr|int:Signed16[2])' and 'string[2]'", 373, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(ByteArr|int:Signed16[2])' and 'string[2]'", 374, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'string[2]' and '(ByteArr|int:Signed16[2])'", 375, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'string[2]' and '(ByteArr|int:Signed16[2])'", 376, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'string[2]' and '(ByteArr|int:Signed16[2])'", 377, 17);
+        BAssertUtil.validateError(resultNegative, index,
+                "operator '>=' not defined for 'string[2]' and '(ByteArr|int:Signed16[2])'", 378, 17);
     }
 
     @Test(description = "Test byte greater than, less than expression")
@@ -305,6 +433,10 @@ public class GreaterLessThanOperationTest {
                 "testTypeComparison7",
                 "testTypeComparison8",
                 "testTypeComparison9",
+                "testTypeComparison10",
+                "testTypeComparison11",
+                "testTypeComparison12",
+                "testTypeComparison13",
                 "testUnionComparison1",
                 "testUnionComparison2",
                 "testUnionComparison3",
@@ -323,7 +455,29 @@ public class GreaterLessThanOperationTest {
                 "testUnorderedTypeComparison5",
                 "testUnorderedTypeComparison6",
                 "testUnorderedTypeComparison7",
-                "testUnorderedTypeComparison8"
+                "testUnorderedTypeComparison8",
+                "testUnorderedTypeComparison9",
+                "testUnorderedTypeComparison10",
+                "testUnorderedTypeComparison11",
+                "testUnorderedTypeComparison12",
+                "testUnorderedTypeComparison13",
+                "testUnorderedTypeComparison14",
+                "testUnorderedTypeComparison15",
+                "testUnorderedTypeComparison16",
+                "testUnorderedTypeComparison17",
+                "testUnorderedTypeComparison18",
+                "testUnorderedTypeComparison19",
+                "testUnorderedTypeComparison20",
+                "testUnorderedTypeComparison21",
+                "testUnorderedTypeComparison22",
+                "testUnorderedTypeComparison23",
+                "testUnorderedTypeComparison24",
+                "testUnorderedTypeComparison25",
+                "testUnorderedTypeComparison26",
+                "testUnorderedTypeComparison27",
+                "testUnorderedTypeComparison28",
+                "testUnorderedTypeComparison29",
+                "testUnorderedTypeComparison30"
         };
     }
 }

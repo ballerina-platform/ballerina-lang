@@ -64,7 +64,7 @@ public class FormattingEnv {
     /**
      * Flag indicating whether the annotations should be inline.
      */
-    boolean inLineAnnotation = false;
+    boolean inlineAnnotation = false;
 
     /**
      * Previous token's trailing whitespaces.

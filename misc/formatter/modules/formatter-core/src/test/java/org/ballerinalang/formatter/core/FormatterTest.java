@@ -73,7 +73,8 @@ public abstract class FormatterTest {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
-        FormattingOptions formattingOptions = new FormattingOptions(true, 120);
+        FormattingOptions formattingOptions =
+                FormattingOptions.builder().setLineWrapping(true).setColumnLimit(120).build();
         try {
             SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, formattingOptions);
             Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));

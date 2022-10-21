@@ -7,7 +7,21 @@
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 4
+            }
+          },
+          "newText": "error? bar = "
+        },
         {
           "range": {
             "start": {
@@ -20,21 +34,17 @@
             }
           },
           "newText": "\n    if bar is error {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 4,
-              "character": 4
-            },
-            "end": {
-              "line": 4,
-              "character": 4
-            }
-          },
-          "newText": "error? bar \u003d "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "typeGuard.bal",
+          63
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

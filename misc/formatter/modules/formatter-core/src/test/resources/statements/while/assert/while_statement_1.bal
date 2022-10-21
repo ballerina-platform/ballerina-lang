@@ -3,7 +3,8 @@ public function foo() {
     while (i < 3) {
         i = i + 1;
     }
-    while (true) {
+    while (true)
+    {
         i = 6;
     }
 }

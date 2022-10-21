@@ -1,5 +1,0 @@
-function name() {
-    if !getBoolean() {
-        
-    }
-}

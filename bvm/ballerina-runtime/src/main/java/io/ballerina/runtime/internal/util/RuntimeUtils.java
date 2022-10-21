@@ -69,7 +69,7 @@ public class RuntimeUtils {
      */
     public static ArrayValue createVarArgsArray(String[] args, int index, BArrayType type) {
 
-        ArrayValue array = new ArrayValueImpl(type, type.getSize());
+        ArrayValue array = new ArrayValueImpl(type);
         for (int i = index; i < args.length; i++) {
             addToArray(type.getElementType(), args[i], array);
         }

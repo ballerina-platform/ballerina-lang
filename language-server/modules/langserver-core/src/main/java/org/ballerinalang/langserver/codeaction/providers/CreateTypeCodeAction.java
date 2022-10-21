@@ -53,8 +53,11 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DiagnosticErrorCode.UNKNOWN_TYPE.diagnosticId().equals(diagnostic.diagnosticInfo().code())
-                && CodeActionNodeValidator.validate(context.nodeAtRange());
+        // Validate diagnostic code and syntax correctness. 
+        // Additionally, we don't support creating types in other modules (qualified name references)
+        return DiagnosticErrorCode.UNKNOWN_TYPE.diagnosticId().equals(diagnostic.diagnosticInfo().code()) &&
+                positionDetails.matchedNode().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
@@ -65,7 +68,7 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         Range diagRange = PathUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
                 .map(syntaxTree -> CommonUtil.findNode(diagRange, syntaxTree));
-        if (node.isEmpty() || name.isEmpty()) {
+        if (node == null || node.isEmpty() || name.isEmpty()) {
             return Collections.emptyList();
         }
 

@@ -26,9 +26,13 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.MapValue;
+
+import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -51,8 +55,12 @@ public class MapUtils {
                 mapValue.put(fieldName, value);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false);
-                mapValue.put(fieldName, value);
+                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType,
+                        false)) {
+                    mapValue.put(fieldName, value);
+                } else {
+                    mapValue.remove(fieldName);
+                }
                 break;
         }
     }
@@ -71,8 +79,8 @@ public class MapUtils {
                                                                                expType, valuesType));
     }
 
-    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
-                                                               BRecordType recType, boolean initialValue) {
+    public static boolean handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
+                                                                  BRecordType recType, boolean initialValue) {
         Field recField = recType.getFields().get(fieldName.getValue());
         Type recFieldType;
 
@@ -91,6 +99,10 @@ public class MapUtils {
 
             // If it can be updated, use it.
             recFieldType = recField.getFieldType();
+            if (value == null && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.OPTIONAL)
+                    && !containsNilType(recFieldType)) {
+                return false;
+            }
         } else if (recType.restFieldType != null) {
             // If there isn't a corresponding field, but there is a rest field, use it
             recFieldType = recType.restFieldType;
@@ -103,7 +115,7 @@ public class MapUtils {
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
-            return;
+            return true;
         }
         Type valuesType = TypeChecker.getType(value);
 
@@ -112,6 +124,21 @@ public class MapUtils {
                                        BLangExceptionHelper.getErrorDetails(
                                                   RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
+    }
+
+    private static boolean containsNilType(Type type) {
+        int tag = type.getTag();
+        if (tag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return containsNilType(((BTypeReferenceType) type).getReferredType());
+        } else if (tag == TypeTags.UNION_TAG) {
+            List<Type> memTypes = ((BUnionType) type).getMemberTypes();
+            for (Type memType : memTypes) {
+                if (containsNilType(memType)) {
+                    return true;
+                }
+            }
+        }
+        return type.getTag() == TypeTags.NULL_TAG;
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

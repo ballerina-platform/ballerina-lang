@@ -30,7 +30,6 @@ import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -75,12 +74,11 @@ public abstract class AbstractImplementMethodCodeAction {
     /**
      * Returns a list of text edits based on diagnostics.
      *
-     * @param diagnostic      diagnostic to evaluate
      * @param positionDetails {@link DiagBasedPositionDetails}
      * @param context         language server context
      * @return list of Text Edits
      */
-    public static List<TextEdit> getDiagBasedTextEdits(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+    public static List<TextEdit> getDiagBasedTextEdits(DiagBasedPositionDetails positionDetails,
                                                        CodeActionContext context) {
 
 

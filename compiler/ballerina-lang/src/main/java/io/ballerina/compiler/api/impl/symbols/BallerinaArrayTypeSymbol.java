@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -50,7 +51,12 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
     public TypeSymbol memberTypeDescriptor() {
         if (this.memberTypeDesc == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.memberTypeDesc = typesFactory.getTypeDescriptor(((BArrayType) this.getBType()).eType);
+            BType eType = ((BArrayType) this.getBType()).eType;
+            if (eType.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+                this.memberTypeDesc = typesFactory.getTypeDescriptor(eType, eType.tsymbol, true);
+            } else {
+                this.memberTypeDesc = typesFactory.getTypeDescriptor(eType);
+            }
         }
         return memberTypeDesc;
     }
