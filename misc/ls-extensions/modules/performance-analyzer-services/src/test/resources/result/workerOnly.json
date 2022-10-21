@@ -57,7 +57,8 @@
           "name": "get",
           "path": "/",
           "pos": "workerOnly.bal/(9:40,9:58)",
-          "nextNode": null
+          "nextNode": null,
+          "hasReturn": false
         }
       },
       "B": {
@@ -66,7 +67,8 @@
           "name": "get",
           "path": "/",
           "pos": "workerOnly.bal/(15:42,15:60)",
-          "nextNode": null
+          "nextNode": null,
+          "hasReturn": false
         }
       }
     }

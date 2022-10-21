@@ -62,6 +62,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.utils.ParserUtil;
+import io.ballerina.utils.ReturnFinder;
 import org.eclipse.lsp4j.Range;
 
 import java.util.HashMap;
@@ -225,15 +226,24 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         Node ifBodyNode = new Node();
         this.currentNode = ifBodyNode;
 
+        ReturnFinder returnFinder = new ReturnFinder();
+
         ifElseStatementNode.ifBody().accept(this);
+        ifElseStatementNode.ifBody().accept(returnFinder);
+        if (ifBodyNode.getNextNode() != null) ifBodyNode.getNextNode().setHasReturn(returnFinder.isHasReturn());
 
         ifStatementNode.setIfBody(ifBodyNode.getNextNode());
 
         Node elseBodyNode = new Node();
         this.currentNode = elseBodyNode;
 
+        returnFinder.setHasReturn(false);
         ifElseStatementNode.elseBody().ifPresent(elseBody -> {
                     elseBody.accept(this);
+                    elseBody.accept(returnFinder);
+                    if (elseBodyNode.getNextNode() != null) {
+                        elseBodyNode.getNextNode().setHasReturn(returnFinder.isHasReturn());
+                    }
                     ifStatementNode.setElseBody(elseBodyNode.getNextNode());
                 }
         );
