@@ -527,6 +527,12 @@ function testExactEqualityWithRegExp() {
     assertEquality(true, re `a\td-*ab[^c-f]+(?m:xj(?i:x|y))` === x4);
 }
 
+function testFreezeDirectWithRegExp() {
+    string:RegExp regExp = re `[^0-9]*`;
+    any result = regExp.cloneReadOnly();
+    assertEquality(true, result is readonly);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
