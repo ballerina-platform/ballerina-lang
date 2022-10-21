@@ -191,6 +191,9 @@ public class PackageUtils {
             }
 
             Project project = context.getProjectCache().getProject(path.get());
+            // This triggers a resolution request to load all the generated modules, if not loaded already.
+            project.currentPackage().getResolution();
+
             if (project instanceof SingleFileProject) {
                 DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
                 String docName = project.currentPackage().getDefaultModule().document(documentId).name();
