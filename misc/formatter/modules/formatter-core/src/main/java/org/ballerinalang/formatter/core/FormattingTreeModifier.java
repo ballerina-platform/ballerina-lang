@@ -2514,15 +2514,13 @@ public class FormattingTreeModifier extends TreeModifier {
     public TableConstructorExpressionNode transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
         Token tableKeyword = formatToken(tableConstructorExpressionNode.tableKeyword(), 1, 0);
         KeySpecifierNode keySpecifier = formatNode(tableConstructorExpressionNode.keySpecifier().orElse(null), 1, 0);
-        SeparatedNodeList<Node> rows = tableConstructorExpressionNode.rows();
         int rowTrailingWS = 0, rowTrailingNL = 0;
-        if (rows.size() > 1) {
+        if (shouldExpand(tableConstructorExpressionNode)) {
             rowTrailingNL++;
         } else {
             rowTrailingWS++;
         }
 
-        indent();
         Token openBracket = formatToken(tableConstructorExpressionNode.openBracket(), 0, rowTrailingNL);
         indent();
         SeparatedNodeList<Node> mappingConstructors =
@@ -2531,7 +2529,6 @@ public class FormattingTreeModifier extends TreeModifier {
         unindent();
         Token closeBracket =
                 formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
-        unindent();
 
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
@@ -4502,6 +4499,10 @@ public class FormattingTreeModifier extends TreeModifier {
                     }
                 }
                 return false;
+            case TABLE_CONSTRUCTOR:
+                TableConstructorExpressionNode tableConstructor = (TableConstructorExpressionNode) node;
+                SeparatedNodeList<Node> rows = tableConstructor.rows();
+                return (rows.size() > 1 || (rows.size() == 1) && shouldExpand(rows.get(0)));
             case MAPPING_CONSTRUCTOR:
                 MappingConstructorExpressionNode mappingConstructorExpressionNode =
                         (MappingConstructorExpressionNode) node;
