@@ -877,4 +877,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         return rawType;
     }
+<<<<<<< HEAD
+=======
+    
+>>>>>>> b2fe45f2833 (Removed unused methods in ContextTypeResolver)
 }
