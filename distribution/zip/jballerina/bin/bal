@@ -32,7 +32,7 @@
 # OS specific support.  $var _must_ be set to either true or false.
 
 # Set JAVA_HOME for installers
-JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-11.0.8+10-jre
+JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-11.0.15+10-jre
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi

@@ -84,8 +84,8 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DI
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_ANNOTATION_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
@@ -238,10 +238,18 @@ public class RunTestsTask implements Task {
             for (Map.Entry<String, String> entry : mockFunctionMap.entrySet()) {
                 String key = entry.getKey();
                 String functionToMockClassName;
-                if (key.contains(MOCK_ANNOTATION_DELIMITER)) {
-                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_ANNOTATION_DELIMITER));
-                } else {
+                // Find the first delimiter and compare the indexes
+                // The first index should always be a delimiter. Which ever one that is denotes the mocking type
+                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                } else {
+                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    } else {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    }
                 }
                 mockClassNames.add(functionToMockClassName);
             }
@@ -520,10 +528,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-        String jacocoAgentJarPath = "";
+        String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
         if (coverage) {
-            jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                    .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
             if (!mockClassNames.isEmpty()) {
                 // If we have mock function we need to use jacoco offline instrumentation since jacoco doesn't
                 // support dynamic class file transformations while instrumenting.

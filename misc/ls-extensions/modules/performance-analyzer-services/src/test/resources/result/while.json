@@ -98,16 +98,20 @@
     }
   },
   "actionInvocations": {
-    "nextNode": {
-      "length": 2,
-      "forBody": {
-        "endPointRef": "${json-unit.ignore}",
-        "name": "get",
-        "path": "/jokes/random",
-        "pos": "while.bal/(27:41,27:75)",
-        "nextNode": null
-      },
-      "nextNode": null
+    "workers": {
+      "mainWorker": {
+        "nextNode": {
+          "length": 2,
+          "forBody": {
+            "endPointRef": "${json-unit.ignore}",
+            "name": "get",
+            "path": "/jokes/random",
+            "pos": "while.bal/(27:41,27:75)",
+            "nextNode": null
+          },
+          "nextNode": null
+        }
+      }
     }
   },
   "type": "Success",

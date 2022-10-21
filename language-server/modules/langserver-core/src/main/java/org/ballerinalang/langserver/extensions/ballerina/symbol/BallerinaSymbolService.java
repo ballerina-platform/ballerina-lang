@@ -62,8 +62,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static org.ballerinalang.diagramutil.connector.models.connector.Type.clearParentSymbols;
-
 /**
  * Ballerina Symbol Service LS Extension.
  *
@@ -168,7 +166,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         Optional<TypeSymbol> typeSymbol;
                         if (semanticModel.get().typeOf(lineRange).isPresent()) {
                             typeSymbol = semanticModel.get().typeOf(lineRange);
-                            clearParentSymbols();
+                            Type.clearParentSymbols();
                             Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
                             resolvedType.setType(type);
                             types.add(resolvedType);
@@ -206,7 +204,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         }
                         LinePosition linePosition = LinePosition.from(position.line(), position.offset());
                         Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
-                        clearParentSymbols();
+                        Type.clearParentSymbols();
                         Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
                         resolvedType.setType(type);
                         types.add(resolvedType);

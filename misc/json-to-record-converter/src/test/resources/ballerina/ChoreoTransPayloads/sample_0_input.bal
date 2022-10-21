@@ -6,7 +6,7 @@ type AssetsItem record {
 type RecipientsItem record {
     string UserId;
     string Name;
-    anydata EmailAddress?;
+    anydata EmailAddress;
 };
 
 type HeaderInformation record {
@@ -16,7 +16,7 @@ type HeaderInformation record {
 type Content record {
     string Message;
     RecipientsItem[] Recipients;
-    anydata TripInformation?;
+    anydata TripInformation;
     HeaderInformation HeaderInformation;
 };
 

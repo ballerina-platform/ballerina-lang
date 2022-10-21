@@ -609,6 +609,64 @@ function testIntersectingUnionRefEquality() {
     assert(c !== a, true);
 }
 
+function func() {
+}
+
+function funcClone() {
+}
+
+function func1 = func;
+function func2 = funcClone;
+function func3 = function() => ();
+
+function func_with_param(string param) {
+}
+
+function func_with_return() returns error? {
+}
+
+function func_with_rest_param(string... params) {
+}
+
+function func_with_default_param(string param = "test") {
+}
+
+function func_with_all(string param1, string param2 = "test", string... param3) returns error? {
+}
+
+function funcParam = func_with_param;
+function funcDefaultParam = func_with_default_param;
+function funcRestParam = func_with_rest_param;
+function funcReturn = func_with_return;
+function funcWithAll = func_with_all;
+
+function testFPValueEquality() {
+    function func4 = function() => ();
+
+    test:assertTrue(func === func);
+    test:assertTrue(funcClone === funcClone);
+    test:assertTrue(func1 === func1);
+    test:assertTrue(func2 === func2);
+    test:assertTrue(func4 === func4);
+    test:assertTrue(func3 === func3);
+
+    test:assertTrue(funcParam === funcParam);
+    test:assertTrue(funcDefaultParam === funcDefaultParam);
+    test:assertTrue(funcRestParam === funcRestParam);
+    test:assertTrue(funcReturn === funcReturn);
+    test:assertTrue(funcWithAll === funcWithAll);
+
+    test:assertFalse(func === funcClone);
+    test:assertFalse(func1 === func2);
+    test:assertFalse(func3 === func4);
+
+    test:assertFalse(funcParam === funcDefaultParam);
+    test:assertFalse(funcDefaultParam === funcRestParam);
+    test:assertFalse(funcRestParam === funcReturn);
+    test:assertFalse(funcReturn === funcWithAll);
+    test:assertFalse(funcWithAll === funcParam);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;

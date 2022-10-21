@@ -297,3 +297,100 @@ function myFunction(int i, string s) {
 function testUsingDepricatedFunction() {
     myFunction(1, "hello");
 }
+
+type Employee record {|
+    @deprecated
+    string name;
+    int id;
+    @deprecated
+    Job job;
+|};
+
+type Job record {|
+    string title;
+    @deprecated
+    int experiance;
+|};
+
+public function testDeprecatedRecordFields() {
+    Employee employee = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    _ = employee.name; // warning
+    _ = employee.id;
+    _ = employee.job; // warning
+    _ = employee.job.title; // warning
+    _ = employee.job.experiance; // warning
+}
+
+# Employee2 record
+type Employee2 record {|
+    # This is the description of the `Employee2`'s `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `Employee2`'s `id` field.
+    int id;
+
+    # This is the description of the `Employee2`'s `job` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    Job job;
+|};
+
+public function testDeprecatedRecordFieldsWithDocumentation() {
+    Employee2 employee2 = {name: "John", id: 112, job: {title: "SE", experiance: 2}};
+    _ = employee2.name; // warning
+    _ = employee2.id;
+    _ = employee2.job; // warning
+}
+
+record {|
+    @deprecated
+    string name;
+
+    int id;
+|} employee3 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecord() {
+    _ = employee3.name;  // warning
+    _ = employee3.id;
+}
+
+record {|
+    # This is the description of the `name` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    string name;
+
+    # This is the description of the `id` field.
+    int id;
+|} employee4 = {name: "Jo", id: 123};
+
+public function testDeprecatedAnonRecordWithDocumentation() {
+    _ = employee4.name;  // warning
+    _ = employee4.id;
+}
+
+type Employee5 record {
+    string fname = "";
+    string lname = "";
+    int age = 0;
+
+    @deprecated
+    record { string line01 = "";
+             @deprecated
+             string line02 = "";
+             string city = "";
+             string state = "";
+             string zipcode = "";
+    } address;
+};
+
+public function testDeprecatedAnonStructAsStructField() {
+    Employee5 employee5 = {address: {}};
+    _ = employee5.address;  // warning
+    _ = employee5.address.line02;   // warning
+}

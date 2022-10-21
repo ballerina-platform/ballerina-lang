@@ -78,7 +78,10 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"type_cast_in_binary_operation6.json"},
                 {"type_cast_in_binary_operation7.json"},
                 {"type_cast_in_binary_operation8.json"},
-                {"type_cast_in_binary_operation9.json"}
+                {"type_cast_in_binary_operation9.json"},
+
+                {"type_cast_in_obj_field_config1.json"},
+                {"type_cast_in_obj_field_config2.json"}
 
         };
     }

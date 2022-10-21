@@ -149,4 +149,9 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     public void testErrorsBeforeRecordTypeDef() {
         testFile("record-type-def/record_type_def_source_28.bal", "record-type-def/record_type_def_assert_28.json");
     }
+
+    @Test
+    public void testInvalidObjectTypeAsRecordField() {
+        test("record-type-def/record_type_def_source_29.bal", "record-type-def/record_type_def_assert_29.json");
+    }
 }

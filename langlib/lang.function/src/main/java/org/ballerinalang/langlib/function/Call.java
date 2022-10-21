@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -55,7 +54,7 @@ public class Call {
         BFunctionType functionType = (BFunctionType) func.getType();
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
-        List<Object> argsList = new java.util.ArrayList<>(List.of(Scheduler.getStrand()));
+        List<Object> argsList = new java.util.ArrayList<>();
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {

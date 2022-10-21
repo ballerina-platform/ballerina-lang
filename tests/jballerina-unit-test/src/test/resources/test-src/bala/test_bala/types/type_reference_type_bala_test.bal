@@ -123,6 +123,12 @@ function testFn() {
     assertEquality(true, tr:ConstInt is TypeConstInt);
 
     assertEquality({b : {}}, Y);
+
+    tr:Seconds? sec1 = 10;
+    assertEquality(sec1 is decimal, true);
+
+    tr:SecondsOrNil sec2 = 11;
+    assertEquality(sec2 is decimal, true);
 }
 
 function getImmutable(ImmutableIntArrayOrStringArray x) returns tr:ImmutableIntArray {

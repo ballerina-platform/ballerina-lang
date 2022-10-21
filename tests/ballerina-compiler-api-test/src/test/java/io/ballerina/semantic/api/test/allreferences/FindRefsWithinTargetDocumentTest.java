@@ -19,8 +19,18 @@
 package io.ballerina.semantic.api.test.allreferences;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -37,6 +47,8 @@ import static io.ballerina.semantic.api.test.allreferences.FindAllReferencesTest
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocument;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSemanticModelOf;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the finding all references within a given document.
@@ -53,6 +65,31 @@ public class FindRefsWithinTargetDocumentTest {
     public void setup() {
         project = BCompileUtil.loadProject("test-src/find-all-ref/findRefProj");
         model = getDefaultModulesSemanticModel(project);
+    }
+
+    @Test
+    public void testConstructorTypeReferenceType() {
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        DocumentId docId = currentPackage.getDefaultModule().documentIds().iterator().next();
+        SyntaxTree syntaxTree = currentPackage.getDefaultModule().document(docId).syntaxTree();
+        SemanticModel model = currentPackage.getCompilation().getSemanticModel(defaultModuleId);
+        syntaxTree.rootNode().accept(getNodeVisitor(model));
+    }
+
+    NodeVisitor getNodeVisitor(SemanticModel model) {
+        return new NodeVisitor() {
+
+            @Override
+            public void visit(TableConstructorExpressionNode tableConstructorExpressionNode) {
+                assertType(tableConstructorExpressionNode, model, "testOrg/findRefProj.refModule:0.1.0:BarTable");
+            }
+
+            @Override
+            public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+                assertType(implicitNewExpressionNode, model, "testOrg/findRefProj.refModule:0.1.0:ListenerRef");
+            }
+        };
     }
 
     @Test(dataProvider = "PositionProvider")
@@ -88,5 +125,11 @@ public class FindRefsWithinTargetDocumentTest {
                         List.of(location(2, 12, 24, "ref2.bal"),
                                 location(9, 4, 16, "ref2.bal"))},
         };
+    }
+
+    private void assertType(Node node, SemanticModel model, String referenceTypeName) {
+        Optional<TypeSymbol> type = model.typeOf(node);
+        assertTrue(type.isPresent());
+        assertEquals(((BallerinaTypeReferenceTypeSymbol) type.get()).getBType().toString(), referenceTypeName);
     }
 }

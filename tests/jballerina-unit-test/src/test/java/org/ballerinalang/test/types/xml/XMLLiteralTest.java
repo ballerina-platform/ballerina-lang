@@ -441,6 +441,11 @@ public class XMLLiteralTest {
         BRunUtil.invoke(result, "testQueryInXMLTemplateExpr");
     }
 
+    @Test
+    public void testXMLLiteralWithConditionExpr() {
+        BRunUtil.invoke(result, "testXMLLiteralWithConditionExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

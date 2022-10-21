@@ -38,12 +38,12 @@ class Person {
     }
 
     function attachedFn6(int a, float b) returns int {
-        function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
+        function (int a1, float b1) returns (int) foo = (x, y) => self.attachedFn3(x, y);
         return a + <int>b + foo(43, 10.2);
     }
 
     function attachedFn7(int a, float b) returns (int) {
-        function (int a, float b) returns (int) foo = (x, y) => self.attachedFn3(x, y);
+        function (int a1, float b1) returns (int) foo = (x, y) => self.attachedFn3(x, y);
         return a + <int>b + foo(43, 10.2);
     }
 }

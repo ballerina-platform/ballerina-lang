@@ -6,7 +6,7 @@
   "source": "createVariable3.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027record {|string a; string b;|}\u0027",
+      "title": "Create variable with 'record {|string a; string b;|}'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "record {|string a; string b;|} mappingResult \u003d "
+          "newText": "record {|string a; string b;|} mappingResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          103
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -160,10 +160,10 @@ public class ConfigNegativeTest {
                                 "error: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
                                         ".intVar'"}},
                 // not supported both toml type and cli type
-                {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 6
-                        , 0, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
-                        "error: [org.mod1.myMap=4] unused command line argument"}},
+                {new String[]{"-Corg.mod1.myVar=4"}, "MatchedTypeValues.toml",
+                        new VariableKey[]{new VariableKey(MODULE, "myVar", PredefinedTypes.TYPE_ANY, null, true)}, 6
+                        , 0, new String[]{"error: configurable variable 'myVar' with type 'any' is not supported",
+                        "error: [org.mod1.myVar=4] unused command line argument"}},
                 // not supported cli union type
                 {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
                         new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 0,

@@ -1,19 +1,22 @@
 word2 = "word 2"
 
 [words]
-word6 = "word 6"
+word7 = "word 7"
 
 [numbers]
 num5 = 5
+num6 = 6
 
 [symbols]
-symbol4 = "$"
+symbol5 = "$"
 
 [container.words]
 word6 = "word 6"
+word7 = "word 7"
 
 [[wordArr]]
-word6 = "word 7"
+word6 = "word 6"
+word7 = "word 7"
 
 [[wordArr]]
 word1 = "word 10"
@@ -21,29 +24,30 @@ word2 = "word 20"
 word3 = "word 30"
 word4 = "word 40"
 word5 = "word 50"
-word6 = "word 60"
+word7 = "word 70"
 
 [[numberArr]]
-num5 = 6
+num6 = 6
 
 [[numberArr]]
 num1 = 10
 num2 = 20
 num3 = 30
 num4 = 40
-num5 = 50
+num6 = 60
 
 [[symbolArr]]
-symbol4 = "%"
+symbol4 = "@"
+symbol5 = "%"
 
 [[symbolArr]]
 symbol1 = "^"
 symbol2 = "&"
 symbol3 = "*"
-symbol4 = "-"
+symbol5 = "-"
 
 [[containerArr]]
-words.word6 = "word 7"
+words.word7 = "word 7"
 
 [[containerArr]]
 words.word1 = "word 10"
@@ -51,10 +55,11 @@ words.word2 = "word 20"
 words.word3 = "word 30"
 words.word4 = "word 40"
 words.word5 = "word 50"
-words.word6 = "word 60"
+words.word7 = "word 70"
 
 [[wordTable]]
-word6 = "word 7"
+word6 = "word 6"
+word7 = "word 7"
 
 [[wordTable]]
 word1 = "word 10"
@@ -62,29 +67,31 @@ word2 = "word 20"
 word3 = "word 30"
 word4 = "word 40"
 word5 = "word 50"
-word6 = "word 60"
+word7 = "word 70"
 
 [[numberTable]]
-num5 = 6
+num5 = 5
+num6 = 6
 
 [[numberTable]]
 num1 = 10
 num2 = 20
 num3 = 30
 num4 = 40
-num5 = 50
+num6 = 60
 
 [[symbolTable]]
-symbol4 = "%"
+symbol5 = "%"
 
 [[symbolTable]]
 symbol1 = "^"
 symbol2 = "&"
 symbol3 = "*"
-symbol4 = "-"
+symbol4 = "@"
+symbol5 = "-"
 
 [[containerTable]]
-words.word6 = "word 7"
+words.word7 = "word 7"
 
 [[containerTable]]
 words.word1 = "word 10"
@@ -93,42 +100,45 @@ words.word3 = "word 30"
 words.word4 = "word 40"
 words.word5 = "word 50"
 words.word6 = "word 60"
+words.word7 = "word 70"
 
 [wordMap]
-entry1.word6 = "word 6"
+entry1.word7 = "word 7"
 entry2.word1 = "word 11"
 entry2.word2 = "word 22"
 entry2.word3 = "word 33"
 entry2.word4 = "word 44"
 entry2.word5 = "word 55"
 entry2.word6 = "word 66"
+entry2.word7 = "word 77"
 
 [numberMap]
-entry1.num5 = 55
+entry1.num6 = 66
 entry2.num1 = 11
 entry2.num2 = 22
 entry2.num3 = 33
 entry2.num4 = 44
 entry2.num5 = 55
+entry2.num6 = 66
 
 [symbolMap]
-entry1.symbol4 = "="
+entry1.symbol5 = "="
 entry2.symbol1 = "+"
 entry2.symbol2 = "|"
 entry2.symbol3 = "}"
-entry2.symbol4 = "?"
+entry2.symbol5 = "?"
 
 [containerMap]
-entry1.words.word6 = "word 6"
+entry1.words.word7 = "word 7"
 entry2.words.word1 = "word 11"
 entry2.words.word2 = "word 22"
 entry2.words.word3 = "word 33"
 entry2.words.word4 = "word 44"
 entry2.words.word5 = "word 55"
-entry2.words.word6 = "word 66"
+entry2.words.word7 = "word 77"
 
 [[wordTableMap.map1]]
-word6 = "word 7"
+word7 = "word 7"
 
 [[wordTableMap.map2]]
 word1 = "word 10"
@@ -136,29 +146,30 @@ word2 = "word 20"
 word3 = "word 30"
 word4 = "word 40"
 word5 = "word 50"
-word6 = "word 60"
+word7 = "word 70"
 
 [[numberTableMap.map1]]
-num5 = 6
+num6 = 6
 
 [[numberTableMap.map2]]
 num1 = 10
 num2 = 20
 num3 = 30
 num4 = 40
-num5 = 50
+num6 = 60
 
 [[symbolTableMap.map1]]
-symbol4 = "%"
+symbol4 = "@"
+symbol5 = "%"
 
 [[symbolTableMap.map2]]
 symbol1 = "^"
 symbol2 = "&"
 symbol3 = "*"
-symbol4 = "-"
+symbol5 = "-"
 
 [[containerTableMap.map1]]
-words.word6 = "word 7"
+words.word7 = "word 7"
 
 [[containerTableMap.map2]]
 words.word1 = "word 10"
@@ -166,7 +177,7 @@ words.word2 = "word 20"
 words.word3 = "word 30"
 words.word4 = "word 40"
 words.word5 = "word 50"
-words.word6 = "word 60"
+words.word7 = "word 70"
 
 [defaultValuesRecord.type_defs]
 num2 = 2

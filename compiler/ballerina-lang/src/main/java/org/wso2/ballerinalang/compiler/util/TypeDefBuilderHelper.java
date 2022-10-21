@@ -228,7 +228,6 @@ public class TypeDefBuilderHelper {
                     Names.fromString(symbol.name.value), symbol.pkgID, type, symbol.owner,
                     symbol.pos, symbol.origin);
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
-        typeDefinition.pos = typeNode.getPosition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }

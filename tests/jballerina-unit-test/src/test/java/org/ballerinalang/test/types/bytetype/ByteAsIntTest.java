@@ -79,6 +79,11 @@ public class ByteAsIntTest {
         BRunUtil.invoke(result, "testInherentTypeViolationOfByteArrayCastToIntArray");
     }
 
+    @Test
+    public void testByteArrayLiteralCastToReadOnlyType() {
+        BRunUtil.invoke(result, "testByteArrayLiteralCastToReadOnlyType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

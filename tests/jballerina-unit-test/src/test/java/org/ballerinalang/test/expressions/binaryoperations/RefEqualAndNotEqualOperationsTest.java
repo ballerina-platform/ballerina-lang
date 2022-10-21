@@ -328,14 +328,18 @@ public class RefEqualAndNotEqualOperationsTest {
                            "Expected values to be identified as not reference equal");
     }
 
-    @Test
-    public void testTupleJSONRefEquality() {
-        BRunUtil.invoke(result, "testTupleJSONRefEquality");
+    @Test(dataProvider = "function-provider")
+    public void testRefEqualsFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
-    @Test
-    public void testIntersectingUnionRefEquality() {
-        BRunUtil.invoke(result, "testIntersectingUnionRefEquality");
+    @DataProvider(name = "function-provider")
+    public Object[] getRefEqualsFunctions() {
+        return new String[] {
+                "testTupleJSONRefEquality",
+                "testIntersectingUnionRefEquality",
+                "testFPValueEquality"
+        };
     }
 
     @Test(dataProvider = "functionsWithXmlExactEqualityChecks")

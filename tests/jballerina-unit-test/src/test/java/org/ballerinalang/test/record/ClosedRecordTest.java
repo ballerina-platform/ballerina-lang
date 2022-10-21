@@ -247,12 +247,10 @@ public class ClosedRecordTest {
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
-        String errMsg =
-                "invalid method call expression: expected a function type, but found 'function" +
-                        " (string,string) returns (string)?'";
+        String errMsg = "undefined function 'fp'";
         int indx = 0;
-        BAssertUtil.validateError(result, indx++, errMsg, 28, 17);
-        BAssertUtil.validateError(result, indx++, errMsg, 33, 17);
+        BAssertUtil.validateError(result, indx++, errMsg, 29, 17);
+        BAssertUtil.validateError(result, indx++, errMsg, 35, 17);
         Assert.assertEquals(result.getErrorCount(), indx);
     }
 

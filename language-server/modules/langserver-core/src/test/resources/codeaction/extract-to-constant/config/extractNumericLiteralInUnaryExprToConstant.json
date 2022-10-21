@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 23,
+    "character": 26
+  },
+  "source": "extractToConstant.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "const int CONST \u003d 100;\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 24
+            },
+            "end": {
+              "line": 23,
+              "character": 27
+            }
+          },
+          "newText": "CONST"
+        }
+      ]
+    }
+  ]
+}

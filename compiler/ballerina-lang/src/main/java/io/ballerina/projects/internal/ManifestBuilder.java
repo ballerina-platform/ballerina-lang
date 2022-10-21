@@ -479,9 +479,12 @@ public class ManifestBuilder {
         }
         Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
-
-        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
-                BuildOptions.OptionName.TARGET_DIR.toString());
+        String targetDir =
+                getStringFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TARGET_DIR.toString());
+        Boolean enableCache =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.ENABLE_CACHE.toString());
+        Boolean nativeImage =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.NATIVE_IMAGE.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -491,7 +494,9 @@ public class ManifestBuilder {
                 .setCloud(cloud)
                 .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
-                .setSticky(sticky);
+                .setSticky(sticky)
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);

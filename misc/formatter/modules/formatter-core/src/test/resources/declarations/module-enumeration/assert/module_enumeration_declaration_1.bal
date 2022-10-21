@@ -5,8 +5,7 @@ public enum Color {
 }
 
 public enum Language {
-    EN = "English",
-    TA = "Tamil"
+    EN = "English", TA = "Tamil"
 }
 
 public enum Bands {

@@ -41,6 +41,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode openBraceToken;
     public final STNode members;
     public final STNode closeBraceToken;
+    public final STNode semicolonToken;
 
     STServiceDeclarationNode(
             STNode metadata,
@@ -52,7 +53,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode expressions,
             STNode openBraceToken,
             STNode members,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         this(
                 metadata,
                 qualifiers,
@@ -64,6 +66,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 members,
                 closeBraceToken,
+                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -78,6 +81,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode openBraceToken,
             STNode members,
             STNode closeBraceToken,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SERVICE_DECLARATION, diagnostics);
         this.metadata = metadata;
@@ -90,6 +94,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
         this.openBraceToken = openBraceToken;
         this.members = members;
         this.closeBraceToken = closeBraceToken;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
@@ -101,7 +106,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -116,6 +122,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 this.openBraceToken,
                 this.members,
                 this.closeBraceToken,
+                this.semicolonToken,
                 diagnostics);
     }
 
@@ -129,7 +136,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
             STNode expressions,
             STNode openBraceToken,
             STNode members,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifiers,
@@ -140,7 +148,8 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -155,6 +164,7 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 members,
                 closeBraceToken,
+                semicolonToken,
                 diagnostics);
     }
 

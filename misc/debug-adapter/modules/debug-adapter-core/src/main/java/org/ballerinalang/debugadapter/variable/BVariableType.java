@@ -41,6 +41,7 @@ public enum BVariableType {
     FUNCTION("function"),
     FUTURE("future"),
     OBJECT("object"),
+    CLIENT_OBJECT("client object"),
     SERVICE("service"),
     TYPE_DESC("typedesc"),
     HANDLE("handle"),

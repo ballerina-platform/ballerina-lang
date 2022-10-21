@@ -425,7 +425,7 @@ function testOutOfIntRangeNegativeDecimalInUnionAsInt() {
 function testExplicitlyTypedExprForExactValues() returns error? {
     // test from float
     float f = 12.345;
-    decimal fd = 12.34500000000000063948846218409017;
+    decimal fd = 12.345;
     byte fb = 12;
 
     float f1 = <float> f;

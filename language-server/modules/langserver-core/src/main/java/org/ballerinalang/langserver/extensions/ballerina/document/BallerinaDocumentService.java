@@ -69,6 +69,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("ballerinaDocument")
 public class BallerinaDocumentService implements ExtendedLanguageServerService {
+
     protected static final String MINUTIAE = "WHITESPACE_MINUTIAE";
 
     private WorkspaceManagerProxy workspaceManagerProxy;
@@ -422,7 +423,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                         this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
-                        .filter(entry->fileUri.equals(entry.getKey()))
+                        .filter(entry -> fileUri.equals(entry.getKey()))
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
                         .collect(Collectors.toList());
             } catch (Throwable e) {
@@ -476,11 +477,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                     return response;
                 }
 
-                Optional<Module> module = workspaceManagerProxy.get().module(filePath.get());
-                if (module.isEmpty()) {
-                    return response;
-                }
-                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(module.get(),
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(workspaceManagerProxy.get(),
                         filePath.get()));
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/executorPositions' failed!";

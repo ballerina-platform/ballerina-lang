@@ -717,6 +717,27 @@ function testIfStmtInsideDoClause() {
     assertEquality(foo10(), "Hello");
 }
 
+type Topt record {
+   int x?;
+   int y?;
+};
+
+function foo(int? x) returns boolean {
+    return x !is ();
+}
+
+function testQueryWithOptionalFieldRecord() {
+    Topt[] v = [{x: 1, y: 2}, {x: 3}, {y: 4}];
+    Topt[] vx = from var {x, y} in v
+                select {x, y};
+    assertEquality(vx, v);
+    vx = from var {x, y} in v
+                where foo(x)
+                select {x, y};
+    Topt[] vy = [{x: 1, y: 2}, {x: 3}];
+    assertEquality(vx, vy);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

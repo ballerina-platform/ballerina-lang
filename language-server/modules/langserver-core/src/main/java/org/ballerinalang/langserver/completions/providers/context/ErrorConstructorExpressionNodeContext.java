@@ -147,7 +147,16 @@ public class ErrorConstructorExpressionNodeContext extends
               Covers the following.
               error(<cursor>,)
             */
-            sortInErrorMessageArgContext(context, completionItems, node);
+            Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+            if (semanticModel.isEmpty()) {
+                super.sort(context, node, completionItems);
+                return;
+            }
+            TypeSymbol typeSymbol = semanticModel.get().types().STRING;
+            for (LSCompletionItem completionItem : completionItems) {
+                completionItem.getCompletionItem()
+                        .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, typeSymbol));
+            }
             return;
         }
         /*
@@ -165,13 +174,6 @@ public class ErrorConstructorExpressionNodeContext extends
             }
             completionItem.getCompletionItem().setSortText(sortText);
         }
-    }
-
-    private void sortInErrorMessageArgContext(BallerinaCompletionContext context,
-                                              List<LSCompletionItem> completionItems,
-                                              ErrorConstructorExpressionNode node) {
-        //Todo:#33027
-        super.sort(context, node, completionItems);
     }
 
     private boolean withinArgs(BallerinaCompletionContext context, ErrorConstructorExpressionNode node) {

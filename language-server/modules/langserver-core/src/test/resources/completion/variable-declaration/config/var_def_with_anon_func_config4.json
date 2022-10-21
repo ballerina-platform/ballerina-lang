@@ -591,14 +591,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "s",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "F",
-      "insertText": "s",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunc2",
       "kind": "Variable",
       "detail": "function (int i, string s) returns int",
@@ -607,11 +599,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i",
+      "label": "x",
       "kind": "Variable",
       "detail": "int",
       "sortText": "F",
-      "insertText": "i",
+      "insertText": "x",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "y",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "F",
+      "insertText": "y",
       "insertTextFormat": "Snippet"
     },
     {
@@ -620,7 +620,7 @@
       "detail": "Snippet",
       "sortText": "CP",
       "filterText": "function",
-      "insertText": "function (int i1, string s1) returns int {\n    return 0;\n}",
+      "insertText": "function (int i, string s) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -726,6 +726,30 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

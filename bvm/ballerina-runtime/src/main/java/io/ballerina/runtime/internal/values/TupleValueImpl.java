@@ -142,6 +142,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
+        this(type, initialValues);
+    }
+
+    public TupleValueImpl(TupleType type, BListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<Type> memTypes = this.tupleType.getTupleTypes();

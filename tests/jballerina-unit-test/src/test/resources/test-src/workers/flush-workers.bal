@@ -95,69 +95,35 @@ function flushAll() returns string {
 }
 
 function errorTest() {
-    var inner = function () returns error? {
-        @strand{thread:"any"}
-        worker w1 returns error?{
-                int a = 10;
-
-                var sync = a ->> w2;
-                any|error res = sync;
-                a -> w3;
-                a -> w2;
-                error? result = flush;
-                foreach var i in 1 ... 5 {
-                    append2 = append2 + "w1";
-                }
-                return result;
+    var inner1 = function() returns error? {
+        @strand {thread: "any"}
+        worker w1 returns error? {
+            20 -> w3;
+            30 -> w2;
+            error? result = flush;
+            return result;
+        }
+        @strand {thread: "any"}
+        worker w2 {
+            int async_d = <- w1;
+        }
+        @strand {thread: "any"}
+        worker w3 returns error? {
+            int k = 1;
+            if (k > 0) {
+                return error("err3");
             }
-            @strand{thread:"any"}
-            worker w2 returns error?{
-                if(0 > 1){
-                     error err = error("err", message = "err msg");
-                     return err;
-                }
-                sleep(5);
-                foreach var i in 1 ... 5 {
-                    append2 = append2 + "w2";
-                }
-                int b;
-                b = <- w1;
-                b = <- w1;
-                return;
-            }
-            @strand{thread:"any"}
-            worker w3 returns error|string{
-                sleep(5);
-                int k;
-                foreach var i in 1 ... 5 {
-                    append2 = append2 + "w3";
-                    k = i;
-                }
-                if(k>3) {
-                    map<string> reason = { k1: "error3" };
-                        error er3 = error(reason.get("k1"),  message = "msg3");
-                        return er3;
-                    }
+            int b = <- w1;
+        }
 
-                int b;
-                b = <- w1;
-                return "done";
-            }
-
-            error? res = wait w1;
-            return res;
+        error? res = wait w1;
+        return res;
     };
 
-    foreach int i in 0...10 {
-        validateError(inner(), "error3");
-    }
-}
-
-function panicTest() returns error? {
-    @strand{thread:"any"}
-    worker w1 returns error?{
+    var inner2 = function() returns error? {
+        @strand {thread: "any"}
+        worker w1 returns error? {
             int a = 10;
-
             var sync = a ->> w2;
             any|error res = sync;
             a -> w3;
@@ -168,11 +134,11 @@ function panicTest() returns error? {
             }
             return result;
         }
-        @strand{thread:"any"}
-        worker w2 returns error?{
-            if(0 > 1){
-                 error err = error("err", message = "err msg");
-                 return err;
+        @strand {thread: "any"}
+        worker w2 returns error? {
+            if (0 > 1) {
+                error err = error("err", message = "err msg");
+                return err;
             }
             sleep(5);
             foreach var i in 1 ... 5 {
@@ -183,20 +149,19 @@ function panicTest() returns error? {
             b = <- w1;
             return;
         }
-        @strand{thread:"any"}
-        worker w3 returns error|string{
+        @strand {thread: "any"}
+        worker w3 returns error|string {
             sleep(5);
             int k;
             foreach var i in 1 ... 5 {
                 append2 = append2 + "w3";
                 k = i;
             }
-            if(k>3) {
-                map<string> reason = { k1: "error3" };
-                    error er3 = error(reason.get("k1"), message = "msg3");
-                    panic er3;
-                }
-
+            if (k > 3) {
+                map<string> reason = {k1: "error3"};
+                error er3 = error(reason.get("k1"), message = "msg3");
+                return er3;
+            }
             int b;
             b = <- w1;
             return "done";
@@ -204,6 +169,67 @@ function panicTest() returns error? {
 
         error? res = wait w1;
         return res;
+    };
+
+    foreach int i in 0 ... 100 {
+        future<error?> futureResult = start inner1();
+        error? unionResult = wait futureResult;
+        validateError(unionResult, "err3");
+    }
+    foreach int i in 0 ... 10 {
+        validateError(inner2(), "error3");
+    }
+}
+
+function panicTest() returns error? {
+    @strand {thread: "any"}
+    worker w1 returns error? {
+        int a = 10;
+        var sync = a ->> w2;
+        any|error res = sync;
+        a -> w3;
+        a -> w2;
+        error? result = flush;
+        foreach var i in 1 ... 5 {
+            append2 = append2 + "w1";
+        }
+        return result;
+    }
+    @strand {thread: "any"}
+    worker w2 returns error? {
+        if (0 > 1) {
+            error err = error("err", message = "err msg");
+            return err;
+        }
+        sleep(5);
+        foreach var i in 1 ... 5 {
+            append2 = append2 + "w2";
+        }
+        int b;
+        b = <- w1;
+        b = <- w1;
+        return;
+    }
+    @strand {thread: "any"}
+    worker w3 returns error|string {
+        sleep(5);
+        int k;
+        foreach var i in 1 ... 5 {
+            append2 = append2 + "w3";
+            k = i;
+        }
+        if (k > 3) {
+            map<string> reason = {k1: "error3"};
+            error er3 = error(reason.get("k1"), message = "msg3");
+            panic er3;
+        }
+        int b;
+        b = <- w1;
+        return "done";
+    }
+
+    error? res = wait w1;
+    return res;
 }
 
 function flushInDefaultError() {

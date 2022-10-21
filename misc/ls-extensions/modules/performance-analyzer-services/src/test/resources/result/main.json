@@ -98,17 +98,21 @@
     }
   },
   "actionInvocations": {
-    "nextNode": {
-      "endPointRef": "${json-unit.ignore}",
-      "name": "get",
-      "path": "/jokes/random",
-      "pos": "main.bal/(23:33,23:67)",
-      "nextNode": {
-        "endPointRef": "${json-unit.ignore}",
-        "name": "get",
-        "path": "/jokes/random",
-        "pos": "main.bal/(25:34,25:68)",
-        "nextNode": null
+    "workers": {
+      "mainWorker": {
+        "nextNode": {
+          "endPointRef": "${json-unit.ignore}",
+          "name": "get",
+          "path": "/jokes/random",
+          "pos": "main.bal/(23:33,23:67)",
+          "nextNode": {
+            "endPointRef": "${json-unit.ignore}",
+            "name": "get",
+            "path": "/jokes/random",
+            "pos": "main.bal/(25:34,25:68)",
+            "nextNode": null
+          }
+        }
       }
     }
   },

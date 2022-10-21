@@ -17,20 +17,35 @@
  */
 package io.ballerina.projects.internal.plugins;
 
+import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.plugins.CompilerPlugin;
+import io.ballerina.projects.plugins.IDLGeneratorPlugin;
+import io.ballerina.projects.util.ProjectConstants;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.stream.Stream;
 
 /**
  * This class contains a set of utility method related to compiler plugin implementation.
@@ -53,6 +68,16 @@ public class CompilerPlugins {
 
     public static List<CompilerPlugin> getBuiltInPlugins() {
         return builtInPlugins;
+    }
+
+    public static List<IDLGeneratorPlugin> getBuiltInIDLPlugins() {
+        List<IDLGeneratorPlugin> builtInIDLPlugins = new ArrayList<>();
+        ServiceLoader<IDLGeneratorPlugin> idlPluginServiceLoader = ServiceLoader
+                .load(IDLGeneratorPlugin.class, CompilerPlugins.class.getClassLoader());
+        for (IDLGeneratorPlugin idlGeneratorPlugin : idlPluginServiceLoader) {
+            builtInIDLPlugins.add(idlGeneratorPlugin);
+        }
+        return builtInIDLPlugins;
     }
 
     public static CompilerPlugin loadCompilerPlugin(String pluginClassName, List<Path> jarDependencyPaths) {
@@ -110,5 +135,44 @@ public class CompilerPlugins {
             }
         }
         return jarURLS;
+    }
+
+    public static boolean moduleExists(String moduleName, Project project) {
+        Path moduleRoot = project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName);
+        try (Stream<Path> list = Files.list(moduleRoot)) {
+            return Files.exists(moduleRoot) && list.findFirst().isPresent();
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static List<String> annotationsAsStr(NodeList<AnnotationNode> supportedAnnotations) {
+        List<String> annotations = new ArrayList<>();
+        StringBuilder id = new StringBuilder();
+        for (AnnotationNode annotation : supportedAnnotations) {
+            String annotationRef = ((STAnnotationNode) annotation.internalNode()).annotReference.toString()
+                    .replaceAll("\\s", "");
+            id.append(annotationRef);
+
+            String annotationVal = ((STAnnotationNode) annotation.internalNode()).annotValue.toString()
+                    .replaceAll("\\s", "");
+            id.append(annotationVal);
+            annotations.add(id.toString());
+        }
+        annotations.sort(Comparator.naturalOrder());
+        return annotations;
+    }
+
+    public static String getUri(Node clientNode) {
+        BasicLiteralNode clientUri;
+
+        if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
+            clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
+        } else {
+            clientUri = ((ClientDeclarationNode) clientNode).clientUri();
+        }
+
+        String text = clientUri.literalToken().text();
+        return text.substring(1, text.length() - 1);
     }
 }

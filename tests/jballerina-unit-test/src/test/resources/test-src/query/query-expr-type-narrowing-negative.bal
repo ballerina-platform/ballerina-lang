@@ -115,12 +115,12 @@ function test4(AorB[] data1, AorC[] data2, BorC[] data3) returns error? {
 
     _ = from AorB item in data1
         where item !is A
-        select intFn(item); //error incompatible types: expected 'int', found 'B'
+        select bFn(item); //error incompatible types: expected 'B', found 'AorB'
 
     check from AorB item in data1
         where !(item is A)
         do {
-            intFn(item); //error incompatible types: expected 'int', found 'B'
+            bFn(item); //error incompatible types: expected 'B', found 'AorB'
         };
 
     _ = from AorC item in data2
@@ -207,7 +207,7 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
 
     _ = from var item in x
         where item !is D
-        select intFn(item); // error incompatible types: expected 'int', found 'E'
+        select eFn(item); // error incompatible types: expected 'E', found 'DorE'
 
     check from var item in x
         where item is D
@@ -218,7 +218,7 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
     check from var item in x
         where item !is D
         do {
-            intFn(item); // error incompatible types: expected 'int', found 'E'
+            eFn(item); // error incompatible types: expected 'E', found 'DorE'
         };
 
     _ = from var item in y
@@ -227,7 +227,7 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
 
     _ = from var item in y
         where item !is D
-        select intFn(item); // error incompatible types: expected 'int', found 'F'
+        select fFn(item); // error incompatible types: expected 'F', found 'DorF'
 
     _ = from var item in z
         where item is E
@@ -239,7 +239,7 @@ function test5(DorE[] x, DorF[] y, EorF[] z) returns error? {
 
     _ = from var item in z
         where item !is E
-        select intFn(item); // error incompatible types: expected 'int', found 'F'
+        select fFn(item); // error incompatible types: expected 'F', found 'EorF'
 }
 
 type S readonly & record {|
@@ -367,12 +367,12 @@ function test9((V|W|Y|Z)[] data) returns error? {
 
     _ = from var item in data
         where item !is V|W
-        select yzFn(item); // OK
+        select yzFn(item); // error incompatible types: expected '(Y|Z)', found '(W|Y|Z)'
 
     check from var item in data
         where item !is V|W
         do {
-            intFn(item); // error incompatible types: expected 'int', found '(Y|Z)'
+            yzFn(item); // error incompatible types: expected '(Y|Z)', found '(W|Y|Z)'
         };
 
     _ = from var item in data
@@ -402,6 +402,9 @@ function qFn(Q x) {
 function rFn(R x) {
 }
 
+function rtFn(R|T x) {
+}
+
 function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
     _ = from var item in data1
         where item is Q
@@ -409,12 +412,12 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
 
     _ = from var item in data1
         where item !is Q
-        select intFn(item); // error incompatible types: expected 'int', found 'R'
+        select rFn(item); // error incompatible types: expected 'R', found '(Q|R)'
 
     check from var item in data1
         where item !is Q
         do {
-            intFn(item); // error incompatible types: expected 'int', found 'R'
+            rFn(item); // error incompatible types: expected 'R', found '(Q|R)'
         };
 
     _ = from var item in data2
@@ -423,7 +426,7 @@ function test10((Q|R)[] data1, (Q|R|T)[] data2) returns error? {
 
     _ = from var item in data2
         where item !is Q
-        select rFn(item); // error incompatible types: expected 'R', found '(R|T)'
+        select rtFn(item); // error incompatible types: expected '(R|T)', found '(Q|R|T)'
 }
 
 type Integers 1|2|3;
@@ -492,7 +495,4 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
         do {
             2 _ = item;
         };
-}
-
-function intFn(int x) {
 }
