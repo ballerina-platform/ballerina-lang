@@ -123,9 +123,9 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-        Optional<Symbol> symbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.symbol(builtinSimpleNameReferenceNode));
-        return SymbolUtil.getTypeDescriptor(symbol.orElse(null));
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(builtinSimpleNameReferenceNode))
+                .flatMap(SymbolUtil::getTypeDescriptor);
     }
 
     @Override
@@ -184,17 +184,13 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
         Optional<ReturnTypeDescriptorNode> returnTypeDesc = functionDefinitionNode.functionSignature().returnTypeDesc();
-        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
+        if (returnTypeDesc.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<Symbol> functionSymbol = context.currentSemanticModel().get().symbol(functionDefinitionNode);
-
-        if (functionSymbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(functionDefinitionNode))
+                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
     }
 
     @Override
