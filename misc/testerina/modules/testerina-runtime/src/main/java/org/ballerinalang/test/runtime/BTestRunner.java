@@ -86,6 +86,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -264,6 +265,8 @@ public class BTestRunner {
         }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
+        // start TRAP signal handler which produces the strand dump
+        startTrapSignalHandler();
         // 'shouldSkip' sets to true if beforeSuite, beforeEach or afterEach functions fail
         shouldSkip.set(false);
         shouldSkipAfterSuite.set(false);
