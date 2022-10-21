@@ -146,7 +146,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
-                    CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.BALLERINA_RENAME_ACTION,
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.RENAME_COMMAND,
                     List.of(context.fileUri(), startPos)));
         }
     }
