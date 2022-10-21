@@ -20,6 +20,8 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.identifier.Utils;
 
+import static io.ballerina.identifier.Utils.unescapeJava;
+
 /**
  * Utils class that provides methods to decode identifiers with special characters.
  *
@@ -51,15 +53,12 @@ public class IdentifierUtils {
     }
 
     /**
-     * <p>Unescapes any Java literals found in the {@code String}.
-     * For example, it will turn a sequence of {@code '\'} and
-     * {@code 'n'} into a newline character, unless the {@code '\'}
-     * is preceded by another {@code '\'}.</p>
+     * Unescapes a ballerina string.
      *
-     * @param str the {@code String} to unescape, may be null
-     * @return a new unescaped {@code String}, {@code null} if null string input
+     * @param text ballerina string to unescape
+     * @return unescaped ballerina string
      */
-    public static String unescapeJava(String str) {
-        return Utils.unescapeJava(str);
+    public static String unescapeBallerina(String text) {
+        return unescapeJava(Utils.unescapeUnicodeCodepoints(text));
     }
 }

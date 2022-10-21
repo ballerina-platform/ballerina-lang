@@ -273,7 +273,7 @@ public class Values {
     }
 
     public static BString unescapeSpecialCharacters(BString string) {
-        return StringUtils.fromString(IdentifierUtils.unescapeJava(string.getValue()));
+        return StringUtils.fromString(IdentifierUtils.unescapeBallerina(string.getValue()));
     }
 
     public static BMap<BString, Object> getRecordNegative(BString recordName) {
