@@ -304,7 +304,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 analyzeDef((BLangNode) constant, data);
             }
         }
-        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
+        //this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
         validateEnumMemberMetadata(pkgNode.constants);
 
@@ -4180,12 +4180,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return;
         }
 
-        BType resultantType = typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs, data.commonAnalyzerData);
+        //BType resultantType = typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs, data.commonAnalyzerData);
 //        if (constant.symbol.getType() == symTable.noType) {
 //            constant.symbol.literalType = constant.symbol.type = resultantType;
 //        }
         // Check nested expressions.
-        constantAnalyzer.visit(constant);
+        //constantAnalyzer.visit(constant);
     }
 
     private boolean isLiteralInUnaryFromConstantNotAllowed(BLangUnaryExpr unaryExpr) {

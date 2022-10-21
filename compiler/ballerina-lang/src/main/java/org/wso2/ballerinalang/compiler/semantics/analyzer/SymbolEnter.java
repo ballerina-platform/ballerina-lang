@@ -422,21 +422,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
 
-        SymbolEnv cloneEnv = pkgEnv.createClone();
-        List<BLangNode> typeAndClassDefsCloned = new ArrayList<>();
-        typeAndClassDefs.forEach(i -> typeAndClassDefsCloned.add(nodeCloner.cloneNode(i)));
+//        SymbolEnv cloneEnv = pkgEnv.createClone();
+//        List<BLangNode> typeAndClassDefsCloned = new ArrayList<>();
+//        typeAndClassDefs.forEach(i -> typeAndClassDefsCloned.add(nodeCloner.cloneNode(i)));
 
 
 
-        boolean runTypeResolver = false;
+        boolean runTypeResolver = true;
         if (runTypeResolver) {
             SymbolEnv prevEnv = this.env;
-            this.env = cloneEnv;
-            typeResolver.defineBTypes(typeAndClassDefsCloned, cloneEnv, pkgNode);
+            this.env = pkgEnv;
+            typeResolver.defineBTypes(typeAndClassDefs/*typeAndClassDefsCloned*/, pkgEnv, pkgNode);
             this.env = prevEnv;
         }
 
-        defineTypeNodes(typeAndClassDefs, pkgEnv);
+//        defineTypeNodes(typeAndClassDefs, pkgEnv);
 
         for (BLangVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -446,22 +446,22 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
-        pkgEnv.logErrors = true;
+//        pkgEnv.logErrors = true;
 
         // Sort type definitions with precedence, before defining their members.
-        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
-        typeAndClassDefs.sort(getTypePrecedenceComparator());
+//        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
+//        typeAndClassDefs.sort(getTypePrecedenceComparator());
 
         // Add distinct type information
-        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+//        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
 
         // Define type def fields (if any)
-        defineFields(typeAndClassDefs, pkgEnv);
-        populateTypeToTypeDefMap(typeAndClassDefs);
-        defineDependentFields(typeAndClassDefs, pkgEnv);
+//        defineFields(typeAndClassDefs, pkgEnv);
+//        populateTypeToTypeDefMap(typeAndClassDefs);
+//        defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
-        defineIntersectionTypes(pkgEnv);
+//        defineIntersectionTypes(pkgEnv);
 
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
@@ -472,8 +472,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
-        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
-        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
+//        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
+//        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
@@ -562,7 +562,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isObjectCtor(BLangClassDefinition classDefinition) {
+    public boolean isObjectCtor(BLangClassDefinition classDefinition) {
         if (!classDefinition.isObjectContructorDecl && classDefinition.isServiceDecl) {
             return false;
         }
@@ -572,7 +572,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    private void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
+    public void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
         for (BLangNode node : typDefs) {
             if (node.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) node;
@@ -583,6 +583,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
                 populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
             }
+        }
+    }
+
+    public void defineDistinctClassAndObjectDefinitionIndividual(BLangNode node) {
+        if (node.getKind() == NodeKind.CLASS_DEFN) {
+            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+            if (isObjectCtor(classDefinition)) {
+                return;
+            }
+            populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
+        } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
+            populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
         }
     }
 
@@ -5271,7 +5283,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         variable.setBType(invokableType);
     }
 
-    private SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
+    public SymbolOrigin getOrigin(Name name, Set<Flag> flags) {
         if ((flags.contains(Flag.ANONYMOUS) && (flags.contains(Flag.SERVICE) || flags.contains(Flag.CLASS)))
                 || missingNodesHelper.isMissingNode(name)) {
             return VIRTUAL;

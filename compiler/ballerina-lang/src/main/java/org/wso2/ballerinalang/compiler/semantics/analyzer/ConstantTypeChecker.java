@@ -12,8 +12,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
-import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
-import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -249,7 +247,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         // Create new tuple type using inferred members.
-        BTupleType tupleType = new BTupleType(memberTypes);
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, 0, Names.EMPTY,
+                data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, listConstructor.pos, SOURCE);
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
+        tupleType.tsymbol.type = tupleType;
         data.resultType = tupleType;
     }
 
@@ -391,13 +392,22 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             Object resolvedValue = calculateSingletonValue(getCorrespondingFiniteType(lhsType, expType),
                     getCorrespondingFiniteType(rhsType, expType), binaryExpr.opKind, expType, binaryExpr.pos);
             List<Object> valueList = new ArrayList<>();
-            valueList.add(resolvedValue);
+            if (resolvedValue != null) {
+                valueList.add(resolvedValue);
+            }
             while (iterator.hasNext()) {
                 expType = iterator.next();
-                valueList.add(calculateSingletonValue(getCorrespondingFiniteType(lhsType, expType),
-                        getCorrespondingFiniteType(rhsType, expType), binaryExpr.opKind, expType, binaryExpr.pos));
+                Object value = calculateSingletonValue(getCorrespondingFiniteType(lhsType, expType),
+                        getCorrespondingFiniteType(rhsType, expType), binaryExpr.opKind, expType, binaryExpr.pos);
+                if (value != null) {
+                    valueList.add(value);
+                }
             }
             iterator = ((BUnionType) resultType).getMemberTypes().iterator();
+            if (valueList.size() == 0) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(valueList.size());
             for (int i = 0; i < valueList.size(); i++) {
                 memberTypes.add(getFiniteType(valueList.get(i), constantSymbol, pos, iterator.next()));
@@ -409,6 +419,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
         Object resolvedValue = calculateSingletonValue(getCorrespondingFiniteType(lhsType, resultType),
                 getCorrespondingFiniteType(rhsType, resultType), binaryExpr.opKind, resultType, binaryExpr.pos);
+        if (resolvedValue == null) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
         data.resultType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
     }
 
@@ -454,13 +468,22 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             Object resolvedValue = evaluateUnaryOperator(getCorrespondingFiniteType(actualType, expType), expType,
                     unaryExpr.operator);
             List<Object> valueList = new ArrayList<>();
-            valueList.add(resolvedValue);
+            if (resolvedValue != null) {
+                valueList.add(resolvedValue);
+            }
             while (iterator.hasNext()) {
                 expType = iterator.next();
-                valueList.add(evaluateUnaryOperator(getCorrespondingFiniteType(actualType, expType), expType,
-                        unaryExpr.operator));
+                Object value = evaluateUnaryOperator(getCorrespondingFiniteType(actualType, expType), expType,
+                        unaryExpr.operator);
+                if (value != null) {
+                    valueList.add(value);
+                }
             }
             iterator = ((BUnionType) resultType).getMemberTypes().iterator();
+            if (valueList.size() == 0) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(valueList.size());
             for (int i = 0; i < valueList.size(); i++) {
                 memberTypes.add(getFiniteType(valueList.get(i), constantSymbol, pos, iterator.next()));
@@ -472,6 +495,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
         Object resolvedValue = evaluateUnaryOperator(getCorrespondingFiniteType(actualType, resultType), resultType,
                 unaryExpr.operator);
+        if (resolvedValue == null) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
         data.resultType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
     }
 
@@ -554,16 +581,16 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 case BITWISE_XOR:
                     return calculateBitWiseOp(lhs, rhs, (a, b) -> a ^ b, type, currentPos);
                 default:
-                    dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
+//                    dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
             }
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
-            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+//            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
-        return new BLangConstantValue(null, type);
+        return null;
     }
 
     private Object getValue(BLangLiteral lhsLiteral) {
@@ -613,7 +640,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
 
         }
-        return new BLangConstantValue(null, type);
+        return null;
+//        return new BLangConstantValue(null, type);
     }
 
     private Object calculateAddition(Object lhs, Object rhs, BType type) {
@@ -1141,7 +1169,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
                 }
 
-                dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+//                dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
                 data.resultType = symTable.semanticError;
             } else {
                 data.resultType = opSymbol.type.getReturnType();
@@ -1237,7 +1265,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             if (bArrayType.state == BArrayState.CLOSED && bArrayType.size > tupleTypes.size()) {
                 // Add Fill mambers.
-                fillMembers.addFillMembers(resultTupleType, bArrayType, data);
+                if (!fillMembers.addFillMembers(resultTupleType, bArrayType, data)) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
             }
             data.resultType = resultTupleType;
         }
@@ -1460,7 +1491,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             tupleTypeSymbol.type = resultTupleType;
             if (restTypeCount < 0) {
                 // Add FIll members.
-                fillMembers.addFillMembers(resultTupleType, tupleType, data);
+                if (!fillMembers.addFillMembers(resultTupleType, tupleType, data)) {
+                    data.resultType = symTable.semanticError;
+                    return;
+                }
             }
             data.resultType = resultTupleType;
         }
@@ -1576,22 +1610,39 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
 
             BType restFieldType = recordType.restFieldType;
-            if (actualFields.size() != 0 && restFieldType == null) {
-                data.resultType = symTable.semanticError;
-                return;
-            }
-            for (String key : actualFields.keySet()) {
-                BType validFieldType = getValidType(restFieldType, actualFields.get(key).type, data);
-                if (validFieldType == symTable.semanticError) {
+            if (actualFields.size() != 0) {
+                if (!recordType.sealed) {
+                    for (String key : actualFields.keySet()) {
+                        BType validFieldType = constantTypeChecker.getNarrowedType(actualFields.get(key).type);
+                        if (validFieldType == symTable.semanticError) {
+                            data.resultType = symTable.semanticError;
+                            return;
+                        }
+                        Name fieldName = names.fromString(key);
+                        Set<Flag> flags = new HashSet<>();
+                        flags.add(Flag.REQUIRED);
+                        BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+                                recordSymbol, symTable.builtinPos, VIRTUAL);
+                        validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
+                    }
+                } else if (restFieldType == null) {
                     data.resultType = symTable.semanticError;
                     return;
+                } else {
+                    for (String key : actualFields.keySet()) {
+                        BType validFieldType = getValidType(restFieldType, actualFields.get(key).type, data);
+                        if (validFieldType == symTable.semanticError) {
+                            data.resultType = symTable.semanticError;
+                            return;
+                        }
+                        Name fieldName = names.fromString(key);
+                        Set<Flag> flags = new HashSet<>();
+                        flags.add(Flag.REQUIRED);
+                        BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+                                recordSymbol, symTable.builtinPos, VIRTUAL);
+                        validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
+                    }
                 }
-                Name fieldName = names.fromString(key);
-                Set<Flag> flags = new HashSet<>();
-                flags.add(Flag.REQUIRED);
-                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
-                        recordSymbol, symTable.builtinPos, VIRTUAL);
-                validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
             }
 
             // TODO - Handle defaultable fields
@@ -1689,7 +1740,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return fillMembers;
         }
 
-        public void addFillMembers(BTupleType type, BType expType, AnalyzerData data) {
+        public boolean addFillMembers(BTupleType type, BType expType, AnalyzerData data) {
             BType refType = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(expType));
             List<BType> tupleTypes = type.getTupleTypes();
             int tupleMemberCount = tupleTypes.size();
@@ -1698,7 +1749,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 int noOfFillMembers = arrayType.size - tupleMemberCount;
                 BType fillMemberType = getFillMembers(arrayType.eType, data);
                 if (fillMemberType == symTable.semanticError) {
-                    return;
+                    return false;
                 }
                 for (int i = 0; i < noOfFillMembers; i++) {
                     tupleTypes.add(fillMemberType);
@@ -1708,11 +1759,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 for (int i = tupleMemberCount; i < bTypeList.size(); i++) {
                     BType fillMemberType = getFillMembers(bTypeList.get(i), data);
                     if (fillMemberType == symTable.semanticError) {
-                        return;
+                        return false;
                     }
                     tupleTypes.add(fillMemberType);
                 }
             }
+            return true;
         }
 
         public BType getFillMembers(BType type, AnalyzerData data) {
@@ -2006,9 +2058,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return type;
             case TypeTags.TUPLE:
                 List<BType> tupleTypes = ((BTupleType) type).tupleTypes;
-                for (int i = 0; i < tupleTypes.size(); i++) {
-                    tupleTypes.add(i, getNarrowedType(tupleTypes.get(i)));
+                List<BType> newTupleTypes = new ArrayList<>(tupleTypes.size());
+                for (BType memberType : tupleTypes) {
+                    newTupleTypes.add(getNarrowedType(memberType));
                 }
+                ((BTupleType) type).tupleTypes = newTupleTypes;
+                return type;
             default:
                 return symTable.semanticError;
         }
