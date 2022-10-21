@@ -169,6 +169,11 @@ public class AnonymousObjectTest {
         BAssertUtil.validateWarning(compileResult, 1, "usage of construct 'Test' is deprecated", 287, 25);
     }
 
+    @Test
+    public void testLocalVariablesFromFields() {
+        BRunUtil.invoke(compileResult, "testLocalVariablesFromFields");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
