@@ -1415,9 +1415,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReAtomQuantifier reAtomQuantifier) {
-        if (lookupNode(reAtomQuantifier.atom)) {
-            return;
-        }
+        lookupNode(reAtomQuantifier.atom);
         lookupNode(reAtomQuantifier.quantifier);
     }
 
@@ -1428,23 +1426,15 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReQuantifier reQuantifier) {
-        if (lookupNode(reQuantifier.quantifier)) {
-            return;
-        }
+        lookupNode(reQuantifier.quantifier);
         lookupNode(reQuantifier.nonGreedyChar);
     }
 
     @Override
     public void visit(BLangReCharacterClass reCharacterClass) {
-        if (lookupNode(reCharacterClass.characterClassStart)) {
-            return;
-        }
-        if (lookupNode(reCharacterClass.negation)) {
-            return;
-        }
-        if (lookupNode(reCharacterClass.charSet)) {
-            return;
-        }
+        lookupNode(reCharacterClass.characterClassStart);
+        lookupNode(reCharacterClass.negation);
+        lookupNode(reCharacterClass.charSet);
         lookupNode(reCharacterClass.characterClassEnd);
     }
 
@@ -1455,12 +1445,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReCharSetRange reCharSetRange) {
-        if (lookupNode(reCharSetRange.lhsCharSetAtom)) {
-            return;
-        }
-        if (lookupNode(reCharSetRange.dash)) {
-            return;
-        }
+        lookupNode(reCharSetRange.lhsCharSetAtom);
+        lookupNode(reCharSetRange.dash);
         lookupNode(reCharSetRange.rhsCharSetAtom);
     }
 
@@ -1472,12 +1458,8 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangReCapturingGroups reCapturingGroups) {
         lookupNode(reCapturingGroups.openParen);
-        if (lookupNode(reCapturingGroups.flagExpr)) {
-            return;
-        }
-        if (lookupNode(reCapturingGroups.disjunction)) {
-            return;
-        }
+        lookupNode(reCapturingGroups.flagExpr);
+        lookupNode(reCapturingGroups.disjunction);
         lookupNode(reCapturingGroups.closeParen);
     }
 
@@ -1493,12 +1475,8 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangReFlagExpression reFlagExpression) {
-        if (lookupNode(reFlagExpression.questionMark)) {
-            return;
-        }
-        if (lookupNode(reFlagExpression.flagsOnOff)) {
-            return;
-        }
+        lookupNode(reFlagExpression.questionMark);
+        lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
     }
 
