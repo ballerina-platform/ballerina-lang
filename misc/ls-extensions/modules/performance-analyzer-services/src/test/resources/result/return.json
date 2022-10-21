@@ -83,6 +83,38 @@
     "5": {
       "pkgID": "ballerina/project.http",
       "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "return.bal",
+        "startLine": {
+          "line": 24,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 24,
+          "offset": 32
+        }
+      }
+    },
+    "6": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "return.bal",
+        "startLine": {
+          "line": 30,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 30,
+          "offset": 32
+        }
+      }
+    },
+    "7": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
       "baseUrl": "https://api.chucknorris.io/",
       "pos": {
         "filePath": "while.bal",
@@ -95,78 +127,29 @@
           "offset": 36
         }
       }
-    },
-    "6": {
-      "pkgID": "ballerina/project.http",
-      "name": "Client",
-      "baseUrl": "https://postman-echo.com/post",
-      "pos": {
-        "filePath": "return.bal",
-        "startLine": {
-          "line": 24,
-          "offset": 24
-        },
-        "endLine": {
-          "line": 24,
-          "offset": 32
-        }
-      }
-    },
-    "7": {
-      "pkgID": "ballerina/project.http",
-      "name": "Client",
-      "baseUrl": "https://postman-echo.com/post",
-      "pos": {
-        "filePath": "return.bal",
-        "startLine": {
-          "line": 30,
-          "offset": 24
-        },
-        "endLine": {
-          "line": 30,
-          "offset": 32
-        }
-      }
     }
   },
   "actionInvocations": {
     "workers": {
       "mainWorker": {
         "nextNode": {
-          "length": 2,
-          "forBody": {
+          "ifBody": {
             "endPointRef": "${json-unit.ignore}",
             "name": "get",
-            "path": null,
-            "pos": "forEach.bal/(29:41,29:93)",
+            "path": "/",
+            "pos": "return.bal/(25:40,25:58)",
+            "nextNode": null,
+            "hasReturn": true
+          },
+          "elseBody": {
+            "endPointRef": "${json-unit.ignore}",
+            "name": "get",
+            "path": "/",
+            "pos": "return.bal/(31:40,31:58)",
             "nextNode": null,
             "hasReturn": false
           },
-          "nextNode": {
-            "length": 3,
-            "forBody": {
-              "endPointRef": "${json-unit.ignore}",
-              "name": "post",
-              "path": "/",
-              "pos": "forEach.bal/(34:44,34:72)",
-              "nextNode": null,
-              "hasReturn": false
-            },
-            "nextNode": {
-              "length": 4,
-              "forBody": {
-                "endPointRef": "${json-unit.ignore}",
-                "name": "post",
-                "path": "/",
-                "pos": "forEach.bal/(38:44,38:72)",
-                "nextNode": null,
-                "hasReturn": false
-              },
-              "nextNode": null,
-              "hasReturn": false
-            },
-            "hasReturn": false
-          },
+          "nextNode": null,
           "hasReturn": false
         }
       }

@@ -102,6 +102,12 @@ public class PerformanceAnalyzerTest {
         compare(Path.of("worker", "main.bal").toString(), "workerNot.json", false);
     }
 
+    @Test(description = "Test performance analyzer worker not support")
+    public void testReturnStatement() throws IOException, ExecutionException, InterruptedException {
+
+        compare(Path.of("project", "return.bal").toString(), "return.json", true);
+    }
+
     private void compare(String balFile, String jsonFile, boolean isWorkerSupported) throws IOException,
             InterruptedException, ExecutionException {
 

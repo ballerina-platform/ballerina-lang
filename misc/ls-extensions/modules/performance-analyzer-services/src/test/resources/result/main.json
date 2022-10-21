@@ -95,6 +95,38 @@
           "offset": 33
         }
       }
+    },
+    "6": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "return.bal",
+        "startLine": {
+          "line": 24,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 24,
+          "offset": 32
+        }
+      }
+    },
+    "7": {
+      "pkgID": "ballerina/project.http",
+      "name": "Client",
+      "baseUrl": "https://postman-echo.com/post",
+      "pos": {
+        "filePath": "return.bal",
+        "startLine": {
+          "line": 30,
+          "offset": 24
+        },
+        "endLine": {
+          "line": 30,
+          "offset": 32
+        }
+      }
     }
   },
   "actionInvocations": {
@@ -110,8 +142,10 @@
             "name": "get",
             "path": "/jokes/random",
             "pos": "main.bal/(25:34,25:68)",
-            "nextNode": null
-          }
+            "nextNode": null,
+            "hasReturn": false
+          },
+          "hasReturn": false
         }
       }
     }
