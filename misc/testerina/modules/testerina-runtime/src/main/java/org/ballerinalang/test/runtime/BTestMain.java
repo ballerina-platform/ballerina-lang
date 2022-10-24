@@ -65,7 +65,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
 /**
  * Main class to init the test suit.
  */
-public class Main {
+public class BTestMain {
     private static final PrintStream out = System.out;
     static TestReport testReport;
     static ClassLoader classLoader;
