@@ -490,12 +490,10 @@ function testIsolatednessOfRangeExprIterableAndIterator() {
 
 
 function testLangLibRange1() {
-    int[] expected = [5, 3, 1];
+    int[] expected = [6, 4, 2];
     int[] actual = [];
-    int index = 0;
-    foreach int i in int:range(5, 0, -2) {
-        actual[index] = i;
-        index += 1;
+    foreach int i in int:range(6, 0, -2) {
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
@@ -503,10 +501,8 @@ function testLangLibRange1() {
 function testLangLibRange2() {
     int[] expected = [0, 2, 4];
     int[] actual = [];
-    int index = 0;
-    foreach int i in int:range(0, 5, 2) {
-        actual[index] = i;
-        index += 1;
+    foreach int i in int:range(0, 6, 2) {
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
@@ -514,10 +510,8 @@ function testLangLibRange2() {
 function testLangLibRange3() {
     int[] expected = [];
     int[] actual = [];
-    int index = 0;
     foreach int i in int:range(0, 5, -2) {
-        actual[index] = i;
-        index += 1;
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
@@ -525,10 +519,8 @@ function testLangLibRange3() {
 function testLangLibRange4() {
     int[] expected = [];
     int[] actual = [];
-    int index = 0;
     foreach int i in int:range(5, 0, 2) {
-        actual[index] = i;
-        index += 1;
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
@@ -536,21 +528,17 @@ function testLangLibRange4() {
 function testLangLibRange5() {
     int[] expected = [0, -2, -4];
     int[] actual = [];
-    int index = 0;
-    foreach int i in int:range(0, -5, -2) {
-        actual[index] = i;
-        index += 1;
+    foreach int i in int:range(0, -6, -2) {
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
 
 function testLangLibRange6() {
-    int[] expected = [-5, -3, -1];
+    int[] expected = [-6, -4, -2];
     int[] actual = [];
-    int index = 0;
-    foreach int i in int:range(-5, 0, 2) {
-        actual[index] = i;
-        index += 1;
+    foreach int i in int:range(-6, 0, 2) {
+        actual.push(i);
     }
     assertEquality(expected, actual);
 }
