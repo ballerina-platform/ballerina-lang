@@ -2539,7 +2539,7 @@ public class SymbolEnter extends BLangNodeVisitor {
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
             BType bType = varNode.getBType();
-            BType referredType = Types.getReferredType(bType);
+            BType referredType = Types.getEffectiveType(Types.getReferredType(bType));
             switch (referredType.tag) {
                 case TypeTags.UNION:
                     Set<BType> unionType = types.expandAndGetMemberTypesRecursive(referredType);
@@ -2770,7 +2770,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
-        BType recordType = Types.getReferredType(recordVar.getBType());
+        BType recordType = Types.getEffectiveType(Types.getReferredType(recordVar.getBType()));
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
