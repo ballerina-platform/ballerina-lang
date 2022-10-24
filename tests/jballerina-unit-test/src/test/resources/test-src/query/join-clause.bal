@@ -482,9 +482,20 @@ public function testOuterJoin() {
         outer join var user in users on login.userId equals user?.id
         select (user?.name);
 
+    int?[] ids = [];
+
+    error? e = from Login login in logins
+                outer join var user in users on login.userId equals user?.id
+                do {
+                    ids.push(user?.id);
+                };
+
     assertEquality("Anne", selected[0]);
     assertEquality("Keith", selected[1]);
     assertEquality(null, selected[2]);
+    assertEquality(6789, ids[0]);
+    assertEquality(1234, ids[1]);
+    assertEquality(null, ids[2]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

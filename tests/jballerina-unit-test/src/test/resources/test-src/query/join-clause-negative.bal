@@ -183,7 +183,7 @@ function testOuterJoinWithInvalidEqualsClause2() returns DeptPerson[]{
     DeptPerson[] deptPersonList =
        from var person in personList
        outer join var {id,name} in deptList
-       on id equals person.id
+       on id equals person?.id
        select {
            fname : person.fname,
            lname : person.lname,
@@ -350,10 +350,50 @@ function testOuterJoinWithoutVar() returns boolean {
 
     DeptPerson[] deptPersonList =
        from Person person in personList
-       outer join Department dept in deptList
+       outer join Department dept in deptList on dept.id equals person?.id
        select {
            fname : person.fname,
            lname : person.lname,
            dept : dept?.name
        };
+}
+
+function testOuterJoinWithoutOptionalAccess1() returns boolean {
+    Person[] people = [
+        {id: 1, fname: "Alex", lname: "George"},
+        {id: 2, fname: "Ranjan", lname: "Fonseka"}
+    ];
+
+    Department[] departments = [
+        {id: 1, name:"HR"},
+        {id: 2, name:"Operations"}
+    ];
+
+    string?[] _ = from Department dept in departments
+        outer join var person in people on dept.id equals person?.id
+        select person.fname;
+}
+
+function testOuterJoinWithoutOptionalAccess2() returns boolean {
+    Person[] people = [
+        {id: 1, fname: "Alex", lname: "George"},
+        {id: 2, fname: "Ranjan", lname: "Fonseka"}
+    ];
+
+    Department[] departments = [
+        {id: 1, name:"HR"},
+        {id: 2, name:"Operations"}
+    ];
+
+    string?[] _ = from Department dept in departments
+        outer join var person in people on dept.id equals person.id
+        select person?.fname;
+
+    string[] ordered_names = [];
+    error? e = from Department dept in departments
+            outer join var person in people on dept.id equals person?.id
+            order by person.id
+            do {
+                ordered_names.push(person.lname);
+            };
 }
