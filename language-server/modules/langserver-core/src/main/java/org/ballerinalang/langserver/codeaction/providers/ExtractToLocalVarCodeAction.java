@@ -31,6 +31,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -128,7 +129,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
-        String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
+        String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
+        String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
                 statementNode.lineRange().startLine().offset());
         TextEdit varDeclEdit = new TextEdit(new Range(varDeclPos, varDeclPos), varDeclStr);
@@ -171,12 +173,10 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER) 
                         && context.currentSemanticModel().get().references(symbol).stream()
-                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
-                                        .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(matchedNode.lineRange()))))
-                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                        .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                                PositionUtil.toRange(getStatementNode(matchedNode).lineRange())))
+                        .anyMatch(location -> 
+                                PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
+                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
+                        symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
                 .collect(Collectors.toList());
         
         if (symbolsWithinRange.size() == 0) {
@@ -184,8 +184,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         }
 
         return symbolsWithinRange.stream().noneMatch(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                        PositionUtil.toRange(matchedNode.lineRange())));
+                .isWithinLineRange(symbol.getLocation().get().lineRange(), matchedNode.lineRange()));
     }
 
     /**
