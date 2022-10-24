@@ -20,7 +20,7 @@ public function main() {
 }
 
 client "<<IDL_ABSOLUTE_PATH>>" as foo;
-client "<<IDL_FILE_PROTOCOL>>" as bar;
+//client "<<IDL_FILE_PROTOCOL>>" as bar;
 client "./projectapiclientplugin.json" as baz;
 
 function testModuleClientDecl() returns string {
@@ -29,11 +29,11 @@ function testModuleClientDecl() returns string {
     return cl->getSpecVersion();
 }
 
-function testModuleClientDecl1() returns string {
-    bar:ClientConfiguration config = {specVersion : "3.0.0"};
-    bar:client cl = new (config);
-    return cl->getSpecVersion();
-}
+//function testModuleClientDecl1() returns string {
+//    bar:ClientConfiguration config = {specVersion : "3.0.0"};
+//    bar:client cl = new (config);
+//    return cl->getSpecVersion();
+//}
 
 function testModuleClientDecl2() returns string {
     baz:ClientConfiguration config = {specVersion : "3.0.0"};
