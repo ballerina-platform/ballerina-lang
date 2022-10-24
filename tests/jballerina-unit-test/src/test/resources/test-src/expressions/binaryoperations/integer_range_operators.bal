@@ -488,6 +488,73 @@ function testIsolatednessOfRangeExprIterableAndIterator() {
     } _ = 1 ..< 2;
 }
 
+
+function testLangLibRange1() {
+    int[] expected = [5, 3, 1];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(5, 0, -2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
+function testLangLibRange2() {
+    int[] expected = [0, 2, 4];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(0, 5, 2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
+function testLangLibRange3() {
+    int[] expected = [];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(0, 5, -2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
+function testLangLibRange4() {
+    int[] expected = [];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(5, 0, 2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
+function testLangLibRange5() {
+    int[] expected = [0, -2, -4];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(0, -5, -2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
+function testLangLibRange6() {
+    int[] expected = [-5, -3, -1];
+    int[] actual = [];
+    int index = 0;
+    foreach int i in int:range(-5, 0, 2) {
+        actual[index] = i;
+        index += 1;
+    }
+    assertEquality(expected, actual);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

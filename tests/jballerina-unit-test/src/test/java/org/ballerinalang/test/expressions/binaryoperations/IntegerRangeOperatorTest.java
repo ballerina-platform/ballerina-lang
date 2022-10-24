@@ -188,6 +188,16 @@ public class IntegerRangeOperatorTest {
         BRunUtil.invoke(result, "testIntRangeWithHexIntLiterals");
     }
 
+    @Test(description = "Test int:range")
+    public void testLangLibIntRange() {
+        BRunUtil.invoke(result, "testLangLibRange1");
+        BRunUtil.invoke(result, "testLangLibRange2");
+        BRunUtil.invoke(result, "testLangLibRange3");
+        BRunUtil.invoke(result, "testLangLibRange4");
+        BRunUtil.invoke(result, "testLangLibRange5");
+        BRunUtil.invoke(result, "testLangLibRange6");
+    }
+
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 8);

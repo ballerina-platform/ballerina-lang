@@ -16,6 +16,7 @@
 
 import ballerina/jballerina.java;
 import ballerina/lang.'object;
+import ballerina/lang.__internal as internal;
 
 # Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.
 # This allows an int between -2^31 and 2^31 - 1 inclusive,
@@ -175,9 +176,9 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
     public isolated function iterator() returns object {
         public isolated function next() returns record {|
             int value;
-       |}?;
+        |}?;
     };
-} = @java:Method {
-            'class: "org.ballerinalang.langlib.integer.Range",
-            name: "range"
-} external;
+} {
+    internal:__IntRange intRange = new (rangeStart, rangeEnd, step);
+    return intRange;
+}
