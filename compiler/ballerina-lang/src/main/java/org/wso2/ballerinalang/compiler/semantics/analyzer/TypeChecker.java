@@ -3753,13 +3753,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType restType = null;
         int pathSegmentCount = pathSegmentSymbols.size();
         BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentCount - 1);
-        if (lastPathSegmentSym.name.value.contains("^^")) {
+        if (lastPathSegmentSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
             restType = lastPathSegmentSym.type;
             pathSegmentCount--;
         }
 
         BTupleType resourcePathType;
-        if (pathSegmentCount > 0 && !lastPathSegmentSym.name.value.contains(".")) {
+        if (pathSegmentCount > 0 && lastPathSegmentSym.kind == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
                     .map(s -> s.type).collect(Collectors.toList()));
         } else {

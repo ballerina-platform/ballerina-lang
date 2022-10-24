@@ -6635,13 +6635,13 @@ public class Desugar extends BLangNodeVisitor {
 
         int pathSegmentCount = pathSegmentSymbols.size();
         BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
-        if (lastPathSegmentSym.name.value.contains("^^")) {
+        if (lastPathSegmentSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
             invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
                     new BArrayType(lastPathSegmentSym.type), this.env.scope.owner, lastPathSegmentSym.pos, VIRTUAL);
             pathSegmentCount--;
         }
 
-        if (pathSegmentCount > 0 && !lastPathSegmentSym.name.value.contains(".")) {
+        if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
                     .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type, 
                             this.env.scope.owner, s.pos, VIRTUAL)).collect(Collectors.toList()));

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -42,6 +43,15 @@ public class BResourcePathSegmentSymbol extends BSymbol {
         super(SymTag.RESOURCE_PATH_SEGMENT, 0, name, pkgID, type, owner, location, origin);
         this.parentResource = parentResource;
         this.resourceMethod = resourceMethod;
+        if (name.value.contains("^^")) {
+            this.kind = SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT;
+        } else if (name.value.contains("^")) {
+            this.kind = SymbolKind.RESOURCE_PATH_PARAM_SEGMENT; 
+        } else if (name.value.equals(".")) {
+            this.kind = SymbolKind.RESOURCE_ROOT_PATH_SEGMENT;
+        } else {
+            this.kind = SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT;
+        }
     }
     
     public BResourcePathSegmentSymbol getParentResource() {

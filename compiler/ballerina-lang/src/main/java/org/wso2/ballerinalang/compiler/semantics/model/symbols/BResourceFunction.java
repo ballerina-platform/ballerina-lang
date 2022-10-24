@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -53,13 +54,12 @@ public class BResourceFunction extends BAttachedFunction {
         int pathSegmentCount = pathSegmentSymbols.size();
         List<String> resourcePathStrings = new ArrayList<>(pathSegmentCount);
         for (BResourcePathSegmentSymbol pathSym : pathSegmentSymbols) {
-            Name pathSegmentName = pathSym.name;
-            if (pathSegmentName.value.equals("^") || pathSegmentName.value.equals("$^")) {
+            if (pathSym.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
                 resourcePathStrings.add("[" + pathSym.type + "]");
-            } else if (pathSegmentName.value.equals("^^") || pathSegmentName.value.equals("$^^")) {
+            } else if (pathSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
                 resourcePathStrings.add("[" + pathSym.type + "...]");
             } else {
-                resourcePathStrings.add(pathSegmentName.value);
+                resourcePathStrings.add(pathSym.name.value);
             }
         }
         
