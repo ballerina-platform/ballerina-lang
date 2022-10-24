@@ -55,7 +55,6 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
-import static io.ballerina.cli.utils.NativeUtils.createResourceConfig;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -277,7 +276,6 @@ public class RunNativeImageTestTask implements Task {
 
         // Create Configs
         createReflectConfig(nativeConfigPath, currentPackage);
-        createResourceConfig(nativeConfigPath);
 
         // Run native-image command with generated configs
         cmdArgs.addAll(Lists.of("-cp", classPath));
@@ -288,9 +286,7 @@ public class RunNativeImageTestTask implements Task {
         cmdArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
-        cmdArgs.add("-H:MaxDuplicationFactor=8.0");
         cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
-        cmdArgs.add("-H:ResourceConfigurationFiles=" + nativeConfigPath.resolve("resource-config.json"));
         cmdArgs.add("--no-fallback");
 
         ProcessBuilder builder = new ProcessBuilder();

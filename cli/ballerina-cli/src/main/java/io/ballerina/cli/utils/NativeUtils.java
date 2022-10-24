@@ -101,25 +101,15 @@ public class NativeUtils {
                             new String[]{
                                     "io.ballerina.runtime.internal.scheduling.Strand",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
                                     "io.ballerina.runtime.api.values.BString",
-                                    "boolean",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "boolean"
+                                    "io.ballerina.runtime.api.values.BString"
                             }
                     )
             );
