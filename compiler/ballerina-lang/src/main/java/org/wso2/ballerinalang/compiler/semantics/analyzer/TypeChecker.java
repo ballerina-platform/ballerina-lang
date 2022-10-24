@@ -6458,6 +6458,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (!joinClause.isDeclaredWithVar) {
                 this.dlog.error(joinClause.variableDefinitionNode.getPosition(),
                         DiagnosticErrorCode.OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR);
+                return;
             }
             joinClause.varType = types.addNilForNillableAccessType(joinClause.varType);
         }
