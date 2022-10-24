@@ -76,6 +76,42 @@ public class StrandDumpTest extends BaseTest {
     }
 
     @Test
+    public void testStrandDumpDuringBalTest() throws BallerinaTestException {
+        if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+            return;
+        }
+
+        Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs",
+                "balTestStrandDumpRegEx.txt");
+        String sourceRoot = testFileLocation + "/";
+        String packageName = "testPackageWithModules";
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+
+        String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(sourceRoot));
+
+        Map<String, String> env = processBuilder.environment();
+        for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+            env.put(entry.getKey(), entry.getValue());
+        }
+
+        try {
+            Process process = processBuilder.start();
+            Thread.sleep(12000);
+            long balTestPid = process.children().findFirst().get().children().findFirst().get().pid();
+            Runtime.getRuntime().exec("kill -SIGTRAP " + balTestPid);
+            Thread.sleep(3000);
+            Runtime.getRuntime().exec("kill -SIGINT " + balTestPid);
+            String obtainedStrandDump = getStdOutAsString(process);
+            process.waitFor();
+            verifyObtainedStrandDump(expectedOutputFilePath, obtainedStrandDump);
+        } catch (InterruptedException | IOException e) {
+            throw new BallerinaTestException("Error testing strand dump", e);
+        }
+    }
+
+    @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
         String commandDir = balServer.getServerHome();
@@ -122,7 +158,7 @@ public class StrandDumpTest extends BaseTest {
             process.waitFor();
             verifyObtainedStrandDump(expectedOutputFilePath, obtainedStrandDump);
         } catch (InterruptedException | IOException e) {
-            throw new BallerinaTestException("Error starting services", e);
+            throw new BallerinaTestException("Error testing strand dump", e);
         }
     }
 
