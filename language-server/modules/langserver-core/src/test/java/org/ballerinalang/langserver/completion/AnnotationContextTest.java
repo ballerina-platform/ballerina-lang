@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class AnnotationTest extends CompletionTest {
+public class AnnotationContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
