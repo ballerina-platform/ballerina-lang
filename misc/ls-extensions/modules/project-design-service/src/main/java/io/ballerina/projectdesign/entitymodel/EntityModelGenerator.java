@@ -35,6 +35,7 @@ import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
 import io.ballerina.projectdesign.entitymodel.components.Association;
 import io.ballerina.projectdesign.entitymodel.components.Attribute;
 import io.ballerina.projectdesign.entitymodel.components.Entity;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,8 +73,9 @@ public class EntityModelGenerator {
                 if (typeDefinitionSymbol.typeDescriptor() instanceof RecordTypeSymbol) {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
                     List<Attribute> attributeList = new ArrayList<>();
-                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     List<String> inclusionList = new ArrayList<>();
+                    LineRange recordLineRange = typeDefinitionSymbol.getLocation().get().lineRange();
+                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                             getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
                     for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
@@ -91,7 +93,7 @@ public class EntityModelGenerator {
                                 new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations);
                         attributeList.add(attribute);
                     }
-                    Entity entity = new Entity(attributeList, inclusionList);
+                    Entity entity = new Entity(attributeList, inclusionList, recordLineRange);
                     entities.put(entityName, entity);
                 }
             }
