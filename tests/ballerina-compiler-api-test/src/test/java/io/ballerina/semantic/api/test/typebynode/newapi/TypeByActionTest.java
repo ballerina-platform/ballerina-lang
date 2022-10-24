@@ -38,6 +38,12 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+/**
+ * Tests for getting the type of actions.
+ *
+ * @since 2.0.0
+ */
+
 @Test
 public class TypeByActionTest extends TypeByNodeTest {
 
