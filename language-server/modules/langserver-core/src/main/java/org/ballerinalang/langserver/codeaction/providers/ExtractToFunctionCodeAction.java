@@ -163,7 +163,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        Optional<ArgListsHolder> argLists = getArgLists(context, argsSymbolsForExtractFunction.get());
+        Optional<ArgListsHolder> argLists = getArgLists(context, argsSymbolsForExtractFunction.get(),
+                matchedCodeActionNode);
         if (argLists.isEmpty()) {
             return Collections.emptyList();
         }
@@ -361,7 +362,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get());
+        Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get(),
+                matchedCodeActionNode);
 
         if (argLists.isEmpty()) {
             return Collections.emptyList();
@@ -457,7 +459,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toList()));
     }
 
-    private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList) {
+    private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList,
+                                                 NonTerminalNode node) {
         List<String> argsForExtractFunction = new ArrayList<>();
         List<String> argsForReplaceFunctionCall = new ArrayList<>();
 
@@ -469,12 +472,20 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
             Optional<String> possibleType = Optional.empty();
             if (symbol.kind() == SymbolKind.VARIABLE) {
-                possibleType = CodeActionUtil
-                        .getPossibleType(((VariableSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                Optional<TypeSymbol> typeSymbol = getTypeSymbol(context, ((VariableSymbol) symbol).typeDescriptor(),
+                        node);
+                if (typeSymbol.isEmpty()) {
+                    return Optional.empty();
+                }
+                possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
 
             } else if (symbol.kind() == SymbolKind.PARAMETER) {
-                possibleType = CodeActionUtil
-                        .getPossibleType(((ParameterSymbol) symbol).typeDescriptor(), new ArrayList<>(), context);
+                Optional<TypeSymbol> typeSymbol = getTypeSymbol(context, ((ParameterSymbol) symbol).typeDescriptor(),
+                        node);
+                if (typeSymbol.isEmpty()) {
+                    return Optional.empty();
+                }
+                possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
             }
             if (possibleType.isEmpty()) {
                 return Optional.empty();
@@ -487,6 +498,15 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         argListsHolder.replaceFunctionCallArgs = argsForReplaceFunctionCall;
 
         return Optional.of(argListsHolder);
+    }
+
+    private Optional<TypeSymbol> getTypeSymbol(CodeActionContext context, TypeSymbol typeSymbol,
+                                               NonTerminalNode node) {
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return Optional.of(context.currentSemanticModel().flatMap(semanticModel ->
+                    semanticModel.typeOf(node.children().get(0)).flatMap(SymbolUtil::getTypeDescriptor)).get());
+        }
+        return Optional.of(typeSymbol);
     }
 
     private Node findEnclosingModulePartNode(NonTerminalNode node) {
