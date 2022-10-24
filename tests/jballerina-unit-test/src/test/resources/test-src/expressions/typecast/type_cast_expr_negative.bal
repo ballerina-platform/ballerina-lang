@@ -128,3 +128,11 @@ type Error error<record {| int code; |}>;
 function testTypeCastWithErrorConstructorExprNegative() {
     error e = <Error> error("e1"); // error for missing `code`
 }
+
+// Tests the logic introduced for backward compatibility until
+// https://github.com/ballerina-platform/ballerina-lang/issues/38105 is fixed.
+function testTypeCastWithObjectConstructorExprTemporaryFixNegative() {
+    _ = <int|object {string id;}|object {int id;}> object {};
+
+    object {} _ = <int> object {int index = 101;};
+}

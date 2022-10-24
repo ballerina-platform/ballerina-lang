@@ -136,6 +136,12 @@ public class TypeCastExpressionsTest {
         validateError(resultNegative, errIndex++, "missing non-defaultable required record field 'empCount'", 119, 46);
         validateError(resultNegative, errIndex++, "missing required parameter 'j' in call to 'new()'", 123, 15);
         validateError(resultNegative, errIndex++, "missing error detail arg for error detail field 'code'", 129, 23);
+
+        // https://github.com/ballerina-platform/ballerina-lang/issues/38105
+        validateError(resultNegative, errIndex++, "invalid usage of 'object constructor expression' with type '" +
+                "(int|object { string id; }|object { int id; })'", 135, 52);
+        validateError(resultNegative, errIndex++, "incompatible types: 'object { int index; }' cannot be cast to " +
+                "'int'", 137, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
@@ -265,7 +271,8 @@ public class TypeCastExpressionsTest {
                 "testTypeCastWithRawTemplateExpr",
                 "testTypeCastWithTableConstructorExpr",
                 "testTypeCastWithNewExpr",
-                "testTypeCastWithErrorConstructorExpr"
+                "testTypeCastWithErrorConstructorExpr",
+                "testTypeCastWithObjectConstructorExprTemporaryFix"
         };
     }
 

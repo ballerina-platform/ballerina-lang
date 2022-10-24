@@ -7929,7 +7929,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int tag = targetType.tag;
 
         if (tag == TypeTags.OBJECT) {
-            return isNotAllObjectsObjectType((BObjectType) targetType);
+            return !isAllObjectsObjectType((BObjectType) targetType);
         }
 
         if (tag != TypeTags.UNION) {
@@ -7938,15 +7938,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
             memberType = Types.getEffectiveType(Types.getReferredType(memberType));
-            if (memberType.tag == TypeTags.OBJECT) {
-                return isNotAllObjectsObjectType((BObjectType) memberType);
+            if (memberType.tag == TypeTags.OBJECT && isAllObjectsObjectType((BObjectType) memberType)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
-    private boolean isNotAllObjectsObjectType(BObjectType objectType) {
-        return !objectType.fields.isEmpty() || !((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.isEmpty();
+    private boolean isAllObjectsObjectType(BObjectType objectType) {
+        return objectType.fields.isEmpty() && ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.isEmpty();
     }
 
     private BType checkMappingField(RecordLiteralNode.RecordField field, BType mappingType, AnalyzerData data) {

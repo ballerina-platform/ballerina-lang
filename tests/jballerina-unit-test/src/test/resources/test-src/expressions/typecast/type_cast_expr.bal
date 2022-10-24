@@ -1009,6 +1009,36 @@ function testTypeCastWithObjectConstructorExpr() {
     assertExactEquality(234, ob.j);
 }
 
+class Qux {
+    int index = 0;
+}
+
+// Tests the logic introduced for backward compatibility until
+// https://github.com/ballerina-platform/ballerina-lang/issues/38105 is fixed.
+function testTypeCastWithObjectConstructorExprTemporaryFix() {
+    var a = <int|object {}|object {int id;}> object {};
+    assertTrue(a is object {});
+
+    var b = <int|object {int id;}|object {}> object {};
+    assertTrue(b is object {});
+
+    var c = <int|object {}|object {int id;}> object {string id = "default";};
+    assertTrue(c is object {string id;});
+    assertEquality("default", (<object {string id;}> c).id);
+
+    var d = <int|object {int id;}|object {}> object {string id = "default id";};
+    assertTrue(d is object {});
+    assertEquality("default id", (<object {string id;}> d).id);
+
+    object {} e = <Qux> object {int index = 101;};
+    assertTrue(e is Qux);
+    assertEquality(101, (<Qux> e).index);
+
+    object {} f = <object {int index;}|object {string index;}> object {int index = 101;};
+    assertTrue(f is Qux);
+    assertEquality(101, (<Qux> f).index);
+}
+
 type Template object {
     *object:RawTemplate;
 
