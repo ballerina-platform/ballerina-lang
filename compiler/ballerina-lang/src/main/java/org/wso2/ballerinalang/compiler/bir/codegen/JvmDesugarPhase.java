@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
@@ -29,13 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -53,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -69,28 +61,6 @@ public class JvmDesugarPhase {
         BInvokableType type = func.type;
         func.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(func.type.paramTypes,
                                                                          type.restType, booleanType);
-        int index = 0;
-        List<BIRVariableDcl> updatedVars = new ArrayList<>();
-        List<BIRVariableDcl> localVars = func.localVars;
-        int nameIndex = 0;
-
-        for (BIRVariableDcl localVar : localVars) {
-            updatedVars.add(index, localVar);
-            index += 1;
-
-            if (!(localVar instanceof BIRFunctionParameter)) {
-                continue;
-            }
-
-            // An additional boolean arg is gen for each function parameter.
-            String argName = "%syn" + nameIndex;
-            nameIndex += 1;
-            BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, booleanType,
-                    new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
-            updatedVars.add(index, booleanVar);
-            index += 1;
-        }
-        func.localVars = updatedVars;
     }
 
     public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, InitMethodGen initMethodGen) {
@@ -106,50 +76,6 @@ public class JvmDesugarPhase {
         }
 
         initMethodGen.resetIds();
-
-        List<BIRBasicBlock> basicBlocks = new ArrayList<>();
-
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
-
-        int paramCounter = 0;
-        Location pos = currentFunc.pos;
-        while (paramCounter < functionParams.size()) {
-            BIRFunctionParameter funcParam = functionParams.get(paramCounter);
-            if (funcParam != null && funcParam.hasDefaultExpr) {
-                int boolParam = paramCounter + 1;
-                BIRFunctionParameter funcBooleanParam = getFunctionParam(functionParams.get(boolParam));
-                BIROperand boolRef = new BIROperand(funcBooleanParam);
-                UnaryOP notOp = new UnaryOP(pos, InstructionKind.NOT, boolRef, boolRef);
-                nextBB.instructions.add(notOp);
-                List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
-                BIRBasicBlock trueBB = bbArray.get(0);
-                basicBlocks.addAll(bbArray);
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
-                nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
-
-                BIRBasicBlock lastBB = bbArray.get(bbArray.size() - 1);
-                lastBB.terminator = new GOTO(pos, falseBB);
-
-                nextBB = falseBB;
-            }
-            paramCounter += 2;
-        }
-
-        if (basicBlocks.size() == 1) {
-            // this means only one block added, if there are default vars, there must be more than one block
-            return;
-        }
-        if (currentFunc.basicBlocks.isEmpty()) {
-            currentFunc.basicBlocks = basicBlocks;
-            return;
-        }
-
-        BIRBasicBlock firstBB = currentFunc.basicBlocks.get(0);
-
-        nextBB.terminator = new GOTO(pos, firstBB);
-        basicBlocks.addAll(currentFunc.basicBlocks);
-
-        currentFunc.basicBlocks = basicBlocks;
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
@@ -170,19 +96,13 @@ public class JvmDesugarPhase {
         List<BType> paramTypes = new ArrayList<>();
 
         int counter = 0;
-        int index = 0;
-        // Update the param types to add boolean variables to indicate if the previous variable contains a user
-        // given value
         int size = funcParams == null ? 0 : funcParams.size();
         while (counter < size) {
-            paramTypes.add(index, funcParams.get(counter));
-            paramTypes.add(index + 1, booleanType);
-            index += 2;
+            paramTypes.add(counter, funcParams.get(counter));
             counter += 1;
         }
         if (restType != null) {
-            paramTypes.add(index, restType);
-            paramTypes.add(index + 1, booleanType);
+            paramTypes.add(counter, restType);
         }
         return paramTypes;
     }

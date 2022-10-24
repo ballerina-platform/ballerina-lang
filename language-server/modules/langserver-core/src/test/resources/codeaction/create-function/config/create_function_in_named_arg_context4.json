@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 18,
+    "character": 67
+  },
+  "source": "create_function_in_named_arg_context4.bal",
+  "expected": [
+    {
+      "title": "Create function 'getRandomId(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 1
+            },
+            "end": {
+              "line": 19,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction getRandomId() returns int {\n    return 0;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_named_arg_context4.bal",
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 66
+          },
+          "end": {
+            "line": 18,
+            "character": 79
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 18.0,
+              "character": 66.0
+            },
+            "end": {
+              "line": 18.0,
+              "character": 79.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

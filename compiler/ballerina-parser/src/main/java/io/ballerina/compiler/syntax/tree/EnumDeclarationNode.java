@@ -61,6 +61,10 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(6);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(7);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -80,7 +84,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
                 "identifier",
                 "openBraceToken",
                 "enumMemberList",
-                "closeBraceToken"};
+                "closeBraceToken",
+                "semicolonToken"};
     }
 
     public EnumDeclarationNode modify(
@@ -90,7 +95,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
             IdentifierToken identifier,
             Token openBraceToken,
             SeparatedNodeList<Node> enumMemberList,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifier,
@@ -98,7 +104,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList.underlyingListNode(),
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -109,7 +116,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public EnumDeclarationNodeModifier modify() {
@@ -130,6 +138,7 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
         private Token openBraceToken;
         private SeparatedNodeList<Node> enumMemberList;
         private Token closeBraceToken;
+        private Token semicolonToken;
 
         public EnumDeclarationNodeModifier(EnumDeclarationNode oldNode) {
             this.oldNode = oldNode;
@@ -140,6 +149,7 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
             this.openBraceToken = oldNode.openBraceToken();
             this.enumMemberList = oldNode.enumMemberList();
             this.closeBraceToken = oldNode.closeBraceToken();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public EnumDeclarationNodeModifier withMetadata(
@@ -189,6 +199,12 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public EnumDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public EnumDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
@@ -197,7 +213,8 @@ public class EnumDeclarationNode extends ModuleMemberDeclarationNode {
                     identifier,
                     openBraceToken,
                     enumMemberList,
-                    closeBraceToken);
+                    closeBraceToken,
+                    semicolonToken);
         }
     }
 }

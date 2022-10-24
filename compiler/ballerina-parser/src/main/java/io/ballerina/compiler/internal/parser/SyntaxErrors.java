@@ -86,6 +86,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
     }
 
+    public static STToken createMissingRegExpTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getRegExpErrorCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -174,6 +178,7 @@ public class SyntaxErrors {
             case MODULE_VAR_SECOND_QUAL:
             case MODULE_VAR_THIRD_QUAL:
             case OBJECT_MEMBER_VISIBILITY_QUAL:
+            case CLIENT_DECL_PREFIX:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case EXPRESSION:
             case TERMINAL_EXPRESSION:
@@ -191,6 +196,7 @@ public class SyntaxErrors {
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
             case OBJECT_FIELD_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:
@@ -497,6 +503,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_KEYWORD;
             case XML_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_KEYWORD;
+            case RE_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_KEYWORD;
             case VAR_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
@@ -548,6 +556,25 @@ public class SyntaxErrors {
                 return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
+        }
+    }
+
+    private static DiagnosticCode getRegExpErrorCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
+            case CLOSE_BRACKET_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
+            case OPEN_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
+            case CLOSE_BRACE_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case COLON_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
+            case RE_UNICODE_PROPERTY_VALUE:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            default:
+                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
 

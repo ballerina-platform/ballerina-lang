@@ -86,7 +86,12 @@ public class JvmUnionTypeConstantsGen {
     }
 
     public String add(BUnionType type, SymbolTable symbolTable) {
-        return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type, symbolTable));
+        String varName = unionTypeVarMap.get(type);
+        if (varName == null) {
+            varName = generateBUnionInits(type, symbolTable);
+            unionTypeVarMap.put(type, varName);
+        }
+        return varName;
     }
 
     private void visitUnionTypeInitMethod() {

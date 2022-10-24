@@ -239,6 +239,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BRunUtil.invoke(result, "testQueryStreamWithError");
     }
 
+    @Test(description = "Query a stream with different completion types")
+    public void testQueryStreamWithDifferentCompletionTypes() {
+        BRunUtil.invoke(result, "testQueryStreamWithDifferentCompletionTypes");
+    }
+
     @Test(description = "Test anonymous record type, record type referencing, optional field, " +
             "changed order of the fields")
     public void testOthersAssociatedWithRecordTypes() {

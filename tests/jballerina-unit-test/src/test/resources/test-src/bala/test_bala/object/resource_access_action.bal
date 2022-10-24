@@ -193,6 +193,17 @@ function testWithResourceAccessRestSegment() {
 
     string[] b13 = myClient->/[...booksArray2].someOtherMethod3;
     assertEquality(b13, <"books"[]>["books", "books"]);
+    
+    [string, int] gameDetails = ["Chess", 2];
+    string b14 = myClient->/game/[...gameDetails].post;
+    assertEquality(b14, "Chess: 2");
+    
+    [string, "path", int] gameDetails2 = ["Carrom", "path", 4];
+    string b15 = myClient->/game/[...gameDetails2].post;
+    assertEquality(b15, "Carrom: 4");
+
+    string b16 = myClient->/games/game/[...gameDetails].post;
+    assertEquality(b16, "Chess: 2");
 }
 
 function testResourceAccessWithArguments() {

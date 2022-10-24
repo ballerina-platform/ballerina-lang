@@ -1,5 +1,5 @@
 type SportsItem record {
-    string sport?;
+    string? sport;
     string position?;
     boolean reserve?;
     string game?;
@@ -9,7 +9,8 @@ type SportsItem record {
 type Author record {
     string name;
     string country;
-    (boolean|int|string) period;
+    (boolean|int|string)? period;
+    anydata language?;
 };
 
 type BooksItem record {

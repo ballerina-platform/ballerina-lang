@@ -374,7 +374,7 @@ function testRestVarRefType7() {
     var [h1, h2, ...h3] = t6;
     assertEqual("typedesc 10", (typeof h1).toString());
     assertEqual("typedesc 20", (typeof h2).toString());
-    assertEqual("typedesc [int,int,int]", (typeof h3).toString());
+    assertEqual("typedesc [int,int,int,int...]", (typeof h3).toString());
     assertEqual(10, h1);
     assertEqual(20, h2);
     assertEqual(3, h3.length());
@@ -386,7 +386,7 @@ function testRestVarRefType7() {
 function testRestVarRefType8() {
     (int|Bar)[5] t7 = [10, 20, {id: 34, flag: true}, 40, {id: 35, flag: false}];
     var [h1, h2, ...h3] = t7;
-    assertEqual("typedesc [(int|Bar),(int|Bar),(int|Bar)]", (typeof h3).toString());
+    assertEqual("typedesc [(int|Bar),(int|Bar),(int|Bar),(int|Bar)...]", (typeof h3).toString());
     assertEqual(10, h1);
     assertEqual(20, h2);
     assertEqual(3, h3.length());

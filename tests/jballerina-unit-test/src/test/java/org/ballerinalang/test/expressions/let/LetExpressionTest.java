@@ -59,8 +59,8 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 29, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 30, 42);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 46, 48);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 48, 14);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int?', found 'string'", 46, 48);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int?', found 'float'", 48, 14);
         BAssertUtil.validateError(negativeResult, i++, "too many arguments in call to 'new()'", 57, 37);
         BAssertUtil.validateError(negativeResult, i++, "self referenced variable 's'", 61, 35);
         BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a'", 62, 47);

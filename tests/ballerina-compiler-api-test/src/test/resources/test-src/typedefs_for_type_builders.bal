@@ -116,10 +116,12 @@ function complexArrayTypes() {
     (Bar & readonly)[4] j;
 }
 
-type Student record {|
-    int id;
-    string name;
-|};
+function recordTypes() {
+    Customer c;
+    Employee e;
+    Student s;
+    Bar b;
+}
 
 type StuTable table<Student>;
 

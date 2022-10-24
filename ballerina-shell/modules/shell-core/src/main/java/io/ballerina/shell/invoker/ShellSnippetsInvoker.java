@@ -35,6 +35,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -258,7 +259,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = BuildOptions.builder().setOffline(isOffline).build();
+            BuildOptions buildOptions = BuildOptions.builder()
+                    .setOffline(isOffline)
+                    .targetDir(ProjectUtils.getTemporaryTargetPath())
+                    .build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());

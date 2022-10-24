@@ -1,4 +1,4 @@
-public client class ExternalClient {
+public client class InternalClient {
     public string url;
 
     isolated function init(string url) returns error? {
@@ -53,7 +53,7 @@ function secondFunc(ExternalClient exEpP1) returns boolean {
 function thirdFunc() returns boolean {
     ExternalClient exEp8 = new ("http://example.com/7");
     if true {
-        ExternalClient exEp9 = new ("http://example.com/2");
+        ExternalClient exEp9 = new ("http://example.com/9");
     }
 
     return true;
@@ -63,7 +63,14 @@ function fourthFunc(ExternalClient exEpP2) returns boolean {
     var temp;
     temp = exEpP2;
 
-    ExternalClient|error exEp10 = new ("http://example.com/2");
+    ExternalClient|error exEp10 = new ("http://example.com/10");
+
+    ExternalClient exEp8 = new ("http://example.com/8");
+
+    InternalClient inEp1 = new ("http://example.com/1");
+    var localRes1 = check inEp1->getAll("");
+
+    var localRes2 = check exEpOut->getAll("");
 
     return true;
 }

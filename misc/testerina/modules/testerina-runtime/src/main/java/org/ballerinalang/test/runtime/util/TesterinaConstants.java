@@ -74,6 +74,6 @@ public class TesterinaConstants {
     public static final String DATA_KEY_SEPARATOR = "#";
     public static final String MODULE_SEPARATOR = ":";
 
-    public static final String MOCK_ANNOTATION_DELIMITER = "#";
-    public static final String MOCK_FN_DELIMITER = "~";
+    public static final String MOCK_FN_DELIMITER = "#";
+    public static final String MOCK_LEGACY_DELIMITER = "~";
 }

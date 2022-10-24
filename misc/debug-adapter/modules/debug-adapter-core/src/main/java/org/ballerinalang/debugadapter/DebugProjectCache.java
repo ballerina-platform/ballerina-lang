@@ -16,15 +16,19 @@
 
 package org.ballerinalang.debugadapter;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.computeProjectKindAndRoot;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
  * A cache of Ballerina project instances (against their source roots), which are loaded during the user
@@ -63,5 +67,25 @@ public class DebugProjectCache {
     public void addProject(Project project) {
         Path projectSourceRoot = project.sourceRoot().toAbsolutePath();
         loadedProjects.put(projectSourceRoot, project);
+    }
+
+    /**
+     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
+     * editor instance in the client(plugin) side.
+     *
+     * @param filePath file path of the open/active editor instance in the plugin side.
+     */
+    private static Project loadProject(String filePath) {
+        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
+        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
+        Path projectRoot = projectKindAndProjectRootPair.getValue();
+        BuildOptions options = BuildOptions.builder().setOffline(true).build();
+        if (projectKind == ProjectKind.BUILD_PROJECT) {
+            return BuildProject.load(projectRoot, options);
+        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
+            return SingleFileProject.load(projectRoot, options);
+        } else {
+            return ProjectLoader.loadProject(projectRoot, options);
+        }
     }
 }

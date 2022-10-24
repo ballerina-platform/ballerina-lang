@@ -88,10 +88,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.refValues = values;
         this.arrayType = type;
         this.size = values.length;
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            this.elementType = type.getElementType();
-            this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        }
+        this.elementType = type.getElementType();
+        this.elementReferredType = TypeUtils.getReferredType(this.elementType);
         this.typedesc = getTypedescValue(arrayType, this);
     }
 
@@ -141,14 +139,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(ArrayType type) {
-        this.arrayType = type;
-        this.elementType = type.getElementType();
-        this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        initArrayValues();
-        if (type.getState() == ArrayState.CLOSED) {
-            this.size = maxSize = type.getSize();
-        }
-        this.typedesc = getTypedescValue(arrayType, this);
+        this(type, type.getSize());
     }
 
     private void initArrayValues() {
@@ -258,8 +249,16 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.typedesc = getTypedescValue(arrayType, this);
     }
 
+    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues) {
+        this(type, type.getSize(), initialValues, null);
+    }
+
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
         this(type, size, initialValues, null);
+    }
+
+    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+        this(type, type.getSize(), initialValues, typedescValue);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues,

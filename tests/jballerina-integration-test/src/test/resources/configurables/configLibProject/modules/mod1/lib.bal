@@ -78,7 +78,8 @@ public type Symbols record {|
     string symbol1 = symbol1;
     string symbol2 = symbol2;
     string symbol3 = getSymbol();
-    string symbol4;
+    string? symbol4 = ();
+    string symbol5;
 |};
 
 public isolated function getWord() returns string {

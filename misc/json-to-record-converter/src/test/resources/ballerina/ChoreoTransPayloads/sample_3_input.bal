@@ -5,10 +5,10 @@ type AssetsItem record {
 };
 
 type TripInformation record {
-    anydata TripName?;
-    anydata Move?;
-    anydata Leg?;
-    anydata Stop?;
+    anydata TripName;
+    anydata Move;
+    anydata Leg;
+    anydata Stop;
     int OrderHeader;
     AssetsItem[] Assets;
     anydata[] AdditionalDataElements;
@@ -20,8 +20,8 @@ type HeaderInformation record {
 
 type Content record {
     int Odometer;
-    anydata UnitTrips?;
-    anydata Position?;
+    anydata UnitTrips;
+    anydata Position;
     TripInformation TripInformation;
     HeaderInformation HeaderInformation;
 };

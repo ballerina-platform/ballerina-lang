@@ -199,9 +199,12 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
-    public void clean() throws IOException {
-        // Remove from cache
-        ProjectUtils.deleteDirectory(this.cache);
+    public void clean(boolean isModified, boolean cacheEnabled) throws IOException {
+        if (isModified || !cacheEnabled) {
+            // Remove from cache
+            ProjectUtils.deleteDirectory(this.cache);
+        }
+
         // Remove any generated bala
         ProjectUtils.deleteDirectory(this.balaCachePath);
         ProjectUtils.deleteDirectory(this.binPath);

@@ -229,61 +229,29 @@
               ]
             },
             {
-              "kind": "LOCAL_VAR_DECL",
+              "kind": "INVALID_EXPRESSION_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_EXPRESSION_STATEMENT"
+              ],
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TYPED_BINDING_PATTERN",
-                  "hasDiagnostics": true,
+                  "kind": "BRACED_EXPRESSION",
                   "children": [
                     {
-                      "kind": "PARENTHESISED_TYPE_DESC",
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
                       "children": [
                         {
-                          "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "SINGLETON_TYPE_DESC",
-                          "children": [
-                            {
-                              "kind": "STRING_LITERAL",
-                              "children": [
-                                {
-                                  "kind": "STRING_LITERAL_TOKEN",
-                                  "value": "SUBSCRIBE"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "CLOSE_PAREN_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "STRING_LITERAL_TOKEN",
+                          "value": "SUBSCRIBE"
                         }
                       ]
                     },
                     {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
-                          ]
-                        }
-                      ]
+                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },

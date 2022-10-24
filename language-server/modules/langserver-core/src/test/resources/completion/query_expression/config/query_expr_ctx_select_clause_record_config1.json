@@ -1,0 +1,44 @@
+{
+  "position": {
+    "line": 8,
+    "character": 16
+  },
+  "source": "query_expression/source/query_expr_ctx_select_clause_record_source1.bal",
+  "description": "Query expression context select clause completions when expected type is an array of records",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "payload",
+      "kind": "Field",
+      "detail": "Data.payload",
+      "sortText": "K",
+      "insertText": "payload: ${1:()}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "id",
+      "kind": "Field",
+      "detail": "Data.id",
+      "sortText": "K",
+      "insertText": "id: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Data Required Fields",
+      "kind": "Property",
+      "detail": "Data",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "payload: ${1:()},\nid: ${2:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 function foo(int count, int count, int count, int count, int count, int count, int count, int count, 
-             int count = 999999999) {
+        int count = 999999999) {
 }
 
 public type Client client object {

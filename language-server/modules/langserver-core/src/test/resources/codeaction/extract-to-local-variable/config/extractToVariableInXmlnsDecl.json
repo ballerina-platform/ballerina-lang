@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 12
+    },
+    "end": {
+      "line": 2,
+      "character": 40
+    }
+  },
+  "source": "extractToVariableInXmlnsDecl.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "xml:Element var1 \u003d xml `\u003ceg:doc\u003eHello\u003c/eg:doc\u003e`;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 12
+            },
+            "end": {
+              "line": 2,
+              "character": 40
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

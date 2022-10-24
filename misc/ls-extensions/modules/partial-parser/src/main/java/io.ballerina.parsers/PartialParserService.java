@@ -92,7 +92,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ExpressionNode expressionNode = NodeParser.parseExpression(request.getCodeSnippet());
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getFunctionBodiedFormattedSource(statement);
+            String sourceToBeParsed = getLinesWithoutLeadingTab(formattedSourceCode);
+
+            ExpressionNode expressionNode = NodeParser.parseExpression(sourceToBeParsed);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);

@@ -51,7 +51,7 @@
       "shellValue": {
         "value":"[174, 238, 205, 239, 171, 205, 18, 52, 85, 103, 136, 136, 34]",
         "mimeType":"ballerina-notebook/json-view",
-        "type":"byte[]"
+        "type":"byte[13]"
       },
       "errors":[],
       "diagnostics":[],

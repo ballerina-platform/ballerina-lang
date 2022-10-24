@@ -441,14 +441,14 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
                 if (TypeUtils.getReferredType(arrayType.getElementType()) == unionType) {
-                    BArrayType newArrayType = new BArrayType(this);
+                    BArrayType newArrayType = new BArrayType(this, this.readonly);
                     this.addMember(newArrayType);
                     continue;
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
                 if (mapType.getConstrainedType() == unionType) {
-                    BMapType newMapType = new BMapType(this);
+                    BMapType newMapType = new BMapType(this, this.readonly);
                     this.addMember(newMapType);
                     continue;
                 }

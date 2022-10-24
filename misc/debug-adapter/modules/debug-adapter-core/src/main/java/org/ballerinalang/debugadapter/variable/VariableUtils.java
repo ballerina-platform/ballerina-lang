@@ -199,6 +199,21 @@ public class VariableUtils {
     }
 
     /**
+     * Verifies whether a given JDI value is a ballerina client object variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina object variable instance.
+     */
+    static boolean isClientObject(Value value) {
+        try {
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
+                    (JVMValueType.BTYPE_CLIENT.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
      * Verifies whether a given JDI value is a ballerina record variable instance. (Ballerina record types are
      * inherited from MapValue and, therefore need to check the `type` field of the super class to verify if the given
      * value is a Ballerina record.)

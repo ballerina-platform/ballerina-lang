@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "T t \u003d "
+          "newText": "T t = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableForOptionalFieldAccess2.bal",
+          89
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -120,7 +120,7 @@ public class CommonUtil {
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
-            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD, SyntaxKind.CONFIGURABLE_KEYWORD);
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
@@ -289,8 +289,8 @@ public class CommonUtil {
     /**
      * Check if the provided union type is a union of members of provided type desc kind.
      *
-     * @param typeSymbol Union type symbol
-     * @param typeDescKind    Type desc kind
+     * @param typeSymbol   Union type symbol
+     * @param typeDescKind Type desc kind
      * @return true if provided union contains members of provided type desc kind
      */
     public static boolean isUnionOfType(TypeSymbol typeSymbol, TypeDescKind typeDescKind) {
@@ -603,5 +603,35 @@ public class CommonUtil {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+    }
+
+    /**
+     * Returns ballerina text edit for a given lsp4j text edit.
+     *
+     * @param syntaxTree syntax tree
+     * @param textEdit   lsp4j text edit
+     * @return Ballerina text edit
+     */
+    public static io.ballerina.tools.text.TextEdit getTextEdit(SyntaxTree syntaxTree,
+                                                               org.eclipse.lsp4j.TextEdit textEdit) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        int start = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getStart()));
+        int end = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getEnd()));
+        return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
+    }
+
+    /**
+     * Get the last appearing qualifier token of a given node.
+     *
+     * @param context completion context.
+     * @param node    node.
+     * @return {@link Token} lastQualifier.
+     */
+    public static Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(qualifiers.get(qualifiers.size() - 1));
     }
 }

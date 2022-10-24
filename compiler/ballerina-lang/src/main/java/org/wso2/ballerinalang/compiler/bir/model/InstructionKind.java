@@ -108,6 +108,21 @@ public enum InstructionKind {
     BITWISE_RIGHT_SHIFT((byte) 87),
     BITWISE_UNSIGNED_RIGHT_SHIFT((byte) 88),
 
+    // Regular expression related instructions.
+    NEW_REG_EXP((byte) 89),
+    NEW_RE_DISJUNCTION((byte) 90),
+    NEW_RE_SEQUENCE((byte) 91),
+    NEW_RE_ASSERTION((byte) 92),
+    NEW_RE_ATOM_QUANTIFIER((byte) 93),
+    NEW_RE_LITERAL_CHAR_ESCAPE((byte) 94),
+    NEW_RE_CHAR_CLASS((byte) 95),
+    NEW_RE_CHAR_SET((byte) 96),
+    NEW_RE_CHAR_SET_RANGE((byte) 97),
+    NEW_RE_CAPTURING_GROUP((byte) 98),
+    NEW_RE_FLAG_EXPR((byte) 99),
+    NEW_RE_FLAG_ON_OFF((byte) 100),
+    NEW_RE_QUANTIFIER((byte) 101),
+
     PLATFORM((byte) 128);
 
     byte value;

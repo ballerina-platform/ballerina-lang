@@ -20,21 +20,21 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.ClassComparator;
+import io.ballerina.semver.checker.comparator.EnumComparator;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
 import io.ballerina.semver.checker.comparator.ModuleConstantComparator;
 import io.ballerina.semver.checker.comparator.ModuleVariableComparator;
 import io.ballerina.semver.checker.comparator.ServiceComparator;
 import io.ballerina.semver.checker.comparator.TypeDefComparator;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Represents all the source code changes within a single Ballerina module.
@@ -73,12 +73,6 @@ public class ModuleDiff extends DiffImpl {
     @Override
     public DiffType getType() {
         return super.getType();
-    }
-
-    public List<FunctionDiff> getFunctionDiffs() {
-        return childDiffs.stream().filter(iDiff -> iDiff instanceof FunctionDiff)
-                .map(iDiff -> (FunctionDiff) iDiff)
-                .collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -125,12 +119,12 @@ public class ModuleDiff extends DiffImpl {
 
         public void withFunctionAdded(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionRemoved(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(null, function);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
@@ -193,18 +187,32 @@ public class ModuleDiff extends DiffImpl {
             new ClassComparator(newClass, oldClass).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withTypeDefAdded(TypeDefinitionNode classNode) {
-            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(classNode, null);
+        public void withTypeDefAdded(TypeDefinitionNode typeDef) {
+            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(typeDef, null);
             constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withTypeDefRemoved(TypeDefinitionNode classNode) {
-            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(null, classNode);
+        public void withTypeDefRemoved(TypeDefinitionNode typeDef) {
+            TypeDefinitionDiff.Builder constantDiffBuilder = new TypeDefinitionDiff.Builder(null, typeDef);
             constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withTypeDefModified(TypeDefinitionNode newTypeDef, TypeDefinitionNode oldTypeDef) {
             new TypeDefComparator(newTypeDef, oldTypeDef).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withEnumAdded(EnumDeclarationNode enumNode) {
+            EnumDiff.Builder constantDiffBuilder = new EnumDiff.Builder(enumNode, null);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withEnumRemoved(EnumDeclarationNode enumNode) {
+            EnumDiff.Builder constantDiffBuilder = new EnumDiff.Builder(null, enumNode);
+            constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withEnumModified(EnumDeclarationNode newEnum, EnumDeclarationNode oldEnum) {
+            new EnumComparator(newEnum, oldEnum).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }

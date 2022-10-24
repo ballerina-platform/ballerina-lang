@@ -99,6 +99,8 @@ header2="header2"
 [configUnionTypes.configMap2.config2]
 password=["1", 2, 3]
 
+[configUnionTypes.config]
+auth.clientId = "ABC"
 
 [configUnionTypes.imported_unions]
 httpVersion = "HTTP_2"
@@ -252,3 +254,18 @@ clientConfig.customHeaders.header4="header4"
 
 [[configUnionTypes.union_ambiguity.configs]]
 password=["1", 2, 3]
+
+[configUnionTypes.jsonType]
+jsonVar1 = "json String"
+jsonVar2 = [1, 2]
+jsonVar3 = ["hello", 1, true]
+jsonVar4 = {a = "aaa", b = 2}
+jsonVar5 = [{a = "aaa", b = 2}, {c = "ccc", d = 4}]
+jsonVar6 = [[1, 2], [4, 5]]
+
+jsonArr = [1, "hello", [1, 2], {name = "Hindu", age = 26}, [{one = 1}, {two = 2}]]
+jsonUnion = 22
+jsonMap = {string = "string", num = 12, arr = [1, 2, "hello"], map = {a = "a"}}
+jsonRecord = {payload = {msg = "This is message"}, code = 200}
+jsonTable1 = [{val1 = ["hello", 1, true]}, {val2 = "json String"}]
+jsonTable2 = [{payload = {msg = "This is message"}, code = 200}, {payload = {error = "Not found"}, code = 400}]

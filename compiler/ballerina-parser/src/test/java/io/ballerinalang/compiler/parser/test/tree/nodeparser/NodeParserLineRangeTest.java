@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -216,5 +217,90 @@ public class NodeParserLineRangeTest {
         LinePosition expectedEndPos = LinePosition.from(3, 2);
         LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
         Assert.assertEquals(recordTypeDescriptor.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateFromClause() {
+        String intermediateClauseText = "from int i in [1, 2, 3]";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.FROM_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 23);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateWhereClause() {
+        String intermediateClauseText = "where i == 1";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.WHERE_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 12);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateLetClause() {
+        String intermediateClauseText = "let int a = 3, string b = \"\"";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.LET_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 28);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateJoinClause() {
+        String intermediateClauseText = "join var user in table [{id: 1234, " +
+                "name: \"Keith\"}, {id: 6789, name: \"Anne\"}] on login.userId equals user.id";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.JOIN_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 107);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateOrderClause() {
+        String intermediateClauseText = "order by name";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, true);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.ORDER_BY_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 13);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseIntermediateLimitClause() {
+        String intermediateClauseText = "limit getIntValue()";
+
+        IntermediateClauseNode intermediateClause = NodeParser.parseIntermediateClause(intermediateClauseText, false);
+        Assert.assertEquals(intermediateClause.kind(), SyntaxKind.LIMIT_CLAUSE);
+        Assert.assertFalse(intermediateClause.hasDiagnostics());
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(0, 19);
+        LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
+        Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
     }
 }

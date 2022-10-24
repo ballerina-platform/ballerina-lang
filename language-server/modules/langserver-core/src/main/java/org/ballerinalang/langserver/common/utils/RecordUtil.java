@@ -159,7 +159,7 @@ public class RecordUtil {
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
 
-        StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
+        StringBuilder insertText = new StringBuilder(CommonUtil.escapeReservedKeyword(bField.getName().get()) + ": ");
         insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), tabOffset)
                 .orElse(" "));
         return insertText.toString();

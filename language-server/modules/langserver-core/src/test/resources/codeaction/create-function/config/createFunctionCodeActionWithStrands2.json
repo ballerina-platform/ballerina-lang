@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 7,
+    "character": 48
+  },
+  "source": "createFunctionCodeActionWithStrands.bal",
+  "expected": [
+    {
+      "title": "Create function 'createVal(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 1
+            },
+            "end": {
+              "line": 11,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createVal(int i) returns (Foo & readonly)|int {\n    return {};\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createFunctionCodeActionWithStrands.bal",
+        "range": {
+          "start": {
+            "line": 7,
+            "character": 48
+          },
+          "end": {
+            "line": 7,
+            "character": 66
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 7.0,
+              "character": 48.0
+            },
+            "end": {
+              "line": 7.0,
+              "character": 66.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

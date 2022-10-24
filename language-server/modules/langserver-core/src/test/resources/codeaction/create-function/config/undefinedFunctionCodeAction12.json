@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 20,
+    "character": 29
+  },
+  "source": "createUndefinedFunction7.bal",
+  "expected": [
+    {
+      "title": "Create function 'callEndpoint(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 33,
+              "character": 1
+            },
+            "end": {
+              "line": 33,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction callEndpoint(int a, int b, module1:Listener c) returns module1:TestClass1 {\n    return new (0, 0);\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "createUndefinedFunction7.bal",
+        "range": {
+          "start": {
+            "line": 20,
+            "character": 29
+          },
+          "end": {
+            "line": 20,
+            "character": 50
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 20.0,
+              "character": 29.0
+            },
+            "end": {
+              "line": 20.0,
+              "character": 50.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

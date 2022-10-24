@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
@@ -68,16 +67,14 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                                  JvmConstantsGen jvmConstantsGen,
-                                                  String moduleClassName, AsyncDataCollector lambdaGenMetadata,
-                                                  Types types) {
+                                                  JvmConstantsGen jvmConstantsGen, String moduleClassName,
+                                                  AsyncDataCollector lambdaGenMetadata, Types types) {
         if (birFunc instanceof JFieldBIRFunction) {
-            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
-                                     jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     moduleClassName, lambdaGenMetadata, types);
+            genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID, jvmPackageGen, jvmTypeGen,
+                    jvmCastGen, jvmConstantsGen, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                         moduleClassName, attachedType, lambdaGenMetadata);
+                    moduleClassName, attachedType, lambdaGenMetadata);
         }
     }
 
@@ -135,9 +132,7 @@ public class ExternalMethodGen {
             args.add(argRef);
         }
 
-        Set<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters.keySet();
-
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFunc.parameters) {
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
         }
