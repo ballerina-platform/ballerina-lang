@@ -754,6 +754,11 @@ public class TypeGuardTest {
     }
 
     @Test
+    public void testSingletonTypeNarrowedTypeDesc() {
+        BRunUtil.invoke(result, "testSingletonTypeNarrowedTypeDesc");
+    }
+
+    @Test
     public void testTypeGuardsAccountingForSemTypes1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/test_type_guard_sem_types_1.bal");
         int index = 0;

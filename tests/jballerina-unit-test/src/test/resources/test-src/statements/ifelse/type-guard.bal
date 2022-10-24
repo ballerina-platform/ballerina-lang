@@ -1815,6 +1815,47 @@ function checkIsExpressionWithCircularTuple2(Type t) returns string? {
     }
 }
 
+function testSingletonTypeNarrowedTypeDesc() {
+    assertEquality(testSingletonTypeNarrowedTypeDesc1(1,1), 1);
+    assertEquality(testSingletonTypeNarrowedTypeDesc2(3,1), 3);
+    assertEquality(testSingletonTypeNarrowedTypeDesc3("","abc"), "abc");
+}
+
+function testSingletonTypeNarrowedTypeDesc1(int foo, int bar) returns int {
+    if foo != 1 {
+        return foo;
+    } else if bar != 1 && foo == 1 {
+        return bar;
+    } else if foo == 1 && bar == 1 {
+        return 1;
+    }
+    return -1;
+}
+
+function testSingletonTypeNarrowedTypeDesc2(1|2|3 foo, int bar) returns int {
+    if foo == 1 {
+        return foo;
+    } else if bar != 1 && foo == 2 {
+        return bar;
+    } else if foo == 3 && bar == 1 {
+        return 3;
+    }
+    return -1;
+}
+
+function testSingletonTypeNarrowedTypeDesc3(string foo, string bar) returns string {
+    if foo != "" {
+        return foo;
+    }
+    if bar != "" && foo == "" {
+        return bar;
+    }
+    if foo == "" && bar == "" {
+        return "";
+    }
+    return "";
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }
