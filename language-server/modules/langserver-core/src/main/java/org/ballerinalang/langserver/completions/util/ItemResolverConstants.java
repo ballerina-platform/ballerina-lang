@@ -63,6 +63,7 @@ public class ItemResolverConstants {
 
     public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
+    public static final String EXPRESSION_BODIED_FUNCTION = "function <name>(..) => <expression>";
     public static final String FUNCTION_SIGNATURE = "function <name>();";
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE_HTTP = "service/http";
