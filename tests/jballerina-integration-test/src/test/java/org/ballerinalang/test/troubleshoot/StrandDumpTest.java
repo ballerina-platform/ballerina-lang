@@ -89,7 +89,7 @@ public class StrandDumpTest extends BaseTest {
 
         String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(sourceRoot));
-        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, false, 12000, 3000);
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, false, 16000, 2000);
     }
 
     private static boolean isWindowsOS() {
@@ -128,7 +128,7 @@ public class StrandDumpTest extends BaseTest {
         runCmdSet.addAll(Arrays.asList("-jar", jarPath));
 
         ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
-        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, true, 6000, 4000);
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, true, 6000, 2000);
     }
 
     private void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder, Map<String, String> envProperties,
