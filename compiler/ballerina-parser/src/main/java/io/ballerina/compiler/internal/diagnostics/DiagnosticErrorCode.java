@@ -355,7 +355,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0682", "error.invalid.unicode.property.escape.in.reg.exp"),
     ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
     ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0684", "error.invalid.character.set.in.reg.exp"),
-    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0685", "error.invalid.flag.in.reg.exp")
+    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0685", "error.invalid.flag.in.reg.exp"),
+    ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0681",
+            "error.annotations.not.allowed.for.tuple.rest.descriptor")
     ;
 
     String diagnosticId;
