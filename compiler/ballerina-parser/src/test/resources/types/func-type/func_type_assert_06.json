@@ -683,7 +683,7 @@
                                                       "children": [
                                                         {
                                                           "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "re"
+                                                          "value": "\u0027re"
                                                         }
                                                       ]
                                                     }
