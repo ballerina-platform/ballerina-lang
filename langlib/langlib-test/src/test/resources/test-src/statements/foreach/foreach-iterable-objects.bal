@@ -163,6 +163,69 @@ function testNextIsNotInvokedTwiseBeforeInvokingBody() {
     }
 }
 
+
+function testLangLibRange1() {
+    int[] expected = [6, 4, 2];
+    int[] actual = [];
+    foreach int i in int:range(6, 0, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRange2() {
+    int[] expected = [0, 2, 4];
+    int[] actual = [];
+    foreach int i in int:range(0, 6, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRange3() {
+    int[] expected = [];
+    int[] actual = [];
+    foreach int i in int:range(0, 5, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRange4() {
+    int[] expected = [];
+    int[] actual = [];
+    foreach int i in int:range(5, 0, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRange5() {
+    int[] expected = [0, -2, -4];
+    int[] actual = [];
+    foreach int i in int:range(0, -6, -2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testLangLibRange6() {
+    int[] expected = [-6, -4, -2];
+    int[] actual = [];
+    foreach int i in int:range(-6, 0, 2) {
+        actual.push(i);
+    }
+    assert(expected, actual);
+}
+
+function testZeroStepRangeError() {
+    int[] r =[];
+
+    foreach int i in int:range(0, 4, 0) {
+        r.push(i);
+    }
+}
+
 class Iter {
     public function next() returns record {|int value;|}? {
         globalInt += 1;

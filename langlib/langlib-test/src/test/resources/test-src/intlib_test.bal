@@ -225,3 +225,33 @@ function testIntNonOverflowWithSum() {
     result = a7.sum(a1, a6);
     test:assertValueEqual(5, result);
 }
+
+function testIntRange() {
+    int[] num = [];
+    object:Iterable itb = int:range(0, 6, 3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([0,3], num);
+}
+
+function testIntRangeDec() {
+    int[] num = [];
+    object:Iterable itb = int:range(6, 0, -3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([6,3], num);
+}

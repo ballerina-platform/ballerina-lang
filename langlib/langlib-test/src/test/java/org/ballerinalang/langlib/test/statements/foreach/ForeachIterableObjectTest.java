@@ -18,6 +18,7 @@
 package org.ballerinalang.langlib.test.statements.foreach;
 
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -25,6 +26,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -94,6 +96,30 @@ public class ForeachIterableObjectTest {
     @Test
     public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
         BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
+    }
+
+    @Test(dataProvider = "langlibIntRangeTests")
+    public void testLangLibIntRange(String funcName) {
+        BRunUtil.invoke(program, funcName);
+    }
+
+    @DataProvider
+    private Object[][] langlibIntRangeTests() {
+        return new Object[][]{
+                {"testLangLibRange1"},
+                {"testLangLibRange2"},
+                {"testLangLibRange3"},
+                {"testLangLibRange4"},
+                {"testLangLibRange5"},
+                {"testLangLibRange6"}
+        };
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.int\\}ZeroStepInRange \\{\"message\":" +
+                    "\"Step in range function cannot be 0\"\\}.*")
+    public void testZeroStepRangeError() {
+        BRunUtil.invoke(program, "testZeroStepRangeError");
     }
 
     @Test

@@ -488,61 +488,6 @@ function testIsolatednessOfRangeExprIterableAndIterator() {
     } _ = 1 ..< 2;
 }
 
-
-function testLangLibRange1() {
-    int[] expected = [6, 4, 2];
-    int[] actual = [];
-    foreach int i in int:range(6, 0, -2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
-function testLangLibRange2() {
-    int[] expected = [0, 2, 4];
-    int[] actual = [];
-    foreach int i in int:range(0, 6, 2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
-function testLangLibRange3() {
-    int[] expected = [];
-    int[] actual = [];
-    foreach int i in int:range(0, 5, -2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
-function testLangLibRange4() {
-    int[] expected = [];
-    int[] actual = [];
-    foreach int i in int:range(5, 0, 2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
-function testLangLibRange5() {
-    int[] expected = [0, -2, -4];
-    int[] actual = [];
-    foreach int i in int:range(0, -6, -2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
-function testLangLibRange6() {
-    int[] expected = [-6, -4, -2];
-    int[] actual = [];
-    foreach int i in int:range(-6, 0, 2) {
-        actual.push(i);
-    }
-    assertEquality(expected, actual);
-}
-
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
