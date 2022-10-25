@@ -330,6 +330,39 @@ function testForGlobalRefUpdateInsideConditional() {
     }
 }
 
+const rounds = 1000;
+const workers = 200;
+
+int counter = 1;
+
+function testPanicIfInLockConcurrently() {
+    future<()> counterFuture = @strand{thread : "any"} start check_counter();
+
+    foreach int i in 0 ..< workers {
+        _ = @strand{thread : "any"} start increment_counter();
+    }
+
+    error? result = wait counterFuture;
+}
+
+function increment_counter() {
+    foreach int i in 0 ..< rounds {
+        lock {
+            counter += 1;
+        }
+    }
+}
+
+function check_counter() {
+    while (while_condition()) {}
+}
+
+function while_condition() returns boolean {
+    lock {
+        return counter < rounds * workers;
+    }
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

@@ -261,6 +261,11 @@ public class LocksInMainTest {
                                   18, 9);
     }
 
+    @Test()
+    public void testPanicIfInLockConcurrently() {
+        BRunUtil.invoke(parallelCompileResult, "testPanicIfInLockConcurrently");
+    }
+
     @Test(description = "Test for parallel run using locks")
     public void testParallelRunUsingLocks() {
         Object returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
