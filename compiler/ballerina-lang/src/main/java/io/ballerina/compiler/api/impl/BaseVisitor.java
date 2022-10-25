@@ -1055,7 +1055,8 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
     }
 
-    public abstract void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation);
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+    }
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {

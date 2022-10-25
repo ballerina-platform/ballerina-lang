@@ -135,6 +135,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         SymbolResolver symbolResolver = SymbolResolver.getInstance(this.compilerContext);
         SymbolEnv symbolEnv = envResolver.lookUp(compilationUnit, position);
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
+        SymbolFilter symbolFilter = new SymbolFilter();
+        List<BSymbol> outOfScopeSymbols = symbolFilter.getOutOfScopeSymbols(compilationUnit, position);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
                                                          position.line(), position.line(),
@@ -146,6 +148,10 @@ public class BallerinaSemanticModel implements SemanticModel {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
+                if (outOfScopeSymbols.contains(scopeEntry.symbol)) {
+                    continue;
+                }
+
                 addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet,
                         compilationUnit.getName());
             }
