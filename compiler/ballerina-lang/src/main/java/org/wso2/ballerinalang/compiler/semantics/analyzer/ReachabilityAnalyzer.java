@@ -744,25 +744,25 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.statementReturnsPanicsOrFails = returnStateBefore;
     }
 
-    private void checkStatementExecutionValidity(BLangNode statement, AnalyzerData data) {
+    private void checkStatementExecutionValidity(BLangNode node, AnalyzerData data) {
         if (data.skipFurtherAnalysisInUnreachableBlock) {
             return;
         }
-        checkUnreachableCode(statement.pos, data);
-        checkConditionInWhileOrIf(statement, data);
+        checkUnreachableCode(node.pos, data);
+        checkConditionInWhileOrIf(node, data);
     }
 
-    private void checkConditionInWhileOrIf(BLangNode statement, AnalyzerData data) {
-        switch (statement.getKind()) {
+    private void checkConditionInWhileOrIf(BLangNode node, AnalyzerData data) {
+        switch (node.getKind()) {
             case WHILE:
                 data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
-                        ((BLangWhile) statement).expr);
+                        ((BLangWhile) node).expr);
                 break;
             case IF:
-                data.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
+                data.unreachableBlock = node.parent != null && node.parent.getKind() == NodeKind.IF
                         && data.booleanConstCondition == symTable.trueType;
                 data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
-                        ((BLangIf) statement).expr);
+                        ((BLangIf) node).expr);
                 break;
         }
     }
