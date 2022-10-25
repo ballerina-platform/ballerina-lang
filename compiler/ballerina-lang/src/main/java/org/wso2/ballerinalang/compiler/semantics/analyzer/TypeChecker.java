@@ -3755,7 +3755,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BTupleType resourcePathType;
-        if (pathSegmentCount > 0 && lastPathSegmentSym.kind == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+        if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
                     .map(s -> s.type).collect(Collectors.toList()));
         } else {
