@@ -151,7 +151,7 @@ public class Symbols {
         return symbol;
     }
 
-    public static BTypeSymbol createTypeSymbol(int symTag,
+    public static BTypeSymbol createTypeSymbol(long symTag,
                                                long flags,
                                                Name name,
                                                PackageID pkgID,
@@ -162,7 +162,7 @@ public class Symbols {
         return createTypeSymbol(symTag, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
-    public static BTypeSymbol createTypeSymbol(int symTag,
+    public static BTypeSymbol createTypeSymbol(long symTag,
                                                long flags,
                                                Name name,
                                                Name originalName,
@@ -191,7 +191,7 @@ public class Symbols {
     }
 
 
-    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(long symTag,
                                                                  long flags,
                                                                  PackageID pkgID,
                                                                  BType type,
@@ -201,7 +201,7 @@ public class Symbols {
         return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
     }
 
-    public static BInvokableSymbol createInvokableSymbol(int kind,
+    public static BInvokableSymbol createInvokableSymbol(long kind,
                                                          long flags,
                                                          Name name,
                                                          Name originalName,
@@ -283,7 +283,7 @@ public class Symbols {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
 
-    public static boolean isTagOn(BSymbol symbol, int symTag) {
+    public static boolean isTagOn(BSymbol symbol, long symTag) {
         return (symbol.tag & symTag) == symTag;
     }
 
