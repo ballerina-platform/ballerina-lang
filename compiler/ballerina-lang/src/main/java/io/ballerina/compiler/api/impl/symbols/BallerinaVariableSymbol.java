@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -49,13 +50,15 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     private final Documentation docAttachment;
     private final TypeSymbol typeDescriptorImpl;
     private final boolean deprecated;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     protected BallerinaVariableSymbol(String name, SymbolKind ballerinaSymbolKind, List<Qualifier> qualifiers,
-                                      List<AnnotationSymbol> annots, TypeSymbol typeDescriptorImpl, BSymbol bSymbol,
-                                      CompilerContext context) {
+                                      List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                      TypeSymbol typeDescriptorImpl, BSymbol bSymbol, CompilerContext context) {
         super(name, ballerinaSymbolKind, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.docAttachment = getDocAttachment(bSymbol);
         this.typeDescriptorImpl = typeDescriptorImpl;
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
@@ -97,6 +100,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
     }
 
     @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
     public Optional<Documentation> documentation() {
         return Optional.ofNullable(this.docAttachment);
     }
@@ -118,6 +126,7 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public VariableSymbolBuilder(String name, BSymbol bSymbol, CompilerContext context) {
@@ -126,8 +135,8 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         @Override
         public BallerinaVariableSymbol build() {
-            return new BallerinaVariableSymbol(this.name, this.ballerinaSymbolKind, this.qualifiers,
-                                               this.annots, this.typeDescriptor, this.bSymbol, this.context);
+            return new BallerinaVariableSymbol(this.name, this.ballerinaSymbolKind, this.qualifiers, this.annots,
+                                               this.annotAttachments, this.typeDescriptor, this.bSymbol, this.context);
         }
 
         public VariableSymbolBuilder withTypeDescriptor(TypeSymbol typeDescriptor) {
@@ -142,6 +151,11 @@ public class BallerinaVariableSymbol extends BallerinaSymbol implements Variable
 
         public VariableSymbolBuilder withAnnotation(AnnotationSymbol annot) {
             this.annots.add(annot);
+            return this;
+        }
+
+        public VariableSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
             return this;
         }
     }

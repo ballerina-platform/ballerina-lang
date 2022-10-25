@@ -29,29 +29,31 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
-    @Test(groups = {"disableOnOldParser"})
+    @Test
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
-        BAssertUtil.validateError(compileResult, 0,
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++,
                 "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 17, 1);
-        BAssertUtil.validateError(compileResult, 1, "missing source keyword", 17, 30);
-        BAssertUtil.validateError(compileResult, 2, "missing source keyword", 18, 28);
-        BAssertUtil.validateError(compileResult, 3,
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 17, 30);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 18, 28);
+        BAssertUtil.validateError(compileResult, index++,
                 "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 19, 1);
-        BAssertUtil.validateError(compileResult, 4, "missing source keyword", 19, 22);
-        BAssertUtil.validateError(compileResult, 5, "missing source keyword", 20, 45);
-        BAssertUtil.validateError(compileResult, 6, "missing source keyword", 21, 37);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 19, 22);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 20, 45);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 21, 37);
+        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 22, 37);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
     public void testSourceAnnotDeclWithoutConst() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_annot_without_const_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 10);
+        Assert.assertEquals(compileResult.getErrorCount(), 11);
         String errorMessage = "annotation declaration with 'source' attach point(s) should be a 'const' declaration";
-        for (int index = 0; index < 9; index++) {
+        for (int index = 0; index < 10; index++) {
             BAssertUtil.validateError(compileResult, index, errorMessage, index + 17, 1);
         }
     }

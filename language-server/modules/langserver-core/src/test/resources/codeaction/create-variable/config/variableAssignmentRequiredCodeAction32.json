@@ -6,7 +6,7 @@
   "source": "createVariable5.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|}\u0027",
+      "title": "Create variable with 'record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|}'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|} mappingResult \u003d "
+          "newText": "record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|} mappingResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable5.bal",
+          929
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

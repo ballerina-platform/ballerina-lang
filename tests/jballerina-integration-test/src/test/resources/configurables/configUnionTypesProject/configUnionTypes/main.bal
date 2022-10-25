@@ -14,12 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import configUnionTypes.type_defs;
+import ballerina/test;
 import configUnionTypes.imported_unions;
+import configUnionTypes.jsonType;
+import configUnionTypes.type_defs;
+import configUnionTypes.union_ambiguity;
 import testOrg/configLib.mod1 as configLib;
 import testOrg/configLib.util;
-import configUnionTypes.union_ambiguity;
-import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
 configurable type_defs:CountryCodes & readonly countryCode = ?;
@@ -62,6 +63,7 @@ public function main() {
     imported_unions:testEnumValues();
     union_ambiguity:test_ambiguous_union_type();
     union_ambiguity:test_union_type_arrays();
+    jsonType:testJsonValues();
     testUnionRecordField();
     util:print("Tests passed");
 }

@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction printThis(boolean b) {\n    \n}\n"
+          "newText": "\n\nfunction printThis(boolean b) {\n    \n}"
         }
       ],
       "resolvable": true,

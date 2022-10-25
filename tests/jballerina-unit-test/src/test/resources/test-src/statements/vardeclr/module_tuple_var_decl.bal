@@ -202,7 +202,7 @@ var [h1, h2, ...h3] = t3;
 function testModuleLevelTupleRest3() {
     assertEquality("typedesc 10", (typeof h1).toString());
     assertEquality("typedesc 20", (typeof h2).toString());
-    assertEquality("typedesc [int,int,int]", (typeof h3).toString());
+    assertEquality("typedesc [int,int,int,int...]", (typeof h3).toString());
     assertEquality(10, h1);
     assertEquality(20, h2);
     assertEquality(3, h3.length());

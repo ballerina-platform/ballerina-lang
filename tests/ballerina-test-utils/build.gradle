@@ -63,6 +63,7 @@ shadowJar {
         exclude(dependency('org.slf4j:slf4j-jdk14'))
         exclude(dependency('org.codehaus.woodstox:woodstox-core-asl'))
         exclude(dependency('org.codehaus.woodstox:stax2-api'))
+        exclude(dependency('com.fasterxml.woodstox:woodstox-core'))
         exclude(dependency('io.netty:netty-handler'))
         exclude(dependency('io.netty:netty-handler-proxy'))
         exclude(dependency('io.netty:netty-codec-socks'))

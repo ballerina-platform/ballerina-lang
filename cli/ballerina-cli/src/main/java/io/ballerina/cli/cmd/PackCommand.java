@@ -264,7 +264,8 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .setConfigSchemaGen(configSchemaGen)
+                .setEnableCache(enableCache);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

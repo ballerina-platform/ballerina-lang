@@ -6,7 +6,7 @@
   "source": "getterSetter1.bal",
   "expected": [
     {
-      "title": "Create a setter for 'count'",
+      "title": "Create a setter for \"count\"",
       "kind": "source",
       "edits": [
         {
@@ -20,12 +20,12 @@
               "character": 27
             }
           },
-          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+          "newText": "\n\n    public function setCount(int count) { \n        self.count \u003d count;\n    }"
         }
       ]
     },
     {
-      "title": "Create a getter for 'count'",
+      "title": "Create a getter for \"count\"",
       "edits": [
         {
           "range": {
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "title": "Create getter and setter for 'count'",
+      "title": "Create getter and setter for \"count\"",
       "edits": [
         {
           "range": {
@@ -69,7 +69,7 @@
               "character": 27
             }
           },
-          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
+          "newText": "\n\n    public function setCount(int count) { \n        self.count \u003d count;\n    }"
         }
       ]
     }

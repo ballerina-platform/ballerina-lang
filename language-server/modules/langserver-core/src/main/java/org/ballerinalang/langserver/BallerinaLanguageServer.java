@@ -450,6 +450,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     private List<String> getCompletionTriggerCharacters() {
-        return Arrays.asList(":", ".", ">", "@");
+        return Arrays.asList(":", ".", ">", "@", "/");
     }
 }

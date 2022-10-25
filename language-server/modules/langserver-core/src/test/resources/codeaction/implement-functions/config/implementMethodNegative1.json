@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 16,
+    "character": 25
+  },
+  "source": "implementMethodNegative1.bal",
+  "expected": [
+    {
+      "title": "Implement method"
+    }
+  ]
+}

@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createTeacher(string s) returns mod2:Teacher {\n    return {name: \"\"};\n}\n"
+          "newText": "\n\nfunction createTeacher(string s) returns mod2:Teacher {\n    return {name: \"\"};\n}"
         }
       ],
       "resolvable": true,

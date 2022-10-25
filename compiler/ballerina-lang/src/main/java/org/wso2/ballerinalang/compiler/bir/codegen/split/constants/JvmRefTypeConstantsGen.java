@@ -77,7 +77,12 @@ public class JvmRefTypeConstantsGen {
     }
 
     public String add(BTypeReferenceType type) {
-        return typeRefVarMap.computeIfAbsent(type, str -> generateTypeRefInits(type));
+        String varName = typeRefVarMap.get(type);
+        if (varName == null) {
+            varName = generateTypeRefInits(type);
+            typeRefVarMap.put(type, varName);
+        }
+        return varName;
     }
 
     private void visitTypeRefTypeInitMethod() {

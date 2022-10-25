@@ -25,8 +25,10 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -187,18 +189,23 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    public void enrichPkgWithInitializers(Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
+    public void enrichPkgWithInitializers(JvmPackageGen jvmPackageGen, Map<String, BIRFunctionWrapper> birFunctionMap,
+                                          Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRNode.BIRPackage pkg, List<PackageID> moduleImports) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
                                                                MethodGenUtils.INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
+        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
+                jvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
                                                                 MethodGenUtils.START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
+        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
+                jvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
     }
 

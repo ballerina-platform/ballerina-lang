@@ -141,7 +141,9 @@ public class ErrorCreator {
         if (error instanceof BError) {
             return (BError) error;
         }
-        return createError(StringUtils.fromString(error.getMessage()));
+        BError bError = createError(StringUtils.fromString(error.toString()));
+        bError.setStackTrace(error.getStackTrace());
+        return bError;
     }
 
     /**

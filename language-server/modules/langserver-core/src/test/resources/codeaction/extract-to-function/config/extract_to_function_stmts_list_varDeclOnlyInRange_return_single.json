@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 4
+    },
+    "end": {
+      "line": 3,
+      "character": 22
+    }
+  },
+  "source": "extract_to_function_stmts_list_varDeclOnlyInRange_return_single.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 1
+            },
+            "end": {
+              "line": 6,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n\n    int localVar1 = 1;\n    int localVar2 = 2;\n    return localVar1;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 22
+            }
+          },
+          "newText": "int localVar1 = extracted();"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

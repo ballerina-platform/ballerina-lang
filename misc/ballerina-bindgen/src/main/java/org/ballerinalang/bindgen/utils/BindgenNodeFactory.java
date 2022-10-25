@@ -435,7 +435,7 @@ class BindgenNodeFactory {
         NodeList<StatementNode> statements = AbstractNodeFactory.createNodeList(statementNodes);
         Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), doubleNLML());
 
-        return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken);
+        return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken, null);
     }
 
     private static List<StatementNode> getConstructorFunctionStatements(JConstructor jConstructor) {

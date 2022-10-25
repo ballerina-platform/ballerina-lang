@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -56,7 +57,6 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
  *
  * @since 0.955.0
  */
-
 public class Strand {
 
     private static final AtomicInteger nextStrandId = new AtomicInteger(0);
@@ -67,6 +67,7 @@ public class Strand {
 
     public Stack<FunctionFrame> frames;
     public int resumeIndex;
+    public int functionInvocation;
     public Object returnValue;
     public BError panic;
     public Scheduler scheduler;
@@ -103,6 +104,7 @@ public class Strand {
         this.metadata = metadata;
         this.trxContexts = new Stack<>();
         this.parent = parent;
+        this.functionInvocation = 0;
 
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
@@ -129,6 +131,11 @@ public class Strand {
             this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
         }
     }
+
+    public static int getCreatedStrandCount() {
+        return nextStrandId.get();
+    }
+
     private TransactionLocalContext createTrxContextBranch(TransactionLocalContext currentTrxContext,
                                                            String strandName) {
         TransactionLocalContext trxCtx = TransactionLocalContext
@@ -239,9 +246,11 @@ public class Strand {
         this.flushDetail.inProgress = false;
         this.flushDetail.flushedCount = 0;
         this.flushDetail.result = null;
+        this.flushDetail.flushLock.unlock();
         for (ChannelDetails channel : channels) {
             getWorkerDataChannel(channel).removeFlushWait();
         }
+        this.flushDetail.flushLock.lock();
     }
 
     public void handleWaitMultiple(Map<String, FutureValue> keyValues, MapValue<BString, Object> target)
@@ -399,12 +408,8 @@ public class Strand {
         return id;
     }
 
-    public int getStrandGroupId() {
-        return strandGroup.getId();
-    }
-
-    public boolean isStrandGroupScheduled() {
-        return strandGroup.isScheduled();
+    public ItemGroup getStrandGroup() {
+        return strandGroup;
     }
 
     /**
@@ -433,8 +438,14 @@ public class Strand {
         }
 
         strandInfo.append(" [");
-        strandInfo.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
-                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
+        StrandMetadata strandMetadata = this.metadata;
+        if (strandMetadata == null) {
+            strandInfo.append("N/A");
+        } else {
+            strandInfo.append(strandMetadata.getModuleOrg()).append(".").append(strandMetadata.getModuleName())
+                    .append(".").append(strandMetadata.getModuleVersion()).append(":")
+                    .append(strandMetadata.getParentFunctionName());
+        }
         if (this.parent != null) {
             strandInfo.append("][").append(this.parent.getId());
         }
