@@ -534,8 +534,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangGroupingKey node, T data) {
         analyzeNode(node, data);
-        visitNode(node.variableDef, data);
-        visitNode(node.variableRef, data);
+        visitNode(node.groupingKey, data);
     }
 
     public void visit(BLangGroupByClause node, T data) {

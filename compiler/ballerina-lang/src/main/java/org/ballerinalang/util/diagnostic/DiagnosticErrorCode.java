@@ -779,7 +779,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
     OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
 
-    // group by clause related codes
     INVALID_GROUPING_KEY("BCE4035", "invalid.grouping.key")
     ;
 

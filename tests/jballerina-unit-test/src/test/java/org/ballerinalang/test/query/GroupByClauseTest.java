@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -30,37 +31,31 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 /**
  * This contains methods to test group by clause in query expression.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
-@Test(groups = {"disableOnOldParser"})
+
 public class GroupByClauseTest {
 
-    private CompileResult result;
-    private CompileResult negativeResult;
-
-    @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compile("test-src/query/group-by-clause.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/group-by-clause-negative.bal");
+    @Test(dataProvider = "groupby-positive-data-provider")
+    public void testGroupByWithVarRef(CompileResult result, String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test group by clause using variable reference grouping key")
-    public void testGroupByWithVarRef() {
-        BRunUtil.invoke(result, "testGroupByWithVarRef");
-    }
+    @DataProvider(name = "groupby-positive-data-provider")
+    public Object[][] groupByPositiveTestDataProvider() {
+        CompileResult result = BCompileUtil.compile("test-src/query/group-by-clause.bal");
 
-    @Test(description = "Test group by clause using variable def grouping key")
-    public void testGroupByWithVarDef() {
-        BRunUtil.invoke(result, "testGroupByWithVarDef");
-    }
-
-    @Test(description = "Test group by clause using both kinds of grouping keys")
-    public void testGroupByWithVarDefAndVarRef() {
-        BRunUtil.invoke(result, "testGroupByWithVarDefAndVarRef");
+        return new Object[][]{
+                {result, "testGroupByWithVarRef"},
+                {result, "testGroupByWithVarDef"},
+                {result, "testGroupByWithVarDefAndVarRef"},
+        };
     }
 
     @Test(description = "Test negative scenarios for group by clause")
     public void testNegativeScenarios() {
+        CompileResult negativeResult;negativeResult =
+                BCompileUtil.compile("test-src/query/group-by-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int index = 0;
 
@@ -69,11 +64,5 @@ public class GroupByClauseTest {
                 46, 36);
         validateError(negativeResult, index, "operator '+' not defined for 'int' and 'string'",
                 54, 36);
-    }
-
-    @AfterClass
-    public void tearDown() {
-        result = null;
-        negativeResult = null;
     }
 }

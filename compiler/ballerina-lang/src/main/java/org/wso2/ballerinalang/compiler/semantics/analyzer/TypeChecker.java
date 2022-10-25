@@ -179,6 +179,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -6491,14 +6492,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
         groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
-        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
-            if (groupingKey.variableRef != null) {
-                checkExpr(groupingKey.variableRef, groupByClause.env, data);
+        Map<Name, Scope.ScopeEntry> allScopeEntries = groupByClause.env.scope.entries;
+        List<String> namesOfGroupingKeys = new ArrayList<>(groupByClause.groupingKeyList.size());
+
+        for (BLangGroupingKey groupingKeyNode : groupByClause.groupingKeyList) {
+            if (groupingKeyNode.groupingKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                checkExpr((BLangSimpleVarRef) groupingKeyNode.groupingKey, groupByClause.env, data);
+                namesOfGroupingKeys.add(((BLangSimpleVarRef) groupingKeyNode.groupingKey).getVariableName().value);
             } else {
-                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                semanticAnalyzer.analyzeNode(groupingKeyNode.groupingKey, groupByClause.env,
                         data.commonAnalyzerData);
+                namesOfGroupingKeys.add(((BLangSimpleVariableDef) groupingKeyNode.groupingKey).var.name.value);
             }
         }
+
+        // Identify non grouping keys
+        allScopeEntries.forEach((key, value) -> {
+            if (!namesOfGroupingKeys.contains(key.value)) {
+                groupByClause.nonGroupingKeyList.add(key.value);
+            }
+        });
     }
 
     @Override

@@ -31,5 +31,5 @@ import java.util.List;
 public interface GroupByClauseNode extends Node {
     void addGroupingKey(BLangGroupingKey groupingKey);
 
-    List<BLangGroupingKey> getGroupingKeyList();
+    List<BLangGroupingKey> getGroupingKeys();
 }

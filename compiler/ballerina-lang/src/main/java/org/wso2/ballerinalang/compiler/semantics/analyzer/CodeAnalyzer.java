@@ -3297,7 +3297,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
-        groupByClause.groupingKeyList.forEach(value -> analyzeNode((BLangNode) value, data));
+        groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, data));
     }
 
     @Override

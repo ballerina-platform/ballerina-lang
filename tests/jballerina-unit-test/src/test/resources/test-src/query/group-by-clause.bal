@@ -68,7 +68,7 @@ function testGroupByWithVarRef() {
 
     var res = from var {id, feePaid, age, fname, gpa} in studentList
               group by feePaid
-              select fname;
+              select [fname];
 
     assertEquality(<string?[]>["John", "Monica", null, "Angie"], res);
 }
@@ -78,7 +78,7 @@ function testGroupByWithVarDef() {
 
     var res = from var {price1, price2, name} in orderList
               group by int cost = price1 + price2
-              select name;
+              select [name];
 
     assertEquality(<string[]>["John", "Monica", "Tom", "Monica"], res);
 }
@@ -88,7 +88,7 @@ function testGroupByWithVarDefAndVarRef() {
 
     var res = from var {price1, price2, name, year} in orderList
               group by int cost = price1 + price2, year
-              select name;
+              select [name];
 
     assertEquality(<string[]>["John", "Monica", "Tom", "Monica"], res);
 }

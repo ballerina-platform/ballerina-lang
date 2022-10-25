@@ -1630,8 +1630,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangGroupingKey source) {
         BLangGroupingKey clone = new BLangGroupingKey();
         source.cloneRef = clone;
-        clone.variableDef = clone(source.variableDef);
-        clone.variableRef = source.variableRef;
+        clone.groupingKey = clone(source.groupingKey);
     }
 
     @Override

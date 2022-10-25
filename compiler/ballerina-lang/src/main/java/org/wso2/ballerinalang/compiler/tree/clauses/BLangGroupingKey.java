@@ -34,25 +34,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
  */
 public class BLangGroupingKey extends BLangNode implements GroupingKeyNode {
 
-    // BLangNodes
-    public BLangSimpleVariableDef variableDef;
-    public BLangSimpleVarRef variableRef;
+    // This node can  only be either a BLangSimpleVariableDef or a BLangSimpleVarRef
+    public BLangNode groupingKey;
 
     @Override
     public void setGroupingKey(Node groupingKey) {
-        if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
-            this.variableDef = (BLangSimpleVariableDef) groupingKey;
-            return;
-        }
-        this.variableRef = (BLangSimpleVarRef) groupingKey;
+        this.groupingKey = (BLangNode) groupingKey;
     }
 
     @Override
     public Node getGroupingKey() {
-        if (this.variableDef != null) {
-            return this.variableDef;
-        }
-        return this.variableRef;
+        return this.groupingKey;
     }
 
     @Override
@@ -77,9 +69,6 @@ public class BLangGroupingKey extends BLangNode implements GroupingKeyNode {
     
     @Override
     public String toString() {
-        if (this.variableDef != null) {
-            return this.variableDef.toString();
-        }
-        return this.variableRef.toString();
+        return this.groupingKey.toString();
     }
 }

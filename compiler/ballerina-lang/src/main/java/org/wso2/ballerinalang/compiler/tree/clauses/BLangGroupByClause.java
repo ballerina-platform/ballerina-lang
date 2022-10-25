@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.clauses.GroupByClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -35,14 +36,13 @@ import java.util.StringJoiner;
  */
 public class BLangGroupByClause extends BLangGroupingKey implements GroupByClauseNode {
 
-    // BLangNodes
     public List<BLangGroupingKey> groupingKeyList = new ArrayList<>();
+
+    // For caching purposes
+    public List<String> nonGroupingKeyList = new ArrayList<>();
 
     // Semantic Data
     public SymbolEnv env;
-
-    public BLangGroupByClause() {
-    }
 
     @Override
     public void addGroupingKey(BLangGroupingKey groupingKey) {
@@ -50,7 +50,7 @@ public class BLangGroupByClause extends BLangGroupingKey implements GroupByClaus
     }
 
     @Override
-    public List<BLangGroupingKey> getGroupingKeyList() {
+    public List<BLangGroupingKey> getGroupingKeys() {
         return groupingKeyList;
     }
 

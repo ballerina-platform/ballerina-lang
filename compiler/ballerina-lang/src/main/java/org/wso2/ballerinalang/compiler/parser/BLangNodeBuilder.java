@@ -2873,7 +2873,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 if (finalKeyword.isPresent()) {
                     variable.flagSet.add(Flag.FINAL);
                 }
-                BLangExpression expr = initializer.isPresent() ? createExpression(initializer.get()) : null;
+                BLangExpression expr = initializer.map(this::createExpression).orElse(null);
                 return getVariableDefinition(typeDesc, variable, location, expr);
             case MAPPING_BINDING_PATTERN:
                 initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), initializer, qualifierList);
@@ -3878,16 +3878,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangGroupingKey groupingKeyNode = (BLangGroupingKey) TreeBuilder.createGroupingKeyNode();
             groupingKeyNode.pos = getPosition(node);
             if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                groupingKeyNode.variableRef = getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
+                groupingKeyNode.groupingKey = getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
             } else {
-                groupingKeyNode.variableDef = (BLangSimpleVariableDef) node.apply(this);
+                groupingKeyNode.groupingKey = node.apply(this);
             }
             groupByClause.addGroupingKey(groupingKeyNode);
         }
         return groupByClause;
     }
 
-    public BLangSimpleVarRef getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
+    private BLangSimpleVarRef getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
         BLangIdentifier key = createIdentifier(groupingKeySimpleVarRefNode.name());
         key.setLiteral(false);
 
@@ -3906,8 +3906,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.simpleBindingPattern(),
                 variablePos);
         BLangExpression expr = createExpression(groupingKeyVarDeclarationNode.expression());
-        BLangSimpleVariableDef groupingVarDef = getVariableDefinition(typeDesc, variable, variablePos, expr);
-        return groupingVarDef;
+        return getVariableDefinition(typeDesc, variable, variablePos, expr);
     }
 
     private BLangSimpleVariableDef getVariableDefinition(TypeDescriptorNode typeDesc, BLangVariable variable,
