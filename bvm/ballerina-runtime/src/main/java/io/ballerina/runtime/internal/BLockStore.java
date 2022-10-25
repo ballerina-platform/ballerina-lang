@@ -50,7 +50,7 @@ public class BLockStore {
         });
     }
 
-    public void panicIfInLock(String lockName, Strand strand) {
+    public void panicIfInLock(Strand strand) {
         if (strand.acquiredLockCount > 0) {
             throw ErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
         }
