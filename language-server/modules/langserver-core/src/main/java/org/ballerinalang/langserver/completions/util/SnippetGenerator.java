@@ -460,7 +460,7 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get expression bodied function snippet block
+     * Get expression bodied function snippet block.
      *
      * @return {@link SnippetBlock} Generated snippet
      */
