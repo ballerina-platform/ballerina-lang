@@ -386,7 +386,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     result = Math.addExact((Long) lhs.value, (Long) rhs.value);
                 } catch (ArithmeticException ae) {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
-                    return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
                 break;
             case TypeTags.FLOAT:
@@ -416,7 +415,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     result = Math.subtractExact((Long) lhs.value, (Long) rhs.value);
                 } catch (ArithmeticException ae) {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
-                    return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
                 break;
             case TypeTags.FLOAT:
@@ -443,7 +441,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     result = Math.multiplyExact((Long) lhs.value, (Long) rhs.value);
                 } catch (ArithmeticException ae) {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
-                    return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
                 break;
             case TypeTags.FLOAT:

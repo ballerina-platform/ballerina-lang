@@ -189,11 +189,15 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "symbol 'ANS7' is already initialized with 'null'", 349, 11);
         BAssertUtil.validateError(compileResult, index++, "'int' range overflow, supported limit " +
                 "'-9,223,372,036,854,775,808' - '9,223,372,036,854,775,807'", 349, 18);
-        BAssertUtil.validateError(compileResult, index++, "'100000E6142' is out of range for 'decimal'", 351, 20);
-        BAssertUtil.validateError(compileResult, index++, "'-100000E6142' is out of range for 'decimal'", 352, 20);
-        BAssertUtil.validateError(compileResult, index++, "'101000E6140' is out of range for 'decimal'", 353, 20);
-        BAssertUtil.validateError(compileResult, index++, "'-110000E6140' is out of range for 'decimal'", 354, 20);
-        BAssertUtil.validateError(compileResult, index++, "'500000E6408' is out of range for 'decimal'", 355, 20);
+        BAssertUtil.validateError(compileResult, index++, "'9.999999999999999999999999999999999E+6146' " +
+                "is out of range for 'decimal'", 351, 20);
+        BAssertUtil.validateError(compileResult, index++, "'-9.999999999999999999999999999999999E+6146' " +
+                "is out of range for 'decimal'", 352, 20);
+        BAssertUtil.validateError(compileResult, index++, "'1.010000000000000000000000000000000E+6145' " +
+                "is out of range for 'decimal'", 353, 20);
+        BAssertUtil.validateError(compileResult, index++, "'-1.100000000000000000000000000000000E+6145'" +
+                " is out of range for 'decimal'", 354, 20);
+        BAssertUtil.validateError(compileResult, index++, "'5E+6413' is out of range for 'decimal'", 355, 20);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
