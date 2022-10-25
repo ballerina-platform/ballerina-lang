@@ -28,6 +28,72 @@ function stringtoint(string value) returns int|error {
     return result;
 }
 
+function testDecimalToIntCasting() {
+    decimal d = -9223372036854775807d;
+    int res = <int> d;
+    assertEquality(-9223372036854775807, res);
+
+    d = 9223372036854775807d;
+    res = <int> d;
+    assertEquality(9223372036854775807, res);
+
+    d = 9223372036854775806.5d;
+    res = <int> d;
+    assertEquality(9223372036854775806, res);
+
+    d = -9223372036854775805.5d;
+    res = <int> d;
+    assertEquality(-9223372036854775806, res);
+
+    d = -9223372036854775808.9d;
+    int|error result = trap <int> d;
+    assertEquality(true, result is error);
+    error err = <error> result;
+    assertEquality("{ballerina}NumberConversionError", err.message());
+    assertEquality("'decimal' value '-9223372036854775808.9' cannot be converted to 'int'",
+                    checkpanic <string|error> err.detail()["message"]);
+
+    d = 9223372036854775807.5d;
+    result = trap <int> d;
+    assertEquality(true, result is error);
+    err = <error> result;
+    assertEquality("{ballerina}NumberConversionError", err.message());
+    assertEquality("'decimal' value '9223372036854775807.5' cannot be converted to 'int'",
+                    checkpanic <string|error> err.detail()["message"]);
+}
+
+function testDecimalToFloatCasting() {
+    decimal d = 0.0000000000000009e+308;
+    float f = <float> d;
+    assertEquality(9E+292, f);
+
+    d = -0.0000000000000009e+308;
+    f = <float> d;
+    assertEquality(-9E+292, f);
+
+    d = -0.0000000000000005e-308;
+    f = <float> d;
+    assertEquality(-5E-324, f);
+
+    d = 9.999999999999999999999999999999999E6001d;
+    f = <float> d;
+    assertEquality(float:Infinity, f);
+
+    d = -9.999999999999999999999999999999999E6001d;
+    f = <float> d;
+    assertEquality(-float:Infinity, f);
+}
+
+function testFloatToDecimalCasting() {
+    float f = 0.0000000000000009e+308;
+    decimal d = <decimal> f;
+    assertEquality(9E+292d, d);
+
+    f = -1.999999999e-200;
+    d = <decimal> f;
+    assertEquality(-1.999999999E-200d, d);
+}
+
 function testIntSubtypeArrayCasting() {
 
     byte[] byteArray = [1, 128, 255];

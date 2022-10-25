@@ -105,6 +105,7 @@ public class ModuleXMLNamespaceDeclarationNodeContext extends
         int cursor = context.getCursorPositionInTree();
         Token xmlnsKeyword = node.xmlnsKeyword();
         
-        return !xmlnsKeyword.isMissing() && cursor > xmlnsKeyword.textRange().endOffset();
+        return !xmlnsKeyword.isMissing() && cursor > xmlnsKeyword.textRange().endOffset()
+                && cursor <= node.semicolonToken().textRange().endOffset();
     }
 }
