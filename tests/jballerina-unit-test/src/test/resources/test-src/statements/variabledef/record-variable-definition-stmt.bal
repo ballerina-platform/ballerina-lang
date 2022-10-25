@@ -680,6 +680,41 @@ function testRecordDefinitionWithOptionalFields9() {
    assertEquality(t1.toString(), "{\"x\":1}");
 }
 
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInVarDecl() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    ReadOnlyRecord {x, y} = f1;
+    int[] & readonly rArr = x;
+    assertEquality(<int[]> [1, 2], x);
+    assertEquality(<int[]> [1, 2], rArr);
+    string str = y;
+    assertEquality("s1", y);
+    assertEquality("s1", str);
+
+    ReadOnlyRecord f2 = {x: [3], y: "s2"};
+    var {x: x2, y: y2} = f2;
+    rArr = x2;
+    assertEquality(<int[]> [3], x2);
+    assertEquality(<int[]> [3], rArr);
+    str = y2;
+    assertEquality("s2", y2);
+    assertEquality("s2", str);
+
+    readonly & record {
+        int[] a;
+        ReadOnlyRecord b;
+    } r = {a: [12, 34, 56], b: f1};
+    var {a, b} = r;
+    readonly & int[] a1 = a;
+    assertEquality(<int[]> [12, 34, 56], a1);
+    ReadOnlyRecord b1 = b;
+    assertEquality(<ReadOnlyRecord> {x: [1, 2], y: "s1"}, b1);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 const ASSERTION_ERROR_REASON = "AssertionError";

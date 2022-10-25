@@ -241,3 +241,38 @@ function testRestParameterType() returns boolean {
 //    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
 //    return (fName, married, age);
 //}
+
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    int[] & readonly x;
+    string y;
+
+    {x, y} = f1;
+    assertEquality(<int[]> [1, 2], x);
+    assertEquality("s1", y);
+
+    readonly & record {
+        int[] a;
+        ReadOnlyRecord b;
+    } r = {a: [12, 34, 56], b: f1};
+    int[] & readonly a;
+    int[] & readonly x2;
+    string y2;
+    {a, b: {x: x2, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], a);
+    assertEquality(<int[]> [1, 2], x2);
+    assertEquality("s1", y2);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
+}
