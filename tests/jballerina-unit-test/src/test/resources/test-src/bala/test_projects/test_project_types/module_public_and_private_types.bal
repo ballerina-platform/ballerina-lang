@@ -28,6 +28,10 @@ public type Zone readonly & object {
     public isolated function getInt(Civil civil) returns int;
 };
 
+public type T1 [T1];
+
+public type T2 [T2, T2, T2[], T2...];
+
 public readonly class TimeZone {
     *Zone;
 

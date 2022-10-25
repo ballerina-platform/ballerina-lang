@@ -34,5 +34,6 @@ public class PublicAndPrivateTypesTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/public_and_private_types_test.bal");
         BRunUtil.invoke(compileResult, "testModulePublicAndPrivateTypes");
+        BRunUtil.invoke(compileResult, "testRecursiveTupleTypes");
     }
 }

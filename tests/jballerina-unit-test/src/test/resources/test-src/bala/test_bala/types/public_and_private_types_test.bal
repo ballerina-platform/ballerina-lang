@@ -24,3 +24,8 @@ function testModulePublicAndPrivateTypes() {
         test:assertEquals(timeZone.getInt({year:1, month: 2, day: 3}), 6);
     }
 }
+
+function testRecursiveTupleTypes() {
+    test_module:T1? _ = ();
+    test_module:T2? _ = ();
+}
