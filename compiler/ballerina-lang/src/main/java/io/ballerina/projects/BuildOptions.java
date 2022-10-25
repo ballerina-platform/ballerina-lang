@@ -31,7 +31,8 @@ public class BuildOptions {
     private Boolean nativeImage;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache, Boolean nativeImage) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 Boolean nativeImage) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;

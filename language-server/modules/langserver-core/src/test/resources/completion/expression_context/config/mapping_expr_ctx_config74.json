@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 9,
-    "character": 8
+    "line": 11,
+    "character": 23
   },
-  "source": "expression_context/source/mapping_expr_ctx_source73.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source74.bal",
   "items": [
     {
       "label": "readonly",
@@ -15,28 +15,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar",
+      "label": "city",
       "kind": "Field",
-      "detail": "AnnotationType.bar",
+      "detail": "School.city",
       "sortText": "K",
-      "insertText": "bar: ${1:0}",
+      "insertText": "city: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foo",
+      "label": "name",
       "kind": "Field",
-      "detail": "AnnotationType.foo",
+      "detail": "School.name",
       "sortText": "K",
-      "insertText": "foo: ${1:\"\"}",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill AnnotationType Required Fields",
+      "label": "Fill School Required Fields",
       "kind": "Property",
-      "detail": "AnnotationType",
+      "detail": "School",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "foo: ${1:\"\"}",
+      "insertText": "city: ${1:\"\"},\nname: ${2:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]
