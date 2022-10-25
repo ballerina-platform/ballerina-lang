@@ -2842,7 +2842,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // global-level, object-level, record-level namespace declarations will not have
         // any interpolated content. hence the namespace URI is statically known.
-        int ownerTag = nsSymbol.owner.tag;
+        long ownerTag = nsSymbol.owner.tag;
         if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
                 (ownerTag & SymTag.RECORD) == SymTag.RECORD) {

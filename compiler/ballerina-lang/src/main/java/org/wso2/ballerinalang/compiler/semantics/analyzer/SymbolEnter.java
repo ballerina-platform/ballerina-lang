@@ -3542,7 +3542,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
     }
 
-    private BTypeSymbol createTypeSymbol(int type, SymbolEnv env) {
+    private BTypeSymbol createTypeSymbol(long type, SymbolEnv env) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
                 null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }

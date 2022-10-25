@@ -40,7 +40,7 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     public BAttachedFunction generatedInitializerFunc;
     public Scope resourcePathSegmentScope;
 
-    public BObjectTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
+    public BObjectTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type,
                              BSymbol owner, Location pos, SymbolOrigin origin) {
         super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();

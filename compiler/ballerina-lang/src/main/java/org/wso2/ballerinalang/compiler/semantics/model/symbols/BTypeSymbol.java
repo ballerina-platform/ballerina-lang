@@ -33,13 +33,13 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public boolean isTypeParamResolved;
     public BTypeSymbol typeParamTSymbol;
 
-    public BTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
         this(symTag, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
-    public BTypeSymbol(int symTag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
-                       Location pos, SymbolOrigin origin) {
+    public BTypeSymbol(long symTag, long flags, Name name, Name originalName, PackageID pkgID, BType type,
+                       BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
