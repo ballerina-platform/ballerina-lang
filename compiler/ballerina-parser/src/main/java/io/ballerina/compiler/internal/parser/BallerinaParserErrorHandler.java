@@ -2425,6 +2425,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL:
                 alternativeRules = CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL;
+                break;
             case TUPLE_MEMBER:
                 alternativeRules = TUPLE_MEMBER;
                 break;
