@@ -218,8 +218,7 @@ import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_INSERTIONS;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INVALID_NUM_STRINGS;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.*;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 
 /**
@@ -6103,11 +6102,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
         BType selectType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
         for (BType type : safeResultTypes) {
             solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes, resolvedTypes, env,
-                    data, false, memberTypes);
+                    data, false);
         }
 
         if (selectTypes.size() == 1) {
@@ -6144,12 +6142,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
-                                       SymbolEnv env, AnalyzerData data, boolean isReadonly,
-                                       LinkedHashSet<BType> memberTypes) {
+                                       SymbolEnv env, AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
-        type = Types.getReferredType(type);
+        BType type = Types.getReferredType(expType);
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
@@ -6187,12 +6184,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INTERSECTION:
                 type = ((BIntersectionType) type).effectiveType;
                 solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes,
-                        resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY), memberTypes);
+                        resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY));
                 return;
             case TypeTags.NONE:
             default:
                 // contextually expected type not given (i.e var).
-                selectType = checkExpr(selectExp, env, type, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                if (selectType != symTable.semanticError) {
+                    selectType = checkExpr(selectExp, env, type, data);
+                }  else {
+                    selectType = checkExpr(selectExp, env, data);
+                }
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
                 } else {

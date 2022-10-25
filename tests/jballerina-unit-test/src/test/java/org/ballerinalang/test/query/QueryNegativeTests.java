@@ -102,11 +102,13 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in table " +
                 "constraint type 'record {| User user; |}'", 518, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', found '(error|int)'", 520, 47);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 526, 15);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 535, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string[]'", 556, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string'", 565, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string[]'", 568, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 
