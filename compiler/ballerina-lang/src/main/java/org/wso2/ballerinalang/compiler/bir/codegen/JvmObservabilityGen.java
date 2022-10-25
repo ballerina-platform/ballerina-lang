@@ -291,14 +291,12 @@ class JvmObservabilityGen {
     private Location getDesugaredPosition(BIRBasicBlock basicBlock) {
         // First we give the priority to Instructions,
         // If no instructions are found, then we get the Terminator position
-        Location desugaredPos = basicBlock.terminator.pos;
         for (BIRNonTerminator instruction : basicBlock.instructions) {
             if (instruction.pos != null) {
-                desugaredPos = instruction.pos;
-                break;
+                return instruction.pos;
             }
         }
-        return desugaredPos;
+        return basicBlock.terminator.pos;
     }
 
     private void populatePredecessorMap(List<BIRBasicBlock> basicBlocks) {
