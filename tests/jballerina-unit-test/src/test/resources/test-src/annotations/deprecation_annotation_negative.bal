@@ -226,3 +226,34 @@ class Listener {
 service /s on new Listener() {
 
 }
+
+# The `Employee` is a user-defined record type
+#
+# + name - Employee name
+# + id - Employee id number
+# # Deprecated parameters       // warning
+# + name - deprecated
+# # Deprecated
+@deprecated
+type Employee record {|
+    @deprecated
+    string name;
+    int id;
+|};
+
+type Employee1 record {|
+    # Describe the field here
+    @deprecated                 // warning
+    string name;
+    int id;
+|};
+
+type Employee2 record {|
+    # Describe the field here
+    # # Deprecated
+    @deprecated
+    string name;
+    # Describe the field here
+    # # Deprecated              // warning
+    int id;
+|};

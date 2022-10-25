@@ -206,49 +206,40 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
                 "dimension of an array type descriptor", 32, 6);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 36, 15);
+                "dimension of an array type descriptor", 35, 17);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                37, 44);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                38, 43);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                39, 40);
+                35, 46);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 47, 17);
+                "dimension of an array type descriptor", 40, 15);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                47, 46);
+                41, 43);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                51, 46);
+                42, 40);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 55, 24);
+                "dimension of an array type descriptor", 50, 24);
+
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 59, 24);
+                "dimension of an array type descriptor", 54, 24);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                63, 41);
+                58, 41);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 63, 53);
+                "dimension of an array type descriptor", 58, 53);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                67, 14);
+                62, 14);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                70, 2);
+                65, 2);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                71, 9);
+                66, 9);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                72, 2);
+                67, 2);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                74, 5);
+                69, 5);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "inferred array size is only allowed in the first " +
-                "dimension of an array type descriptor", 75, 11);
+                "dimension of an array type descriptor", 70, 11);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                76, 5);
+                71, 5);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                77, 11);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                77, 60);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                77, 88);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                78, 36);
+                72, 36);
         Assert.assertEquals(codeAnalysisNegative.getErrorCount(), i);
     }
 }

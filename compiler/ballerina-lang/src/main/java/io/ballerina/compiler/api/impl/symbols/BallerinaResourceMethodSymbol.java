@@ -30,8 +30,8 @@ import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -47,8 +47,8 @@ import java.util.StringJoiner;
 public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol implements ResourceMethodSymbol {
 
     private static final String DOT_RESOURCE_PATH = ".";
-    private static final String PATH_PARAM = "*";
-    private static final String PATH_REST_PARAM = "**";
+    private static final String PATH_PARAM = "^";
+    private static final String PATH_REST_PARAM = "^^";
 
     private final CompilerContext context;
     private final BInvokableSymbol internalSymbol;
@@ -69,7 +69,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
             return this.resourcePath;
         }
 
-        BClassSymbol classSymbol = (BClassSymbol) this.internalSymbol.owner;
+        BObjectTypeSymbol classSymbol = (BObjectTypeSymbol) this.internalSymbol.owner;
         BResourceFunction resourceFn = getBResourceFunction(classSymbol.attachedFuncs, this.internalSymbol);
         List<Name> internalResPath = resourceFn.resourcePath;
 

@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createSchool([Grade] t) returns School {\n    return {students: []};\n}\n"
+          "newText": "\n\nfunction createSchool([Grade] t) returns School {\n    return {students: []};\n}"
         }
       ],
       "resolvable": true,

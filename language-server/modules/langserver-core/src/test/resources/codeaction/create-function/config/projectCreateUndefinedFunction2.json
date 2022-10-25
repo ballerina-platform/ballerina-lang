@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction addStudent(module1:Student student) {\n    \n}\n"
+          "newText": "\n\nfunction addStudent(module1:Student student) {\n    \n}"
         }
       ],
       "resolvable": true,

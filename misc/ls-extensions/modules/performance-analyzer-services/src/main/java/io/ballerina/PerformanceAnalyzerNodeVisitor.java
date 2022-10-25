@@ -587,7 +587,9 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
 
         this.workers.values().forEach(ParserUtil::getReducedTree);
         ParserUtil.getReducedTree(this.startNode);
-        this.workers.put(MAIN_WORKER, this.startNode);
+        if (this.startNode.getNextNode() != null) {
+            this.workers.put(MAIN_WORKER, this.startNode);
+        }
 
         HashMap<String, Object> invocationInfo = new HashMap<>();
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);

@@ -11,6 +11,7 @@ on:
       - stage-swan-lake
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
+      - native-build
       - annot-tuple-members
 
 jobs:
@@ -63,8 +64,8 @@ jobs:
     name: Build with sonarcloud scan on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    concurrency:
-      group: ${{ github.head_ref }}-ubuntu
+    concurrency: 
+      group: ${{ github.head_ref }}-sonarcloud
       cancel-in-progress: true
 
     steps:

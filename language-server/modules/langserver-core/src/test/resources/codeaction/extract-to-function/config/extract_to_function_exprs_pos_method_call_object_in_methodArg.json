@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 26,
+    "character": 18
+  },
+  "source": "extract_to_function_exprs_field_access_expr.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 1
+            },
+            "end": {
+              "line": 28,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    return 12;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 26,
+              "character": 17
+            },
+            "end": {
+              "line": 26,
+              "character": 19
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "resolvable": false
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside the method arguments in method call expression method"
+}

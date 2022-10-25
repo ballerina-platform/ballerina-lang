@@ -1,0 +1,19 @@
+{
+  "range": {
+    "start": {
+      "line": 5,
+      "character": 12
+    },
+    "end": {
+      "line": 5,
+      "character": 18
+    }
+  },
+  "source": "negative_extract_to_function_stmts_while_statement_break_statement_inside.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for break statement"
+}

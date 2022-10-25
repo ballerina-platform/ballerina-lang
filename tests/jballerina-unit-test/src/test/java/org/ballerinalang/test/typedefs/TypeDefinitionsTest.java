@@ -170,6 +170,11 @@ public class TypeDefinitionsTest {
     }
 
     @Test
+    public void testTupleWithSingletonTypes() {
+        BRunUtil.invoke(compileResult, "testTupleWithSingletonTypes");
+    }
+
+    @Test
     public void testRecordTypeResolving() {
         BRunUtil.invoke(recordFieldRes, "testRecordTypeResolving");
     }

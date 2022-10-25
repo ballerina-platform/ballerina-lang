@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction generateIndex(int intake, string name) {\n    \n}\n"
+          "newText": "\n\nfunction generateIndex(int intake, string name) {\n    \n}"
         }
       ],
       "resolvable": true,

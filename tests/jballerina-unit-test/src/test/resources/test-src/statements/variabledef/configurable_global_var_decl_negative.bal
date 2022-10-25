@@ -67,10 +67,6 @@ type Person5 record {|
 
 type Colors "Red" | "Green";
 
-// Unsupported array of table
-configurable table<Person> key(name)[] tableArr1 = ?;
-configurable (table<Person> key(name) & readonly)[] tableArr2 = ?;
-
 // Unsupported record field
 configurable Person1 person1 = ?;
 configurable Person2 person2 = ?;

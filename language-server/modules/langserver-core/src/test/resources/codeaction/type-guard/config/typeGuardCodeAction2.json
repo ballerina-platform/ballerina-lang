@@ -7,6 +7,7 @@
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -19,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "error? bar \u003d "
+          "newText": "error? bar = "
         },
         {
           "range": {
@@ -34,7 +35,16 @@
           },
           "newText": "\n    if bar is error {\n\n    }"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "typeGuard.bal",
+          63
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -1,0 +1,49 @@
+{
+  "range": {
+    "start": {
+      "line": 16,
+      "character": 8
+    },
+    "end": {
+      "line": 18,
+      "character": 29
+    }
+  },
+  "source": "extract_to_function_stmts_within_class_with_self_keyword.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 1
+            },
+            "end": {
+              "line": 21,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(Person self) {\n    int aa = self.age;\n    // self.age = 1;\n    doSomeOtherThing(aa);\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 8
+            },
+            "end": {
+              "line": 18,
+              "character": 29
+            }
+          },
+          "newText": "extracted(self);"
+        }
+      ],
+      "resolvable": false
+    }
+  ],
+  "description": "Extract to function for statements when inside a remote method"
+}

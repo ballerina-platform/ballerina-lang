@@ -56,6 +56,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CALLS_PER_CLIENT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_FIELD_UPDATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
@@ -158,14 +159,14 @@ public class JvmObjectGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, "call" + methodCount, BOBJECT_CALL, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
 
         if (methodCount != 0 && bTypesCount % MAX_CALLS_PER_CLIENT_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }
@@ -251,13 +252,13 @@ public class JvmObjectGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, getMethod, GET_OBJECT_FOR_STRING, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }

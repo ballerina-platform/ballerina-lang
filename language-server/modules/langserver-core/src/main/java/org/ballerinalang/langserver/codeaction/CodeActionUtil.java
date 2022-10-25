@@ -74,6 +74,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -488,6 +489,10 @@ public class CodeActionUtil {
                             returnText = "returns " + typeName + "|error";
                             returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                         }
+                    } else if (enclosedRetTypeDesc.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                        String returnType = enclosedRetTypeDescNode.type().toString().replaceAll("\\s+", "");
+                        returnText = "returns " + returnType + "|error";
+                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     } else {
                         // Parent function already has another return-type
                         if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
@@ -660,9 +665,11 @@ public class CodeActionUtil {
 
     private static String generateGetterFunctionBodyText(String varName, String typeName, String spaces) {
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function get%s() returns %s{ ", functionName, typeName))
+                .append(String.format("public function get%s() returns %s { ", functionName, typeName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
                 .append(String.format("return self.%s;", varName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
@@ -672,11 +679,13 @@ public class CodeActionUtil {
     private static String generateSetterFunctionBodyText(String varName, String typeName, String spaces) {
 
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, varName))
+                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
-                .append(String.format("self.%s = %s;", varName, varName))
+                .append(String.format("self.%s = %s;", varName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
         return newTextBuilder.toString();
     }
@@ -741,7 +750,8 @@ public class CodeActionUtil {
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
         for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                if (((FunctionDefinitionNode) node).functionName().text()
+                        .equals(removeQuotedIdentifier(functionName))) {
                     return true;
                 }
             }
@@ -839,6 +849,10 @@ public class CodeActionUtil {
         return action;
     }
 
+    public static String removeQuotedIdentifier(String identifier) {
+        return identifier.startsWith("'") ? identifier.substring(1) : identifier;
+    }
+
     /**
      * Returns a Resolvable code action.
      *
@@ -855,5 +869,23 @@ public class CodeActionUtil {
         action.setKind(codeActionKind);
         action.setData(data);
         return action;
+    }
+
+    /**
+     * Returns if a new line should be appended to a new text edit at module level.
+     * 
+     * @param enclosingNode Node at module level which is enclosing the cursor.
+     * @return @link{Boolean} W
+     */
+    public static boolean addNewLineAtEnd(Node enclosingNode) {
+        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
+        while (iterator.hasNext()) {
+            Node next = iterator.next();
+            if (next.textRange().length() > 0
+                    && next.lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

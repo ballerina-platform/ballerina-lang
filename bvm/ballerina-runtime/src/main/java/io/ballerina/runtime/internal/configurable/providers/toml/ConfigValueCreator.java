@@ -176,12 +176,13 @@ public class ConfigValueCreator {
                         TypeUtils.getReferredType(arrayType.getElementType()));
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return getMapValueArray(tomlValue, arrayType, elementType);
+            case TypeTags.TABLE_TAG:
+                return getStructuredValueArray(tomlValue, arrayType, elementType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.JSON_TAG:
                 if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
-                    return getMapValueArray(tomlValue, arrayType, elementType);
+                    return getStructuredValueArray(tomlValue, arrayType, elementType);
                 } else {
                     tomlValue = getValueFromKeyValueNode(tomlValue);
                     return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
@@ -191,7 +192,7 @@ public class ConfigValueCreator {
         }
     }
 
-    private BArray getMapValueArray(TomlNode tomlValue, ArrayType arrayType, Type elementType) {
+    private BArray getStructuredValueArray(TomlNode tomlValue, ArrayType arrayType, Type elementType) {
         ListInitialValueEntry.ExpressionEntry[] entries = getListEntries(tomlValue, elementType);
         return new ArrayValueImpl(arrayType, entries);
     }
@@ -369,15 +370,19 @@ public class ConfigValueCreator {
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
-        List<Type> convertibleTypes = new ArrayList<>();
+        Type convertibleType = null;
         for (Type type : unionType.getMemberTypes()) {
-            convertibleTypes.addAll(TypeConverter.getConvertibleTypes(balValue, type, "", false,
-                    new ArrayList<>(), new ArrayList<>(), false, false));
+            convertibleType = TypeConverter.getConvertibleType(balValue, type, null, false, new ArrayList<>(),
+                    new ArrayList<>(), false);
+            if (convertibleType != null) {
+                break;
+            }
         }
-        Type type = convertibleTypes.get(0);
-        if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
+
+        if (isSimpleType(convertibleType.getTag()) || convertibleType.getTag() == TypeTags.FINITE_TYPE_TAG ||
+                isXMLType(convertibleType)) {
             return balValue;
         }
-        return createStructuredValue(tomlValue, type);
+        return createStructuredValue(tomlValue, convertibleType);
     }
 }

@@ -28,7 +28,8 @@ function test1() returns [string, string] {
     Person bob = {fname:"bob", lname:"white"};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    string x = bob.getName(bob.fname, bob.lname);
-    string y = tom.getName(tom.fname, tom);
+    function (string, string) returns (string) fp = <function (string, string) returns (string)>tom["getName"];
+    string y = fp(tom.fname, tom);
+    string x = bob.fname;
     return [x, y];
 }

@@ -120,7 +120,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found 'string'", 54, 23);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'string'", 58, 23);
+                "incompatible types: expected 'never?', found 'string'", 58, 23);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 62, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -132,7 +132,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found '()'", 92, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'int'", 101, 38);
+                "incompatible types: expected 'never?', found 'int'", 101, 38);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found 'int'", 108, 14);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -209,6 +209,14 @@ public class NeverTypeTest {
                 "'record {| |} & readonly', found 'record {| int x; never?...; |}'", 258, 25);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
                 "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 41);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 264, 1);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 267, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 268, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' or " +
+                "equivalent to type 'never'", 272, 1);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

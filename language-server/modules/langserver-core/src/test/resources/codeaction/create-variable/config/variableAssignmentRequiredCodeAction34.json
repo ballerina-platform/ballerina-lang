@@ -6,7 +6,7 @@
   "source": "createVariable5.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027record {|string firstName; string lastName; string deptAccess; int age;|}[]\u0027",
+      "title": "Create variable with 'record {|string firstName; string lastName; string deptAccess; int age;|}[]'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "record {|string firstName; string lastName; string deptAccess; int age;|}[] listResult \u003d "
+          "newText": "record {|string firstName; string lastName; string deptAccess; int age;|}[] listResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable5.bal",
+          1505
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
