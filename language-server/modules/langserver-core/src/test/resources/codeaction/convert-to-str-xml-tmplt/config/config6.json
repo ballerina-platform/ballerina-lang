@@ -3,7 +3,7 @@
     "line": 19,
     "character": 15
   },
-  "description": "Test variable declaration of a row template when expecting a int",
+  "description": "Test variable declaration of a raw template when expecting a int",
   "source": "source.bal",
   "expected": [
     {

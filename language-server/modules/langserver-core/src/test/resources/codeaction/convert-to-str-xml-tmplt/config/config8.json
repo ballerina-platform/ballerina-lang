@@ -25,5 +25,5 @@
       ]
     }
   ],
-  "description": "Test const declaration which expecting a string type"
+  "description": "Test const declaration when expecting a string type"
 }
