@@ -45,8 +45,8 @@ public class QueryExpressionTest {
         return new Object[][]{
                 {22, 28, TypeDescKind.INT},
                 {30, 9, TypeDescKind.STRING},
-                {35, 9, TypeDescKind.XML},
-                {40, 24, TypeDescKind.STRING},
+                {35, 9, TypeDescKind.UNION},
+                {40, 24, TypeDescKind.UNION},
         };
     }
 }
