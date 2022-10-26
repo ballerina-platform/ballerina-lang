@@ -176,7 +176,7 @@ public class CreateExecutableTask implements Task {
                     out.println();
                 }
             } catch (IOException e) {
-                throw createLauncherException("unable to create native directory:" + e.getMessage());
+                throw createLauncherException("unable to create native image:" + e.getMessage());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
