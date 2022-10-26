@@ -565,7 +565,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
         }
       },
-      "sortText": "DC",
+      "sortText": "DZ",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
@@ -760,6 +760,30 @@
       "sortText": "DR",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "DR",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

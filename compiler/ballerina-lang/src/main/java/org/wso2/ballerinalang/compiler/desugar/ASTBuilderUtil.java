@@ -71,6 +71,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1017,5 +1021,34 @@ public class ASTBuilderUtil {
         identifier.setValue(varName);
         captureBindingPattern.identifier = identifier;
         return captureBindingPattern;
+    }
+
+    static BLangReQuantifier createEmptyQuantifier(Location pos, BType exprType, BType valueType) {
+        BLangReQuantifier quantifier = (BLangReQuantifier) TreeBuilder.createReQuantifierNode();
+        quantifier.quantifier = ASTBuilderUtil.createLiteral(pos, valueType, "");
+        quantifier.setBType(exprType);
+        return quantifier;
+    }
+
+    static BLangReCharSet createEmptyCharSet(BType exprType) {
+        BLangReCharSet charSet = (BLangReCharSet) TreeBuilder.createReCharSetNode();
+        charSet.setBType(exprType);
+        return charSet;
+    }
+
+    static BLangReFlagExpression createEmptyFlagExpression(Location pos, BType exprType, BType valueType) {
+        BLangReFlagExpression flagExpr = (BLangReFlagExpression) TreeBuilder.createReFlagExpressionNode();
+        flagExpr.questionMark = ASTBuilderUtil.createLiteral(pos, valueType, "");
+        flagExpr.flagsOnOff = createEmptyFlagOnOff(pos, exprType, valueType);
+        flagExpr.colon = createLiteral(pos, valueType, "");
+        flagExpr.setBType(exprType);
+        return flagExpr;
+    }
+
+    static BLangReFlagsOnOff createEmptyFlagOnOff(Location pos, BType exprType, BType valueType) {
+        BLangReFlagsOnOff flagExpr = (BLangReFlagsOnOff) TreeBuilder.createReFlagsOnOffNode();
+        flagExpr.flags = ASTBuilderUtil.createLiteral(pos, valueType, "");
+        flagExpr.setBType(exprType);
+        return flagExpr;
     }
 }

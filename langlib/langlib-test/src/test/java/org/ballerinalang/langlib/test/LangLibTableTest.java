@@ -445,10 +445,22 @@ public class LangLibTableTest {
         Assert.assertTrue((Boolean) returns);
     }
 
-    @Test
-    public void testRemoveThenIterate() {
-        Object returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
+    @Test(dataProvider = "functionsToTestRemoveAndIterate")
+    public void testRemoveAndIterateTables(String function) {
+        Object returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue((Boolean) returns);
+    }
+
+    @DataProvider
+    public Object[] functionsToTestRemoveAndIterate() {
+        return new String[]{
+                "testRemoveThenIterate",
+                "testRemoveEmptyThenIterate",
+                "testRemoveEmptyAddThenIterate",
+                "testRemoveEmptyIterateThenAdd",
+                "testRemoveEmptyIterateThenAddQueryExpr",
+                "testRemoveEmptyIterateThenAddQueryAction"
+        };
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

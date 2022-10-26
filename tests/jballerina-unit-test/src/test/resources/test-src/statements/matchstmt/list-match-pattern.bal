@@ -1438,7 +1438,11 @@ function listMatchPattern45(T14|T15 t, anydata a) returns string? {
 
 public type T16 [string, int];
 
-public function testListMatchPattern46() returns string {
+public function testListMatchPattern46() {
+    assertEquals(listMatchPattern46(), "string");
+}
+
+public function listMatchPattern46() returns string {
     T16 a = ["string", 1];
     string b;
     match a {
@@ -1447,6 +1451,27 @@ public function testListMatchPattern46() returns string {
         }
     }
     return b;
+}
+
+type Data string|Data[];
+type Data2 ["call", string, Data...];
+type Data3 ["branch", string];
+type Data4 Data2|Data3;
+
+public function testListMatchPattern47() {
+    assertEquals(listMatchPattern47(["branch", "b.target"]), "match 2");
+    assertEquals(listMatchPattern47(["call", "add", "1", "2"]), "match 1");
+}
+
+function listMatchPattern47(Data4 d) returns string {
+    match d {
+        ["call", "add", ...var operands] => {
+            return "match 1";
+        }
+        _ => {
+            return "match 2";
+        }
+    }
 }
 
 function assertEquals(anydata expected, anydata actual) {

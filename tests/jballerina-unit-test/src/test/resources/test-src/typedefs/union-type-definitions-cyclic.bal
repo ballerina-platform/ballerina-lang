@@ -150,7 +150,7 @@ public function testComplexCyclicUnion() {
      string y = "";
      string mapVal = "";
      string objVal = "";
-     record { H a; float x; } re = { a : "r", x: 0};
+     record { H a; float x; } res = { a : "r", x: 0};
 
      if (array is H[]) {
         x = <int> array[0];
@@ -163,13 +163,13 @@ public function testComplexCyclicUnion() {
 
         var n = array[3];
         if (n is record{}) {
-            re = <record { H a; float x; }> array[3];
+            res = <record { H a; float x; }> array[3];
         }
      }
      assert(x, 1);
      assert(y, "hello");
      assert(mapVal, "hello");
-     assert(re.a, "rec2");
+     assert(res.a, "rec2");
 }
 
 type I H;

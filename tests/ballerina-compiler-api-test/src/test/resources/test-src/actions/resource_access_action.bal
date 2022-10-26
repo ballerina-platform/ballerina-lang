@@ -38,7 +38,9 @@ client class Foo {
 
 public function main() {
    Foo fooClient = new();
-   Person|error wVal = fooClient->/foo/bar/["3"](1, 2);
+   Person|error wVal = fooClient->/foo/bar/["3"](x, 2);
    int xVal = fooClient->/foo/["3"](1, 2);
    string yVal = fooClient->/bar/["3"].post("myname");
 }
+
+const x = 1;

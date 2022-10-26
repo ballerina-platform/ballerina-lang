@@ -77,7 +77,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private static final String EXTRACTED_PREFIX = "extracted";
 
     private static final Set<SyntaxKind> unSupportedModuleLevelSyntaxKinds = Set.of(SyntaxKind.CONST_DECLARATION,
-            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
+            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION, 
+            SyntaxKind.MODULE_CLIENT_DECLARATION);
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
@@ -371,7 +372,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
 
         String functionName = getFunctionName(context, matchedCodeActionNode);
-        String function = getFunction(matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
+        String function = getFunction(context, matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
                 argsForExtractFunction);
 
         String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
@@ -413,9 +414,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
-    private String getFunction(NonTerminalNode matchedNode, boolean newLineEnd, TypeSymbol typeSymbol,
-                               String functionName, List<String> args) {
-        String returnsClause = String.format("returns %s", typeSymbol.signature());
+    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd, 
+                               TypeSymbol typeSymbol, String functionName, List<String> args) {
+        String returnsClause = 
+                String.format("returns %s", FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature()));
         String returnStatement;
 
         if (matchedNode.kind() == SyntaxKind.BRACED_EXPRESSION) {
@@ -545,17 +547,19 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          *   5.1. with self keyword inside its expression
          *   5.2. as varRef() in assignment statement
          *   5.3. as lhsExpression() in compound assignment statement
+         * 6. a client declaration (module client declaration is covered inside unSupportedModuleLevelSyntaxKinds)
          **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
                 && (nodeKind != SyntaxKind.STRING_LITERAL || parentKind != SyntaxKind.SPECIFIC_FIELD)
                 && (nodeKind != SyntaxKind.QUALIFIED_NAME_REFERENCE || parentKind != SyntaxKind.FUNCTION_CALL)
-                && nodeKind != SyntaxKind.FIELD_ACCESS
+                && (nodeKind != SyntaxKind.FIELD_ACCESS
                 || (!((FieldAccessExpressionNode) node).expression().toSourceCode().strip().equals(SymbolUtil.SELF_KW)
                 && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT
                 || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
                 && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
-                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node)));
+                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node))))
+                && parentKind != SyntaxKind.CLIENT_DECLARATION;
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {

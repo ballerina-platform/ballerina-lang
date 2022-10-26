@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -275,5 +276,34 @@ public abstract class AbstractLexer {
      */
     protected static boolean isUnicodePatternWhiteSpaceChar(int c) {
         return (0x200E == c || 0x200F == c || 0x2028 == c || 0x2029 == c);
+    }
+
+    /**
+     * Process numeric escape.
+     * <p>
+     * <code>NumericEscape := \ u { CodePoint }</code>
+     */
+    protected void processNumericEscape() {
+        // Process '\ u {'
+        this.reader.advance(3);
+
+        // Process code-point
+        if (!isHexDigit(this.reader.peek())) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(this.reader.peek())) {
+            reader.advance();
+        }
+
+        // Process close brace
+        if (this.reader.peek() != LexerTerminals.CLOSE_BRACE) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
+            return;
+        }
+
+        this.reader.advance();
     }
 }

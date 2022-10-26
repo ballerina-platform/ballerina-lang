@@ -1015,6 +1015,42 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STClientDeclarationNode transform(
+            STClientDeclarationNode clientDeclarationNode) {
+        STNode annotations = modifyNode(clientDeclarationNode.annotations);
+        STNode clientKeyword = modifyNode(clientDeclarationNode.clientKeyword);
+        STNode clientUri = modifyNode(clientDeclarationNode.clientUri);
+        STNode asKeyword = modifyNode(clientDeclarationNode.asKeyword);
+        STNode clientPrefix = modifyNode(clientDeclarationNode.clientPrefix);
+        STNode semicolonToken = modifyNode(clientDeclarationNode.semicolonToken);
+        return clientDeclarationNode.modify(
+                annotations,
+                clientKeyword,
+                clientUri,
+                asKeyword,
+                clientPrefix,
+                semicolonToken);
+    }
+
+    @Override
+    public STModuleClientDeclarationNode transform(
+            STModuleClientDeclarationNode moduleClientDeclarationNode) {
+        STNode annotations = modifyNode(moduleClientDeclarationNode.annotations);
+        STNode clientKeyword = modifyNode(moduleClientDeclarationNode.clientKeyword);
+        STNode clientUri = modifyNode(moduleClientDeclarationNode.clientUri);
+        STNode asKeyword = modifyNode(moduleClientDeclarationNode.asKeyword);
+        STNode clientPrefix = modifyNode(moduleClientDeclarationNode.clientPrefix);
+        STNode semicolonToken = modifyNode(moduleClientDeclarationNode.semicolonToken);
+        return moduleClientDeclarationNode.modify(
+                annotations,
+                clientKeyword,
+                clientUri,
+                asKeyword,
+                clientPrefix,
+                semicolonToken);
+    }
+
+    @Override
     public STFunctionBodyBlockNode transform(
             STFunctionBodyBlockNode functionBodyBlockNode) {
         STNode openBraceToken = modifyNode(functionBodyBlockNode.openBraceToken);
@@ -2629,6 +2665,246 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 ellipsisToken,
                 expression,
                 closeBracketToken);
+    }
+
+    @Override
+    public STReSequenceNode transform(
+            STReSequenceNode reSequenceNode) {
+        STNode reTerm = modifyNode(reSequenceNode.reTerm);
+        return reSequenceNode.modify(
+                reTerm);
+    }
+
+    @Override
+    public STReAtomQuantifierNode transform(
+            STReAtomQuantifierNode reAtomQuantifierNode) {
+        STNode reAtom = modifyNode(reAtomQuantifierNode.reAtom);
+        STNode reQuantifier = modifyNode(reAtomQuantifierNode.reQuantifier);
+        return reAtomQuantifierNode.modify(
+                reAtom,
+                reQuantifier);
+    }
+
+    @Override
+    public STReAtomCharOrEscapeNode transform(
+            STReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        STNode reAtomCharOrEscape = modifyNode(reAtomCharOrEscapeNode.reAtomCharOrEscape);
+        return reAtomCharOrEscapeNode.modify(
+                reAtomCharOrEscape);
+    }
+
+    @Override
+    public STReQuoteEscapeNode transform(
+            STReQuoteEscapeNode reQuoteEscapeNode) {
+        STNode slashToken = modifyNode(reQuoteEscapeNode.slashToken);
+        STNode reSyntaxChar = modifyNode(reQuoteEscapeNode.reSyntaxChar);
+        return reQuoteEscapeNode.modify(
+                slashToken,
+                reSyntaxChar);
+    }
+
+    @Override
+    public STReSimpleCharClassEscapeNode transform(
+            STReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        STNode slashToken = modifyNode(reSimpleCharClassEscapeNode.slashToken);
+        STNode reSimpleCharClassCode = modifyNode(reSimpleCharClassEscapeNode.reSimpleCharClassCode);
+        return reSimpleCharClassEscapeNode.modify(
+                slashToken,
+                reSimpleCharClassCode);
+    }
+
+    @Override
+    public STReUnicodePropertyEscapeNode transform(
+            STReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        STNode slashToken = modifyNode(reUnicodePropertyEscapeNode.slashToken);
+        STNode property = modifyNode(reUnicodePropertyEscapeNode.property);
+        STNode openBraceToken = modifyNode(reUnicodePropertyEscapeNode.openBraceToken);
+        STNode reUnicodeProperty = modifyNode(reUnicodePropertyEscapeNode.reUnicodeProperty);
+        STNode closeBraceToken = modifyNode(reUnicodePropertyEscapeNode.closeBraceToken);
+        return reUnicodePropertyEscapeNode.modify(
+                slashToken,
+                property,
+                openBraceToken,
+                reUnicodeProperty,
+                closeBraceToken);
+    }
+
+    @Override
+    public STReUnicodeScriptNode transform(
+            STReUnicodeScriptNode reUnicodeScriptNode) {
+        STNode scriptStart = modifyNode(reUnicodeScriptNode.scriptStart);
+        STNode reUnicodePropertyValue = modifyNode(reUnicodeScriptNode.reUnicodePropertyValue);
+        return reUnicodeScriptNode.modify(
+                scriptStart,
+                reUnicodePropertyValue);
+    }
+
+    @Override
+    public STReUnicodeGeneralCategoryNode transform(
+            STReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        STNode categoryStart = modifyNode(reUnicodeGeneralCategoryNode.categoryStart);
+        STNode reUnicodeGeneralCategoryName = modifyNode(reUnicodeGeneralCategoryNode.reUnicodeGeneralCategoryName);
+        return reUnicodeGeneralCategoryNode.modify(
+                categoryStart,
+                reUnicodeGeneralCategoryName);
+    }
+
+    @Override
+    public STReCharacterClassNode transform(
+            STReCharacterClassNode reCharacterClassNode) {
+        STNode openBracket = modifyNode(reCharacterClassNode.openBracket);
+        STNode negation = modifyNode(reCharacterClassNode.negation);
+        STNode reCharSet = modifyNode(reCharacterClassNode.reCharSet);
+        STNode closeBracket = modifyNode(reCharacterClassNode.closeBracket);
+        return reCharacterClassNode.modify(
+                openBracket,
+                negation,
+                reCharSet,
+                closeBracket);
+    }
+
+    @Override
+    public STReCharSetRangeWithReCharSetNode transform(
+            STReCharSetRangeWithReCharSetNode reCharSetRangeWithReCharSetNode) {
+        STNode reCharSetRange = modifyNode(reCharSetRangeWithReCharSetNode.reCharSetRange);
+        STNode reCharSet = modifyNode(reCharSetRangeWithReCharSetNode.reCharSet);
+        return reCharSetRangeWithReCharSetNode.modify(
+                reCharSetRange,
+                reCharSet);
+    }
+
+    @Override
+    public STReCharSetRangeNode transform(
+            STReCharSetRangeNode reCharSetRangeNode) {
+        STNode lhsReCharSetAtom = modifyNode(reCharSetRangeNode.lhsReCharSetAtom);
+        STNode minusToken = modifyNode(reCharSetRangeNode.minusToken);
+        STNode rhsReCharSetAtom = modifyNode(reCharSetRangeNode.rhsReCharSetAtom);
+        return reCharSetRangeNode.modify(
+                lhsReCharSetAtom,
+                minusToken,
+                rhsReCharSetAtom);
+    }
+
+    @Override
+    public STReCharSetAtomWithReCharSetNoDashNode transform(
+            STReCharSetAtomWithReCharSetNoDashNode reCharSetAtomWithReCharSetNoDashNode) {
+        STNode reCharSetAtom = modifyNode(reCharSetAtomWithReCharSetNoDashNode.reCharSetAtom);
+        STNode reCharSetNoDash = modifyNode(reCharSetAtomWithReCharSetNoDashNode.reCharSetNoDash);
+        return reCharSetAtomWithReCharSetNoDashNode.modify(
+                reCharSetAtom,
+                reCharSetNoDash);
+    }
+
+    @Override
+    public STReCharSetRangeNoDashWithReCharSetNode transform(
+            STReCharSetRangeNoDashWithReCharSetNode reCharSetRangeNoDashWithReCharSetNode) {
+        STNode reCharSetRangeNoDash = modifyNode(reCharSetRangeNoDashWithReCharSetNode.reCharSetRangeNoDash);
+        STNode reCharSet = modifyNode(reCharSetRangeNoDashWithReCharSetNode.reCharSet);
+        return reCharSetRangeNoDashWithReCharSetNode.modify(
+                reCharSetRangeNoDash,
+                reCharSet);
+    }
+
+    @Override
+    public STReCharSetRangeNoDashNode transform(
+            STReCharSetRangeNoDashNode reCharSetRangeNoDashNode) {
+        STNode reCharSetAtomNoDash = modifyNode(reCharSetRangeNoDashNode.reCharSetAtomNoDash);
+        STNode minusToken = modifyNode(reCharSetRangeNoDashNode.minusToken);
+        STNode reCharSetAtom = modifyNode(reCharSetRangeNoDashNode.reCharSetAtom);
+        return reCharSetRangeNoDashNode.modify(
+                reCharSetAtomNoDash,
+                minusToken,
+                reCharSetAtom);
+    }
+
+    @Override
+    public STReCharSetAtomNoDashWithReCharSetNoDashNode transform(
+            STReCharSetAtomNoDashWithReCharSetNoDashNode reCharSetAtomNoDashWithReCharSetNoDashNode) {
+        STNode reCharSetAtomNoDash = modifyNode(reCharSetAtomNoDashWithReCharSetNoDashNode.reCharSetAtomNoDash);
+        STNode reCharSetNoDash = modifyNode(reCharSetAtomNoDashWithReCharSetNoDashNode.reCharSetNoDash);
+        return reCharSetAtomNoDashWithReCharSetNoDashNode.modify(
+                reCharSetAtomNoDash,
+                reCharSetNoDash);
+    }
+
+    @Override
+    public STReCapturingGroupsNode transform(
+            STReCapturingGroupsNode reCapturingGroupsNode) {
+        STNode openParenthesis = modifyNode(reCapturingGroupsNode.openParenthesis);
+        STNode reFlagExpression = modifyNode(reCapturingGroupsNode.reFlagExpression);
+        STNode reSequences = modifyNode(reCapturingGroupsNode.reSequences);
+        STNode closeParenthesis = modifyNode(reCapturingGroupsNode.closeParenthesis);
+        return reCapturingGroupsNode.modify(
+                openParenthesis,
+                reFlagExpression,
+                reSequences,
+                closeParenthesis);
+    }
+
+    @Override
+    public STReFlagExpressionNode transform(
+            STReFlagExpressionNode reFlagExpressionNode) {
+        STNode questionMark = modifyNode(reFlagExpressionNode.questionMark);
+        STNode reFlagsOnOff = modifyNode(reFlagExpressionNode.reFlagsOnOff);
+        STNode colon = modifyNode(reFlagExpressionNode.colon);
+        return reFlagExpressionNode.modify(
+                questionMark,
+                reFlagsOnOff,
+                colon);
+    }
+
+    @Override
+    public STReFlagsOnOffNode transform(
+            STReFlagsOnOffNode reFlagsOnOffNode) {
+        STNode lhsReFlags = modifyNode(reFlagsOnOffNode.lhsReFlags);
+        STNode minusToken = modifyNode(reFlagsOnOffNode.minusToken);
+        STNode rhsReFlags = modifyNode(reFlagsOnOffNode.rhsReFlags);
+        return reFlagsOnOffNode.modify(
+                lhsReFlags,
+                minusToken,
+                rhsReFlags);
+    }
+
+    @Override
+    public STReFlagsNode transform(
+            STReFlagsNode reFlagsNode) {
+        STNode reFlag = modifyNode(reFlagsNode.reFlag);
+        return reFlagsNode.modify(
+                reFlag);
+    }
+
+    @Override
+    public STReAssertionNode transform(
+            STReAssertionNode reAssertionNode) {
+        STNode reAssertion = modifyNode(reAssertionNode.reAssertion);
+        return reAssertionNode.modify(
+                reAssertion);
+    }
+
+    @Override
+    public STReQuantifierNode transform(
+            STReQuantifierNode reQuantifierNode) {
+        STNode reBaseQuantifier = modifyNode(reQuantifierNode.reBaseQuantifier);
+        STNode nonGreedyChar = modifyNode(reQuantifierNode.nonGreedyChar);
+        return reQuantifierNode.modify(
+                reBaseQuantifier,
+                nonGreedyChar);
+    }
+
+    @Override
+    public STReBracedQuantifierNode transform(
+            STReBracedQuantifierNode reBracedQuantifierNode) {
+        STNode openBraceToken = modifyNode(reBracedQuantifierNode.openBraceToken);
+        STNode leastTimesMatchedDigit = modifyNode(reBracedQuantifierNode.leastTimesMatchedDigit);
+        STNode commaToken = modifyNode(reBracedQuantifierNode.commaToken);
+        STNode mostTimesMatchedDigit = modifyNode(reBracedQuantifierNode.mostTimesMatchedDigit);
+        STNode closeBraceToken = modifyNode(reBracedQuantifierNode.closeBraceToken);
+        return reBracedQuantifierNode.modify(
+                openBraceToken,
+                leastTimesMatchedDigit,
+                commaToken,
+                mostTimesMatchedDigit,
+                closeBraceToken);
     }
 
     // Tokens

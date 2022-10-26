@@ -556,12 +556,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "code \u003d ...",
+      "label": "code = ...",
       "kind": "Snippet",
-      "detail": "code \u003d 0",
+      "detail": "code = 0",
       "sortText": "R",
       "filterText": "code",
-      "insertText": "code \u003d ${1:0}",
+      "insertText": "code = ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -703,6 +703,30 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }
