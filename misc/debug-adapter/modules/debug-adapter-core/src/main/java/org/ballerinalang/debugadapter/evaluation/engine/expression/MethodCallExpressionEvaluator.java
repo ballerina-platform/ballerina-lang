@@ -233,9 +233,8 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         }
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
-        FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
         NodeBasedArgProcessor argProcessor = new NodeBasedArgProcessor(context, methodName, langLibMethod
-                .getJDIMethodRef(), functionSignature);
+                .getJDIMethodRef(), langLibFunctionDef);
         List<Value> orderedArgsList = argProcessor.process(argEvaluators);
         langLibMethod.setArgValues(orderedArgsList);
         return langLibMethod.invokeSafely();
