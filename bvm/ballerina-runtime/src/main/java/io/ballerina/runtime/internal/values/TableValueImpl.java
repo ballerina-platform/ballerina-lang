@@ -496,7 +496,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         @Override
         public boolean hasNext() {
-           return cursor < noOfAddedEntries;
+           return cursor < noOfAddedEntries && values.size() != 0;
         }
     }
 

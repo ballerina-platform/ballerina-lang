@@ -18,7 +18,11 @@
 
 package org.ballerinalang.testerina.utils;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -75,5 +79,39 @@ public class RuntimeApi {
         return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
                 ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
                 errorDetails);
+    }
+
+    public static BString callPlayWithArgs(Environment env, BObject object, BString bString) {
+        Future future = env.markAsync();
+        env.getRuntime().invokeMethodAsyncConcurrently(object, "play", "play", null,
+                new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        future.complete(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        future.complete(error);
+                    }
+                }, null, PredefinedTypes.TYPE_STRING, bString, true);
+        return null;
+    }
+
+    public static BString callPlayWithoutArgs(Environment env, BObject object) {
+        Future future = env.markAsync();
+        env.getRuntime().invokeMethodAsyncConcurrently(object, "play", "play", null,
+                new Callback() {
+                    @Override
+                    public void notifySuccess(Object result) {
+                        future.complete(result);
+                    }
+
+                    @Override
+                    public void notifyFailure(BError error) {
+                        future.complete(error);
+                    }
+                }, null, PredefinedTypes.TYPE_STRING, null, false);
+        return null;
     }
 }

@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 3,
+      "character": 30
+    },
+    "end": {
+      "line": 3,
+      "character": 62
+    }
+  },
+  "source": "extractToVariableInMappingConstructor2.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 4
+            }
+          },
+          "newText": "module1:TestRecord2 var1 = {rec2Field1: 10, rec3Field2: \"\"};\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 30
+            },
+            "end": {
+              "line": 3,
+              "character": 62
+            }
+          },
+          "newText": "var1"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

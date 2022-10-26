@@ -1,6 +1,6 @@
 import ballerina/iox;
 import ballerina/httpx;
-import ballerina/log;
+import ballerina/logx;
 import ballerina/test;
 
 // ** Service **
