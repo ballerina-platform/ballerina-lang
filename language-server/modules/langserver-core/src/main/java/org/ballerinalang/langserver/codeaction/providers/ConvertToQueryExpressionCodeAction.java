@@ -18,10 +18,13 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -40,7 +43,6 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
@@ -89,10 +91,9 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
         }
 
         LhsRhsSymbolInfo symbolInfo = optSymbolInfo.get();
-        Symbol lhsSymbol = symbolInfo.lhsSymbol;
         Symbol rhsSymbol = symbolInfo.rhsSymbol;
-        Optional<TypeSymbol> rhsType = SymbolUtil.getTypeDescriptor(rhsSymbol);
-        Optional<TypeSymbol> lhsType = SymbolUtil.getTypeDescriptor(lhsSymbol);
+        Optional<TypeSymbol> rhsType = Optional.ofNullable(symbolInfo.rhsType);
+        Optional<TypeSymbol> lhsType = Optional.ofNullable(symbolInfo.lhsType);
 
         if (rhsType.isEmpty()
                 || lhsType.isEmpty()
@@ -152,7 +153,7 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
 
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(range, queryExpr));
-        CodeAction codeAction = CodeActionUtil.createCodeAction(TITLE, 
+        CodeAction codeAction = CodeActionUtil.createCodeAction(TITLE,
                 edits, context.fileUri(), CodeActionKind.RefactorRewrite);
         return List.of(codeAction);
     }
@@ -167,8 +168,12 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
     }
 
     private Optional<LhsRhsSymbolInfo> getLhsAndRhsSymbolInfo(NonTerminalNode matchedNode, CodeActionContext context) {
-        Optional<Symbol> rhsSymbol = Optional.empty();
+        Optional<Symbol> rhsSymbol;
         Optional<Symbol> lhsSymbol = Optional.empty();
+
+        Optional<TypeSymbol> rhsType;
+        Optional<TypeSymbol> lhsType = Optional.empty();
+
         NonTerminalNode rhsNode = null;
         Node lhsNode = null;
 
@@ -193,27 +198,39 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                 lhsSymbol = semanticModel.symbol(lhsNode)
                         .filter(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD
                                 || symbol.kind() == SymbolKind.RECORD_FIELD);
+                lhsType = lhsSymbol
+                        .map(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD ?
+                                ((ClassFieldSymbol) symbol).typeDescriptor()
+                                : ((RecordFieldSymbol) symbol).typeDescriptor());
             } else {
                 lhsNode = node.varRef();
-                lhsSymbol = semanticModel.symbol(lhsNode).filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+                lhsSymbol = semanticModel.symbol(lhsNode)
+                        .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+                lhsType = lhsSymbol
+                        .map(symbol -> ((VariableSymbol) symbol).typeDescriptor());
             }
-            rhsSymbol = semanticModel.symbol(node.expression());
             rhsNode = node.expression();
         } else if (matchedNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
             SpecificFieldNode node = (SpecificFieldNode) matchedNode;
             lhsNode = node.fieldName();
+            rhsNode = node.valueExpr().get();
             lhsSymbol = semanticModel.symbol(lhsNode)
                     .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
-            rhsSymbol = semanticModel.symbol(node.valueExpr().get());
-            rhsNode = node.valueExpr().get();
+            lhsType = lhsSymbol
+                    .map(symbol -> ((RecordFieldSymbol) symbol).typeDescriptor());
+
         }
 
-        if (rhsSymbol.isEmpty() || lhsSymbol.isEmpty()
+        rhsSymbol = semanticModel.symbol(rhsNode);
+        rhsType = semanticModel.typeOf(rhsNode);
+
+        if (rhsSymbol.isEmpty() || lhsSymbol.isEmpty() || lhsType.isEmpty() || rhsType.isEmpty()
                 || rhsNode == null
                 || rhsSymbol.get().kind() != SymbolKind.VARIABLE && rhsSymbol.get().kind() != SymbolKind.PARAMETER) {
             return Optional.empty();
         }
-        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(), rhsNode, lhsNode);
+        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(),
+                lhsType.get(), rhsType.get(), rhsNode, lhsNode);
         return Optional.of(nodeInfo);
     }
 
@@ -221,12 +238,18 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
 
         private final Symbol lhsSymbol;
         private final Symbol rhsSymbol;
+
+        private final TypeSymbol lhsType;
+        private final TypeSymbol rhsType;
         private final NonTerminalNode rhsNode;
         private final Node lhsNode;
 
-        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, NonTerminalNode rhsNode, Node lhsNode) {
+        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, TypeSymbol lhsType, TypeSymbol rhsType,
+                                NonTerminalNode rhsNode, Node lhsNode) {
             this.lhsSymbol = lhsSymbol;
             this.rhsSymbol = rhsSymbol;
+            this.lhsType = lhsType;
+            this.rhsType = rhsType;
             this.rhsNode = rhsNode;
             this.lhsNode = lhsNode;
         }
