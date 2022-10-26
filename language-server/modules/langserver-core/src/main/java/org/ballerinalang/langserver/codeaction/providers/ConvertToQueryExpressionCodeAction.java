@@ -75,15 +75,13 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
-        return CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
+        return CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode())
+                && context.currentSemanticModel().isPresent();
     }
 
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
-        if (context.currentSemanticModel().isEmpty()) {
-            return Collections.emptyList();
-        }
 
         Optional<LhsRhsSymbolInfo> optSymbolInfo = getLhsAndRhsSymbolInfo(matchedNode, context);
         if (optSymbolInfo.isEmpty()) {
@@ -191,9 +189,9 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
             // There can be 2 types here: Variable assignments and field access expressions.
             // 1. list = otherList;
             // 2. obj.list = otherList;
-            AssignmentStatementNode node = (AssignmentStatementNode) matchedNode;
-            if (node.varRef().kind() == SyntaxKind.FIELD_ACCESS) {
-                FieldAccessExpressionNode exprNode = (FieldAccessExpressionNode) node.varRef();
+            AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) matchedNode;
+            if (assignmentStatementNode.varRef().kind() == SyntaxKind.FIELD_ACCESS) {
+                FieldAccessExpressionNode exprNode = (FieldAccessExpressionNode) assignmentStatementNode.varRef();
                 lhsNode = exprNode.fieldName();
                 lhsSymbol = semanticModel.symbol(lhsNode)
                         .filter(symbol -> symbol.kind() == SymbolKind.CLASS_FIELD
@@ -203,17 +201,17 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                                 ((ClassFieldSymbol) symbol).typeDescriptor()
                                 : ((RecordFieldSymbol) symbol).typeDescriptor());
             } else {
-                lhsNode = node.varRef();
+                lhsNode = assignmentStatementNode.varRef();
                 lhsSymbol = semanticModel.symbol(lhsNode)
                         .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
                 lhsType = lhsSymbol
                         .map(symbol -> ((VariableSymbol) symbol).typeDescriptor());
             }
-            rhsNode = node.expression();
+            rhsNode = assignmentStatementNode.expression();
         } else if (matchedNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            SpecificFieldNode node = (SpecificFieldNode) matchedNode;
-            lhsNode = node.fieldName();
-            rhsNode = node.valueExpr().get();
+            SpecificFieldNode specificFieldNode = (SpecificFieldNode) matchedNode;
+            lhsNode = specificFieldNode.fieldName();
+            rhsNode = specificFieldNode.valueExpr().get();
             lhsSymbol = semanticModel.symbol(lhsNode)
                     .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
             lhsType = lhsSymbol
