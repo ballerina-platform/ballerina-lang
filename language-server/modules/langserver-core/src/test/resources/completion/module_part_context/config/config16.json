@@ -902,7 +902,7 @@
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "function",
-      "insertText": "function ${1:name}(${2})${3} => ${4}",
+      "insertText": "function ${1:name}(${2})${3} => (${4});",
       "insertTextFormat": "Snippet"
     }
   ]

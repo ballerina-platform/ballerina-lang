@@ -145,9 +145,6 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                 break;
-            case CONFIGURABLE_KEYWORD:
-                completionItems.addAll(this.getTypeDescContextItems(context));
-                break;
             default:
         }
         return completionItems;
