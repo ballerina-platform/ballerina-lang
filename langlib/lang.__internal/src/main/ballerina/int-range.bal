@@ -37,7 +37,7 @@ public isolated class __IntRange {
     private final int iStep;
     private int iCurrent;
 
-    public isolated function init(int s, int e, int step) {
+    public isolated function init(int s, int e, int step = 1) {
         self.iStart = s;
         self.iEnd = e;
         self.iStep = step;
@@ -89,6 +89,6 @@ public isolated function createIntRange(int s, int e) returns isolated object {
                                                                               returns record {| int value; |}?;
                                                                           };
                                                               } {
-    __IntRange intRange = new (s, e, 1);
+    __IntRange intRange = new (s, e);
     return intRange;
 }

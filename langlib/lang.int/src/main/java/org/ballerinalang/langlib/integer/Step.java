@@ -26,6 +26,11 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
+/**
+ * Native implementation of lang.int:externalCheckStep(int).
+ *
+ * @since 2201.3.0
+ */
 public class Step {
 
     public static long checkStep(long step) {
