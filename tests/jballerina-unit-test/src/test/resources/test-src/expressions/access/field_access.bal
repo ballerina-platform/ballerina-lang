@@ -358,27 +358,27 @@ class EmployeeR {
 }
 
 class ManagerR {
-    function func(int i) returns int => i+1;
+    function func(int i) returns int => i + 1;
 }
 
 class CompanyR {
-    function func(int i) returns string => (i+2).toString();
+    function func(int i) returns string => (i + 2).toString();
 }
 
 function testFieldAccessOnUnion() {
     EmployeeR|ManagerR ob1 = new ManagerR();
     function (int i) returns int func1 = ob1.func;
-    assertEqual(func1(1), 2);
+    assertEquals(func1(1), 2);
 
     ManagerR ob2 = new EmployeeR();
     EmployeeR|ManagerR ob3 = ob2;
     function (int i) returns int func2 = ob3.func;
-    assertEqual(func2(1), 1);
+    assertEquals(func2(1), 1);
 
     CompanyR|ManagerR ob4 = new ManagerR();
     (function (int i) returns string)|function (int i) returns int func3 = ob4.func;
     function (int i) returns int func4 = <function (int i) returns int> func3;
-    assertEqual(func4(1), 2);
+    assertEquals(func4(1), 2);
 }
 
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
@@ -389,7 +389,7 @@ isolated function isEqual(anydata|error val1, anydata|error val2) returns boolea
     }
 }
 
-function assertEqual(anydata actual, anydata expected) {
+function assertEquals(anydata actual, anydata expected) {
     if expected == actual {
         return;
     }
