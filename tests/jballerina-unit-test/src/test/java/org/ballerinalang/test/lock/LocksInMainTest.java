@@ -97,7 +97,7 @@ public class LocksInMainTest {
 
     }
 
-    @Test(description = "Tests throwing and error inside lock")
+    @Test(description = "Tests throwing an error inside lock")
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -149,7 +149,7 @@ public class LocksInMainTest {
         assertSame(returns.get(0).getClass(), Long.class);
         assertTrue(returns.get(1) instanceof BString);
 
-        assertEquals(returns.get(0), 52L);
+        assertEquals(returns.get(0), 552L);
         assertEquals(returns.get(1).toString(), "worker 2 sets the string after try finally");
     }
 

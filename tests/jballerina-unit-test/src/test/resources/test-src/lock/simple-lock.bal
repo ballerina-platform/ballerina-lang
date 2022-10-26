@@ -27,19 +27,31 @@ function simpleLock() returns string {
             busyWait();
             busyWait();
         }
-        simpleLockCounter = "w1 out of critical";
+        lock {
+            simpleLockCounter = "w1 out of critical";
+        }
     }
+
     busyWait();
-    if (simpleLockCounter == "not-started") {
-        return "main didn't wait for w1 to enter critical";
+    wait w1;
+
+    if (getSimpleLockCounter() == "not-started") {
+        return "main didn't wait for w1";
     }
+
     lock {
         busyWait();
-        if (simpleLockCounter == "w1 out of critical") {
+        if (getSimpleLockCounter() == "w1 out of critical") {
             simpleLockCounter = "main in critical after w1 is out";
         }
     }
-    return simpleLockCounter;
+    return getSimpleLockCounter();
+}
+
+function getSimpleLockCounter() returns string {
+    lock {
+        return simpleLockCounter;
+    }
 }
 
 function busyWait() {

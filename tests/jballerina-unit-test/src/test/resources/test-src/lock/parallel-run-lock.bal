@@ -87,7 +87,7 @@ function runParallelUsingLocks() {
         }
     }
 
-    sleep(100);
+    map<()> waitResult = wait {w1, w2, w3, w4, w5, w6, w7};
 
     if (!(a == 1 && b == 1 && c == 1 && d == 1 && e == 1 && f == 0 && g == 1 && h == 1 && i == 1)) {
         panic error("Error in parallel run using locks");

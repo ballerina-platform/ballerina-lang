@@ -1,5 +1,22 @@
+// Copyright (c) 2019, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/lang.'int as ints;
 import ballerina/jballerina.java;
+import ballerina/test;
 
 int lockWithinLockInt1 = 0;
 
@@ -112,6 +129,10 @@ function throwErrorInsideLock() returns [int, string] {
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
     }
     error? waitResult = trap wait w1;
+    test:assertTrue(waitResult is error);
+    if (waitResult is error) {
+        test:assertEquals(waitResult.message(), "{ballerina/lang.int}NumberParsingError");
+    }
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
@@ -171,6 +192,10 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
 }
 
 function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
+    lock {
+        lockWithinLockInt1 = 500;
+    }
+
     @strand{thread:"any"}
     worker w1 {
         lock {
@@ -192,11 +217,15 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
     }
 
     sleep(10);
+    error? w1Result = trap wait w1;
+    test:assertTrue(w1Result is error);
     lock {
         lockWithinLockString1 = "worker 2 sets the string after try finally";
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
     }
-    return [lockWithinLockInt1, lockWithinLockString1];
+    lock {
+        return [lockWithinLockInt1, lockWithinLockString1];
+    }
 }
 
 function throwErrorInsideLockInsideTryCatch() returns [int, string] {
@@ -277,10 +306,12 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
 function returnInsideLock() returns [int, string] {
     @strand{thread:"any"}
     worker w1 {
-        string value = returnInsideLockPart();
+        test:assertEquals(returnInsideLockPart(), "value1");
     }
 
     sleep(10);
+    wait w1;
+
     lock {
         if (lockWithinLockInt1 == 44) {
             lockWithinLockString1 = "changed value11";
