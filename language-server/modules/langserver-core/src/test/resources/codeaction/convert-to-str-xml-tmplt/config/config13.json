@@ -1,0 +1,30 @@
+{
+  "position": {
+    "line": 30,
+    "character": 37
+  },
+  "source": "source.bal",
+  "description": "Test default parameter context",
+  "expected": [
+    {
+      "title": "Convert to 'xml' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 36
+            },
+            "end": {
+              "line": 30,
+              "character": 42
+            }
+          },
+          "newText": "xml `test`"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

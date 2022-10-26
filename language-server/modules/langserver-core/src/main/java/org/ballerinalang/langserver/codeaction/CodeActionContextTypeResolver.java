@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -305,6 +306,14 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode simpleNameReferenceNode) {
         return this.getSymbolByName(simpleNameReferenceNode.name().text()).flatMap(SymbolUtil::getTypeDescriptor);
+    }
+    
+    @Override
+    public Optional<TypeSymbol> transform(DefaultableParameterNode defaultableParameterNode) {
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(defaultableParameterNode))
+                .map(symbol -> (ParameterSymbol) symbol)
+                .map(ParameterSymbol::typeDescriptor);
     }
 
     @Override

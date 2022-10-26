@@ -27,3 +27,7 @@ function testLetExpressions(string item) {
 configurable string userName = ?;
 
 const string myConst = `sample template`;
+
+function testDefaultableParam(xml = `test`) returns string {
+    return "test";
+}
