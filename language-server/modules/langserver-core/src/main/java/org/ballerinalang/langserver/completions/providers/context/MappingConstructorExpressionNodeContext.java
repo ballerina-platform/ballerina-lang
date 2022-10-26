@@ -56,7 +56,7 @@ public class MappingConstructorExpressionNodeContext extends
                                                  MappingConstructorExpressionNode node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        Optional<Node> evalNode = CommonUtil.getEvalNode(nodeAtCursor);
+        Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(nodeAtCursor);
         if (evalNode.isEmpty()) {
             return completionItems;
         }

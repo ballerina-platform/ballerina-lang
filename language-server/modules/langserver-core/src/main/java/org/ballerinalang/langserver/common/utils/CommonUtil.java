@@ -641,7 +641,7 @@ public class CommonUtil {
      * @param nodeAtCursor node
      * @return node
      */
-    public static Optional<Node> getEvalNode(Node nodeAtCursor) {
+    public static Optional<Node> getMappingContextEvalNode(Node nodeAtCursor) {
         Predicate<Node> predicate = node ->
                 node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
                         || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
