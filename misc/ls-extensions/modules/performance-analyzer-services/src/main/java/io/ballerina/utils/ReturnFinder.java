@@ -18,7 +18,6 @@
 
 package io.ballerina.utils;
 
-import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 
@@ -43,6 +42,7 @@ public class ReturnFinder extends NodeVisitor {
 
     @Override
     public void visit(ReturnStatementNode returnStatementNode) {
+
         hasReturn = true;
     }
 }
