@@ -1073,9 +1073,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BTupleMember tupleMemType : tupleType.memberTypes) {
+                for (BTupleMember tupleMember : tupleType.memberTypes) {
                     if (refersInferableParamName(
-                            paramsWithInferredTypedescDefault, tupleMemType.type, unresolvedTypes)) {
+                            paramsWithInferredTypedescDefault, tupleMember.type, unresolvedTypes)) {
                         return true;
                     }
                 }

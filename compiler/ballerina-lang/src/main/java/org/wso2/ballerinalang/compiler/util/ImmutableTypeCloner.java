@@ -435,8 +435,9 @@ public class ImmutableTypeCloner {
             if (!types.isSelectivelyImmutableType(origTupleMemType.type, unresolvedTypes, pkgId)) {
                 continue;
             }
-            tupleEffectiveImmutableType.addMembers(getImmutableType(pos, types, origTupleMemType.type, env,
+            BTupleMember memberType = new BTupleMember(getImmutableType(pos, types, origTupleMemType.type, env,
                     pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes));
+            tupleEffectiveImmutableType.addMembers(memberType);
         }
 
         if (type.restType != null) {

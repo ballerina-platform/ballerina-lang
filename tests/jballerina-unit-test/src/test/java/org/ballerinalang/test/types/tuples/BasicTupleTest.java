@@ -366,7 +366,7 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined annotation 'annot'",
                 253, 1);
-        BAssertUtil.validateError(resultNegative, i,
+        BAssertUtil.validateError(resultNegative, i++,
                 "annotations not allowed for tuple rest descriptor",
                 256, 24);
     }

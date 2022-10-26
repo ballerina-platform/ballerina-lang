@@ -28,5 +28,5 @@ import java.util.List;
  */
 public interface TupleType extends SelectivelyImmutableReferenceType {
 
-    List<? extends BType> getMemberTypes();
+    List<? extends Type> getMemberTypes();
 }

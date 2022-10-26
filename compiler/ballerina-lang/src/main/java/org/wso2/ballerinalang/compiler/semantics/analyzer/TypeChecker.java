@@ -35,7 +35,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
-import org.ballerinalang.model.types.TupleType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -1563,7 +1562,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             switch (keyTypeConstraint.tag) {
                 case TypeTags.TUPLE:
-                    for (BType type : ((TupleType) keyTypeConstraint).getMemberTypes()) {
+                    for (BType type : ((BTupleType) keyTypeConstraint).getMemberTypes()) {
                         memberTypes.add(type);
                     }
                     break;

@@ -1509,9 +1509,9 @@ public class Types {
                         isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMember tupMemType : tupleType.memberTypes) {
-                    if (!isInherentlyImmutableType(tupMemType.type) &&
-                            !isSelectivelyImmutableType(tupMemType.type, unresolvedTypes, forceCheck, packageID)) {
+                for (BTupleMember tupleMember : tupleType.memberTypes) {
+                    if (!isInherentlyImmutableType(tupleMember.type) &&
+                            !isSelectivelyImmutableType(tupleMember.type, unresolvedTypes, forceCheck, packageID)) {
                         return false;
                     }
                 }
@@ -4751,8 +4751,8 @@ public class Types {
     private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove, SymbolEnv env) {
         BType eType = typeToRemove.eType;
         List<BTupleMember> tupleTypes = new ArrayList<>();
-        for (BTupleMember tupleType : originalType.memberTypes) {
-            tupleTypes.add(new BTupleMember(getRemainingMatchExprType(tupleType.type, eType, env)));
+        for (BTupleMember tupleMember : originalType.memberTypes) {
+            tupleTypes.add(new BTupleMember(getRemainingMatchExprType(tupleMember.type, eType, env)));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
         if (originalType.restType != null) {

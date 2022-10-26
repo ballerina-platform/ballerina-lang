@@ -160,10 +160,6 @@ public class BTupleType extends BType implements TupleType {
         return true;
     }
 
-    public boolean addMembers(BType memberType) {
-        return this.addMembers(new BTupleMember(memberType));
-    }
-
     // In the case of a cyclic tuple, this aids in
     // adding rest type of resolved node to a previously defined
     // empty tuple shell in main scope

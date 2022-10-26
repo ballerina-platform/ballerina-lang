@@ -211,8 +211,7 @@ import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATI
  *
  * @since 0.980.0
  */
-public class
-BIRGen extends BLangNodeVisitor {
+public class BIRGen extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<BIRGen> BIR_GEN =
             new CompilerContext.Key<>();

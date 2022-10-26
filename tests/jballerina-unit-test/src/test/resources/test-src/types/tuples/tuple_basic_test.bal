@@ -495,12 +495,7 @@ type T2 [int, @member int, string];
 type T3 [@member int, string];
 
 @tup
-type T4 [@member int, string] & readonly;
-
-type Rec readonly & record {
-    @member
-    int x;
-};
+type T4 [@member int, string];
 
 function testTupleMemberAnnotations2() returns [T1, T2, T3, T4] {
     T1 x1 =  [1, 2, "hello", "world"];

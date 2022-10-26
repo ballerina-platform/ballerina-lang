@@ -82,7 +82,6 @@ import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 
-
 /**
  * Writes bType to a Byte Buffer in binary format.
  * A ConstPool is used to store string typed information.

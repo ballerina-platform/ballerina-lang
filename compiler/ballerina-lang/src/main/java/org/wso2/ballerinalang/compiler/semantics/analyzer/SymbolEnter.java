@@ -2011,7 +2011,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
                 for (BType member : definedTupleType.getMemberTypes()) {
-                    if (!((BTupleType) newTypeNode).addMembers(member)) {
+                    if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member))) {
                         return constructDependencyListError(typeDef, member);
                     }
                 }
