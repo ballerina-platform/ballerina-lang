@@ -48,6 +48,9 @@ public enum EvaluationExceptionKind {
     MISSING_MESSAGE_IN_ERROR("Missing error message in error constructor"),
     REST_ARG_IN_ERROR("Rest args are not allowed in error constructor"),
     ADDITIONAL_ARG_IN_ERROR("Additional positional arg in error constructor"),
+
+    CANNOT_INFER_PARAM_TYPE("Can not infer type for parameter '%s' in function '%s'. Consider passing" +
+            "the parameter value explicitly as an argument"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
     NON_PUBLIC_OR_UNDEFINED_ACCESS("Attempt to refer to undefined/non-accessible symbol '%s:%s'"),
     BLOCK_EVALUATION("Block expressions/statements are not supported"),
