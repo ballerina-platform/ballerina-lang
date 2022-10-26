@@ -167,7 +167,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                                 .logTrace("Finished pulling modules for project: " + project.sourceRoot().toString());
                         try {
                             DocumentServiceContext documentServiceContext = 
-                                    ContextBuilder.buildDocumentServiceContext(filePath.toString(), 
+                                    ContextBuilder.buildDocumentServiceContext(filePath.toUri().toString(), 
                                             context.workspace(), LSContextOperation.WS_EXEC_CMD,
                                             context.languageServercontext());
                             EventSyncPubSubHolder.getInstance(context.languageServercontext())
