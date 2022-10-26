@@ -58,16 +58,12 @@ public class WorkerInFunctionTest {
 
     @Test()
     public void testReturnUnionWithWaitForAll1() {
-        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll1");
-        Assert.assertTrue(returns instanceof BmpStringValue);
-        Assert.assertEquals(returns.toString(), "pathA");
+        BRunUtil.invoke(result, "testReturnWaitForAll1");
     }
 
     @Test()
     public void testReturnUnionWithWaitForAll2() {
-        Object returns = BRunUtil.invoke(result, "testReturnWaitForAll2");
-        Assert.assertTrue(returns instanceof BmpStringValue);
-        Assert.assertEquals(returns.toString(), "pathA");
+        BRunUtil.invoke(result, "testReturnWaitForAll2");
     }
 
     @AfterClass

@@ -1,4 +1,3 @@
-
 function testSimpleWorker(string msg) returns string {
     return testSimpleWorkerVM(msg);
 }
@@ -50,15 +49,21 @@ function multiFetch1(string pathA, string pathB) returns Result|error {
     }
 
     worker WB returns string {
-            return fetch("pathB");
+        return fetch("pathB");
     }
 
     return wait {a: WA, b:WB};
 }
 
-public function testReturnWaitForAll1() returns string|error {
-    Result res = check multiFetch1("pathA", "pathB");
-    return res.a;
+public function testReturnWaitForAll1() {
+    Result|error res = multiFetch1("pathA", "pathB");
+    if res is Result {
+        assertEquality(res.a, "pathA");
+        assertEquality(res.b, "pathB");
+    }
+    else {
+        assertEquality(res, {a: "pathA", b: "pathB"});
+    }
 }
 
 function multiFetch2(string pathA, string pathB) returns ResultWithError|error {
@@ -67,13 +72,36 @@ function multiFetch2(string pathA, string pathB) returns ResultWithError|error {
     }
 
     worker WB returns string|error {
-            return fetchWithError("pathB");
+        return fetchWithError("pathB");
     }
 
     return wait {a: WA, b:WB};
 }
 
-public function testReturnWaitForAll2() returns string|error {
-    ResultWithError res = check multiFetch1("pathA", "pathB");
-    return res.a;
+public function testReturnWaitForAll2() {
+    ResultWithError|error res = multiFetch1("pathA", "pathB");
+    if res is ResultWithError {
+        assertEquality(res.a, "pathA");
+        assertEquality(res.b, "pathB");
+    }
+    else {
+        assertEquality(res, {a: "pathA", b: "pathB"});
+    }
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
