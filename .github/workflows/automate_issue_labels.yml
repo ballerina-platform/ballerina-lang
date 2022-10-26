@@ -12,31 +12,14 @@ jobs:
 
       - name: Check for Team label inclusion
         run: |
-          if ${{ contains(github.event.issue.labels.*.name, 'Team/DevTools') || contains(github.event.issue.labels.*.name, 'Team/Observability') ||
-              contains(github.event.issue.labels.*.name, 'Team/jBallerina') ||
-              contains(github.event.issue.labels.*.name, 'Team/LanguageServer') ||
-              contains(github.event.issue.labels.*.name, 'Team/CompilerFETools') ||
-              contains(github.event.issue.labels.*.name, 'Team/CompilerFE') ||
-              contains(github.event.issue.labels.*.name, 'Team/StandardLibs') ||
-              contains(github.event.issue.labels.*.name, 'Team/VSCode') ||
-              contains(github.event.issue.labels.*.name, 'Team/CICD') ||
-              contains(github.event.issue.labels.*.name, 'Team/Website') ||
-              contains(github.event.issue.labels.*.name, 'Team/LanguageServer/Extensions') }} == true; then
+          if ${{ contains(join(github.event.issue.labels.*.name, ','), 'Team/') }} == true; then
             echo "team_label_added=true" >> $GITHUB_ENV
           else
             echo "team_label_added=false" >> $GITHUB_ENV
           fi
 
       - name: Check for Type label inclusion
-        if: ${{ !(contains(github.event.issue.labels.*.name, 'Type/Bug') || contains(github.event.issue.labels.*.name, 'Type/Docs') ||
-            contains(github.event.issue.labels.*.name, 'Type/Improvement') ||
-            contains(github.event.issue.labels.*.name, 'Type/NewFeature') ||
-            contains(github.event.issue.labels.*.name, 'Type/PackerinaSpecIssue') ||
-            contains(github.event.issue.labels.*.name, 'Type/Proposal') ||
-            contains(github.event.issue.labels.*.name, 'Type/Question') ||
-            contains(github.event.issue.labels.*.name, 'Type/SpecDeviation') ||
-            contains(github.event.issue.labels.*.name, 'Type/Task') ||
-            contains(github.event.issue.labels.*.name, 'Type/TestFailure')) }}
+        if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}
         steps:
           - run: gh issue edit $ISSUE --add-label "needTriage"
       
