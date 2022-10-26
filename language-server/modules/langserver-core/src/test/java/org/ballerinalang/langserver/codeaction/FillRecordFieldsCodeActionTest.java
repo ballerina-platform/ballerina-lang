@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Test Cases for Fill Record Fields code action.
  *
- * @since 2201.2.2
+ * @since 2201.2.3
  */
 public class FillRecordFieldsCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")

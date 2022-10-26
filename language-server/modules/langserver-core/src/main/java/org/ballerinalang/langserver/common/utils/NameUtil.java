@@ -216,7 +216,7 @@ public class NameUtil {
     }
 
     /**
-     * Returns the record type.
+     * Returns the record type name.
      *
      * @param context Context
      * @param wrapper A wrapper containing record type symbol and broader type symbol

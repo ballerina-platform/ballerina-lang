@@ -20,7 +20,9 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
@@ -54,7 +56,7 @@ import java.util.stream.Collectors;
 /**
  * Code Action to autofill record fields.
  *
- * @since 2201.2.2
+ * @since 2201.2.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider {
@@ -80,7 +82,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                            RangeBasedPositionDetails posDetails) {
         Node node = context.nodeAtRange();
-        Optional<Node> evalNode = CommonUtil.getEvalNode(node);
+        Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(node);
         if (evalNode.isEmpty()) {
             return Collections.emptyList();
         }
@@ -110,8 +112,8 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         }
 
         String editText;
-        if (expressionNode.get().fields().isEmpty() || expressionNode.get().toSourceCode().replaceAll("[{}]", "")
-                .replaceAll("\\s", "").endsWith(",")) {
+        SeparatedNodeList<MappingFieldNode> fieldsList = expressionNode.get().fields();
+        if (fieldsList.isEmpty() || fieldsList.get(fieldsList.size() - 1).toSourceCode().isEmpty()) {
             editText = RecordUtil.getFillAllRecordFieldInsertText(fields);
         } else {
             editText = "," + RecordUtil.getFillAllRecordFieldInsertText(fields);

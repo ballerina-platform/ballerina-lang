@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -53,6 +52,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -131,7 +131,7 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SpecificFieldNode specificFieldNode) {
-        Optional<TypeSymbol> parentType = specificFieldNode.parent().apply(new CodeActionContextTypeResolver(context));
+        Optional<TypeSymbol> parentType = specificFieldNode.parent().apply(this);
         if (parentType.isEmpty()) {
             return Optional.empty();
         }
@@ -153,7 +153,7 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
         }
 
         RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) parentRawType;
-        String fieldName = ((IdentifierToken) specificFieldNode.fieldName()).text();
+        String fieldName = ((Token) specificFieldNode.fieldName()).text();
         // Extract the type of the particular field
         Optional<TypeSymbol> typeOfField = recordTypeSymbol.fieldDescriptors().entrySet().stream()
                 .filter(entry -> entry.getKey().equals(fieldName))

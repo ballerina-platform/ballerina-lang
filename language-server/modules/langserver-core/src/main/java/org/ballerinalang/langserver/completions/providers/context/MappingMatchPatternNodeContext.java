@@ -48,7 +48,7 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
             throws LSCompletionException {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        Optional<Node> evalNode = CommonUtil.getEvalNode(context.getNodeAtCursor());
+        Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(context.getNodeAtCursor());
         if (evalNode.isEmpty()) {
             return completionItems;
         }
