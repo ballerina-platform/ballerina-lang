@@ -102,7 +102,7 @@ public class PerformanceAnalyzerTest {
         compare(Path.of("worker", "main.bal").toString(), "workerNot.json", false);
     }
 
-    @Test(description = "Test performance analyzer worker not support")
+    @Test(description = "Test performance analyzer return node support")
     public void testReturnStatement() throws IOException, ExecutionException, InterruptedException {
 
         compare(Path.of("project", "return.bal").toString(), "return.json", true);
