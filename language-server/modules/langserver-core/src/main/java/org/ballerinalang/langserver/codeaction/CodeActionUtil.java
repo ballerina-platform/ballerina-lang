@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -213,6 +214,7 @@ public class CodeActionUtil {
 
         Map<TypeSymbol, String> typesMap = new HashMap<>();
         Types types = semanticModel.get().types();
+        TypeBuilder typeBuilder = types.builder();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
             // Handle ambiguous mapping construct types {}
 
@@ -260,11 +262,11 @@ public class CodeActionUtil {
                             type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
             if (isConstrainedMap) {
                 String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
-                typesMap.put(types.builder().MAP_TYPE
+                typesMap.put(typeBuilder.MAP_TYPE
                         .withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
                 return typesMap;
             }
-            typesMap.put(types.builder().MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
+            typesMap.put(typeBuilder.MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
 
         } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
             // Handle ambiguous list construct types []
@@ -278,7 +280,7 @@ public class CodeActionUtil {
             // Add Array type if valid
             if (isArrayCandidate) {
                 getPossibleTypeSymbols(firstMemberType.get(), context, importsAcceptor).entrySet()
-                        .forEach(entry -> typesMap.put(types.builder().ARRAY_TYPE.withType(entry.getKey()).build(),
+                        .forEach(entry -> typesMap.put(typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build(),
                                 entry.getValue() + "[]"));
             }
             // Add tuple type
@@ -288,7 +290,7 @@ public class CodeActionUtil {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
             getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
                     .forEach(entry -> {
-                        ArrayTypeSymbol newArrType = types.builder().ARRAY_TYPE.withType(entry.getKey()).build();
+                        ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
                         String signature;
                         switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
