@@ -9,6 +9,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -17,6 +18,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +80,25 @@ public class SymbolFilter extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        lookupNodes(recordTypeNode.fields);
+        lookupNodes(recordTypeNode.typeRefs);
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        lookupNodes(objectTypeNode.fields);
+        lookupNodes(objectTypeNode.functions);
+        lookupNodes(objectTypeNode.typeRefs);
+    }
+
+    @Override
+    public void visit(BLangService serviceNode) {
+        lookupNode(serviceNode.serviceClass);
+        lookupNodes(serviceNode.attachedExprs);
+    }
+
+    @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable letVarDeclaration : letClause.letVarDeclarations) {
             lookupNode((BLangNode) letVarDeclaration.definitionNode);
@@ -114,7 +136,7 @@ public class SymbolFilter extends BaseVisitor {
     }
 
     private void lookupNode(BLangNode node) {
-        if (node == null) {
+        if (node == null || node.getPosition() == null) {
             return;
         }
 
