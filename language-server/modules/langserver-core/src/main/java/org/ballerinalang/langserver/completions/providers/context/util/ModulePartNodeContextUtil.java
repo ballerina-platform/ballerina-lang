@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.ballerinalang.model.tree.OperatorKind;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -135,27 +134,44 @@ public class ModulePartNodeContextUtil {
         for (LSCompletionItem item : items) {
             CompletionItem cItem = item.getCompletionItem();
             if (isSnippetBlock(item)) {
-                if(((SnippetCompletionItem) item).id().equals(Snippet.DEF_MAIN_FUNCTION.name())) {
-                    cItem.setSortText(SortingUtil.genSortText(1) + SortingUtil.genSortText(1));
+                SnippetCompletionItem snippetCompletionItem = (SnippetCompletionItem) item;
+                if (snippetCompletionItem.id().equals(Snippet.DEF_MAIN_FUNCTION.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(1));
                     continue;
                 }
-                cItem.setSortText(genSortText(1) + SortingUtil.genSortText(2));
-                continue;
-            }
-            if (isServiceTemplate(item)) {
+                if (snippetCompletionItem.id().equals(Snippet.DEF_SERVICE_COMMON.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(2));
+                    continue;
+                }
+                if (snippetCompletionItem.id().equals(Snippet.DEF_FUNCTION.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(4));
+                    continue;
+                }
+                if (snippetCompletionItem.id().equals(Snippet.DEF_CLOSED_RECORD.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(5));
+                    continue;
+                }
+                if (snippetCompletionItem.id().equals(Snippet.DEF_RECORD.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(6));
+                    continue;
+                }
                 cItem.setSortText(genSortText(2));
                 continue;
             }
-            if (isKeyword(item)) {
+            if (isServiceTemplate(item)) {
+                cItem.setSortText(genSortText(1) + genSortText(4));
+                continue;
+            }
+            if (SortingUtil.isTypeCompletionItem(item)) {
                 cItem.setSortText(genSortText(3));
+                continue;
+            }
+            if (isKeyword(item)) {
+                cItem.setSortText(genSortText(4));
                 continue;
             }
             if (SortingUtil.isModuleCompletionItem(item) 
                     && !SortingUtil.isLangLibModuleCompletionItem(item)) {
-                cItem.setSortText(genSortText(4));
-                continue;
-            }
-            if (SortingUtil.isTypeCompletionItem(item)) {
                 cItem.setSortText(genSortText(5));
                 continue;
             }
