@@ -72,24 +72,24 @@ function waitTest7() returns string|int|boolean {
 }
 
 function waitTest8() returns int|string {
-    future<int|string> f7 =  @strand{thread:"any"} start concat("xyz");
+    future<int|string> f7 = @strand{thread:"any"} start concat("xyz");
     int|string result = checkpanic wait fuInt() | f7;
     return result;
 }
 
 function waitTest9() returns int|string|float {
-    future<int|string> f7 =  @strand{thread:"any"} start concat("xyz");
+    future<int|string> f7 = @strand{thread:"any"} start concat("xyz");
     future<int|float> f8 = @strand{thread:"any"} start add_3(66, 33);
-    int|string|float result  = checkpanic wait f7 | f8;
+    int|string|float result = checkpanic wait f7 | f8;
     return result;
 }
 
 function waitTest10() returns int|string|float {
     future<int|float> f8 = @strand{thread:"any"} start add_3(66, 11);
-    future<int|string> f7 =  @strand{thread:"any"} start concat("xyz");
+    future<int|string> f7 = @strand{thread:"any"} start concat("xyz");
     future<string> f4 = @strand{thread:"any"} start concat("foo");
     future<string> f5 = @strand{thread:"any"} start concat("bar");
-    int|string|float result  = checkpanic wait f8 | f7 | f4 |f5;
+    int|string|float result = checkpanic wait f8 | f7 | f4 | f5;
     return result;
 }
 
@@ -207,14 +207,14 @@ function waitTest17() returns int|error {
 
 function waitTest18() returns int {
     @strand{thread:"any"}
-    worker w1 returns int{
+    worker w1 returns int {
         int a = 10;
         a -> w2;
         a = <- w2;
         return a;
     }
     @strand{thread:"any"}
-    worker w2 returns int{
+    worker w2 returns int {
         int a = 0;
         int b = 15;
         a = <- w1;
@@ -291,7 +291,7 @@ function waitTest24() {
 function add_panic1(int i, int j) returns int {
     int k = i + j;
     if (0 < 1) {
-        error err = error("err from panic" );
+        error err = error("err from panic");
         panic err;
     }
     return k;
@@ -304,7 +304,7 @@ function add_panic2(int i, int j) returns int {
         l = l + 1;
     }
     if (0 < 1) {
-        error err = error("err from panic" );
+        error err = error("err from panic");
         panic err;
     }
     return k;
@@ -317,7 +317,7 @@ function add_panic3(int i, int j) returns int {
         l = l + 1;
     }
     if (0 < 1) {
-        error err = error("err from panic" );
+        error err = error("err from panic");
         panic err;
     }
     return k;
@@ -328,7 +328,7 @@ function add_1(int i, int j) returns int {
     // sleep for 2s
     sleep(2000);
     int l = 0;
-    while(l < 999999) {
+    while (l < 999999) {
         l = l + 1;
     }
     return k;
@@ -358,50 +358,50 @@ function status() returns boolean {
 }
 
 function fuInt() returns future<int> {
-    future <int> i = @strand{thread:"any"} start add_3(11, 17);
+    future<int> i = @strand{thread:"any"} start add_3(11, 17);
     return i;
 }
 
 function getEmpMap() returns map<string> {
-    map<string> empMap = { fname: "foo", lname: "bar"};
+    map<string> empMap = {fname: "foo", lname: "bar"};
     sleep(2000);
     return empMap;
 }
 
 function getAddrMap() returns map<string> {
-    map<string> addrMap = { line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
+    map<string> addrMap = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03"};
     return addrMap;
 }
 
 function addOrError(int i, int j) returns int|error {
     int k = i + j;
     if (0 < 1) {
-        error err = error("err returned" );
+        error err = error("err returned");
         return err;
     }
     return k;
 }
 
 function fError() returns int|error {
-    error err = error("first error returned" );
+    error err = error("first error returned");
     return err;
 }
 
 function sError() returns error {
-    error err = error("A hazardous error occurred!!! Abort immediately!!" );
+    error err = error("A hazardous error occurred!!! Abort immediately!!");
     sleep(2000);
     return err;
 }
 
 function funcWithErr() returns error {
-    error err = error("A hazardous error occurred!!!" );
+    error err = error("A hazardous error occurred!!!");
     return err;
 }
 
 function funcWithPanic() {
     sleep(1500);
     if (true) {
-        error err = error("A hazardous error occurred!!! Panic!!" );
+        error err = error("A hazardous error occurred!!! Panic!!");
         panic err;
     }
 }

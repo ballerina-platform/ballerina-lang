@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -176,11 +177,6 @@ public class WaitForAnyActionsTest {
     }
 
     @Test
-    public void waitTest19() {
-        BRunUtil.invoke(result, "waitTest19", new Object[0]);
-    }
-
-    @Test
     public void waitTest20() {
         try {
             Object vals = BRunUtil.invoke(result, "waitTest20", new Object[0]);
@@ -196,19 +192,19 @@ public class WaitForAnyActionsTest {
         BRunUtil.invoke(result, "waitTest21", new Object[0]);
     }
 
-    @Test
-    public void waitTest22() {
-        BRunUtil.invoke(result, "waitTest22", new Object[0]);
+    @Test(dataProvider = "waitForAnyActionsTestFunctions")
+    public void testWaitForAnyActionsTest(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void waitTest23() {
-        BRunUtil.invoke(result, "waitTest23", new Object[0]);
-    }
-
-    @Test
-    public void waitTest24() {
-        BRunUtil.invoke(result, "waitTest24", new Object[0]);
+    @DataProvider
+    public Object[] waitForAnyActionsTestFunctions() {
+        return new Object[]{
+                "waitTest19",
+                "waitTest22",
+                "waitTest23",
+                "waitTest24"
+        };
     }
 
     @AfterClass
