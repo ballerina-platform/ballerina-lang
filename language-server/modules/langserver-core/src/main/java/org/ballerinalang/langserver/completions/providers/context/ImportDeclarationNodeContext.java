@@ -272,7 +272,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context,
                                                                      ImportDeclarationNode node) {
         String orgName = node.orgName().get().orgName().text();
-        List< TextEdit> additionalEdits = new ArrayList<>();
+        List<TextEdit> additionalEdits = new ArrayList<>();
         // If the module name contains a dot, we should replace what's before the last dot to make sure a part
         // of the module name is not repeated.
         if (node.moduleName().size() > 1) {

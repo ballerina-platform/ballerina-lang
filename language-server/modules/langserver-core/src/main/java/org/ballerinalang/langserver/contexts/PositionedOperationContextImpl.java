@@ -55,7 +55,8 @@ public abstract class PositionedOperationContextImpl extends AbstractDocumentSer
      * {@inheritDoc}
      * <p>
      * Since we know the cursor position here, we can cache the visible symbols for the cursor position. This will be
-     * good for the performance since the chance of accessing the visible symbols of the cursor position repetitively is high.
+     * good for the performance since the chance of accessing the visible symbols of the cursor position repetitively
+     * is high.
      *
      * @param position Position at which visible symbols are needed
      * @return Visible symbols
