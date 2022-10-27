@@ -544,7 +544,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
                 for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
                     if (parameterSymbol.getName()
-                            .map(name -> name.equals(namedArgumentNode.argumentName().name().text())).orElse(false)) {
+                            .filter(name -> name.equals(namedArgumentNode.argumentName().name().text()))
+                            .isPresent()) {
                         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
                         return Optional.of(typeDescriptor);
                     }
