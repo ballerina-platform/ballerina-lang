@@ -70,6 +70,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
 /**
@@ -203,6 +204,9 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         switch (outputType) {
+            case GRAAL_EXEC:
+                generatedArtifact = emitGraalExecutable(filePath);
+                break;
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
@@ -530,6 +534,63 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
+    private Path emitGraalExecutable(Path executableFilePath) {
+        // Run Create Executable
+        Manifest manifest = createManifest();
+        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
+
+        try {
+            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
+        } catch (IOException e) {
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
+        }
+
+        String nativeImageName;
+        String[] command;
+
+        Project project = this.packageContext().project();
+
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            String fileName = project.sourceRoot().toFile().getName();
+            nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
+            command = new String[] {
+                    "native-image",
+                    "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "--no-fallback"
+            };
+        } else {
+            nativeImageName = project.currentPackage().packageName().toString();
+            command = new String[]{
+                    "native-image",
+                    "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "-H:Path=" + executableFilePath.getParent(),
+                    "--no-fallback"
+            };
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command(command);
+            builder.inheritIO();
+            Process process = builder.start();
+
+            if (process.waitFor() != 0) {
+                throw new ProjectException("unable to create native image");
+            }
+        } catch (IOException e) {
+            throw new ProjectException("unable to create native image:" + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return executableFilePath;
+    }
+
     private Map<String, byte[]> getResources(ModuleContext moduleContext) {
         Map<String, byte[]> resourceMap = new HashMap<>();
         for (DocumentId documentId : moduleContext.resourceIds()) {
@@ -597,6 +658,7 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
+        GRAAL_EXEC("graal_exec")
         ;
 
         private String value;

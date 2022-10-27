@@ -40,7 +40,6 @@ import java.util.ServiceLoader;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 /**
@@ -63,7 +62,12 @@ public class CreateExecutableTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Generating executable");
+
+        if (!project.buildOptions().nativeImage()) {
+            this.out.println("Generating executable");
+        } else {
+            this.out.println("Generating executable with Native image");
+        }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target;
@@ -95,7 +99,13 @@ public class CreateExecutableTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+
+            if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
+                jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
+            } else {
+                jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+            }
+
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -119,66 +129,9 @@ public class CreateExecutableTask implements Task {
         } else {
             if (relativePathToExecutable.toString().contains("..") ||
                     relativePathToExecutable.toString().contains("." + File.separator)) {
-                this.out.println("\t" + executablePath.toString());
+                this.out.println("\t" + executablePath);
             } else {
-                this.out.println("\t" + relativePathToExecutable.toString());
-            }
-        }
-
-        if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
-            this.out.println();
-            this.out.println("Generating GraalVM native image");
-            String nativeImageName;
-            String[] command;
-            String generatedPath;
-
-            if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                String fileName = project.sourceRoot().toFile().getName();
-                nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
-                executablePath = getExecutablePath(project);
-                command = new String[] {
-                        "native-image",
-                        "-jar",
-                        executablePath.toString(),
-                        "-H:Name=" + nativeImageName,
-                        "--no-fallback"
-                };
-                generatedPath = nativeImageName;
-            } else {
-                try {
-                    nativeImageName = project.currentPackage().packageName().toString();
-                    executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-                    command = new String[] {
-                            "native-image",
-                            "-jar",
-                            executablePath.toString(),
-                            "-H:Name=" + nativeImageName,
-                            "-H:Path=" + executablePath.getParent(),
-                            "--no-fallback"
-                    };
-                    generatedPath = executablePath.getParent() + File.separator + nativeImageName;
-                } catch (IOException e) {
-                    throw createLauncherException("unable to resolve target path : " + e.getMessage());
-                }
-            }
-
-            try {
-                ProcessBuilder builder = new ProcessBuilder();
-                builder.command(command);
-                builder.inheritIO();
-                Process process = builder.start();
-
-                if (process.waitFor() != 0) {
-                    throw createLauncherException("unable to create native image");
-                } else {
-                    out.println("\n" + "GraalVM image generated");
-                    out.println("\t" + generatedPath);
-                    out.println();
-                }
-            } catch (IOException e) {
-                throw createLauncherException("unable to create native image:" + e.getMessage());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                this.out.println("\t" + relativePathToExecutable);
             }
         }
 
