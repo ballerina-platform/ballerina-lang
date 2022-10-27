@@ -88,11 +88,6 @@ public class TupleValueImpl extends AbstractArrayValue {
                 Arrays.equals(refValues, that.refValues);
     }
 
-    @Override
-    public int hashCode() {
-        return System.identityHashCode(this);
-    }
-
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
         this.tupleType = type;
