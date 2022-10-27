@@ -413,7 +413,8 @@ public class ASTBuilderUtil {
     }
 
     static BLangExpression generateConversionExpr(BLangExpression varRef, BType target, SymbolResolver symResolver) {
-        if (varRef.getBType().tag == target.tag || varRef.getBType().tag > TypeTags.BOOLEAN) {
+        BType varRefType = Types.getReferredType(varRef.getBType());
+        if (varRefType.tag == Types.getReferredType(target).tag || varRefType.tag > TypeTags.BOOLEAN) {
             return varRef;
         }
         // Box value using cast expression.
@@ -664,11 +665,9 @@ public class ASTBuilderUtil {
     }
 
     static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
-//        if (type.tag == TypeTags.INTERSECTION) {
-//            type = ((BIntersectionType) type).effectiveType;
-//        }
+        BType referredType = Types.getReferredType(type);
 
-        if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {
+        if (referredType.tag != TypeTags.ARRAY && referredType.tag != TypeTags.TUPLE) {
             throw new IllegalArgumentException("Expected a 'BArrayType' instance or a 'BTupleType' instance");
         }
 

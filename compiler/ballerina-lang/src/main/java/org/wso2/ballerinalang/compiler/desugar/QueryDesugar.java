@@ -338,9 +338,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     private BType getMapType(BType type) {
         BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
-        if (resultantType.tag == TypeTags.INTERSECTION) {
-            return getMapType(((BIntersectionType) resultantType).effectiveType);
-        }
         return resultantType;
     }
 
@@ -358,8 +355,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 return true;
-            case TypeTags.INTERSECTION:
-                return isXml(((BIntersectionType) refType).getEffectiveType());
             default:
                 return false;
         }

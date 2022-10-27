@@ -5112,12 +5112,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver.getBType() == null) {
             funcNode.receiver.setBType(symResolver.resolveTypeNode(funcNode.receiver.typeNode, env));
         }
-        BType receiverType = Types.getReferredType(funcNode.receiver.getBType());
+        
+        BType receiverType = funcNode.receiver.getBType();
         if (receiverType.tag == TypeTags.SEMANTIC_ERROR) {
             return true;
         }
 
-        BType receiverType = funcNode.receiver.getBType();
         BType referredReceiverType = Types.getReferredType(receiverType);
         if (referredReceiverType.tag == TypeTags.OBJECT
                 && !this.env.enclPkg.symbol.pkgID.equals(receiverType.tsymbol.pkgID)) {
