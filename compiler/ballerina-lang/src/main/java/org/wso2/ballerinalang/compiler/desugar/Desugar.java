@@ -9446,15 +9446,17 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         /*
-         * If the field access is a safe navigation, create a match expression.
-         * Then chain the current expression as the success-pattern of the parent
-         * match expr, if available.
+         * If the field access is a safe navigation, create a temp var definition for current expr and a var ref.
+         * Then use that to create a match expression. Then chain the current expression as the success-pattern of
+         * the parent match expr, if available.
          * eg:
          * x but {              <--- parent match expr
          *   error e => e,
-         *   T t => t.y but {   <--- current expr
+         *   $varDef$ = t;
+         *   T $varDef$ => $varDef$.y but {   <--- current expr
          *      error e => e,
-         *      R r => r.z
+         *      $varDef$ = r;
+         *      R $varDef$ => $varDef$.z
          *   }
          * }
          */
