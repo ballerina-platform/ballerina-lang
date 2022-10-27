@@ -460,6 +460,17 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get expression bodied function snippet block.
+     *
+     * @return {@link SnippetBlock} Generated snippet
+     */
+    public static SnippetBlock getExpressionBodiedFunctionDefSnippet() {
+        String snippet = "function ${1:name}(${2})${3} => (${4});";
+        return new SnippetBlock(ItemResolverConstants.EXPRESSION_BODIED_FUNCTION, ItemResolverConstants.FUNCTION,
+                snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Resource Function Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
