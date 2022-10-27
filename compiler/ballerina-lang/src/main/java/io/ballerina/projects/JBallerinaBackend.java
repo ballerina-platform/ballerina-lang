@@ -31,6 +31,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
@@ -579,7 +580,8 @@ public class JBallerinaBackend extends CompilerBackend {
             Thread.currentThread().interrupt();
         }
 
-        return executableFilePath;
+        Path graalexectablepath = Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
+        return graalexectablepath;
     }
 
     private Map<String, byte[]> getResources(ModuleContext moduleContext) {
