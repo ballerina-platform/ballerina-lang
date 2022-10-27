@@ -277,7 +277,7 @@ public class SymbolLookupTest {
         PackageCompilation packageCompilation = currentPackage.getCompilation();
         SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
         Document srcFile = getDocumentForSingleSource(project);
-        List<String> expSymbolNames = List.of("test", "f1", "foo", "self", "a", "helloVar");
+        List<String> expSymbolNames = List.of("test", "f1", "foo", "self");
 
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);

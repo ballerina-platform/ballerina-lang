@@ -285,7 +285,7 @@ public class SymbolBIRTest {
     private List<SymbolInfo> getModuleLevelSymbolInfo() {
         return createSymbolInfoList(
                 new Object[][]{
-                        {"aString", VARIABLE}, {"anInt", VARIABLE}, {"HELLO", CONSTANT}, {"testAnonTypes", FUNCTION}
+                        {"anInt", VARIABLE}, {"HELLO", CONSTANT}, {"testAnonTypes", FUNCTION}
                 });
     }
 
