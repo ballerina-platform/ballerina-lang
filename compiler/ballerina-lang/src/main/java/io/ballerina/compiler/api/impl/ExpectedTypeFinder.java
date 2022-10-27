@@ -856,7 +856,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 BType bType = expressionNode.getBType();
                 switch (bType.getKind()) {
                     case ARRAY:
-                        return Optional.of(typesFactory.getTypeDescriptor((((BArrayType)expressionNode.getBType()).eType)));
+                        return Optional.of(typesFactory.getTypeDescriptor((((BArrayType)
+                                expressionNode.getBType()).eType)));
                     case STRING:
                         return Optional.of(semanticModel.types().STRING);
                     case TABLE:
