@@ -51,7 +51,6 @@ import java.util.Optional;
 public class BallerinaTomlCompletionContext implements TomlCompletionContext {
 
     private List<Symbol> visibleSymbols;
-    private List<ImportDeclarationNode> currentDocImports;
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
     private final LanguageServerContext languageServerContext;
     private final CompletionCapabilities capabilities;

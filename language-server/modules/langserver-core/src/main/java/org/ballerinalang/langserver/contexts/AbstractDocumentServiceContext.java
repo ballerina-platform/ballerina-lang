@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -58,8 +59,6 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private final String fileUri;
 
     private final WorkspaceManager workspaceManager;
-    
-    private List<ImportDeclarationNode> currentDocImports;
 
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
 

@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.commons;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.eclipse.lsp4j.Position;
 
 /**
  * Represents the hover operation context.
