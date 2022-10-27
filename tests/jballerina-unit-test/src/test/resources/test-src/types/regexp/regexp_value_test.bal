@@ -527,6 +527,25 @@ function testExactEqualityWithRegExp() {
     assertEquality(true, re `a\td-*ab[^c-f]+(?m:xj(?i:x|y))` === x4);
 }
 
+public type Constraint record {|
+    string:RegExp pattern?;
+|};
+
+public annotation Constraint String on type;
+
+@String {
+    pattern: re `[^0-9]*`
+}
+type Number string;
+
+function testFreezeDirectWithRegExp() {
+    typedesc<any> numTd = Number;
+    assertEquality(true, numTd.@String is Constraint);
+    Constraint constraint = <Constraint>numTd.@String;
+    assertEquality(false, constraint.pattern is ());
+    assertEquality(true, constraint.pattern == re `[^0-9]*`);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
