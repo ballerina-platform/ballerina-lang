@@ -535,20 +535,11 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     private Path emitGraalExecutable(Path executableFilePath) {
-        // Run Create Executable
-        Manifest manifest = createManifest();
-        Collection<JarLibrary> jarLibraries = jarResolver.getJarFilePathsRequiredForExecution();
-
-        try {
-            assembleExecutableJar(executableFilePath, manifest, jarLibraries);
-        } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package '" +
-                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
-        }
+        // Run create executable
+        emitExecutable(executableFilePath);
 
         String nativeImageName;
         String[] command;
-
         Project project = this.packageContext().project();
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
