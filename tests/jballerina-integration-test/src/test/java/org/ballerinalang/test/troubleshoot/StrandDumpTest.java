@@ -128,7 +128,7 @@ public class StrandDumpTest extends BaseTest {
         runCmdSet.addAll(Arrays.asList("-jar", jarPath));
 
         ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
-        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, true, 6000, 2000);
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, true, 10000, 2000);
     }
 
     private void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder, Map<String, String> envProperties,
