@@ -22,6 +22,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.CreateNativeImageTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -102,6 +103,17 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                 boolean dumpBuildTime, boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
+        this.nativeImage = nativeImage;
+    }
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")
@@ -162,6 +174,9 @@ public class BuildCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    private Boolean nativeImage;
 
     public void execute() {
         long start = 0;
@@ -232,6 +247,11 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
+        if ((project.buildOptions().nativeImage()) && (project.buildOptions().cloud().equals(""))) {
+            this.outStream.println("WARNING : Native image generation is an experimental feature, " +
+                    "which supports only a limited set of functionality.");
+        }
+
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -250,6 +270,8 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
+                .addTask(new CreateNativeImageTask(outStream, this.output),
+                        !(project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -275,7 +297,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

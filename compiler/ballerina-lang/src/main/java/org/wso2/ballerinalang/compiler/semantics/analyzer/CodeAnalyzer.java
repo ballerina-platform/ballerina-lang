@@ -3410,8 +3410,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
-                        new ArrayList<>());
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(interpolation -> analyzeExpr(interpolation, data));
     }
 

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
@@ -376,17 +377,8 @@ public class JvmTerminatorGen {
                 this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset, invocationVarIndex);
                 return;
             case PLATFORM:
-                if (terminator instanceof JavaMethodCall) {
-                    this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
-                    return;
-                } else if (terminator instanceof JIMethodCall) {
-                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
-                    return;
-                } else if (terminator instanceof JIConstructorCall) {
-                    this.genJIConstructorTerm((JIConstructorCall) terminator,
-                            localVarOffset);
-                    return;
-                }
+                this.genPlatformIns((JTerminator) terminator, attachedType, localVarOffset);
+                return;
         }
         throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
                 terminator);
@@ -490,6 +482,19 @@ public class JvmTerminatorGen {
 
         // store return
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
+    }
+
+    private void genPlatformIns(JTerminator terminator, BType attachedType, int localVarOffset) {
+        switch (terminator.jTermKind) {
+            case J_METHOD_CALL:
+                this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
+                return;
+            case JI_METHOD_CALL:
+                this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
+                return;
+            case JI_CONSTRUCTOR_CALL:
+                this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
+        }
     }
 
     private void genJCallTerm(JavaMethodCall callIns, BType attachedType, int localVarOffset) {

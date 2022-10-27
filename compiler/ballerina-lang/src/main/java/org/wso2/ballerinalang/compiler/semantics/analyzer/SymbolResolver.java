@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -2574,11 +2575,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 .get();
     }
 
-    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList,
-                                                          List<BLangExpression> interpolationsList) {
+    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList) {
+        List<BLangExpression> interpolationsList = new ArrayList<>();
         for (BLangExpression seq : sequenceList) {
             if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
-                return interpolationsList;
+                continue;
             }
             BLangReSequence sequence = (BLangReSequence) seq;
             for (BLangReTerm term : sequence.termList) {
@@ -2592,8 +2593,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     continue;
                 }
                 if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
-                    return getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList,
-                            interpolationsList);
+                    interpolationsList.addAll(
+                            getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList));
                 }
             }
         }
@@ -2642,9 +2643,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return symTable.notFoundSymbol;
         }
 
-        BPackageSymbol moduleSymbol = getModuleForPackageId(optionalPackageID.get());
-        moduleSymbol.isUsed = true;
-        return moduleSymbol;
+        ((BClientDeclarationSymbol) symbol).used = true;
+        return getModuleForPackageId(optionalPackageID.get());
     }
 
     /**

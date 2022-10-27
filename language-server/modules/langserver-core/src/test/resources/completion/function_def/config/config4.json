@@ -664,6 +664,28 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "module1:TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
