@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/test;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
@@ -247,27 +248,44 @@ function waitTest21() returns error? {
     return result;
 }
 
-function waitTest22() returns int|string|error {
+function waitTest22() {
     future<string> f3 = @strand{thread:"any"} start concat("foo");
     future<int|error> f1 = @strand{thread:"any"} start addOrError(10, 12);
     future<int> f2 = @strand{thread:"any"} start add_panic1(55, 88);
-    int|string|error result = wait f3 | f2 | f1;
-    return result;
+    int|string|error result = trap wait f3 | f2 | f1;
+    if (result is string) {
+        test:assertEquals(result, "hello foo");
+    } else if (result is error) {
+        test:assertTrue((result.message() == "err returned") || (result.message() == "err from panic"));
+    } else {
+        panic error("test failed");
+    }
 }
 
-function waitTest23() returns int|string|() {
+function waitTest23() {
     future<()> f1 = start sleep(50);
     future<int> f2 = @strand{thread:"any"} start add_1(5, 2);
     future<string> f3 = @strand{thread:"any"} start greet();
     int|string|() result = checkpanic wait f1 | f2 | f3;
-    return result;
+    if (result is int) {
+        test:assertEquals(result, 7);
+    } else if (result is string) {
+        test:assertEquals(result, "good morning");
+    } else {
+        test:assertEquals(result, ());
+    }
 }
 
 function waitTest24() {
     future<int|error> f1 = @strand{thread:"any"} start fError();
     future<int|error> f2 = @strand{thread:"any"} start sError();
-    int|error result = wait f1 | f2;
-    validateError(result, "A hazardous error occurred!!! Abort immediately!!");
+    int|error result = wait f2 | f1;
+    if (result is error) {
+        test:assertTrue((result.message() == "first error returned") ||
+        (result.message() == "A hazardous error occurred!!! Abort immediately!!"));
+    } else {
+        panic error("test failed");
+    }
 }
 
 function add_panic1(int i, int j) returns int {
