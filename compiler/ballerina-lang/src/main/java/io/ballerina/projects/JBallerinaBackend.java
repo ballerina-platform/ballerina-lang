@@ -89,6 +89,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -102,9 +103,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
-
-    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
@@ -551,7 +549,11 @@ public class JBallerinaBackend extends CompilerBackend {
 
         // Special case windows command
         if (OS.contains("win")) {
-            nativeImageCommand = System.getenv("GRAAL_HOME");
+            nativeImageCommand = System.getenv("GRAALVM_HOME");
+            if (nativeImageCommand == null) {
+                throw new ProjectException("unable to create native image. The environment variable GRAALVM_HOME " +
+                        "contains an empty string.");
+            }
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator + "native-image.cmd";
         } else {
             nativeImageCommand = "native-image";
