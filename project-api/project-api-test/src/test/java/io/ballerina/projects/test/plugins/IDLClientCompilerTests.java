@@ -220,6 +220,22 @@ public class IDLClientCompilerTests {
     }
 
     @Test
+    public void testInvalidImportOfGeneratedModuleNegative() {
+        Project project = loadPackage("simpleclientnegativetestfive");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                          TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, "a module generated for a client declaration cannot be imported", 17, 1);
+        validateError(diagnostics, index++, "undefined module 'client1'", 23, 5);
+        validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 23, 5);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
     public void testAnnotationOnClientDeclaration() {
         List<? extends ClientDeclarationNode> clientDeclarations = result.getAST().getClientDeclarations();
 
