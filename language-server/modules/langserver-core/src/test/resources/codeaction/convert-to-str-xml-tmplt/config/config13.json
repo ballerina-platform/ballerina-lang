@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 30,
-    "character": 37
+    "character": 42
   },
   "source": "source.bal",
   "description": "Test default parameter context",
@@ -14,11 +14,11 @@
           "range": {
             "start": {
               "line": 30,
-              "character": 36
+              "character": 41
             },
             "end": {
               "line": 30,
-              "character": 42
+              "character": 47
             }
           },
           "newText": "xml `test`"
