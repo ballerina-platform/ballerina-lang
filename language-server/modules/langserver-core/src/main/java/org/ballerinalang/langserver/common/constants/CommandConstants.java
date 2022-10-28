@@ -179,4 +179,6 @@ public class CommandConstants {
     public static final String EXTRACT_TO_VARIABLE = "Extract to local variable";
 
     public static final String GENERATE_MODULE_FOR_CLIENT_DECLARATION_TITLE = "Generate module for client declaration";
+
+    public static final String FILL_REQUIRED_FIELDS = "Fill '%s' required fields";
 }

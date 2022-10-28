@@ -64,7 +64,7 @@ public class TypeOfRegressionTest {
         assertEquals(clazz.getName().get(), "Listener");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testLiteralType() {
         Optional<TypeSymbol> type = model.typeOf(LineRange.from("typeof_listener_test.bal",
                                 LinePosition.from(45, 32), LinePosition.from(45, 36)));
