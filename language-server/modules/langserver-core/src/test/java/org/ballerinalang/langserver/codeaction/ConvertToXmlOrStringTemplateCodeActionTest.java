@@ -46,7 +46,6 @@ public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActi
                 {"config5.json"},
                 {"config6.json"},
                 {"config7.json"},
-                {"config8.json"},
                 {"config9.json"},
                 {"config10.json"},
                 {"config11.json"},
@@ -58,5 +57,18 @@ public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActi
     @Override
     public String getResourceDir() {
         return "convert-to-str-xml-tmplt";
+    }
+
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"config8.json"}
+        };
     }
 }

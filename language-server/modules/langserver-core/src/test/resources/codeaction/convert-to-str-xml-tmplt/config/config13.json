@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 30,
+    "line": 28,
     "character": 42
   },
   "source": "source.bal",
@@ -13,11 +13,11 @@
         {
           "range": {
             "start": {
-              "line": 30,
+              "line": 28,
               "character": 41
             },
             "end": {
-              "line": 30,
+              "line": 28,
               "character": 47
             }
           },

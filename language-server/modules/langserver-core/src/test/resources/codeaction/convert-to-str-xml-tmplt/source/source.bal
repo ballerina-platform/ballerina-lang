@@ -24,8 +24,6 @@ function testLetExpressions(string item) {
     string letExpr = let string s = `${item}` in "car, van, bus";
 }
 
-configurable string userName = ?;
-
 const string myConst = `sample template`;
 
 function testDefaultableParam(xml name = `test`) returns string {

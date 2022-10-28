@@ -1,29 +1,10 @@
 {
   "position": {
-    "line": 28,
+    "line": 26,
     "character": 24
   },
   "source": "source.bal",
   "expected": [
-    {
-      "title": "Convert to 'string' template",
-      "kind": "quickfix",
-      "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 28,
-              "character": 23
-            },
-            "end": {
-              "line": 28,
-              "character": 40
-            }
-          },
-          "newText": "string `sample template`"
-        }
-      ]
-    }
   ],
   "description": "Test const declaration when expecting a string type"
 }
