@@ -62,6 +62,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -71,6 +72,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
@@ -100,6 +102,9 @@ public class JBallerinaBackend extends CompilerBackend {
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private final List<JarConflict> conflictedJars;
+
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
@@ -542,12 +547,21 @@ public class JBallerinaBackend extends CompilerBackend {
         String nativeImageName;
         String[] command;
         Project project = this.packageContext().project();
+        String nativeImageCommand;
+
+        // Special case windows command
+        if (OS.contains("win")) {
+            nativeImageCommand = System.getenv("GRAAL_HOME");
+            nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator + "native-image.cmd";
+        } else {
+            nativeImageCommand = "native-image";
+        }
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             command = new String[] {
-                    "native-image",
+                    nativeImageCommand,
                     "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
@@ -556,7 +570,7 @@ public class JBallerinaBackend extends CompilerBackend {
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             command = new String[]{
-                    "native-image",
+                    nativeImageCommand,
                     "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
