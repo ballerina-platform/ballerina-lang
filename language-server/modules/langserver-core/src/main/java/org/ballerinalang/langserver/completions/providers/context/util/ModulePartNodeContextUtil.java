@@ -48,6 +48,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
+import static org.ballerinalang.langserver.completions.util.SortingUtil.isLangLibModuleCompletionItem;
 
 /**
  * Utilities for the module part node context.
@@ -144,38 +145,49 @@ public class ModulePartNodeContextUtil {
                     continue;
                 }
                 if (snippetCompletionItem.id().equals(Snippet.DEF_FUNCTION.name())) {
-                    cItem.setSortText(genSortText(1) + genSortText(4));
-                    continue;
-                }
-                if (snippetCompletionItem.id().equals(Snippet.DEF_CLOSED_RECORD.name())) {
                     cItem.setSortText(genSortText(1) + genSortText(5));
                     continue;
                 }
-                if (snippetCompletionItem.id().equals(Snippet.DEF_RECORD.name())) {
+                if (snippetCompletionItem.id().equals(Snippet.DEF_CLOSED_RECORD.name())) {
                     cItem.setSortText(genSortText(1) + genSortText(6));
+                    continue;
+                }
+                if (snippetCompletionItem.id().equals(Snippet.DEF_RECORD.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(7));
                     continue;
                 }
                 cItem.setSortText(genSortText(2));
                 continue;
             }
             if (isServiceTemplate(item)) {
-                cItem.setSortText(genSortText(1) + genSortText(4));
+                cItem.setSortText(genSortText(1) + genSortText(3));
                 continue;
             }
             if (SortingUtil.isTypeCompletionItem(item)) {
-                cItem.setSortText(genSortText(3));
+                if (isLangLibModuleCompletionItem(item)) {
+                    cItem.setSortText(genSortText(3) + genSortText(2));
+                    continue;
+                }
+                cItem.setSortText(genSortText(3) + genSortText(1));
                 continue;
             }
             if (isKeyword(item)) {
+                if (((SnippetCompletionItem) item).id().equals(Snippet.KW_SERVICE.name())) {
+                    cItem.setSortText(genSortText(1) + genSortText(4));
+                    continue;
+                }
                 cItem.setSortText(genSortText(4));
                 continue;
             }
-            if (SortingUtil.isModuleCompletionItem(item) 
-                    && !SortingUtil.isLangLibModuleCompletionItem(item)) {
+            if (SortingUtil.isLangLibModuleCompletionItem(item)) {
                 cItem.setSortText(genSortText(5));
                 continue;
             }
-            cItem.setSortText(genSortText(6));
+            if (SortingUtil.isModuleCompletionItem(item)) {
+                cItem.setSortText(genSortText(6));
+                continue;
+            }
+            cItem.setSortText(genSortText(7));
         }
     }
 

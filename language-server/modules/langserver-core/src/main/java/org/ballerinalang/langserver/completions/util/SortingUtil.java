@@ -115,12 +115,12 @@ public class SortingUtil {
                     symbol.get().kind() == SymbolKind.CLASS)) {
                 return true;
             }
-            //Todo:No symbol for string, any completion items.
             return false;
         }
         if (item.getType() == LSCompletionItem.CompletionItemType.STATIC
-                && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE))
+                && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE)) {
             return true;
+        }
         if (item.getType() == LSCompletionItem.CompletionItemType.TYPE
                 || item instanceof TypeCompletionItem) {
             return true;
@@ -683,7 +683,7 @@ public class SortingUtil {
             });
             return;
         }
-        
+
         List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
                 "decimal", "string", "xml", "map", "table");
         completionItems.forEach(lsCompletionItem -> {
