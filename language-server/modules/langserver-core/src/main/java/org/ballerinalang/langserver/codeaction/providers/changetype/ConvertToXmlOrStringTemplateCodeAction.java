@@ -57,7 +57,8 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                             CodeActionContext context) {
         return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange()) && context.currentSemanticModel().isPresent()
-                && positionDetails.matchedNode().kind() == SyntaxKind.RAW_TEMPLATE_EXPRESSION;
+                && positionDetails.matchedNode().kind() == SyntaxKind.RAW_TEMPLATE_EXPRESSION
+                && positionDetails.matchedNode().parent().kind() != SyntaxKind.CONST_DECLARATION;
     }
 
     @Override
