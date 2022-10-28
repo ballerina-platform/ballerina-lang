@@ -1089,7 +1089,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (isModuleGeneratedForClientDeclaration(pkgId)) {
+        if (symResolver.isModuleGeneratedForClientDeclaration(enclPackageID, pkgId)) {
             dlog.error(importPkgNode.pos, DiagnosticErrorCode.CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL);
             return;
         }
@@ -5533,23 +5533,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return true;
             }
         }
-        return false;
-    }
-
-    private boolean isModuleGeneratedForClientDeclaration(PackageID moduleId) {
-        for (Map<String, Map<LineRange, Optional<PackageID>>> moduleClientDecls :
-                symTable.clientDeclarations.values()) {
-            for (Map<LineRange, Optional<PackageID>> fileClientDecls : moduleClientDecls.values()) {
-                for (Optional<PackageID> optionalPackageID : fileClientDecls.values()) {
-                    if (optionalPackageID.isPresent()) {
-                        if (moduleId.equals(optionalPackageID.get())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
         return false;
     }
 
