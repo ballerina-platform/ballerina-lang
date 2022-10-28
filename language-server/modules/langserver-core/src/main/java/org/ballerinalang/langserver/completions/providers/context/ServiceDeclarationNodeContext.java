@@ -42,6 +42,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -134,7 +135,16 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             Eg:
             (1) service / m<cursor>
             function ...
+            (2) service TestObj m<cursor>
+            (3) service /<cursor>
+            (4) service / <cursor>
              */
+            if (!node.onKeyword().isMissing() ||
+                    context.getNodeAtCursor().textRange().endOffset() == context.getCursorPositionInTree()
+                            && (context.getNodeAtCursor().toSourceCode().split(" ").length == 1
+                            && context.getNodeAtCursor().toSourceCode().contains("/"))) {
+                return Collections.emptyList();
+            }
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
             cursorContext = ServiceContext.OTHER;
         }
