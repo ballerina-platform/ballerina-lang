@@ -548,12 +548,17 @@ public class JBallerinaBackend extends CompilerBackend {
         String nativeImageCommand = System.getenv("GRAALVM_HOME");
 
         if (nativeImageCommand == null) {
-            throw new ProjectException("unable to create native image. The environment variable GRAALVM_HOME " +
-                    "contains an empty string.");
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable");
         }
-
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
