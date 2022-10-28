@@ -19,8 +19,12 @@ package io.ballerina.projects.util;
 
 import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.IDLClientGeneratorResult;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.environment.ResolutionOptions;
+
+import java.nio.file.Files;
 
 /**
  * Project dependencies related util methods.
@@ -54,5 +58,23 @@ public class DependencyUtils {
         CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder = CompilationOptions.builder();
         compilationOptionsBuilder.setOffline(false);
         return project.currentPackage().runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build());
+    }
+
+    /**
+     * Check if the module is a generated module.
+     * This is temporary API gievn till the public API is finalized.
+     *
+     * @param module module instance
+     * @return whether the module is a generated one or not
+     */
+    public static boolean isGeneratedModule(Module module) {
+        if (!module.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            return false;
+        }
+        if (module.isDefaultModule()) {
+            return false;
+        }
+        return Files.exists(module.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
+                .resolve(module.moduleName().moduleNamePart()));
     }
 }
