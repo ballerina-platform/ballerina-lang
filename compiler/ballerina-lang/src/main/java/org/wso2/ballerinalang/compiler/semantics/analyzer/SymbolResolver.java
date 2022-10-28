@@ -1744,7 +1744,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         Location pos = userDefinedTypeNode.pos;
 
         BSymbol pkgSymbol = this.resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().filePath()));
-        if (!this.isModuleGeneratedForClientDeclaration(env.enclPkg.packageID, pkgSymbol.pkgID)) {
+        if (pkgSymbol != symTable.notFoundSymbol &&
+                !this.isModuleGeneratedForClientDeclaration(env.enclPkg.packageID, pkgSymbol.pkgID)) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
         }
     }

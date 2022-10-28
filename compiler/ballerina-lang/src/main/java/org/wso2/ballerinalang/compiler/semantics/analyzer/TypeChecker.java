@@ -2842,7 +2842,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         } else if (Names.CLIENT.equals(varName) && !identifier.isLiteral) {
-            if (!symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
+            if (pkgSymbol != symTable.notFoundSymbol &&
+                    !symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
                 dlog.error(varRefExpr.pos,
                            DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
             }
