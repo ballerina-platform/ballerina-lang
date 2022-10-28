@@ -36,7 +36,7 @@
       "detail": "Range",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}},\nstartLine: {line: ${2:0}, offset: ${3:0}}",
+      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}},\nstartLine: {line: ${3:0}, offset: ${4:0}}",
       "insertTextFormat": "Snippet"
     },
     {
