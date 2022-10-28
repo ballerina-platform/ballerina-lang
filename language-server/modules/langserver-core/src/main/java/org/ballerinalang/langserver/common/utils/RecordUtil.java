@@ -99,19 +99,12 @@ public class RecordUtil {
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
             if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
-                requiredFields.put(entry.getKey(), entry.getValue());
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
             }
         }
 
         String label;
-        String detail;
-        if (wrapper.getRawType().getName().isPresent()) {
-            detail = NameUtil.getModifiedTypeName(context, wrapper.getRawType());
-        } else if (wrapper.getBroaderType().getName().isPresent()) {
-            detail = NameUtil.getModifiedTypeName(context, wrapper.getBroaderType());
-        } else {
-            detail = wrapper.getRawType().signature();
-        }
+        String detail = NameUtil.getRecordTypeName(context, wrapper);
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
             int count = 1;
@@ -137,6 +130,50 @@ public class RecordUtil {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Get the insert text to fill the record fields.
+     *
+     * @param fields A non-empty map of fields
+     * @return Insert text to fill the record fields
+     */
+    public static String getFillAllRecordFieldInsertText(Map<String, RecordFieldSymbol> fields) {
+        List<String> fieldEntries = new ArrayList<>();
+        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
+        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
+            }
+        }
+
+        String insertText = "";
+        if (!requiredFields.isEmpty()) {
+            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor())
+                        .orElse(" ");
+                fieldEntries.add(fieldEntry);
+            }
+
+            insertText = String.join(", ", fieldEntries);
+        }
+        return insertText;
+    }
+
+    /**
+     * Returns the fields of the record.
+     *
+     * @param wrapper        A wrapper containing record type wrapper and broader type wrapper
+     * @param existingFields Existing record fields
+     * @return Fields of the record
+     */
+    public static Map<String, RecordFieldSymbol> getRecordFields(RawTypeSymbolWrapper<RecordTypeSymbol> wrapper,
+                                                                 List<String> existingFields) {
+        return wrapper.getRawType().fieldDescriptors().entrySet().stream()
+                .filter(e -> !existingFields.contains(e.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     /**
