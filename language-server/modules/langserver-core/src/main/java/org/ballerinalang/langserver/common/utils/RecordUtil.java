@@ -191,7 +191,8 @@ public class RecordUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField BField to evaluate
+     * @param bField         BField to evaluate
+     * @param snippetContext Snippet context
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
