@@ -14,13 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import simpleclientnegativefive.client1;
-import simpleclientnegativefive.client1 as bar;
+import simpleclientnegativesix.foo;
 
-client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
-
-function testModuleClientDecl() {
-    foo:ClientConfiguration _ = {'limit: 5};
-    client1:ClientConfiguration _ = {'limit: 5};
-    bar:ClientConfiguration _ = {'limit: 5};
+function testUnquotedClientKeywordUsageInDifferentFile() {
+    foo:client _ = new; // error
+    _ = foo:client; // error
+    bar:client _ = new ({'limit: 5}); // OK
+    _ = bar:client; // OK
 }
