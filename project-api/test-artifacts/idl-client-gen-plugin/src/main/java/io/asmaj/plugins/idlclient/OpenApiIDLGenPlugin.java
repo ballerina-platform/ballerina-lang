@@ -36,6 +36,7 @@ import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 import io.ballerina.projects.plugins.IDLPluginContext;
 import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -55,6 +56,9 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
         @Override
         public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             String uri = getUri(idlSourceGeneratorContext.clientNode());
+            if (Files.notExists(idlSourceGeneratorContext.resourcePath())) {
+                return false;
+            }
             if (uri.endsWith("throwNPE")) {
                 throw new NullPointerException();
             }
