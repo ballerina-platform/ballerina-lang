@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Map;
 
 /**
@@ -49,6 +50,10 @@ public class DecimalValue implements SimpleValue, BDecimal {
     private static final String INF_STRING = "Infinity";
     private static final String NEG_INF_STRING = "-" + INF_STRING;
     private static final String NAN = "NaN";
+    private static final BigDecimal DECIMAL_MAX =
+            new BigDecimal("9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
+    private static final BigDecimal DECIMAL_MIN =
+            new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
 
     // Variable used to track the kind of a decimal value.
     @Deprecated
@@ -57,7 +62,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
     private final BigDecimal value;
 
     public DecimalValue(BigDecimal value) {
-        this.value = value;
+        this.value = getValidDecimalValue(value);
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
@@ -65,11 +70,12 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
     public DecimalValue(String value) {
         // Check whether the number provided is a hexadecimal value.
+        BigDecimal bd;
         if (isHexValueString(value)) {
-            this.value = hexToDecimalFloatingPointNumber(value);
+            bd = hexToDecimalFloatingPointNumber(value);
         } else {
             try {
-                this.value = new BigDecimal(value, MathContext.DECIMAL128);
+                bd = new BigDecimal(value, MathContext.DECIMAL128);
             } catch (NumberFormatException exception) {
                 String message = exception.getMessage();
                 if ((message != null) && (message.equals("Too many nonzero exponent digits.") ||
@@ -80,6 +86,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
                 throw exception;
             }
         }
+        this.value = getValidDecimalValue(bd);
+
         if (!this.booleanValue()) {
             this.valueKind = DecimalValueKind.ZERO;
         }
@@ -88,6 +96,14 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValue(String value, DecimalValueKind valueKind) {
         this(value);
         this.valueKind = valueKind;
+    }
+
+    private static BigDecimal getValidDecimalValue(BigDecimal bd) {
+        if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.DECIMAL_VALUE_OUT_OF_RANGE));
+        }
+        return bd;
     }
 
     private static boolean isHexValueString(String value) {
@@ -166,7 +182,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
             throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
                                                           PredefinedTypes.TYPE_INT);
         }
-        return (long) Math.rint(value.doubleValue());
+        return value.setScale(0, RoundingMode.HALF_EVEN).longValue();
     }
 
     /**
@@ -438,7 +454,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return decimal value
      */
     public static DecimalValue valueOf(int value) {
-        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, RoundingMode.HALF_EVEN));
     }
 
     /**
@@ -447,7 +463,7 @@ public class DecimalValue implements SimpleValue, BDecimal {
      * @return decimal value
      */
     public static DecimalValue valueOf(long value) {
-        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, BigDecimal.ROUND_HALF_EVEN));
+        return new DecimalValue(new BigDecimal(value, MathContext.DECIMAL128).setScale(1, RoundingMode.HALF_EVEN));
     }
 
     /**
