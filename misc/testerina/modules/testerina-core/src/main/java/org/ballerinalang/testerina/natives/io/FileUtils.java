@@ -61,9 +61,10 @@ public class FileUtils {
         File jsonFile = new File(Paths.get(targetPath.getValue()).toString());
         jsonFile.getParentFile().mkdirs();
         FileOutputStream fileOutputStream = new FileOutputStream(jsonFile);
-        Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
-        writer.write(new String(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        writer.flush();
+        try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+            writer.write(new String(stringBuilder.toString().getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            writer.flush();
+        }
     }
 
     public static BString readContent(BString targetPath) {

@@ -56,23 +56,22 @@ public class TestFunctionVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-        if (functionDefinitionNode.metadata().isEmpty()) {
-            return;
-        }
-        MetadataNode metadataNode = functionDefinitionNode.metadata().get();
-        for (AnnotationNode annotation : metadataNode.annotations()) {
-            if (annotation.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                continue;
-            }
-            QualifiedNameReferenceNode qualifiedNameReferenceNode =
-                    (QualifiedNameReferenceNode) annotation.annotReference();
-            String modulePrefix = qualifiedNameReferenceNode.modulePrefix().text();
-            String identifier = qualifiedNameReferenceNode.identifier().text();
-            if (TEST_MODULE_NAME.equals(modulePrefix)) {
-                if (TEST_STATIC_ANNOTATION_NAMES.contains(identifier)) {
-                    testStaticFunctions.add(functionDefinitionNode);
-                } else if (TEST_DYNAMIC_ANNOTATION_NAME.equals(identifier)) {
-                    testDynamicFunctions.add(functionDefinitionNode);
+        if (functionDefinitionNode.metadata().isPresent()) {
+            MetadataNode metadataNode = functionDefinitionNode.metadata().get();
+            for (AnnotationNode annotation : metadataNode.annotations()) {
+                if (annotation.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    continue;
+                }
+                QualifiedNameReferenceNode qualifiedNameReferenceNode =
+                        (QualifiedNameReferenceNode) annotation.annotReference();
+                String modulePrefix = qualifiedNameReferenceNode.modulePrefix().text();
+                String identifier = qualifiedNameReferenceNode.identifier().text();
+                if (TEST_MODULE_NAME.equals(modulePrefix)) {
+                    if (TEST_STATIC_ANNOTATION_NAMES.contains(identifier)) {
+                        testStaticFunctions.add(functionDefinitionNode);
+                    } else if (TEST_DYNAMIC_ANNOTATION_NAME.equals(identifier)) {
+                        testDynamicFunctions.add(functionDefinitionNode);
+                    }
                 }
             }
         }
