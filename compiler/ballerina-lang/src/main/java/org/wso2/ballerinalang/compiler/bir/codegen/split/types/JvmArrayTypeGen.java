@@ -88,7 +88,7 @@ public class JvmArrayTypeGen {
         mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        if (TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
+        if (TypeTags.isSimpleBasicType(Types.getReferredType(arrayType.eType).tag)) {
             // Load the element type
             jvmTypeGen.loadType(mv, arrayType.eType);
             int arraySize = arrayType.size;

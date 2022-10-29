@@ -62,7 +62,7 @@ public class FrameClassGen {
             }
 
             BType attachedType;
-            if (typeDef.type.tag == TypeTags.RECORD) {
+            if (JvmCodeGenUtil.getReferredType(typeDef.type).tag == TypeTags.RECORD) {
                 // Only attach function of records is the record init. That should be
                 // generated as a static function.
                 attachedType = null;

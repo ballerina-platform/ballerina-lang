@@ -94,8 +94,8 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found " +
                 "'(record {| record {| record {| 1 a; |} b; |} a; record {| record {| 1 a; |} a; record {| 2 b; 3 c; " +
                 "|} CMI2; record {| 1 d; |} c; |} b; |} & readonly)'", 125, 16);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly 1 a; |} & " +
-                "readonly', found '(record {| 2 b; 3 c; |} & readonly)'", 126, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '(record {| 1 a; |} & " +
+                "readonly)', found '(record {| 2 b; 3 c; |} & readonly)'", 126, 17);
         BAssertUtil.validateError(compileResult1, i++, "redeclared symbol 'cmi4'", 127, 10);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 128, 17);
         BAssertUtil.validateError(compileResult1, i++, "undefined field 'c' in record 'record {| readonly 0.11f a; " +

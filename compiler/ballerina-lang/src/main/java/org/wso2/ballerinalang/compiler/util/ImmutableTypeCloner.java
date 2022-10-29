@@ -460,7 +460,7 @@ public class ImmutableTypeCloner {
 
         BType effectiveType = immutableTupleIntersectionType.effectiveType;
         BTypeSymbol tsymbol = immutableTupleIntersectionType.effectiveType.tsymbol;
-        if (effectiveType.tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
+        if (Types.getReferredType(effectiveType).tag != TypeTags.TUPLE || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableTupleIntersectionType;
         }
@@ -747,7 +747,7 @@ public class ImmutableTypeCloner {
 
         BType effectiveType = immutableType.effectiveType;
         BTypeSymbol tsymbol = immutableType.effectiveType.tsymbol;
-        if (effectiveType.tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
+        if (Types.getReferredType(effectiveType).tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableType;
         }

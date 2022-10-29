@@ -157,30 +157,30 @@ public class ObjectConstructorTest {
                         "type 'any'", 42, 9);
         validateError(negativeResult, index++, "invalid usage of 'object constructor expression' with " +
                 "type '(DistinctFooA|DistinctFoo)'", 53, 47);
-        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
+        validateError(negativeResult, index++, "incompatible types: expected '(string[] & readonly)', found 'string[]'",
                       84, 22);
         validateError(negativeResult, index++, "incompatible types: expected 'ReadOnlyClass', " +
                               "found 'isolated object { final int a; final (string[] & readonly) s; } & readonly'",
                       87, 24);
-        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
-                      89, 22);
-        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
-                      94, 22);
-        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
-                      95, 29);
-        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
-                      104, 22);
-        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
-                      105, 22);
-        validateError(negativeResult, index++, "incompatible types: expected 'string[] & readonly', found 'string[]'",
-                      113, 22);
-        validateError(negativeResult, index++, "incompatible types: expected '()', found 'stream<string>'",
-                      117, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(string[] & readonly)', found" +
+                        " 'string[]'", 89, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(string[] & readonly)', found" +
+                        " 'string[]'", 94, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(stream<string>? & readonly)'" +
+                        ", found 'stream<string>'", 95, 29);
+        validateError(negativeResult, index++, "incompatible types: expected '(string[] & readonly)', found" +
+                        " 'string[]'", 104, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(stream<string>? & readonly)'," +
+                        " found 'stream<string>'", 105, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(string[] & readonly)', found" +
+                        " 'string[]'", 113, 22);
+        validateError(negativeResult, index++, "incompatible types: expected '(stream<string>? & readonly)'," +
+                        " found 'stream<string>'", 117, 22);
         validateError(negativeResult, index++,
                 "no implementation found for the method 'onMessage' of object constructor " +
                         "'object { function onMessage () returns (); }'", 127, 14);
-        validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
-                      140, 17);
+        validateError(negativeResult, index++, "incompatible types: expected '(any & readonly)', found" +
+                        " 'stream<int>'", 140, 17);
         validateError(negativeResult, index++, "annotation not attached to a construct", 153, 14);
         validateError(negativeResult, index++, "missing object constructor expression", 153, 14);
         validateError(negativeResult, index++, "missing semicolon token", 154, 1);

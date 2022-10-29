@@ -47,6 +47,7 @@ public class BIRVarToJVMIndexMap {
 
     private void add(String varRefName, BType bType) {
         this.jvmLocalVarIndexMap.put(varRefName, this.localVarIndex);
+        bType = JvmCodeGenUtil.getReferredType(bType);
         if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.FLOAT) {
             this.localVarIndex = this.localVarIndex + 2;
         } else if (bType.tag == JTypeTags.JTYPE) {

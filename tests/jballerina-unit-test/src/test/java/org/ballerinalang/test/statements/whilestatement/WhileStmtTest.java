@@ -285,11 +285,11 @@ public class WhileStmtTest {
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected '[string]', found '([int]|[string])'", 271, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected '[int]', found '([string] & readonly)'", 282, 19);
+                "incompatible types: expected '[int]', found '[string] & readonly'", 282, 19);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string[]', found '(int[]|string[])'", 288, 22);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'int[]', found '(string[] & readonly)'", 298, 19);
+                "incompatible types: expected 'int[]', found 'string[] & readonly'", 298, 19);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string', found '(boolean|string)'", 314, 20); // issue #34307
         BAssertUtil.validateError(compileResult, index++,

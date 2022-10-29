@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -202,6 +203,10 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return ((BTypeReferenceType) type).referredType;
         }
 
+        if (type.tag == TypeTags.INTERSECTION) {
+            return getReferredType(((BIntersectionType) type).effectiveType);
+        }
+        
         if (type.tag == TypeTags.PARAMETERIZED_TYPE) {
             return ((BParameterizedType) type).paramValueType;
         }

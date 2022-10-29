@@ -111,7 +111,7 @@ public class ExternalMethodGen {
         BType retType = birFunc.type.retType;
 
         BIROperand retRef = null;
-        if (retType.tag != TypeTags.NIL) {
+        if (JvmCodeGenUtil.getReferredType(retType).tag != TypeTags.NIL) {
             BIRVariableDcl localVar = birFunc.localVars.get(0);
             BIRVariableDcl variableDcl = new BIRVariableDcl(retType, localVar.name, localVar.scope, localVar.kind);
             retRef = new BIROperand(variableDcl);
@@ -150,7 +150,7 @@ public class ExternalMethodGen {
         String currentPackageName = JvmCodeGenUtil.getPackageName(packageID);
 
         String birFuncName = birFunc.name.value;
-
+        attachedType = JvmCodeGenUtil.getReferredType(attachedType);
         if (attachedType == null) {
             lookupKey = currentPackageName + birFuncName;
         } else if (attachedType.tag == TypeTags.OBJECT) {

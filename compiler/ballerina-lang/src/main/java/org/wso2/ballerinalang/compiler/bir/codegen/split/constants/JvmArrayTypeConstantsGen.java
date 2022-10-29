@@ -96,7 +96,7 @@ public class JvmArrayTypeConstantsGen {
     private String generateBArrayInits(BArrayType arrayType) {
         String varName = JvmConstants.ARRAY_TYPE_VAR_PREFIX + constantIndex++;
         createBArrayType(mv, arrayType, varName);
-        if (!TypeTags.isSimpleBasicType(arrayType.eType.tag)) {
+        if (!TypeTags.isSimpleBasicType(JvmCodeGenUtil.getReferredType(arrayType.eType).tag)) {
             genPopulateMethod(arrayType, varName);
         }
         return varName;

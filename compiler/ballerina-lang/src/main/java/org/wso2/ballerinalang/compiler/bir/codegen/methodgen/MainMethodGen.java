@@ -276,7 +276,7 @@ public class MainMethodGen {
         genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
         handleErrorFromFutureValue(mv, MAIN_FUTURE_VAR);
         // At this point we are done executing all the functions including asyncs
-        boolean isVoidFunction = userMainFunc.type.retType.tag == TypeTags.NIL;
+        boolean isVoidFunction = JvmCodeGenUtil.getReferredType(userMainFunc.type.retType).tag == TypeTags.NIL;
         if (!isVoidFunction) {
             genReturn(mv, indexMap, MAIN_FUTURE_VAR);
         }

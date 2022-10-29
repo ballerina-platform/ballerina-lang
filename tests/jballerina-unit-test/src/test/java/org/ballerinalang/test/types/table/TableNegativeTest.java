@@ -222,7 +222,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "duplicate key found in table row key('id') : ' '",
                 102, 9);
         validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
-                        "'<byte[] & readonly> (base16 `5A`)'",
+                        "'<(byte[] & readonly)> (base16 `5A`)'",
                 128, 9);
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);

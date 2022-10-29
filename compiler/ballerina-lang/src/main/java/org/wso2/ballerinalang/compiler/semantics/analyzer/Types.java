@@ -5016,12 +5016,12 @@ public class Types {
                                   LinkedHashSet<BType> visitedTypes) {
 
         BType referredType = getReferredType(type);
-        BType referredlhsType = getReferredType(lhsType);
+        BType referredLhsType = getReferredType(lhsType);
 
         if (intersectionContext.preferNonGenerativeIntersection) {
-            if (isAssignable(referredType, referredlhsType)) {
+            if (isAssignable(referredType, referredLhsType)) {
                 return type;
-            } else if (isAssignable(referredlhsType, referredType)) {
+            } else if (isAssignable(referredLhsType, referredType)) {
                 return lhsType;
             }
         }
@@ -5031,9 +5031,9 @@ public class Types {
         // implementation, we cannot easily find the intersection between (A & readonly) and B. Instead, what we
         // do here is, first find the intersection between A and B then re-create the immutable type out of it.
 
-        if (Symbols.isFlagOn(referredlhsType.flags, Flags.READONLY) && referredlhsType.tag == TypeTags.INTERSECTION &&
+        if (Symbols.isFlagOn(referredLhsType.flags, Flags.READONLY) && referredLhsType.tag == TypeTags.INTERSECTION &&
                 getReferredType(((BIntersectionType) lhsType).effectiveType).tag == TypeTags.UNION) {
-            BIntersectionType intersectionType = (BIntersectionType) referredlhsType;
+            BIntersectionType intersectionType = (BIntersectionType) referredLhsType;
             BType finalType = type;
             List<BType> types = intersectionType.getConstituentTypes().stream()
                     .filter(t -> getReferredType(t).tag != TypeTags.READONLY)
@@ -5056,40 +5056,40 @@ public class Types {
             }
         }
 
-        if (referredType.tag == TypeTags.ERROR && referredlhsType.tag == TypeTags.ERROR) {
-            BType intersectionType = getIntersectionForErrorTypes(intersectionContext, referredlhsType, referredType,
+        if (referredType.tag == TypeTags.ERROR && referredLhsType.tag == TypeTags.ERROR) {
+            BType intersectionType = getIntersectionForErrorTypes(intersectionContext, referredLhsType, referredType,
                     env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.RECORD && referredlhsType.tag == TypeTags.RECORD) {
-            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredlhsType,
+        } else if (referredType.tag == TypeTags.RECORD && referredLhsType.tag == TypeTags.RECORD) {
+            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredLhsType,
                                                               (BRecordType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.MAP && referredlhsType.tag == TypeTags.RECORD) {
-            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredlhsType,
+        } else if (referredType.tag == TypeTags.MAP && referredLhsType.tag == TypeTags.RECORD) {
+            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredLhsType,
                                                               getEquivalentRecordType((BMapType) referredType), env,
                                                                 visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.RECORD && referredlhsType.tag == TypeTags.MAP) {
+        } else if (referredType.tag == TypeTags.RECORD && referredLhsType.tag == TypeTags.MAP) {
             BType intersectionType = createRecordIntersection(intersectionContext,
-                                                              getEquivalentRecordType((BMapType) referredlhsType),
+                                                              getEquivalentRecordType((BMapType) referredLhsType),
                                                               (BRecordType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
         } else if (!intersectionContext.preferNonGenerativeIntersection && 
-                isAssignable(referredType, referredlhsType)) {
+                isAssignable(referredType, referredLhsType)) {
             return type;
         } else if (!intersectionContext.preferNonGenerativeIntersection && 
-                isAssignable(referredlhsType, referredType)) {
+                isAssignable(referredLhsType, referredType)) {
             return lhsType;
-        } else if (referredlhsType.tag == TypeTags.FINITE) {
-            BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) referredlhsType, type);
+        } else if (referredLhsType.tag == TypeTags.FINITE) {
+            BType intersectionType = getTypeForFiniteTypeValuesAssignableToType((BFiniteType) referredLhsType, type);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
@@ -5098,8 +5098,8 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredlhsType.tag == TypeTags.UNION) {
-            BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) referredlhsType, type, env,
+        } else if (referredLhsType.tag == TypeTags.UNION) {
+            BType intersectionType = getTypeForUnionTypeMembersAssignableToType((BUnionType) referredLhsType, type, env,
                     intersectionContext, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
@@ -5110,70 +5110,70 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.MAP && referredlhsType.tag == TypeTags.MAP) {
+        } else if (referredType.tag == TypeTags.MAP && referredLhsType.tag == TypeTags.MAP) {
             BType intersectionConstraintTypeType = getIntersection(intersectionContext, 
-                    ((BMapType) referredlhsType).constraint, env, ((BMapType) referredType).constraint, visitedTypes);
+                    ((BMapType) referredLhsType).constraint, env, ((BMapType) referredType).constraint, visitedTypes);
             if (intersectionConstraintTypeType == null || intersectionConstraintTypeType == symTable.semanticError) {
                 return null;
             }
             return new BMapType(TypeTags.MAP, intersectionConstraintTypeType, null);
-        } else if (referredType.tag == TypeTags.ARRAY && referredlhsType.tag == TypeTags.TUPLE) {
+        } else if (referredType.tag == TypeTags.ARRAY && referredLhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    (BArrayType) referredType, (BTupleType) referredlhsType, env, visitedTypes);
+                    (BArrayType) referredType, (BTupleType) referredLhsType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.TUPLE && referredlhsType.tag == TypeTags.ARRAY) {
+        } else if (referredType.tag == TypeTags.TUPLE && referredLhsType.tag == TypeTags.ARRAY) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    (BArrayType) referredlhsType, (BTupleType) referredType, env, visitedTypes);
+                    (BArrayType) referredLhsType, (BTupleType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.TUPLE && referredlhsType.tag == TypeTags.TUPLE) {
+        } else if (referredType.tag == TypeTags.TUPLE && referredLhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createTupleAndTupleIntersection(intersectionContext,
-                    (BTupleType) referredlhsType, (BTupleType) referredType, env, visitedTypes);
+                    (BTupleType) referredLhsType, (BTupleType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isAnydataOrJson(referredType) && referredlhsType.tag == TypeTags.RECORD) {
-            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredlhsType,
+        } else if (isAnydataOrJson(referredType) && referredLhsType.tag == TypeTags.RECORD) {
+            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) referredLhsType,
                     getEquivalentRecordType(getMapTypeForAnydataOrJson(referredType, env)), env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.RECORD && isAnydataOrJson(referredlhsType)) {
+        } else if (referredType.tag == TypeTags.RECORD && isAnydataOrJson(referredLhsType)) {
             BType intersectionType = createRecordIntersection(intersectionContext,
-                    getEquivalentRecordType(getMapTypeForAnydataOrJson(referredlhsType, env)), 
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(referredLhsType, env)), 
                     (BRecordType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isAnydataOrJson(referredType) && referredlhsType.tag == TypeTags.MAP) {
+        } else if (isAnydataOrJson(referredType) && referredLhsType.tag == TypeTags.MAP) {
             return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(referredType, env),
                     visitedTypes);
-        } else if (referredType.tag == TypeTags.MAP && isAnydataOrJson(referredlhsType)) {
-            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(referredlhsType, env), env,
+        } else if (referredType.tag == TypeTags.MAP && isAnydataOrJson(referredLhsType)) {
+            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(referredLhsType, env), env,
                     referredType, visitedTypes);
-        } else if (isAnydataOrJson(referredType) && referredlhsType.tag == TypeTags.TUPLE) {
+        } else if (isAnydataOrJson(referredType) && referredLhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(referredType, env), (BTupleType) referredlhsType, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(referredType, env), (BTupleType) referredLhsType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (referredType.tag == TypeTags.TUPLE && isAnydataOrJson(referredlhsType)) {
+        } else if (referredType.tag == TypeTags.TUPLE && isAnydataOrJson(referredLhsType)) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForAnydataOrJson(referredlhsType, env), (BTupleType) referredType, env, visitedTypes);
+                    getArrayTypeForAnydataOrJson(referredLhsType, env), (BTupleType) referredType, env, visitedTypes);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isAnydataOrJson(referredType) && referredlhsType.tag == TypeTags.ARRAY) {
-            BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) referredlhsType).eType, env,
+        } else if (isAnydataOrJson(referredType) && referredLhsType.tag == TypeTags.ARRAY) {
+            BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) referredLhsType).eType, env,
                                                         type, visitedTypes);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
             return new BArrayType(elementIntersection);
-        } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredlhsType)) {
+        } else if (referredType.tag == TypeTags.ARRAY && isAnydataOrJson(referredLhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env, 
                     ((BArrayType) referredType).eType, visitedTypes);
             if (elementIntersection == null) {

@@ -423,7 +423,6 @@ public class MethodGen {
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.RECORD:
             case TypeTags.TUPLE:
             case TypeTags.FUTURE:
@@ -1051,7 +1050,8 @@ public class MethodGen {
 
     private boolean isValidArg(BIRVariableDcl localVar) {
         boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
-        boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
+        boolean synArg = JvmCodeGenUtil.getReferredType(localVar.type).tag == TypeTags.BOOLEAN &&
+                localVar.name.value.startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;
         return (localArg && !synArg) || lambdaMapArg;
