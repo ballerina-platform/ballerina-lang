@@ -43,16 +43,15 @@ public class Replace {
                                              boolean isReplaceAll) {
         String originalStr = str.getValue();
         String replacementString = replacingStr.getValue();
-        Matcher matcher = RegexUtil.getMatcher(regExp, originalStr);
-        matcher.region(startIndex, originalStr.length());
+        String prefixStr = "";
+        String subStr = originalStr;
+        if (startIndex != 0) {
+            prefixStr = originalStr.substring(0, startIndex);
+            subStr = originalStr.substring(startIndex);
+        }
+        Matcher matcher = RegexUtil.getMatcher(regExp, subStr);
         if (matcher.find()) {
-            String prefixStr = "";
             String updatedSubStr;
-            if (startIndex != 0) {
-                prefixStr = originalStr.substring(0, startIndex);
-                String substr = originalStr.substring(startIndex);
-                matcher = RegexUtil.getMatcher(regExp, substr);
-            }
             if (isReplaceAll) {
                 updatedSubStr = matcher.replaceAll(replacementString);
             } else {
