@@ -412,14 +412,11 @@ public class Desugar extends BLangNodeVisitor {
     // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
 
-    private BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
-            symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+    private BVarSymbol stringVarSymbol;
 
-    private BVarSymbol anyVarSymbol = new BVarSymbol(0, null, null,
-            symTable.anyType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+    private BVarSymbol anyVarSymbol;
 
-    private BVarSymbol anydataVarSymbol = new BVarSymbol(0, null, null,
-            symTable.anydataType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+    private BVarSymbol anydataVarSymbol;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -456,6 +453,12 @@ public class Desugar extends BLangNodeVisitor {
         this.mockDesugar = MockDesugar.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.unifier = new Unifier();
+        this.stringVarSymbol = new BVarSymbol(0, null, null,
+                symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+        this.anyVarSymbol = new BVarSymbol(0, null, null,
+                symTable.anyType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+        this.anydataVarSymbol = new BVarSymbol(0, null, null,
+                symTable.anydataType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
