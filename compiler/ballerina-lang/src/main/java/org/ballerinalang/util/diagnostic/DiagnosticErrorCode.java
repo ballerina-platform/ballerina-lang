@@ -69,6 +69,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_UNINITIALIZED_FIELD("BCE2035", "object.uninitialized.field"),
     CYCLIC_TYPE_REFERENCE("BCE2036", "cyclic.type.reference"),
     ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL("BCE2037", "attempt.refer.non.accessible.symbol"),
+    CANNOT_USE_FIELD_ACCESS_TO_ACCESS_A_REMOTE_METHOD("BCE2038", "cannot.use.field.access.to.access.a.remote.method"),
     UNDEFINED_PARAMETER("BCE2039", "undefined.parameter"),
     ATTACHED_FUNCTIONS_MUST_HAVE_BODY("BCE2040", "attached.functions.must.have.body"),
     INIT_METHOD_IN_OBJECT_TYPE_DESCRIPTOR("BCE2041", "illegal.init.method.in.object.type.descriptor"),
@@ -794,8 +795,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
             "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
+    CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
+            "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
-            "BCE4045", "outer.join.must.be.declared.with.var")
+            "BCE4046", "outer.join.must.be.declared.with.var")
     ;
 
     private String diagnosticId;

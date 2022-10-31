@@ -153,7 +153,7 @@ public class AsyncUtils {
             callback.notifySuccess(args);
             return;
         }
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, module.isTestPkg()));
         FunctionType functionType = getObjectMethodType(methodName, objectType);
         if (functionType == null) {
             throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
