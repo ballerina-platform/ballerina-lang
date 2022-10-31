@@ -2206,9 +2206,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             checkExpr(e, expType, data);
             if (inferredTupleDetails.restMemberTypes.isEmpty()) {
                 BType memberType = data.resultType;
-                BVarSymbol varSymbol = new BVarSymbol(memberType.flags, memberType.tsymbol.name,
-                        memberType.tsymbol.pkgID, memberType, memberType.tsymbol.owner, memberType.tsymbol.pos,
-                        memberType.tsymbol.origin);
+                BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null, null);
                 inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
             } else {
                 inferredTupleDetails.restMemberTypes.add(data.resultType);
@@ -3085,9 +3083,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (int i = 0; i < varRefExpr.expressions.size(); i++) {
             ((BLangVariableReference) varRefExpr.expressions.get(i)).isLValue = true;
             BType memberType = checkExpr(varRefExpr.expressions.get(i), symTable.noType, data);
-            BVarSymbol varSymbol = new BVarSymbol(memberType.flags, memberType.tsymbol.name,
-                    memberType.tsymbol.pkgID, memberType, memberType.tsymbol.owner, memberType.tsymbol.pos,
-                    memberType.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null, null);
             results.add(new BTupleMember(memberType, varSymbol));
         }
         BTupleType actualType = new BTupleType(results);

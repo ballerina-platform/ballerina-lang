@@ -1601,8 +1601,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BTupleMember> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
             BType type = getTupleMemberType(memberVariable);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
@@ -3044,8 +3043,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i).type, data);
                     BType type = matchPatterns.get(i).getBType();
-                    BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                            type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
+                            type, null, null, null);
                     memberTypes.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType tupleType = new BTupleType(memberTypes);
@@ -3557,8 +3556,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
             memberMatchPattern.accept(this, data);
             BType type = memberMatchPattern.getBType();
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             memberTypes.add(new BTupleMember(type, varSymbol));
             checkForSimilarVars(listMatchPattern.declaredVars, memberMatchPattern.declaredVars, memberMatchPattern.pos);
             listMatchPattern.declaredVars.putAll(memberMatchPattern.declaredVars);
