@@ -1,0 +1,4 @@
+[package]
+org = "idl_clients"
+name = "simpleclientnegativesix"
+version = "0.1.0"
