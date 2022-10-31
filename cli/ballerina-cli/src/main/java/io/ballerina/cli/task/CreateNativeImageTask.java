@@ -29,11 +29,11 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 
 /**
@@ -59,36 +59,45 @@ public class CreateNativeImageTask implements Task {
         this.out.println("Generating GraalVM native image");
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
 
-        Path nativeDirectoryPath;
         String nativeImageName;
         Path executablePath;
+        String generatedPath;
+
+        String[] command;
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-            Path sourceRootParent = Optional.of(project.sourceRoot().toAbsolutePath().getParent()).orElseThrow();
-            nativeDirectoryPath = sourceRootParent.resolve("native");
-            nativeImageName = Optional.of(sourceRootParent.getFileName()).orElseThrow().toString();
+            String fileName = project.sourceRoot().toFile().getName();
+            nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             executablePath = getExecutablePath(project);
+            command = new String[] {
+                    "native-image",
+                    "-jar",
+                    executablePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "--no-fallback"
+            };
+            generatedPath = nativeImageName;
         } else {
             Target target;
             try {
                 target = new Target(project.targetDir());
-                nativeDirectoryPath = target.path().toAbsolutePath().resolve("native");
                 nativeImageName = project.currentPackage().packageName().toString();
                 executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+                command = new String[] {
+                        "native-image",
+                        "-jar",
+                        executablePath.toString(),
+                        "-H:Name=" + nativeImageName,
+                        "-H:Path=" + executablePath.getParent(),
+                        "--no-fallback"
+                };
+                generatedPath = executablePath.getParent() + File.separator + nativeImageName;
             } catch (IOException e) {
                 throw createLauncherException("unable to resolve target path : " + e.getMessage());
             }
         }
 
         try {
-            String[] command = {
-                    "native-image",
-                    "-jar",
-                    executablePath.toString(),
-                    "-H:Name=" + nativeImageName,
-                    "-H:Path=" + nativeDirectoryPath,
-                    "--no-fallback"};
-
             ProcessBuilder builder = new ProcessBuilder();
             builder.command(command);
             builder.inheritIO();
@@ -98,14 +107,13 @@ public class CreateNativeImageTask implements Task {
                 throw createLauncherException("unable to create native image");
             } else {
                 out.println("\n" + "GraalVM image generated");
-                out.println("\t" + nativeDirectoryPath + File.separator + nativeImageName);
+                out.println("\t" + generatedPath);
                 out.println();
             }
-
         } catch (IOException e) {
             throw createLauncherException("unable to create native directory:" + e.getMessage());
         } catch (InterruptedException e) {
-            throw createLauncherException("unable to create native image:" + e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
