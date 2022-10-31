@@ -129,7 +129,7 @@ ballerina add consumer
  
      [[platform.libraries]]
      module = "producer"
-     path = "./resources/jackson-databind-2.13.2.2.jar"
+     path = "./resources/jackson-databind-2.13.4.2.jar"
      artifactId = "jackson-databind"
      version = "2.10.3"
      groupId = "com.fasterxml.jackson.core"
@@ -152,7 +152,7 @@ Now, the directory structure will look like below (some of the files are ignored
 │   ├── common-utils-5.4.1.jar
 │   ├── jackson-annotations-2.10.3.jar
 │   ├── jackson-core-2.10.3.jar
-│   ├── jackson-databind-2.13.2.2.jar
+│   ├── jackson-databind-2.13.4.2.jar
 │   ├── kafka-avro-serializer-5.4.1.jar
 │   └── kafka-schema-registry-client-5.4.1.jar
 └── src

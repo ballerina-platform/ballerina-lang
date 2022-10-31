@@ -80,7 +80,7 @@ jnats-2.6.0.jar                                                                 
 jackson-core-2.8.6.jar                                                                              bundle         apache2
 socket.jar                                                                                          jar            apache2
 stax2-api-3.1.1.jar                                                                                 bundle         bsd
-jackson-databind-2.13.2.2.jar                                                                          bundle         apache2
+jackson-databind-2.13.4.2.jar                                                                          bundle         apache2
 oauth2.jar                                                                                          jar            apache2
 module_push.jar                                                                                     jar            apache2
 openapi-to-ballerina-generator-1.1.0.jar                                                            jar            apache2
