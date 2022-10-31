@@ -808,12 +808,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewTypeDesc extends BIRNonTerminator {
         public final List<BIROperand> closureVars;
         public BType type;
+        public final BIROperand annotations;
 
-        public NewTypeDesc(Location pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
+        public NewTypeDesc(Location pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars,
+                           BIROperand annotations) {
             super(pos, InstructionKind.NEW_TYPEDESC);
             this.closureVars = closureVars;
             this.lhsOp = lhsOp;
             this.type = type;
+            this.annotations = annotations;
         }
 
         @Override
