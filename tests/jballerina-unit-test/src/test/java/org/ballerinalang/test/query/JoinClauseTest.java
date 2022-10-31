@@ -162,7 +162,8 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 389, 59);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 389, 59);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 395, 22);
-        validateError(negativeResult, i++, "order by not supported for complex type fields, order key should belong to a basic type", 395, 22);
+        validateError(negativeResult, i++, "order by not supported for complex type fields, order key should belong" +
+                " to a basic type", 395, 22);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 397, 36);
     }
 
