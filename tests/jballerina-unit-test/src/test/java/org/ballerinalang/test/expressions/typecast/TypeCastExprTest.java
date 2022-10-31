@@ -642,6 +642,11 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns.toString(), "{\"name\":\"Pubudu\"}");
     }
 
+    @Test(dataProvider = "typeCastExprTestFunctions")
+    public void testSimpleValueCasting(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
     @Test(dataProvider = "typesTestExpressionTestFunctions")
     public void testTypeTestsExpression(String function) {
         BRunUtil.invoke(result, function);
@@ -650,6 +655,15 @@ public class TypeCastExprTest {
     @Test(dataProvider = "immutableArrayTypesTestFunctions")
     public void testCastOfImmutableArrayTypes(String function) {
         BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "typeCastExprTestFunctions")
+    public Object[] typeCastExprTestFunctions() {
+        return new Object[] {
+                "testDecimalToIntCasting",
+                "testFloatToDecimalCasting",
+                "testDecimalToFloatCasting"
+        };
     }
 
     @DataProvider(name = "typesTestExpressionTestFunctions")

@@ -2,7 +2,8 @@ type AnnotationData record {|
 
 |};
 
-annotation AnnotationData MyAnnotation on record field;
+annotation AnnotationData MyAnnotation1 on record field;
+annotation AnnotationData MyAnnotation2 on type;
 
 public function main() {
     record {int x; int y;} r = {

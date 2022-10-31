@@ -795,6 +795,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
     MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
             "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
+    CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
+            "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     CANNOT_INFER_TYPEDESC_ARGUMENT_OR_EXPECTED_CONTEXTUALLY_EXPECTED_TYPE("BCE4045",
             "cannot.infer.typedesc.argument.or.expected.contectually.expected.type");
     ;
