@@ -74,6 +74,7 @@ public class CompletionUtil {
                 && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.SYNC_SEND_TOKEN
+                && ctx.getNodeAtCursor().kind() != SyntaxKind.RE_CHAR_ESCAPE
                 || isWithinComment(ctx)) {
             return Collections.emptyList();
         }

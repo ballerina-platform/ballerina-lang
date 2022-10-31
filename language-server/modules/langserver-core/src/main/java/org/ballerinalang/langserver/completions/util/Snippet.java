@@ -129,6 +129,8 @@ public enum Snippet {
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
+
+    DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
     
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),

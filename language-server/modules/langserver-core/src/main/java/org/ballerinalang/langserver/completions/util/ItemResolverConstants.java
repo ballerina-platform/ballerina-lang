@@ -85,6 +85,7 @@ public class ItemResolverConstants {
     public static final String HTTP_RESOURCE = "http resource";
     public static final String RESOURCE = "resource";
     public static final String RESOURCE_FUNC_DEF = "resource function";
+    public static final String REG_EXP = "re ``";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";

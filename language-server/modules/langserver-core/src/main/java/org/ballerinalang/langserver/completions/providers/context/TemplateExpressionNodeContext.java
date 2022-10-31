@@ -32,9 +32,12 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -61,6 +64,10 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
+        if (node.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
+            completionItems.addAll(this.getRegexCompletions(nodeAtCursor, context));
+        }
+
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
         if (interpolationNode.isEmpty() || !this.isWithinInterpolation(context, node)) {
             return completionItems;
@@ -78,6 +85,16 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         SyntaxKind interpolationParent = interpolationNode.get().parent().kind();
         this.sort(context, node, completionItems, interpolationParent);
 
+        return completionItems;
+    }
+
+    private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE) {
+            for(RegexSnippet regexSnippet: RegexSnippet.values()) {
+                completionItems.add(new SnippetCompletionItem(context, regexSnippet.get()));
+            }
+        }
         return completionItems;
     }
 
@@ -212,5 +229,42 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
                 break;
         }
         return SortingUtil.genSortText(3);
+    }
+    
+    private enum RegexSnippet {
+        
+        DEF_DIGIT(new SnippetBlock("d", "d", "d", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_NON_DIGIT(new SnippetBlock("D", "D", "D", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_WHITESPACE(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_NON_WHITESPACE(new SnippetBlock("S", "S", "S", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_ALPHA_NUMERIC(new SnippetBlock("w", "w", "w", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_NON_ALPHA_NUMERIC(new SnippetBlock("W", "W", "W", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_RETURN(new SnippetBlock("r", "r", "r", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_NEWLINE(new SnippetBlock("n", "n", "n", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_TAB(new SnippetBlock("t", "t", "t", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET));
+
+        private final SnippetBlock snippetBlock;
+
+        RegexSnippet(SnippetBlock snippetBlock) {
+            this.snippetBlock = snippetBlock;
+            this.snippetBlock.setId(name());
+        }
+
+        /**
+         * Get the SnippetBlock.
+         *
+         * @return {@link SnippetBlock} SnippetBlock
+         */
+        public SnippetBlock get() {
+            return this.snippetBlock;
+        }
     }
 }
