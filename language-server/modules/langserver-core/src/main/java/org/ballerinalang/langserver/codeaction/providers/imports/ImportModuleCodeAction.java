@@ -88,7 +88,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         String modulePrefix = qNameReferenceNode.get().modulePrefix().text();
 
-        List<LSPackageLoader.ModuleInfo> packagesList = LSPackageLoader
+        List<LSPackageLoader.ModuleInfo> moduleList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         // Check if we already have packages imported with the given module prefix but with different aliases
@@ -117,7 +117,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         }
 
         // Here we filter out the already imported packages
-        packagesList.stream()
+        moduleList.stream()
                 .filter(pkgEntry -> existingModules.stream()
                         .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
                                 moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
