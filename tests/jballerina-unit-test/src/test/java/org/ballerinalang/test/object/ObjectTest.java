@@ -915,4 +915,11 @@ public class ObjectTest {
                 {"testCheckInObjectFieldInitializer6"}
         };
     }
+
+    @Test
+    public void testNonPublicSymbolsWarningInClientDecl() {
+        CompileResult result = BCompileUtil.compile("test-src/object/client_object_decl_with_non_public_symbols.bal");
+        Assert.assertEquals(result.getWarnCount(), 1);
+        BAssertUtil.validateWarning(result, 0, "attempt to expose non-public symbol 'Foo'", 18, 5);
+    }
 }
