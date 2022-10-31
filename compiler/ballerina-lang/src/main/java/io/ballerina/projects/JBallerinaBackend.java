@@ -62,6 +62,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -71,6 +72,7 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
@@ -87,6 +89,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -542,12 +545,26 @@ public class JBallerinaBackend extends CompilerBackend {
         String nativeImageName;
         String[] command;
         Project project = this.packageContext().project();
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
+
+        if (nativeImageCommand == null) {
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable");
+        }
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
 
         if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
             String fileName = project.sourceRoot().toFile().getName();
             nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
             command = new String[] {
-                    "native-image",
+                    nativeImageCommand,
                     "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
@@ -556,7 +573,7 @@ public class JBallerinaBackend extends CompilerBackend {
         } else {
             nativeImageName = project.currentPackage().packageName().toString();
             command = new String[]{
-                    "native-image",
+                    nativeImageCommand,
                     "-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
