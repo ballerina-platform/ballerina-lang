@@ -374,6 +374,7 @@ public class Desugar extends BLangNodeVisitor {
     private final SymbolEnter symbolEnter;
     private ClosureDesugar closureDesugar;
     private ParameterDesugar parameterDesugar;
+    private LocalAnnotationDesugar localAnnotationDesugar;
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
@@ -447,6 +448,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
         this.parameterDesugar = ParameterDesugar.getInstance(context);
+        this.localAnnotationDesugar = LocalAnnotationDesugar.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
@@ -774,6 +776,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // create closures for default values
         parameterDesugar.visit(pkgNode);
+        localAnnotationDesugar.visit(pkgNode);
 
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
@@ -822,6 +825,11 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+
+        for (int i = 0; i < pkgNode.anonFunctions.size(); i++) {
+            BLangLambdaFunction function = pkgNode.anonFunctions.get(i);
+            pkgNode.anonFunctions.set(i, rewrite(function, function.capturedClosureEnv));
+        }
 
         for (int i = 0; i < pkgNode.functions.size(); i++) {
             BLangFunction function = pkgNode.functions.get(i);
