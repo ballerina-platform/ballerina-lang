@@ -2039,9 +2039,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol), typeCastExpr.getBType());
         String entriesVarName = "$map$ref$entries$" + UNDERSCORE + restNum;
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, constraintType.tsymbol.name,
-                constraintType.tsymbol.pkgID, constraintType, constraintType.tsymbol.owner, constraintType.tsymbol.pos,
-                constraintType.tsymbol.origin);
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, null, null, constraintType, null, null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
         BType entriesType = new BMapType(TypeTags.MAP,

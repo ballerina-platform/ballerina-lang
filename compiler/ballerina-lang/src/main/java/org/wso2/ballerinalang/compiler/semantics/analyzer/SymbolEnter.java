@@ -2541,8 +2541,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                             if (memberTypes.size() > 1) {
                                 BType type = BUnionType.create(null, memberTypes);
-                                BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                                        type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                                BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                                 memberTupleTypes.add(new BTupleMember(type, varSymbol));
                             } else {
                                 memberTypes.forEach(m ->
