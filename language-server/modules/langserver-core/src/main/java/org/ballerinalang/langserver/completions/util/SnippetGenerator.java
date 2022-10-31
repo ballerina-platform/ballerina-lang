@@ -1672,7 +1672,8 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getRegularExpressionSnippet() {
         String snippet = "re `${1}`";
-        return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+        return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, 
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**

@@ -88,11 +88,11 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         return completionItems;
     }
 
-    private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext context) {
+    private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE) {
-            for(RegexSnippet regexSnippet: RegexSnippet.values()) {
-                completionItems.add(new SnippetCompletionItem(context, regexSnippet.get()));
+            for (RegexSnippet regexSnippet: RegexSnippet.values()) {
+                completionItems.add(new SnippetCompletionItem(ctx, regexSnippet.get()));
             }
         }
         return completionItems;
@@ -239,11 +239,14 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
         DEF_WHITESPACE(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
 
-        DEF_NON_WHITESPACE(new SnippetBlock("S", "S", "S", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_NON_WHITESPACE(new SnippetBlock("S", "S", "S", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
-        DEF_ALPHA_NUMERIC(new SnippetBlock("w", "w", "w", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_ALPHA_NUMERIC(new SnippetBlock("w", "w", "w", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
-        DEF_NON_ALPHA_NUMERIC(new SnippetBlock("W", "W", "W", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_NON_ALPHA_NUMERIC(new SnippetBlock("W", "W", "W", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
         DEF_RETURN(new SnippetBlock("r", "r", "r", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
 
