@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValue;
 
 /**
  * <p>
@@ -45,6 +46,13 @@ public interface BTypedesc extends BValue {
      * @return instantiated object
      */
     Object instantiate(Strand strand);
+
+    /**
+     * Returns the annotations of the value describe by this type descriptor.
+     *
+     * @return annotations
+     */
+    MapValue getAnnotations();
 
     /**
      * @param strand        strand to be used to run the user-defined-type initialization code.
