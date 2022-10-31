@@ -383,9 +383,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<LSPackageLoader.ModuleInfo> packages =
+        List<LSPackageLoader.ModuleInfo> modules =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        packages.forEach(pkg -> {
+        modules.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = ModuleUtil.escapeModuleName(pkg.packageOrg().value());
             if (ModuleUtil.matchingImportedModule(ctx, pkg).isEmpty()

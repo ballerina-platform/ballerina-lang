@@ -43,8 +43,10 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getImportCompletion;
@@ -184,11 +186,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
-        List<String> orgNames = new ArrayList<>();
+        Set<String> orgNames = new HashSet<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<LSPackageLoader.ModuleInfo> pkgList =
+        List<LSPackageLoader.ModuleInfo> moduleList =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        pkgList.forEach(pkg -> {
+        moduleList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
@@ -268,9 +270,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<LSPackageLoader.ModuleInfo> packageList =
+        List<LSPackageLoader.ModuleInfo> moduleList =
                 LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
-        packageList.forEach(ballerinaPackage -> {
+        moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
