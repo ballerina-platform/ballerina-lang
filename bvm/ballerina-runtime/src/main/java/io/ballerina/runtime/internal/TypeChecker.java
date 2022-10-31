@@ -584,11 +584,6 @@ public class TypeChecker {
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
         }
-        if (describingType.getTag() ==  TypeTags.TYPE_REFERENCED_TYPE_TAG &&
-                ((BTypeReferenceType) describingType).getReferredType().getTag() == TypeTags.TUPLE_TAG) {
-            BAnnotatableType referredType = (BAnnotatableType) ((BTypeReferenceType) describingType).getReferredType();
-            return referredType.getAnnotation(StringUtils.fromString(annotTag));
-        }
         return ((BAnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
     }
 

@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.model.types;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-
 import java.util.List;
 
 /**
