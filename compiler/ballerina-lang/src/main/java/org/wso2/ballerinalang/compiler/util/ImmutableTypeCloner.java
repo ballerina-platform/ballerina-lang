@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -435,8 +436,11 @@ public class ImmutableTypeCloner {
             if (!types.isSelectivelyImmutableType(origTupleMemType.type, unresolvedTypes, pkgId)) {
                 continue;
             }
-            BTupleMember memberType = new BTupleMember(getImmutableType(pos, types, origTupleMemType.type, env,
-                    pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes));
+            BType newType = getImmutableType(pos, types, origTupleMemType.type, env,
+                    pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
+            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
+                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
+            BTupleMember memberType = new BTupleMember(newType, varSymbol);
             tupleEffectiveImmutableType.addMembers(memberType);
         }
 

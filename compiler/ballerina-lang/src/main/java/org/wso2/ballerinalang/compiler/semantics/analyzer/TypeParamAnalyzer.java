@@ -558,7 +558,10 @@ public class TypeParamAnalyzer {
                 List<BTupleMember> memberTypes = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
-                        .filter(Objects::nonNull).map(f -> new BTupleMember(f.type)).forEach(memberTypes::add);
+                        .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
+                                new BVarSymbol(f.type.flags, f.type.tsymbol.name, f.type.tsymbol.pkgID, f.type,
+                                        f.type.tsymbol.owner, f.type.tsymbol.pos,
+                                        f.type.tsymbol.origin))).forEach(memberTypes::add);
                 if (memberTypes.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0).type, env, resolvedTypes, result);
                 } else {
@@ -874,8 +877,10 @@ public class TypeParamAnalyzer {
             if (!hasDifferentType && isDifferentTypes(type.type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-
-            tupleTypes.add(new BTupleMember(matchingBoundType));
+            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, matchingBoundType.tsymbol.name,
+                    matchingBoundType.tsymbol.pkgID, matchingBoundType, matchingBoundType.tsymbol.owner,
+                    matchingBoundType.tsymbol.pos, matchingBoundType.tsymbol.origin);
+            tupleTypes.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
         BType restType = expType.restType;

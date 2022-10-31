@@ -1093,7 +1093,9 @@ public class Types {
             List<BTupleMember> fieldTypes = new ArrayList<>();
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
-                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type)).forEach(fieldTypes::add);
+                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type, new BVarSymbol(f.type.flags,
+                            f.type.tsymbol.name, f.type.tsymbol.pkgID, f.type, f.type.tsymbol.owner,
+                            f.type.tsymbol.pos, f.type.tsymbol.origin))).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -1303,7 +1305,10 @@ public class Types {
 
         List<BTupleMember> sourceTypes = new ArrayList<>(source.memberTypes);
         if (source.restType != null) {
-            sourceTypes.add(new BTupleMember(source.restType));
+            BType type = source.restType;
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            sourceTypes.add(new BTupleMember(type, varSymbol));
         }
         return sourceTypes.stream()
                 .allMatch(tupleElemType -> isAssignable(tupleElemType.type, target.eType, unresolvedTypes));
@@ -4732,8 +4737,10 @@ public class Types {
         }
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
-            tupleTypes.add(new BTupleMember(
-                    getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env)));
+            BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
             return new BTupleType(tupleTypes);
@@ -4742,8 +4749,10 @@ public class Types {
             return originalType;
         }
         for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
-            tupleTypes.add(new BTupleMember(
-                    getRemainingMatchExprType(originalTupleTypes.get(i).type, typeToRemove.restType, env)));
+            BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typeToRemove.restType, env);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         return new BTupleType(tupleTypes);
     }
@@ -4752,7 +4761,10 @@ public class Types {
         BType eType = typeToRemove.eType;
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (BTupleMember tupleMember : originalType.memberTypes) {
-            tupleTypes.add(new BTupleMember(getRemainingMatchExprType(tupleMember.type, eType, env)));
+            BType type = getRemainingMatchExprType(tupleMember.type, eType, env);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
         if (originalType.restType != null) {
@@ -5259,7 +5271,9 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            tupleMemberTypes.add(new BTupleMember(intersectionType));
+            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, intersectionType.tsymbol.name, intersectionType.tsymbol.pkgID,
+                    intersectionType, intersectionType.tsymbol.owner, intersectionType.tsymbol.pos, intersectionType.tsymbol.origin);
+            tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 
         if (tupleType.restType == null) {
@@ -5300,7 +5314,10 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            tupleMemberTypes.add(new BTupleMember(intersectionType));
+            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, intersectionType.tsymbol.name,
+                    intersectionType.tsymbol.pkgID, intersectionType, intersectionType.tsymbol.owner,
+                    intersectionType.tsymbol.pos, intersectionType.tsymbol.origin);
+            tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 
         if (lhsTupleType.restType != null && tupleType.restType != null) {

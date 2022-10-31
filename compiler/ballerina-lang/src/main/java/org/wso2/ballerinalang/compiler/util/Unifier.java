@@ -250,7 +250,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType member = tupleTypes.get(i).type;
             BType expMember = expTupleTypes.get(j).type;
             BType newMem = member.accept(this, expMember);
-            members.add(new BTupleMember(newMem));
+            BVarSymbol varSymbol = new BVarSymbol(newMem.flags, newMem.tsymbol.name, newMem.tsymbol.pkgID,
+                    newMem, newMem.tsymbol.owner, newMem.tsymbol.pos, newMem.tsymbol.origin);
+            members.add(new BTupleMember(newMem, varSymbol));
 
             if (isSemanticErrorInInvocation(newMem)) {
                 errored = true;

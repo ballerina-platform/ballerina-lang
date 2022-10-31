@@ -33,11 +33,6 @@ public class BTupleMember {
         this.symbol = symbol;
     }
 
-    public BTupleMember(BType type) {
-        this.type = type;
-        this.symbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
-    }
-
     @Override
     public String toString() {
         return this.type.toString();

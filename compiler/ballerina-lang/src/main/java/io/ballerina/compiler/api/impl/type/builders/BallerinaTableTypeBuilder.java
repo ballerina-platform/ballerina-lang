@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -159,7 +160,10 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
         List<BTupleMember> tupleMemberTypes = new ArrayList<>();
         for (TypeSymbol keyType : keyTypes) {
-            tupleMemberTypes.add(new BTupleMember(checkKeyConstraintBType(keyType, rowType)));
+            BType newType = checkKeyConstraintBType(keyType, rowType);
+            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
+                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
+            tupleMemberTypes.add(new BTupleMember(newType,varSymbol));
         }
 
         return new BTupleType(tupleMemberTypes);

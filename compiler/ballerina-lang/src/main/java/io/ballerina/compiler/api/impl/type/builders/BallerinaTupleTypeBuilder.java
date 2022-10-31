@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -37,6 +38,8 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
 /**
  * The implementation of the methods used to build the Tuple type descriptor in Types API.
@@ -98,10 +101,14 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         }
 
         if (memberType instanceof AbstractTypeSymbol) {
-            return new BTupleMember(((AbstractTypeSymbol) memberType).getBType());
+            BType newType = ((AbstractTypeSymbol) memberType).getBType();
+            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
+                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
+            return new BTupleMember(newType, varSymbol);
         }
-
-        return new BTupleMember(symTable.noType);
+        BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+                symTable.noType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
+        return new BTupleMember(symTable.noType, varSymbol);
     }
 
     private BType getRestType(TypeSymbol restType) {

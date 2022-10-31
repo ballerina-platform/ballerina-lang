@@ -2011,7 +2011,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
                 for (BType member : definedTupleType.getMemberTypes()) {
-                    if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member))) {
+                    BVarSymbol varSymbol = new BVarSymbol(member.flags, member.tsymbol.name, member.tsymbol.pkgID,
+                            member, member.tsymbol.owner, member.tsymbol.pos, member.tsymbol.origin);
+                    if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member, varSymbol))) {
                         return constructDependencyListError(typeDef, member);
                     }
                 }
@@ -2530,14 +2532,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    memberTupleTypes.add(new BTupleMember(referredType));
+                                    BVarSymbol varSymbol = new BVarSymbol(referredType.flags, referredType.tsymbol.name,
+                                            referredType.tsymbol.pkgID, referredType, referredType.tsymbol.owner,
+                                            referredType.tsymbol.pos, referredType.tsymbol.origin);
+                                    memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                                 }
                             }
 
                             if (memberTypes.size() > 1) {
-                                memberTupleTypes.add(new BTupleMember(BUnionType.create(null, memberTypes)));
+                                BType type = BUnionType.create(null, memberTypes);
+                                BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                                        type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                                memberTupleTypes.add(new BTupleMember(type, varSymbol));
                             } else {
-                                memberTypes.forEach(m -> memberTupleTypes.add(new BTupleMember(m)));
+                                memberTypes.forEach(m ->
+                                        memberTupleTypes.add(new BTupleMember(m, new BVarSymbol(m.flags,
+                                                m.tsymbol.name, m.tsymbol.pkgID, m, m.tsymbol.owner, m.tsymbol.pos,
+                                                m.tsymbol.origin))));
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
@@ -2553,7 +2564,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                     List<BTupleMember> memberTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTypes.add(new BTupleMember(possibleTypes.get(0)));
+                        BType type = possibleTypes.get(0);
+                        BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                                type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                        memberTypes.add(new BTupleMember(type, varSymbol));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
@@ -2562,7 +2576,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ANYDATA:
                     List<BTupleMember> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        memberTupleTypes.add(new BTupleMember(referredType));
+                        BVarSymbol varSymbol = new BVarSymbol(referredType.flags, referredType.tsymbol.name,
+                                referredType.tsymbol.pkgID, referredType, referredType.tsymbol.owner,
+                                referredType.tsymbol.pos, referredType.tsymbol.origin);
+                        memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
                     if (varNode.restVariable != null) {
@@ -2576,7 +2593,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     List<BTupleMember> tupleTypes = new ArrayList<>();
                     BArrayType arrayType = (BArrayType) referredType;
                     for (int i = 0; i < arrayType.size; i++) {
-                        tupleTypes.add(new BTupleMember(arrayType.eType));
+                        BType type = arrayType.eType;
+                        BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
+                                type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                        tupleTypes.add(new BTupleMember(type, varSymbol));
                     }
                     tupleTypeNode = new BTupleType(tupleTypes);
                     break;
