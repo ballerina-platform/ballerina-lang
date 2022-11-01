@@ -4539,9 +4539,7 @@ public class Desugar extends BLangNodeVisitor {
             Location restPatternPos = restMatchPattern.pos;
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BType restType = ((BRecordType) restMatchPattern.getBType()).restFieldType;
-            BVarSymbol varSymbol = new BVarSymbol(restType.flags, restType.tsymbol.name,
-                    restType.tsymbol.pkgID, restType, restType.tsymbol.owner, restType.tsymbol.pos,
-                    restType.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(restType.flags, null, null, restType, null, null, null);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                     new BTupleMember(symTable.stringType, stringVarSymbol),
                     new BTupleMember(restType, varSymbol))), null);
