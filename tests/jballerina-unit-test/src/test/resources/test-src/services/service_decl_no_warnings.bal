@@ -15,37 +15,34 @@
 // under the License.
 
 public class Listener {
-    boolean initialized = false;
-    boolean started = false;
-
     public isolated function 'start() returns error? {
     }
+
     public isolated function gracefulStop() returns error? {
     }
+
     public isolated function immediateStop() returns error? {
     }
+
     public isolated function detach(service object {} s) returns error? {
     }
+
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
     }
+
     isolated function register(service object {} s, string[]|string? name) returns error? {
-    }
-    public function init() returns error? {
     }
 }
 
 listener Listener lsn = new Listener();
 
-type S service object {
-};
-
-service S / on lsn {
+service / on lsn {
     isolated resource function get processRequest(Foo foo) returns json { // no warning
-        return { output: "Hello" };
+        return {output: "Hello"};
     }
 
     isolated resource function post processRequest(Foo foo) returns Foo { // no warning
-        return { x: 2, y: "" };
+        return {x: 2, y: ""};
     }
 }
 
