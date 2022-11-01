@@ -5270,8 +5270,9 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, intersectionType.tsymbol.name, intersectionType.tsymbol.pkgID,
-                    intersectionType, intersectionType.tsymbol.owner, intersectionType.tsymbol.pos, intersectionType.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, intersectionType.tsymbol.name,
+                    intersectionType.tsymbol.pkgID, intersectionType, intersectionType.tsymbol.owner,
+                    intersectionType.tsymbol.pos, intersectionType.tsymbol.origin);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 

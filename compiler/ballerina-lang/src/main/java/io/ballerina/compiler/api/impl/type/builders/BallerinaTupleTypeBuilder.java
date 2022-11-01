@@ -39,8 +39,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
-
 /**
  * The implementation of the methods used to build the Tuple type descriptor in Types API.
  *

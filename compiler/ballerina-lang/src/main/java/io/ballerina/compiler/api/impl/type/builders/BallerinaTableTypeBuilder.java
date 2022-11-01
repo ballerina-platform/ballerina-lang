@@ -163,7 +163,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             BType newType = checkKeyConstraintBType(keyType, rowType);
             BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
                     newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
-            tupleMemberTypes.add(new BTupleMember(newType,varSymbol));
+            tupleMemberTypes.add(new BTupleMember(newType, varSymbol));
         }
 
         return new BTupleType(tupleMemberTypes);

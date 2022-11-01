@@ -59,8 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
-
 /**
  * This class provides an API which given a type containing a type param component, returns a new type with the type
  * param component bound to the specified bound type.
