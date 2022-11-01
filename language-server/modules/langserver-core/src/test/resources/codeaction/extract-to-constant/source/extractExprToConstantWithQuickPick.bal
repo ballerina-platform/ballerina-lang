@@ -9,6 +9,8 @@ function testFunction() {
 int intModLiteral = 10 / 2 + 20 + 30;
 
 class Square {
+    int length = 4 * 5;
+    
 	function getArea() returns float {
         float area = 3.14 * 3 * 4;
 	    return area;

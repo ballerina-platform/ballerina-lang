@@ -56,7 +56,8 @@ public class ExtractToConstantWithQuickPickTest extends AbstractCodeActionTest {
                 {"extractExprToConstantWithQuickPick3.json"},
                 {"extractExprToConstantWithQuickPick4.json"},
                 {"extractExprToConstantWithQuickPick5.json"},
-                {"extractExprToConstantWithQuickPick6.json"}
+                {"extractExprToConstantWithQuickPick6.json"},
+                {"extractExprToConstantWithQuickPick7.json"}
         };
     }
 

@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 11,
-    "character": 18
+    "line": 14,
+    "character": 22
   },
   "source": "extractExprToConstantWithQuickPick.bal",
   "expected": [
@@ -15,7 +15,7 @@
           "extract to constant",
           "extractExprToConstantWithQuickPick.bal",
           {
-            "4": [
+            "3.14": [
               {
                 "range": {
                   "start": {
@@ -27,23 +27,23 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 4;\n"
+                "newText": "const float CONST = 3.14;\n"
               },
               {
                 "range": {
                   "start": {
-                    "line": 11,
-                    "character": 17
+                    "line": 14,
+                    "character": 21
                   },
                   "end": {
-                    "line": 11,
-                    "character": 18
+                    "line": 14,
+                    "character": 25
                   }
                 },
                 "newText": "CONST"
               }
             ],
-            "4 * 5": [
+            "3.14 * 3": [
               {
                 "range": {
                   "start": {
@@ -55,17 +55,45 @@
                     "character": 0
                   }
                 },
-                "newText": "const int CONST = 4 * 5;\n"
+                "newText": "const float CONST = 3.14 * 3;\n"
               },
               {
                 "range": {
                   "start": {
-                    "line": 11,
-                    "character": 17
+                    "line": 14,
+                    "character": 21
                   },
                   "end": {
-                    "line": 11,
-                    "character": 22
+                    "line": 14,
+                    "character": 29
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "3.14 * 3 * 4": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const float CONST = 3.14 * 3 * 4;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 33
                   }
                 },
                 "newText": "CONST"
