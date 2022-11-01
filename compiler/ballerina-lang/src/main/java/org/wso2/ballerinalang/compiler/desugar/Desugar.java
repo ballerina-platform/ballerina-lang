@@ -6338,13 +6338,9 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangStatementExpression createStmtExpr(BLangInvocation invocation) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
-        BInvokableTypeSymbol invokableTypeSymbol;
-        BType type = invocation.symbol.type;
-        if (type.getKind() == TypeKind.TYPEREFDESC) {
-            invokableTypeSymbol = (BInvokableTypeSymbol) ((BTypeReferenceType) type).referredType.tsymbol;
-        } else {
-            invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
-        }
+        BType type = Types.getReferredType(invocation.symbol.type);
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        
         if (invokableTypeSymbol == null) {
             BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, invocation);
             stmtExpr.setBType(invocation.getBType());

@@ -98,10 +98,10 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
         validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
-        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 24);
-        validateError(result, index++, "incompatible types: expected '((Obj & readonly)|(int[] & readonly))', found " +
-                "'string[]'", 85, 44);
+        validateError(result, index++, "incompatible types: expected '(anydata & readonly)', found 'string[]'", 81, 28);
+        validateError(result, index++, "incompatible types: expected '(any & readonly)', found 'future'", 83, 24);
+        validateError(result, index++, "incompatible types: expected '((Obj|int[]|future<int>) & readonly)'," +
+                " found 'string[]'", 85, 44);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 112, 18);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
@@ -128,8 +128,8 @@ public class SelectivelyImmutableTypeTest {
                 5);
         validateError(result, index++, "invalid intersection type with 'readonly', 'JKL' can never be 'readonly'", 211,
                 19);
-        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
-        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 230, 12);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 231, 9);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
         validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 238, 48);
         validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
@@ -191,7 +191,7 @@ public class SelectivelyImmutableTypeTest {
 
         // lang.array - array, tuple.
         validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 32, 14);
-        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 33, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(int[] & readonly)'", 33, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 34, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
                 "readonly'", 35, 9);

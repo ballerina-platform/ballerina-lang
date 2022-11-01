@@ -3500,7 +3500,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
      */
     private <E extends BLangExpression> void checkAccess(E node, AnalyzerData data) {
         if (node.getBType() != null) {
-            checkAccessSymbol(node.getBType().tsymbol, data.env.enclPkg.symbol.pkgID, node.pos);
+            checkAccessSymbol(Types.getReferredType(node.getBType()).tsymbol, data.env.enclPkg.symbol.pkgID, node.pos);
         }
 
         //check for object new invocation

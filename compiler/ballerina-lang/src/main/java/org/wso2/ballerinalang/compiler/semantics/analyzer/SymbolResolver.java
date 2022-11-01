@@ -1595,8 +1595,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
-            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? Types.getReferredType(tempSymbol.type).tsymbol
-                    : tempSymbol;
+            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ?
+                    Types.getReferredType(tempSymbol.type, false).tsymbol : tempSymbol;
 
             NodeKind envNodeKind = data.env.node.getKind();
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {

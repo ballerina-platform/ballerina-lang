@@ -285,7 +285,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
-            BMapType mapType = (BMapType) getMapType(queryExpr.getBType());
+            BMapType mapType = getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
@@ -336,8 +336,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamStmtExpr;
     }
 
-    private BType getMapType(BType type) {
-        BType resultantType = types.getSafeType(Types.getReferredType(type), false, true);
+    private BMapType getMapType(BType type) {
+        BMapType resultantType = (BMapType) Types.getReferredType(types.getSafeType(type, false, true));
         return resultantType;
     }
 

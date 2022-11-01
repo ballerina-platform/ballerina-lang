@@ -1813,7 +1813,6 @@ public class Types {
             case TypeTags.MAP:
                 BMapType bMapType = (BMapType) collectionType;
                 varType = bMapType.constraint;
-
                 break;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) collectionType;

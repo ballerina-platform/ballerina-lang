@@ -195,11 +195,10 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
-                     "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
-                263, 41);
+                "incompatible types: expected '(xml & readonly)', found " +
+                        "'(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'", 263, 41);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
+                "incompatible types: expected '(int[2] & readonly)', found 'int[2]'", 279, 69);
         validateError(negativeResult, index++,
                 "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
@@ -224,15 +223,15 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
-        validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
+        validateError(negativeResult, index++, "incompatible types: expected '(map<int[2]> & readonly)'," +
                 " found '((map<(int[2] & readonly)> & readonly)|error)'", 329, 34);
         validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
                 " found 'Department'", 334, 55);
         validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
                 "found '([string,int]|[string,int]|[string,int]|[string,int])'", 337, 48);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 347, 16);
-        validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
-                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
+        validateError(negativeResult, index++, "incompatible types: expected '(CustomerTableKeyless " +
+                "& readonly)', found '((table<(Customer & readonly)> & readonly)|error)'", 356, 44);
         validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
                 384, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +

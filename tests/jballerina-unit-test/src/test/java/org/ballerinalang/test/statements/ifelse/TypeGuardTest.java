@@ -780,17 +780,17 @@ public class TypeGuardTest {
                 "found '(int[]|string[])'", 300, 22);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(int[] & readonly)', " +
                 "found 'string[] & readonly'", 313, 30);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
-                "readonly)'", 323, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found '(string[] & " +
-                "readonly)'", 333, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'string[] & " +
+                "readonly'", 323, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', found 'string[] & " +
+                "readonly'", 333, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', " +
                 "found '((int|string)[] & readonly)'", 344, 22);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[] & readonly', " +
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(string[] & readonly)', " +
                 "found '((int|string)[] & readonly)'", 345, 33);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[]', " +
                 "found '((int|string)[] & readonly)'", 354, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int[] & readonly', " +
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '(int[] & readonly)', " +
                 "found '((int|string)[] & readonly)'", 355, 30);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'json', found '(Z|json)'", 379, 18);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'Z', found '(Z|json)'", 385, 15);
@@ -826,12 +826,14 @@ public class TypeGuardTest {
                 "'record {| anydata...; |}'", 602, 20);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', found 'record {| " +
                 "anydata...; |}'", 609, 24);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 615, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found " +
+                "'[int,decimal] & readonly'", 615, 20);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(byte[]|Utc)', " +
-                "found '(Utc|record {| anydata...; |})'", 622, 24);
+                "found '([int,decimal] & readonly|record {| anydata...; |})'", 622, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '(Utc|record {| anydata...; |})', " +
                 "found '(record {| anydata...; |}|byte[])'", 630, 27);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'Utc'", 639, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', " +
+                "found '[int,decimal] & readonly'", 639, 20);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'record {| anydata...; |}', found '" +
                 "([int,decimal]|record {| anydata...; |}|byte[])'", 649, 23);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[int,decimal]', found '" +
