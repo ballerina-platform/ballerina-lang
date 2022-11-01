@@ -20,8 +20,7 @@ jobs:
 
       - name: Check for Type label inclusion
         if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}
-        steps:
-          - run: gh issue edit $ISSUE --add-label "needTriage"
+        run: gh issue edit $ISSUE --add-label "needTriage"
       
       - name: Check for Compilation related issue
         if: ${{ contains(github.event.issue.body, '-> Compilation') && {{ env.team_label_added == false }} }}
