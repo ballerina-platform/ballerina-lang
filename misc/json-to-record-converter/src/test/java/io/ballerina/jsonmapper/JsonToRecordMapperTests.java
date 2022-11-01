@@ -115,6 +115,9 @@ public class JsonToRecordMapperTests {
     private final Path sample12Json = RES_DIR.resolve("json")
             .resolve("sample_12.json");
 
+    private final Path sample13Json = RES_DIR.resolve("json")
+            .resolve("sample_13.json");
+
     @Test(description = "Test for primitive and null types")
     public void testForPrimitiveAndNullTypes() throws IOException {
         String jsonFileContent = Files.readString(sample0Json);
@@ -295,6 +298,14 @@ public class JsonToRecordMapperTests {
                 "Provided JSON is invalid : Unterminated object at line 15 column 8 path $.friend.address.city";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
+    }
+
+    @Test(description = "Test for JSON with a fieldName similar to recordName")
+    public void testForSimilarRecordNameAndFieldName() throws IOException {
+        String jsonFileContent = Files.readString(sample13Json);
+        List<JsonToRecordMapperDiagnostic> diagnostics =
+                JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false).getDiagnostics();
+        Assert.assertEquals(diagnostics.size(), 1);
     }
 
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
