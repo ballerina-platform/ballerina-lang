@@ -228,7 +228,6 @@ import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
-import static org.ballerinalang.model.tree.NodeKind.TABLE_TYPE;
 
 /**
  * @since 0.94
