@@ -34,6 +34,8 @@ import java.util.List;
  */
 public class BallerinaLexer extends AbstractLexer {
 
+    private static final char BACK_TICK = '`';
+
     public BallerinaLexer(CharReader charReader) {
         super(charReader, ParserMode.DEFAULT);
     }
@@ -1038,13 +1040,25 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
             case LexerTerminals.RE:
-                return getSyntaxToken(SyntaxKind.RE_KEYWORD);
+                if (isNextTokenBacktick()) {
+                    return getSyntaxToken(SyntaxKind.RE_KEYWORD);
+                }
             default:
 //                if (this.keywordModes.contains(KeywordMode.QUERY)) {
 //                    return getQueryCtxKeywordOrIdentifier(tokenText);
 //                }
                 return getIdentifierToken();
         }
+    }
+    
+    private boolean isNextTokenBacktick() {
+        int lookaheadCount = 0;
+        char lookaheadChar = reader.peek(lookaheadCount);
+        while (isWhitespace(lookaheadChar)) {
+            lookaheadCount += 1;
+            lookaheadChar = reader.peek(lookaheadCount);
+        }
+        return lookaheadChar == BACK_TICK;
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
