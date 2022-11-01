@@ -1062,8 +1062,8 @@ public class BallerinaLexer extends AbstractLexer {
                     lookaheadCount ++;
                     break;
                 case LexerTerminals.SLASH:
-                    if (reader.peek(lookaheadCount ++) == LexerTerminals.SLASH) {
-                        lookaheadCount ++;
+                    if (reader.peek(lookaheadCount + 1) == LexerTerminals.SLASH) {
+                        lookaheadCount += 2;
                         lookaheadCount = skipComment(lookaheadCount);
                         break;
                     }
