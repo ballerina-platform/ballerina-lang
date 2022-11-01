@@ -516,7 +516,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
                                                          BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
         BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) env.node.getBType().tsymbol;
-        BLangFunction function = createFunction(closureName, varNode.pos, symbol.pkgID, owner, varNode.getBType());
+        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         updateFunctionParams(function, symbol.params, paramName);
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = varNode.expr;
