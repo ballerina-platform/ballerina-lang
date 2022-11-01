@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Test cases for Extract to Constant code action with quick pick.
  * 
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class ExtractToConstantWithQuickPickTest extends AbstractCodeActionTest {
     
@@ -55,7 +55,8 @@ public class ExtractToConstantWithQuickPickTest extends AbstractCodeActionTest {
                 {"extractExprToConstantWithQuickPick2.json"},
                 {"extractExprToConstantWithQuickPick3.json"},
                 {"extractExprToConstantWithQuickPick4.json"},
-                {"extractExprToConstantWithQuickPick5.json"}
+                {"extractExprToConstantWithQuickPick5.json"},
+                {"extractExprToConstantWithQuickPick6.json"}
         };
     }
 
