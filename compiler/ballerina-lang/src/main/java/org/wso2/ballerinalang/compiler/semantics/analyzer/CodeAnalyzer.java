@@ -591,10 +591,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.commitRollbackAllowed = prevCommitRollbackAllowed;
         data.returnWithinTransactionCheckStack.pop();
         data.loopWithinTransactionCheckStack.pop();
-        if (onFailExists) {
-            transactionNode.transactionBody.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(transactionNode.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, transactionNode.transactionBody,
+                transactionNode.onFailClause, data);
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, AnalyzerData data) {
@@ -659,10 +657,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         visitNode(retryNode.retrySpec, data);
         visitNode(retryNode.retryBody, data);
         data.failureHandled = failureHandled;
-        if (onFailExists) {
-            retryNode.retryBody.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(retryNode.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, retryNode.retryBody, retryNode.onFailClause, data);
     }
 
     @Override
@@ -774,7 +769,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean failureHandled = data.failureHandled;
         if (onFailExists) {
             data.errorTypes.push(new LinkedHashSet<>());
-            data.failureHandled = onFailExists;
+            data.failureHandled = true;
         }
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
         int clausesSize = matchClauses.size();
@@ -793,9 +788,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNode(firstClause, data);
         }
         data.failureHandled = failureHandled;
-        if (onFailExists) {
-            analyzeOnFailClause(matchStatement.onFailClause, data);
-        }
+        analyzeOnFailClause(matchStatement.onFailClause, data);
     }
 
     @Override
@@ -1486,10 +1479,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = failureHandled;
         data.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection, data);
-        if (onFailExists) {
-            body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(foreach.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, body, foreach.onFailClause, data);
     }
 
     @Override
@@ -1510,10 +1500,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.failureHandled = failureHandled;
         data.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr, data);
-        if (onFailExists) {
-            whileNode.body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(whileNode.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, whileNode.body, whileNode.onFailClause, data);
     }
 
     @Override
@@ -1526,10 +1513,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         analyzeNode(doNode.body, data);
         data.failureHandled = failureHandled;
-        if (onFailExists) {
-            doNode.body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(doNode.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, doNode.body, doNode.onFailClause, data);
     }
 
 
@@ -1572,10 +1556,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         lockNode.body.stmts.forEach(e -> analyzeNode(e, data));
         data.withinLockBlock = previousWithinLockBlock;
         data.failureHandled = failureHandled;
-        if (onFailExists) {
-            lockNode.body.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
-            analyzeOnFailClause(lockNode.onFailClause, data);
-        }
+        analyseOnFailAndUpdateBreakMode(onFailExists, lockNode.body, lockNode.onFailClause, data);
     }
 
     @Override
@@ -3375,6 +3356,14 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeNode(onFailClause.body, data);
         onFailClause.bodyContainsFail = data.failVisited;
         data.failVisited = currentFailVisited;
+    }
+
+    private void analyseOnFailAndUpdateBreakMode(boolean onFailExists, BLangBlockStmt blockStmt,
+                                                 BLangOnFailClause onFailClause, AnalyzerData data) {
+        if (onFailExists) {
+            blockStmt.failureBreakMode = getPossibleBreakMode(!data.errorTypes.peek().isEmpty());
+            analyzeOnFailClause(onFailClause, data);
+        }
     }
 
     @Override
