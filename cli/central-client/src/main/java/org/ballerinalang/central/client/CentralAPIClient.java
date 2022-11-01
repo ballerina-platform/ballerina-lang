@@ -92,6 +92,7 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String PACKAGE_VALIDITY = "packages/package-validity";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
@@ -280,6 +281,64 @@ public class CentralAPIClient {
     /**
      * Push a package to registry.
      *
+     * @param org                   The organization of the package.
+     * @param name                  The name of the package.
+     * @param version               The version of the package.
+     * @param supportedPlatform     The supported platform.
+     * @param ballerinaVersion      The ballerina version.
+     */
+    public void validatePackage(String org, String name, String version, String supportedPlatform,
+                            String ballerinaVersion, List<String> exportedModules) throws CentralClientException {
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+        String packageSignature = org + "/" + name + ":" + version;
+        String validationUrl = this.baseUrl + "/" + PACKAGE_VALIDITY + "?organization=" + org + "&balVersion=" +
+                ballerinaVersion;
+        Optional<ResponseBody> validationBody = Optional.empty();
+        OkHttpClient validateClient = this.getClient();
+        this.outStream.println("ballerina version found:" + ballerinaVersion);
+        this.outStream.println(exportedModules);
+        try {
+            Request validateRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(validationUrl)
+                    .addHeader("Ballerina-Central-Telemetry-Disabled", "true")
+                    .build();
+
+            Call validateRequestCall = validateClient.newCall(validateRequest);
+            Response packageValidateResponse = validateRequestCall.execute();
+
+            // Successfully validated
+            if (packageValidateResponse.code() == HTTP_OK) {
+                if (enableOutputStream) {
+                    this.outStream.println(packageSignature + " token validated successfully");
+                }
+            } else {
+                validationBody = Optional.ofNullable(packageValidateResponse.body());
+                // Invalid access token to push
+                if (packageValidateResponse.code() == HTTP_UNAUTHORIZED) {
+                    handleUnauthorizedResponse(org, validationBody);
+                } else {
+                    throw new CentralClientException("Token validation was not successful. " +
+                            "check access token set in 'Settings.toml' file.");
+                }
+            }
+
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
+                    validationUrl + "'. reason: " + e.getMessage());
+        } finally {
+            validationBody.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(validateClient);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+    /**
+     * Push a package to registry.
+     *
      * @param balaPath              The path to the bala file.
      * @param org                   The organization of the package.
      * @param name                  The name of the package.
@@ -288,7 +347,8 @@ public class CentralAPIClient {
      * @param ballerinaVersion      The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
-                            String ballerinaVersion) throws CentralClientException {
+                            String ballerinaVersion, String packageBalVersion, List<String> exportedModules) throws CentralClientException {
+        this.validatePackage(org, name, version, supportedPlatform, packageBalVersion, exportedModules);
         boolean enableOutputStream =
                 Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + "/" + name + ":" + version;

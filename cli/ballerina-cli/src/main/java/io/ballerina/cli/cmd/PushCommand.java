@@ -19,14 +19,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.FileUtils;
-import io.ballerina.projects.DependencyManifest;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.Settings;
+import io.ballerina.projects.*;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -368,6 +361,8 @@ public class PushCommand implements BLauncherCmd {
             String org = balaProject.currentPackage().manifest().org().toString();
             String name = balaProject.currentPackage().manifest().name().toString();
             String version = balaProject.currentPackage().manifest().version().toString();
+            String packageBalVersion = balaProject.currentPackage().manifest().ballerinaVersion();
+            List<String> exportedModules = balaProject.currentPackage().manifest().exportedModules();
 
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
@@ -381,7 +376,7 @@ public class PushCommand implements BLauncherCmd {
 
             try {
                 client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),
-                                   RepoUtils.getBallerinaVersion());
+                                   RepoUtils.getBallerinaVersion(), packageBalVersion, exportedModules);
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
                 if (null != errorMessage && !"".equals(errorMessage.trim())) {

@@ -89,6 +89,8 @@ public class TestCentralApiClient extends CentralAPIClient {
             "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
     private final Call remoteCall = mock(Call.class);
     private final OkHttpClient client = mock(OkHttpClient.class);
+    List<String> emp;
+
 
     public TestCentralApiClient() {
         super("https://localhost:9090/registry", null, ACCESS_TOKEN);
@@ -477,6 +479,42 @@ public class TestCentralApiClient extends CentralAPIClient {
         Assert.assertEquals(versions.size(), 0);
     }
 
+    @Test(description = "Test validate package")
+    public void testValidatePackage() throws IOException, CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+
+        setBallerinaHome();
+
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
+
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NO_CONTENT)
+                .message("")
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.validatePackage("foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, emp);
+        String buildLog = readOutput();
+        given().with().pollInterval(Duration.ONE_SECOND).and()
+                .with().pollDelay(Duration.ONE_SECOND)
+                .await().atMost(10, SECONDS)
+                .until(() -> buildLog.contains("foo/sf:1.3.5 token validated successfully"));
+    }
+
     @Test(description = "Test push package")
     public void testPushPackage() throws IOException, CentralClientException {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
@@ -505,7 +543,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, TEST_BAL_VERSION, emp);
         String buildLog = readOutput();
         given().with().pollInterval(Duration.ONE_SECOND).and()
                 .with().pollDelay(Duration.ONE_SECOND)
@@ -546,7 +584,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "github", "1.8.3", ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "github", "1.8.3", ANY_PLATFORM, TEST_BAL_VERSION, TEST_BAL_VERSION, emp);
     }
 
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
@@ -577,7 +615,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, TEST_BAL_VERSION, emp);
     }
 
     @Test(description = "Test search package")
@@ -670,7 +708,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, TEST_BAL_VERSION, emp);
         String buildLog = readOutput();
         given().with().pollInterval(Duration.ONE_SECOND).and()
                 .with().pollDelay(Duration.ONE_SECOND)
