@@ -49,6 +49,8 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
                 {"changeParamType2.json"},
                 {"changeParamType3.json"},
                 {"changeParamTypeInService1.json"},
+                {"changeParamTypeWithDefaultable.json"},
+                {"changeParamTypeRestParam.json"}
         };
     }
 }
