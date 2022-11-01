@@ -84,4 +84,10 @@ public final class DiagnosticMessage {
                 "There is no JSON entry could be found for the field name %s.",
                 DiagnosticSeverity.WARNING, args);
     }
+
+    public static DiagnosticMessage jsonToRecordConverter104(Object[] args) {
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_104",
+                "Provided Record name is invalid. Please use a meaningful name.",
+                DiagnosticSeverity.ERROR, args);
+    }
 }
