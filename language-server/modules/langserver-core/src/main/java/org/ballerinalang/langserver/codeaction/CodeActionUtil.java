@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -74,13 +76,14 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -187,17 +190,41 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
                                                 ImportsAcceptor importsAcceptor) {
+        return new ArrayList<>(getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor).values());
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor,
+                                                                 List<TextEdit> importEdits,
+                                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        Map<TypeSymbol, String> possibleTypes = getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                                 ImportsAcceptor importsAcceptor) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyMap();
+        }
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
 
-        List<String> types = new ArrayList<>();
+        Map<TypeSymbol, String> typesMap = new HashMap<>();
+        Types types = semanticModel.get().types();
+        TypeBuilder typeBuilder = types.builder();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
             // Handle ambiguous mapping construct types {}
 
-            // Matching Record type
-            for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
-                if (symbol instanceof TypeDefinitionSymbol &&
+            Position cursorPosition = new Position(context.range().getStart().getLine(),
+                    context.range().getStart().getCharacter());
+            List<Symbol> visibleSymbols = context.visibleSymbols(cursorPosition);
+
+            //Record type definitions - Find matching Record type definitions
+            for (Symbol symbol : visibleSymbols) {
+                if (symbol.kind() == SymbolKind.TYPE_DEFINITION &&
                         ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
                         typeDescriptor.subtypeOf(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
                     Optional<ModuleSymbol> module = symbol.getModule();
@@ -207,112 +234,79 @@ public class CodeActionUtil {
                         fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
                     }
                     String moduleQualifiedName = fqPrefix + symbol.getName().get();
-                    types.add(FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
+                    typesMap.put(((TypeDefinitionSymbol) symbol).typeDescriptor(),
+                            FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
                 }
             }
 
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
-            types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
-
-            // A record can be an open record or a closed record:
-            //      record {| int field1; anydata...; |}
-            //      record {| int field1; |}
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
+            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
                     .allMatch(recordFieldSymbol -> isJsonMemberType(recordFieldSymbol.typeDescriptor())) &&
                     recordTypeSymbol.restTypeDescriptor().map(CodeActionUtil::isJsonMemberType).orElse(true);
             if (jsonSubType) {
-                types.add("json");
+                typesMap.put(types.JSON, types.JSON.signature());
             }
 
             // Map
-            TypeSymbol prevType = null;
-            boolean isConstrainedMap = true;
-            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors().values()) {
-                TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
-                if (prevType != null && typeDescKind != prevType.typeKind()) {
-                    isConstrainedMap = false;
-                }
-                prevType = recordField.typeDescriptor();
+            Optional<TypeSymbol> firstFieldType =
+                    recordTypeSymbol.fieldDescriptors().values().stream().findFirst()
+                            .map(RecordFieldSymbol::typeDescriptor);
+            boolean isConstrainedMap = firstFieldType
+                    .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
+                    .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
+                            type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
+            if (isConstrainedMap) {
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
+                typesMap.put(typeBuilder.MAP_TYPE
+                        .withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
+                return typesMap;
             }
-            if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevType, context);
-                types.add("map<" + type + ">");
-            } else {
-                types.add("map<any>");
-            }
+            typesMap.put(typeBuilder.MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
+
         } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
             // Handle ambiguous list construct types []
             TupleTypeSymbol tupleType = (TupleTypeSymbol) typeDescriptor;
-            String arrayType = null;
-            TypeSymbol prevType = null;
-            TypeSymbol prevInnerType = null;
-            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
-            for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
-                // Here we check previous member-type with current member-type for equality
-                // 1. Check type-kind is differs Tuple vs int
-                // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                if (prevType != null &&
-                        (prevType.typeKind() != memberType.typeKind() ||
-                                !prevType.signature().equals(memberType.signature()))) {
-                    isArrayCandidate = false;
-                }
-                if (memberType.typeKind() == TypeDescKind.TUPLE && prevInnerType == null) {
-                    // Checks inner element's type equality
-                    TupleTypeSymbol nType = (TupleTypeSymbol) memberType;
-                    boolean isSameInnerType = true;
-                    // Here we check previous inner-member-type with current inner-member-type for equality
-                    // 1. Check type-kind is differs Tuple vs int
-                    // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                    for (TypeSymbol innerType : nType.memberTypeDescriptors()) {
-                        if (prevInnerType != null &&
-                                (prevInnerType.typeKind() != innerType.typeKind() ||
-                                        !prevInnerType.signature().equals(innerType.signature()))) {
-                            isSameInnerType = false;
-                        }
-                        prevInnerType = innerType;
-                    }
-                    if (isSameInnerType && prevInnerType != null) {
-                        String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevInnerType, context);
-                        arrayType = type + "[]";
-                    }
-                }
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, memberType, context);
-                prevType = memberType;
-                if (arrayType == null) {
-                    arrayType = type;
-                }
-            }
+            Optional<TypeSymbol> firstMemberType = tupleType.memberTypeDescriptors().stream().findFirst();
+            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty()
+                    && firstMemberType.map(first -> tupleType.memberTypeDescriptors().stream()
+                    .allMatch(typeSymbol -> typeSymbol.subtypeOf(first)
+                            || first.subtypeOf(typeSymbol))).orElse(false);
+
             // Add Array type if valid
             if (isArrayCandidate) {
-                types.add(arrayType + "[]");
+                getPossibleTypeSymbols(firstMemberType.get(), context, importsAcceptor).entrySet()
+                        .forEach(entry -> typesMap.put(typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build(),
+                                entry.getValue() + "[]"));
             }
             // Add tuple type
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
+            typesMap.put(tupleType, FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).stream()
-                    .map(m -> {
-                        switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
-                            case UNION:
+            getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
+                    .forEach(entry -> {
+                        ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
+                        String signature;
+                        switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
-                                return "(" + m + ")[]";
-
+                            case UNION:
+                                signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
+                                break;
                             default:
-                                return m + "[]";
+                                signature = newArrType.signature();
                         }
-                    })
-                    .collect(Collectors.toList());
+                        typesMap.put(newArrType, signature);
+                    });
         } else {
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
+            typesMap.put(typeDescriptor, 
+                    FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
-
-        return types;
+        return typesMap;
     }
 
     /**
@@ -873,7 +867,7 @@ public class CodeActionUtil {
 
     /**
      * Returns if a new line should be appended to a new text edit at module level.
-     * 
+     *
      * @param enclosingNode Node at module level which is enclosing the cursor.
      * @return @link{Boolean} W
      */

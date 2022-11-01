@@ -23,12 +23,14 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.MODULE_DIR_NAME;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.GEN_MODULE_DIR;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.USER_MODULE_DIR;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getDefaultModuleName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getOrgName;
 
@@ -95,7 +97,18 @@ public class ProjectSourceResolver extends SourceResolver {
                     return Optional.of(Paths.get(projectRoot, locationName));
                 } else {
                     // other modules
-                    return Optional.of(Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, locationName));
+                    // 1. check and return if there's a user module source matching to the location information.
+                    File moduleFile = Paths.get(projectRoot, USER_MODULE_DIR, modulePart, locationName).toFile();
+                    if (moduleFile.isFile()) {
+                        return Optional.of(moduleFile.toPath().toAbsolutePath());
+                    }
+
+                    // 2. if not, check and return if there's a generated module source matching to the location
+                    // information.
+                    File generatedFile = Paths.get(projectRoot, GEN_MODULE_DIR, modulePart, locationName).toFile();
+                    if (generatedFile.isFile()) {
+                        return Optional.of(generatedFile.toPath().toAbsolutePath());
+                    }
                 }
             }
             return Optional.empty();
