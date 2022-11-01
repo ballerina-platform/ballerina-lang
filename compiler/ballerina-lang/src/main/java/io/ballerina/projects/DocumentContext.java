@@ -63,6 +63,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -196,6 +197,7 @@ class DocumentContext {
         // Remove the client entries generated from the previous edit
         if (idlClients.idlClientMap().containsKey(currentModuleDesc.moduleCompilationId())) {
             idlClients.idlClientMap().get(currentModuleDesc.moduleCompilationId()).remove(name);
+            idlPluginManager.uriMap().remove(documentId);
         }
         syntaxTree.rootNode().accept(new ClientNodeVisitor(
                 idlPluginManager, compilationOptions, currentPkg, idlClients, moduleLoadRequests,
@@ -338,17 +340,17 @@ class DocumentContext {
                             CompilerPlugins.annotationsAsStr(annotationsList))) {
                         continue;
                     }
+                    File specFile = new File(cachedPlugin.filePath());
+                    if (specFile.exists()) {
+                        if (cachedPlugin.lastModifiedTime() != specFile.lastModified()) {
+                            // the idl resource file has been modified
+                            return false;
+                        }
+                    }
                     if (idlPluginManager.generatedModuleConfigs().stream().noneMatch(moduleConfig ->
                             moduleConfig.moduleDescriptor().name().moduleNamePart()
                                     .equals(cachedPlugin.generatedModuleName()))) {
 
-                        File specFile = new File(cachedPlugin.filePath());
-                        if (specFile.exists()) {
-                            if (cachedPlugin.lastModifiedTime() != specFile.lastModified()) {
-                                // the idl resource file has been modified
-                                return false;
-                            }
-                        }
                         if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
                             // user has deleted the module
                             return false;
@@ -392,6 +394,10 @@ class DocumentContext {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
                             pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            if (!idlPluginManager.uriMap().containsKey(this.documentId)) {
+                                idlPluginManager.uriMap().put(this.documentId, new HashSet<>());
+                            }
+                            idlPluginManager.uriMap().get(this.documentId).add(CompilerPlugins.getUri(clientNode));
                             return;
                         }
                     } catch (Exception e) {
@@ -424,6 +430,10 @@ class DocumentContext {
                     PackageDependencyScope.DEFAULT,
                     DependencyResolutionType.SOURCE));
             idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
+            if (!idlPluginManager.uriMap().containsKey(this.documentId)) {
+                idlPluginManager.uriMap().put(this.documentId, new HashSet<>());
+            }
+            idlPluginManager.uriMap().get(this.documentId).add(cachedPlugin.url());
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
