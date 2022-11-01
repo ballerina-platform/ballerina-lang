@@ -14,35 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public class Listener {
-    public isolated function 'start() returns error? {
-    }
-
-    public isolated function gracefulStop() returns error? {
-    }
-
-    public isolated function immediateStop() returns error? {
-    }
-
-    public isolated function detach(service object {} s) returns error? {
-    }
-
-    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
-    }
-
-    isolated function register(service object {} s, string[]|string? name) returns error? {
-    }
-}
-
-listener Listener lsn = new Listener();
-
-service / on lsn {
+service class Service {
     isolated resource function get processRequest(Foo foo) returns json { // no warning
         return {output: "Hello"};
-    }
-
-    isolated resource function post processRequest(Foo foo) returns Foo { // no warning
-        return {x: 2, y: ""};
     }
 }
 

@@ -929,4 +929,10 @@ public class ObjectTest {
         BAssertUtil.validateWarning(result, i++, "attempt to expose non-public symbol 'Foo'", 18, 5);
         Assert.assertEquals(result.getWarnCount(), i);
     }
+
+    @Test
+    public void testNonPublicSymbolsWarningInServiceClass() {
+        CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
 }
