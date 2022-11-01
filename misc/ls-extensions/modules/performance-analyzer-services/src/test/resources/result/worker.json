@@ -25,8 +25,7 @@
           "name": "forward",
           "path": "/",
           "pos": "main.bal/(7:36,7:63)",
-          "nextNode": null,
-          "hasReturn": false
+          "nextNode": null
         }
       },
       "w1": {
@@ -35,8 +34,7 @@
           "name": "forward",
           "path": "/",
           "pos": "main.bal/(13:45,13:72)",
-          "nextNode": null,
-          "hasReturn": false
+          "nextNode": null
         }
       },
       "w2": {
