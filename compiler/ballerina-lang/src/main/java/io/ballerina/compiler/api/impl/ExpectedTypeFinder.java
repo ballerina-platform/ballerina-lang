@@ -133,8 +133,9 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.model.tree.NodeKind.ERROR_CONSTRUCTOR_EXPRESSION;
 
 /**
+ * This transformer is used to resolve an expected type of given context.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
@@ -388,7 +389,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                                     (((BArrayType) ((BLangInvocation) bLangNode).expr.expectedType).eType));
                         }
 
-                        if (size == 0) {
+                        if (size == 1) {
                             return getParamType(bLangNode);
                         }
 
@@ -516,13 +517,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
-        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, explicitNewExpressionNode.lineRange());
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode node) {
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
         if (bLangNode == null) {
             return Optional.empty();
         }
 
-        ParenthesizedArgList parenthesizedArgList = explicitNewExpressionNode.parenthesizedArgList();
+        ParenthesizedArgList parenthesizedArgList = node.parenthesizedArgList();
         // check its is parameter context
         if (isWithinParenthesis(linePosition, parenthesizedArgList.openParenToken(),
                 parenthesizedArgList.closeParenToken())) {
@@ -553,13 +554,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
-        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, implicitNewExpressionNode.lineRange());
+    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode node) {
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
         if (bLangNode == null) {
             return Optional.empty();
         }
 
-        Optional<ParenthesizedArgList> parenthesizedArgList = implicitNewExpressionNode.parenthesizedArgList();
+        Optional<ParenthesizedArgList> parenthesizedArgList = node.parenthesizedArgList();
         // check its is parameter context
         if (parenthesizedArgList.isPresent() && isWithinParenthesis(linePosition,
                 parenthesizedArgList.get().openParenToken(),
@@ -660,6 +661,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
                     nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
             if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
+                if (bLangActionInvocation.argExprs.size() == 0) {
+                    return getTypeFromBType(((BInvokableSymbol) bLangActionInvocation.symbol).
+                            getParameters().get(0).getType());
+                }
+
                 Optional<BLangExpression> argument = bLangActionInvocation.argExprs.stream().filter
                         (argumentNode -> posWithinRange(linePosition, argumentNode.getPosition()
                                 .lineRange())).findFirst();
@@ -745,15 +751,15 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
-        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, errorConstructorExpressionNode.lineRange());
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
+        BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
         if (bLangNode == null) {
             return Optional.empty();
         }
 
         if (bLangNode.getKind() == ERROR_CONSTRUCTOR_EXPRESSION) {
-            if (isWithinParenthesis(linePosition, errorConstructorExpressionNode.openParenToken(),
-                    errorConstructorExpressionNode.closeParenToken())) {
+            if (isWithinParenthesis(linePosition, node.openParenToken(),
+                    node.closeParenToken())) {
                 return Optional.of(typesFactory.getTypeDescriptor(((BErrorType)
                         ((BLangErrorConstructorExpr) bLangNode).expectedType).detailType));
             }
@@ -791,6 +797,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             if (expectedType instanceof BTableType) {
                 return Optional.of(typesFactory.getTypeDescriptor(Objects.
                         requireNonNullElse(((BTableType) expectedType).constraint, expectedType)));
+
+            }
+
+            if (expectedType instanceof BTypeReferenceType) {
+                BType referredType = ((BTypeReferenceType) expectedType).referredType;
+                return Optional.of(typesFactory.getTypeDescriptor(Objects.
+                        requireNonNullElse(((BTableType) referredType).constraint, expectedType)));
 
             }
 
