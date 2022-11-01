@@ -33,7 +33,7 @@ type TYPE6 "a";
 function userDefinedTypeTests() {
     CI6 ci6 = 4; // expected '3', found 'int'
     CF1 cf1 = 4.0; // expected '3.0f', found 'float'
-    CD1 cd1 = 4.0; // expected '3.0d', found 'float'
+    CD1 cd1 = 4.0; // expected '3.0d', found 'decimal'
 //  CBT3 cbt3 = 4; // expected '3', found 'int' // Uncomment after fixing #33889
     CB2 cb2 = true; // expected 'false', found 'boolean'
     CS2 cs2 = "4"; // expected '"12"', found 'string'

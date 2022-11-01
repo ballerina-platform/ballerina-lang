@@ -50,13 +50,13 @@ public class SimpleConstantBalaNegativeTests {
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'IntTypeWithoutType'," +
                         " found 'int'", offset += 7, 28);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'ByteTypeWithType'," +
-                        " found 'byte'", offset += 9, 26);
+                        " found 'int'", offset += 9, 26);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'FloatTypeWithType'," +
                         " found 'float'", offset += 9, 27);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'FloatTypeWithoutType'," +
                         " found 'float'", offset += 7, 30);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'DecimalTypeWithType'," +
-                        " found 'float'", offset += 9, 29);
+                        " found 'decimal'", offset += 9, 29);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'StringTypeWithType'," +
                 " found 'string'", offset += 9, 28);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'StringTypeWithoutType'," +

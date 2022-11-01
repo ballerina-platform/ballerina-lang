@@ -123,8 +123,8 @@ function testFloatLiteralAsDecimalInUnion() returns boolean {
 }
 
 function testFloatLiteralAsDecimalInUnion_2() returns boolean {
-    Bar|decimal y = 123.0;
-    decimal dec = 123.0;
+    int|decimal y = 12.0;
+    decimal dec = 12.0;
     return y is decimal && dec == y;
 }
 

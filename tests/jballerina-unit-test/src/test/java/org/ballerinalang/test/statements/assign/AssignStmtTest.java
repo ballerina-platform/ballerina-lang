@@ -218,24 +218,6 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid operation: type 'record {| int b?; anydata...; |}[1]?' does not support member access",
                 153, 5);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo', " +
-                "found 'float'", 159, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 167, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 168, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 169, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 170, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo2', " +
-                "found 'int'", 172, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 182, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 183, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'Foo3', " +
-                "found 'float'", 184, 14);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

@@ -54,7 +54,6 @@ public class FiniteTypeNegativeTest {
 
     @Test()
     public void testInvalidLiteralAssignment() {
-        Assert.assertEquals(resultNegativeTwo.getErrorCount(), 94, "Error count mismatch");
         int i = 0;
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Finite', found 'string'",
                 33, 16);
@@ -80,6 +79,10 @@ public class FiniteTypeNegativeTest {
                 92, 14);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 't3', found 'float'",
                 102, 13);
+        validateError(resultNegativeTwo, i++, "incompatible types: expected 't3', found 'float'",
+                103, 13);
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '(t|t2)', found 'float'",
+                106, 14);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '(t|t2)', found 'decimal'",
                 107, 14);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Foo', found 'float'",
@@ -106,7 +109,7 @@ public class FiniteTypeNegativeTest {
                 129, 16);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found 'decimal'",
                 131, 12);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'float'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'decimal'",
                 132, 14);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1.21d', found 'float'",
                 133, 15);
@@ -120,7 +123,7 @@ public class FiniteTypeNegativeTest {
                 140, 20);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found 'decimal'",
                 142, 16);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'float'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'decimal'",
                 143, 18);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Float1', found 'float'",
                 148, 12);
@@ -140,7 +143,7 @@ public class FiniteTypeNegativeTest {
                 156, 12);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '2d', found 'decimal'",
                 158, 8);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'float'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1.2d', found 'decimal'",
                 159, 10);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1.21d', found 'float'",
                 160, 11);
@@ -242,8 +245,9 @@ public class FiniteTypeNegativeTest {
                 290, 20);
         validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
                 296, 12);
-        validateError(resultNegativeTwo, i, "incompatible types: expected '1f', found 'float'",
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
                 297, 12);
+        Assert.assertEquals(resultNegativeTwo.getErrorCount(), i);
     }
 
     @AfterClass

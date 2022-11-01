@@ -62,7 +62,7 @@ public class ConstantTypeTest {
         int i = 0;
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 34, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 35, 15);
-        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 36, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'decimal'", 36, 15);
         // Activate this after fixing #33889
 //        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",

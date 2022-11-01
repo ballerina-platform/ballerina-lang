@@ -497,12 +497,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private int getPreferredMemberTypeTag(BFiniteType finiteType) {
-        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-            int typeTag = Types.getReferredType(valueExpr.getBType()).tag;
-            if (typeTag > TypeTags.DECIMAL) {
-                continue;
-            }
-            for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
+        for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
+            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                int typeTag = Types.getReferredType(valueExpr.getBType()).tag;
+                if (typeTag > TypeTags.DECIMAL) {
+                    continue;
+                }
+
                 if (typeTag == i) {
                     return i;
                 }
@@ -556,6 +557,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (literalValue instanceof String) {
             return symTable.decimalType;
         }
+        if (compatibleType.tag == TypeTags.BYTE) {
+            return symTable.intType;
+        }
         return compatibleType;
     }
 
@@ -581,10 +585,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangLiteral literalExpr,
                                                       Object literalValue, AnalyzerData data) {
         BType resIntType = symTable.semanticError;
+        List<BType> compatibleTypes = new ArrayList<>();
         for (BLangExpression valueExpr : finiteType.getValueSpace()) {
             resIntType = silentIntTypeCheck(literalExpr, literalValue, valueExpr.getBType(), data);
             if (resIntType != symTable.semanticError) {
-                return resIntType;
+                compatibleTypes.add(resIntType);
+            }
+        }
+        for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
+            for (BType type: compatibleTypes) {
+                if (type.tag == i) {
+                    return type;
+                }
             }
         }
         return resIntType;
@@ -745,10 +757,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else if (expectedType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) expectedType;
             for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
-                if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
-                    BType valueType = setLiteralValueAndGetType(literalExpr,  symTable.getTypeFromTag(tag), data);
-                    setLiteralValueForFiniteType(literalExpr, valueType, data);
-                    return valueType;
+                BType literalValueType = null;
+                for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                    if (valueExpr.getBType().tag == tag) {
+                        if (types.checkLiteralAssignabilityBasedOnType((BLangLiteral) valueExpr, literalExpr)) {
+                            BType valueType = setLiteralValueAndGetType(literalExpr,
+                                    symTable.getTypeFromTag(tag), data);
+                            setLiteralValueForFiniteType(literalExpr, valueType, data);
+                            return valueType;
+                        }
+                        literalValueType = valueExpr.getBType();
+                    }
+                }
+                if (literalValueType != null) {
+                    return literalValueType;
                 }
             }
         } else if (expectedType.tag == TypeTags.UNION) {
@@ -929,7 +951,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType finiteType = getFiniteTypeWithValuesOfSingleType(expType, desiredType);
         if (finiteType != symTable.semanticError) {
             BType setType = setLiteralValueAndGetType(literalExpr, finiteType, data);
-            if (literalExpr.isFiniteContext) {
+            if (setType != symTable.semanticError) {
                 // i.e., a match was found for a finite type
                 return setType;
             }
