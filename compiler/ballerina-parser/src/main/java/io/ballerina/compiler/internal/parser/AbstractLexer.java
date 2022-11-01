@@ -306,4 +306,8 @@ public abstract class AbstractLexer {
 
         this.reader.advance();
     }
+
+    protected static boolean isWhitespace(int ch) {
+        return (ch == 0x0020 || ch == 0x0009 || ch == 0x000A || ch == 0x000D);
+    }
 }
