@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.values.TypedescValue;
 /**
  * Class to get annotation of local record types.
  *
- * @since 2201.0.4
+ * @since 2201.4.0
  */
 public class GetLocalRecordAnnotations {
     public static BValue getLocalRecordAnnotations(TypedescValue typedescValue, BString annotName) {

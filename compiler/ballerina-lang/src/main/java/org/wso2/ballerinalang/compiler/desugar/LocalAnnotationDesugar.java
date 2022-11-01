@@ -165,7 +165,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 /**
  * Local annotation desugar for create closures for annotations.
  *
- * @since 2.0.0
+ * @since 2201.4.0
  */
 public class LocalAnnotationDesugar extends BLangNodeVisitor {
     private static final CompilerContext.Key<LocalAnnotationDesugar> LOCAL_ANNOTATION_DESUGAR_KEY =

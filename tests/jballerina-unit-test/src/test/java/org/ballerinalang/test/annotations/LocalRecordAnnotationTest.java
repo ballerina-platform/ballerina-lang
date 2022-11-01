@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test annotation evaluation within local record types.
  *
- * @since 2201.0.4
+ * @since 2201.4.0
  */
 public class LocalRecordAnnotationTest {
     private CompileResult result;

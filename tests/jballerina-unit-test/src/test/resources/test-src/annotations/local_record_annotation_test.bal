@@ -25,7 +25,6 @@ type Details record {|
     int age;
 |};
 
-
 annotation AnnotRecord annot on type, field;
 annotation AnnotRecord annot1 on type, field;
 annotation Details details on field;
