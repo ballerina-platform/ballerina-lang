@@ -7,6 +7,7 @@
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -19,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "[int, string...]|error tuple \u003d "
+          "newText": "[int, string...]|error tuple = "
         },
         {
           "range": {
@@ -34,7 +35,16 @@
           },
           "newText": "\n    if tuple is [int, string...] {\n\n    }"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "typeGuardWithTuple1.bal",
+          52
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

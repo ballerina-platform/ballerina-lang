@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getResponse(int a, int b) returns module1:TestRecord2 {\n    return {};\n}\n"
+          "newText": "\n\nfunction getResponse(int a, int b) returns module1:TestRecord2 {\n    return {};\n}"
         }
       ],
       "resolvable": true,

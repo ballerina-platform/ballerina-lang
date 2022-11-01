@@ -45,8 +45,8 @@ public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
-                CodeActionNodeValidator.validate(context.nodeAtRange());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**

@@ -593,7 +593,7 @@
     {
       "label": "module1:TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future\u003cint\u003e",
+      "detail": "future<int>",
       "sortText": "BB",
       "insertText": "module1:TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
@@ -636,6 +636,52 @@
       "detail": "Record",
       "sortText": "BM",
       "insertText": "module1:TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "module1:TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1:TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "BN",
+      "insertText": "module1:TargetType",
       "insertTextFormat": "Snippet"
     }
   ]

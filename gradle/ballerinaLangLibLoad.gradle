@@ -47,6 +47,7 @@ dependencies {
     testRuntime project(':ballerina-lang:runtime')
     testRuntime project(':ballerina-lang:query')
     testRuntime project(':ballerina-lang:transaction')
+    testRuntime project(':ballerina-lang:regexp')
     testRuntime project(':ballerina-lang-test')
     testRuntime project(':ballerina-runtime')
 
@@ -96,6 +97,8 @@ dependencies {
     testRuntime project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+    distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
+    testRuntime project(path: ':ballerina-lang:regexp', configuration: 'distributionBirJar')
 }
 
 task loadDistributionCache() {

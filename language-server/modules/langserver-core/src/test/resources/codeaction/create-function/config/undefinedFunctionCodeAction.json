@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction addTwoIntegers(int a, float c, boolean b) {\n    \n}\n"
+          "newText": "\n\nfunction addTwoIntegers(int a, float c, boolean b) {\n    \n}"
         }
       ],
       "resolvable": true,

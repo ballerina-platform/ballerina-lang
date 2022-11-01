@@ -41,26 +41,26 @@ body:
       description: Tag the issue with related area
       multiple: false
       options:
-        - Compilation
-        - Runtime
-        - Standard Library
-        - Central
-        - Website
-        - API Docs
-        - Debugger
-        - Update Tool
-        - gRPC Tool
-        - AsyncAPI Tool
-        - OpenAPI Tool
-        - SemVer Validator Tool
-        - Bindgen Tool
-        - Formatter
-        - Shell
-        - Editor
-        - Test Framework
-        - Observability
-        - CICD
-        - Other Area
+        - -> Compilation
+        - -> Runtime
+        - -> Standard Library
+        - -> Central
+        - -> Website
+        - -> API Docs
+        - -> Debugger
+        - -> Update Tool
+        - -> gRPC Tool
+        - -> AsyncAPI Tool
+        - -> OpenAPI Tool
+        - -> SemVer Validator Tool
+        - -> Bindgen Tool
+        - -> Formatter
+        - -> Shell
+        - -> Editor
+        - -> Test Framework
+        - -> Observability
+        - -> CICD
+        - -> Other Area
     validations:
       required: true
   - type: textarea

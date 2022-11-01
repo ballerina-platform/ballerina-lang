@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 20
+    },
+    "end": {
+      "line": 1,
+      "character": 30
+    }
+  },
+  "source": "extractToVariableInTypeTestExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 4
+            },
+            "end": {
+              "line": 1,
+              "character": 4
+            }
+          },
+          "newText": "boolean var1 \u003d val is int;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 20
+            },
+            "end": {
+              "line": 1,
+              "character": 30
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

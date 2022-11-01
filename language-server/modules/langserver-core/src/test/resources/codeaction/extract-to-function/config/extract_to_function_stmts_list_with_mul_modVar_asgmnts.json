@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 4,
+      "character": 4
+    },
+    "end": {
+      "line": 5,
+      "character": 32
+    }
+  },
+  "source": "extract_to_function_stmts_list_with_mul_modVar_asgmnts.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 1
+            },
+            "end": {
+              "line": 8,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() {\n    moduleVar1 = moduleVar1 + 1;\n    moduleVar2 = moduleVar2 + 2;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 32
+            }
+          },
+          "newText": "extracted();"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

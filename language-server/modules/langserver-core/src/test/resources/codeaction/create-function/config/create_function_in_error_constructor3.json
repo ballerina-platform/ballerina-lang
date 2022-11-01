@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getKey() returns anydata {\n    \n}\n"
+          "newText": "\n\nfunction getKey() returns anydata {\n    \n}"
         }
       ],
       "resolvable": true,

@@ -52,3 +52,22 @@ function init() {
         }
     };
 }
+
+
+public type Topt1 record {
+    int a?;
+    record {
+        int b?;
+    }[1] c;
+};
+
+public Topt1 topt1 = {a: 4, c: [{b: 5}]};
+public Topt1 topt2 = {c: [{b: 6}]};
+
+public int? x = 4;
+public int? y = ();
+
+public type Topt2 record {
+    int x?;
+    int y?;
+};

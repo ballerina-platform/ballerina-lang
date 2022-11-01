@@ -156,5 +156,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical class definitions",
+    "oldCode": "public class Employee{\n\t#Method documentation\npublic function foo(){}\n\tpublic int x;\n}",
+    "newCode": " public    class  Employee{\n\t#Method documentation\npublic function foo(){}\n\tpublic int x;\n}",
+    "expectedOutput": "No Changes"
   }
 ]

@@ -308,4 +308,11 @@
             <class name="org.ballerinalang.test.troubleshoot.StrandDumpTest" />
         </classes>
     </test>
+    <test name="ballerina-semver-validator-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true"/>
+        <classes>
+            <class name="org.ballerinalang.test.semver.SemverValidatorTest"/>
+            <class name="org.ballerinalang.test.semver.SemverValidatorNegativeTest"/>
+        </classes>
+    </test>
 </suite>

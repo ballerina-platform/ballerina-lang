@@ -73,6 +73,10 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(9);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(10);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -95,7 +99,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 "expressions",
                 "openBraceToken",
                 "members",
-                "closeBraceToken"};
+                "closeBraceToken",
+                "semicolonToken"};
     }
 
     public ServiceDeclarationNode modify(
@@ -108,7 +113,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             SeparatedNodeList<ExpressionNode> expressions,
             Token openBraceToken,
             NodeList<Node> members,
-            Token closeBraceToken) {
+            Token closeBraceToken,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifiers.underlyingListNode(),
@@ -119,7 +125,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 expressions.underlyingListNode(),
                 openBraceToken,
                 members.underlyingListNode(),
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -133,7 +140,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                 expressions,
                 openBraceToken,
                 members,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public ServiceDeclarationNodeModifier modify() {
@@ -157,6 +165,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         private Token openBraceToken;
         private NodeList<Node> members;
         private Token closeBraceToken;
+        private Token semicolonToken;
 
         public ServiceDeclarationNodeModifier(ServiceDeclarationNode oldNode) {
             this.oldNode = oldNode;
@@ -170,6 +179,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             this.openBraceToken = oldNode.openBraceToken();
             this.members = oldNode.members();
             this.closeBraceToken = oldNode.closeBraceToken();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public ServiceDeclarationNodeModifier withMetadata(
@@ -240,6 +250,12 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public ServiceDeclarationNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public ServiceDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
@@ -251,7 +267,8 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
                     expressions,
                     openBraceToken,
                     members,
-                    closeBraceToken);
+                    closeBraceToken,
+                    semicolonToken);
         }
     }
 }
