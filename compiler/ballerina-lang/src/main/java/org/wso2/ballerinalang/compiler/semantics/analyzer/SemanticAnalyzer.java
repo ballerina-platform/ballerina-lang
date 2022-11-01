@@ -992,6 +992,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
         BType bType = tupleTypeNode.getBType();
+        if (bType.tsymbol == null) {
+           dlog.mute();
+           int errCount = dlog.errorCount();
+           bType = symResolver.resolveTypeNode(tupleTypeNode, data.env);
+           dlog.setErrorCount(errCount);
+           dlog.unmute();
+        }
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
 
         for (int i = 0; i < memberTypeNodes.size(); i++) {
@@ -2901,8 +2908,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
                     BType type = memberMatchPattern.getBType();
-                    BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                            type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                     memberTypes.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType matchPatternType = new BTupleType(memberTypes);

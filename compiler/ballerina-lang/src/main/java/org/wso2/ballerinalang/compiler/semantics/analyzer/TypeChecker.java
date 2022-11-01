@@ -1767,9 +1767,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (inferredTupleDetails.restMemberTypes.isEmpty()) {
-                        BVarSymbol varSymbol = new BVarSymbol(memberType.flags, memberType.tsymbol.name,
-                                memberType.tsymbol.pkgID, memberType, memberType.tsymbol.owner, memberType.tsymbol.pos,
-                                memberType.tsymbol.origin);
+                        BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null,
+                                null);
                         inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
                     } else {
                         inferredTupleDetails.restMemberTypes.add(memberType);
