@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -54,7 +55,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  * @since 2201.1.1
  */
 public class ModuleUtil {
-    
+
     /**
      * Filter a type in the module by the name.
      *
@@ -111,7 +112,7 @@ public class ModuleUtil {
      * @param alias   alias value
      * @return {@link Optional} scope entry for the client declaration symbol
      */
-    public static Optional<ClientDeclSymbol> searchClientDeclarationForAlias(PositionedOperationContext context, 
+    public static Optional<ClientDeclSymbol> searchClientDeclarationForAlias(PositionedOperationContext context,
                                                                              String alias) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         for (Symbol symbol : visibleSymbols) {
@@ -133,8 +134,10 @@ public class ModuleUtil {
      * @param context         {@link DocumentServiceContext}
      * @return module prefix
      */
-    public static String getModulePrefix(ImportsAcceptor importsAcceptor, ModuleID currentModuleId,
-                                         ModuleID moduleID, DocumentServiceContext context) {
+    public static String getModulePrefix(ImportsAcceptor importsAcceptor,
+                                         ModuleID currentModuleId,
+                                         ModuleID moduleID,
+                                         DocumentServiceContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(CommonUtil.BALLERINA_ORG_NAME) &&
@@ -145,8 +148,19 @@ public class ModuleUtil {
             String moduleName = moduleParts[1];
 
             pkgPrefix = moduleName.replaceAll(".*\\.", "");
-            pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" 
+            pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'"
                     + pkgPrefix : pkgPrefix;
+
+            //If the module is an auto-generated module in the current project,
+            // it is not necessary to check for imports and add import statement.
+            Optional<Project> project = context.workspace().project(context.filePath());
+            if (project.isPresent()) {
+                for (Module module : project.get().currentPackage().modules()) {
+                    if (isMatchingModule(moduleID, module) && DependencyUtils.isGeneratedModule(module)) {
+                        return pkgPrefix + ":";
+                    }
+                }
+            }
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
@@ -172,10 +186,15 @@ public class ModuleUtil {
         return pkgPrefix;
     }
 
+    private static Boolean isMatchingModule(ModuleID moduleID, Module module) {
+        return moduleID.orgName().equals(module.packageInstance().packageOrg().value())
+                && moduleID.moduleName().equals(module.moduleName().toString());
+    }
+
     /**
      * Returns module prefix.
      *
-     * @param context         {@link DocumentServiceContext}
+     * @param context {@link DocumentServiceContext}
      * @param orgName organization name component
      * @param modName module name component
      * @return module prefix
@@ -217,7 +236,7 @@ public class ModuleUtil {
             String orgName = moduleNameParts[0];
             String alias = moduleNameParts[1];
             String[] aliasParts = moduleNameParts[1].split("\\.");
-            boolean preDeclaredLangLib = CommonUtil.BALLERINA_ORG_NAME.equals(orgName) 
+            boolean preDeclaredLangLib = CommonUtil.BALLERINA_ORG_NAME.equals(orgName)
                     && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(alias);
             if (aliasParts.length > 1) {
                 String aliasLastPart = aliasParts[aliasParts.length - 1];
