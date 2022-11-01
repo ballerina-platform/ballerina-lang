@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,30 +16,21 @@
  *  under the License.
  */
 
-package io.ballerina.utils;
-
-import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
+package io.ballerina.component;
 
 /**
- * Visitor to find the base url of endpoint.
+ * models if statement nodes.
  *
  * @since 2201.2.3
  */
-public class ReturnFinder extends NodeVisitor {
+public class ReturningIfStatementNode extends IfStatementNode {
 
     private boolean hasReturn;
-    private boolean hasNestedIfElse;
 
-    @Override
-    public void visit(IfElseStatementNode ifElseStatementNode) {
-        hasNestedIfElse = true;
-    }
-
-    @Override
-    public void visit(ReturnStatementNode returnStatementNode) {
-        hasReturn = true;
+    public ReturningIfStatementNode(Node ifBody, Node elseBody, boolean hasReturn) {
+        this.setIfBody(ifBody);
+        this.setElseBody(elseBody);
+        this.hasReturn = hasReturn;
     }
 
     public boolean isHasReturn() {
@@ -48,13 +39,5 @@ public class ReturnFinder extends NodeVisitor {
 
     public void setHasReturn(boolean hasReturn) {
         this.hasReturn = hasReturn;
-    }
-
-    public boolean isHasNestedIfElse() {
-        return hasNestedIfElse;
-    }
-
-    public void setHasNestedIfElse(boolean hasNestedIfElse) {
-        this.hasNestedIfElse = hasNestedIfElse;
     }
 }

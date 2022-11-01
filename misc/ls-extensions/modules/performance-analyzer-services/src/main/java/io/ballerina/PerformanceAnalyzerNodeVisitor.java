@@ -57,6 +57,8 @@ import io.ballerina.component.EndPointNode;
 import io.ballerina.component.ForStatementNode;
 import io.ballerina.component.IfStatementNode;
 import io.ballerina.component.Node;
+import io.ballerina.component.ReturningActionInvocationNode;
+import io.ballerina.component.ReturningIfStatementNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -95,9 +97,11 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private boolean withinRange = false;
     private int uuid;
     private boolean withinWorker = false;
+    private boolean addReturnNode = false;
     private boolean isWorkerExists = false;
     private boolean isWorkerWaiting = false;
     private boolean isWorkersHaveConnectorCalls = false;
+    private boolean hasReturn = false;
 
     public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
@@ -220,6 +224,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
 
+        addReturnNode = withinRange;
         IfStatementNode ifStatementNode = new IfStatementNode();
         Node currentParentNode = this.currentNode;
 
@@ -227,30 +232,48 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         this.currentNode = ifBodyNode;
 
         ReturnFinder returnFinder = new ReturnFinder();
+        ifElseStatementNode.ifBody().accept(returnFinder);
+        hasReturn = returnFinder.isHasReturn() && withinRange;
 
         ifElseStatementNode.ifBody().accept(this);
-        ifElseStatementNode.ifBody().accept(returnFinder);
-        if (ifBodyNode.getNextNode() != null) {
-            ifBodyNode.getNextNode().setHasReturn(returnFinder.isHasReturn());
+
+        if (!returnFinder.isHasReturn()) {
+            ifElseStatementNode.elseBody().ifPresent(elseBody -> elseBody.accept(returnFinder));
+        }
+        Node ifBodyNodeNextNode = ifBodyNode.getNextNode();
+        if ((ifBodyNodeNextNode instanceof IfStatementNode) && returnFinder.isHasReturn()
+                && returnFinder.isHasNestedIfElse() && withinRange) {
+            IfStatementNode ifBodyNextNode = (IfStatementNode) ifBodyNodeNextNode;
+            ReturningIfStatementNode returningIfStatementNode =
+                    new ReturningIfStatementNode(ifBodyNextNode.getIfBody(), ifBodyNextNode.getElseBody(), true);
+            ifStatementNode.setIfBody(returningIfStatementNode);
+        } else {
+            ifStatementNode.setIfBody(ifBodyNodeNextNode);
         }
 
-        ifStatementNode.setIfBody(ifBodyNode.getNextNode());
+        hasReturn = false;
 
         Node elseBodyNode = new Node();
         this.currentNode = elseBodyNode;
 
         returnFinder.setHasReturn(false);
+        returnFinder.setHasNestedIfElse(false);
         ifElseStatementNode.elseBody().ifPresent(elseBody -> {
-                    elseBody.accept(this);
                     elseBody.accept(returnFinder);
-                    if (elseBodyNode.getNextNode() != null) {
-                        elseBodyNode.getNextNode().setHasReturn(returnFinder.isHasReturn());
-                    }
+                    hasReturn = returnFinder.isHasReturn();
+                    addReturnNode = withinRange;
+
+                    elseBody.accept(this);
                     ifStatementNode.setElseBody(elseBodyNode.getNextNode());
                 }
         );
+        hasReturn = false;
+        addReturnNode = false;
         this.currentNode = currentParentNode;
-        this.setChildNode(ifStatementNode);
+        if (ifStatementNode.getIfBody() != null || ifStatementNode.getElseBody() != null ||
+                ifStatementNode.getNextNode() != null) {
+            this.setChildNode(ifStatementNode);
+        }
     }
 
     @Override
@@ -447,8 +470,15 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                     isWorkersHaveConnectorCalls = true;
                 }
                 String pos = actionPos.filePath() + "/" + actionPos;
-                ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
-                        actionName, actionPath, pos);
+                ActionInvocationNode actionNode;
+                if (addReturnNode) {
+                    actionNode = new ReturningActionInvocationNode(getUUID(lineRange),
+                            actionName, actionPath, pos, hasReturn);
+                    addReturnNode = false;
+                } else {
+                    actionNode = new ActionInvocationNode(getUUID(lineRange),
+                            actionName, actionPath, pos);
+                }
                 this.setChildNode(actionNode);
             }
         }

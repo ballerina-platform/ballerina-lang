@@ -19,26 +19,27 @@
 package io.ballerina.component;
 
 /**
- * base class to handle essential AST nodes.
+ * models if statement nodes.
  *
- * @since 2.0.0
+ * @since 2201.2.3
  */
-public class Node {
+public class ReturningActionInvocationNode extends ActionInvocationNode {
 
-    private Node nextNode;
+    private boolean hasReturn;
 
-    public Node getNextNode() {
+    public ReturningActionInvocationNode(String endPointRef, String name, String path, String pos, boolean hasReturn) {
 
-        return nextNode;
+        super(endPointRef, name, path, pos);
+        this.hasReturn = hasReturn;
     }
 
-    public void setNextNode(Node nextNode) {
+    public boolean isHasReturn() {
 
-        this.nextNode = nextNode;
+        return hasReturn;
     }
 
-    public boolean hasNext() {
+    public void setHasReturn(boolean hasReturn) {
 
-        return nextNode != null;
+        this.hasReturn = hasReturn;
     }
 }

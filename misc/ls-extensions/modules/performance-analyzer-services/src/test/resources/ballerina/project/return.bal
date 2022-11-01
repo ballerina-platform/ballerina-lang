@@ -34,5 +34,62 @@ service / on new http2:Listener(8090) {
         }
         return answer;
     }
+
+    isolated resource function get cases2/[string shortCountryName]() returns json|error|int {
+        int value = 1;
+        int answer = 0;
+        if (value >= 10) {
+            http:Client clientEP = check new ("https://postman-echo.com/post2");
+            json clientResponse = check clientEP->get("/");
+        }
+
+        else {
+            http:Client clientEP = check new ("https://postman-echo.com/post2");
+            json clientResponse = check clientEP->get("/");
+            answer = <int>clientResponse;
+            return clientResponse;
+        }
+        return answer;
+    }
+
+    isolated resource function get cases3/[string shortCountryName]() returns json|error|int {
+        int value = 1;
+        int answer = 0;
+        if (value >= 10) {
+            http:Client clientEP = check new ("https://postman-echo.com/post3");
+            json clientResponse = check clientEP->get("/");
+            return clientResponse;
+        }
+
+        else {
+            http:Client clientEP = check new ("https://postman-echo.com/post3");
+            json clientResponse = check clientEP->get("/");
+            answer = <int>clientResponse;
+            return clientResponse;
+        }
+
+    }
+
+    isolated resource function get cases4/[string shortCountryName]() returns int|error{
+        int value=1;
+        int value2=10;
+        decimal totalCases=0;
+        int population=0;
+        int answer=0;
+        if (value >= 10) {
+            if (value2 >=10){
+                http:Client clientEP = check new ("https://postman-echo.com/post4");
+                json clientResponse = check clientEP->get("/");
+                return 4;
+            }
+            else {
+                http:Client clientEP = check new ("https://postman-echo.com/post4");
+                json clientResponse = check clientEP->get("/");
+                answer = 4;
+            }
+            return answer;
+        }
+        return answer;
+    }
 }
 
