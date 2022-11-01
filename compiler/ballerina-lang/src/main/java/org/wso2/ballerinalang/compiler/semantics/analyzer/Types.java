@@ -4737,8 +4737,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
             BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
