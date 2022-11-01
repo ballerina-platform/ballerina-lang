@@ -139,6 +139,6 @@ public class ServiceDeclTest {
     @Test
     public void testServiceDeclNoWarnings() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_no_warnings.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 0);
     }
 }
