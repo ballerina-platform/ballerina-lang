@@ -88,12 +88,12 @@ public class ImmutabilityBalaTest {
         // Updates.
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:" +
                 "1.0.0:(testorg/selectively_immutable:1:Student & readonly)'", 62, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:ReadOnlyStudent'", 66, 5);
+        // TODO: issue #38505
+        validateError(result, index++, "cannot update 'readonly' value of type 'ReadOnlyStudent'", 66, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
                 ":Details & readonly)'", 76, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
-                ":Details & readonly)'", 77, 5);
+                ".0.0:Details & readonly)'", 77, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
                 "(testorg/selectively_immutable:1:Config & readonly)'", 82, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +

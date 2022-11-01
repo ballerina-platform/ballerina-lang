@@ -3389,24 +3389,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void visitInvocation(BLangInvocation iExpr, BType varRefType, AnalyzerData data) {
-        switch (varRefType.tag) {
+        BType referredVarRefType = Types.getReferredType(varRefType);
+        switch (referredVarRefType.tag) {
             case TypeTags.OBJECT:
                 // Invoking a function bound to an object
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
-                checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType, data);
+                checkObjectFunctionInvocationExpr(iExpr, (BObjectType) referredVarRefType, data);
                 break;
             case TypeTags.RECORD:
                 checkFieldFunctionPointer(iExpr, data);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, iExpr.name);
-                break;
-            case TypeTags.TYPEREFDESC:
-                visitInvocation(iExpr, Types.getReferredType(varRefType), data);
-                break;
-            case TypeTags.INTERSECTION:
-                visitInvocation(iExpr, ((BIntersectionType) varRefType).effectiveType, data);
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 break;

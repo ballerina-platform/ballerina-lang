@@ -4987,7 +4987,7 @@ public class Types {
                                   LinkedHashSet<BType> visitedTypes) {
 
         BType referredType = getReferredType(type);
-        BType referredLhsType = getReferredType(lhsType);
+        BType referredLhsType = getReferredType(lhsType, false);
 
         if (intersectionContext.preferNonGenerativeIntersection) {
             if (isAssignable(referredType, referredLhsType)) {
@@ -5003,7 +5003,7 @@ public class Types {
         // do here is, first find the intersection between A and B then re-create the immutable type out of it.
 
         if (Symbols.isFlagOn(referredLhsType.flags, Flags.READONLY) && referredLhsType.tag == TypeTags.INTERSECTION &&
-                getReferredType(((BIntersectionType) lhsType).effectiveType).tag == TypeTags.UNION) {
+                getReferredType(((BIntersectionType) referredLhsType).effectiveType).tag == TypeTags.UNION) {
             BIntersectionType intersectionType = (BIntersectionType) referredLhsType;
             BType finalType = type;
             List<BType> types = intersectionType.getConstituentTypes().stream()
@@ -5027,6 +5027,7 @@ public class Types {
             }
         }
 
+        referredLhsType = getReferredType(lhsType);
         if (referredType.tag == TypeTags.ERROR && referredLhsType.tag == TypeTags.ERROR) {
             BType intersectionType = getIntersectionForErrorTypes(intersectionContext, referredLhsType, referredType,
                     env, visitedTypes);
