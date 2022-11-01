@@ -327,7 +327,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
+                        this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params,
                         cancelChecker);
@@ -356,7 +356,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String fileUri = resolvableCodeAction.getData().getFileUri();
                 CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
                         fileUri,
-                        workspaceManagerProxy.get(),
+                        workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         cancelChecker);
                 return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);

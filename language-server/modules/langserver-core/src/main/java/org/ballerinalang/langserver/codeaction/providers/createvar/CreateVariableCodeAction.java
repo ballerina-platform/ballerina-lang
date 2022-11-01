@@ -206,15 +206,21 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         2. If any text edits are applied before the variable creation edit, the length of those edits is added to the
            "sum". In the above example, the length of "error?" will be added.
         3. renameOffset gives the length of the variable type and the white space between the variable type and the
-           variable. In the example the renameOffset will be the length of "int ".
+           variable. In the example, the renameOffset will be the length of "int ".
         */
 
         int startPos = CommonUtil.getTextEdit(syntaxTree.get(), variableEdit).range().startOffset();
         int sum = 0;
         for (TextEdit textEdit : textEdits) {
             io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
-            if (edits.range().startOffset() < startPos) {
+            int startOffset = edits.range().startOffset();
+            int endOffset = edits.range().endOffset();
+            if (startOffset < startPos) {
                 sum = sum + edits.text().length();
+                if (startOffset < endOffset) {
+                    int returnTypeLength = endOffset - startOffset;
+                    sum = sum - returnTypeLength;
+                }
             }
         }
 

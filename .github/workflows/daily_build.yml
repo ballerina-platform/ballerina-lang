@@ -2,7 +2,8 @@ name: Ballerina daily build
 
 on:
   schedule:
-    - cron:  '0 */12 * * *'
+    - cron:  '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
+    - cron:  '30 6 * * *'     # 12:00 in LK time (GMT+5:30)
 
 jobs:
   ubuntu_build:
@@ -49,9 +50,6 @@ jobs:
     name: Build with sonarcloud scan on Ubuntu
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    concurrency: 
-      group: ${{ github.head_ref }}-ubuntu
-      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository

@@ -292,6 +292,17 @@ function testDivisionNullable() {
     assertEqual(a35 / a35, 1d);
     assertEqual(a35 / a36, 0.6666666666666666666666666666666667d);
     assertEqual(a36 / a36, 1d);
+
+    int x1 = 2048;
+    byte? x2 = 128;
+    byte? x3 = <byte?> (x1 / x2);
+    assertEqual(x3, 16);
+
+    byte x4 = 250;
+    int:Unsigned8? x5 = 2;
+    var x6 = <()|float|int:Unsigned8|byte> (x4 / x5);
+    assertEqual(x4 / x5, 125);
+    assertEqual(x6, 125);
 }
 
 const int constInt = 5;

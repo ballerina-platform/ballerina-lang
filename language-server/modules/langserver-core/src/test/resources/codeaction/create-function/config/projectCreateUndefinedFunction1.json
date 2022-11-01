@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction createStudent(string name, any b) returns module1:Student {\n    return {name: \"\", age: 0};\n}\n"
+          "newText": "\n\nfunction createStudent(string name, any b) returns module1:Student {\n    return {name: \"\", age: 0};\n}"
         }
       ],
       "resolvable": true,

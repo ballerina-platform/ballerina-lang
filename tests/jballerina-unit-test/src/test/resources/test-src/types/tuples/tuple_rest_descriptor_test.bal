@@ -178,6 +178,30 @@ function testSubTypingWithRestDescriptorNegative() {
     assertFalse(v2 is [string, string, string, string]);
 }
 
+function testRestVariablesWithArray() {
+    int[] [...a] = [1, 2];
+    int[] _ = a;
+    assertEquality(a, <int[]>[1, 2]);
+
+    [int...] [...a2] = [1, 2];
+    int[] _ = a2;
+    assertEquality(a2, <[int...]>[1, 2]);
+
+    int[2] [...a3] = [1, 2];
+    assertEquality(a3, <int[2]>[1, 2]);
+
+    string[] [...s] = ["string 1", "string 2"];
+    string[] _ = s;
+    assertEquality(s, <string[]>["string 1", "string 2"]);
+
+    [string...] [...s2] = ["string 1", "string 2"];
+    string[] _ = s2;
+    assertEquality(s2, <[string...]>["string 1", "string 2"]);
+
+    string[2] [...s3] = ["string 1", "string 2"];
+    assertEquality(s3, <string[2]>["string 1", "string 2"]);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

@@ -11,10 +11,10 @@
   "platform": "java11",
   "platformDependencies": [
     {
-      "path": "platform/java11/snakeyaml-1.9.jar",
+      "path": "platform/java11/snakeyaml-1.32.jar",
       "artifactId": "snakeyaml",
       "groupId": "org.yaml",
-      "version": "1.9"
+      "version": "1.32"
     }
   ],
   "template": true

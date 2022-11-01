@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    return {name: \"\"};\n}\n"
+          "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    return {name: \"\"};\n}"
         }
       ],
       "resolvable": true,

@@ -4,10 +4,10 @@
     "character": 4
   },
   "source": "createVariable5.bal",
-  "kind": "quickfix",
   "expected": [
     {
-      "title": "Create variable with \u0027map\u003cany\u003e[]\u0027",
+      "title": "Create variable with 'map<any>[]'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "map\u003cany\u003e[] listResult \u003d "
+          "newText": "map<any>[] listResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable5.bal",
+          1440
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

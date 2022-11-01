@@ -56,7 +56,7 @@ public class QueryExprWithAnonFunctionExprs {
                 "testComplexQueryWithAnonFuncExpr",
                 "testComplexQueryWithAnonFuncExpr2",
                 "testInnerQueryWithAnonFuncExpr",
-                "testQueryWithNestedLambdaFunctions",
+//                "testQueryWithNestedLambdaFunctions",
                 "testGlobalQueryWithAnonFuncExpr"
         };
     }

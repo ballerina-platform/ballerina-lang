@@ -41,6 +41,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -58,6 +59,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ServiceTemplateCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
@@ -371,11 +373,18 @@ public class ServiceTemplateGenerator {
             if (processedModuleList.contains(moduleHash)) {
                 return;
             }
-            SemanticModel semanticModel = packageCompilation.get().getSemanticModel(module.moduleId());
-            semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
-                    generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
-                            completionItems.add(generateServiceSnippet(item,
-                                    !isCurrentModule, currentModuleID, ctx))));
+
+            try {
+                SemanticModel semanticModel = packageCompilation.get().getSemanticModel(module.moduleId());
+                semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
+                        generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
+                                completionItems.add(generateServiceSnippet(item,
+                                        !isCurrentModule, currentModuleID, ctx))));
+            } catch (Throwable throwable) {
+                LSClientLogger clientLogger = LSClientLogger.getInstance(ctx.languageServercontext());
+                String msg = String.format("Operation 'txt/completion' failed for %s", moduleName);
+                clientLogger.logError(LSContextOperation.TXT_COMPLETION, msg, throwable, null, (Position) null);
+            }
         });
         return completionItems;
     }

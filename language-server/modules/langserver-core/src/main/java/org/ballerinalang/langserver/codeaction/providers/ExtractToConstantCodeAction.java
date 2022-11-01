@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
@@ -67,9 +68,12 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
+        SyntaxKind parentKind = node.parent().kind();
         return  context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
-                && node.parent().kind() != SyntaxKind.CONST_DECLARATION 
-                && node.parent().kind() != SyntaxKind.INVALID_EXPRESSION_STATEMENT 
+                && parentKind != SyntaxKind.CONST_DECLARATION 
+                && parentKind != SyntaxKind.INVALID_EXPRESSION_STATEMENT
+                && parentKind != SyntaxKind.CLIENT_DECLARATION 
+                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -91,7 +95,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
-        if (typeSymbol.isEmpty()) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
         
@@ -134,7 +138,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     /**
      * Node visitor to ensure the highlighted range does not include nodes other than BasicLiteralNode.
-     *
      */
     static class BasicLiteralNodeValidator extends NodeVisitor {
 
@@ -145,7 +148,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             node.lhsExpr().accept(this);
             node.rhsExpr().accept(this);
         }
-
 
         @Override
         public void visit(BasicLiteralNode node) {

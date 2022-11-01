@@ -22,10 +22,12 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmObjectCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmRecordCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -58,16 +60,19 @@ public class JvmValueCreatorGen {
     private final JvmRecordCreatorGen jvmRecordCreatorGen;
     private final JvmObjectCreatorGen jvmObjectCreatorGen;
     private final JvmErrorCreatorGen jvmErrorCreatorGen;
+    private final JvmFunctionCallsCreatorsGen jvmFunctionCallsCreatorsGen;
 
     public JvmValueCreatorGen(PackageID packageID) {
         this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID);
         this.jvmObjectCreatorGen = new JvmObjectCreatorGen(this, packageID);
         this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID);
+        this.jvmFunctionCallsCreatorsGen = new JvmFunctionCallsCreatorsGen(packageID);
     }
 
     public void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
-                                     String moduleInitClass, Map<String, byte[]> jarEntries,
-                                     SymbolTable symbolTable) {
+                                            String moduleInitClass, Map<String, byte[]> jarEntries,
+                                            SymbolTable symbolTable, JvmCastGen jvmCastGen,
+                                            List<BIRNode.BIRFunction> sortedFunctions) {
 
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
@@ -75,7 +80,7 @@ public class JvmValueCreatorGen {
         List<BIRTypeDefinition> errorTypeDefList = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : module.typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
@@ -91,6 +96,8 @@ public class JvmValueCreatorGen {
                 objectTypeDefList, symbolTable);
         jvmErrorCreatorGen.generateErrorsClass(jvmPackageGen, module, moduleInitClass, jarEntries, errorTypeDefList,
                 symbolTable);
+        jvmFunctionCallsCreatorsGen.generateFunctionCallsClass(jvmPackageGen, module, jarEntries, jvmCastGen,
+                sortedFunctions);
     }
 
     public void generateStaticInitializer(BIRNode.BIRPackage module, ClassWriter cw,

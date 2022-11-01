@@ -34,18 +34,27 @@ public class FindRefsInResourceAccessActionTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {40, 23, location(22, 21, 24),
+                {40, 23, location(39, 7, 16),
+                        List.of(location(39, 7, 16),
+                                location(40, 23, 32),
+                                location(41, 14, 23),
+                                location(42, 17, 26))
+                },
+
+                // Resource function invocation
+                // Note: The symbol location of the resource-function is set to function-name's location
+                {40, 34, location(22, 21, 24),
                         List.of(location(22, 21, 24),
-                                location(40, 23, 54),
-                                location(46, 16, 50))
+                                location(40, 34, 48),
+                                location(46, 27, 42))
                 },
-                {41, 14, location(29, 21, 24),
+                {41, 25, location(29, 21, 24),
                         List.of(location(29, 21, 24),
-                                location(41, 14, 41))
+                                location(41, 25, 35))
                 },
-                {42, 17, location(33, 21, 25),
+                {42, 28, location(33, 21, 25),
                         List.of(location(33, 21, 25),
-                                location(42, 17, 53))
+                                location(42, 28, 38))
                 }
         };
     }

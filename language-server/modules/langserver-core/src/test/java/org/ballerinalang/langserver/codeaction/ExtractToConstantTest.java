@@ -58,9 +58,9 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractUnaryNumericExprToConstant.json"},
                 {"extractUnaryNumericExprToConstant2.json"},
                 {"extractUnaryLogicalExprToConstant.json"},
-                {"extractBooleanLiteralInUnaryExprToConstant.json"}
-//                {"extractNumericLiteralInUnaryExprToConstant.json"}, #37525
-//                {"extractNumericLiteralInUnaryExprToConstant2.json"} #37525
+                {"extractBooleanLiteralInUnaryExprToConstant.json"},
+                {"extractNumericLiteralInUnaryExprToConstant.json"},
+                {"extractNumericLiteralInUnaryExprToConstant2.json"}
         };
     }
 
@@ -71,7 +71,9 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractInvalidExprStmtToConstant.json"},
                 {"extractExpressionToConstant1.json"},
                 {"extractExpressionToConstant2.json"},
-                {"extractExpressionToConstant3.json"}
+                {"extractExpressionToConstant3.json"},
+                {"extractServiceUriInModuleClientDeclToConstant.json"},
+                {"extractServiceUriInClientDeclarationToConstant.json"}
         };
     }
 

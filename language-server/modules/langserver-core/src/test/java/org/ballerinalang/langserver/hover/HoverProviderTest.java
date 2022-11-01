@@ -67,7 +67,7 @@ public class HoverProviderTest {
 //            JsonObject obj = new JsonObject();
 //            obj.add("position", configJson.get("position"));
 //            obj.add("source", configJson.get("source"));
-//            obj.add("expected", parser.parse(response));
+//            obj.add("expected", JsonParser.parseString(response));
 //            String objStr = obj.toString().concat(System.lineSeparator());
 //            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
 //                                      objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -101,7 +101,9 @@ public class HoverProviderTest {
     }
 
     private Object[][] testSubset() {
-        return new Object[0][];
+        return new Object[][] {
+                {"hover_for_api_docs_negative.json"}
+        };
     }
 
     private List<String> skipList() {

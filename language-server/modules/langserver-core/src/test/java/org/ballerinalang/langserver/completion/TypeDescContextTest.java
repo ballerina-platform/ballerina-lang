@@ -22,8 +22,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Expression Context tests.
@@ -47,11 +45,5 @@ public class TypeDescContextTest extends CompletionTest {
     @Override
     public String getTestResourceDir() {
         return "typedesc_context";
-    }
-
-    @Override
-    public List<String> skipList() {
-        // Skip this test due to issue: https://github.com/ballerina-platform/ballerina-lang/issues/37039
-        return Arrays.asList("function_typedesc17.json");
     }
 }
