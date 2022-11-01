@@ -181,6 +181,10 @@ class PackageContext {
         return moduleIds;
     }
 
+    Map<ModuleId, ModuleContext> moduleContextMap() {
+        return moduleContextMap;
+    }
+
     ModuleContext moduleContext(ModuleId moduleId) {
         return moduleContextMap.get(moduleId);
     }
@@ -328,9 +332,16 @@ class PackageContext {
     }
 
     PackageContext duplicate(Project project) {
+        return duplicate(project, false);
+    }
+
+    PackageContext duplicate(Project project, boolean skipGenerated) {
         Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
         for (ModuleId moduleId : this.moduleIds) {
             ModuleContext moduleContext = this.moduleContext(moduleId);
+            if (skipGenerated && moduleContext.isGenerated()) {
+                continue;
+            }
             duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate(project));
         }
 
