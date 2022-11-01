@@ -262,4 +262,10 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
         testFile("regexp-constructor-expr/regexp_constructor_source_39.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_39.json");
     }
+
+    @Test
+    public void testRegExpWithContextuallyExpectedType() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_40.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_40.json");
+    }
 }
