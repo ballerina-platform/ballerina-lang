@@ -609,11 +609,11 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void logErrorForCannotInferTypedescArgument(String paramVarName) {
         if (invocation.expectedType == symbolTable.noType) {
             dlog.error(invocation.pos,
-                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_OR_EXPECTED_CONTEXTUALLY_EXPECTED_TYPE,
+                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET,
                     paramVarName);
         } else {
             dlog.error(invocation.pos,
-                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT, paramVarName,
+                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET, paramVarName,
                     invocation.expectedType, ((BInvokableSymbol) invocation.symbol).retType);
         }
     }
