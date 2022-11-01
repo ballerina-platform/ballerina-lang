@@ -34,8 +34,6 @@ import java.util.List;
  */
 public class BallerinaLexer extends AbstractLexer {
 
-    private static final char BACK_TICK = '`';
-
     public BallerinaLexer(CharReader charReader) {
         super(charReader, ParserMode.DEFAULT);
     }
@@ -1040,7 +1038,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
             case LexerTerminals.RE:
-                if (isNextTokenBacktick()) {
+                if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     return getSyntaxToken(SyntaxKind.RE_KEYWORD);
                 }
             default:
@@ -1050,15 +1048,47 @@ public class BallerinaLexer extends AbstractLexer {
                 return getIdentifierToken();
         }
     }
-    
-    private boolean isNextTokenBacktick() {
+
+    private int getNextNonWSOrNonCommentChar() {
         int lookaheadCount = 0;
-        char lookaheadChar = reader.peek(lookaheadCount);
-        while (isWhitespace(lookaheadChar)) {
-            lookaheadCount += 1;
-            lookaheadChar = reader.peek(lookaheadCount);
+        while (!reader.isEOF()) {
+            char c = reader.peek(lookaheadCount);
+            switch (c) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                case LexerTerminals.FORM_FEED:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    lookaheadCount ++;
+                    break;
+                case LexerTerminals.SLASH:
+                    if (reader.peek(lookaheadCount ++) == LexerTerminals.SLASH) {
+                        lookaheadCount ++;
+                        lookaheadCount = skipComment(lookaheadCount);
+                        break;
+                    }
+                default:
+                    return reader.peek(lookaheadCount);
+            }
         }
-        return lookaheadChar == BACK_TICK;
+        return reader.peek(lookaheadCount);
+    }
+
+    private int skipComment(int count) {
+        int nextToken = reader.peek(count);
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    count += 1;
+                    nextToken = reader.peek(count);
+                    continue;
+            }
+            break;
+        }
+        return count;
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
