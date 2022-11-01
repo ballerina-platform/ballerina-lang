@@ -1306,8 +1306,7 @@ public class Types {
         List<BTupleMember> sourceTypes = new ArrayList<>(source.memberTypes);
         if (source.restType != null) {
             BType type = source.restType;
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             sourceTypes.add(new BTupleMember(type, varSymbol));
         }
         return sourceTypes.stream()

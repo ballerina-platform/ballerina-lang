@@ -4234,11 +4234,9 @@ public class Desugar extends BLangNodeVisitor {
                                    BType targetType, BLangBlockStmt blockStmt,
                                    BLangSimpleVarRef restMatchPatternVarRef) {
         BType constraintType = getRestFilterConstraintType(targetType);
-        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, constraintType.tsymbol.name,
-                constraintType.tsymbol.pkgID, constraintType, constraintType.tsymbol.owner, constraintType.tsymbol.pos,
-                constraintType.tsymbol.origin);
-        BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
-                new BTupleMember(symTable.stringType, stringVarSymbol), new BTupleMember(constraintType, varSymbol))), null);
+        BVarSymbol varSymbol = new BVarSymbol(constraintType.flags,  null, null, constraintType, null, null, null);
+        BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(new BTupleMember(
+                symTable.stringType, stringVarSymbol), new BTupleMember(constraintType, varSymbol))), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(matchExprVarRef, entriesType);
         BLangSimpleVariableDef entriesVarDef = createVarDef("$entries$", entriesType, entriesInvocation, pos);
         blockStmt.addStatement(entriesVarDef);

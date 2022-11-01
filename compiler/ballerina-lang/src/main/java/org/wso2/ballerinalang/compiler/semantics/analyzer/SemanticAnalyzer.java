@@ -3215,8 +3215,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
             analyzeNode(bindingPattern, data);
             BType type = bindingPattern.getBType();
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
+                    type, null, null, null);
             listMemberTypes.add(new BTupleMember(type, varSymbol));
             listBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         }

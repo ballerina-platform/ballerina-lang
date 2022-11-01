@@ -877,7 +877,8 @@ public class TypeParamAnalyzer {
             if (!hasDifferentType && isDifferentTypes(type.type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType, null, null,
+                    null);
             tupleTypes.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
