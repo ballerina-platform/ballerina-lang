@@ -41,7 +41,7 @@ public class FormatCmdTest {
         argList.add("pkg2");
         argList.add("asd");
         try {
-            FormatUtil.execute(argList, false, false, sourceRoot);
+            FormatUtil.execute(argList, false, null, null, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -58,7 +58,7 @@ public class FormatCmdTest {
     public void formatCLINotAProjectTest() {
         Path sourceRoot = RES_DIR.resolve(NOT_A_BAL_PROJECT);
         try {
-            FormatUtil.execute(null, false, false, sourceRoot);
+            FormatUtil.execute(null, false, null, null, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -77,7 +77,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("pkg1");
         try {
-            FormatUtil.execute(argList, false, false, sourceRoot);
+            FormatUtil.execute(argList, false, null, null, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -95,7 +95,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("pkg2");
         try {
-            FormatUtil.execute(argList, false, false, sourceRoot);
+            FormatUtil.execute(argList, false, null, null, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -113,7 +113,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.txt").toString());
         try {
-            FormatUtil.execute(argList, false, false, RES_DIR);
+            FormatUtil.execute(argList, false, null, null, false, RES_DIR);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -132,7 +132,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add(RES_DIR.resolve("invalidFile.bal").toString());
         try {
-            FormatUtil.execute(argList, false, false, RES_DIR);
+            FormatUtil.execute(argList, false, null, null, false, RES_DIR);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -152,7 +152,7 @@ public class FormatCmdTest {
         List<String> argList = new ArrayList<>();
         argList.add("invalid.pkg2");
         try {
-            FormatUtil.execute(argList, false, false, sourceRoot);
+            FormatUtil.execute(argList, false, null, null, false, sourceRoot);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
@@ -169,7 +169,7 @@ public class FormatCmdTest {
     @Test(description = "Test to check the exception for general error in File IO or a argument.")
     public void formatCLIGeneralExceptionTest() {
         try {
-            FormatUtil.execute(null, false, false, null);
+            FormatUtil.execute(null, false, null, null, false, null);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {

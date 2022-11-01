@@ -21,10 +21,9 @@ import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
@@ -41,7 +40,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Util class for compilation and format execution for formatting CLI tool.
@@ -49,6 +47,7 @@ import java.util.regex.Pattern;
 class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
+//    private static Path projectPath;
 
     /**
      * Execute formatter.
@@ -58,11 +57,26 @@ class FormatUtil {
      * @param dryRun         run the whole formatting
      * @param sourceRootPath execution path
      */
-    static void execute(List<String> argList, boolean helpFlag, boolean dryRun, Path sourceRootPath) {
+    static void execute(List<String> argList, boolean helpFlag, String moduleeName, String fileName, boolean dryRun,
+                        Path sourceRootPath) {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
             outStream.println(commandUsageInfo);
             return;
+        }
+
+        // Cannot allow both moduleName and fileName options
+        if (moduleeName != null && fileName != null) {
+            throw LauncherUtils.createUsageExceptionWithHelp(Messages.getCantAllowBothModuleAndFileOptions());
+        }
+
+        // Sets the file to be formatted and/or module to be formatted
+        if (moduleeName != null) {
+            System.setProperty("SYSTEM_PROP_BAL_DEBUG", moduleeName);
+        }
+
+        if (fileName != null) {
+            System.setProperty("SYSTEM_PROP_BAL_DEBUG", fileName);
         }
 
         if (argList != null && argList.size() > 1) {
@@ -77,15 +91,31 @@ class FormatUtil {
             // Else user is in a ballerina project and expecting to format the whole ballerina project
             if (argList != null && !argList.isEmpty()) {
                 if (FormatUtil.isBalFile(argList.get(0))) {
+
+                    // Cannot allow moduleName and fileName options in single file projects
+                    if (moduleeName != null || fileName != null) {
+                        throw LauncherUtils.createUsageExceptionWithHelp(Messages.getCantAllowModuleOrFileOptions());
+                    }
+
                     ballerinaFilePath = argList.get(0);
                     Path filePath = Paths.get(ballerinaFilePath);
 
-                    // If the file doesn't exist or is a directory.
-                    if (!filePath.toFile().exists() || filePath.toFile().isDirectory()) {
-                        throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
+                    SingleFileProject project;
+
+                    try {
+                        project = SingleFileProject.load(filePath, constructBuildOptions());
+                    } catch (ProjectException e) {
+                        throw LauncherUtils.createUsageExceptionWithHelp(e.getMessage());
                     }
 
-                    String source = Files.readString(filePath);
+
+
+//                    // If the file doesn't exist or is a directory.
+//                    if (!filePath.toFile().exists() || filePath.toFile().isDirectory()) {
+//                        throw LauncherUtils.createLauncherException(Messages.getNoBallerinaFile(ballerinaFilePath));
+//                    }
+
+                    String source = Files.readString(project.sourceRoot());
                     // Format and get the generated formatted source code content.
                     String formattedSourceCode = Formatter.format(source);
 
@@ -106,60 +136,83 @@ class FormatUtil {
                     // throw the following exception.
                     throw LauncherUtils.createLauncherException(Messages.getNotABallerinaFile());
                 } else {
-                    moduleName = argList.get(0);
-
-                    // Check whether the module is default
-                    if (isBallerinaProject(sourceRootPath)) {
-                        BuildProject project;
-                        try {
-                            project = BuildProject.load(sourceRootPath, constructBuildOptions());
-                        } catch (ProjectException e) {
-                            throw LauncherUtils.createLauncherException(Messages.getException() + e);
-                        }
-                        if (project.currentPackage().packageName().value().equals(moduleName)) {
-                            List<String> formattedFiles = new ArrayList<>();
-                            // Iterate and format all the ballerina packages.
-                            project.currentPackage().moduleIds().forEach(moduleId -> {
-                                try {
-                                    formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
-                                            sourceRootPath, dryRun));
-                                } catch (IOException | FormatterException e) {
-                                    throw LauncherUtils.createLauncherException(Messages.getException() + e);
-                                }
-                            });
-                            generateChangeReport(formattedFiles, dryRun);
-                        }
-                    }
-
-                    // Check whether the module dir exists.
-                    if (!FormatUtil.isModuleExist(moduleName, sourceRootPath) ) {
-                        // If module directory doesn't exist and contains a "."
-                        // throw an exception to say file or module doesn't exist.
-                        // Else throw a exception to say module doesn't exist.
-                        if (moduleName.contains(".")) {
-                            throw LauncherUtils.createLauncherException(Messages
-                                    .getNoBallerinaModuleOrFile(moduleName));
-                        } else {
-                            throw LauncherUtils.createLauncherException(Messages.getNoModuleFound(moduleName));
-                        }
-                    }
+                    // Project Path
+                    Path projectPath = sourceRootPath.resolve(argList.get(0));
 
                     BuildProject project;
 
                     try {
-                        project = BuildProject.load(sourceRootPath, constructBuildOptions());
+                        project = BuildProject.load(projectPath, constructBuildOptions());
                     } catch (ProjectException e) {
-                        throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                        throw LauncherUtils.createUsageExceptionWithHelp(e.getMessage());
                     }
 
-                    Package currentPackage = project.currentPackage();
-                    Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(),
-                            getModuleName(moduleName)));
-
-                    // Iterate and format the ballerina package.
-                    List<String> formattedFiles = iterateAndFormat(getDocumentPaths(project, module.moduleId()),
-                            sourceRootPath, dryRun);
+                    List<String> formattedFiles = new ArrayList<>();
+                    // Iterate and format all the ballerina packages.
+                    project.currentPackage().moduleIds().forEach(moduleId -> {
+                        try {
+                            formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
+                                    sourceRootPath, dryRun));
+                        } catch (IOException | FormatterException e) {
+                            throw LauncherUtils.createLauncherException(Messages.getException() + e);
+                        }
+                    });
                     generateChangeReport(formattedFiles, dryRun);
+
+//                    moduleName = argList.get(0);
+//
+//                    // Check whether the module is default
+//                    if (isBallerinaProject(sourceRootPath)) {
+//                        BuildProject project;
+//                        try {
+//                            project = BuildProject.load(sourceRootPath, constructBuildOptions());
+//                        } catch (ProjectException e) {
+//                            throw LauncherUtils.createLauncherException(Messages.getException() + e);
+//                        }
+//                        if (project.currentPackage().packageName().value().equals(moduleName)) {
+//                            List<String> formattedFiles = new ArrayList<>();
+//                            // Iterate and format all the ballerina packages.
+//                            project.currentPackage().moduleIds().forEach(moduleId -> {
+//                                try {
+//                                    formattedFiles.addAll(iterateAndFormat(getDocumentPaths(project, moduleId),
+//                                            sourceRootPath, dryRun));
+//                                } catch (IOException | FormatterException e) {
+//                                    throw LauncherUtils.createLauncherException(Messages.getException() + e);
+//                                }
+//                            });
+//                            generateChangeReport(formattedFiles, dryRun);
+//                        }
+//                    }
+//
+//                    // Check whether the module dir exists.
+//                    if (!FormatUtil.isModuleExist(moduleName, sourceRootPath)) {
+//                        // If module directory doesn't exist and contains a "."
+//                        // throw an exception to say file or module doesn't exist.
+//                        // Else throw a exception to say module doesn't exist.
+//                        if (moduleName.contains(".")) {
+//                            throw LauncherUtils.createLauncherException(Messages
+//                                    .getNoBallerinaModuleOrFile(moduleName));
+//                        } else {
+//                            throw LauncherUtils.createLauncherException(Messages.getNoModuleFound(moduleName));
+//                        }
+//                    }
+//
+//                    BuildProject project;
+//
+//                    try {
+//                        project = BuildProject.load(sourceRootPath, constructBuildOptions());
+//                    } catch (ProjectException e) {
+//                        throw LauncherUtils.createLauncherException(Messages.getException() + e);
+//                    }
+//
+//                    Package currentPackage = project.currentPackage();
+//                    Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(),
+//                            getModuleName(moduleName)));
+//
+//                    // Iterate and format the ballerina package.
+//                    List<String> formattedFiles = iterateAndFormat(getDocumentPaths(project, module.moduleId()),
+//                            sourceRootPath, dryRun);
+//                    generateChangeReport(formattedFiles, dryRun);
                 }
             } else {
                 // Check whether the given directory is not a ballerina project.
@@ -227,11 +280,11 @@ class FormatUtil {
         }
     }
 
-    private static String getModuleName(String moduleName) {
-        String pattern = Pattern.quote(File.separator);
-        String[] splitedTokens = moduleName.split(pattern);
-        return splitedTokens[splitedTokens.length - 1];
-    }
+//    private static String getModuleName(String moduleName) {
+//        String pattern = Pattern.quote(File.separator);
+//        String[] splitedTokens = moduleName.split(pattern);
+//        return splitedTokens[splitedTokens.length - 1];
+//    }
 
     private static void formatAndWrite(Path documentPath, Path sourceRootPath,
                                List<String> formattedFiles, boolean dryRun) throws IOException, FormatterException {
@@ -280,16 +333,16 @@ class FormatUtil {
      * @param projectRoot path of the ballerina project root
      * @return {@link Boolean} true or false
      */
-    private static boolean isModuleExist(String module, Path projectRoot) {
-        Path modulePath;
-        if (module.startsWith("modules/")) {
-            modulePath = projectRoot.resolve(module);
-        } else {
-            modulePath = projectRoot.resolve("modules").resolve(module);
-        }
-
-        return modulePath.toFile().isDirectory();
-    }
+//    private static boolean isModuleExist(String module, Path projectRoot) {
+//        Path modulePath;
+//        if (module.startsWith("modules/")) {
+//            modulePath = projectRoot.resolve(module);
+//        } else {
+//            modulePath = projectRoot.resolve("modules").resolve(module);
+//        }
+//
+//        return modulePath.toFile().isDirectory();
+//    }
 
     /**
      * Check whether the given path is a source root of a ballerina project.

@@ -46,6 +46,13 @@ public class Messages {
 
     private static final String NO_BALLERINA_FILE_OR_MODULE = "couldn't find an existing ballerina file or " +
             "module by the name: ";
+
+    private static final String CANT_ALLOW_BOTH_MODULE_AND_FILE_OPTIONS =
+            "too many options: either use module option or file option";
+
+    private static final String CANT_ALLOW_MODULE_OR_FILE_OPTIONS =
+            "too many options: single file projects cannot accept module or file option";
+
     private static final String NO_CHANGES = "no changes.";
 
     private static final String FILES_TO_MODIFY = "files to be modified:";
@@ -78,6 +85,14 @@ public class Messages {
 
     static String getNoBallerinaModuleOrFile(String fileName) {
         return NO_BALLERINA_FILE_OR_MODULE + fileName;
+    }
+
+    static String getCantAllowBothModuleAndFileOptions() {
+        return CANT_ALLOW_BOTH_MODULE_AND_FILE_OPTIONS;
+    }
+
+    static String getCantAllowModuleOrFileOptions() {
+        return CANT_ALLOW_MODULE_OR_FILE_OPTIONS;
     }
 
     static String getNotABallerinaFile() {
