@@ -461,7 +461,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private boolean isMethodInServiceDeclaration(BLangFunction func) {
         BLangNode parent = func.parent;
-        return parent.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) parent).isServiceDecl;
+        return parent.getKind() == NodeKind.CLASS_DEFN &&
+                Symbols.isFlagOn(((BLangClassDefinition) parent).symbol.flags, Flags.SERVICE);
     }
 
     private void validateNamedWorkerUniqueReferences(AnalyzerData data) {
