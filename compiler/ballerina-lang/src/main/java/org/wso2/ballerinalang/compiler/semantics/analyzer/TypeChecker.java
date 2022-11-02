@@ -2877,8 +2877,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
 
-                if ((varRefExpr.isLValue || varRefExpr.isCompoundAssignmentLValue)
-                        && (varSym.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+                if (varRefExpr.isLValue && (varSym.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
                             Names.FUNCTION);
