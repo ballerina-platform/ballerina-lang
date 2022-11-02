@@ -43,7 +43,7 @@ public class ListenerObject1 {
 
     public function gracefulStop() returns error? {
         incrementCount();
-        future<int> f = start waitAndReturnInt(1250);
+        future<int> f = start waitAndReturnInt(850);
         int i = check wait f;
         if (self.name == "ListenerObject1") {
             assertCount(4);
@@ -68,7 +68,7 @@ public class ListenerObject2 {
     }
 
     public function gracefulStop() returns error? {
-        future<int> f = start waitAndReturnInt(1250);
+        future<int> f = start waitAndReturnInt(750);
         int _ = check wait f;
     }
 
@@ -105,6 +105,7 @@ function waitAndReturnInt(int i) returns int {
 public function incrementCount() {
     count += 1;
 }
+
 public function assertCount(int val) {
     test:assertEquals(count, val);
 }
