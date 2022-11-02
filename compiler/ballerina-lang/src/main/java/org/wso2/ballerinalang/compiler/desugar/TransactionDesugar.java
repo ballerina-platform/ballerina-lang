@@ -151,7 +151,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return result;
     }
     public void visit(BLangTransaction transactionNode) {
-        result = desugarTransactionBody(transactionNode, env, null);
+        result = desugarTransactionBody(transactionNode, env, transactionNode.pos);
     }
 
     // Transaction statement desugar implementation code.
