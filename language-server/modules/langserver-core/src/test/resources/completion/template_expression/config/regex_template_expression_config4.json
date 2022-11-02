@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 1,
+    "line": 4,
     "character": 33
   },
   "source": "template_expression/source/regex_template_expression_source4.bal",
@@ -674,6 +674,46 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "()",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "()",
+      "insertText": "(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "[]",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "[]",
+      "insertText": "[${1}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONST",
+      "kind": "Variable",
+      "detail": "100",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "ACB",
+      "insertText": "CONST",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intVal",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "ACB",
+      "insertText": "intVal",
       "insertTextFormat": "Snippet"
     }
   ]
