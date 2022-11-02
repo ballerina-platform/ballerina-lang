@@ -62,7 +62,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: " + Messages.getNotBallerinaProject(),
+                Assert.assertTrue(exception.get(0).contains("error: "),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
@@ -81,7 +81,8 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: couldn't find an existing module by the name: pkg1");
+                Assert.assertTrue(exception.get(0).contains("error: "),
+                        "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
                         + " exceptions where there needs to be 1 exception");
@@ -99,7 +100,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: " + Messages.getNoModuleFound("pkg2"),
+                Assert.assertTrue(exception.get(0).contains("error: "),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
@@ -136,8 +137,8 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: "
-                                + Messages.getNoBallerinaFile(RES_DIR.resolve("invalidFile.bal").toString()),
+                Assert.assertEquals(exception.get(0), "error: The file does not exist: "
+                                + RES_DIR.resolve("invalidFile.bal"),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
@@ -156,8 +157,7 @@ public class FormatCmdTest {
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertEquals(exception.get(0), "error: "
-                                + Messages.getNoBallerinaModuleOrFile("invalid.pkg2"),
+                Assert.assertTrue(exception.get(0).contains("error: "),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
@@ -166,14 +166,14 @@ public class FormatCmdTest {
         }
     }
 
-    @Test(description = "Test to check the exception for general error in File IO or a argument.")
+    @Test(description = "Test to check the exception for invalid source root path")
     public void formatCLIGeneralExceptionTest() {
         try {
             FormatUtil.execute(null, false, null, null, false, null);
         } catch (BLauncherException e) {
             List<String> exception = e.getMessages();
             if (exception.size() == 1) {
-                Assert.assertTrue(exception.get(0).contains("error: " + Messages.getException()),
+                Assert.assertTrue(exception.get(0).contains("error: "),
                         "actual exception didn't match the expected.");
             } else {
                 Assert.fail("failed the test with " + exception.size()
@@ -182,22 +182,39 @@ public class FormatCmdTest {
         }
     }
 
-//    @Test(description = "Test to check for successful formatting on default module")
-//    public void formatCLIDefaultModuleTest() {
-//        List<String> argList = new ArrayList<>();
-////        argList.add(BAL_PROJECT);
-//        try {
-//            FormatUtil.execute(argList, false, false, RES_DIR.resolve(BAL_PROJECT));
-//        } catch (BLauncherException e) {
-//            List<String> exception = e.getMessages();
-//            Systems.out.println(exception);
-//            if (exception.size() == 1) {
-//                Assert.assertTrue(exception.get(0).contains("error: " + Messages.getException()),
-//                        "actual exception didn't match the expected.");
-//            } else {
-//                Assert.fail("failed the test with " + exception.size()
-//                        + " exceptions where there needs to be 1 exception");
-//            }
-//        }
-//    }
+    @Test(description = "Test to check for multiple options")
+    public void formatCLIMultipleOptionsTest() {
+        List<String> argList = new ArrayList<>();
+        argList.add(BAL_PROJECT);
+        try {
+            FormatUtil.execute(argList, false, "pkg1", "main.bal", false, RES_DIR);
+        } catch (BLauncherException e) {
+            List<String> exception = e.getMessages();
+            if (exception.size() == 1) {
+                Assert.assertEquals(exception.get(0), "error: " + Messages.getCantAllowBothModuleAndFileOptions(),
+                        "actual exception didn't match the expected.");
+            } else {
+                Assert.fail("failed the test with " + exception.size()
+                        + " exceptions where there needs to be 1 exception");
+            }
+        }
+    }
+
+    @Test(description = "Test to check formatting a single file within a project")
+    public void formatCLISingleFileInProjectTest() {
+        List<String> argList = new ArrayList<>();
+        argList.add(BAL_PROJECT);
+        try {
+            FormatUtil.execute(argList, false, null, "main.bal", false, RES_DIR);
+        } catch (BLauncherException e) {
+            List<String> exception = e.getMessages();
+            if (exception.size() == 1) {
+                Assert.assertTrue(exception.get(0).contains("error: "),
+                        "actual exception didn't match the expected.");
+            } else {
+                Assert.fail("failed the test with " + exception.size()
+                        + " exceptions where there needs to be 1 exception");
+            }
+        }
+    }
 }

@@ -68,25 +68,24 @@ class FormatUtil {
 
         // Cannot allow both moduleName and fileName options
         if (moduleName != null && fileName != null) {
-            throw LauncherUtils.createUsageExceptionWithHelp(Messages.getCantAllowBothModuleAndFileOptions());
+            throw LauncherUtils.createLauncherException(Messages.getCantAllowBothModuleAndFileOptions());
         }
 
         if (argList != null && argList.size() > 1) {
             throw LauncherUtils.createLauncherException(Messages.getArgumentError());
         }
 
-//        String moduleName;
         String ballerinaFilePath;
 
         try {
             // If parameters are available user has given either the module name or the ballerina file path.
-            // Else user is in a ballerina project and expecting to format the whole ballerina project
+            // Else user is in a ballerina project and expecting to format the whole ballerina project or with options
             if (argList != null && !argList.isEmpty()) {
                 if (FormatUtil.isBalFile(argList.get(0))) {
 
                     // Cannot allow moduleName and fileName options in single file projects
                     if (moduleName != null || fileName != null) {
-                        throw LauncherUtils.createUsageExceptionWithHelp(Messages.getCantAllowModuleOrFileOptions());
+                        throw LauncherUtils.createLauncherException(Messages.getCantAllowModuleOrFileOptions());
                     }
 
                     ballerinaFilePath = argList.get(0);
@@ -96,7 +95,7 @@ class FormatUtil {
                     try {
                         project = SingleFileProject.load(filePath, constructBuildOptions());
                     } catch (ProjectException e) {
-                        throw LauncherUtils.createUsageExceptionWithHelp(e.getMessage());
+                        throw LauncherUtils.createLauncherException(e.getMessage());
                     }
 
                     String source = Files.readString(project.sourceRoot());
@@ -128,7 +127,7 @@ class FormatUtil {
                     try {
                         project = BuildProject.load(projectPath, constructBuildOptions());
                     } catch (ProjectException e) {
-                        throw LauncherUtils.createUsageExceptionWithHelp(e.getMessage());
+                        throw LauncherUtils.createLauncherException(e.getMessage());
                     }
 
                     List<String> formattedFiles = new ArrayList<>();
@@ -194,7 +193,7 @@ class FormatUtil {
                 try {
                     project = BuildProject.load(sourceRootPath, constructBuildOptions());
                 } catch (ProjectException e) {
-                    throw LauncherUtils.createUsageExceptionWithHelp(e.getMessage());
+                    throw LauncherUtils.createLauncherException(e.getMessage());
                 }
 
                 List<String> formattedFiles = new ArrayList<>();
