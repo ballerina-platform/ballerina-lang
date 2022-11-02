@@ -91,7 +91,7 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public List<BType> getMemberTypes() {
+    public List<BType> getTupleTypes() {
         List<BType> types = new ArrayList<>();
         memberTypes.forEach(member -> types.add(member.type));
         return types;

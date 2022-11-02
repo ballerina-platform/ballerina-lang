@@ -413,7 +413,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getMemberTypes());
+        List<Integer> tupleTypesHashes = getOrderedTypesHashes(type.getTupleTypes());
         Integer hash = hash(baseHash(type), tupleTypesHashes, visit(type.restType), type.flags, type.tsymbol);
         return addToVisited(type, hash);
     }

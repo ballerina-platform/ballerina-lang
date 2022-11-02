@@ -2068,7 +2068,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                for (BType member : definedTupleType.getMemberTypes()) {
+                for (BType member : definedTupleType.getTupleTypes()) {
                     BVarSymbol varSymbol = new BVarSymbol(member.flags, member.tsymbol.name, member.tsymbol.pkgID,
                             member, member.tsymbol.owner, member.tsymbol.pos, member.tsymbol.origin);
                     if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member, varSymbol))) {
@@ -3864,7 +3864,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return true;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType tupMemType : tupleType.getMemberTypes()) {
+                for (BType tupMemType : tupleType.getTupleTypes()) {
                     if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType, unresolvedTypes)) {
                         return false;
                     }
@@ -4615,8 +4615,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangType memType : tupleTypeNode.memberTypeNodes) {
-            defineNode(memType, env);
+        for (BLangSimpleVariable memType : tupleTypeNode.memberTypeNodes) {
+            defineNode(memType.typeNode, env);
         }
         if (tupleTypeNode.restParamType != null) {
             defineNode(tupleTypeNode.restParamType, env);

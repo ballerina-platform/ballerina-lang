@@ -607,7 +607,7 @@ public class TypeParamAnalyzer {
                 }
             }
             if (type.tag == TypeTags.TUPLE) {
-                ((BTupleType) type).getMemberTypes().forEach(member -> members.add(member));
+                ((BTupleType) type).getTupleTypes().forEach(member -> members.add(member));
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);

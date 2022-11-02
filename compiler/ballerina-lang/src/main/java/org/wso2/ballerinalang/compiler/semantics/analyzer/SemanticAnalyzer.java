@@ -1034,19 +1034,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
         BType bType = tupleTypeNode.getBType();
-        if (bType.tsymbol == null) {
-           dlog.mute();
-           int errCount = dlog.errorCount();
-           bType = symResolver.resolveTypeNode(tupleTypeNode, data.env);
-           dlog.setErrorCount(errCount);
-           dlog.unmute();
-        }
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
 
         for (int i = 0; i < memberTypeNodes.size(); i++) {
             data.env = tupleEnv;
             BLangSimpleVariable memberType = memberTypeNodes.get(i);
-            analyzeDef(memberType, data);
+            analyzeNode(memberType, data);
             for (BLangAnnotationAttachment ann : memberType.annAttachments) {
                 ((BTupleType) bType).memberTypes.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
             }
@@ -5242,7 +5235,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         @Override
         public void visit(BTupleType bTupleType) {
-            for (BType memType : bTupleType.tupleTypes) {
+            for (BType memType : bTupleType.getTupleTypes()) {
                 visitType(memType);
             }
 

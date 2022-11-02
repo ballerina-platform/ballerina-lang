@@ -389,7 +389,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        List<BLangType> rewrittenMembers = new ArrayList<>();
+        List<BLangSimpleVariable> rewrittenMembers = new ArrayList<>();
         tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
         tupleTypeNode.memberTypeNodes = rewrittenMembers;
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
@@ -490,7 +490,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
         BLangExpression bLangExpression;
-        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+        if (varNode.symbol != null && Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode);
         } else {

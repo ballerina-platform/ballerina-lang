@@ -3845,7 +3845,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         blockStmt.addStatement(failureResult);
 
-        List<BType> memberTupleTypes = ((BTupleType) listBindingPattern.getBType()).getMemberTypes();
+        List<BType> memberTupleTypes = ((BTupleType) listBindingPattern.getBType()).getTupleTypes();
         List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
 
         BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", listBindingPattern.getBType(), varRef, pos);
@@ -4496,7 +4496,7 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         blockStmt.addStatement(failureResult);
 
-        List<BType> memberTupleTypes = ((BTupleType) listMatchPattern.getBType()).getMemberTypes();
+        List<BType> memberTupleTypes = ((BTupleType) listMatchPattern.getBType()).getTupleTypes();
         List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
 
         BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", listMatchPattern.getBType(), varRef, pos);

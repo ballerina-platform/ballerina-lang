@@ -1437,25 +1437,27 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BType> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
-        for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
-            BType type = resolveTypeNode(memTypeNode.typeNode, data, data.env);
-            memTypeNode.setBType(type);
-            // If at least one member is undefined, return noType as the type.
-            if (type == symTable.noType) {
-                return symTable.noType;
-            }
-
-            memberTypes.add(type);
-        }
-
+        List<BLangSimpleVariable> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
+        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
+
+        for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
+            symbolEnter.defineNode(memTypeNode, tupleEnv);
+            // If at least one member is undefined, return noType as the type.
+            if (memTypeNode.getBType() == symTable.noType) {
+
+                return symTable.noType;
+            }
+
+            memberTypes.add(memTypeNode);
+        }
 
         List<BTupleMember> tupleMemberTypes = new ArrayList<>();
-        memberTypes.forEach(member -> tupleMemberTypes.add(new BTupleMember(member, new BVarSymbol(member.flags, null,
-                null, member, null, null, null))));
+        memberTypes.forEach(member -> tupleMemberTypes.add(new BTupleMember(member.getBType(),
+                new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
+                        member.symbol.owner, member.pos, SOURCE))));
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMemberTypes);
         tupleTypeSymbol.type = tupleType;
 
@@ -1468,7 +1470,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             markParameterizedType(tupleType, tupleType.restType);
         }
 
-        markParameterizedType(tupleType, memberTypes);
+        markParameterizedType(tupleType, tupleType.getTupleTypes());
 
         return tupleType;
     }

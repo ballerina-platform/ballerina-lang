@@ -1586,7 +1586,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             switch (keyTypeConstraint.tag) {
                 case TypeTags.TUPLE:
-                    for (BType type : ((BTupleType) keyTypeConstraint).getMemberTypes()) {
+                    for (BType type : ((BTupleType) keyTypeConstraint).getTupleTypes()) {
                         memberTypes.add(type);
                     }
                     break;
@@ -3985,7 +3985,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return false;
         }
 
-        for (BType member : tupleType.getMemberTypes()) {
+        for (BType member : tupleType.getTupleTypes()) {
             if (!types.isSameType(tupleType.restType, member)) {
                 return true;
             }
@@ -9502,7 +9502,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.ARRAY:
                 return couldHoldTableValues(((BArrayType) type).eType, encounteredTypes);
             case TypeTags.TUPLE:
-                for (BType bType : ((BTupleType) type).getMemberTypes()) {
+                for (BType bType : ((BTupleType) type).getTupleTypes()) {
                     if (couldHoldTableValues(bType, encounteredTypes)) {
                         return true;
                     }

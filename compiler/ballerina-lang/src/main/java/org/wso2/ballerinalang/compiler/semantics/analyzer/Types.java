@@ -2032,7 +2032,7 @@ public class Types {
     }
 
     private BType getTupleMemberType(BTupleType tupleType) {
-        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.getTupleTypes());
         if (tupleType.restType != null) {
             tupleTypes.add(tupleType.restType);
         }
@@ -3218,7 +3218,7 @@ public class Types {
                 return true;
             }
             for (int i = targetTupleCount; i < sourceTupleCount; i++) {
-                if (!isSameOrderedType(source.getMemberTypes().get(i), targetRestType, this.unresolvedTypes)) {
+                if (!isSameOrderedType(source.getTupleTypes().get(i), targetRestType, this.unresolvedTypes)) {
                     return false;
                 }
             }
@@ -4500,14 +4500,14 @@ public class Types {
     }
 
     private boolean tupleIntersectionExists(BTupleType lhsType, BTupleType rhsType) {
-        if (lhsType.getMemberTypes().size() != rhsType.getMemberTypes().size()) {
+        if (lhsType.getTupleTypes().size() != rhsType.getTupleTypes().size()) {
             return false;
         }
 
-        List<BType> lhsMemberTypes = lhsType.getMemberTypes();
-        List<BType> rhsMemberTypes = rhsType.getMemberTypes();
+        List<BType> lhsMemberTypes = lhsType.getTupleTypes();
+        List<BType> rhsMemberTypes = rhsType.getTupleTypes();
 
-        for (int i = 0; i < lhsType.getMemberTypes().size(); i++) {
+        for (int i = 0; i < lhsType.getTupleTypes().size(); i++) {
             if (!equalityIntersectionExists(expandAndGetMemberTypesRecursive(lhsMemberTypes.get(i)),
                                             expandAndGetMemberTypesRecursive(rhsMemberTypes.get(i)))) {
                 return false;
@@ -6071,7 +6071,7 @@ public class Types {
                 if (tupleType.isCyclic) {
                     return false;
                 }
-                return tupleType.getMemberTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
+                return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
             case TypeTags.INTERSECTION:
