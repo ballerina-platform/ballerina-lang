@@ -22,7 +22,7 @@ function waitTest1() {
     future<int> f2 = @strand {thread: "any"} start add_2(11, 11);
     future<int> f1 = @strand {thread: "any"} start add_1(1, 1);
     int result = checkpanic wait f3 | f2 | f1;
-    assertIsOneOfTheAnydataValues(result, [82, 22, 22]);
+    assertIsOneOfTheAnydataValues(result, [82, 22, 2]);
 }
 
 function waitTest2() {
