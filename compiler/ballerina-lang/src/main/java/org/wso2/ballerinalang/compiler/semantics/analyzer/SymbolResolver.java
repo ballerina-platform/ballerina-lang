@@ -1675,17 +1675,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
                 }
-            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION_TYPE) {
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && (env.node.getKind() == NodeKind.FUNCTION_TYPE
+                    || env.node.getKind() == NodeKind.TUPLE_TYPE_NODE)) {
                 SymbolEnv symbolEnv = env;
                 BLangFunction func = null;
                 BLangFunctionTypeNode funcTypeNode = null;
                 ParameterizedTypeInfo parameterizedTypeInfo = null;
                 while ((symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE ||
-                        symbolEnv.node.getKind() == NodeKind.FUNCTION) && parameterizedTypeInfo == null) {
+                        symbolEnv.node.getKind() == NodeKind.FUNCTION ||
+                        symbolEnv.node.getKind() == NodeKind.TUPLE_TYPE_NODE) && parameterizedTypeInfo == null) {
                     if (symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE) {
                         funcTypeNode = (BLangFunctionTypeNode) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(funcTypeNode.params, data, tempSymbol);
-                    } else {
+                    } else if (symbolEnv.node.getKind() == NodeKind.FUNCTION){
                         func = (BLangFunction) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(func.requiredParams, data, tempSymbol);
                     }
