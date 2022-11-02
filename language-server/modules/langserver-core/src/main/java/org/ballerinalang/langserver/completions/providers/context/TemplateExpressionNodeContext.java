@@ -105,8 +105,8 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NEWLINE.get()));
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_TAB.get()));
         } else if (nodeAtCursor.kind() == SyntaxKind.RE_FLAG_EXPR 
-                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx.getCursorPositionInTree()) 
-        {
+                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx
+                .getCursorPositionInTree()) {
             // Eg: re `(?<cursor>)`
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MULTILINE_FLAG.get()));
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_ALL_FLAG.get()));
@@ -276,13 +276,17 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
         DEF_TAB(new SnippetBlock("t", "t", "t", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
 
-        DEF_MULTILINE_FLAG(new SnippetBlock("m", "m", "m", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_MULTILINE_FLAG(new SnippetBlock("m", "m", "m", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
-        DEF_DOT_ALL_FLAG(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_DOT_ALL_FLAG(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
-        DEF_IGNORE_CASE_FLAG(new SnippetBlock("i", "i", "i", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+        DEF_IGNORE_CASE_FLAG(new SnippetBlock("i", "i", "i", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET)),
 
-        DEF_COMMENT_FLAG(new SnippetBlock("x", "x", "x", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET));
+        DEF_COMMENT_FLAG(new SnippetBlock("x", "x", "x", ItemResolverConstants.SNIPPET_TYPE, 
+                SnippetBlock.Kind.SNIPPET));
 
         private final SnippetBlock snippetBlock;
 
