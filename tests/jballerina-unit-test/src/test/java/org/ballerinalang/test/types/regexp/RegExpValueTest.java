@@ -66,7 +66,8 @@ public class RegExpValueTest {
                 "testComplexRegExpValue2",
                 "testEqualityWithRegExp",
                 "testExactEqualityWithRegExp",
-                "testInvalidInsertionsInRegExp"
+                "testInvalidInsertionsInRegExp",
+                "testFreezeDirectWithRegExp"
         };
     }
 
