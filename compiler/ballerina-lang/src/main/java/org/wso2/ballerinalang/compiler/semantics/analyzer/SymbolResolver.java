@@ -1687,7 +1687,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     if (symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE) {
                         funcTypeNode = (BLangFunctionTypeNode) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(funcTypeNode.params, data, tempSymbol);
-                    } else if (symbolEnv.node.getKind() == NodeKind.FUNCTION){
+                    } else if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
                         func = (BLangFunction) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(func.requiredParams, data, tempSymbol);
                     }
