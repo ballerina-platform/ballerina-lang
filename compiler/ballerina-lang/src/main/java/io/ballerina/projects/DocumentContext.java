@@ -18,7 +18,6 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
@@ -289,28 +288,6 @@ class DocumentContext {
             // client declaration is in a BuildProject
             executeIDLPlugin(moduleClientDeclarationNode, moduleClientDeclarationNode.location(),
                     moduleClientDeclarationNode.clientPrefix().location().lineRange());
-        }
-
-        @Override
-        public void visit(ClientDeclarationNode clientDeclarationNode) {
-            // report unsupported project error for single file
-            if (this.currentPkg.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                ProjectDiagnosticErrorCode errorCode =
-                        ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
-                Location location = clientDeclarationNode.location();
-                String message = "client declaration is not supported with standalone Ballerina file";
-                pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-                return;
-            }
-
-            if (loadExistingModule(clientDeclarationNode, clientDeclarationNode.annotations(),
-                    clientDeclarationNode.clientPrefix().location().lineRange())) {
-                return;
-            }
-
-            // client declaration is in a BuildProject
-            executeIDLPlugin(clientDeclarationNode, clientDeclarationNode.location(),
-                    clientDeclarationNode.clientPrefix().location().lineRange());
         }
 
         private boolean loadExistingModule(

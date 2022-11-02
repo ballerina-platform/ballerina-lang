@@ -22,11 +22,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
@@ -187,14 +185,8 @@ class IDLPluginManager {
         @Override
         public void addClient(ModuleConfig moduleConfig, NodeList<AnnotationNode> supportedAnnotations) {
             ModuleConfig newModuleConfig = createModuleConfigWithRandomName(moduleConfig);
-            LineRange lineRange;
-            if (this.clientNode.kind().equals(SyntaxKind.MODULE_CLIENT_DECLARATION)) {
-                ModuleClientDeclarationNode moduleClientNode = (ModuleClientDeclarationNode) this.clientNode;
-                lineRange = moduleClientNode.clientPrefix().location().lineRange();
-            } else {
-                ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
-                lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
-            }
+            ModuleClientDeclarationNode moduleClientNode = (ModuleClientDeclarationNode) this.clientNode;
+            LineRange lineRange = moduleClientNode.clientPrefix().location().lineRange();
             idlClients.addEntry(sourcePkgId, sourceDoc, lineRange,
                     newModuleConfig.moduleDescriptor().moduleCompilationId());
             this.moduleLoadRequests.add(new ModuleLoadRequest(
@@ -216,13 +208,7 @@ class IDLPluginManager {
 
         private String getUri(Node clientNode) {
             BasicLiteralNode clientUri;
-
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
+            clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
             String text = clientUri.literalToken().text();
             return text.substring(1, text.length() - 1);
         }

@@ -38,7 +38,6 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -437,7 +436,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -3626,24 +3624,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ClientDeclarationNode clientDeclarationNode) {
-        BLangClientDeclarationStatement clientDeclarationStatement =
-                (BLangClientDeclarationStatement) TreeBuilder.createClientDeclarationStatementNode();
-        Location position = getPosition(clientDeclarationNode);
-        clientDeclarationStatement.clientDeclaration = createClientDeclaration(clientDeclarationNode.clientUri(),
-                                                                               clientDeclarationNode.clientPrefix(),
-                                                                               position,
-                                                                               clientDeclarationNode.annotations());
-        clientDeclarationStatement.pos = position;
-        return clientDeclarationStatement;
-    }
-
-    @Override
     public BLangNode transform(ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        return createClientDeclaration(moduleClientDeclarationNode.clientUri(),
-                                       moduleClientDeclarationNode.clientPrefix(),
-                                       getPosition(moduleClientDeclarationNode),
-                                       moduleClientDeclarationNode.annotations());
+        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
+        clientDeclaration.uri = createSimpleLiteral(moduleClientDeclarationNode.clientUri());
+        clientDeclaration.prefix = createIdentifier(moduleClientDeclarationNode.clientPrefix());
+        clientDeclaration.pos = getPosition(moduleClientDeclarationNode);
+        clientDeclaration.annAttachments = applyAll(moduleClientDeclarationNode.annotations());
+        return clientDeclaration;
     }
 
     @Override
@@ -6979,16 +6966,5 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
-    }
-
-    private BLangClientDeclaration createClientDeclaration(BasicLiteralNode basicLiteralNode,
-                                                           IdentifierToken identifierToken, Location position,
-                                                           NodeList<AnnotationNode> annotations) {
-        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
-        clientDeclaration.uri = createSimpleLiteral(basicLiteralNode);
-        clientDeclaration.prefix = createIdentifier(identifierToken);
-        clientDeclaration.pos = position;
-        clientDeclaration.annAttachments = applyAll(annotations);
-        return clientDeclaration;
     }
 }
