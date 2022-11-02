@@ -707,6 +707,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(CaptureBindingPatternNode node) {
+        Optional<Symbol> variableSymbol = this.getSymbolByName(node.variableName().text());
+        if (variableSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
         if (bLangNode == null) {
             return Optional.empty();
