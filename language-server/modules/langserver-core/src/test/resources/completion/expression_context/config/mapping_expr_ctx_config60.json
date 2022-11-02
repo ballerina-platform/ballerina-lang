@@ -36,7 +36,7 @@
       "detail": "Pet",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: ${1:\"\"},\ntype: ${2:0}",
+      "insertText": "name: ${1:\"\"},\n'type: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

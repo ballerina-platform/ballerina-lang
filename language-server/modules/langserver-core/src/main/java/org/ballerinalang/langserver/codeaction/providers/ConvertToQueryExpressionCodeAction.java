@@ -175,11 +175,13 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
         SemanticModel semanticModel = context.currentSemanticModel().get();
         if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             VariableDeclarationNode node = (VariableDeclarationNode) matchedNode;
-            rhsNode = node.initializer().get();
-            rhsSymbol = semanticModel.symbol(rhsNode);
-            lhsNode = node.typedBindingPattern();
-            lhsSymbol = semanticModel.symbol(lhsNode)
-                    .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+            if (node.initializer().isPresent()) {
+                rhsNode = node.initializer().get();
+                rhsSymbol = semanticModel.symbol(rhsNode);
+                lhsNode = node.typedBindingPattern();
+                lhsSymbol = semanticModel.symbol(lhsNode)
+                        .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+            }
         } else if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             // There can be 2 types here: Variable assignments and field access expressions.
             // 1. list = otherList;

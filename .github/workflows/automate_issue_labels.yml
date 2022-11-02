@@ -9,9 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Check for Team label inclusion
+        run: |
+          if ${{ contains(join(github.event.issue.labels.*.name, ','), 'Team/') }} == true; then
+            echo "team_label_added=true" >> $GITHUB_ENV
+          else
+            echo "team_label_added=false" >> $GITHUB_ENV
+          fi
+
+      - name: Check for Type label inclusion
+        if: ${{ !(contains(join(github.event.issue.labels.*.name, ','), 'Type/')) }}
+        run: gh issue edit $ISSUE --add-label "needTriage"
       
       - name: Check for Compilation related issue
-        if: ${{ contains(github.event.issue.body, '-> Compilation') }}
+        if: ${{ contains(github.event.issue.body, '-> Compilation') && {{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Compilation" 
@@ -34,7 +46,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Central related isssue
-        if: ${{ contains(github.event.issue.body, '-> Central') }}
+        if: ${{ contains(github.event.issue.body, '-> Central') && {{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Central"
@@ -130,7 +142,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Editor related issue 
-        if: ${{ contains(github.event.issue.body, '-> Editor') }}
+        if: ${{ contains(github.event.issue.body, '-> Editor') && {{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Editor"
@@ -162,7 +174,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for other issues 
-        if: ${{ contains(github.event.issue.body, '-> Other Area') }}
+        if: ${{ contains(github.event.issue.body, '-> Other Area') && {{ env.team_label_added == false }} }}
         run: gh issue edit $ISSUE --add-label "needTriage"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
