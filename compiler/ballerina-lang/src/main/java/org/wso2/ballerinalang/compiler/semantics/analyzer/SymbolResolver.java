@@ -1595,8 +1595,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
-        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BLangIdentifier pkgAliasIdentifier = userDefinedTypeNode.pkgAlias;
+        Name pkgAlias = names.fromIdNode(pkgAliasIdentifier);
+        BLangIdentifier typeNameIdentifier = userDefinedTypeNode.typeName;
+        Name typeName = names.fromIdNode(typeNameIdentifier);
         BSymbol symbol = symTable.notFoundSymbol;
         SymbolEnv env = data.env;
 
@@ -1609,6 +1611,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
+            validateUnquotedClientKeywordUsageInQualifiedIdentifier(userDefinedTypeNode, data.env, pkgAliasIdentifier,
+                                                                    pkgAlias, typeNameIdentifier, typeName);
+
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? Types.getReferredType(tempSymbol.type).tsymbol
@@ -1724,6 +1729,25 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return referenceType;
         }
         return symbol.type;
+    }
+
+    private void validateUnquotedClientKeywordUsageInQualifiedIdentifier(BLangUserDefinedType userDefinedTypeNode,
+                                                                         SymbolEnv env,
+                                                                         BLangIdentifier pkgAliasIdentifier,
+                                                                         Name pkgAlias,
+                                                                         BLangIdentifier typeNameIdentifier,
+                                                                         Name typeName) {
+        if (pkgAliasIdentifier == null || !Names.CLIENT.value.equals(typeName.value) || typeNameIdentifier.isLiteral) {
+            return;
+        }
+
+        Location pos = userDefinedTypeNode.pos;
+
+        BSymbol pkgSymbol = this.resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().filePath()));
+        if (pkgSymbol != symTable.notFoundSymbol &&
+                !this.isModuleGeneratedForClientDeclaration(env.enclPkg.packageID, pkgSymbol.pkgID)) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
+        }
     }
 
     private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
@@ -2669,6 +2693,25 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         ((BClientDeclarationSymbol) symbol).used = true;
         return getModuleForPackageId(optionalPackageID.get());
+    }
+
+    public boolean isModuleGeneratedForClientDeclaration(PackageID currentPackageId, PackageID packageIdToCheck) {
+        if (!symTable.clientDeclarations.containsKey(currentPackageId)) {
+            return false;
+        }
+
+        for (Map<LineRange, Optional<PackageID>> fileClientDecls :
+                symTable.clientDeclarations.get(currentPackageId).values()) {
+            for (Optional<PackageID> optionalPackageID : fileClientDecls.values()) {
+                if (optionalPackageID.isPresent()) {
+                    if (packageIdToCheck.equals(optionalPackageID.get())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

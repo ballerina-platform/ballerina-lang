@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -212,6 +213,24 @@ public class NameUtil {
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         String typeSignature = typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
+    }
+
+    /**
+     * Returns the record type name.
+     *
+     * @param context Context
+     * @param wrapper A wrapper containing record type symbol and broader type symbol
+     * @return Record type
+     */
+    public static String getRecordTypeName(DocumentServiceContext context,
+                                           RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
+        if (wrapper.getRawType().getName().isPresent()) {
+            return NameUtil.getModifiedTypeName(context, wrapper.getRawType());
+        } else if (wrapper.getBroaderType().getName().isPresent()) {
+            return NameUtil.getModifiedTypeName(context, wrapper.getBroaderType());
+        } else {
+            return wrapper.getRawType().signature();
+        }
     }
 
     /**
