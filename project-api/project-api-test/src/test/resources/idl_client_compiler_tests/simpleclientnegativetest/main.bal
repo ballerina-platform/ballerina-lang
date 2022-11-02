@@ -24,21 +24,4 @@ function testModuleClientDeclNegative() {
     foo:Client cl;
 }
 
-function testClientDeclStmtNegative1() {
-    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
-    bar:ClientConfiguratin config;
-    bar:clients cl;
-}
-
-function testClientDeclStmtNegative2() {
-    client "https://postman-echo.com/get?name=simpleclienttest.yaml" as bar;
-    client "https://postman-echo.com/get?name=simpleclienttest2.yaml" as baz;
-    baz:ClientConfiguration c1;
-    bar:Config c2;
-}
-
 client "https://postman-echo.com/get?name=simpleclienttest-disallow.yaml" as qux;
-
-function testClientDeclStmtWithNoGeneratedModuleNegative() {
-    client "https://postman-echo.com/get?name=simpleclienttest-disallow2.yaml" as bar;
-}
