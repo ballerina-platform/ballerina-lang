@@ -1071,6 +1071,24 @@ function testSplit() {
     string[] resArr6 = re `.`.split(str6);
     assertEquality(1, resArr6.length());
     assertEquality(arrExpected6, resArr6);
+
+    string str7 = "zzzzayyyybxxxxawwww";
+    string[] arrExpected7 = ["zzzz", "yyyy", "xxxx", "wwww"];
+    string[] resArr7 = re `[a-c]`.split(str7);
+    assertEquality(4, resArr7.length());
+    assertEquality(arrExpected7, resArr7);
+
+    string str8 = "apple|9|1.88;2.78|0#10";
+    string[] resArr8 = re `[|;#]`.split(str8);
+    string[] arrExpected8 = ["apple", "9", "1.88", "2.78", "0", "10"];
+    assertEquality(6, resArr8.length());
+    assertEquality(arrExpected8, resArr8);
+
+    string str9 = "1 2   3 4  5";
+    string[] resArr9 = re `\s+`.split(str9);
+    string[] arrExpected9 = ["1", "2", "3", "4", "5"];
+    assertEquality(5, resArr9.length());
+    assertEquality(arrExpected9, resArr9);
 }
 
 function testLangLibFuncWithNamedArgExpr() {
