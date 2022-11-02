@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -243,7 +244,8 @@ class JvmObservabilityGen {
             BIRBasicBlock currentBB = entry.getKey();
             Location desugaredPos = getDesugaredPosition(currentBB);
 
-            if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
+            if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0 &&
+                    isSingleLineLocation(desugaredPos.lineRange())) {
                 List<BIRBasicBlock> predecessors = entry.getValue();
                 int callInsOffset = 0;
                 if (!desugaredPosAlreadyLoaded(desugaredPos, predecessors)) {
@@ -263,6 +265,10 @@ class JvmObservabilityGen {
             }
         }
         return false;
+    }
+
+    private boolean isSingleLineLocation(LineRange lineRange) {
+        return lineRange.startLine().line() == lineRange.endLine().line();
     }
 
     /**
