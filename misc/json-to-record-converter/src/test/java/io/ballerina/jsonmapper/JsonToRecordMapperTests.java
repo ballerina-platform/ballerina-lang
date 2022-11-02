@@ -305,7 +305,10 @@ public class JsonToRecordMapperTests {
         String jsonFileContent = Files.readString(sample13Json);
         List<JsonToRecordMapperDiagnostic> diagnostics =
                 JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false).getDiagnostics();
+        String diagnosticMessage = "Provided record name 'Person' conflicts with the other generated records. " +
+                "Consider providing a different name.";
         Assert.assertEquals(diagnostics.size(), 1);
+        Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
 
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
