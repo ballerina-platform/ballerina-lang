@@ -161,7 +161,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        // TODO remove this after fix #mention issue
+        // TODO remove this after fix #38522
         if (bLangNode == null) {
             Optional<Symbol> symbol = this.getSymbolByName(node.name().text());
             if (symbol.isEmpty()) {
