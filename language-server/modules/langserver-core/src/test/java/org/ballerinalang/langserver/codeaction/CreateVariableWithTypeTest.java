@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test cases for create variable with type code action
+ * Test cases for create variable with type code action.
  *
  * @since 2201.4.0
  */
