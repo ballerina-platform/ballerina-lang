@@ -1,7 +1,7 @@
 /*
-*  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 *
-*  WSO2 Inc. licenses this file to you under the Apache License,
+*  WSO2 LLC. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License.
 *  You may obtain a copy of the License at
@@ -18,23 +18,25 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Represent resource method.
+ * Represent resource path segment.
  *
- * @since 2.0
+ * @since 2201.3.0
  */
-public class BLangResourceFunction extends BLangFunction {
+public class BLangResourcePathSegment extends BLangNode {
+    
+    public BLangIdentifier name;
+    public BResourcePathSegmentSymbol symbol;
+    public NodeKind kind;
+    public BLangType typeNode;
 
-    // BLangNodes
-    public BLangIdentifier methodName;
-    public BLangSimpleVariable restPathParam;
-    public List<BLangSimpleVariable> pathParams = new ArrayList<>();
-    public List<BLangResourcePathSegment> resourcePathSegments;
-
+    public BLangResourcePathSegment(NodeKind kind) {
+        this.kind = kind;
+    }
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
@@ -52,19 +54,18 @@ public class BLangResourceFunction extends BLangFunction {
 
     @Override
     public String toString() {
-        return "BLangResourceFunction: " + super.toString();
+        switch (this.kind) {
+            case RESOURCE_PATH_PARAM_SEGMENT:
+                return "[" + type + "]";
+            case RESOURCE_PATH_REST_PARAM_SEGMENT:
+                return "[" + type + "...]";
+            default:
+                return name.value;
+        }
     }
 
     @Override
     public NodeKind getKind() {
         return NodeKind.RESOURCE_FUNC;
-    }
-
-    public void setRestPathParam(BLangSimpleVariable restParam) {
-        this.restPathParam = restParam;
-    }
-
-    public void addPathParam(BLangSimpleVariable param) {
-        this.pathParams.add(param);
     }
 }
