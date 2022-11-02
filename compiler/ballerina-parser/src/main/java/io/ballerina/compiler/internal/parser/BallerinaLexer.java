@@ -1052,9 +1052,9 @@ public class BallerinaLexer extends AbstractLexer {
 
     private int getNextNonWSOrNonCommentChar() {
         int lookaheadCount = 0;
-        char nextToken = reader.peek(lookaheadCount);
-        while (nextToken != Character.MAX_VALUE) {
-            switch (nextToken) {
+        char nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
                 case LexerTerminals.SPACE:
                 case LexerTerminals.TAB:
                 case LexerTerminals.FORM_FEED:
@@ -1068,25 +1068,25 @@ public class BallerinaLexer extends AbstractLexer {
                         lookaheadCount = skipComment(lookaheadCount);
                         break;
                     }
-                    return nextToken;
+                    return nextChar;
                 default:
-                    return nextToken;
+                    return nextChar;
             }
-            nextToken = reader.peek(lookaheadCount);
+            nextChar = reader.peek(lookaheadCount);
         }
-        return nextToken;
+        return nextChar;
     }
 
     private int skipComment(int lookaheadCount) {
-        int nextToken = reader.peek(lookaheadCount);
-        while (nextToken != Character.MAX_VALUE) {
-            switch (nextToken) {
+        int nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                     break;
                 default:
                     lookaheadCount++;
-                    nextToken = reader.peek(lookaheadCount);
+                    nextChar = reader.peek(lookaheadCount);
                     continue;
             }
             break;
