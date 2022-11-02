@@ -136,7 +136,7 @@ public class JsonToRecordMapper {
                 return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
             }
             if (recordName != null && recordToTypeDescNodes.containsKey(recordName)) {
-                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter104(null);
+                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter104(new String[]{recordName});
                 diagnosticMessages.add(message);
                 return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
             }
@@ -261,8 +261,6 @@ public class JsonToRecordMapper {
                         fieldNodes, null, bodyEndDelimiter);
 
         if (moveBefore == null) {
-//            recordToTypeDescNodes.put(((recordName == null) || recordName.equals("")) ? NEW_RECORD_NAME : recordName,
-//                    recordTypeDescriptorNode);
             recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
