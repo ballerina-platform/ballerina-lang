@@ -193,39 +193,21 @@ function testInferTableTypeV2() {
 const int id = 1;
 
 function testVariableNameFieldAsKeyField() {
-    string expected = "[{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Amy\"}]";
     table<record {readonly int id; string name;}> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(expected, tb.toString());
+    assertEquality(tb[1], <record {readonly int id; string name;}> {"id":1, "name":"Jo"});
+    assertEquality(tb[2], <record {readonly int id; string name;}> {"id":2, "name":"Amy"});
 }
 
 function testDefaultValueFieldAsKeyField() {
-    string expected = "[{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Amy\"}]";
     table<record {readonly int id = 1; string name;}> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(expected, tb.toString());
-}
-
-function testDefaultValueFieldAsKeyField2() {
-    string expected = "[{\"id\":1,\"name\":\"Amy\"},{\"id\":1,\"name\":\"Jo\"}]";
-    table<record {readonly int id = 1; readonly string name = "Amy";}> key (id, name) tb = table [
-        {},
-        {name:"Jo"}
-    ];
-    assertEquality(expected, tb.toString());
-}
-
-function testDefaultValueFieldAsKeyField3() {
-    string expected = "[{\"id\":1,\"name\":\"Amy\",\"key\":2},{\"id\":1,\"name\":\"Jo\",\"key\":2}]";
-    table<record {readonly int id = 1; readonly string name = "Amy"; readonly int key = 2;}> key (id, name) tb = table [
-        {},
-        {name:"Jo"}
-    ];
-    assertEquality(expected, tb.toString());
+    assertEquality(tb[1], <record {readonly int id = 1; string name;}> {"id":1, "name":"Jo"});
+    assertEquality(tb[2], <record {readonly int id = 1; string name;}> {"id":2, "name":"Amy"});
 }
 
 type CustomRecord record {
@@ -233,13 +215,13 @@ type CustomRecord record {
     string name;
 };
 
-function testDefaultValueFieldAsKeyField4() {
-    string expected = "[{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Amy\"}]";
+function testDefaultValueFieldAsKeyField2() {
     table<CustomRecord> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(expected, tb.toString());
+    assertEquality(tb[1], <CustomRecord> {"id":1, "name":"Jo"});
+    assertEquality(tb[2], <CustomRecord> {"id":2, "name":"Amy"});
 }
 
 type CustomRecord2 record {
@@ -250,34 +232,13 @@ type CustomRecord2 record {
 
 const string status = "status - 1";
 
-function testDefaultValueFieldAsKeyField5() {
-    string expected =
-        "[{\"id\":1,\"status\":\"status - 1\",\"name\":\"Jo\"},{\"id\":2,\"status\":\"status - 2\",\"name\":\"Amy\"}]";
+function testDefaultValueFieldAsKeyField3() {
     table<CustomRecord2> key (id, status) tb = table [
         {id, status, name: "Jo"},
         {id: 2, status: "status - 2", name: "Amy"}
     ];
-    assertEquality(expected, tb.toString());
-}
-
-function testDefaultValueFieldAsKeyField6() {
-    string expected =
-        "[{\"id\":1,\"status\":\"status - 1\",\"name\":\"Jo\"},{\"id\":1,\"status\":\"status - 2\",\"name\":\"Amy\"},{\"id\":3,\"status\":\"status - 1\",\"name\":\"Amy\"}]";
-    table<CustomRecord2> key (id, status) tb = table [
-        {name: "Jo"},
-        {status: "status - 2", name: "Amy"},
-        {id: 3, name: "Amy"}
-    ];
-    assertEquality(expected, tb.toString());
-}
-
-function runTestCasesWithDefaultValueFieldAsKeyField() {
-    testDefaultValueFieldAsKeyField();
-    testDefaultValueFieldAsKeyField2();
-    testDefaultValueFieldAsKeyField3();
-    testDefaultValueFieldAsKeyField4();
-    testDefaultValueFieldAsKeyField5();
-    testDefaultValueFieldAsKeyField6();
+    assertEquality(tb[1, "status - 1"], <CustomRecord2> {"id":1, "status":"status - 1", "name":"Jo"});
+    assertEquality(tb[2, "status - 2"], <CustomRecord2> {"id":2, "status":"status - 2", "name":"Amy"});
 }
 
 function assertTrue(any|error actual) {

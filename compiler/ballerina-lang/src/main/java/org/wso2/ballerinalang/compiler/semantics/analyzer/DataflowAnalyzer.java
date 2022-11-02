@@ -989,33 +989,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 List<BLangExpression> keyArray = createKeyArray(literal, fieldNames);
                 int hashInt = generateHash(keyArray);
                 if (!keyHashSet.add(hashInt) && checkForKeyEquality(keyValues, keyArray, hashInt)) {
-                    String fields;
-                    List<String> fieldsWithDefaultValues = getFieldsWithDefaultValues(keyArray, fieldNames);
-                    if (fieldsWithDefaultValues.size() > 0) {
-                        fields = String.join(", ", fieldsWithDefaultValues);
-                        dlog.error(literal.pos, DiagnosticErrorCode
-                                .DUPLICATE_DEFAULT_VALUES_FOR_KEY_IN_TABLE_LITERAL, fields);
-                    } else {
-                        fields = String.join(", ", fieldNames);
-                        String values = keyArray.stream().map(Object::toString).collect(Collectors.joining(", "));
-                        dlog.error(literal.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
-                    }
+                    String fields = String.join(", ", fieldNames);
+                    String values = keyArray.stream().map(Object::toString).collect(Collectors.joining(", "));
+                    dlog.error(literal.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
                 }
                 keyValues.put(hashInt, keyArray);
             }
         }
-    }
-
-    private List<String> getFieldsWithDefaultValues(List<BLangExpression> keyArray, List<String> fieldNames) {
-        List<String> fieldNamesWithDefaultValues = new ArrayList<>();
-        int index = 0;
-        for (BLangExpression keyArrayElement : keyArray) {
-            if (keyArrayElement == null) {
-                fieldNamesWithDefaultValues.add(fieldNames.get(index));
-            }
-            index++;
-        }
-        return fieldNamesWithDefaultValues;
     }
 
     private boolean checkForKeyEquality(HashMap<Integer, List<BLangExpression>> keyValues,

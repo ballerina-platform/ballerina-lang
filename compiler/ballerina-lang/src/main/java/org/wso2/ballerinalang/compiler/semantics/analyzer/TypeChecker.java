@@ -1469,13 +1469,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             for (String fieldName : keySpecifierFieldNames) {
                 BField field = types.getTableConstraintField(constraint, fieldName);
                 BLangExpression recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
-                if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)
-                        || Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED))
-                        || (recordKeyValueField != null && isConstExpression(recordKeyValueField))) {
+                if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
-                dlog.error(recordLiteral.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                if (recordKeyValueField == null && !(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)
+                        || Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED))) {
+                    dlog.error(recordLiteral.pos,
+                            DiagnosticErrorCode.UNSUPPORTED_DUPLICATE_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_LITERAL);
+                } else {
+                    dlog.error(recordLiteral.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                }
                 data.resultType = symTable.semanticError;
             }
         }

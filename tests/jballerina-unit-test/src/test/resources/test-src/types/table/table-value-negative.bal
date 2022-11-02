@@ -49,64 +49,57 @@ function testVariableNameFieldAsKeyField() {
 }
 
 function testVariableNameFieldAsKeyField2() {
-    table<record {readonly int idNum = 1; string name;}> key (idNum) _ = table [
-        { name: "Jo" },
-        { name: "Chiran" },
-        { idNum: 2, name: "Amy" }
+    table<record {readonly int idNum = 2; string name;}> key (idNum) _ = table [
+        {idNum, name: "Jo"},
+        {idNum, name: "Chiran"},
+        {idNum: 2, name: "Amy"}
+    ];
+}
+
+function testVariableNameFieldAsKeyField3() {
+    table<record {readonly int idNum = 2; readonly string name;}> key (idNum, name) _ = table [
+        {idNum, name: "Jo"},
+        {idNum, name: "Jo"},
+        {idNum: 2, name: "Amy"}
+    ];
+}
+
+function testVariableNameFieldAsKeyField4() {
+    table<record {readonly int idNum = 2; readonly string name = "A";}> key (idNum, name) _ = table [
+        {idNum, name: "Jo"},
+        {idNum, name: "Jo"},
+        {idNum: 2, name: "Amy"}
     ];
 }
 
 type Foo2 record {
-    readonly int a = 1;
-    int b;
+    readonly map<string> m = {};
+    int age;
 };
 
-type GlobalTable3 table<Foo2> key(a);
+type GlobalTable3 table<Foo2> key(m);
 
-function testTableConstructExprWithDuplicateDefaultKeys() {
-    GlobalTable3 _ = table [
-        { a: 2, b: 5 },
-        { a: 2, b: 5 },
-        { b: 3 },
-        { b: 5 }
+function testTableConstructExprWithDuplicateKeys2() returns string {
+    GlobalTable3 tab = table [
+      { m: {"AAA":"DDDD"}, age: 31 },
+      { m: {"AAA":"DDDD"}, age: 34 }
     ];
+
+    return tab.toString();
 }
 
 type Foo3 record {
-    readonly int a = 1;
-    readonly string b = "A";
+    readonly map<string> m = {};
+    readonly int age = 18;
 };
 
-type GlobalTable4 table<Foo3> key(a,b);
+type GlobalTable4 table<Foo3> key(m, age);
 
-function testTableConstructExprWithDuplicateDefaultKeys2() {
-    GlobalTable4 _ = table [
-        { a: 2, b: "" },
-        { a: 2, b: "" },
-        { b: "" },
-        { b: "" }
+function testTableConstructExprWithDuplicateKeys3() returns string {
+    GlobalTable4 tab = table [
+      { m: {"AAA":"DDDD"}, age: 11 },
+      { m: {"AAA":"DDDD"}, age: 11 }
     ];
-}
 
-function testTableConstructExprWithDuplicateDefaultKeys3() {
-    GlobalTable4 _ = table [
-        {},
-        {}
-    ];
-}
-
-type Foo4 record {
-    readonly map<string> m = {"AAA":"DDDD"};
-    readonly int key = 23;
-};
-
-type GlobalTable5 table<Foo4> key(m, key);
-
-function testTableConstructExprWithDuplicateDefaultKeys4() {
-    GlobalTable5 _ = table [
-      { key: 31 },
-      { key: 31 },
-      {},
-      {}
-    ];
+    return tab.toString();
 }
