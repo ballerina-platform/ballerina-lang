@@ -132,6 +132,10 @@ public enum Snippet {
 
     DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
     
+    DEF_PARANTHESIS(SnippetGenerator.getParanthesisSnippet()),
+    
+    DEF_SQUARE_BRACKET(SnippetGenerator.getSquareBracketSnippet()),
+    
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 

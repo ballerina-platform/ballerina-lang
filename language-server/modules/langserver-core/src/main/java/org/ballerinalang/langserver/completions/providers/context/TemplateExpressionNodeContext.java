@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -37,6 +38,7 @@ import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -90,12 +92,32 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
     private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE) {
-            for (RegexSnippet regexSnippet: RegexSnippet.values()) {
-                completionItems.add(new SnippetCompletionItem(ctx, regexSnippet.get()));
-            }
-        }
-        return completionItems;
+        if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE 
+                && nodeAtCursor.toSourceCode().equals(SyntaxKind.BACK_SLASH_TOKEN.stringValue())) {
+            // Eg: re `\<cursor>`
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DIGIT.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_DIGIT.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_WHITESPACE.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_WHITESPACE.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_ALPHA_NUMERIC.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_ALPHA_NUMERIC.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RETURN.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NEWLINE.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_TAB.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.RE_FLAG_EXPR 
+                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx.getCursorPositionInTree()) 
+        {
+            // Eg: re `(?<cursor>)`
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MULTILINE_FLAG.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_ALL_FLAG.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_IGNORE_CASE_FLAG.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_COMMENT_FLAG.get()));
+        } else {
+            // Eg: re `<cursor>`, re `(<cursor>)`
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_PARANTHESIS.get()));
+            completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_SQUARE_BRACKET.get()));
+        } 
+            return completionItems;
     }
 
     @Override
@@ -252,7 +274,15 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
         DEF_NEWLINE(new SnippetBlock("n", "n", "n", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
 
-        DEF_TAB(new SnippetBlock("t", "t", "t", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET));
+        DEF_TAB(new SnippetBlock("t", "t", "t", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_MULTILINE_FLAG(new SnippetBlock("m", "m", "m", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_DOT_ALL_FLAG(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_IGNORE_CASE_FLAG(new SnippetBlock("i", "i", "i", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
+
+        DEF_COMMENT_FLAG(new SnippetBlock("x", "x", "x", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET));
 
         private final SnippetBlock snippetBlock;
 
