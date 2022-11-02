@@ -1041,6 +1041,7 @@ public class BallerinaLexer extends AbstractLexer {
                 if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     return getSyntaxToken(SyntaxKind.RE_KEYWORD);
                 }
+                return getIdentifierToken();
             default:
 //                if (this.keywordModes.contains(KeywordMode.QUERY)) {
 //                    return getQueryCtxKeywordOrIdentifier(tokenText);
@@ -1059,7 +1060,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.FORM_FEED:
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
-                    lookaheadCount ++;
+                    lookaheadCount++;
                     break;
                 case LexerTerminals.SLASH:
                     if (reader.peek(lookaheadCount + 1) == LexerTerminals.SLASH) {
@@ -1067,6 +1068,7 @@ public class BallerinaLexer extends AbstractLexer {
                         lookaheadCount = skipComment(lookaheadCount);
                         break;
                     }
+                    return reader.peek(lookaheadCount);
                 default:
                     return reader.peek(lookaheadCount);
             }
@@ -1082,7 +1084,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.CARRIAGE_RETURN:
                     break;
                 default:
-                    count += 1;
+                    count++;
                     nextToken = reader.peek(count);
                     continue;
             }
