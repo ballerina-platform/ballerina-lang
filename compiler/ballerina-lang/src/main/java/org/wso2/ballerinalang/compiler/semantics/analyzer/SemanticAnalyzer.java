@@ -1034,7 +1034,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
         BType bType = tupleTypeNode.getBType();
-        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
+        BSymbol tSymbol = bType.tsymbol != null ? bType.tsymbol : symTable.notFoundSymbol;
+        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tSymbol), data.env);
 
         for (int i = 0; i < memberTypeNodes.size(); i++) {
             data.env = tupleEnv;

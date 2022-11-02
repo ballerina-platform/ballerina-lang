@@ -1442,18 +1442,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
-
+        boolean hasUndefinedMember = false;
         for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
             symbolEnter.defineNode(memTypeNode, tupleEnv);
-            // If at least one member is undefined, return noType as the type.
             if (memTypeNode.getBType() == symTable.noType) {
-
-                return symTable.noType;
+                hasUndefinedMember = true;
             }
-
             memberTypes.add(memTypeNode);
         }
-
+        // If at least one member is undefined, return noType as the type.
+        if (hasUndefinedMember) {
+            return symTable.noType;
+        }
         List<BTupleMember> tupleMemberTypes = new ArrayList<>();
         memberTypes.forEach(member -> tupleMemberTypes.add(new BTupleMember(member.getBType(),
                 new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
