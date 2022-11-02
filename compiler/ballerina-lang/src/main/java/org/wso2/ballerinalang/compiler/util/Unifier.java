@@ -549,7 +549,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
-                        logErrorForCannotInferTypedescArgument(paramVarName);
+                        logCannotInferTypedescArgumentError(paramVarName);
                         return symbolTable.semanticError;
                     }
 
@@ -578,7 +578,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     return getConstraintTypeIfNotError(paramValueTypes.get(paramVarName));
                 }
 
-                logErrorForCannotInferTypedescArgument(paramVarName);
+                logCannotInferTypedescArgumentError(paramVarName);
                 return symbolTable.semanticError;
             }
 
@@ -606,14 +606,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return type;
     }
 
-    private void logErrorForCannotInferTypedescArgument(String paramVarName) {
+    private void logCannotInferTypedescArgumentError(String paramName) {
         if (invocation.expectedType == symbolTable.noType) {
             dlog.error(invocation.pos,
                     DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET,
-                    paramVarName);
+                    paramName);
         } else {
             dlog.error(invocation.pos,
-                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET, paramVarName,
+                    DiagnosticErrorCode.CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET, paramName,
                     invocation.expectedType, ((BInvokableSymbol) invocation.symbol).retType);
         }
     }

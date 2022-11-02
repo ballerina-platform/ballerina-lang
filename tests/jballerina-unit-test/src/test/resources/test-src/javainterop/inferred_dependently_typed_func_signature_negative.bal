@@ -196,4 +196,5 @@ function testInvalidUsageWithoutContextuallyExpectedTypeAndArgument() {
     fooFn1();
     fooFn2(int);
     fooFn3(float);
+    var x = fooFn1();
 }
