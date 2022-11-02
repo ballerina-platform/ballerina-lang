@@ -1035,6 +1035,44 @@ function testFromStringNegative() {
     }
 }
 
+function testSplit() {
+    string str1 = "abc cde efg";
+    string[] arrExpected1 = ["abc", "cde", "efg"];
+    var regExpr1 = re ` `;
+    string[] resArr1 = regExpr1.split(str1);
+    assertEquality(3, resArr1.length());
+    assertEquality(arrExpected1, resArr1);
+
+    string str2 = "abc,cde,efg";
+    var regExpr2 = re `,`;
+    string[] resArr2 = regExpr2.split(str2);
+    assertEquality(3, resArr2.length());
+    assertEquality(arrExpected1, resArr2);
+
+    string str3 = "amal,,kamal,,nimal,,sunimal,";
+    string[] arrExpected2 = ["amal", "kamal", "nimal", "sunimal,"];
+    string[] resArr3 = re `,,`.split(str3);
+    assertEquality(4, resArr3.length());
+    assertEquality(arrExpected2, resArr3);
+
+    string[] arrExpected4 = [str3];
+    string[] resArr4 = re ` `.split(str3);
+    assertEquality(1, resArr4.length());
+    assertEquality(arrExpected4, resArr4);
+
+    string str5 = "ballerina@geeks@wso2";
+    string[] arrExpected5 = ["ballerina", "geeks", "wso2"];
+    string[] resArr5 = re `@`.split(str5);
+    assertEquality(3, resArr5.length());
+    assertEquality(arrExpected5, resArr5);
+
+    string str6 = "ballerina.geeks.wso2";
+    string[] arrExpected6 = [str6];
+    string[] resArr6 = re `.`.split(str6);
+    assertEquality(1, resArr6.length());
+    assertEquality(arrExpected6, resArr6);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
