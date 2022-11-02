@@ -26,12 +26,12 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -55,8 +55,13 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> contextType = node.apply(resolver);
+        Optional<TypeSymbol> contextType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            contextType = context.currentSemanticModel().get().expectedType(context.currentDocument().get(),
+                    LinePosition.from(context.getCursorPosition().getLine(),
+                            context.getCursorPosition().getCharacter()));
+        }
+
         for (LSCompletionItem lsCItem : completionItems) {
             String sortText;
             if (contextType.isEmpty()) {
