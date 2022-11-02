@@ -57,8 +57,8 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 # + str - the string in which to look for a match of `re`
 # + startIndex - the index within `str` at which to start looking for a match
 # + return - a `Span` describing the match, or nil if no match was found
-public isolated function find(RegExp 're, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = findImpl('re, str, startIndex);
+public isolated function find(RegExp re, string str, int startIndex = 0) returns Span? {
+    SpanAsTupleType? resultArr = findImpl(re, str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
@@ -76,8 +76,8 @@ isolated function findImpl(RegExp reExp, string str, int startIndex = 0) returns
 # + str - the string in which to look for a match of `re`
 # + startIndex - the index within `str` at which to start looking for a match
 # + return - a `Groups` list describing the match, or nil if no match was found
-public isolated function findGroups(RegExp 're, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl('re, str, startIndex);
+public isolated function findGroups(RegExp re, string str, int startIndex = 0) returns Groups? {
+    GroupsAsSpanArrayType? resultArr = findGroupsImpl(re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         SpanAsTupleType firstMatch = resultArr[0];
         Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
@@ -104,9 +104,9 @@ isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) r
 # + str - the string in which to look for matches of `re`
 # + startIndex - the index within `str` at which to start looking for matches
 # + return - a list containing a `Span` for each match found
-public isolated function findAll(RegExp 're, string str, int startIndex = 0) returns Span[] {
+public isolated function findAll(RegExp re, string str, int startIndex = 0) returns Span[] {
     Span[] spanArr = [];
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl('re, str, startIndex);
+    GroupsAsSpanArrayType? resultArr = findGroupsImpl(re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         foreach SpanAsTupleType tpl in resultArr {
             spanArr.push(new java:SpanImpl(tpl[0], tpl[1], tpl[2]));
@@ -123,8 +123,8 @@ public isolated function findAll(RegExp 're, string str, int startIndex = 0) ret
 # + str - the string in which to look for matches of `re`
 # + startIndex - the index within `str` at which to start looking for matches
 # + return - a list containing a `Group` for each match found
-public isolated function findAllGroups(RegExp 're, string str, int startIndex = 0) returns Groups[] {
-    GroupsArrayType? resultArr = findAllGroupsImpl('re, str, startIndex);
+public isolated function findAllGroups(RegExp re, string str, int startIndex = 0) returns Groups[] {
+    GroupsArrayType? resultArr = findAllGroupsImpl(re, str, startIndex);
     if (resultArr is GroupsArrayType) {
         Groups[] groupArrRes = [];
         foreach GroupsAsSpanArrayType groupArr in resultArr {
@@ -157,8 +157,8 @@ isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0
 # + startIndex - the index within `str` at which to look for a match; defaults to zero
 # + return - a `Span` describing the match, or nil if `re` did not match at that index; the startIndex of the
 # `Span` will always be equal to `startIndex`
-public isolated function matchAt(RegExp 're, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = matchAtImpl('re, str, startIndex);
+public isolated function matchAt(RegExp re, string str, int startIndex = 0) returns Span? {
+    SpanAsTupleType? resultArr = matchAtImpl(re, str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
@@ -177,8 +177,8 @@ isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) retu
 # + startIndex - the index within `str` at which to look for a match; defaults to zero
 # + return - a `Groups` list describing the match, or nil if `re` did not match at that index; the startIndex of the
 # first `Span` in the list will always be equal to the `startIndex` of the first member of the list
-public isolated function matchGroupsAt(RegExp 're, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl('re, str, startIndex);
+public isolated function matchGroupsAt(RegExp re, string str, int startIndex = 0) returns Groups? {
+    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl(re, str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         SpanAsTupleType firstMatch = resultArr[0];
         Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
@@ -204,8 +204,8 @@ isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0
 # + re - the regular expression
 # + str - the string
 # + return - true if there is full match of `re` with `str`, and false otherwise
-public isolated function isFullMatch(RegExp 're, string str) returns boolean {
-    return isFullMatchImpl('re, str);
+public isolated function isFullMatch(RegExp re, string str) returns boolean {
+    return isFullMatchImpl(re, str);
 }
 
 isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @java:Method {
@@ -221,8 +221,8 @@ isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @j
 # + str - the string in which to look for a match of `re`
 # + return - a `Groups` list describing the match, or nil if there is not a full match; the
 # first `Span` in the list will be all of `str`
-public isolated function fullMatchGroups(RegExp 're, string str) returns Groups? {
-    return matchGroupsAt('re, str);
+public isolated function fullMatchGroups(RegExp re, string str) returns Groups? {
+    return matchGroupsAt(re, str);
 }
 
 # A function that constructs the replacement for the match of a regular expression.
@@ -241,9 +241,9 @@ public type Replacement ReplacerFunction|string;
 # + replacement - a `Replacement` that gives the replacement for the match
 # + startIndex - the index within `str` at which to start looking for a match; defaults to zero
 # + return - `str` with the first match, if any, replaced by the string specified by `replacement`
-public isolated function replace(RegExp 're, string str, Replacement replacement, int startIndex = 0) returns string {
+public isolated function replace(RegExp re, string str, Replacement replacement, int startIndex = 0) returns string {
     string replacementStr = "";
-    Groups? findResult = findGroups('re, str, startIndex);
+    Groups? findResult = findGroups(re, str, startIndex);
     if findResult is () {
         return str;
     }
@@ -252,7 +252,7 @@ public isolated function replace(RegExp 're, string str, Replacement replacement
     } else {
         replacementStr = replacement;
     }
-    return replaceFromString('re, str, replacementStr, startIndex);
+    return replaceFromString(re, str, replacementStr, startIndex);
 }
 
 isolated function replaceFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
@@ -269,13 +269,13 @@ isolated function replaceFromString(RegExp reExp, string str, string replacement
 # + replacement - a `Replacement` that gives the replacement for each match
 # + startIndex - the index within `str` at which to start looking for matches; defaults to zero
 # + return - `str` with every match replaced by the string specified by `replacement`
-public isolated function replaceAll(RegExp 're, string str, Replacement replacement, int startIndex = 0) returns string {
-    Groups? findResult = findGroups('re, str, startIndex);
+public isolated function replaceAll(RegExp re, string str, Replacement replacement, int startIndex = 0) returns string {
+    Groups? findResult = findGroups(re, str, startIndex);
     if findResult is () {
         return str;
     }
     string replacementStr = replacement is ReplacerFunction ? replacement(findResult) : replacement;
-    return replaceAllFromString('re, str, replacementStr, startIndex);
+    return replaceAllFromString(re, str, replacementStr, startIndex);
 }
 
 isolated function replaceAllFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {

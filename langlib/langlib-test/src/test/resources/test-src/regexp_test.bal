@@ -1073,6 +1073,70 @@ function testSplit() {
     assertEquality(arrExpected6, resArr6);
 }
 
+function testLangLibFuncWithNamedArgExpr() {
+    regexp:Span? res1 = regexp:find(re = re `World`, str = "HelloWorld");
+    assertTrue(res1 is regexp:Span);
+    regexp:Span resultSpan1 = <regexp:Span>res1;
+    assertEquality(5, resultSpan1.startIndex);
+    assertEquality(10, resultSpan1.endIndex);
+    assertEquality("World", resultSpan1.substring());
+
+    regexp:Groups? res2 = regexp:findGroups(re = re `World`, str = "HelloWorld");
+    assertTrue(res2 is regexp:Groups);
+    regexp:Groups resultGroups1 = <regexp:Groups>res2;
+    assertEquality(1, resultGroups1.length());
+    resultSpan1 = <regexp:Span>resultGroups1[0];
+    assertEquality(5, resultSpan1.startIndex);
+    assertEquality(10, resultSpan1.endIndex);
+    assertEquality("World", resultSpan1.substring());
+
+    regexp:Span[]? res3 = regexp:findAll(re = re `GFG`, str = "GFGFGFGFGFGFGFGFGFG");
+    assertTrue(res3 is regexp:Span[]);
+    regexp:Span[] resultSpanArr1 = <regexp:Span[]>res3;
+    assertEquality(5, resultSpanArr1.length());
+
+    regexp:Span? res4 = regexp:matchAt(re = re `World`, str = "HelloWorld");
+    assertTrue(res4 is ());
+
+    regexp:Groups? res5 = regexp:matchGroupsAt(
+        re = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])(?:\\.([0-9]{1,3}))?`,
+        str = "time: 14:35:59", startIndex = 6);
+    assertTrue(res5 is regexp:Groups);
+    regexp:Groups resultGroups2 = <regexp:Groups>res5;
+    regexp:Span resultSpan2_1 = <regexp:Span>resultGroups2[0];
+    assertEquality(6, resultSpan2_1.startIndex);
+    assertEquality(8, resultSpan2_1.endIndex);
+    assertEquality("14", resultSpan2_1.substring());
+
+    boolean isFullMatch1 = regexp:isFullMatch(re = re `(?i:[a-z]+)`, str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    assertTrue(isFullMatch1);
+
+    regexp:Groups? res6 = regexp:fullMatchGroups(re = re `([0-9]+)×([0-9]+)`, str = "1440×900");
+    assertTrue(res6 is regexp:Groups);
+    regexp:Groups resultGroups3 = <regexp:Groups>res6;
+    regexp:Span resultSpan3_1 = <regexp:Span>resultGroups3[0];
+    assertEquality(0, resultSpan3_1.startIndex);
+    assertEquality(4, resultSpan3_1.endIndex);
+    assertEquality("1440", resultSpan3_1.substring());
+
+    string result1 = regexp:replaceAll(re = re `T.*G`, str = "ReplaceTTTGGGThis", replacement = " ");
+    assertEquality("Replace This", result1);
+
+    string result2 = regexp:replace(re = re `This`, str = "ReplaceThisThisTextThis", replacement = " ");
+    assertEquality("Replace ThisTextThis", result2);
+
+    regexp:Groups[]? res7 = regexp:findAllGroups(re = re `(GFG)(FGF)`, str = "GFGFGFGFGFGFGFGFGF");
+    assertTrue(res7 is regexp:Groups[]);
+    regexp:Groups[] groupsArr1 = <regexp:Groups[]>res7;
+    assertEquality(3, groupsArr1.length());
+
+    string:RegExp|error x1 = regexp:fromString(str = "AB+C*D{1,4}");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `AB+C*D{1,4}` == x1);
+    }
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
