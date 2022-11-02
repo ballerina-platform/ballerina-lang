@@ -822,6 +822,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
                     BLangSimpleVariable member = new BLangSimpleVariable();
+                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.memberTypeNodes.size())));
+                    member.addFlag(Flag.FIELD);
+                    tupleTypeNode.memberTypeNodes.add(member);
                     member.typeNode = bLangFiniteTypeNode;
                     tupleTypeNode.memberTypeNodes.add(member);
             }
