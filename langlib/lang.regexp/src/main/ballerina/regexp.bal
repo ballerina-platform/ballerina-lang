@@ -292,7 +292,7 @@ isolated function replaceAllFromString(RegExp reExp, string str, string replacem
 # + re - the regular expression that specifies the separator
 # + str - the string to be split
 # + return - a list of substrings of `str` separated by matches of `re`
-public isolated function split(RegExp 're, string str) returns string[] = @java:Method {
+public isolated function split(RegExp re, string str) returns string[] = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.Split",
     name: "split"
 } external;
