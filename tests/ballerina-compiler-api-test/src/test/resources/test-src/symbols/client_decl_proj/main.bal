@@ -23,15 +23,4 @@ public function main() {
     myapi:client x;
 }
 
-function testClientDeclStmt() {
-    @ClientAnnot {
-        i: 2
-    }
-    client "https://postman-echo.com/get?name=simpleclienttest" as bar;
-    bar:ClientConfiguration config = {'limit: 5};
-    bar:client cl = new (config);
-    int 'limit = cl->getLimit();
-    cl1:Config config2 = {url: "http://www.example.com"};
-}
-
 public const annotation record { int i; }[] ClientAnnot on source client;
