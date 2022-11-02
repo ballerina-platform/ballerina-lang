@@ -56,9 +56,8 @@ public class CustomFunctionTest {
     public void testAssignValueToObjectMethodNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/functions/assign_value_to_object_method.bal");
         int i = 0;
-        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field '$anonType$$myObj$$_0.getVal'",
-                30, 5);
-        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field 'A.getVal'", 33, 5);
+        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field 'getVal'", 30, 5);
+        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field 'getVal'", 33, 5);
         Assert.assertEquals(compile.getErrorCount(), i);
     }
 }
