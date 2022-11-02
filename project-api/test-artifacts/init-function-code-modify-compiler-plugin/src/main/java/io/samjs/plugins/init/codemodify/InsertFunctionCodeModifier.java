@@ -143,7 +143,8 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                 createToken(SyntaxKind.FUNCTION_KEYWORD, createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()),
                 createIdentifierToken("newFunctionByCodeModifier"
-                        + document.name().replace(".bal", "").replace("/", "_")),
+                        + document.name().replace(".bal", "").replace("/", "_")
+                .replace("-", "_")),
                 createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 

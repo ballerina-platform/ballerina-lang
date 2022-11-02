@@ -44,7 +44,7 @@
       "detail": "Application",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: ${1:\"\"},\nid: ${2:\"\"},\nversion: ${3:0}",
+      "insertText": "'version: ${1:0},\nname: ${2:\"\"},\nid: ${3:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]

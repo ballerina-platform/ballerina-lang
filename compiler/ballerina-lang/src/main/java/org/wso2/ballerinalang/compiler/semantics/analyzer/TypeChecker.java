@@ -206,7 +206,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -2847,16 +2846,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-        } else if (Names.CLIENT.equals(varName) &&
-                !identifier.isLiteral) {
-            PackageID sourcePkg = data.env.enclPkg.packageID;
-            String sourceDoc = varRefExpr.pos.lineRange().filePath();
-            if (!symTable.clientDeclarations.containsKey(sourcePkg) ||
-                    !symTable.clientDeclarations.get(sourcePkg).containsKey(sourceDoc) ||
-                    !symTable.clientDeclarations.get(sourcePkg).get(sourceDoc)
-                            .containsValue(Optional.of(pkgSymbol.pkgID))) {
-                dlog.error(identifier.pos,
-                        DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
+        } else if (Names.CLIENT.equals(varName) && !identifier.isLiteral) {
+            if (pkgSymbol != symTable.notFoundSymbol &&
+                    !symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
+                dlog.error(varRefExpr.pos,
+                           DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
             }
         }
 

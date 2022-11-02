@@ -19,9 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 
 import java.util.List;
 
@@ -30,7 +28,7 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-public class JavaMethodCall extends BIRTerminator {
+public class JavaMethodCall extends JTerminator {
 
     public
     List<BIROperand> args;
@@ -38,12 +36,12 @@ public class JavaMethodCall extends BIRTerminator {
     public String jMethodVMSig;
     public String name;
 
-    public JavaMethodCall(Location pos, InstructionKind kind, List<BIROperand> args,
-                          BIROperand lhsOp, String jClassName, String jMethodVMSig, String name, BIRBasicBlock thenBB) {
+    public JavaMethodCall(Location pos, List<BIROperand> args, BIROperand lhsOp, String jClassName,
+                          String jMethodVMSig, String name, BIRBasicBlock thenBB) {
 
-        super(pos, kind);
+        super(pos);
+        this.jTermKind = JTermKind.J_METHOD_CALL;
         this.args = args;
-        this.kind = kind;
         this.lhsOp = lhsOp;
         this.jClassName = jClassName;
         this.jMethodVMSig = jMethodVMSig;
