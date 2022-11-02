@@ -14,7 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 string simpleLockCounter = "not-started";
+
+function testSimpleLock() {
+    test:assertEquals(simpleLock(), "main in critical after w1 is out");
+}
 
 function simpleLock() returns string {
     @strand{thread:"any"}
