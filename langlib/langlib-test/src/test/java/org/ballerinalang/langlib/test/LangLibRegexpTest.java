@@ -53,18 +53,18 @@ public class LangLibRegexpTest {
     @DataProvider(name = "testRegexLangLibFunctionList")
     public Object[] testRegexLangLibFunctions() {
         return new Object[]{
-//                "testFind",
-//                "testFindGroups",
-//                "testFindAll",
-//                "testMatchAt",
-//                "testMatchGroupsAt",
-//                "testIsFullMatch",
-//                "testFullMatchGroups",
-//                "testReplaceAll",
-//                "testReplace",
-//                "testFindAllGroups",
-//                "testFromString",
-//                "testFromStringNegative",
+                "testFind",
+                "testFindGroups",
+                "testFindAll",
+                "testMatchAt",
+                "testMatchGroupsAt",
+                "testIsFullMatch",
+                "testFullMatchGroups",
+                "testReplaceAll",
+                "testReplace",
+                "testFindAllGroups",
+                "testFromString",
+                "testFromStringNegative",
                 "testSplit"
         };
     }
