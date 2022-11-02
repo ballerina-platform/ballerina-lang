@@ -127,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -1274,11 +1273,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define it in the enclosing scope. This will check for the owner equality.
         defineSymbol(prefix.pos, clientDeclarationSymbol);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        defineNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {

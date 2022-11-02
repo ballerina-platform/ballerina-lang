@@ -20,11 +20,9 @@ package io.asmaj.plugins.idlclient;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -90,32 +88,16 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
                     Collections.emptyList(), null, new ArrayList<>());
 
             Node clientNode = idlSourceGeneratorContext.clientNode();
-            NodeList<AnnotationNode> annotations;
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                annotations = ((ModuleClientDeclarationNode) clientNode).annotations();
-            } else {
-                annotations = ((ClientDeclarationNode) clientNode).annotations();
-            }
-
+            NodeList<AnnotationNode> annotations = ((ModuleClientDeclarationNode) clientNode).annotations();
             idlSourceGeneratorContext.addClient(moduleConfig, annotations);
         }
 
         private String getAlias(Node clientNode) {
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                return ((ModuleClientDeclarationNode) clientNode).clientPrefix().toString();
-            }
-            return ((ClientDeclarationNode) clientNode).clientPrefix().toString();
+            return ((ModuleClientDeclarationNode) clientNode).clientPrefix().toString();
         }
 
         private String getUri(Node clientNode) {
-            BasicLiteralNode clientUri;
-
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
+            BasicLiteralNode clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
             String text = clientUri.literalToken().text();
             return text.substring(1, text.length() - 1);
         }
