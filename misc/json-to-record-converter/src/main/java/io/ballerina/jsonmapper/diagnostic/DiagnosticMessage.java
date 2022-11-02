@@ -86,8 +86,14 @@ public final class DiagnosticMessage {
     }
 
     public static DiagnosticMessage jsonToRecordConverter104(Object[] args) {
+        if (args != null) {
+            return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_104",
+                    String.format("Provided record name ''%s'' conflicts with the other generated records. " +
+                            "Consider providing a different name.", args[0]), DiagnosticSeverity.ERROR,
+                    Arrays.copyOfRange(args, 1, args.length));
+        }
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_104",
-                "Provided Record name is invalid. Please use a meaningful name.",
-                DiagnosticSeverity.ERROR, args);
+                "Provided record name conflicts with the other generated records. " +
+                        "Consider providing a different name.", DiagnosticSeverity.ERROR, null);
     }
 }
