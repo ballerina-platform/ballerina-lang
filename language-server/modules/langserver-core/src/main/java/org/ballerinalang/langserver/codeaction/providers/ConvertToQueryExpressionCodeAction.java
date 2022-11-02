@@ -180,10 +180,10 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
             VariableDeclarationNode node = (VariableDeclarationNode) matchedNode;
             if (node.initializer().isPresent()) {
                 rhsNode = node.initializer().get();
-                rhsSymbol = semanticModel.symbol(rhsNode);
                 lhsNode = node.typedBindingPattern();
                 lhsSymbol = semanticModel.symbol(lhsNode)
                         .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE);
+                lhsType = lhsSymbol.map(symbol -> ((VariableSymbol) symbol).typeDescriptor());
             }
         } else if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             // There can be 2 types here: Variable assignments and field access expressions.
@@ -216,7 +216,6 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                     .filter(symbol -> symbol.kind() == SymbolKind.RECORD_FIELD);
             lhsType = lhsSymbol
                     .map(symbol -> ((RecordFieldSymbol) symbol).typeDescriptor());
-
         }
 
         rhsSymbol = semanticModel.symbol(rhsNode);
@@ -227,24 +226,20 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                 || rhsSymbol.get().kind() != SymbolKind.VARIABLE && rhsSymbol.get().kind() != SymbolKind.PARAMETER) {
             return Optional.empty();
         }
-        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(lhsSymbol.get(), rhsSymbol.get(),
-                lhsType.get(), rhsType.get(), rhsNode, lhsNode);
+        LhsRhsSymbolInfo nodeInfo = new LhsRhsSymbolInfo(rhsSymbol.get(), lhsType.get(), 
+                rhsType.get(), rhsNode, lhsNode);
         return Optional.of(nodeInfo);
     }
 
     static class LhsRhsSymbolInfo {
-
-        private final Symbol lhsSymbol;
         private final Symbol rhsSymbol;
-
         private final TypeSymbol lhsType;
         private final TypeSymbol rhsType;
         private final NonTerminalNode rhsNode;
         private final Node lhsNode;
 
-        public LhsRhsSymbolInfo(Symbol lhsSymbol, Symbol rhsSymbol, TypeSymbol lhsType, TypeSymbol rhsType,
+        public LhsRhsSymbolInfo(Symbol rhsSymbol, TypeSymbol lhsType, TypeSymbol rhsType,
                                 NonTerminalNode rhsNode, Node lhsNode) {
-            this.lhsSymbol = lhsSymbol;
             this.rhsSymbol = rhsSymbol;
             this.lhsType = lhsType;
             this.rhsType = rhsType;
