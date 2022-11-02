@@ -58,7 +58,38 @@ public class ExpressionContextTest extends CompletionTest {
                 "conditional_expr_ctx_config12.json", //#34145
                 
                 // TODO ContextTypeResolver's context type for method call expressions should be revisited
-                "method_call_expression_ctx_config9.json"
-        );
+                "method_call_expression_ctx_config9.json",
+
+                // expectedType cases
+                "mapping_expr_ctx_config41.json",
+                "mapping_expr_ctx_config22.json",
+                "mapping_expr_ctx_config64.json",
+                "mapping_expr_ctx_config7.json",
+                "mapping_expr_ctx_config51.json",
+                "mapping_expr_ctx_config11.json",
+                "mapping_expr_ctx_config38_negative.json",
+                "mapping_expr_ctx_config54.json",
+                "mapping_expr_ctx_config69.json",
+                "xml_attribute_access_expr_ctx_config5.json",
+                "xml_attribute_access_expr_ctx_config1.json",
+                "xml_attribute_access_expr_ctx_config6.json",
+                "xml_attribute_access_expr_ctx_config2.json",
+                "table_constructor_expr_ctx_config9.json",
+                "function_call_expression_ctx_config22.json",
+
+                "function_call_expression_ctx_config19.json",
+                "anon_func_expr_ctx_config1a.json",
+                "new_expr_ctx_config12.json",
+                "new_expr_ctx_config14.json",
+                "new_expr_ctx_config15.json",
+                "new_expr_ctx_config11.json",
+                "new_expr_ctx_config16.json",
+                "new_expr_ctx_config26.json",
+                "new_expr_ctx_config13.json",
+                "new_expr_ctx_config24.json",
+                "function_call_expression_ctx_config15.json",
+                "function_call_expression_ctx_config13.json"
+
+                );
     }
 }
