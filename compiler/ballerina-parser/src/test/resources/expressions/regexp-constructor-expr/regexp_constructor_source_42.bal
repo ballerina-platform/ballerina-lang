@@ -1,3 +1,4 @@
 function foo() {
-    string:RegExp b = re                                       `abc`;
+    string:RegExp b = re
+    `abc`;
 }

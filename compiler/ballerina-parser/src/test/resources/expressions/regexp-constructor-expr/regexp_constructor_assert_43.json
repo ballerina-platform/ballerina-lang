@@ -141,7 +141,13 @@
                       ]
                     },
                     {
-                      "kind": "SLASH_TOKEN"
+                      "kind": "SLASH_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "RAW_TEMPLATE_EXPRESSION",

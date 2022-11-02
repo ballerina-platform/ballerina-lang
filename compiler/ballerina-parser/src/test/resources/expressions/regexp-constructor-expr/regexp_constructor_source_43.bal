@@ -1,3 +1,3 @@
 function foo() {
-    string:RegExp b = re /``;
+    string:RegExp b = re / ``;
 }
