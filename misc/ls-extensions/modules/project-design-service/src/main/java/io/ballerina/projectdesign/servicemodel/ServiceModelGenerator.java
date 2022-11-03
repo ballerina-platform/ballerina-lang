@@ -40,20 +40,22 @@ public class ServiceModelGenerator {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
-
-    public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+    private final String moduleRootPath;
+    public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
+                                 String moduleRootPath) {
 
         this.semanticModel = semanticModel;
         this.packageId = packageId;
+        this.moduleRootPath = moduleRootPath;
     }
 
     public Map<String, Service> generate(Collection<DocumentId> documentIds, Module module, Package currentPackage) {
-
         Map<String, Service> services = new HashMap<>();
         for (DocumentId documentId : documentIds) {
             SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+            String filePath = String.format("%s/%s", moduleRootPath, syntaxTree.filePath());
             ServiceDeclarationNodeVisitor serviceNodeVisitor = new
-                    ServiceDeclarationNodeVisitor(semanticModel, currentPackage, packageId);
+                    ServiceDeclarationNodeVisitor(semanticModel, currentPackage, packageId, filePath);
             syntaxTree.rootNode().accept(serviceNodeVisitor);
             serviceNodeVisitor.getServices().forEach(service -> {
                 services.put(service.getServiceId(), service);
