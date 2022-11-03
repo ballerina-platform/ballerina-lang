@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -291,7 +290,7 @@ class DocumentContext {
         }
 
         private boolean loadExistingModule(
-                Node clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
+                ModuleClientDeclarationNode clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
             String uri = CompilerPlugins.getUri(clientNode);
             try {
                 if (!isRemoteUrl(uri)) {
@@ -339,7 +338,7 @@ class DocumentContext {
             return false;
         }
 
-        private void executeIDLPlugin(Node clientNode, Location location, LineRange lineRange) {
+        private void executeIDLPlugin(ModuleClientDeclarationNode clientNode, Location location, LineRange lineRange) {
             if (!compilationOptions.withIDLGenerators()) {
                 return;
             }
@@ -423,7 +422,7 @@ class DocumentContext {
             return !url.getProtocol().equals("file");
         }
 
-        private Path getIdlPath(Node clientNode) throws IOException {
+        private Path getIdlPath(ModuleClientDeclarationNode clientNode) throws IOException {
             String uri = CompilerPlugins.getUri(clientNode);
             if (!isRemoteUrl(uri)) {
                 return resolveLocalPath(uri);
