@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Visit the functions with test annotations.
@@ -56,8 +57,9 @@ public class TestFunctionVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-        if (functionDefinitionNode.metadata().isPresent()) {
-            MetadataNode metadataNode = functionDefinitionNode.metadata().get();
+        Optional<MetadataNode> metadataNodeOptional = functionDefinitionNode.metadata();
+        if (metadataNodeOptional.isPresent()) {
+            MetadataNode metadataNode = metadataNodeOptional.get();
             for (AnnotationNode annotation : metadataNode.annotations()) {
                 if (annotation.annotReference().kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                     continue;
