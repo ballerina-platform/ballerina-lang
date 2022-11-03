@@ -9403,12 +9403,13 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createVariableRef(accessExpr.pos, tempResultVar.symbol);
 
         // Create a chain of match statements
-        handleSafeNavigation(accessExpr, accessExpr.getBType(), tempResultVar);
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(accessExpr.pos);
+        blockStmt.stmts.add(tempResultVarDef);
+        handleSafeNavigation(blockStmt, accessExpr, accessExpr.getBType(), tempResultVar);
 
         // Create a statement-expression including the match statement
         BLangMatchStatement matchStmt = this.matchStmtStack.firstElement();
-        BLangBlockStmt blockStmt =
-                ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(tempResultVarDef, matchStmt));
+        blockStmt.stmts.add(matchStmt);
         BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.setBType(originalExprType);
         // Reset the variables
@@ -9419,7 +9420,8 @@ public class Desugar extends BLangNodeVisitor {
         return stmtExpression;
     }
 
-    private void handleSafeNavigation(BLangAccessExpression accessExpr, BType type, BLangSimpleVariable tempResultVar) {
+    private void handleSafeNavigation(BLangBlockStmt blockStmt, BLangAccessExpression accessExpr, BType type,
+                                      BLangSimpleVariable tempResultVar) {
         if (accessExpr.expr == null) {
             return;
         }
@@ -9427,7 +9429,7 @@ public class Desugar extends BLangNodeVisitor {
         // If the parent of current expr is the root, terminate
         NodeKind kind = accessExpr.expr.getKind();
         if (kind == NodeKind.FIELD_BASED_ACCESS_EXPR || kind == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            handleSafeNavigation((BLangAccessExpression) accessExpr.expr, type, tempResultVar);
+            handleSafeNavigation(blockStmt, (BLangAccessExpression) accessExpr.expr, type, tempResultVar);
         }
 
         if (!(accessExpr.errorSafeNavigation || accessExpr.nilSafeNavigation)) {
@@ -9444,23 +9446,30 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         /*
-         * If the field access is a safe navigation, create a match expression.
-         * Then chain the current expression as the success-pattern of the parent
-         * match expr, if available.
+         * If the field access is a safe navigation, create a temp var definition for current expr and a var ref.
+         * Then use that to create a match expression. Then chain the current expression as the success-pattern of
+         * the parent match expr, if available.
          * eg:
          * x but {              <--- parent match expr
          *   error e => e,
-         *   T t => t.y but {   <--- current expr
+         *   $varDef$ = t;
+         *   T $varDef$ => $varDef$.y but {   <--- current expr
          *      error e => e,
-         *      R r => r.z
+         *      $varDef$ = r;
+         *      R $varDef$ => $varDef$.z
          *   }
          * }
          */
 
         BLangExpression matchExpr = accessExpr.expr;
-        BType matchExprType = accessExpr.expr.getBType();
+        BLangSimpleVariableDef variableDef =
+                createVarDef("$varDef$", matchExpr.getBType(), matchExpr, matchExpr.pos);
+        BLangSimpleVarRef simpleVarRef = ASTBuilderUtil.createVariableRef(variableDef.pos, variableDef.var.symbol);
+        accessExpr.expr = simpleVarRef;
+        blockStmt.stmts.add(variableDef);
         Location pos = accessExpr.pos;
-        BLangMatchStatement matchStmt = ASTBuilderUtil.createMatchStatement(matchExpr, pos);
+        BLangMatchStatement matchStmt = ASTBuilderUtil.createMatchStatement(simpleVarRef, pos);
+        BType matchExprType = accessExpr.expr.getBType();
 
         boolean isAllTypesRecords = false;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();

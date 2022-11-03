@@ -352,10 +352,72 @@ function testFieldAccessOnMapConstruct() returns boolean {
     return "Sanjiva" == name;
 }
 
+type FooRec1 record {
+    json j;
+};
+
+type FooRec2 record {
+    json j;
+    FooRec1 fooRec;
+};
+
+function testFieldAccessOnJsonTypedRecordFields() returns error? {
+    FooRec1 rec1 = {j: "1"};
+    string val = check rec1.j;
+    assertEquals(val, "1");
+
+    rec1 = {j: {k: "2"}};
+    val = check rec1.j.k;
+    assertEquals(val, "2");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = check rec1.j.k.m;
+    assertEquals(val, "3");
+
+    FooRec2 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = check rec2.j;
+    assertEquals(val, "1");
+    val = check rec2.fooRec.j;
+    assertEquals(val, "2");
+
+    rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = check rec2.fooRec.j.k;
+    assertEquals(val, "3");
+    val = check rec2.fooRec.j.l.m;
+    assertEquals(val, "4");
+}
+
+function testFieldAccessOnJsonTypedRecordFieldsResultsPanic() returns error? {
+    FooRec1 rec1 = {j: "1"};
+    json|error val = trap rec1.j.k.l;
+    assertEquals((<error>val).message(), "{ballerina}JSONOperationError");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = trap rec1.j.k.m.n;
+    assertEquals((<error>val).message(), "{ballerina}JSONOperationError");
+
+    FooRec2 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = trap rec2.j.l;
+    assertEquals((<error>val).message(), "{ballerina}JSONOperationError");
+    val = trap rec2.fooRec.j.m.n;
+    assertEquals((<error>val).message(), "{ballerina}JSONOperationError");
+
+    rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = trap rec2.fooRec.j.l.m.n.o;
+    assertEquals((<error>val).message(), "{ballerina}JSONOperationError");
+}
+
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
     if (val1 is anydata && val2 is anydata) {
         return (val1 == val2);
     } else {
         return (val1 === val2);
     }
+}
+
+function assertEquals(anydata actual, anydata expected) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }
