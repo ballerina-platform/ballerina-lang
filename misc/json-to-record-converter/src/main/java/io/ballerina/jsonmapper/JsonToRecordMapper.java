@@ -47,8 +47,10 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticMessage;
 import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.formatter.core.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.formatter.core.FormattingOptions;
 import org.javatuples.Pair;
 
 import java.util.AbstractMap;
@@ -83,7 +85,10 @@ public class JsonToRecordMapper {
     private static final String ARRAY_RECORD_SUFFIX = "Item";
 
     /**
+     * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
+     *
+     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean)}} instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
      * @param recordName Name of the generated record
@@ -91,8 +96,24 @@ public class JsonToRecordMapper {
      * @param isClosed To denote whether the response record is closed or not
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
+    @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
+    }
+
+    /**
+     * This method returns the Ballerina code for the provided JSON value or the diagnostics.
+     *
+     * @param jsonString JSON string of the JSON value to be converted to Ballerina record
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param isClosed To denote whether the response record is closed or not
+     * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
+     * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
+     */
+    public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
+                                               boolean isClosed, boolean forceFormatRecordFields) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
         List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
@@ -101,16 +122,21 @@ public class JsonToRecordMapper {
         try {
             JsonElement parsedJson = JsonParser.parseString(jsonString);
             if (parsedJson.isJsonObject()) {
-                generateRecords(parsedJson.getAsJsonObject(), recordName, isClosed,
+                generateRecords(parsedJson.getAsJsonObject(), null, isClosed,
                         recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
                 object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed,
+                generateRecords(object, null, isClosed,
                         recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
             } else {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
+                diagnosticMessages.add(message);
+                return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
+            }
+            if (recordName != null && recordToTypeDescNodes.containsKey(recordName)) {
+                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter104(new String[]{recordName});
                 diagnosticMessages.add(message);
                 return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
             }
@@ -124,8 +150,10 @@ public class JsonToRecordMapper {
         List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
+                    String recordTypeName = (entry.getKey() == null || entry.getKey().equals("")) ? NEW_RECORD_NAME :
+                            entry.getKey();
                     IdentifierToken typeName = AbstractNodeFactory
-                            .createIdentifierToken(escapeIdentifier(entry.getKey()));
+                            .createIdentifierToken(escapeIdentifier(recordTypeName));
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
@@ -138,7 +166,11 @@ public class JsonToRecordMapper {
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
         try {
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder()
+                    .setForceFormatRecordFields(forceFormatRecordFields).build();
+            FormattingOptions formattingOptions = FormattingOptions.builder()
+                    .setForceFormattingOptions(forceFormattingOptions).build();
+            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree(), formattingOptions).toSourceCode());
         } catch (FormatterException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
             diagnosticMessages.add(message);
@@ -229,8 +261,7 @@ public class JsonToRecordMapper {
                         fieldNodes, null, bodyEndDelimiter);
 
         if (moveBefore == null) {
-            recordToTypeDescNodes.put(((recordName == null) || recordName.equals("")) ? NEW_RECORD_NAME : recordName,
-                    recordTypeDescriptorNode);
+            recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
             List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).collect(Collectors.toList());

@@ -47,7 +47,8 @@ public class VisibleSymbolsInWorkersTest extends BaseVisibleSymbolsTest {
                         from("aString", VARIABLE),
                         from("workerSendToWorker", FUNCTION),
                         from("testFork", FUNCTION),
-                        from("testWorkerSendReceive", FUNCTION)
+                        from("testWorkerSendReceive", FUNCTION),
+                        from("testFlushWithoutWorkerName", FUNCTION)
                 );
         List<ExpectedSymbolInfo> commonSyms = concat(expModuleSymbols,
                                                      from("w1", WORKER),
@@ -91,6 +92,10 @@ public class VisibleSymbolsInWorkersTest extends BaseVisibleSymbolsTest {
                         from("b", VARIABLE),
                         from("wrk1", WORKER),
                         from("wrk2", WORKER)
+                )},
+                {71, 26, concat(expModuleSymbols,
+                        from("err", VARIABLE),
+                        from("w2", WORKER)
                 )},
         };
     }
