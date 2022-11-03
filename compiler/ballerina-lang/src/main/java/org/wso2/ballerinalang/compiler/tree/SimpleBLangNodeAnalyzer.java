@@ -335,11 +335,17 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
         visit((BLangFunction) node, data);
         visitNode(node.methodName, data);
-        visitNode(node.resourcePath, data);
+        visitNode(node.resourcePathSegments, data);
         visitNode(node.restPathParam, data);
         visitNode(node.pathParams, data);
     }
 
+    public void visit(BLangResourcePathSegment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.typeNode, data);
+    }
+    
     public void visit(BLangRetrySpec node, T data) {
         analyzeNode(node, data);
         visitNode(node.retryManagerType, data);

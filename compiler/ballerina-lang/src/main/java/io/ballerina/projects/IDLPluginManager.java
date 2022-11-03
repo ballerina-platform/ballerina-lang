@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 class IDLPluginManager {
     private List<IDLPluginContextImpl> idlPluginContexts;
@@ -56,6 +57,7 @@ class IDLPluginManager {
     private final List<IDLClientEntry> cachedClientEntries;
     private final Set<String> cachedModuleNames;
     private final Map<String, Integer> aliasNameCounter;
+    private final Map<DocumentId, Set<String>> uriMap;
 
     private IDLPluginManager(Path target, List<IDLClientEntry> cachedPlugins) {
         this.target = target;
@@ -63,6 +65,7 @@ class IDLPluginManager {
         this.cachedClientEntries = cachedPlugins;
         this.cachedModuleNames = new HashSet<>();
         this.aliasNameCounter = new HashMap<>();
+        this.uriMap = new HashMap<>();
     }
 
     static IDLPluginManager from(Path sourceRoot) {
@@ -122,6 +125,36 @@ class IDLPluginManager {
 
     public Map<String, Integer> aliasNameCounter() {
         return aliasNameCounter;
+    }
+
+    public Map<DocumentId, Set<String>> uriMap() {
+        return uriMap;
+    }
+
+    public List<IDLClientEntry> clientEntriesToCache() {
+        Set<String> distinctUrls = new HashSet<>();
+        this.uriMap.forEach((key, value) -> distinctUrls.addAll(value));
+        return this.cachedClientEntries.stream().filter(cachedClientEntry ->
+                distinctUrls.contains(cachedClientEntry.url())).collect(Collectors.toList());
+    }
+
+    public void removeUnusedClients() {
+        Set<String> distinctUrls = new HashSet<>();
+        this.uriMap.forEach((key, value) -> distinctUrls.addAll(value));
+        List<IDLClientEntry> usedClients = this.cachedClientEntries.stream().filter(cachedClientEntry ->
+                distinctUrls.contains(cachedClientEntry.url())).collect(Collectors.toList());
+        this.cachedClientEntries.retainAll(usedClients);
+        List<String> usedModuleNames = this.cachedClientEntries.stream().map(IDLClientEntry::generatedModuleName)
+                .collect(Collectors.toList());
+
+        List<ModuleConfig> usedModuleConfigs = new ArrayList<>();
+        for (ModuleConfig moduleConfig : this.moduleConfigs) {
+            if (usedModuleNames.contains(moduleConfig.moduleDescriptor().name().moduleNamePart())) {
+                usedModuleConfigs.add(moduleConfig);
+            }
+        }
+        this.moduleConfigs.retainAll(usedModuleConfigs);
+        this.cachedModuleNames.retainAll(usedModuleNames);
     }
 
     public static class IDLSourceGeneratorContextImpl implements IDLSourceGeneratorContext {
@@ -202,6 +235,8 @@ class IDLPluginManager {
                     newModuleConfig.moduleDescriptor().moduleCompilationId().name.getValue(),
                     PackageDependencyScope.DEFAULT,
                     DependencyResolutionType.SOURCE));
+
+            removeOutdatedModuleConfig(newModuleConfig); // remove outdated entry if exists
             this.moduleConfigs.add(newModuleConfig);
 
             // Generate id to cache plugins for subsequent compilations
@@ -211,6 +246,8 @@ class IDLPluginManager {
             IDLClientEntry idlCacheInfo = new IDLClientEntry(uri, resourcePath, annotations,
                     newModuleConfig.moduleDescriptor().name().moduleNamePart(),
                     this.currentPackage.project().sourceRoot().resolve(resourcePath).toFile().lastModified());
+
+            this.cachedClientEntries.remove(idlCacheInfo); // remove outdated entry if exists
             this.cachedClientEntries.add(idlCacheInfo);
         }
 
@@ -249,6 +286,15 @@ class IDLPluginManager {
                     moduleConfig.moduleId(), newModuleDescriptor, moduleConfig.sourceDocs(),
                     moduleConfig.testSourceDocs(), moduleConfig.moduleMd().orElse(null), moduleConfig.dependencies(),
                     ModuleKind.COMPILER_GENERATED);
+        }
+
+        private void removeOutdatedModuleConfig(ModuleConfig newModuleConfig) {
+            for (ModuleConfig moduleConfig : this.moduleConfigs) {
+                if (moduleConfig.moduleDescriptor().equals(newModuleConfig.moduleDescriptor())) {
+                    this.moduleConfigs.remove(moduleConfig);
+                    return;
+                }
+            }
         }
     }
 }

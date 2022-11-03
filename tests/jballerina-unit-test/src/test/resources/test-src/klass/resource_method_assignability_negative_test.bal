@@ -238,4 +238,11 @@ function testResourcePathParamAssignabilityNegative() {
         resource function get [int]() {
         }
     };
+    
+    client object {
+        resource function get foo/[string...]();
+    } _ = client object {
+        resource function get foo/[int...]() {
+        }
+    };
 }
