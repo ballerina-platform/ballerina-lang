@@ -1471,10 +1471,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
-                if (recordKeyValueField == null && !(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)
-                        || Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED))) {
+
+                long flags = field.symbol.flags;
+                if (recordKeyValueField == null && !(Symbols.isFlagOn(flags, Flags.OPTIONAL)
+                        || Symbols.isFlagOn(flags, Flags.REQUIRED))) {
                     dlog.error(recordLiteral.pos,
-                            DiagnosticErrorCode.UNSUPPORTED_DUPLICATE_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_LITERAL);
+                            DiagnosticErrorCode.UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER);
                 } else {
                     dlog.error(recordLiteral.pos,
                             DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);

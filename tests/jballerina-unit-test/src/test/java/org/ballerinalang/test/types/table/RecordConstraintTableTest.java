@@ -44,24 +44,24 @@ public class RecordConstraintTableTest {
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "duplicate key found " +
-                "in table row key('name') : 'AAA'", 18, 5);
-        BAssertUtil.validateError(negativeResult, index++, "duplicate key found " +
-                "in table row key('id, name') : '13, Foo'", 23, 5);
-        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
-                " row key('m') : ' {AAA: DDDD}'", 36, 7);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('name') : 'AAA'", 18, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('id, name') : '13, Foo'", 23, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('m') : ' {AAA: DDDD}'", 36, 7);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
-                46, 9);
+                44, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
-                54, 9);
+                52, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
-                " row key('idNum, name') : 'idNum, Jo'", 62, 9);
+                " row key('idNum, name') : 'idNum, Jo'", 60, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
-                " row key('idNum, name') : 'idNum, Jo'", 70, 9);
+                " row key('idNum, name') : 'idNum, Jo'", 68, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('m')" +
-                " : ' {AAA: DDDD}'", 85, 7);
+                " : ' {AAA: DDDD}'", 83, 7);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
-                " row key('m, age') : ' {AAA: DDDD}, 11'", 101, 7);
+                " row key('m, age') : ' {AAA: DDDD}, 11'", 97, 7);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

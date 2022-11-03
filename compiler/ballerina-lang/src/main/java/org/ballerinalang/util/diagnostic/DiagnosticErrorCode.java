@@ -798,9 +798,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
             "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
-            "cannot.infer.typedesc.argument.without.cet");,
-    UNSUPPORTED_DUPLICATE_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_LITERAL(
-            "BCE4047", "unsupported.default.values.for.key.field.in.table.literal")
+            "cannot.infer.typedesc.argument.without.cet"),
+    UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
+            "BCE4047", "unsupported.usage.of.default.values.for.key.field.in.table.member")
     ;
 
     private String diagnosticId;

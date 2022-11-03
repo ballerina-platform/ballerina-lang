@@ -33,12 +33,13 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class TableKeyFieldValueTest {
-    private CompileResult result, negativeResult;
+    private CompileResult result;
+    private static final String DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE = "using record default " +
+            "values for table key fields is not yet supported";
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_key_field_value_test.bal");
-        negativeResult = BCompileUtil.compile("test-src/types/table/table-key-field-value-negative.bal");
     }
 
     @Test(dataProvider = "dataToTestTableKeyFieldValue", description = "Test table key field value")
@@ -74,23 +75,25 @@ public class TableKeyFieldValueTest {
 
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
+        CompileResult negativeResult = BCompileUtil
+                .compile("test-src/types/table/table_key_field_value_negative.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 50, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 55, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 60, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 65, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 70, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 75, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 76, 9);
-        BAssertUtil.validateError(negativeResult, index++, "using default values for key " +
-                "fields in table types is not yet supported", 77, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                50, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                55, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                60, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                65, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                70, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                75, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                76, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                77, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
