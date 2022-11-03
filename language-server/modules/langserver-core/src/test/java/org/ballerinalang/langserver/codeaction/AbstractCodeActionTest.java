@@ -188,9 +188,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                         JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                         JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                        if (expArgs == null 
+                        if (expArgs == null
                                 || !validateAndModifyArguments(
-                                        actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                                actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
                             misMatched = true;
                         }
                         actual.command = actualCommand;
@@ -400,7 +400,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
-                                .map(path -> path.toString().replace(sourceRoot.toString(), ""));
+                                .map(path -> path.toUri().toString()
+                                        .replace(sourceRoot.toUri().toString(), ""));
                 int actualRenamePosition = actualArgs.get(1).getAsInt();
                 String expectedFilePath = expArgs.get(0).getAsString();
                 int expectedRenamePosition = expArgs.get(1).getAsInt();
