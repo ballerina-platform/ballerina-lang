@@ -35,16 +35,14 @@ public class BResourceFunction extends BAttachedFunction {
 
     public List<BVarSymbol> pathParams;
     public BVarSymbol restPathParam;
-    public List<Name> resourcePath;
     public Name accessor;
     public BTupleType resourcePathType;
     public List<BResourcePathSegmentSymbol> pathSegmentSymbols;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
-                             List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
+                             Name accessor, List<BVarSymbol> pathParams,
                              BVarSymbol restPathParam, BTupleType resourcePathType, Location pos) {
         super(funcName, symbol, type, pos);
-        this.resourcePath = resourcePath;
         this.accessor = accessor;
         this.pathParams = pathParams;
         this.restPathParam = restPathParam;
@@ -55,9 +53,10 @@ public class BResourceFunction extends BAttachedFunction {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
-        List<String> resourcePathStrings = new ArrayList<>(resourcePath.size());
-        for (int i = 0; i < resourcePath.size(); i++) {
-            Name resourcePath = this.resourcePath.get(i);
+        int pathSegmentCount = pathSegmentSymbols.size();
+        List<String> resourcePathStrings = new ArrayList<>(pathSegmentCount);
+        for (int i = 0; i < pathSegmentCount; i++) {
+            Name resourcePath = this.pathSegmentSymbols.get(i).name;
             if (resourcePath.value.equals("^") || resourcePath.value.equals("$^")) {
                 resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
             } else if (resourcePath.value.equals("^^") || resourcePath.value.equals("$^^")) {
