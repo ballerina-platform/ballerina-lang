@@ -74,7 +74,7 @@ public class RecordUtil {
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(name);
+            fieldItem.setLabel(CommonUtil.escapeReservedKeyword(name));
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
