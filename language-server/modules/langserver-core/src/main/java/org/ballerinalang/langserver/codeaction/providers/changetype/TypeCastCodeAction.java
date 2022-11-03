@@ -125,13 +125,18 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
             expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
-        //Numeric types can be cast between each other.
-        if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
-                || !isNumeric(actualTypeSymbol))) {
-            return Collections.emptyList();
+        String typeName = "";
+        if (expectedTypeSymbol.subtypeOf(actualTypeSymbol)) {
+            typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
+        } else if (isNumeric(expectedTypeSymbol)) {
+            Optional<TypeSymbol> numericExpected = findNumericType(expectedTypeSymbol);
+            Optional<TypeSymbol> numericActual = findNumericType(actualTypeSymbol);
+            //Numeric types can be cast between each other.
+            if (numericActual.isPresent() && numericExpected.isPresent()) {
+                typeName = NameUtil.getModifiedTypeName(context, numericExpected.get());
+            }
         }
 
-        String typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -188,8 +193,19 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
     }
 
     private boolean isNumeric(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                    .anyMatch(this::isNumeric);
+        }
         return (typeSymbol.typeKind().isIntegerType()
                 || typeSymbol.typeKind() == TypeDescKind.FLOAT
                 || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
+    }
+
+    private Optional<TypeSymbol> findNumericType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() != TypeDescKind.UNION && isNumeric(typeSymbol)) {
+            return Optional.of(typeSymbol);
+        }
+        return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().filter(this::isNumeric).findFirst();
     }
 }

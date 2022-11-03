@@ -634,4 +634,21 @@ public class CommonUtil {
         }
         return Optional.of(qualifiers.get(qualifiers.size() - 1));
     }
+
+    /**
+     * Returns the matching node for a given node.
+     *
+     * @param nodeAtCursor node
+     * @return node
+     */
+    public static Optional<Node> getMappingContextEvalNode(Node nodeAtCursor) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
+    }
 }
