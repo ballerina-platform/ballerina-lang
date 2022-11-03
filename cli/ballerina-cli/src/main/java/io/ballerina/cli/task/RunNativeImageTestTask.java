@@ -176,7 +176,7 @@ public class RunNativeImageTestTask implements Task {
         TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
         if (hasTests) {
-            int testResult;
+            int testResult = 1;
             try {
                 testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target);
 
@@ -199,9 +199,11 @@ public class RunNativeImageTestTask implements Task {
                         throw createLauncherException("error occurred while generating test report :", e);
                     }
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 TestUtils.cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
 
             if (testResult != 0) {
