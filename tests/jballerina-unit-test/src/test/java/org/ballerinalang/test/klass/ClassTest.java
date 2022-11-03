@@ -116,7 +116,7 @@ public class ClassTest {
 
     @Test(description = "Negative tests to check fields that have initialized using another field")
     public void classDefFieldsInitializedUsingAnotherField() {
-        CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-field-negative.bal");
+        CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_field_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 19, 13);
         BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 27, 19);

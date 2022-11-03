@@ -739,7 +739,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition,
-                fieldsRemovedScope(classDefinition.symbol.scope), currentEnv);
+                createFieldsRemovedScope(classDefinition.symbol.scope), currentEnv);
         for (BLangSimpleVariable field : classDefinition.fields) {
             data.env = classEnv;
             analyzeNode(field, data);
@@ -772,7 +772,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzerClassInitMethod(classDefinition, data);
     }
 
-    private Scope fieldsRemovedScope(Scope classScope) {
+    private Scope createFieldsRemovedScope(Scope classScope) {
         Scope scope = new Scope(classScope.owner);
         for (Name key : classScope.entries.keySet()) {
             Scope.ScopeEntry entry = classScope.entries.get(key);

@@ -46,11 +46,14 @@ public class ObjectTest {
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
+    private CompileResult objectCtrResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
         checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
+        objectCtrResult = BCompileUtil.compile("test-src/object/object_constructor.bal");
+
     }
 
     @AfterClass
@@ -601,11 +604,15 @@ public class ObjectTest {
 
     @Test
     public void testObjectInit() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_constructor.bal");
-        Object returns = BRunUtil.invoke(compileResult, "testObjectInit");
+        Object returns = BRunUtil.invoke(objectCtrResult, "testObjectInit");
 
         Assert.assertSame(returns.getClass(), Long.class);
         Assert.assertEquals(returns, 1L);
+    }
+
+    @Test
+    public void testLocalVariablesAssignmentToFields() {
+        BRunUtil.invoke(objectCtrResult, "testLocalVariablesAssignmentToFields");
     }
 
     @Test
