@@ -406,6 +406,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 String expectedFilePath = expArgs.get(0).getAsString();
                 int expectedRenamePosition = expArgs.get(1).getAsInt();
                 if (actualFilePath.isPresent()) {
+                    System.out.println(actualFilePath.get());
+                    System.out.println(expectedFilePath);
+                    System.out.println(actualRenamePosition);
+                    System.out.println(expectedRenamePosition);
                     String actualPath = actualFilePath.get();
                     if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
                         actualPath = actualFilePath.get().substring(1);

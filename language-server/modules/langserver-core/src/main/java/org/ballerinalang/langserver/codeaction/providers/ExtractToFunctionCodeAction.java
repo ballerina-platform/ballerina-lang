@@ -530,6 +530,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     private void addRenamePopup(CodeActionContext context, CodeAction codeAction) {
         int startPos = context.nodeAtRange().textRange().startOffset();
+        System.out.println(startPos);
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
