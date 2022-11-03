@@ -34,6 +34,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
@@ -97,6 +98,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.COMPILATION_ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ENUM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
@@ -683,10 +685,9 @@ public class TypedescriptorTest {
         assertEquals(type.get().getName().get(), "Colour");
 
         TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
-        assertEquals(enumType.typeKind(), UNION);
-
-        for (TypeSymbol memberType : ((UnionTypeSymbol) enumType).memberTypeDescriptors()) {
-            assertEquals(memberType.typeKind(), SINGLETON);
+        assertEquals(enumType.typeKind(), ENUM);
+        for (ConstantSymbol member : ((EnumSymbol) enumType).members()) {
+            assertEquals(member.typeKind(), SINGLETON);
         }
     }
 
