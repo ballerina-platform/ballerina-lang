@@ -185,3 +185,16 @@ function testInvalidUsageWithCasts() {
     var a = <function (function, boolean)> getFunctionWithAnyFunctionParamType(function (function x, int y) { });
     BooleanStream|handle b = <BooleanStream> check funcReturningUnionWithBuiltInRefType(());
 }
+
+function fooFn1(typedesc td = <>) returns td[] = external;
+
+function fooFn2(typedesc<int|string> td1, typedesc td2 = <>) returns [td1, td2] = external;
+
+function fooFn3(typedesc t, typedesc<boolean> td = <>) returns int|t|td = external;
+
+function testInvalidUsageWithoutContextuallyExpectedTypeAndArgument() {
+    fooFn1();
+    fooFn2(int);
+    fooFn3(float);
+    var x = fooFn1();
+}
