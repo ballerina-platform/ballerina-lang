@@ -397,6 +397,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
     }
 
+    @Test
+    public void testDiffQueryConstructsUsedAsFuncArgs() {
+        BRunUtil.invoke(result, "testDiffQueryConstructsUsedAsFuncArgs");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
