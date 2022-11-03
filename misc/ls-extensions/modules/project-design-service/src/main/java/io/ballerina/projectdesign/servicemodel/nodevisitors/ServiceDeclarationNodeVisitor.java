@@ -46,6 +46,7 @@ import io.ballerina.projectdesign.Utils;
 import io.ballerina.projectdesign.servicemodel.components.Service;
 import io.ballerina.projectdesign.servicemodel.components.ServiceAnnotation;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -65,13 +66,15 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     private final ComponentModel.PackageId packageId;
     private final Package currentPackage;
     private final List<Service> services = new LinkedList<>();
+    private final String filePath;
 
     public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, Package currentPackage,
-                                         ComponentModel.PackageId packageId) {
+                                         ComponentModel.PackageId packageId, String filePath) {
 
         this.packageId = packageId;
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
+        this.filePath = filePath;
     }
 
     public List<Service> getServices() {
@@ -101,10 +104,11 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
                 new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
                         semanticModel, currentPackage, packageId);
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
+        LineRange lineRange = LineRange.from(filePath,
+                serviceDeclarationNode.lineRange().startLine(), serviceDeclarationNode.lineRange().endLine());
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
                 getServiceType(serviceDeclarationNode), serviceMemberFunctionNodeVisitor.getResources(),
-                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation,
-                serviceDeclarationNode.lineRange()));
+                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation, lineRange));
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {
