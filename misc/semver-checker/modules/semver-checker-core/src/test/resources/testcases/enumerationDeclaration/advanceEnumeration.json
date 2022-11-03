@@ -166,5 +166,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical enum declarations",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "#Documentation\npublic  enum  color {  Red,  Blue,  Green }",
+    "expectedOutput": "No Changes"
   }
 ]

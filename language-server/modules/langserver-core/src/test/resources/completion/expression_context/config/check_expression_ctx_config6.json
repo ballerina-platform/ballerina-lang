@@ -565,7 +565,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
         }
       },
-      "sortText": "DC",
+      "sortText": "DZ",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
