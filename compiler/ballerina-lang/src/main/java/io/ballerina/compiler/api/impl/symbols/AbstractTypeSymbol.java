@@ -17,19 +17,17 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.LangLibrary;
+import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -152,35 +150,9 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
-        Types types = Types.getInstance(this.context);
-        List<FunctionSymbol> filteredFunctions = new ArrayList<>();
-
-        for (FunctionSymbol function : functions) {
-
-            List<ParameterSymbol> functionParams = function.typeDescriptor().params().get();
-
-            if (functionParams.isEmpty()) {
-                // If the function-type-descriptor doesn't have params, then, check for the rest-param
-                Optional<ParameterSymbol> restParamOptional = function.typeDescriptor().restParam();
-                if (restParamOptional.isPresent()) {
-                    BArrayType restArrayType =
-                            (BArrayType) ((AbstractTypeSymbol) restParamOptional.get().typeDescriptor()).getBType();
-                    if (types.isAssignable(internalType, restArrayType.eType)) {
-                        filteredFunctions.add(function);
-                    }
-                }
-                continue;
-            }
-
-            ParameterSymbol firstParam = functionParams.get(0);
-            BType firstParamType = ((AbstractTypeSymbol) firstParam.typeDescriptor()).getBType();
-
-            if (types.isAssignable(internalType, firstParamType)) {
-                filteredFunctions.add(function);
-            }
-        }
-
-        return filteredFunctions;
+        // Since the BallerinaEnumSymbol as well is using the exact implementation of this method, it would be moved
+        // to the SymbolUtils in order to avoid any reflective behaviour that may occur.
+        return SymbolUtils.filterLangLibMethods(this.context, functions, internalType);
     }
 
     // Private util methods

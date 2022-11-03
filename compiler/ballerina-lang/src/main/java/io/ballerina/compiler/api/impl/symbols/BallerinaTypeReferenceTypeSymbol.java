@@ -27,7 +27,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -73,6 +75,14 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public TypeSymbol typeDescriptor() {
         if (this.typeDescriptorImpl == null) {
+            if (tSymbol.getKind() == SymbolKind.ENUM) {
+                SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+                this.typeDescriptorImpl = symbolFactory.createEnumSymbol((BEnumSymbol) tSymbol,
+                        tSymbol.getOriginalName().getValue());
+
+                return this.typeDescriptorImpl;
+            }
+
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.typeDescriptorImpl = typesFactory.getTypeDescriptor(
                     referredType, referredType.tsymbol, true, !fromIntersectionType, false);

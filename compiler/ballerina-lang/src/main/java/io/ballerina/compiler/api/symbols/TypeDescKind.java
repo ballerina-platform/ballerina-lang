@@ -64,7 +64,8 @@ public enum TypeDescKind {
     NEVER("never"),
     COMPILATION_ERROR("CompilationError"),
     NONE("None"),
-    REGEXP("regexp");
+    REGEXP("regexp"),
+    ENUM("enum");
 
     private final String name;
 
