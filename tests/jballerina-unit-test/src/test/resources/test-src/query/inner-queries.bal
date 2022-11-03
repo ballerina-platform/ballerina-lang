@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
 import ballerina/lang.'float;
 import ballerina/lang.'xml;
 
@@ -659,6 +660,30 @@ function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
             value: "A" + j.idx.toString()
         }
         on conflict error("Duplicate Key in Outer Query");
+}
+
+function testQueryAsFuncArgument() {
+    string[][] arr = [["ABCD ", "BCDE"], ["DEFG ", "EFGH"]];
+    string[][] expected = [["ABCD", "BCDE"], ["DEFG", "EFGH"]];
+
+    string[][] newArr1 = from string[] subArr in arr
+        let string[] strArr = fooFunc(from string str in subArr
+            select str.trim())
+        select strArr;
+    assertEquality(expected, newArr1);
+
+    string[][] newArr2 = from string[] subArr in arr
+        select fooFunc(from string str in subArr
+            select str.trim());
+    assertEquality(expected, newArr2);
+
+    int arrLength = array:length(from int i in 1 ... 3
+        select i);
+    assertEquality(3, arrLength);
+}
+
+function fooFunc(string[] s) returns string[] {
+    return s;
 }
 
 function assertEquality(any|error expected, any|error actual) {
