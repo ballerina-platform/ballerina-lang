@@ -1275,8 +1275,7 @@ public class JvmCastGen {
 
     private void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
-        if (sourceType.tag == TypeTags.UNION || sourceType.tag == TypeTags.INTERSECTION ||
-                (types.isAssignable(sourceType, symbolTable.anyType) &&
+        if (sourceType.tag == TypeTags.UNION || (types.isAssignable(sourceType, symbolTable.anyType) &&
                         !Symbols.isFlagOn(sourceType.flags, Flags.READONLY))) {
             checkCast(mv, symbolTable.anydataType);
         } else {
@@ -1291,7 +1290,6 @@ public class JvmCastGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.READONLY:
             case TypeTags.MAP:
                 checkCast(mv, symbolTable.jsonType);
@@ -1475,7 +1473,6 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.READONLY) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, ANY_TO_JDOUBLE,
                     false);

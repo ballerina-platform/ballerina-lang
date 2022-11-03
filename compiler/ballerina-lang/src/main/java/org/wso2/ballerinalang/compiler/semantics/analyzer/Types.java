@@ -1569,13 +1569,6 @@ public class Types {
                     }
                 }
                 return readonlyIntersectionExists;
-            case TypeTags.INTERSECTION:
-                return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, unresolvedTypes,
-                                                  forceCheck, packageID);
-            case TypeTags.TYPEREFDESC:
-                return isSelectivelyImmutableType(((BTypeReferenceType) type).referredType, unresolvedTypes,
-                        forceCheck, packageID);
-
         }
         return false;
     }
@@ -6915,9 +6908,6 @@ public class Types {
                 return;
             case TypeTags.ANY:
                 basicTypes.add(BasicTypes.ANY);
-                return;
-            case TypeTags.INTERSECTION:
-                populateBasicTypes(((BIntersectionType) type).effectiveType, basicTypes);
                 return;
             case TypeTags.ERROR:
                 basicTypes.add(BasicTypes.ERROR);

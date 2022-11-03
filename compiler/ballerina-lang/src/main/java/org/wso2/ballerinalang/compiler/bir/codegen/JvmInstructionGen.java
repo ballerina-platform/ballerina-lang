@@ -485,7 +485,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.RECORD:
             case TypeTags.ERROR:
@@ -554,7 +553,6 @@ public class JvmInstructionGen {
             case TypeTags.NIL:
             case TypeTags.NEVER:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.TUPLE:
             case TypeTags.DECIMAL:
             case TypeTags.RECORD:

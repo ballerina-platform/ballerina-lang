@@ -407,7 +407,6 @@ public class JvmCodeGenUtil {
             case TypeTags.NEVER:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.ANY:
@@ -711,16 +710,20 @@ public class JvmCodeGenUtil {
     }
 
     public static BType getReferredType(BType type) {
+        return getReferredType(type, true);
+    }
+    
+    public static BType getReferredType(BType type, boolean effectiveType) {
         BType constraint = type;
         if (type == null) {
             return null;
         }
 
-        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
             return getReferredType(((BTypeReferenceType) type).referredType);
         }
         
-        if (type.tag == TypeTags.INTERSECTION) {
+        if (effectiveType & type.tag == TypeTags.INTERSECTION) {
             return getReferredType(((BIntersectionType) type).effectiveType);
         }
         

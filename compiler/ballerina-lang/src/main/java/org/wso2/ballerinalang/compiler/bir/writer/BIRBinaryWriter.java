@@ -471,10 +471,6 @@ public class BIRBinaryWriter {
                     writeConstValue(buf, memValue);
                 }
                 break;
-            case TypeTags.INTERSECTION:
-                BType effectiveType = ((BIntersectionType) type).effectiveType;
-                writeConstValue(buf, new ConstValue(value, effectiveType));
-                break;
             default:
                 // TODO support for other types
                 throw new UnsupportedOperationException(

@@ -6789,7 +6789,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getEffectiveReadOnlyType(Location pos, BType type, AnalyzerData data) {
-        BType origTargetType = Types.getReferredType(type);
+        BType origTargetType = Types.getReferredType(type, false);
         if (origTargetType == symTable.readonlyType) {
             if (types.isInherentlyImmutableType(data.expType) ||
                     !types.isSelectivelyImmutableType(data.expType, data.env.enclPkg.packageID)) {

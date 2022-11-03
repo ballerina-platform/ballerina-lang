@@ -471,9 +471,6 @@ class JMethodResolver {
                     return true;
                 case TypeTags.READONLY:
                     return jTypeName.equals(J_OBJECT_TNAME);
-                case TypeTags.INTERSECTION:
-                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, isLastParam,
-                            restParamExist);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -631,9 +628,6 @@ class JMethodResolver {
                     return false;
                 case TypeTags.READONLY:
                     return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
-                case TypeTags.INTERSECTION:
-                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest,
-                            visitedSet);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;

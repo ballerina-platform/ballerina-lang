@@ -266,7 +266,6 @@ public class JvmTerminatorGen {
             case TypeTags.ANYDATA:
             case TypeTags.OBJECT:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.RECORD:
             case TypeTags.TUPLE:
             case TypeTags.FUTURE:
