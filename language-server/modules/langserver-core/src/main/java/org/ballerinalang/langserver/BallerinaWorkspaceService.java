@@ -150,9 +150,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                     TelemetryUtil.sendTelemetryEvent(context.languageServercontext(),
                                             lsFeatureUsageTelemetryEvent));
                     return result;
-                } else {
-                    // Check in plugins
-                    return executeCommandExternal(context, params);
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Execute Command", e);
@@ -166,69 +163,5 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                        null, (Position) null);
             return false;
         });
-    }
-
-    /**
-     * Execute commands provided by compiler plugins. Depending on the result, relevant workspace edits will be
-     * performed.
-     *
-     * @param context Execute command context
-     * @param params  Execute command params
-     * @return any | null
-     */
-    private Object executeCommandExternal(ExecuteCommandContext context, ExecuteCommandParams params) {
-        List<CodeActionArgument> args = new LinkedList<>();
-        String uri = null;
-        for (CommandArgument arg : context.getArguments()) {
-            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
-                uri = arg.valueAs(String.class);
-            } else {
-                args.add(CodeActionArgument.from(arg.key(), arg.value()));
-            }
-        }
-
-        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
-        if (filePath.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Optional<PackageCompilation> packageCompilation = 
-                context.workspace().waitAndGetPackageCompilation(filePath.get());
-        Optional<Document> document = context.workspace().document(filePath.get());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath.get());
-        if (packageCompilation.isEmpty() || document.isEmpty() || semanticModel.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(uri, filePath.get(), 
-                null, document.get(), semanticModel.get(), args);
-
-        String providerName = params.getCommand();
-        CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
-        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, codeActionContext);
-
-        List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
-        docEdits.forEach(docEdit -> {
-            Optional<SyntaxTree> originalST = PathUtil.getPathFromURI(docEdit.getFileUri())
-                    .flatMap(workspaceManagerProxy.get()::document)
-                    .flatMap(doc -> Optional.of(doc.syntaxTree()));
-            if (originalST.isEmpty()) {
-                return;
-            }
-
-            TextRange textRange = originalST.get().rootNode().textRangeWithMinutiae();
-            TextDocument textDocument = originalST.get().textDocument();
-            LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
-            LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
-            LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
-            Range range = PositionUtil.toRange(LineRange.from(docEdit.getFileUri(), 
-                    lineRange.startLine(), lineRange.endLine()));
-            TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
-            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
-                    docEdit.getFileUri(), null), Collections.singletonList(edit));
-            Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
-            edits.add(either);
-        });
-        return CommandUtil.applyWorkspaceEdit(edits, languageServer.getClient());
     }
 }
