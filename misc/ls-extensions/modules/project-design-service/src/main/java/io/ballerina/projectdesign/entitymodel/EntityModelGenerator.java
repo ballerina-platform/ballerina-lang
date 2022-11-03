@@ -56,11 +56,14 @@ public class EntityModelGenerator {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
+    private final String moduleRootPath;
 
-    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
+                                String moduleRootPath) {
 
         this.semanticModel = semanticModel;
         this.packageId = packageId;
+        this.moduleRootPath = moduleRootPath;
     }
 
     public Map<String, Entity> generate() {
@@ -74,7 +77,6 @@ public class EntityModelGenerator {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
                     List<Attribute> attributeList = new ArrayList<>();
                     List<String> inclusionList = new ArrayList<>();
-                    LineRange recordLineRange = typeDefinitionSymbol.getLocation().get().lineRange();
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                             getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
@@ -93,6 +95,13 @@ public class EntityModelGenerator {
                                 new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations);
                         attributeList.add(attribute);
                     }
+                    LineRange recordLineRange = null;
+                    if (typeDefinitionSymbol.getLocation().isPresent()) {
+                        LineRange typeLineRange = typeDefinitionSymbol.getLocation().get().lineRange();
+                        String filePath = String.format("%s/%s", moduleRootPath, typeLineRange.filePath());
+                        recordLineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
+                    }
+
                     Entity entity = new Entity(attributeList, inclusionList, recordLineRange);
                     entities.put(entityName, entity);
                 }

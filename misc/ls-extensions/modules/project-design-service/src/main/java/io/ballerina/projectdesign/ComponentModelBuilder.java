@@ -47,16 +47,20 @@ public class ComponentModelBuilder {
         PackageId packageId = new PackageId(currentPackage);
 
         currentPackage.modules().forEach(module -> {
+            String moduleRootPath = module.project().sourceRoot().toAbsolutePath().toString();
+            if (module.moduleName().moduleNamePart() != null) {
+                moduleRootPath = moduleRootPath + "/" + module.moduleName().moduleNamePart();
+            }
             Collection<DocumentId> documentIds = module.documentIds();
             SemanticModel currentSemanticModel =
                     currentPackage.getCompilation().getSemanticModel(module.moduleId());
             // todo : Check project diagnostics
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(
-                    currentSemanticModel, packageId);
+                    currentSemanticModel, packageId, moduleRootPath);
             services.putAll(serviceModelGenerator.generate(documentIds, module, currentPackage));
 
             EntityModelGenerator entityModelGenerator = new EntityModelGenerator(
-                    currentSemanticModel, packageId);
+                    currentSemanticModel, packageId, moduleRootPath);
             entities.putAll(entityModelGenerator.generate());
         });
 
