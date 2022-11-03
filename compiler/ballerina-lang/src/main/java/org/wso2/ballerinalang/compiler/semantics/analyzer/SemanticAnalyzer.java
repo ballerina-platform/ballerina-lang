@@ -1041,8 +1041,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.env = tupleEnv;
             BLangSimpleVariable memberType = memberTypeNodes.get(i);
             analyzeNode(memberType, data);
-            for (BLangAnnotationAttachment ann : memberType.annAttachments) {
-                ((BTupleType) bType).memberTypes.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
+            if (bType.getKind() == TypeKind.TUPLE) {
+                for (BLangAnnotationAttachment ann : memberType.annAttachments) {
+                    ((BTupleType) bType).memberTypes.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
+                }
             }
         }
         if (tupleTypeNode.restParamType != null) {

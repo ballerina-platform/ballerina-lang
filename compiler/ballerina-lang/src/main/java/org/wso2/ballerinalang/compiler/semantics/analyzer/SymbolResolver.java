@@ -1699,10 +1699,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 if (paramValType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
-                BSymbol bSymbol;
+                BSymbol bSymbol = null;
                 if (func != null) {
                     bSymbol = func.symbol;
-                } else {
+                } else if (funcTypeNode != null) {
                     bSymbol = funcTypeNode.getBType().tsymbol;
                 }
 
