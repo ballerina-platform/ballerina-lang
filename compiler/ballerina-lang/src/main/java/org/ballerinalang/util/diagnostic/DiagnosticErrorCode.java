@@ -625,7 +625,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MULTIPLE_INFER_TYPEDESC_PARAMS("BCE3932", "multiple.infer.typedesc.params"),
     INVALID_DEPENDENTLY_TYPED_RETURN_TYPE_WITH_INFERRED_TYPEDESC_PARAM(
             "BCE3933", "invalid.dependently.typed.return.type.with.inferred.typedesc.param"),
-    CANNOT_INFER_TYPE_FOR_PARAM("BCE3934", "cannot.infer.type.for.param"),
+    CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET("BCE3934", "cannot.infer.typedesc.argument.from.cet"),
     CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM("BCE3935",
             "cannot.use.inferred.typedesc.default.with.unreferenced.param"),
 
@@ -797,9 +797,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
     CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
             "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
-    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4046",
+    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
+            "cannot.infer.typedesc.argument.without.cet"),
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4047",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4047", "future.expression.expected")
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4048", "future.expression.expected")
     ;
 
     private String diagnosticId;
