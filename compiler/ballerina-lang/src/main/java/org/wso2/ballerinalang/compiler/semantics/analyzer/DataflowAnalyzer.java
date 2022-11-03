@@ -2010,6 +2010,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             addTypeDependency(tsymbol, Types.getReferredType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
+            for (BLangAnnotationAttachment annotationAttachment : field.annAttachments) {
+                analyzeNode(annotationAttachment.expr, env);
+            }
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
