@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -148,6 +149,17 @@ public class ModuleUtil {
             pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" 
                     + pkgPrefix : pkgPrefix;
 
+            //If the module is an auto-generated module in the current project,
+            // it is not necessary to check for imports and add import statement.
+            Optional<Project> project = context.workspace().project(context.filePath());
+            if (project.isPresent()) {
+                for (Module module : project.get().currentPackage().modules()) {
+                    if (isMatchingModule(moduleID, module) && DependencyUtils.isGeneratedModule(module)) {
+                        return pkgPrefix + ":";
+                    }
+                }
+            }
+
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
                     .filter(importDeclarationNode ->
@@ -170,6 +182,11 @@ public class ModuleUtil {
             return pkgPrefix + ":";
         }
         return pkgPrefix;
+    }
+
+    private static Boolean isMatchingModule(ModuleID moduleID, Module module) {
+        return moduleID.orgName().equals(module.packageInstance().packageOrg().value())
+                && moduleID.moduleName().equals(module.moduleName().toString());
     }
 
     /**

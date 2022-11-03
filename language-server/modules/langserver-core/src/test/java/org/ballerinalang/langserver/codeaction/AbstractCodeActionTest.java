@@ -188,9 +188,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                         JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                         JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                        if (expArgs == null 
+                        if (expArgs == null
                                 || !validateAndModifyArguments(
-                                        actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                                actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
                             misMatched = true;
                         }
                         actual.command = actualCommand;
