@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -124,10 +125,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
@@ -173,6 +176,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_GET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BSTRING_CONCAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_IS_TYPE;
@@ -202,6 +206,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ANNOTATION_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_AT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -210,6 +215,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_TABLE_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_WITH_INITIAL_VALUES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_EXPRESSION_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_SPREAD_ENTRY;
@@ -264,6 +270,7 @@ public class JvmInstructionGen {
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
     private final Map<String, String> functions;
+    private final String moduleInitClass;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -279,6 +286,7 @@ public class JvmInstructionGen {
         this.jvmConstantsGen = jvmConstantsGen;
         typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
         this.functions = new HashMap<>();
+        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -597,13 +605,37 @@ public class JvmInstructionGen {
         return symbolTable.byteType;
     }
 
-    void generatePlatformIns(JInstruction ins) {
+    void generatePlatformIns(JInstruction ins, int localVarOffset) {
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
             this.loadVar(castIns.rhsOp.variableDcl);
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
+        } else if (ins.jKind == JInsKind.CALL) {
+            JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
+            boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+            int argIndex = 0;
+            String jMethodVMSig = callIns.jMethodVMSig;
+            boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+            if (hasBalEnvParam) {
+                mv.visitTypeInsn(NEW, BAL_ENV);
+                mv.visitInsn(DUP);
+                // load the strand
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                // load the current Module
+                mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
+                        INIT_BAL_ENV, false);
+            }
+
+            while (argIndex < callIns.args.size()) {
+                BIROperand arg = callIns.args.get(argIndex);
+                this.loadVar(arg.variableDcl);
+                argIndex += 1;
+            }
+            this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
+                    isInterface);
         }
     }
 
@@ -2324,7 +2356,7 @@ public class JvmInstructionGen {
                     generateNegateIns((BIRNonTerminator.UnaryOP) inst);
                     break;
                 case PLATFORM:
-                    generatePlatformIns((JInstruction) inst);
+                    generatePlatformIns((JInstruction) inst, localVarOffset);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);

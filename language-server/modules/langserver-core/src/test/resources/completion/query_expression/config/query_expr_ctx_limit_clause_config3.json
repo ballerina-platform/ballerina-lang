@@ -250,7 +250,7 @@
     {
       "label": "TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future\u003cint\u003e",
+      "detail": "future<int>",
       "sortText": "G",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
@@ -261,6 +261,39 @@
       "detail": "int",
       "sortText": "AC",
       "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "P",
+      "insertText": "ClientError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType2",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The super type of all the types."
+      },
+      "sortText": "R",
+      "insertText": "TargetType2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TargetType",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "documentation": {
+        "left": "The types of data values that are expected by the `client` to return after the data binding operation."
+      },
+      "sortText": "R",
+      "insertText": "TargetType",
       "insertTextFormat": "Snippet"
     }
   ]

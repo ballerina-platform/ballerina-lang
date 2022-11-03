@@ -50,7 +50,7 @@ public class TestUtils {
             JsonObject testDataObject = (JsonObject) testData;
             String oldCode = testDataObject.get(JSON_ATTR_OLD_CODE).getAsString();
             String newCode = testDataObject.get(JSON_ATTR_NEW_CODE).getAsString();
-            JsonObject expectedOutput = (JsonObject) testDataObject.get(JSON_ATTR_EXPECTED_RESULTS);
+            JsonElement expectedOutput = testDataObject.get(JSON_ATTR_EXPECTED_RESULTS);
             BuildProject oldProject = ProjectUtils.createProject(oldCode);
             BuildProject currentProject = ProjectUtils.createProject(newCode);
             Package oldPackage = oldProject.currentPackage();
@@ -68,13 +68,15 @@ public class TestUtils {
      * @param currentPackage package instance of current code
      * @param expectedOutput Expected json output for the test case
      */
-    public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonObject expectedOutput) {
+    public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonElement expectedOutput) {
         PackageComparator packageComparator = new PackageComparator(currentPackage, oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
-        if (expectedOutput.equals(new JsonObject())) {
-            // disabled test cases
+        if (expectedOutput instanceof JsonObject && expectedOutput.equals(new JsonObject())) {
+            // Todo: disabled test cases
+        } else if (packageDiff.isEmpty()) {
+            Assert.assertEquals(expectedOutput.getAsString(), "No Changes");
         } else {
-            packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
+            Assert.assertEquals(packageDiff.get().getAsJson(), expectedOutput);
         }
     }
 }

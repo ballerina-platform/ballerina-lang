@@ -39,6 +39,7 @@ public class TestSuite {
     private String moduleName;
     private String packageId;
     private String testPackageId;
+    private String executeFilePath;
 
     private String initFunctionName;
     private String startFunctionName;
@@ -70,13 +71,15 @@ public class TestSuite {
      */
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();
 
-    public TestSuite(String packageId, String testPackageId, String packageName, String orgName, String version) {
+    public TestSuite(String packageId, String testPackageId, String packageName,
+                     String orgName, String version, String executeFilePath) {
         this.packageId = packageId;
         this.testPackageId = testPackageId;
         this.packageId = packageId;
         this.packageName = packageName;
         this.orgName = orgName;
         this.version = version;
+        this.executeFilePath = executeFilePath;
     }
 
     public String getPackageID() {
@@ -117,6 +120,14 @@ public class TestSuite {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void setExecuteFilePath(String executeFilePath) {
+        this.executeFilePath = executeFilePath;
+    }
+
+    public String getExecuteFilePath() {
+        return this.executeFilePath;
     }
 
     public String getInitFunctionName() {
