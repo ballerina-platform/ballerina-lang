@@ -695,7 +695,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "Z",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"

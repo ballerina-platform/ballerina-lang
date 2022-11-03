@@ -72,3 +72,9 @@ type Person record {
     Address
     ? addr;
 };
+
+final http:Client emailClientEndpoint = check new (emailServiceUrl,
+    secureSocket = {
+        enable: false
+    }
+);
