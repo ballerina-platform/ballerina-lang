@@ -153,7 +153,7 @@ public class PathUtil {
         Collection<ResolvedPackageDependency> dependencies =
                 project.currentPackage().getResolution().dependencyGraph().getNodes();
         Optional<Path> filepath = Optional.empty();
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
         for (ResolvedPackageDependency depNode : dependencies) {
             Package depPackage = depNode.packageInstance();
             for (ModuleId moduleId : depPackage.moduleIds()) {
@@ -232,7 +232,7 @@ public class PathUtil {
      * @return file path
      */
     public static Path getPathFromLocation(Module module, Location location) {
-        String filePath = location.lineRange().filePath();
+        String filePath = location.lineRange().fileName();
 
         if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return module.project().sourceRoot();

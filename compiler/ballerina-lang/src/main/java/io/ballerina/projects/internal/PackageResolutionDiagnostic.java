@@ -41,7 +41,7 @@ public class PackageResolutionDiagnostic extends PackageDiagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.diagnostic.location().lineRange().fileName();
         if (this.diagnostic.location().lineRange().startLine().line() == 0 &&
                 this.diagnostic.location().lineRange().startLine().offset() == 0) {
             return diagnosticInfo().severity().toString() + " ["

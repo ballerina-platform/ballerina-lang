@@ -659,7 +659,7 @@ public class JvmCodeGenUtil {
 
         StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
         if (terminatorPos != null) {
-            yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+            yieldLocationData.append("(").append(terminatorPos.lineRange().fileName()).append(":")
                     .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
         }
         mv.visitLdcInsn(yieldLocationData.toString());

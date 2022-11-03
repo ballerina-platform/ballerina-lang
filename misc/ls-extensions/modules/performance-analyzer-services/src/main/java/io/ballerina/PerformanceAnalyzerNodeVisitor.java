@@ -434,7 +434,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 if (withinWorker) {
                     isWorkersHaveConnectorCalls = true;
                 }
-                String pos = actionPos.filePath() + "/" + actionPos;
+                String pos = actionPos.fileName() + "/" + actionPos;
                 ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
                         actionName, actionPath, pos);
                 this.setChildNode(actionNode);

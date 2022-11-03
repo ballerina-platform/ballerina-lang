@@ -135,7 +135,7 @@ public class DefinitionUtil {
                                                         Project project, Symbol symbol) {
         Package langLibPackage = project.projectEnvironmentContext().environment().getService(PackageCache.class)
                 .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName)).get(0);
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
 
         Optional<Path> filepath = Optional.empty();
         for (ModuleId moduleId : langLibPackage.moduleIds()) {

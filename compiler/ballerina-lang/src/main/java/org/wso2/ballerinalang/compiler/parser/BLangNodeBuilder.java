@@ -656,7 +656,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -6946,7 +6946,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                        location.lineRange().startLine().offset() >= upTo.lineRange().startLine().offset());
 
-        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
+        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().fileName(),
                 upTo.lineRange().startLine().line(),
                 location.lineRange().endLine().line(),
                 upTo.lineRange().startLine().offset(),

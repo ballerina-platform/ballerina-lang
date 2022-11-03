@@ -482,7 +482,7 @@ public class EvaluationUtils {
      * @return the fully-qualified generated java class name for the source file, which includes the given symbol
      */
     public static String constructQualifiedClassName(Symbol symbol) {
-        String className = symbol.getLocation().orElseThrow().lineRange().filePath().replaceAll(BAL_FILE_EXT + "$", "");
+        String className = symbol.getLocation().orElseThrow().lineRange().fileName().replaceAll(BAL_FILE_EXT + "$", "");
         if (symbol.getModule().isEmpty()) {
             return className;
         }

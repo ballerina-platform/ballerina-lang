@@ -1241,12 +1241,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (!symTable.clientDeclarations.containsKey(this.env.enclPkg.packageID) ||
                 !symTable.clientDeclarations.get(this.env.enclPkg.packageID)
-                        .containsKey(clientDeclaration.pos.lineRange().filePath())) {
+                        .containsKey(clientDeclaration.pos.lineRange().fileName())) {
             dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
         } else {
             Map<LineRange, Optional<PackageID>> lineRangeMap =
                     symTable.clientDeclarations.get(this.env.enclPkg.packageID)
-                    .get(clientDeclaration.pos.lineRange().filePath());
+                    .get(clientDeclaration.pos.lineRange().fileName());
             if (!lineRangeMap.containsKey(prefix.pos.lineRange())) {
                 dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
             }
@@ -2211,7 +2211,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), getFuncSymbolOriginalName(funcNode),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 funcNode.hasBody(), funcNode.name.pos, SOURCE);
-        funcSymbol.source = funcNode.pos.lineRange().filePath();
+        funcSymbol.source = funcNode.pos.lineRange().fileName();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -2251,7 +2251,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
-        funcSymbol.source = funcNode.pos.lineRange().filePath();
+        funcSymbol.source = funcNode.pos.lineRange().fileName();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv;
         NodeKind previousNodeKind = env.node.getKind();
@@ -5513,7 +5513,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int enclStartOffset = targetRange.startLine().offset();
         int enclEndOffset = targetRange.endLine().offset();
 
-        return targetRange.filePath().equals(srcRange.filePath())
+        return targetRange.fileName().equals(srcRange.fileName())
                 && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
                 && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }

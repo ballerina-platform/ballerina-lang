@@ -8966,7 +8966,7 @@ public class Desugar extends BLangNodeVisitor {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
             if (invPos != null && !invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
-                returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().fileName(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().startLine().offset(),
@@ -10298,12 +10298,12 @@ public class Desugar extends BLangNodeVisitor {
         // restricted.
         if (!symTable.clientDeclarations.containsKey(clientDeclaration.symbol.pkgID) ||
                 !symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
-                        .containsKey(clientDeclaration.prefix.pos.lineRange().filePath())) {
+                        .containsKey(clientDeclaration.prefix.pos.lineRange().fileName())) {
             return;
         }
         Map<LineRange, Optional<PackageID>> lineRangeMap =
                 symTable.clientDeclarations.get(clientDeclaration.symbol.pkgID)
-                .get(clientDeclaration.prefix.pos.lineRange().filePath());
+                .get(clientDeclaration.prefix.pos.lineRange().fileName());
         if (!lineRangeMap.containsKey(clientDeclaration.prefix.pos.lineRange())) {
             return;
         }

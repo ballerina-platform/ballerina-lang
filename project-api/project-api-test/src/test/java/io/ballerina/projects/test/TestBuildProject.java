@@ -290,7 +290,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in packageCompilation diagnostics
         List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -298,7 +298,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -1226,7 +1226,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("missing required parameter 'c'"));
@@ -1253,7 +1253,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("undefined function 'concatStrings'"));
@@ -1285,7 +1285,7 @@ public class TestBuildProject extends BaseTest {
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
@@ -2170,7 +2170,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         List<String> expectedDiagnosticPaths = Arrays.asList(
                 "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),

@@ -62,7 +62,7 @@ public class PackageDiagnostic extends Diagnostic {
         if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
             Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.toString());
             filePath = project.sourceRoot().resolve(modulePath).resolve(
-                    diagnostic.location().lineRange().filePath()).toString();
+                    diagnostic.location().lineRange().fileName()).toString();
         } else {
             if (!moduleName.isDefaultModuleName()) {
                 Path modulePath;
@@ -72,9 +72,9 @@ public class PackageDiagnostic extends Diagnostic {
                 } else {
                     modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
                 }
-                filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
+                filePath = modulePath.resolve(diagnostic.location().lineRange().fileName()).toString();
             } else {
-                filePath = diagnostic.location().lineRange().filePath();
+                filePath = diagnostic.location().lineRange().fileName();
             }
         }
         this.diagnostic = diagnostic;
@@ -105,7 +105,7 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.diagnostic.location().lineRange().fileName();
         // add package info if it is a dependency
         if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             filePath = moduleDescriptor.org() + "/" +

@@ -171,7 +171,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        BLangCompilationUnit compilationUnit = getCompilationUnit(nodeIdentifierLocation.get().lineRange().filePath());
+        BLangCompilationUnit compilationUnit = getCompilationUnit(nodeIdentifierLocation.get().lineRange().fileName());
         return lookupSymbol(compilationUnit, nodeIdentifierLocation.get().lineRange().startLine());
     }
 
@@ -288,7 +288,7 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public Optional<TypeSymbol> type(LineRange range) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(range.filePath());
+        BLangCompilationUnit compilationUnit = getCompilationUnit(range.fileName());
         NodeFinder nodeFinder = new NodeFinder(true);
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
@@ -301,7 +301,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     @Override
     public Optional<TypeSymbol> typeOf(LineRange range) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(range.filePath());
+        BLangCompilationUnit compilationUnit = getCompilationUnit(range.fileName());
         NodeFinder nodeFinder = new NodeFinder(false);
         BLangNode node = nodeFinder.lookup(compilationUnit, range);
 
@@ -365,7 +365,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         for (Diagnostic diagnostic : allDiagnostics) {
             LineRange lineRange = diagnostic.location().lineRange();
 
-            if (lineRange.filePath().equals(range.filePath()) && PositionUtil.withinRange(lineRange, range)) {
+            if (lineRange.fileName().equals(range.fileName()) && PositionUtil.withinRange(lineRange, range)) {
                 filteredDiagnostics.add(diagnostic);
             }
         }
@@ -463,7 +463,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isCursorNotAtDefinition(BLangCompilationUnit compilationUnit, BSymbol symbolAtCursor,
                                             LinePosition cursorPos) {
         return !(compilationUnit.getPackageID().equals(symbolAtCursor.pkgID)
-                && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
+                && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().fileName())
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
     }
 

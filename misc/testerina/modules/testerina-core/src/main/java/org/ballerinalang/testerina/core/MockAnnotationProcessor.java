@@ -424,7 +424,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 bPackageSymbol.pkgID.orgName.getValue(),
                 bPackageSymbol.pkgID.name.getValue(),
                 bPackageSymbol.pkgID.version.getValue(),
-                pos.lineRange().filePath()
+                pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT));

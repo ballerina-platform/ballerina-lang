@@ -860,7 +860,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -885,7 +885,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -906,7 +906,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -927,7 +927,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         // 2) Retrieve the package symbol first
         BSymbol pkgSymbol =
-                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().filePath()));
+                resolvePrefixSymbol(env, pkgAlias, names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias.value);
             return pkgSymbol;
@@ -1743,7 +1743,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         Location pos = userDefinedTypeNode.pos;
 
-        BSymbol pkgSymbol = this.resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().filePath()));
+        BSymbol pkgSymbol = this.resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().fileName()));
         if (pkgSymbol != symTable.notFoundSymbol &&
                 !this.isModuleGeneratedForClientDeclaration(env.enclPkg.packageID, pkgSymbol.pkgID)) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
@@ -2677,11 +2677,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public BSymbol resolveClientDeclPrefix(BSymbol symbol) {
         LineRange lineRange = symbol.pos.lineRange();
         if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
-                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
+                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().fileName())) {
             return symTable.notFoundSymbol;
         }
         Map<LineRange, Optional<PackageID>> clientDeclarations =
-                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().filePath());
+                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().fileName());
         if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
             return symTable.notFoundSymbol;
         }
