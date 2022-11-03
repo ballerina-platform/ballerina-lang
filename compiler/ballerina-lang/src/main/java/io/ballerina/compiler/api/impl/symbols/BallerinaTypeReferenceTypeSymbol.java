@@ -100,7 +100,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         BType bType = this.getBType();
-        BType referredType = this.getReferredType(bType);
+        BType referredType = this.getReferredType(bType, false);
         if (referredType.tag == TypeTags.PARAMETERIZED_TYPE || bType.tag == TypeTags.PARAMETERIZED_TYPE) {
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
@@ -197,13 +197,17 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private boolean isAnonOrg(ModuleID moduleID) {
         return ANON_ORG.equals(moduleID.orgName());
     }
-
+    
     private BType getReferredType(BType type) {
+        return getReferredType(type, true);
+    }
+    
+    private BType getReferredType(BType type, boolean effectiveType) {
         if (type.tag == TypeTags.TYPEREFDESC) {
             return ((BTypeReferenceType) type).referredType;
         }
 
-        if (type.tag == TypeTags.INTERSECTION) {
+        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
             return getReferredType(((BIntersectionType) type).effectiveType);
         }
         

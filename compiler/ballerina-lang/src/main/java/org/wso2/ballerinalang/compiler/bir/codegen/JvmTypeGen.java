@@ -1029,7 +1029,6 @@ public class JvmTypeGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
@@ -1083,7 +1082,7 @@ public class JvmTypeGen {
 
             JvmCodeGenUtil.loadConstantValue(valueType, value, mv, jvmConstantsGen);
 
-            if (TypeTags.isIntegerTypeTag(valueType.tag)) {
+            if (TypeTags.isIntegerTypeTag(JvmCodeGenUtil.getReferredType(valueType).tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, LONG_VALUE_OF,
                         false);
             } else {

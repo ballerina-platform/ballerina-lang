@@ -862,12 +862,13 @@ public class BIRPackageSymbolEnter {
 
         // Create variable symbol
         BType varType = readBType(dataInStream);
+        BType referredVarType = Types.getReferredType(varType);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
-        if (varType.tag == TypeTags.INVOKABLE) {
-            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
+        if (referredVarType.tag == TypeTags.INVOKABLE) {
+            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) referredVarType.tsymbol;
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                                             this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
+                                             this.env.pkgSymbol.pkgID, referredVarType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
@@ -981,6 +982,7 @@ public class BIRPackageSymbolEnter {
             return;
         }
 
+        type = Types.getReferredType(type);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:
                 BParameterizedType varType = (BParameterizedType) type;

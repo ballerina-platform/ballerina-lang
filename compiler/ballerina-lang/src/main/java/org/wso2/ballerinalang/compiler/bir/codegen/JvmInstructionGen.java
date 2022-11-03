@@ -1389,7 +1389,7 @@ public class JvmInstructionGen {
     void generateMapStoreIns(BIRNonTerminator.FieldAccess mapStoreIns) {
         // visit map_ref
         this.loadVar(mapStoreIns.lhsOp.variableDcl);
-        BType varRefType = mapStoreIns.lhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getReferredType(mapStoreIns.lhsOp.variableDcl.type);
 
         // visit key_expr
         this.loadVar(mapStoreIns.keyOp.variableDcl);
@@ -1414,7 +1414,7 @@ public class JvmInstructionGen {
     void generateMapLoadIns(BIRNonTerminator.FieldAccess mapLoadIns) {
         // visit map_ref
         this.loadVar(mapLoadIns.rhsOp.variableDcl);
-        BType varRefType = mapLoadIns.rhsOp.variableDcl.type;
+        BType varRefType = JvmCodeGenUtil.getReferredType(mapLoadIns.rhsOp.variableDcl.type);
         jvmCastGen.addUnboxInsn(this.mv, varRefType);
 
         // visit key_expr
@@ -1517,8 +1517,7 @@ public class JvmInstructionGen {
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
-            if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
+            if (elementType.tag == TypeTags.RECORD) {
                 visitNewRecordArray(elementType);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
@@ -1537,8 +1536,6 @@ public class JvmInstructionGen {
 
     private void visitNewRecordArray(BType type) {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
-        elementType = elementType.tag == TypeTags.INTERSECTION ?
-                ((BIntersectionType) elementType).effectiveType : elementType;
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
@@ -1937,7 +1934,7 @@ public class JvmInstructionGen {
         // visit element name/index expr
         this.loadVar(xmlLoadIns.keyOp.variableDcl);
 
-        if (TypeTags.isStringTypeTag(xmlLoadIns.keyOp.variableDcl.type.tag)) {
+        if (TypeTags.isStringTypeTag(JvmCodeGenUtil.getReferredType(xmlLoadIns.keyOp.variableDcl.type).tag)) {
             // invoke `children(name)` method
             this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "children",
                     XML_CHILDREN_FROM_STRING, false);

@@ -1251,7 +1251,7 @@ public class JvmTerminatorGen {
 
     private void loadFpReturnType(BIROperand lhsOp) {
 
-        BType futureType = lhsOp.variableDcl.type;
+        BType futureType = JvmCodeGenUtil.getReferredType(lhsOp.variableDcl.type);
         BType returnType = symbolTable.anyType;
         if (futureType.tag == TypeTags.FUTURE) {
             returnType = ((BFutureType) futureType).constraint;
@@ -1299,7 +1299,6 @@ public class JvmTerminatorGen {
             case TypeTags.MAP:
             case TypeTags.ARRAY:
             case TypeTags.ANY:
-            case TypeTags.INTERSECTION:
             case TypeTags.STREAM:
             case TypeTags.TABLE:
             case TypeTags.ANYDATA:

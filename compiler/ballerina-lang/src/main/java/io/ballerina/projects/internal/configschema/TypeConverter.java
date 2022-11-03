@@ -19,6 +19,7 @@ package io.ballerina.projects.internal.configschema;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -82,13 +83,13 @@ public class TypeConverter {
      */
     JsonObject getType(BType type) {
         JsonObject typeNode = new JsonObject();
+        type = Types.getReferredType(type, false);
         if (TypeTags.isSimpleBasicType(type.tag)) {
             String typeVal = getSimpleType(type);
             typeNode.addProperty(TYPE, typeVal);
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
-                BIntersectionType intersectionType = (BIntersectionType) type;
-                BType effectiveType = intersectionType.getEffectiveType();
+                BType effectiveType = Types.getReferredType(type);
                 VisitedType visitedType = getVisitedType(effectiveType.toString());
                 if (visitedType != null) {
                     if (visitedType.isCompleted()) {
@@ -106,7 +107,7 @@ public class TypeConverter {
                     generateArrayType(typeNode, (BArrayType) effectiveType);
                 }
                 if (TypeTags.RECORD == effectiveType.tag && effectiveType instanceof BRecordType) {
-                    typeNode = generateRecordType((BRecordType) effectiveType, intersectionType);
+                    typeNode = generateRecordType((BRecordType) effectiveType, (BIntersectionType) type);
                 }
                 if (TypeTags.MAP == effectiveType.tag && effectiveType instanceof BMapType) {
                     generateMapType(typeNode, (BMapType) effectiveType);
@@ -281,6 +282,7 @@ public class TypeConverter {
      * @return simple type name as String
      */
     private static String getSimpleType(BType type) {
+        type = Types.getReferredType(type);
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return "integer";
         } else if (TypeTags.isStringTypeTag(type.tag)) {

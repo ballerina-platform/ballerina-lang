@@ -160,7 +160,7 @@ public class JvmCastGen {
     }
 
     public void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
-
+        sourceType = JvmCodeGenUtil.getReferredType(sourceType);
         switch (targetType.jTag) {
             case JTypeTags.JBYTE:
                 generateCheckCastBToJByte(mv, sourceType);

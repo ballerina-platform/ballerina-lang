@@ -359,10 +359,11 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BType type = getDefinedType(astTypeDefinition);
+        BType referredType = Types.getReferredType(type);
         BSymbol symbol = astTypeDefinition.symbol;
         Name displayName = symbol.name;
-        if (type.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) type;
+        if (referredType.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) referredType;
             if (recordType.shouldPrintShape()) {
                 displayName = new Name(recordType.toString());
             }
@@ -550,10 +551,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
-        int tag = constValue.type.tag;
-        if (tag == TypeTags.INTERSECTION) {
-            tag = ((BIntersectionType) constValue.type).effectiveType.tag;
-        }
+        int tag = Types.getReferredType(constValue.type).tag;
 
         if (tag == TypeTags.RECORD) {
             Map<String, ConstValue> mapConstVal = new HashMap<>();
@@ -1624,7 +1622,7 @@ public class BIRGen extends BLangNodeVisitor {
             BType connectorInitExprType = Types.getReferredType(connectorInitExpr.getBType());
             BType objectType = connectorInitExprType.tag != TypeTags.UNION ? connectorInitExprType :
                     ((BUnionType) connectorInitExprType).getMemberTypes().stream()
-                            .filter(bType -> bType.tag != TypeTags.ERROR)
+                            .filter(bType -> Types.getReferredType(bType).tag != TypeTags.ERROR)
                             .findFirst()
                             .get();
 
@@ -1727,7 +1725,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONAccessExpr astJSONFieldAccessExpr) {
-        if (astJSONFieldAccessExpr.indexExpr.getBType().tag == TypeTags.INT) {
+        if (Types.getReferredType(astJSONFieldAccessExpr.indexExpr.getBType()).tag == TypeTags.INT) {
             generateArrayAccess(astJSONFieldAccessExpr);
             return;
         }
@@ -2904,7 +2902,7 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(new BIRNonTerminator.XMLAccess(xmlAccessExpr.pos, InstructionKind.XML_LOAD_ALL, tempVarRef,
                     varRefRegIndex));
             return;
-        } else if (xmlAccessExpr.indexExpr.getBType().tag == TypeTags.STRING) {
+        } else if (Types.getReferredType(xmlAccessExpr.indexExpr.getBType()).tag == TypeTags.STRING) {
             insKind = InstructionKind.XML_LOAD;
         } else {
             insKind = InstructionKind.XML_SEQ_LOAD;
