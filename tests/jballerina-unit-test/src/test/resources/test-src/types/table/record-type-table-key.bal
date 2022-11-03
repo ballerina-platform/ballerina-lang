@@ -197,8 +197,8 @@ function testVariableNameFieldAsKeyField() {
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <record {readonly int id; string name;}> {"id":1, "name":"Jo"});
-    assertEquality(tb[2], <record {readonly int id; string name;}> {"id":2, "name":"Amy"});
+    assertEquality(tb[1], <record {readonly int id; string name;}> {"id": 1, "name": "Jo"});
+    assertEquality(tb[2], <record {readonly int id; string name;}> {"id": 2, "name": "Amy"});
 }
 
 function testDefaultValueFieldAsKeyField() {
@@ -206,8 +206,8 @@ function testDefaultValueFieldAsKeyField() {
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <record {readonly int id = 1; string name;}> {"id":1, "name":"Jo"});
-    assertEquality(tb[2], <record {readonly int id = 1; string name;}> {"id":2, "name":"Amy"});
+    assertEquality(tb[1], <record {readonly int id = 1; string name;}> {"id": 1, "name": "Jo"});
+    assertEquality(tb[2], <record {readonly int id = 1; string name;}> {"id": 2, "name": "Amy"});
 }
 
 type CustomRecord record {
@@ -220,8 +220,8 @@ function testDefaultValueFieldAsKeyField2() {
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <CustomRecord> {"id":1, "name":"Jo"});
-    assertEquality(tb[2], <CustomRecord> {"id":2, "name":"Amy"});
+    assertEquality(tb[1], <CustomRecord> {"id": 1, "name": "Jo"});
+    assertEquality(tb[2], <CustomRecord> {"id": 2, "name": "Amy"});
 }
 
 type CustomRecord2 record {
@@ -237,8 +237,8 @@ function testDefaultValueFieldAsKeyField3() {
         {id, status, name: "Jo"},
         {id: 2, status: "status - 2", name: "Amy"}
     ];
-    assertEquality(tb[1, "status - 1"], <CustomRecord2> {"id":1, "status":"status - 1", "name":"Jo"});
-    assertEquality(tb[2, "status - 2"], <CustomRecord2> {"id":2, "status":"status - 2", "name":"Amy"});
+    assertEquality(tb[1, "status - 1"], <CustomRecord2> {"id": 1, "status": "status - 1", "name": "Jo"});
+    assertEquality(tb[2, "status - 2"], <CustomRecord2> {"id": 2, "status": "status - 2", "name": "Amy"});
 }
 
 function assertTrue(any|error actual) {

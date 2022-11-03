@@ -32,8 +32,8 @@ type GlobalTable2 table<Foo> key(m);
 
 function testTableConstructExprWithDuplicateKeys() returns string {
     GlobalTable2 tab2 = table [
-      { m: {"AAA":"DDDD"}, age: 31 },
-      { m: {"AAA":"DDDD"}, age: 34 }
+      { m: {"AAA": "DDDD"}, age: 31 },
+      { m: {"AAA": "DDDD"}, age: 34 }
     ];
 
     return tab2.toString();
@@ -81,8 +81,8 @@ type GlobalTable3 table<Foo2> key(m);
 
 function testTableConstructExprWithDuplicateKeys2() returns string {
     GlobalTable3 tab = table [
-      { m: {"AAA":"DDDD"}, age: 31 },
-      { m: {"AAA":"DDDD"}, age: 34 }
+      { m: {"AAA": "DDDD"}, age: 31 },
+      { m: {"AAA": "DDDD"}, age: 34 }
     ];
 
     return tab.toString();
@@ -97,8 +97,8 @@ type GlobalTable4 table<Foo3> key(m, age);
 
 function testTableConstructExprWithDuplicateKeys3() returns string {
     GlobalTable4 tab = table [
-      { m: {"AAA":"DDDD"}, age: 11 },
-      { m: {"AAA":"DDDD"}, age: 11 }
+      { m: {"AAA": "DDDD"}, age: 11 },
+      { m: {"AAA": "DDDD"}, age: 11 }
     ];
 
     return tab.toString();
