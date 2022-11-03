@@ -60,7 +60,7 @@ public class QueryExprWithQueryConstructTypeTest {
     }
 
     @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
-    public Object[][] SimpleQueryReturnStreamFunctionList() {
+    public Object[][] simpleQueryReturnStreamFunctionList() {
         return new Object[][]{
                 {"testSimpleQueryReturnStream2"},
                 {"testSimpleQueryReturnStream3"}
