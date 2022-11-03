@@ -31,6 +31,22 @@ function testFooClass() {
     assertEquality(f.s, COMMA);
 }
 
+int a = 3;
+
+public class Bar {
+    int a = 4;
+    int b = a;
+
+    function init() {
+        assertEquality(self.b, 3);
+    }
+}
+
+function testGlobalVariablesAssignmentToFields() {
+    Bar b = new();
+    assertEquality(b.b, 3);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata actual, anydata expected) {

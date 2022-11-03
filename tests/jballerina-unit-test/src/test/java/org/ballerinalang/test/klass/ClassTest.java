@@ -141,6 +141,7 @@ public class ClassTest {
         CompileResult result = BCompileUtil.compile("test-src/klass/class_def_test.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
         BRunUtil.invoke(result, "testFooClass");
+        BRunUtil.invoke(result, "testGlobalVariablesAssignmentToFields");
     }
 
     @AfterClass
