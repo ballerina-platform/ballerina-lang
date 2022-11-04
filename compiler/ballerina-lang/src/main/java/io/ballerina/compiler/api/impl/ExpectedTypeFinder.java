@@ -243,7 +243,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
+        if (bLangNode == null || bLangNode.toString().equals("")) {
             return Optional.empty();
         }
 
@@ -566,8 +566,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 parenthesizedArgList.get().openParenToken(),
                 parenthesizedArgList.get().closeParenToken())) {
             if (bLangNode instanceof BLangTypeInit &&
-                    (BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
-                    initInvocation).symbol) != null) {
+                    ((BLangInvocation) ((BLangTypeInit) bLangNode).
+                    initInvocation).symbol != null) {
                 List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                         initInvocation).symbol)).params;
                 int argIndex = 0;
@@ -579,6 +579,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                     }
 
                     argIndex += 1;
+                    if (params.size() < argIndex) {
+                        throw new IllegalStateException();
+                    }
                 }
             }
         }
@@ -929,6 +932,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 if (((BLangSimpleVariable) node).expr != null) {
                     bType = ((BLangSimpleVariable) node).expr.expectedType;
                 }
+
                 break;
             case TABLE_CONSTRUCTOR_EXPR:
                 bType = ((BLangTableConstructorExpr) node).expectedType;
@@ -939,12 +943,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             case SIMPLE_VARIABLE_REF:
                 if (node instanceof BLangRecordLiteral) {
                     BLangExpression bLangExpression = ((BLangRecordLiteral) node).impConversionExpr;
-                    // merge if s
-                    if (bLangExpression != null) {
-                        if (bLangExpression.getBType().getKind() == TypeKind.ANY) {
-                            bType = bLangExpression.getBType();
-                            break;
-                        }
+                    if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
+                        bType = bLangExpression.getBType();
+                        break;
                     }
                 }
 
@@ -973,6 +974,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 break;
             case INVOCATION:
                 bType = ((BLangInvocation) node).expectedType;
+                if (bType.getKind() == TypeKind.OTHER && ((BLangInvocation) node).symbol != null) {
+                    bType = ((BInvokableSymbol) ((BLangInvocation) node).symbol).retType;
+                }
                 break;
             default:
         }
