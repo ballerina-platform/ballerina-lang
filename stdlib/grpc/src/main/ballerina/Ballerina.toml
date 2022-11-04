@@ -196,8 +196,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "protobuf-java"
-    version = "3.19.2"
-    path = "./lib/protobuf-java-3.19.2.jar"
+    version = "3.21.7"
+    path = "./lib/protobuf-java-3.21.7.jar"
     groupId = "com.google.protobuf"
     modules = ["grpc"]
 
