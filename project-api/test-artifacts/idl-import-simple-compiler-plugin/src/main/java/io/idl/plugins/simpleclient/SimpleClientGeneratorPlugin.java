@@ -18,13 +18,7 @@
 
 package io.idl.plugins.simpleclient;
 
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -78,26 +72,11 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                     moduleId, moduleDescriptor, Collections.singletonList(documentConfig),
                     Collections.emptyList(), null, new ArrayList<>());
 
-            Node clientNode = idlSourceGeneratorContext.clientNode();
-            NodeList<AnnotationNode> annotations;
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                annotations = ((ModuleClientDeclarationNode) clientNode).annotations();
-            } else {
-                annotations = ((ClientDeclarationNode) clientNode).annotations();
-            }
-            idlSourceGeneratorContext.addClient(moduleConfig, annotations);
+            idlSourceGeneratorContext.addClient(moduleConfig, idlSourceGeneratorContext.clientNode().annotations());
         }
 
-        private String getUri(Node clientNode) {
-            BasicLiteralNode clientUri;
-
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
-            String text = clientUri.literalToken().text();
+        private String getUri(ModuleClientDeclarationNode clientNode) {
+            String text = clientNode.clientUri().literalToken().text();
             return text.substring(1, text.length() - 1);
         }
 

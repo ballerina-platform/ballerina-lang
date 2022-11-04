@@ -19,7 +19,7 @@
 package io.ballerina.projects.plugins;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.Package;
@@ -34,7 +34,7 @@ import java.nio.file.Path;
  */
 public interface IDLSourceGeneratorContext {
 
-    Node clientNode();
+    ModuleClientDeclarationNode clientNode();
 
     Package currentPackage();
 

@@ -246,7 +246,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -8497,12 +8496,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangClientDeclaration clientDeclaration) {
         addImportForModuleGeneratedForClientDecl(clientDeclaration);
         this.result = clientDeclaration;
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        addImportForModuleGeneratedForClientDecl(clientDeclarationStatement.clientDeclaration);
-        this.result = clientDeclarationStatement;
     }
 
     @Override

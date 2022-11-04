@@ -18,12 +18,10 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -293,30 +291,8 @@ class DocumentContext {
                     moduleClientDeclarationNode.clientPrefix().location().lineRange());
         }
 
-        @Override
-        public void visit(ClientDeclarationNode clientDeclarationNode) {
-            // report unsupported project error for single file
-            if (this.currentPkg.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                ProjectDiagnosticErrorCode errorCode =
-                        ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
-                Location location = clientDeclarationNode.location();
-                String message = "client declaration is not supported with standalone Ballerina file";
-                pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-                return;
-            }
-
-            if (loadExistingModule(clientDeclarationNode, clientDeclarationNode.annotations(),
-                    clientDeclarationNode.clientPrefix().location().lineRange())) {
-                return;
-            }
-
-            // client declaration is in a BuildProject
-            executeIDLPlugin(clientDeclarationNode, clientDeclarationNode.location(),
-                    clientDeclarationNode.clientPrefix().location().lineRange());
-        }
-
         private boolean loadExistingModule(
-                Node clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
+                ModuleClientDeclarationNode clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
             String uri = CompilerPlugins.getUri(clientNode);
             try {
                 if (!isRemoteUrl(uri)) {
@@ -364,7 +340,7 @@ class DocumentContext {
             return false;
         }
 
-        private void executeIDLPlugin(Node clientNode, Location location, LineRange lineRange) {
+        private void executeIDLPlugin(ModuleClientDeclarationNode clientNode, Location location, LineRange lineRange) {
             if (!compilationOptions.withIDLGenerators()) {
                 return;
             }
@@ -456,7 +432,7 @@ class DocumentContext {
             return !url.getProtocol().equals("file");
         }
 
-        private Path getIdlPath(Node clientNode) throws IOException {
+        private Path getIdlPath(ModuleClientDeclarationNode clientNode) throws IOException {
             String uri = CompilerPlugins.getUri(clientNode);
             if (!isRemoteUrl(uri)) {
                 return resolveLocalPath(uri);
