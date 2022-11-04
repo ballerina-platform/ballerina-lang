@@ -199,6 +199,8 @@ public enum SyntaxKind {
     XML_CDATA_START_TOKEN(591, "<![CDATA["),
     XML_CDATA_END_TOKEN(592, "]]>"),
     BACK_SLASH_TOKEN(593, "\\"),
+    DOLLAR_TOKEN(594, "$"),
+    ESCAPED_MINUS_TOKEN(595, "\\-"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),
@@ -529,7 +531,7 @@ public enum SyntaxKind {
     RE_CHAR_SET_ATOM_NO_DASH(4046),
     RE_FLAGS_VALUE(4047),
     RE_BASE_QUANTIFIER_VALUE(4048),
-    RE_BRACED_QUANTIFIER_DIGIT(4049),
+    DIGIT(4049),
 
     // Documentation
     MARKDOWN_DOCUMENTATION(4500),

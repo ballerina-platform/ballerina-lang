@@ -572,7 +572,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case RE_UNICODE_PROPERTY_VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
-            case RE_BRACED_QUANTIFIER_DIGIT:
+            case DIGIT:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
             case RE_SYNTAX_CHAR:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR;
