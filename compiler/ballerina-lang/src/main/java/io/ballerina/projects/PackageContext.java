@@ -108,7 +108,7 @@ class PackageContext {
         if (project.kind() == ProjectKind.BALA_PROJECT) {
             idlPluginManager = null;
         } else {
-            idlPluginManager = IDLPluginManager.from(project.targetDir());
+            idlPluginManager = IDLPluginManager.from(project.sourceRoot);
         }
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),
@@ -179,6 +179,10 @@ class PackageContext {
 
     Collection<ModuleId> moduleIds() {
         return moduleIds;
+    }
+
+    Map<ModuleId, ModuleContext> moduleContextMap() {
+        return moduleContextMap;
     }
 
     ModuleContext moduleContext(ModuleId moduleId) {
@@ -328,9 +332,16 @@ class PackageContext {
     }
 
     PackageContext duplicate(Project project) {
+        return duplicate(project, false);
+    }
+
+    PackageContext duplicate(Project project, boolean skipGenerated) {
         Map<ModuleId, ModuleContext> duplicatedModuleContextMap = new HashMap<>();
         for (ModuleId moduleId : this.moduleIds) {
             ModuleContext moduleContext = this.moduleContext(moduleId);
+            if (skipGenerated && moduleContext.isGenerated()) {
+                continue;
+            }
             duplicatedModuleContextMap.put(moduleId, moduleContext.duplicate(project));
         }
 

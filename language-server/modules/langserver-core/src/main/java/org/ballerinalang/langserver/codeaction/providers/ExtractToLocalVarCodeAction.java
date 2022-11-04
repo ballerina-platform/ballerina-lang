@@ -31,6 +31,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -98,7 +99,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
                 && parentKind != SyntaxKind.ENUM_MEMBER
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.START_ACTION)
-                && parentKind != SyntaxKind.CLIENT_DECLARATION
                 && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
@@ -128,7 +128,8 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
-        String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
+        String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
+        String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
                 statementNode.lineRange().startLine().offset());
         TextEdit varDeclEdit = new TextEdit(new Range(varDeclPos, varDeclPos), varDeclStr);

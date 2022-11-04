@@ -144,7 +144,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -335,11 +334,17 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
         visit((BLangFunction) node, data);
         visitNode(node.methodName, data);
-        visitNode(node.resourcePath, data);
+        visitNode(node.resourcePathSegments, data);
         visitNode(node.restPathParam, data);
         visitNode(node.pathParams, data);
     }
 
+    public void visit(BLangResourcePathSegment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.typeNode, data);
+    }
+    
     public void visit(BLangRetrySpec node, T data) {
         analyzeNode(node, data);
         visitNode(node.retryManagerType, data);
@@ -1358,11 +1363,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     public void visit(BLangXMLNSStatement node, T data) {
         analyzeNode(node, data);
         visitNode(node.xmlnsDecl, data);
-    }
-
-    public void visit(BLangClientDeclarationStatement node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.clientDeclaration, data);
     }
 
     public void visit(BLangRegExpTemplateLiteral node, T data) {

@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -177,7 +178,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
@@ -687,9 +687,21 @@ public class BIRGen extends BLangNodeVisitor {
                         birFunc.restPathParam = createBIRVarDeclForPathParam(restPathParamSym);
                     }
 
-                    birFunc.resourcePath = resourceFunction.resourcePath;
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+                    int pathSegmentSize = pathSegmentSymbols.size();
+                    List<Name> pathSegmentNameList = new ArrayList<>(pathSegmentSize);
+                    List<Location> pathSegmentPosList = new ArrayList<>(pathSegmentSize);
+                    List<BType> pathSegmentTypeList = new ArrayList<>(pathSegmentSize);
+                    for (BSymbol pathSegmentSym : pathSegmentSymbols) {
+                        pathSegmentNameList.add(pathSegmentSym.name);
+                        pathSegmentPosList.add(pathSegmentSym.pos);
+                        pathSegmentTypeList.add(pathSegmentSym.type);
+                    }
+                    
+                    birFunc.resourcePathSegmentPosList = pathSegmentPosList;
+                    birFunc.resourcePath = pathSegmentNameList;
                     birFunc.accessor = resourceFunction.accessor;
-                    birFunc.resourcePathType = resourceFunction.resourcePathType;
+                    birFunc.pathSegmentTypeList = pathSegmentTypeList;
                     break;
                 }
             }
@@ -2142,10 +2154,6 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-    }
-
-    @Override
     public void visit(BLangLocalXMLNS xmlnsNode) {
         generateXMLNamespace(xmlnsNode);
     }
@@ -2829,7 +2837,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // global-level, object-level, record-level namespace declarations will not have
         // any interpolated content. hence the namespace URI is statically known.
-        int ownerTag = nsSymbol.owner.tag;
+        long ownerTag = nsSymbol.owner.tag;
         if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
                 (ownerTag & SymTag.RECORD) == SymTag.RECORD) {

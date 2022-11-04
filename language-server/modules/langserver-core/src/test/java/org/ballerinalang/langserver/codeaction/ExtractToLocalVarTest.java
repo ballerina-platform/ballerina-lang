@@ -56,6 +56,7 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInMappingConstructor.json"},
                 {"extractToVariableInMappingConstructor2.json"},
                 {"extractToVariableInMappingConstructor3.json"},
+                {"extractToVariableInMappingConstructor4.json"},
                 {"extractToVariableInTypeofExpression.json"},
                 {"extractToVariableInUnaryExpression.json"},
                 {"extractToVariableInTypeTestExpression.json"},
@@ -95,7 +96,6 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInModLevelDeclNegative.json"},
                 {"extractToVariableInModLevelDeclNegative2.json"},
                 {"extractToVariableInStartActionNegative.json"},
-                {"extractToVariableInClientDeclNegative.json"},
                 {"extractToVariableInModuleClientDeclNegative.json"}
         };
     }

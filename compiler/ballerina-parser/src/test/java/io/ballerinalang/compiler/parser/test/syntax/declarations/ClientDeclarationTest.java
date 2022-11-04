@@ -99,4 +99,9 @@ public class ClientDeclarationTest extends AbstractDeclarationTest {
     public void testInvalidDocumentation() {
         testFile("client-decl/client_decl_source_14.bal", "client-decl/client_decl_assert_14.json");
     }
+
+    @Test
+    public void testInvalidUsageOfClientDeclAsStmt() {
+        testFile("client-decl/client_decl_source_15.bal", "client-decl/client_decl_assert_15.json");
+    }
 }

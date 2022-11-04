@@ -58,7 +58,8 @@ public class PackageUtils {
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
-    static final String MODULE_DIR_NAME = "modules";
+    static final String USER_MODULE_DIR = "modules";
+    static final String GEN_MODULE_DIR = "generated";
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
@@ -190,6 +191,9 @@ public class PackageUtils {
             }
 
             Project project = context.getProjectCache().getProject(path.get());
+            // This triggers a resolution request to load all the generated modules, if not loaded already.
+            project.currentPackage().getResolution();
+
             if (project instanceof SingleFileProject) {
                 DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
                 String docName = project.currentPackage().getDefaultModule().document(documentId).name();

@@ -117,6 +117,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_exprs_method_call.json"},
                 {"extract_to_function_exprs_mapping_constructor_module.json"},
                 {"extract_to_function_exprs_mapping_constructor_local.json"},
+                {"extract_to_function_exprs_mapping_constructor_imported_module.json"},
                 {"extract_to_function_exprs_computed_name_field.json"},
                 {"extract_to_function_exprs_field_name_expr.json"},
                 {"extract_to_function_exprs_typeof_expr.json"},
@@ -258,8 +259,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
                 {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
-                {"neg_extract_to_function_exprs_pos_service_uri_in_module_client_declaration.json"},
-                {"neg_extract_to_function_exprs_pos_service_uri_in_client_declaration.json"},
+                {"neg_extract_to_function_exprs_pos_service_uri_in_module_client_declaration.json"}
         };
     }
 

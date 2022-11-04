@@ -18,13 +18,7 @@
 
 package io.asmaj.plugins.idlclient;
 
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -36,6 +30,7 @@ import io.ballerina.projects.plugins.IDLGeneratorPlugin;
 import io.ballerina.projects.plugins.IDLPluginContext;
 import io.ballerina.projects.plugins.IDLSourceGeneratorContext;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -55,44 +50,48 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
         @Override
         public boolean canHandle(IDLSourceGeneratorContext idlSourceGeneratorContext) {
             String uri = getUri(idlSourceGeneratorContext.clientNode());
+            if (Files.notExists(idlSourceGeneratorContext.resourcePath())) {
+                return false;
+            }
+            if (uri.endsWith("throwNPE")) {
+                throw new NullPointerException();
+            }
+            if (uri.endsWith("throwRuntimeEx")) {
+                throw new RuntimeException("canHandle crashed");
+            }
             if (uri.endsWith("projectapiclientplugin.json")) {
+                return true;
+            }
+            if (uri.endsWith("throwUnhandledExInPerform")) {
                 return true;
             }
             return uri.equals("https://postman-echo.com/get?name=projectapiclientplugin");
         }
 
         public void perform(IDLSourceGeneratorContext idlSourceGeneratorContext) {
-            ModuleId moduleId = ModuleId.create("client", idlSourceGeneratorContext.currentPackage().packageId());
+            if (getUri(idlSourceGeneratorContext.clientNode()).endsWith("throwUnhandledExInPerform")) {
+                throw new RuntimeException("perform crashed");
+            }
+            String moduleName = getAlias(idlSourceGeneratorContext.clientNode());
+            ModuleId moduleId = ModuleId.create(moduleName, idlSourceGeneratorContext.currentPackage().packageId());
             DocumentId documentId = DocumentId.create("idl_client.bal", moduleId);
             DocumentConfig documentConfig = getClientCode(documentId);
             ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
-                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), "client"),
+                    ModuleName.from(idlSourceGeneratorContext.currentPackage().packageName(), moduleName),
                     idlSourceGeneratorContext.currentPackage().descriptor());
             ModuleConfig moduleConfig = ModuleConfig.from(
                     moduleId, moduleDescriptor, Collections.singletonList(documentConfig),
                     Collections.emptyList(), null, new ArrayList<>());
 
-            Node clientNode = idlSourceGeneratorContext.clientNode();
-            NodeList<AnnotationNode> annotations;
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                annotations = ((ModuleClientDeclarationNode) clientNode).annotations();
-            } else {
-                annotations = ((ClientDeclarationNode) clientNode).annotations();
-            }
-
-            idlSourceGeneratorContext.addClient(moduleConfig, annotations);
+            idlSourceGeneratorContext.addClient(moduleConfig, idlSourceGeneratorContext.clientNode().annotations());
         }
 
-        private String getUri(Node clientNode) {
-            BasicLiteralNode clientUri;
+        private String getAlias(ModuleClientDeclarationNode clientNode) {
+            return clientNode.clientPrefix().toString();
+        }
 
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
-            String text = clientUri.literalToken().text();
+        private String getUri(ModuleClientDeclarationNode clientNode) {
+            String text = clientNode.clientUri().literalToken().text();
             return text.substring(1, text.length() - 1);
         }
 
