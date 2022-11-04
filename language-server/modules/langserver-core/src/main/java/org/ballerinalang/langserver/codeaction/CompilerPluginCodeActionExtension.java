@@ -57,7 +57,6 @@ import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,8 +150,11 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         String providerName = codeAction.getData().getCodeActionName();
         // Code action data have to be converted to an array of code action arguments
         Gson gson = new Gson();
-        String json = gson.toJson(codeAction.getData().getActionData());
-        CodeActionArgument[] commandArguments = gson.fromJson(json, CodeActionArgument[].class);
+        List<?> actionData = (List<?>) codeAction.getData().getActionData();
+        List<CodeActionArgument> arguments = actionData.stream()
+                .map(gson::toJsonTree)
+                .map(CodeActionArgument::from)
+                .collect(Collectors.toList());
         // Build the execution context and execute code action
         CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(
                 codeAction.getData().getFileUri(),
@@ -160,7 +162,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 PositionUtil.getLinePosition(codeAction.getData().getRange().getStart()),
                 context.currentDocument().get(),
                 context.currentSemanticModel().get(),
-                Arrays.asList(commandArguments)
+                arguments
         );
         List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, codeActionContext);
 

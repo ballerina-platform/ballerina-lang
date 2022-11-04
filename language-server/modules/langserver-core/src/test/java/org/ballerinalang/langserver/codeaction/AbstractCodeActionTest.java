@@ -170,13 +170,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     }
                 }
 
-                // Match args
-                JsonObject actualCommand = right.get("command").getAsJsonObject();
-                if (actualCommand != null &&
-                        !("Report usage statistics".equals(actualCommand.get("title").getAsString()))) {
-                    if (expected.command == null) {
+                // Match command
+                if (expected.command != null) {
+                    if (!right.has("command") || right.get("command").isJsonNull()) {
+                        misMatched = true;
+                    } else if (right.getAsJsonObject("command").get("title").getAsString().equals("Report usage statistics")){
                         misMatched = true;
                     } else {
+                        JsonObject actualCommand = right.get("command").getAsJsonObject();
                         JsonObject expectedCommand = expected.command;
                         if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
                             misMatched = true;
@@ -188,12 +189,17 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                         JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                         JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                        if (expArgs == null 
+                        if (expArgs == null
                                 || !validateAndModifyArguments(
-                                        actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                                actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
                             misMatched = true;
                         }
                         actual.command = actualCommand;
+                    }
+                } else {
+                    if (right.has("command") && !right.get("command").isJsonNull()) {
+                        actual.command = right.getAsJsonObject("command");
+                        misMatched = true;
                     }
                 }
 
