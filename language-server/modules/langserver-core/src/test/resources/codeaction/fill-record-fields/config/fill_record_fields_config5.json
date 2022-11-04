@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 2,
+    "character": 39
+  },
+  "source": "fill_record_fields_source2.bal",
+  "expected": [
+    {
+      "title": "Fill 'RecordName2' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 39
+            },
+            "end": {
+              "line": 2,
+              "character": 39
+            }
+          },
+          "newText": "rec2f1: 0, rec2f2: 0"
+        }
+      ]
+    }
+  ]
+}

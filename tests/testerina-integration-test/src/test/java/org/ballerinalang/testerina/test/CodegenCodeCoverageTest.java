@@ -56,10 +56,14 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve("codegen-coverage-test").toString();
         resultsJsonPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("target").resolve("report")
                 .resolve("test_results.json");
-        Path tempDistPath = Paths.get(balServer.getServerHome()).resolve("repo");
-        Path balaPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("balas").resolve("ballerina" +
-                "-codeModifier-any-0.1.0.bala");
-        BCompileUtil.copyBalaToExtractedDist(balaPath, "ballerina", "codeModifier", "0.1.0", tempDistPath);
+        Path repoBalaPath = Paths.get(balServer.getServerHome()).resolve("repo");
+        Path balaPath = projectBasedTestsPath.resolve(
+                "codegen-coverage-test/balas/package_comp_plugin_code_modify_add_function.bala");
+        BCompileUtil.copyBalaToExtractedDist(balaPath,
+                "samjs",
+                "package_comp_plugin_code_modify_add_function",
+                "0.1.0",
+                repoBalaPath);
     }
 
     @Test(enabled = false)

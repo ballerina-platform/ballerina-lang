@@ -9,6 +9,7 @@ jobs:
   build-lang:
     name: Build Ballerina Lang
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     concurrency: 
       group: ${{ github.head_ref }}-full-build-pipeline
       cancel-in-progress: true
@@ -46,6 +47,7 @@ jobs:
     needs: build-lang
     name: Build Stdlib Level
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
