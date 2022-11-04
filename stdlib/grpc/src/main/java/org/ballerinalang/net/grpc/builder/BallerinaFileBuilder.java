@@ -51,6 +51,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.AccessibleObject;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
@@ -288,7 +290,7 @@ public class BallerinaFileBuilder {
             Context context = Context.newBuilder(object).resolver(
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
-                    FieldValueResolver.INSTANCE).build();
+                    new CustomFieldValueResolver()).build();
             writer = new PrintWriter(outPath, StandardCharsets.UTF_8.name());
             writer.println(template.apply(context));
         } catch (IOException e) {
@@ -297,6 +299,26 @@ public class BallerinaFileBuilder {
             if (writer != null) {
                 writer.close();
             }
+        }
+    }
+
+    static class CustomFieldValueResolver extends FieldValueResolver {
+        @Override
+        protected Set<FieldWrapper> members(Class<?> clazz) {
+            Set members = super.members(clazz);
+            return (Set<FieldWrapper>) members.stream()
+                    .filter(fw -> isValidField((FieldWrapper) fw))
+                    .collect(Collectors.toSet());
+        }
+
+        boolean isValidField(FieldWrapper fw) {
+            if (fw instanceof AccessibleObject) {
+                if (isUseSetAccessible(fw)) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
     }
 
