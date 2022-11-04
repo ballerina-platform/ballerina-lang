@@ -18,8 +18,6 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
-def nativeTests = project.hasProperty("native.test")
-
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
@@ -87,18 +85,8 @@ test {
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
-    }
-}
-
-test {
-    dependsOn createTestDistributionCache
-    dependsOn createTestBre
-
-    systemProperty "ballerina.home", "$buildDir"
-
-    useTestNG() {
-        if (nativeTests) {
-            suites 'src/test/resources/testng-native.xml'
+        if (!project.hasProperty("native.test")) {
+            excludeGroups 'native'
         }
     }
 }
