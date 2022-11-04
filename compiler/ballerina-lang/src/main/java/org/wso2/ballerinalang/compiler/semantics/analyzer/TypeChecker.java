@@ -444,7 +444,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
 
         BType literalType = setLiteralValueAndGetType(literalExpr, data.expType, data);
-        if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
+        if (literalType == symTable.semanticError) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        if (literalExpr.isFiniteContext) {
             return;
         }
         data.resultType = types.checkType(literalExpr, literalType, data.expType);
@@ -611,7 +615,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (literalValue instanceof String) {
                 dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
                         expectedType);
-                data.resultType = symTable.semanticError;
                 return symTable.semanticError;
             }
             if (literalValue instanceof Double) {
@@ -627,7 +630,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BFiniteType finiteType = (BFiniteType) expectedType;
             BType compatibleType = checkIfOutOfRangeAndReturnType(finiteType, literalExpr, literalValue, data);
             if (compatibleType == symTable.semanticError) {
-                data.resultType = symTable.semanticError;
                 return compatibleType;
             } else {
                 return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue, data);
@@ -675,7 +677,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (!(literalValue instanceof Long)) {
             dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
                     literalExpr.getBType());
-            data.resultType = symTable.semanticError;
             return symTable.semanticError;
         }
         return symTable.intType;
@@ -685,7 +686,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                          BType expType, AnalyzerData data) {
         String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-            data.resultType = symTable.semanticError;
             return symTable.semanticError;
         }
         literalExpr.value = Double.parseDouble(numericLiteral);
@@ -709,6 +709,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getTypeOfLiteralWithDecimalDiscriminator(BLangLiteral literalExpr, Object literalValue,
                                                            BType expType, AnalyzerData data) {
         literalExpr.value = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
+        if (!types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
+            return symTable.semanticError;
+        }
         BType referredType = Types.getReferredType(expType);
         if (referredType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) referredType;
@@ -731,7 +734,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expectedType = Types.getReferredType(expType);
         String numericLiteral = String.valueOf(literalValue);
         if (expectedType.tag == TypeTags.DECIMAL) {
-            return symTable.decimalType;
+            if (types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
+                return symTable.decimalType;
+            }
+            return symTable.semanticError;
         } else if (expectedType.tag == TypeTags.FLOAT) {
             if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                 data.resultType = symTable.semanticError;
@@ -753,25 +759,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType unionMember =
                         getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag), data);
                 if (unionMember == symTable.floatType && !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                    data.resultType = symTable.semanticError;
                     return symTable.semanticError;
                 } else if (unionMember != symTable.noType) {
                     return unionMember;
                 }
             }
         }
-        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-            data.resultType = symTable.semanticError;
-            return symTable.semanticError;
-        }
-        return symTable.floatType;
+        return types.validateFloatLiteral(literalExpr.pos, numericLiteral)
+                ? symTable.floatType : symTable.semanticError;
     }
 
     private BType getTypeOfHexFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType,
                                                    AnalyzerData data) {
         String numericLiteral = String.valueOf(literalValue);
         if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-            data.resultType = symTable.semanticError;
             return symTable.semanticError;
         }
         literalExpr.value = Double.parseDouble(numericLiteral);
