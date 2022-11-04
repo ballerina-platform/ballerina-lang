@@ -110,7 +110,6 @@ public class BallerinaSemanticModel implements SemanticModel {
         this.bLangPackage = bLangPackage;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
-        //TODO get syntaxTree if possible
         this.symbolTable = SymbolTable.getInstance(context);
     }
 
@@ -143,8 +142,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                position.line(), position.line(),
-                position.offset(), position.offset());
+                                                                        position.line(), position.line(),
+                                                                        position.offset(), position.offset());
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();

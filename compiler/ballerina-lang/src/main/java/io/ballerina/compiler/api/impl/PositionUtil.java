@@ -96,7 +96,7 @@ class PositionUtil {
                 && startColumn <= cursorColumn);
     }
 
-    static boolean posWithinRange(LinePosition position, LineRange enclRange) {
+    static boolean isPosWithinRange(LinePosition position, LineRange enclRange) {
         int posLine = position.line();
         int posOffset = position.offset();
 

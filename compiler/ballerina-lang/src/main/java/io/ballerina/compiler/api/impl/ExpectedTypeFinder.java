@@ -128,12 +128,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.impl.PositionUtil.isWithinParenthesis;
-import static io.ballerina.compiler.api.impl.PositionUtil.posWithinRange;
+import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinRange;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.model.tree.NodeKind.ERROR_CONSTRUCTOR_EXPRESSION;
 
 /**
- * This transformer is used to resolve an expected type of given context.
+ * This transformer is used to resolve an expected type for a given context.
  *
  * @since 2201.4.0
  */
@@ -368,7 +368,6 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (bLangNode instanceof BLangInvocation) {
-            // check position is in parameter context
             if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
                 int size = ((BLangInvocation) bLangNode).argExprs.size();
                 boolean langLibInvocation = ((BLangInvocation) bLangNode).langLibInvocation;
@@ -537,7 +536,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 for (BLangExpression bLangExpression : argsExpr) {
-                    if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
+                    if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                         if (argIndex < params.size()) {
                             return getTypeFromBType(params.get(argIndex).getType());
                         }
@@ -572,7 +571,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                         initInvocation).symbol)).params;
                 int argIndex = 0;
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
-                    if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
+                    if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                         if (argIndex < params.size()) {
                             return getTypeFromBType(params.get(argIndex).getType());
                         }
@@ -595,7 +594,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (posWithinRange(linePosition, node.condition().lineRange()) &&
+        if (isPosWithinRange(linePosition, node.condition().lineRange()) &&
                 bLangNode instanceof BLangIf) {
             return getExpectedType(((BLangIf) bLangNode).expr);
         }
@@ -610,7 +609,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (posWithinRange(linePosition, node.condition().lineRange())
+        if (isPosWithinRange(linePosition, node.condition().lineRange())
                 && bLangNode instanceof BLangWhile) {
                 return getExpectedType(((BLangWhile) bLangNode).expr);
             }
@@ -670,7 +669,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 Optional<BLangExpression> argument = bLangActionInvocation.argExprs.stream().filter
-                        (argumentNode -> posWithinRange(linePosition, argumentNode.getPosition()
+                        (argumentNode -> isPosWithinRange(linePosition, argumentNode.getPosition()
                                 .lineRange())).findFirst();
                 if (argument.isPresent()) {
                     return getExpectedType(argument.get());
@@ -747,7 +746,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (bLangNode instanceof BLangWaitExpr) {
             BLangWaitExpr waitExpr = (BLangWaitExpr) bLangNode;
             for (BLangExpression bLangExpression : waitExpr.exprList) {
-                if (posWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
+                if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())) {
                     return getExpectedType(bLangExpression);
                 }
             }
@@ -865,8 +864,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FromClauseNode node) {
-        if (posWithinRange(linePosition, node.fromKeyword().lineRange()) ||
-                posWithinRange(linePosition, node.inKeyword().lineRange())) {
+        if (isPosWithinRange(linePosition, node.fromKeyword().lineRange()) ||
+                isPosWithinRange(linePosition, node.inKeyword().lineRange())) {
             return Optional.empty();
         }
 
@@ -1041,7 +1040,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         return Optional.empty();
     }
 
-    public static String getAlias(QualifiedNameReferenceNode qNameRef) {
+    private static String getAlias(QualifiedNameReferenceNode qNameRef) {
         String alias = qNameRef.modulePrefix().text();
         return getAlias(alias);
     }
