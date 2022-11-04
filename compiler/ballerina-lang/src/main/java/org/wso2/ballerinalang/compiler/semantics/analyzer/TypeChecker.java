@@ -5425,7 +5425,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             this.dlog.unmute();
         }
 
-        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) || requireTypeInference(expr, false)) {
+        if ((errorCount == 0 && exprCompatibleType != symTable.semanticError) ||
+                (requireTypeInference(expr, false) &&
+                        // Temporary workaround for backward compatibility with `object {}` for
+                        // https://github.com/ballerina-platform/ballerina-lang/issues/38105.
+                        isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(expr, targetType))) {
             checkExpr(expr, targetType, data);
         } else {
             checkExpr(expr, symTable.noType, data);
@@ -7894,6 +7898,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
+            case OBJECT_CTOR_EXPRESSION:
+            case RAW_TEMPLATE_LITERAL:
+            case TABLE_CONSTRUCTOR_EXPR:
+            case TYPE_INIT_EXPR:
+            case ERROR_CONSTRUCTOR_EXPRESSION:
                 return true;
             case ELVIS_EXPR:
             case TERNARY_EXPR:
@@ -7902,6 +7911,36 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             default:
                 return false;
         }
+    }
+
+    private boolean isNotObjectConstructorWithObjectSuperTypeInTypeCastExpr(BLangExpression expression,
+                                                                            BType targetType) {
+        if (expression.getKind() != NodeKind.OBJECT_CTOR_EXPRESSION) {
+            return true;
+        }
+
+        targetType = Types.getEffectiveType(Types.getReferredType(targetType));
+        int tag = targetType.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            return !isAllObjectsObjectType((BObjectType) targetType);
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+            memberType = Types.getEffectiveType(Types.getReferredType(memberType));
+            if (memberType.tag == TypeTags.OBJECT && isAllObjectsObjectType((BObjectType) memberType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isAllObjectsObjectType(BObjectType objectType) {
+        return objectType.fields.isEmpty() && ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.isEmpty();
     }
 
     private BType checkMappingField(RecordLiteralNode.RecordField field, BType mappingType, AnalyzerData data) {
