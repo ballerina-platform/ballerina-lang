@@ -55,7 +55,7 @@ dependencies {
     dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
     dist 'com.google.code.gson:gson:2.8.9'
     dist 'com.google.guava:guava:31.0.1-jre'
-    dist 'com.github.jknack:handlebars:4.2.0'
+    dist 'com.github.jknack:handlebars:4.3.1'
     dist 'com.sun.mail:javax.mail:1.6.2'
     dist 'jaxen:jaxen:1.1.6'
     dist 'io.netty:netty-buffer:4.1.77.Final'
