@@ -85,8 +85,19 @@ test {
     dependsOn createTestBre
 
     systemProperty "ballerina.home", "$buildDir"
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
+    }
+}
+
+test {
+    dependsOn createTestDistributionCache
+    dependsOn createTestBre
+
+    systemProperty "ballerina.home", "$buildDir"
+
+    useTestNG() {
         if (nativeTests) {
             suites 'src/test/resources/testng-native.xml'
         }
