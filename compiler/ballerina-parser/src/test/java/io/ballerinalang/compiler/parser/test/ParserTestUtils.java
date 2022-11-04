@@ -364,7 +364,6 @@ public class ParserTestUtils {
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-            case RE_ASSERTION_VALUE:
             case RE_LITERAL_CHAR:
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
@@ -375,10 +374,8 @@ public class ParserTestUtils {
             case RE_UNICODE_PROPERTY_VALUE:
             case RE_UNICODE_GENERAL_CATEGORY_START:
             case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_CHAR_SET_ATOM_NO_DASH:
             case RE_FLAGS_VALUE:
-            case RE_BASE_QUANTIFIER_VALUE:
-            case RE_BRACED_QUANTIFIER_DIGIT:
+            case DIGIT:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
@@ -1336,8 +1333,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_ATOM_QUANTIFIER;
             case "RE_ASSERTION":
                 return SyntaxKind.RE_ASSERTION;
-            case "RE_ASSERTION_VALUE":
-                return SyntaxKind.RE_ASSERTION_VALUE;
+            case "DOLLAR_TOKEN":
+                return SyntaxKind.DOLLAR_TOKEN;
             case "DOT_TOKEN":
                 return SyntaxKind.DOT_TOKEN;
             case "RE_LITERAL_CHAR_DOT_OR_ESCAPE":
@@ -1374,8 +1371,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME;
             case "RE_CHARACTER_CLASS":
                 return SyntaxKind.RE_CHARACTER_CLASS;
-            case "RE_CHAR_SET_ATOM_NO_DASH":
-                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH;
             case "RE_CHAR_SET_RANGE":
                 return SyntaxKind.RE_CHAR_SET_RANGE;
             case "RE_CHAR_SET_RANGE_NO_DASH":
@@ -1400,12 +1395,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_FLAGS_VALUE;
             case "RE_QUANTIFIER":
                 return SyntaxKind.RE_QUANTIFIER;
-            case "RE_BASE_QUANTIFIER_VALUE":
-                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
             case "RE_BRACED_QUANTIFIER":
                 return SyntaxKind.RE_BRACED_QUANTIFIER;
-            case "RE_BRACED_QUANTIFIER_DIGIT":
-                return SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT;
+            case "DIGIT":
+                return SyntaxKind.DIGIT;
+            case "ESCAPED_MINUS_TOKEN":
+                return SyntaxKind.ESCAPED_MINUS_TOKEN;
             default:
                 return getDocumentationKind(kind);
         }

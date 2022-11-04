@@ -128,7 +128,7 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         },
                                         {
