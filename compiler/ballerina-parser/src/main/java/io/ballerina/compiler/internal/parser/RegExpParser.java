@@ -43,7 +43,7 @@ public class RegExpParser extends AbstractParser {
 
     @Override
     public STNode parse() {
-        return parseReDisjunction();
+        return parseReDisjunction(false);
     }
 
     /**
@@ -51,11 +51,11 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReDisjunction node
      */
-    private STNode parseReDisjunction() {
+    private STNode parseReDisjunction(boolean inCapturingGroup) {
         List<STNode> reSequenceList = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfReDisjunction(nextToken.kind)) {
-            STNode reSequence = parseReSequence();
+        while (!isEndOfReDisjunction(nextToken.kind, inCapturingGroup)) {
+            STNode reSequence = parseReSequence(inCapturingGroup);
             reSequenceList.add(reSequence);
             nextToken = peek();
             if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
@@ -72,10 +72,10 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReSequence node
      */
-    private STNode parseReSequence() {
+    private STNode parseReSequence(boolean inCapturingGroup) {
         List<STNode> reTerms = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfReSequence(nextToken.kind)) {
+        while (!isEndOfReSequence(nextToken.kind, inCapturingGroup)) {
             STNode reTerm = parseReTerm();
             reTerms.add(reTerm);
             nextToken = peek();
@@ -91,7 +91,8 @@ public class RegExpParser extends AbstractParser {
     private STNode parseReTerm() {
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
-        if (tokenKind == SyntaxKind.RE_ASSERTION_VALUE) {
+        if (tokenKind == SyntaxKind.BITWISE_XOR_TOKEN ||
+                tokenKind == SyntaxKind.DOLLAR_TOKEN) {
             return parseReAssertion();
         }
 
@@ -101,6 +102,7 @@ public class RegExpParser extends AbstractParser {
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
             case DOT_TOKEN:
+            case DIGIT:
                 reAtom = parseChars();
                 break;
             case BACK_SLASH_TOKEN:
@@ -125,14 +127,25 @@ public class RegExpParser extends AbstractParser {
         }
 
         nextToken = peek();
-        if (nextToken.kind == SyntaxKind.RE_BASE_QUANTIFIER_VALUE ||
-                nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN ||
-                nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-            STNode quantifier = parseReQuantifier();
+        STNode quantifier = parseQuantifierIfExists(nextToken.kind);
+
+        if (quantifier != null) {
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
 
         return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
+    }
+
+    private STNode parseQuantifierIfExists(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case PLUS_TOKEN:
+            case ASTERISK_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case OPEN_BRACE_TOKEN:
+                return parseReQuantifier();
+            default:
+                return null;
+        }
     }
 
     /**
@@ -321,7 +334,7 @@ public class RegExpParser extends AbstractParser {
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtom;
         }
-        if (nextToken.kind == SyntaxKind.MINUS_TOKEN) {
+        if ("-".equals(nextToken.text())) {
             STNode minus = consume();
             nextToken = peek();
             if (isCharacterClassEnd(nextToken.kind)) {
@@ -348,7 +361,7 @@ public class RegExpParser extends AbstractParser {
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtomNoDash;
         }
-        if (nextToken.kind == SyntaxKind.MINUS_TOKEN) {
+        if ("-".equals(nextToken.text())) {
             STNode minus = consume();
             nextToken = peek();
             if (isCharacterClassEnd(nextToken.kind)) {
@@ -368,18 +381,34 @@ public class RegExpParser extends AbstractParser {
 
     private STNode parseCharSetAtom(STToken nextToken, STNode prevNode) {
         switch (nextToken.kind) {
-            case MINUS_TOKEN:
-            case RE_CHAR_SET_ATOM_NO_DASH:
-                return consume();
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
                 return parseChars();
+            case ESCAPED_MINUS_TOKEN:
+                return consume();
             case BACK_SLASH_TOKEN:
                 return parseReEscape();
             default:
                 STNode consumedToken = consume();
+                if ("-".equals(nextToken.text())) {
+                    return consumedToken;
+                }
+                if (isReCharSetLiteralChar(nextToken.text())) {
+                    return consumedToken;
+                }
                 return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, consumedToken,
                         DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+        }
+    }
+
+    private boolean isReCharSetLiteralChar(String tokenText) {
+        switch (tokenText) {
+            case "\\":
+            case "-":
+            case "]":
+                return false;
+            default:
+                return true;
         }
     }
 
@@ -430,12 +459,19 @@ public class RegExpParser extends AbstractParser {
         }
         // Parse the braced quantifier.
         STNode openBrace = consume();
+        nextToken = peek();
+        if (isStartingWithInvalidDigit(nextToken, true)) {
+            openBrace = invalidateNonDigitNodesAndAddToTrailingMinutiae(openBrace, true);
+        }
         STNode leastDigits = parseDigits(true);
         STNode comma = null;
         STNode mostDigits = null;
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.COMMA_TOKEN) {
             comma = consume();
+            if (isStartingWithInvalidDigit(nextToken, false)) {
+                comma = invalidateNonDigitNodesAndAddToTrailingMinutiae(comma, false);
+            }
             mostDigits = parseDigits(false);
         }
         STNode closeBrace = parseCloseBrace();
@@ -452,14 +488,23 @@ public class RegExpParser extends AbstractParser {
         STToken nextToken = peek();
         while (!isEndOfDigits(nextToken.kind, isLeastDigits)) {
             STNode digit = consume();
-            digits.add(digit);
+            if (nextToken.kind != SyntaxKind.DIGIT) {
+                updateLastNodeInListWithInvalidNode(digits, digit,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+            } else {
+                digits.add(digit);
+            }
             nextToken = peek();
         }
         // There should be at least one least digit.
         if (isLeastDigits && digits.isEmpty()) {
-            digits.add(createMissingTokenWithDiagnostics(SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT));
+            digits.add(createMissingTokenWithDiagnostics(SyntaxKind.DIGIT));
         }
         return STAbstractNodeFactory.createNodeList(digits);
+    }
+
+    private boolean isStartingWithInvalidDigit(STToken nextToken, boolean isLeastDigits) {
+        return !isEndOfDigits(nextToken.kind, isLeastDigits) && nextToken.kind != SyntaxKind.DIGIT;
     }
 
     private boolean isEndOfDigits(SyntaxKind kind, boolean isLeastDigits) {
@@ -513,7 +558,7 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
             flagExpression = parseFlagExpression();
         }
-        STNode reDisjunction = parseReDisjunction();
+        STNode reDisjunction = parseReDisjunction(true);
         STNode closeParenthesis = parseCloseParenthesis();
         return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
                 closeParenthesis);
@@ -620,27 +665,48 @@ public class RegExpParser extends AbstractParser {
         return this.interpolationExprs.remove();
     }
 
-    private boolean isEndOfReDisjunction(SyntaxKind kind) {
+    private boolean isEndOfReDisjunction(SyntaxKind kind, boolean inCapturingGroup) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
-            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
-                return false;
+                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
         }
     }
 
-    private boolean isEndOfReSequence(SyntaxKind kind) {
+    private boolean isEndOfReSequence(SyntaxKind kind, boolean inCapturingGroup) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
             case PIPE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
-                return false;
+                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
         }
+    }
+
+    /**
+     * Marks the next non-digits in a braced quantifier in regular expression as invalid and attach them as trailing
+     * minutiae of the given node.
+     *
+     * @param node the node to attach the invalid tokens as trailing minutiae.
+     * @return Parsed node
+     */
+    private STNode invalidateNonDigitNodesAndAddToTrailingMinutiae(STNode node, boolean isLeastDigits) {
+        node = addInvalidNodeStackToTrailingMinutiae(node);
+
+        while (!isEndOfDigits(peek().kind, isLeastDigits) && peek().kind != SyntaxKind.DIGIT) {
+            node = addTrailingInvalidNode(node);
+        }
+
+        return node;
+    }
+
+    private STNode addTrailingInvalidNode(STNode node) {
+        STToken invalidToken = consume();
+        return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken,
+                DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
     }
 
     private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {

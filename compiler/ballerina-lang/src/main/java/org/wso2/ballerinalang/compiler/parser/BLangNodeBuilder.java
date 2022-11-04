@@ -2399,7 +2399,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private boolean isTokenInRegExp(SyntaxKind kind) {
         switch (kind) {
-            case RE_ASSERTION_VALUE:
             case RE_LITERAL_CHAR:
             case RE_CONTROL_ESCAPE:
             case RE_NUMERIC_ESCAPE:
@@ -2410,10 +2409,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RE_UNICODE_PROPERTY_VALUE:
             case RE_UNICODE_GENERAL_CATEGORY_START:
             case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_CHAR_SET_ATOM_NO_DASH:
             case RE_FLAGS_VALUE:
-            case RE_BASE_QUANTIFIER_VALUE:
-            case RE_BRACED_QUANTIFIER_DIGIT:
+            case DIGIT:
+            case ASTERISK_TOKEN:
+            case PLUS_TOKEN:
+            case QUESTION_MARK_TOKEN:
             case DOT_TOKEN:
             case OPEN_BRACE_TOKEN:
             case CLOSE_BRACE_TOKEN:
@@ -2421,11 +2421,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case CLOSE_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
             case CLOSE_PAREN_TOKEN:
-            case QUESTION_MARK_TOKEN:
+            case DOLLAR_TOKEN:
             case BITWISE_XOR_TOKEN:
             case COLON_TOKEN:
             case BACK_SLASH_TOKEN:
             case MINUS_TOKEN:
+            case ESCAPED_MINUS_TOKEN:
             case PIPE_TOKEN:
             case COMMA_TOKEN:
                 return true;
