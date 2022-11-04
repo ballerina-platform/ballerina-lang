@@ -66,7 +66,7 @@ function ifElseTest() {
 
 function whileTest() {
     int x = 1;
-    while  {
+    while () {
     }
 }
 
@@ -119,4 +119,3 @@ function testListConstructorExpression() {
     int[] nums2 = [];
     int[] nums3 = ;
 }
-

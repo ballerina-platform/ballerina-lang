@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package io.ballerina.semantic.api.test.expectedtype;
 
 import io.ballerina.compiler.api.SemanticModel;
@@ -20,7 +37,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Test cases for the find expected types in expressions.
  *
- * @since 2.3.0
+ * @since 2.4.0
  */
 public class ExpressionTest {
     private SemanticModel model;
@@ -50,7 +67,7 @@ public class ExpressionTest {
                 {52, 23, TypeDescKind.UNION},
                 {57, 14, TypeDescKind.INT},
                 {62, 8, TypeDescKind.BOOLEAN},
-//                {68, 10, TypeDescKind.BOOLEAN},
+                {68, 11, TypeDescKind.BOOLEAN},
                 {89, 32, TypeDescKind.STRING},
                 {90, 40, TypeDescKind.INT},
                 {91, 44, TypeDescKind.INT},
@@ -58,11 +75,9 @@ public class ExpressionTest {
                 {111, 31, TypeDescKind.STRING},
                 {111, 31, TypeDescKind.STRING},
                 {112, 33, TypeDescKind.TYPE_REFERENCE},
-////                {113, 35, TypeDescKind.TYPE_REFERENCE} this is a failing case
                 {117, 28, TypeDescKind.INT},
                 {118, 19, TypeDescKind.INT},
-                {119, 18, TypeDescKind.ARRAY},
-
+                {119, 18, TypeDescKind.ARRAY}
         };
     }
 }
