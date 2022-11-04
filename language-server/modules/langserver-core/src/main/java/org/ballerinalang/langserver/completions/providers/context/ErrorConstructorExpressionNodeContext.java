@@ -209,9 +209,12 @@ public class ErrorConstructorExpressionNodeContext extends
             return completionItems;
         }
 
-        LinePosition linePosition = node.location().lineRange().endLine();
-        Optional<TypeSymbol> detailTypeDesc =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> detailTypeDesc = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            detailTypeDesc = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (detailTypeDesc.isEmpty()) {
             return completionItems;

@@ -51,9 +51,12 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
                                                       ExpressionNode expressionNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        LinePosition linePosition = expressionNode.location().lineRange().endLine();
-        Optional<TypeSymbol> expressionType =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = expressionNode.location().lineRange().endLine();
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
             /*

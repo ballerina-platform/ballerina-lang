@@ -103,9 +103,12 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
 
     protected List<RawTypeSymbolWrapper<RecordTypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
                                                                               Node node) {
-        LinePosition linePosition = node.location().lineRange().endLine();
-        Optional<TypeSymbol> resolvedType =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> resolvedType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            resolvedType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (resolvedType.isEmpty()) {
             return Collections.emptyList();
@@ -205,10 +208,14 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
      */
     private List<LSCompletionItem> getSpreadFieldCompletionItemsForMap(MappingConstructorExpressionNode node,
                                                                        BallerinaCompletionContext context) {
-        LinePosition linePosition = node.location().lineRange().endLine();
-        Optional<TypeSymbol> resolvedType =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
 
+        if (context.currentSemanticModel().isEmpty() || context.currentDocument().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        LinePosition linePosition = node.location().lineRange().endLine();
+        Optional<TypeSymbol> resolvedType = context.currentSemanticModel().get()
+                .expectedType(context.currentDocument().get(), linePosition);
         if (resolvedType.isEmpty() || resolvedType.get().typeKind() != TypeDescKind.MAP) {
             return Collections.emptyList();
         }

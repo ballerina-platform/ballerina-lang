@@ -75,8 +75,11 @@ public class ClientResourceAccessActionNodeContext
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         LinePosition linePosition = node.expression().location().lineRange().endLine();
-        Optional<TypeSymbol> expressionType =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();

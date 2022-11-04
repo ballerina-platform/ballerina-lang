@@ -124,8 +124,12 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
 
     @Override
     public Optional<TypeSymbol> getContextType() {
-        return semanticModel.get().expectedType(this.document.get(),
-                LinePosition.from(this.cursorPosition.getLine(), this.cursorPosition.getCharacter()));
+        if (semanticModel.isPresent() && this.document.isPresent()) {
+            return semanticModel.get().expectedType(this.document.get(),
+                    LinePosition.from(this.cursorPosition.getLine(), this.cursorPosition.getCharacter()));
+        }
+
+        return Optional.empty();
     }
 
     @Override

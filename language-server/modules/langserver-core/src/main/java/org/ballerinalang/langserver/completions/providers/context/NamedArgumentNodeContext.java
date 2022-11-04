@@ -94,9 +94,12 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     @Override
     public void sort(BallerinaCompletionContext context, NamedArgumentNode node,
                      List<LSCompletionItem> completionItems) {
-        LinePosition linePosition = node.location().lineRange().endLine();
-        Optional<TypeSymbol> typeSymbol =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (typeSymbol.isEmpty()) {
             super.sort(context, node, completionItems);
@@ -112,9 +115,11 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
                                                              NamedArgumentNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        LinePosition linePosition = node.location().lineRange().endLine();
-        Optional<TypeSymbol> type =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> type = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            type = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (type.isEmpty()) {
             return completionItems;

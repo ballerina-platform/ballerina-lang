@@ -53,9 +53,12 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        LinePosition linePosition = node.expression().location().lineRange().endLine();
-        Optional<TypeSymbol> expressionType =
-                context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.expression().location().lineRange().endLine();
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }
