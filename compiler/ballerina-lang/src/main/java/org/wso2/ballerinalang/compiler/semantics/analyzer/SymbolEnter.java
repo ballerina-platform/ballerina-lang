@@ -446,7 +446,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv prevEnv = this.env;
             this.env = pkgEnv;
             typeResolver.defineBTypes(typeAndClassDefs/*typeAndClassDefsCloned*/, pkgEnv, pkgNode);
-            this.env = prevEnv;
+//            this.env = prevEnv;
         }
 
 //        defineTypeNodes(typeAndClassDefs, pkgEnv);
@@ -546,7 +546,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
+    public void defineReferencedFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv pkgEnv) {
         SymbolEnv typeDefEnv = classDefinition.typeDefEnv;
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
@@ -2450,7 +2450,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // assign the type to var type node
         if (varNode.getBType() == null) {
             if (varNode.typeNode != null) {
-                varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
+                if (varNode.typeNode.defn != null) {
+                    varNode.setBType(varNode.typeNode.defn.type);
+                } else {
+                    varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
+                }
             } else {
                 varNode.setBType(symTable.noType);
             }
@@ -4036,7 +4040,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    public void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
+    public void defineFields(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
         NodeKind nodeKind = typeDef.typeNode.getKind();
         if (nodeKind != NodeKind.RECORD_TYPE) {
             defineNode(typeDef.typeNode, pkgEnv);
@@ -4077,7 +4081,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(getFieldCollector());
     }
 
-    private void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
+    public void defineReferencedFieldsOfRecordTypeDef(BLangTypeDefinition typeDef) {
         if (typeDef.referencedFieldsDefined == true) {
             return;
         }

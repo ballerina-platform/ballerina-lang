@@ -74,6 +74,7 @@ public class TypeResolver {
     private List<BIntersectionType> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private HashSet<BLangConstant> resolvingConstants = new HashSet<>();
+    private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private BLangPackage pkgNode;
 
     public TypeResolver(CompilerContext context) {
@@ -113,17 +114,7 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) def;
-                defineClassDef(classDefinition, pkgEnv);
-                symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
-
-                // Resolve the class fields
-                for (BLangSimpleVariable field : classDefinition.fields) {
-                    resolveTypeDesc(pkgEnv, modTable, null, 0, field.typeNode);
-                }
-
-                // Define the class fields
-                defineField(classDefinition, modTable, pkgEnv);
+                extracted(pkgEnv, modTable, (BLangClassDefinition) def);
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
             } else {
@@ -139,6 +130,24 @@ public class TypeResolver {
         }
     }
 
+    private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {
+        if (resolvedClassDef.contains(classDefinition)) {
+            return classDefinition.getBType();
+        }
+        defineClassDef(classDefinition, pkgEnv);
+        symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
+
+        // Resolve the class fields
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            resolveTypeDesc(pkgEnv, modTable, null, 0, field.typeNode);
+        }
+
+        // Define the class fields
+        defineField(classDefinition, modTable, pkgEnv);
+        resolvedClassDef.add(classDefinition);
+        return classDefinition.getBType();
+    }
+
     public void defineField(BLangNode typeDefNode, Map<String, BLangNode> mod, SymbolEnv pkgEn) {
         if (typeDefNode.getKind() == NodeKind.CLASS_DEFN) {
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefNode;
@@ -146,8 +155,10 @@ public class TypeResolver {
                 return;
             }
             defineFieldsOfClassDef(classDefinition, mod, pkgEn);
+            symEnter.defineReferencedFieldsOfClassDef(classDefinition, pkgEn);
         } else if (typeDefNode.getKind() == NodeKind.TYPE_DEFINITION) {
-            symEnter.defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDefNode, pkgEn);
+            symEnter.defineFields((BLangTypeDefinition) typeDefNode, pkgEn);
+            symEnter.defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDefNode);
         }
     }
 
@@ -505,13 +516,14 @@ public class TypeResolver {
 
         BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);
         BTypeSymbol typeSymbol = type.tsymbol;
-        BTypeSymbol tSymbol = Symbols.createTypeSymbol(TypeTags.MAP, typeSymbol.flags, Names.EMPTY,
+        BTypeSymbol tSymbol = Symbols.createTypeSymbol(SymTag.TYPE, typeSymbol.flags, Names.EMPTY,
                 typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner,
                 td.pos, BUILTIN);
         BType constrainedType = new BMapType(TypeTags.MAP, null, tSymbol);
         BTypeDefinition defn = new BTypeDefinition(constrainedType);
         td.defn = defn;
         td.type.setBType(constrainedType);
+        tSymbol.type = type;
 
         BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
         // If the constrained type is undefined, return noType as the type.
@@ -709,13 +721,16 @@ public class TypeResolver {
 
         definetypeDefinition(typeDefinition, recordType, symEnv, mod); // swj: define symbols, set flags ...
         symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
-        defineFieldsOftypeDefinition(typeDefinition, symEnv);
+        defineFieldsOftypeDefinition(typeDefinition, symEnv, mod);
 
         return recordType;
     }
 
     private BType resolveTypeDesc(BLangObjectTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
                                   BLangTypeDefinition typeDefinition) {
+        if (td.defn != null) {
+            return td.defn.getMutableType();
+        }
         EnumSet<Flag> flags = EnumSet.copyOf(td.flagSet);
         if (td.isAnonymous) {
             flags.add(Flag.PUBLIC);
@@ -742,23 +757,31 @@ public class TypeResolver {
         objectSymbol.type = objectType;
         td.symbol = objectSymbol;
         td.setBType(objectType);
+        BTypeDefinition defn = new BTypeDefinition(objectType);
+        td.defn = defn;
+
+        for (BLangSimpleVariable field : td.fields) {
+            resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, field.typeNode);
+        }
+
         symResolver.validateDistinctType(td, objectType);
 
         definetypeDefinition(typeDefinition, objectType, symEnv, mod); // swj: define symbols, set flags ...
         symEnter.defineDistinctClassAndObjectDefinitions(new ArrayList<>(Arrays.asList(typeDefinition)));
         symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
-        defineFieldsOftypeDefinition(typeDefinition, symEnv);
+        defineFieldsOftypeDefinition(typeDefinition, symEnv, mod);
 
         return objectType;
     }
 
-    private void defineFieldsOftypeDefinition(BLangNode typeDefOrObject, SymbolEnv symEnv) {
+    private void defineFieldsOftypeDefinition(BLangNode typeDefOrObject, SymbolEnv symEnv, Map<String, BLangNode> mod) {
         // Temporarily
         List<BLangNode> typeAndClassDefs = new ArrayList<>();
         typeAndClassDefs.add(typeDefOrObject);
-        symEnter.defineFields(typeAndClassDefs, symEnv);
+//        symEnter.defineFields(typeAndClassDefs, symEnv);
         symEnter.populateTypeToTypeDefMap(typeAndClassDefs);
-        symEnter.defineDependentFields(typeAndClassDefs, symEnv);
+//        symEnter.defineDependentFields(typeAndClassDefs, symEnv);
+        defineField(typeDefOrObject, mod, symEnv);
     }
 
     private BType resolveTypeDesc(BLangFunctionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
@@ -768,7 +791,7 @@ public class TypeResolver {
         }
 
         SymbolResolver.AnalyzerData data = new SymbolResolver.AnalyzerData(symEnv);
-        List<BLangVariable> params = td.getParams();
+        List<BLangSimpleVariable> params = td.getParams();
         Location pos = td.pos;
         BLangType returnTypeNode = td.returnTypeNode;
         BType invokableType = createInvokableType(params, td.restParam, returnTypeNode, data,
@@ -862,7 +885,8 @@ public class TypeResolver {
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                 env.enclPkg.symbol.pkgID, bInvokableType,
                 env.scope.owner, location, BUILTIN);
-
+        tsymbol.name = names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(symEnv.enclPkg.packageID));
+        symEnter.defineSymbol(location, tsymbol, env);
         tsymbol.params = params;
         tsymbol.restParam = restParam;
         tsymbol.returnType = retType;
@@ -1261,7 +1285,7 @@ public class TypeResolver {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
             return resolveTypeDefinition(symEnv, mod, constant.associatedTypeDefinition, depth);
         } else {
-            throw new AssertionError();
+            return extracted(symEnv, mod, (BLangClassDefinition) moduleLevelDef);
         }
     }
 
