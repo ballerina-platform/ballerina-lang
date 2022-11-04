@@ -36,9 +36,7 @@ import org.ballerinalang.docgen.generator.model.Variable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.AccessibleObject;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -149,32 +147,12 @@ public class Writer {
 
             writer = new PrintWriter(filePath, "UTF-8");
 
-            Context context = Context.newBuilder(object).resolver(new CustomFieldValueResolver()).build();
+            Context context = Context.newBuilder(object).resolver(FieldValueResolver.INSTANCE).build();
             writer.println(template.apply(context));
         } finally {
             if (writer != null) {
                 writer.close();
             }
-        }
-    }
-
-    static class CustomFieldValueResolver extends FieldValueResolver {
-        @Override
-        protected Set<FieldWrapper> members(Class<?> clazz) {
-            Set members = super.members(clazz);
-            return (Set<FieldWrapper>) members.stream()
-                    .filter(fw -> isValidField((FieldWrapper) fw))
-                    .collect(Collectors.toSet());
-        }
-
-        boolean isValidField(FieldWrapper fw) {
-            if (fw instanceof AccessibleObject) {
-                if (isUseSetAccessible(fw)) {
-                    return true;
-                }
-                return false;
-            }
-            return true;
         }
     }
 
