@@ -35,9 +35,9 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test cases for the find expected types in variable declarations.
+ * Test cases to find the expected types in variable declarations.
  *
- * @since 2.4.0
+ * @since 2201.4.0
  */
 public class VariableDeclarationTest {
     private SemanticModel model;
