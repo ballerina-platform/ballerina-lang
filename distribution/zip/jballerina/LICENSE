@@ -210,7 +210,7 @@ lang.float.jar                                                                  
 commons-pool-1.5.6.wso2v1.jar                                                                       bundle         apache2
 javacpp-1.4.2.jar                                                                                   jar            apache2
 floatingpoint-1.1.0.jar                                                                             jar            apache2
-handlebars-4.3.1.jar                                                                                bundle         apache2
+handlebars-4.2.0.jar                                                                                bundle         apache2
 ballerinax-awslambda-0.0.0.jar                                                                      jar            apache2
 lang.int.jar                                                                                        jar            apache2
 ballerina-io-1.1.0.jar                                                                              jar            apache2

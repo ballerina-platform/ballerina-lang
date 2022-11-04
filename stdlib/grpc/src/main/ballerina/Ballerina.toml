@@ -203,7 +203,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "handlebars"
-    version = "4.3.1"
-    path = "./lib/handlebars-4.3.1.jar"
+    version = "4.2.0"
+    path = "./lib/handlebars-4.2.0.jar"
     groupId = "com.github.jknack"
     modules = ["grpc"]
