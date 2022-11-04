@@ -99,7 +99,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
                 && parentKind != SyntaxKind.ENUM_MEMBER
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.START_ACTION)
-                && parentKind != SyntaxKind.CLIENT_DECLARATION
                 && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }

@@ -1015,24 +1015,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STClientDeclarationNode transform(
-            STClientDeclarationNode clientDeclarationNode) {
-        STNode annotations = modifyNode(clientDeclarationNode.annotations);
-        STNode clientKeyword = modifyNode(clientDeclarationNode.clientKeyword);
-        STNode clientUri = modifyNode(clientDeclarationNode.clientUri);
-        STNode asKeyword = modifyNode(clientDeclarationNode.asKeyword);
-        STNode clientPrefix = modifyNode(clientDeclarationNode.clientPrefix);
-        STNode semicolonToken = modifyNode(clientDeclarationNode.semicolonToken);
-        return clientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
     public STModuleClientDeclarationNode transform(
             STModuleClientDeclarationNode moduleClientDeclarationNode) {
         STNode annotations = modifyNode(moduleClientDeclarationNode.annotations);
