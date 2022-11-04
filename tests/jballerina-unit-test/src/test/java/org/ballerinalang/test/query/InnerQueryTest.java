@@ -117,6 +117,11 @@ public class InnerQueryTest {
         BRunUtil.invoke(result, "testQueryConstructingTableHavingInnerQueriesWithOnConflictClause");
     }
 
+    @Test
+    public void testQueryAsFuncArgument() {
+        BRunUtil.invoke(result, "testQueryAsFuncArgument");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

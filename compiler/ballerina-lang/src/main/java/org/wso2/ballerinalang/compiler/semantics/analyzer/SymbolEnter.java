@@ -1089,6 +1089,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        if (symResolver.isModuleGeneratedForClientDeclaration(enclPackageID, pkgId)) {
+            dlog.error(importPkgNode.pos, DiagnosticErrorCode.CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL);
+            return;
+        }
+
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
         // entry package has a version. So we check import cycles which starts with the entry package in next step.
         if (importedPackages.contains(pkgId)) {

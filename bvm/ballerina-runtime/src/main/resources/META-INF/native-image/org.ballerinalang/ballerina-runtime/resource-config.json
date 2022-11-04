@@ -1,12 +1,18 @@
 {
-  "bundles": [
-    {
-      "name": "MessagesBundle",
-      "locales": [
-        "",
-        "en-US"
-      ]
-    }
-  ]
+    "resources": {
+        "includes": [
+            {
+                "pattern": "\\QMETA-INF/axiom.xml\\E"
+            }
+        ]
+    },
+    "bundles": [
+        {
+            "name": "MessagesBundle",
+            "locales": [
+                "",
+                "en-US"
+            ]
+        }
+    ]
 }
-
