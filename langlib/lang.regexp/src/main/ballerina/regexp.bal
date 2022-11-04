@@ -58,7 +58,7 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 # + startIndex - the index within `str` at which to start looking for a match
 # + return - a `Span` describing the match, or nil if no match was found
 public isolated function find(RegExp re, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = findImpl(re, str, startIndex);
+    SpanAsTupleType? resultArr = findImpl(re , str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
@@ -70,6 +70,11 @@ isolated function findImpl(RegExp reExp, string str, int startIndex = 0) returns
     name: "find"
 } external;
 
+isolated function findAllImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsAsSpanArrayType? = @java:Method {
+    'class: "org.ballerinalang.langlib.regexp.Find",
+    name: "findAll"
+} external;
+
 # Returns the `Groups` for the first match of a regular expression within a string.
 #
 # + re - the regular expression
@@ -77,17 +82,9 @@ isolated function findImpl(RegExp reExp, string str, int startIndex = 0) returns
 # + startIndex - the index within `str` at which to start looking for a match
 # + return - a `Groups` list describing the match, or nil if no match was found
 public isolated function findGroups(RegExp re, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl(re, str, startIndex);
+    GroupsAsSpanArrayType? resultArr = findGroupsImpl(re , str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
-        SpanAsTupleType firstMatch = resultArr[0];
-        Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
-        Span[] spanArr = [];
-        foreach int index in 1 ..< resultArr.length() {
-            SpanAsTupleType matchGroup = resultArr[index];
-            Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
-            spanArr.push(spanObj);
-        }
-        return [firstMatchSpan, ...spanArr];
+        return getGroupWithCaptureGroupSpans(resultArr);
     }
 }
 
@@ -106,7 +103,7 @@ isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) r
 # + return - a list containing a `Span` for each match found
 public isolated function findAll(RegExp re, string str, int startIndex = 0) returns Span[] {
     Span[] spanArr = [];
-    GroupsAsSpanArrayType? resultArr = findGroupsImpl(re, str, startIndex);
+    GroupsAsSpanArrayType? resultArr = findAllImpl(re , str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         foreach SpanAsTupleType tpl in resultArr {
             spanArr.push(new java:SpanImpl(tpl[0], tpl[1], tpl[2]));
@@ -124,25 +121,30 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 # + startIndex - the index within `str` at which to start looking for matches
 # + return - a list containing a `Group` for each match found
 public isolated function findAllGroups(RegExp re, string str, int startIndex = 0) returns Groups[] {
-    GroupsArrayType? resultArr = findAllGroupsImpl(re, str, startIndex);
+    GroupsArrayType? resultArr = findAllGroupsImpl(re , str, startIndex);
     if (resultArr is GroupsArrayType) {
         Groups[] groupArrRes = [];
         foreach GroupsAsSpanArrayType groupArr in resultArr {
-            int resultArrLength = groupArr.length();
-            SpanAsTupleType firstMatch = groupArr[0];
-            Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
-            Span[] spanArr = [];
-            foreach int index in 1 ..< resultArrLength {
-                SpanAsTupleType matchGroup = groupArr[index];
-                Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
-                spanArr.push(spanObj);
-            }
-            Groups g = [firstMatchSpan, ...spanArr];
-            groupArrRes.push(g);
+            Groups groups = getGroupWithCaptureGroupSpans(groupArr);
+            groupArrRes.push(groups);
         }
         return groupArrRes;
     }
     return [];
+}
+
+isolated function getGroupWithCaptureGroupSpans(GroupsAsSpanArrayType groupArr) returns Groups {
+    int resultArrLength = groupArr.length();
+    SpanAsTupleType firstMatch = groupArr[0];
+    Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
+    Span[] spanArr = [];
+    foreach int index in 1 ..< resultArrLength {
+        SpanAsTupleType matchGroup = groupArr[index];
+        Span spanObj = new java:SpanImpl(matchGroup[0], matchGroup[1], matchGroup[2]);
+        spanArr.push(spanObj);
+    }
+    Groups groups = [firstMatchSpan, ...spanArr];
+    return groups;
 }
 
 isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0) returns GroupsArrayType? = @java:Method {
@@ -158,7 +160,7 @@ isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0
 # + return - a `Span` describing the match, or nil if `re` did not match at that index; the startIndex of the
 # `Span` will always be equal to `startIndex`
 public isolated function matchAt(RegExp re, string str, int startIndex = 0) returns Span? {
-    SpanAsTupleType? resultArr = matchAtImpl(re, str, startIndex);
+    SpanAsTupleType? resultArr = matchAtImpl(re , str, startIndex);
     if (resultArr is SpanAsTupleType) {
         Span spanObj = new java:SpanImpl(resultArr[0], resultArr[1], resultArr[2]);
         return spanObj;
@@ -178,7 +180,7 @@ isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) retu
 # + return - a `Groups` list describing the match, or nil if `re` did not match at that index; the startIndex of the
 # first `Span` in the list will always be equal to the `startIndex` of the first member of the list
 public isolated function matchGroupsAt(RegExp re, string str, int startIndex = 0) returns Groups? {
-    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl(re, str, startIndex);
+    GroupsAsSpanArrayType? resultArr = matchGroupsAtImpl(re , str, startIndex);
     if (resultArr is GroupsAsSpanArrayType) {
         SpanAsTupleType firstMatch = resultArr[0];
         Span firstMatchSpan = new java:SpanImpl(firstMatch[0], firstMatch[1], firstMatch[2]);
@@ -205,7 +207,7 @@ isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0
 # + str - the string
 # + return - true if there is full match of `re` with `str`, and false otherwise
 public isolated function isFullMatch(RegExp re, string str) returns boolean {
-    return isFullMatchImpl(re, str);
+    return isFullMatchImpl(re , str);
 }
 
 isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @java:Method {
@@ -222,7 +224,7 @@ isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @j
 # + return - a `Groups` list describing the match, or nil if there is not a full match; the
 # first `Span` in the list will be all of `str`
 public isolated function fullMatchGroups(RegExp re, string str) returns Groups? {
-    return matchGroupsAt(re, str);
+    return matchGroupsAt(re , str);
 }
 
 # A function that constructs the replacement for the match of a regular expression.
@@ -242,23 +244,21 @@ public type Replacement ReplacerFunction|string;
 # + startIndex - the index within `str` at which to start looking for a match; defaults to zero
 # + return - `str` with the first match, if any, replaced by the string specified by `replacement`
 public isolated function replace(RegExp re, string str, Replacement replacement, int startIndex = 0) returns string {
-    string replacementStr = "";
-    Groups? findResult = findGroups(re, str, startIndex);
+    Groups? findResult = findGroups(re , str, startIndex);
     if findResult is () {
         return str;
     }
-    if (replacement is ReplacerFunction) {
-        replacementStr = replacement(findResult);
-    } else {
-        replacementStr = replacement;
+    Span span = findResult[0];
+    int index = 0;
+    int strLength = length(str);
+    string updatedString = substring(str, index, span.startIndex) +
+                                        getReplacementString(findResult, replacement);
+    index = span.endIndex;
+    if index < strLength {
+        updatedString += substring(str, index, strLength);
     }
-    return replaceFromString(re, str, replacementStr, startIndex);
+    return updatedString;
 }
-
-isolated function replaceFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
-    'class: "org.ballerinalang.langlib.regexp.Replace",
-    name: "replaceFromString"
-} external;
 
 # Replaces all matches of a regular expression.
 # After one match is found, it looks for the next match starting where the previous
@@ -270,18 +270,49 @@ isolated function replaceFromString(RegExp reExp, string str, string replacement
 # + startIndex - the index within `str` at which to start looking for matches; defaults to zero
 # + return - `str` with every match replaced by the string specified by `replacement`
 public isolated function replaceAll(RegExp re, string str, Replacement replacement, int startIndex = 0) returns string {
-    Groups? findResult = findGroups(re, str, startIndex);
-    if findResult is () {
+    Groups[] findResult = findAllGroups(re , str, startIndex);
+    if findResult.length() == 0 {
         return str;
     }
-    string replacementStr = replacement is ReplacerFunction ? replacement(findResult) : replacement;
-    return replaceAllFromString(re, str, replacementStr, startIndex);
+    string prefixStr = "";
+    if (startIndex != 0) {
+        prefixStr = substring(str, 0, startIndex);
+    }
+    string updatedString = "";
+    int index = 0;
+    foreach Groups groups in findResult {
+        Span span = groups[0];
+        updatedString += substring(str, index, span.startIndex) +
+                                            getReplacementString(groups, replacement);
+        index = span.endIndex;
+    }
+    if index < length(str) {
+        updatedString += substring(str, index, length(str));
+    }
+    return prefixStr + updatedString;
 }
 
-isolated function replaceAllFromString(RegExp reExp, string str, string replacementStr, int startIndex) returns string = @java:Method {
-    'class: "org.ballerinalang.langlib.regexp.Replace",
-    name: "replaceAllFromString"
+isolated function substring(string str, int startIndex, int endIndex = length(str)) returns string =
+@java:Method {
+    'class: "org.ballerinalang.langlib.regexp.RegexUtil",
+    name: "substring"
 } external;
+
+# Returns the length of the string.
+#
+# + str - the string
+# + return - the number of characters (code points) in parameter `str`
+isolated function length(string str) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.regexp.RegexUtil",
+    name: "length"
+} external;
+
+isolated function getReplacementString(Groups groups, Replacement replacement) returns string {
+    if replacement is string {
+        return replacement;
+    }
+    return replacement(groups);
+}
 
 # Splits a string into substrings separated by matches of a regular expression.
 # This finds the the non-overlapping matches of a regular expression and

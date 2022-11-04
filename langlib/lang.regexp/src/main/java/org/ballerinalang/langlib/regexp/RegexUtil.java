@@ -66,6 +66,11 @@ public class RegexUtil {
 
     static BArray getMatcherGroupsAsSpanArr(Matcher matcher) {
         BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        if (matcher.groupCount() == 0) {
+            BArray span = getGroupZeroAsSpan(matcher);
+            group.append(span);
+            return group;
+        }
         for (int i = 1; i <= matcher.groupCount(); i++) {
             int matcherStart = matcher.start(i);
             if (matcherStart == -1) {
@@ -78,5 +83,13 @@ public class RegexUtil {
             group.append(resultTuple);
         }
         return group;
+    }
+
+    public static BString substring(BString value, long startIndex, long endIndex) {
+        return value.substring((int) startIndex, (int) endIndex);
+    }
+
+    public static long length(BString value) {
+        return value.length();
     }
 }
