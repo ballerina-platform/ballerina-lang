@@ -97,15 +97,15 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
             return Collections.emptyList();
         }
 
-        Position cursorPosition = context.cursorPosition();
-        LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
+        Position cursorPos = context.cursorPosition();
+        LinePosition linePosition = LinePosition.from(cursorPos.getLine(), cursorPos.getCharacter());
         Document document = context.currentDocument().get();
         SemanticModel semanticModel = context.currentSemanticModel().get();
 
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
         return context.diagnostics(context.filePath()).stream()
-                .filter(diagnostic -> PositionUtil.isWithinRange(cursorPosition, 
+                .filter(diagnostic -> PositionUtil.isWithinRange(cursorPos, 
                         PositionUtil.toRange(diagnostic.location().lineRange())))
                 .map(diagnostic -> {
                     CodeActionContext codeActionContext = CodeActionContextImpl.from(context.fileUri(),
@@ -124,7 +124,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 .map(codeActionInfo -> {
                     // Provider name becomes the code action name when mapped here
                     CodeActionData codeActionData = new CodeActionData(codeActionInfo.getProviderName(),
-                            context.fileUri(), new Range(cursorPosition, cursorPosition), codeActionInfo.getArguments());
+                            context.fileUri(), new Range(cursorPos, cursorPos), codeActionInfo.getArguments());
                     return CodeActionUtil.createResolvableCodeAction(codeActionInfo.getTitle(),
                             CodeActionKind.QuickFix, codeActionData);
                 })
