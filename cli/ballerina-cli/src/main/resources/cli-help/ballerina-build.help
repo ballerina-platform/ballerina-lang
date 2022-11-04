@@ -52,9 +52,9 @@ OPTIONS
            Target directory path.
 
        --native
-           Generate a GraalVM native image. Native image generation is an
+           Generate the GraalVM native image. Native image generation is an
            experimental feature which supports only a limited set of
-           functionality.
+           functionalities.
 
 
 
