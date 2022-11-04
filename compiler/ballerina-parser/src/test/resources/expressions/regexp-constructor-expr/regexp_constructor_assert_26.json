@@ -106,32 +106,17 @@
                   ]
                 },
                 {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_BACKTICK_STRING"
-                  ],
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "RE_KEYWORD",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "re",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
                       ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN",
-                      "isMissing": true
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN",
-                      "isMissing": true
                     }
                   ]
                 },
