@@ -139,8 +139,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -162,15 +161,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "+"
+                                                "kind": "PLUS_TOKEN"
                                               }
                                             ]
                                           }
@@ -279,51 +272,20 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "+"
+                                                "kind": "PLUS_TOKEN"
                                               }
                                             ]
                                           }
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
+                                    },
                                     {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
-                                      ],
-                                      "trailingMinutiae": [
+                                      "kind": "RE_QUANTIFIER",
+                                      "children": [
                                         {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
-                                            "children": [
-                                              {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "+"
-                                              }
-                                            ]
-                                          }
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -729,7 +691,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -741,7 +703,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 }
                                               ]
@@ -771,15 +733,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "{"
+                                                "kind": "OPEN_BRACE_TOKEN"
                                               }
                                             ]
                                           }
@@ -795,7 +751,7 @@
                                       "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
+                                          "kind": "DIGIT",
                                           "value": "1"
                                         }
                                       ]
@@ -818,15 +774,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "}"
+                                                "kind": "CLOSE_BRACE_TOKEN"
                                               }
                                             ]
                                           }
@@ -944,7 +894,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -956,7 +906,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 }
                                               ]
@@ -986,15 +936,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "{"
+                                                "kind": "OPEN_BRACE_TOKEN"
                                               }
                                             ]
                                           }
@@ -1010,7 +954,7 @@
                                       "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
+                                          "kind": "DIGIT",
                                           "value": "1"
                                         }
                                       ]
@@ -1019,13 +963,26 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
-                                      "children": [
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_BACK_SLASH"
+                                      ],
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
-                                          "value": ","
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
+                                              {
+                                                "kind": "COMMA_TOKEN"
+                                              }
+                                            ]
+                                          }
                                         }
                                       ]
                                     }
@@ -1038,7 +995,7 @@
                                       "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
+                                          "kind": "DIGIT",
                                           "value": "2"
                                         }
                                       ]
@@ -1061,15 +1018,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "}"
+                                                "kind": "CLOSE_BRACE_TOKEN"
                                               }
                                             ]
                                           }
@@ -1178,8 +1129,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "*"
+                                          "kind": "ASTERISK_TOKEN"
                                         }
                                       ]
                                     }
@@ -1201,51 +1151,20 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "*"
+                                                "kind": "ASTERISK_TOKEN"
                                               }
                                             ]
                                           }
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
+                                    },
                                     {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
-                                      ],
-                                      "trailingMinutiae": [
+                                      "kind": "RE_QUANTIFIER",
+                                      "children": [
                                         {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
-                                            "children": [
-                                              {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "*"
-                                              }
-                                            ]
-                                          }
+                                          "kind": "ASTERISK_TOKEN"
                                         }
                                       ]
                                     }
@@ -1360,7 +1279,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -1372,7 +1291,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 }
                                               ]
@@ -1402,15 +1321,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "{"
+                                                "kind": "OPEN_BRACE_TOKEN"
                                               }
                                             ]
                                           }
@@ -1426,22 +1339,8 @@
                                       "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
+                                          "kind": "DIGIT",
                                           "value": "1"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_LITERAL_CHAR",
-                                          "value": ","
                                         }
                                       ]
                                     }
@@ -1463,15 +1362,36 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": "}"
+                                                "kind": "COMMA_TOKEN"
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
+                                  "children": [
+                                    {
+                                      "kind": "BACK_SLASH_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_BACK_SLASH"
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
+                                              {
+                                                "kind": "CLOSE_BRACE_TOKEN"
                                               }
                                             ]
                                           }

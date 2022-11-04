@@ -153,15 +153,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": ")"
+                                                "kind": "CLOSE_PAREN_TOKEN"
                                               }
                                             ]
                                           }
@@ -404,14 +398,15 @@
                                               "kind": "RE_CHAR_SET_RANGE",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "a"
                                                 },
                                                 {
-                                                  "kind": "MINUS_TOKEN"
+                                                  "kind": "RE_LITERAL_CHAR",
+                                                  "value": "-"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "i"
                                                 }
                                               ]
@@ -441,15 +436,9 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "RE_SYNTAX_CHAR",
-                                                "hasDiagnostics": true,
-                                                "diagnostics": [
-                                                  "ERROR_INVALID_TOKEN_IN_REG_EXP"
-                                                ],
-                                                "value": ")"
+                                                "kind": "CLOSE_PAREN_TOKEN"
                                               }
                                             ]
                                           }
@@ -695,7 +684,7 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "isMissing": true,
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [
@@ -825,7 +814,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -837,7 +826,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 }
                                               ]
