@@ -174,7 +174,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 if (expected.command != null) {
                     if (!right.has("command") || right.get("command").isJsonNull()) {
                         misMatched = true;
-                    } else if (right.getAsJsonObject("command").get("title").getAsString().equals("Report usage statistics")){
+                    } else if (right.getAsJsonObject("command").get("title").getAsString()
+                            .equals("Report usage statistics")) {
                         misMatched = true;
                     } else {
                         JsonObject actualCommand = right.get("command").getAsJsonObject();
