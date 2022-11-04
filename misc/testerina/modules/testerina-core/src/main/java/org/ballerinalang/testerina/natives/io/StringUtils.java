@@ -21,23 +21,52 @@ package org.ballerinalang.testerina.natives.io;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.IllegalFormatConversionException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * External function ballerina/test#sprintf.
  *
  * @since 2.0.0
  */
-public class Sprintf {
+public class StringUtils {
 
-    private Sprintf() {
+    private static final String CHAR_PREFIX = "$";
+
+    private StringUtils() {
+    }
+
+    public static Object matchWildcard(BString functionName, BString functionPattern) {
+        try {
+            return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD), functionName.getValue());
+        } catch (PatternSyntaxException e) {
+            return BLangExceptionHelper.getRuntimeException(
+                    RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
+        }
+    }
+
+    public static Object decode(BString str, BString charset) {
+        try {
+            String javaStr = str.getValue();
+            javaStr = javaStr.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+            javaStr = javaStr.replaceAll("\\+", "%2B");
+            return io.ballerina.runtime.api.utils.StringUtils.fromString(
+                    URLDecoder.decode(javaStr, charset.getValue()));
+        } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+            return BLangExceptionHelper.getRuntimeException(
+                    RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while decoding: " + e.getMessage());
+        }
     }
 
     public static BString sprintf(BString format, Object... args) {
@@ -83,7 +112,7 @@ public class Sprintf {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s",
-                                                            StringUtils.getStringValue(ref, null)));
+                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref, null)));
                             }
                             break;
                         case '%':
@@ -111,7 +140,7 @@ public class Sprintf {
             // no match, copy and continue
             result.append(format.getValue().charAt(i));
         }
-        return StringUtils.fromString(result.toString());
+        return io.ballerina.runtime.api.utils.StringUtils.fromString(result.toString());
     }
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
@@ -125,5 +154,9 @@ public class Sprintf {
         } else {
             result.append(String.format("%" + padding + x, argsValues));
         }
+    }
+
+    public static boolean isSystemConsole() {
+        return System.console() != null;
     }
 }

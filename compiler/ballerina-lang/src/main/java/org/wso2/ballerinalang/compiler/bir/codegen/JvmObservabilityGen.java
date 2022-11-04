@@ -152,15 +152,17 @@ class JvmObservabilityGen {
             localVarIndex = 0;
             BIRFunction func = pkg.functions.get(i);
 
-            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
+            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
                 rewriteControlFlowInvocation(func, pkg);
             }
             rewriteAsyncInvocations(func, null, pkg);
             rewriteObservableFunctionInvocations(func, pkg);
-            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
-                rewriteObservableFunctionBody(func, pkg, null, func.name.value, null, false, false, true, false);
+            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.getValue())) {
+                rewriteObservableFunctionBody(func, pkg, null, func.name.getValue(), null, false, false, true,
+                        false);
             } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
-                rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, null, false, false, false, true);
+                rewriteObservableFunctionBody(func, pkg, null, func.workerName.getValue(), null, false, false, false,
+                        true);
             }
         }
         for (BIRNode.BIRServiceDeclaration serviceDecl : pkg.serviceDecls) {
@@ -181,7 +183,7 @@ class JvmObservabilityGen {
             String serviceName = null;
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
-                    if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
+                    if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.getValue())) {
                         BIRNode.ConstValue annotValue =
                                 ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue;
                         Map<String, BIRNode.ConstValue> annotationMap =
@@ -192,9 +194,9 @@ class JvmObservabilityGen {
                 }
                 if (serviceName == null) {
                     String basePath = this.svcAttachPoints.get(typeDef.name);
-                    serviceName = Objects.requireNonNullElseGet(basePath, () ->
-                            pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
-                            defaultServiceIndex++);
+                    serviceName = basePath == null ? pkg.packageID.orgName.getValue() + "_" +
+                            pkg.packageID.name.getValue() + "_svc_" + defaultServiceIndex++ :
+                            Utils.unescapeBallerina(basePath);
                 }
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
@@ -208,10 +210,10 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionInvocations(func, pkg);
                 if (isService) {
                     if ((func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.getValue(), serviceName,
                                                       true, false, false, false);
                     } else if ((func.flags & Flags.REMOTE) == Flags.REMOTE) {
-                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.value, serviceName,
+                        rewriteObservableFunctionBody(func, pkg, typeDef, func.name.getValue(), serviceName,
                                                       false, true, false, false);
                     }
                 }
@@ -355,7 +357,7 @@ class JvmObservabilityGen {
                 argTypes.add(type);
             }
             Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
-                    asyncCallIns.name.value.replace(".", "_"));
+                    asyncCallIns.name.getValue().replace(".", "_"));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);
             BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
@@ -365,7 +367,7 @@ class JvmObservabilityGen {
 
             // Creating the return variable
             BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
-                    new Name("$" + lambdaName.value + "$retVal"), VarScope.FUNCTION, VarKind.RETURN);
+                    new Name("$" + lambdaName.getValue() + "$retVal"), VarScope.FUNCTION, VarKind.RETURN);
             BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
             desugaredFunc.localVars.add(funcReturnVariableDcl);
             desugaredFunc.returnVariable = funcReturnVariableDcl;
@@ -397,11 +399,11 @@ class JvmObservabilityGen {
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
-                            VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
+                            VarScope.FUNCTION, VarKind.SELF, selfArgName.getValue(), false);
                 } else {
                     Name argName = new Name("$funcParam%d" + i);
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
-                            argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
+                            argName, VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
                     desugaredFunc.localVars.add(funcParam);
                     desugaredFunc.parameters.add(funcParam);
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
@@ -461,14 +463,15 @@ class JvmObservabilityGen {
                 String resourceAccessor = null;
                 if (isResource) {
                     for (BAttachedFunction attachedFunc : ((BClassSymbol) attachedTypeDef.type.tsymbol).attachedFuncs) {
-                        if (Objects.equals(attachedFunc.funcName.value, functionName)) {
+                        if (Objects.equals(attachedFunc.funcName.getValue(), functionName)) {
                             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
                             StringBuilder resourcePathOrFunctionBuilder = new StringBuilder();
                             for (Name name : resourceFunction.resourcePath) {
-                                resourcePathOrFunctionBuilder.append("/").append(name.value);
+                                resourcePathOrFunctionBuilder.append("/").append(
+                                        Utils.unescapeBallerina(name.getValue()));
                             }
                             resourcePathOrFunction = resourcePathOrFunctionBuilder.toString();
-                            resourceAccessor = resourceFunction.accessor.value;
+                            resourceAccessor = resourceFunction.accessor.getValue();
                             break;
                         }
                     }
@@ -577,15 +580,15 @@ class JvmObservabilityGen {
                     if (callIns.isVirtual) {
                         // Every virtual call instruction has self as the first argument
                         objectTypeOperand = callIns.args.get(0);
-                        if (callIns.name.value.contains(".")) {
-                            String[] split = callIns.name.value.split("\\.");
+                        if (callIns.name.getValue().contains(".")) {
+                            String[] split = callIns.name.getValue().split("\\.");
                             action = split[1];
                         } else {
-                            action = callIns.name.value;
+                            action = callIns.name.getValue();
                         }
                     } else {
                         objectTypeOperand = generateGlobalConstantOperand(pkg, symbolTable.nilType, null);
-                        action = callIns.name.value;
+                        action = callIns.name.getValue();
                     }
                     currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
 
@@ -965,7 +968,7 @@ class JvmObservabilityGen {
             if (OBSERVABLE_ANNOTATION.equals(
                     JvmCodeGenUtil.getPackageName(
                             new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
-                            annot.annotTagRef.value)) {
+                            annot.annotTagRef.getValue())) {
                 isObservableAnnotationPresent = true;
                 break;
             }
@@ -1042,7 +1045,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePackageId(PackageID pkg) {
-        return pkg.orgName.value + "/" + pkg.name.value + ":" + pkg.version.value;
+        return pkg.orgName.getValue() + "/" + pkg.name.getValue() + ":" + pkg.version.getValue();
     }
 
     /**
