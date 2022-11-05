@@ -669,7 +669,7 @@ function testIncludesMatch() {
     string stringToMatch3 = "abc1";
     string:RegExp regex3 = re `([a-z0-9]{5,})`;
     boolean result3 = stringToMatch3.includesMatch(regex3);
-    assertTrue(result3);
+    assertFalse(result3);
 
     string stringToMatch4 = "Betty Botter bought some butter but she said the butter’s bitter.";
     string:RegExp regex4 = re `[bB].tt[a-z]*`;
@@ -680,6 +680,11 @@ function testIncludesMatch() {
     string:RegExp regex5 = re `[0-9]`;
     boolean result5 = stringToMatch5.includesMatch(regex5);
     assertFalse(result5);
+
+    string stringToMatch6 = "An apple is nice";
+    string:RegExp regex6 = re `apple|orange|pear|banana|kiwi`;
+    boolean result6 = stringToMatch6.includesMatch(regex6);
+    assertTrue(result6);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
