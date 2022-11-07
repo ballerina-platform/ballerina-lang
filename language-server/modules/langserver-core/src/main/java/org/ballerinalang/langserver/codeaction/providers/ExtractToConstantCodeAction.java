@@ -109,7 +109,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 List.of(constDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, constDeclStr.length(), node.textRange().startOffset());
+        addRenamePopup(context, codeAction, replaceEdit.getRange().getStart());
 
         return Collections.singletonList(codeAction);
     }
@@ -141,14 +141,12 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return new Position(lastImport.lineRange().endLine().line() + 2, 0);
     }
 
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
-                                int constDeclStrLength, int nodeStartOffset) {
-        int startPos = constDeclStrLength + nodeStartOffset;
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.RENAME_COMMAND,
-                    List.of(context.fileUri(), startPos)));
+                    List.of(context.fileUri(), new Position(position.getLine() + 1, position.getCharacter()))));
         }
     }
 
