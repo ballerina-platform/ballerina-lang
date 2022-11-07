@@ -89,6 +89,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
             return Collections.emptyList();
         }
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        List<TextEdit> importEdits = importsAcceptor.getNewImportTextEdits();
         List<TextEdit> edits = new ArrayList<>();
         CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
                 typeSymbol.get(), context, importsAcceptor);
@@ -96,12 +97,11 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
+        edits.addAll(importEdits);
 
-        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
-        edits.addAll(importsAcceptor.getNewImportTextEdits());
-        CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(
+                CommandConstants.CREATE_VAR_ADD_CHECK_TITLE, edits, uri, CodeActionKind.QuickFix);
+        addRenamePopup(context, codeAction, modifiedTextEdits.renamePositions.get(0), importEdits.size());
         return Collections.singletonList(codeAction);
     }
 

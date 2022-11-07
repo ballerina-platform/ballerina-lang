@@ -83,15 +83,16 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         // Add type guard code action
         String commandTitle = CommandConstants.CREATE_VAR_TYPE_GUARD_TITLE;
         List<TextEdit> edits = new ArrayList<>();
-        edits.add(createVarTextEdits.edits.get(0));
+        TextEdit variableEdit = createVarTextEdits.edits.get(0);
+        edits.add(variableEdit);
         edits.addAll(CodeActionUtil.getTypeGuardCodeActionEdits(createVarTextEdits.name, range, unionType, context));
 
         // Add all the import text edits excluding duplicates
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, createVarTextEdits.edits.get(0), codeAction,
-                createVarTextEdits.renamePositions.get(0));
+        addRenamePopup(context, codeAction, createVarTextEdits.renamePositions.get(0),
+                createVarTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 
