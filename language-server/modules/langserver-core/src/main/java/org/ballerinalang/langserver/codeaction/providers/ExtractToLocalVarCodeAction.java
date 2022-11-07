@@ -61,15 +61,15 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
     public static final String NAME = "Extract To Local Variable";
     private static final String VARIABLE_NAME_PREFIX = "var";
-    
+
     public List<SyntaxKind> getSyntaxKinds() {
         return List.of(SyntaxKind.BOOLEAN_LITERAL, SyntaxKind.NUMERIC_LITERAL, SyntaxKind.STRING_LITERAL,
                 SyntaxKind.BINARY_EXPRESSION, SyntaxKind.BRACED_EXPRESSION, SyntaxKind.XML_TEMPLATE_EXPRESSION,
                 SyntaxKind.FUNCTION_CALL, SyntaxKind.QUALIFIED_NAME_REFERENCE, SyntaxKind.INDEXED_EXPRESSION,
                 SyntaxKind.FIELD_ACCESS, SyntaxKind.METHOD_CALL, SyntaxKind.CHECK_EXPRESSION, SyntaxKind.LET_EXPRESSION,
                 SyntaxKind.MAPPING_CONSTRUCTOR, SyntaxKind.TYPEOF_EXPRESSION, SyntaxKind.UNARY_EXPRESSION,
-                SyntaxKind.TYPE_TEST_EXPRESSION, SyntaxKind.TRAP_EXPRESSION, SyntaxKind.LIST_CONSTRUCTOR, 
-                SyntaxKind.TYPE_CAST_EXPRESSION, SyntaxKind.TABLE_CONSTRUCTOR, SyntaxKind.IMPLICIT_NEW_EXPRESSION, 
+                SyntaxKind.TYPE_TEST_EXPRESSION, SyntaxKind.TRAP_EXPRESSION, SyntaxKind.LIST_CONSTRUCTOR,
+                SyntaxKind.TYPE_CAST_EXPRESSION, SyntaxKind.TABLE_CONSTRUCTOR, SyntaxKind.IMPLICIT_NEW_EXPRESSION,
                 SyntaxKind.EXPLICIT_NEW_EXPRESSION, SyntaxKind.ERROR_CONSTRUCTOR, SyntaxKind.QUERY_EXPRESSION);
     }
 
@@ -89,13 +89,13 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         // 7. a record field with default value
         // 8. a function call expression used in a start action
         // 9. a client declaration or a module client declaration
-        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
                 && !(nodeKind == SyntaxKind.MAPPING_CONSTRUCTOR && parentKind == SyntaxKind.TABLE_CONSTRUCTOR)
-                && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.LOCAL_VAR_DECL) 
-                && !((nodeKind == SyntaxKind.FUNCTION_CALL || nodeKind == SyntaxKind.METHOD_CALL) 
-                && parentKind == SyntaxKind.CALL_STATEMENT) 
+                && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.LOCAL_VAR_DECL)
+                && !((nodeKind == SyntaxKind.FUNCTION_CALL || nodeKind == SyntaxKind.METHOD_CALL)
+                && parentKind == SyntaxKind.CALL_STATEMENT)
                 && parentKind != SyntaxKind.CONST_DECLARATION
-                && !(parentKind == SyntaxKind.ASSIGNMENT_STATEMENT 
+                && !(parentKind == SyntaxKind.ASSIGNMENT_STATEMENT
                 && ((AssignmentStatementNode) parentNode).varRef().equals(node))
                 && !(nodeKind == SyntaxKind.QUALIFIED_NAME_REFERENCE && parentKind == SyntaxKind.FUNCTION_CALL)
                 && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
@@ -111,12 +111,12 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context,
                                            RangeBasedPositionDetails posDetails) {
-        
+
         Node node = posDetails.matchedCodeActionNode();
         if (isNotExtractable(node, context)) {
             return Collections.emptyList();
         }
-        
+
         String varName = getLocalVarName(context);
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
@@ -132,16 +132,16 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
         String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
         String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
-        Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
+        Position varDeclPos = new Position(statementNode.lineRange().startLine().line(),
                 statementNode.lineRange().startLine().offset());
         TextEdit varDeclEdit = new TextEdit(new Range(varDeclPos, varDeclPos), varDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
-                PositionUtil.toPosition(replaceRange.endLine())),  varName);
+                PositionUtil.toPosition(replaceRange.endLine())), varName);
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
                 List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, varDeclStr.length(), node.textRange().startOffset());
-        
+        addRenamePopup(context, codeAction, replaceEdit.getRange().getStart());
+
         return Collections.singletonList(codeAction);
     }
 
@@ -153,7 +153,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     private Node getStatementNode(Node node) {
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)
-                && !(statementNode instanceof ModuleMemberDeclarationNode) 
+                && !(statementNode instanceof ModuleMemberDeclarationNode)
                 && !(statementNode instanceof ObjectFieldNode)) {
             statementNode = statementNode.parent();
         }
@@ -166,27 +166,25 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        
+
         return NameUtil.generateTypeName(VARIABLE_NAME_PREFIX, allNames);
     }
 
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction,
-                                int varDeclStrLength, int nodeStartOffset) {
-        int startPos = varDeclStrLength + nodeStartOffset;
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.RENAME_COMMAND,
-                    List.of(context.fileUri(), startPos)));
+                    List.of(context.fileUri(), new Position(position.getLine() + 1, position.getCharacter()))));
         }
     }
 
     // If the variables within the selected range have been initialized in the closest statement node (and outside
     // the highlighted range), the expression is not extractable.
     private boolean isNotExtractable(Node matchedNode, CodeActionContext context) {
-        List<Symbol> symbolsWithinRange = getVisibleSymbols(context, 
+        List<Symbol> symbolsWithinRange = getVisibleSymbols(context,
                 PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
-                .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER) 
+                .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
                         && context.currentSemanticModel().get().references(symbol).stream()
                         .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
                                         .getRangeFromLineRange(location.lineRange()),
@@ -195,7 +193,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                         .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
                                 PositionUtil.toRange(getStatementNode(matchedNode).lineRange())))
                 .collect(Collectors.toList());
-        
+
         if (symbolsWithinRange.size() == 0) {
             return false;
         }
