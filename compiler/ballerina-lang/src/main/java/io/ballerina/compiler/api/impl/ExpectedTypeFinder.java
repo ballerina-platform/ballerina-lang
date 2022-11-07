@@ -817,7 +817,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         } else if (isWithinParenthesis(linePosition, node.openBracket(), node.closeBracket())) {
             if (!((((BLangTableConstructorExpr) bLangNode).expectedType) instanceof BTypeReferenceType)) {
                 BType constraint = ((BTableType) ((BLangTableConstructorExpr) bLangNode).expectedType).constraint;
-                return Optional.of(typesFactory.getTypeDescriptor(constraint));
+                return getTypeFromBType(constraint);
             }
 
             BType rowType = ((BTableType) ((BTypeReferenceType) ((BLangTableConstructorExpr) bLangNode).expectedType)
@@ -992,6 +992,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         bType = type;
         if (type.getKind() == TypeKind.MAP) {
             bType = ((BMapType) type).constraint;
+        }
+
+        if (type instanceof BTypeReferenceType
+                && ((BTypeReferenceType) type).referredType.getKind() == TypeKind.RECORD) {
+            return Optional.of(typesFactory.getTypeDescriptor(((BTypeReferenceType) type).referredType));
+
         }
 
         if (bType.getKind() != TypeKind.OTHER) {
