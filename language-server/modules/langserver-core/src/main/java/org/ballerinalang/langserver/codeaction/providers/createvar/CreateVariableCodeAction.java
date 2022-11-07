@@ -20,14 +20,12 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -106,7 +104,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            addRenamePopup(context, edits, variableEdit, codeAction, createVarTextEdits.renamePositions.get(i));
+            addRenamePopup(context, codeAction, createVarTextEdits.renamePositions.get(i),
+                    createVarTextEdits.imports.size());
             actions.add(codeAction);
         }
         return actions;
@@ -131,14 +130,15 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         String name = NameUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
         List<TextEdit> edits = new ArrayList<>();
-        List<Integer> renamePositions = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
-        Position pos = range.getStart();
+        List<Position> renamePositions = new ArrayList<>();
         for (String type : types) {
-            Position insertPos = new Position(pos.getLine(), pos.getCharacter());
+            Position insertPos = range.getStart();
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
-            renamePositions.add(type.length() + 1);
+            Position renamePosition = new Position(insertPos.getLine(),
+                    insertPos.getCharacter() + type.length() + 1);
+            renamePositions.add(renamePosition);
         }
         return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions);
     }
@@ -177,10 +177,9 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<String> types;
         List<TextEdit> edits;
         List<TextEdit> imports;
-        List<Integer> renamePositions;
+        List<Position> renamePositions;
 
-        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports,
-                                 List<Integer> renamePositions) {
+        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports, List<Position> renamePositions) {
             this.name = name;
             this.types = types;
             this.edits = edits;
@@ -189,46 +188,14 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
     }
 
-    public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, TextEdit variableEdit,
-                               CodeAction codeAction, int renameOffset) {
-        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        if (syntaxTree.isEmpty()) {
-            return;
-        }
-        /*
-        Ex: class Test {
-                function testFunc() returns error? {
-                    int testResult = check test();
-                }
-            }
-        1. startPos gives the start position of the variable type "int".
-        2. If any text edits are applied before the variable creation edit, the length of those edits is added to the
-           "sum". In the above example, the length of "error?" will be added.
-        3. renameOffset gives the length of the variable type and the white space between the variable type and the
-           variable. In the example, the renameOffset will be the length of "int ".
-        */
+    public void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position, int importLines) {
 
-        int startPos = CommonUtil.getTextEdit(syntaxTree.get(), variableEdit).range().startOffset();
-        int sum = 0;
-        for (TextEdit textEdit : textEdits) {
-            io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
-            int startOffset = edits.range().startOffset();
-            int endOffset = edits.range().endOffset();
-            if (startOffset < startPos) {
-                sum = sum + edits.text().length();
-                if (startOffset < endOffset) {
-                    int returnTypeLength = endOffset - startOffset;
-                    sum = sum - returnTypeLength;
-                }
-            }
-        }
-
-        startPos = startPos + sum + renameOffset;
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.RENAME_COMMAND,
-                    List.of(context.fileUri(), startPos)));
+                    List.of(context.fileUri(),
+                            new Position(position.getLine() + importLines, position.getCharacter()))));
         }
     }
 }
