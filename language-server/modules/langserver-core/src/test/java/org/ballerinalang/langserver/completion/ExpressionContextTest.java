@@ -89,7 +89,8 @@ public class ExpressionContextTest extends CompletionTest {
                 "new_expr_ctx_config24.json",
                 "function_call_expression_ctx_config15.json",
                 "function_call_expression_ctx_config13.json",
-                "mapping_expr_ctx_config32c.json"
+                "mapping_expr_ctx_config32c.json",
+                "mapping_constructor_expr_ctx_config3.json"
 
                 );
     }
