@@ -801,9 +801,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
                                                   BTupleType tupleType) {
         int tupleIndex = 0;
-        List<BTupleMember> tupleTypes = tupleType.memberTypes;
+        List<BType> tupleTypes = tupleType.getTupleTypes();
         for (int i = currentParamIndex; i < params.size(); i++) {
-            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++).type);
+            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
         }
     }
 
@@ -1074,9 +1074,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
 
-                for (BTupleMember tupleMember : tupleType.memberTypes) {
+                for (BType tupleMember : tupleType.getTupleTypes()) {
                     if (refersInferableParamName(
-                            paramsWithInferredTypedescDefault, tupleMember.type, unresolvedTypes)) {
+                            paramsWithInferredTypedescDefault, tupleMember, unresolvedTypes)) {
                         return true;
                     }
                 }

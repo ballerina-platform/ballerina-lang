@@ -873,15 +873,15 @@ public class TypeParamAnalyzer {
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
-        List<BTupleMember> tupleTypes = new ArrayList<>();
-        for (BTupleMember type : expType.memberTypes) {
-            BType matchingBoundType = getMatchingBoundType(type.type, env, resolvedTypes);
-            if (!hasDifferentType && isDifferentTypes(type.type, matchingBoundType)) {
+        List<BTupleMember> memberTypes = new ArrayList<>();
+        for (BType type : expType.getTupleTypes()) {
+            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
+            if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
             BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType, null, null,
                     null);
-            tupleTypes.add(new BTupleMember(matchingBoundType, varSymbol));
+            memberTypes.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
         BType restType = expType.restType;
@@ -896,7 +896,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        return new BTupleType(tupleTypes);
+        return new BTupleType(memberTypes);
     }
 
     private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

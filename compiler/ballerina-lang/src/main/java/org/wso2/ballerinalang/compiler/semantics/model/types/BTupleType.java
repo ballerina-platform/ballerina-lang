@@ -44,14 +44,14 @@ public class BTupleType extends BType implements TupleType {
 
     private BIntersectionType intersectionType = null;
 
-    public BTupleType(List<BTupleMember> tupleTypes) {
+    public BTupleType(List<BTupleMember> memberTypes) {
         super(TypeTags.TUPLE, null);
-        this.memberTypes = tupleTypes;
+        this.memberTypes = memberTypes;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> memberTypes) {
         super(TypeTags.TUPLE, tsymbol);
-        this.memberTypes = tupleTypes;
+        this.memberTypes = memberTypes;
     }
 
     public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> memberTypes, boolean isCyclic) {
@@ -60,16 +60,16 @@ public class BTupleType extends BType implements TupleType {
         this.isCyclic = isCyclic;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes, BType restType, long flags) {
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> memberTypes, BType restType, long flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
-        this.memberTypes = tupleTypes;
+        this.memberTypes = memberTypes;
         this.restType = restType;
     }
 
-    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> tupleTypes, BType restType, long flags,
+    public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> memberTypes, BType restType, long flags,
                       boolean isCyclic) {
         super(TypeTags.TUPLE, tsymbol, flags);
-        this.memberTypes = tupleTypes;
+        this.memberTypes = memberTypes;
         this.restType = restType;
         this.isCyclic = isCyclic;
     }

@@ -70,16 +70,16 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
 
     @Override
     public TupleTypeSymbol build() {
-        List<BTupleMember> memberBTypes = new ArrayList<>();
-        for (TypeSymbol memberType : memberTypes) {
-            memberBTypes.add(getMemberType(memberType));
+        List<BTupleMember> memberTypes = new ArrayList<>();
+        for (TypeSymbol memberType : this.memberTypes) {
+            memberTypes.add(getMemberType(memberType));
         }
 
         BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null,
                 symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
 
-        BTupleType tupleType = new BTupleType(tupleSymbol, memberBTypes);
+        BTupleType tupleType = new BTupleType(tupleSymbol, memberTypes);
         tupleSymbol.type = tupleType;
         BType restBType = getRestType(restType);
         if (restBType != null) {

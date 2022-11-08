@@ -429,12 +429,6 @@ public class Desugar extends BLangNodeVisitor {
     // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
 
-    private BVarSymbol stringVarSymbol;
-
-    private BVarSymbol anyVarSymbol;
-
-    private BVarSymbol anydataVarSymbol;
-
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
         if (desugar == null) {
@@ -471,12 +465,6 @@ public class Desugar extends BLangNodeVisitor {
         this.mockDesugar = MockDesugar.getInstance(context);
         this.classClosureDesugar = ClassClosureDesugar.getInstance(context);
         this.unifier = new Unifier();
-        this.stringVarSymbol = new BVarSymbol(0, null, null,
-                symTable.stringType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
-        this.anyVarSymbol = new BVarSymbol(0, null, null,
-                symTable.anyType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
-        this.anydataVarSymbol = new BVarSymbol(0, null, null,
-                symTable.anydataType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -2478,6 +2466,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BTupleType getStringAnyTupleType() {
+        BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                symTable.stringType, null, symTable.builtinPos, VIRTUAL);
+        BVarSymbol anyVarSymbol = new BVarSymbol(0, null, null,
+                symTable.anyType, null, symTable.builtinPos, VIRTUAL);
         ArrayList<BTupleMember> typeList = new ArrayList<BTupleMember>() {{
             add(new BTupleMember(symTable.stringType, stringVarSymbol));
             add(new BTupleMember(symTable.anyType, anyVarSymbol));
@@ -4088,6 +4080,10 @@ public class Desugar extends BLangNodeVisitor {
                         errorBindingPattern.errorFieldBindingPatterns.restBindingPattern;
                 Location restPatternPos = restBindingPattern.pos;
                 List<String> keysToRemove = getKeysToRemove(errorBindingPattern.errorFieldBindingPatterns);
+                BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                        symTable.stringType, null, symTable.builtinPos, VIRTUAL);
+                BVarSymbol anydataVarSymbol = new BVarSymbol(0, null, null,
+                        symTable.anydataType, null, symTable.builtinPos, VIRTUAL);
                 BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                         new BTupleMember(symTable.stringType, stringVarSymbol),
                         new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);
@@ -4264,6 +4260,8 @@ public class Desugar extends BLangNodeVisitor {
                                    BLangSimpleVarRef restMatchPatternVarRef) {
         BType constraintType = getRestFilterConstraintType(targetType);
         BVarSymbol varSymbol = new BVarSymbol(constraintType.flags,  null, null, constraintType, null, null, null);
+        BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                symTable.stringType, null, symTable.builtinPos, VIRTUAL);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(new BTupleMember(
                 symTable.stringType, stringVarSymbol), new BTupleMember(constraintType, varSymbol))), null);
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(matchExprVarRef, entriesType);
@@ -4457,6 +4455,8 @@ public class Desugar extends BLangNodeVisitor {
         BVarSymbol varSymbol = new BVarSymbol(restType.flags, restType.tsymbol.name,
                 restType.tsymbol.pkgID, restType, restType.tsymbol.owner, restType.tsymbol.pos,
                 restType.tsymbol.origin);
+        BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                symTable.stringType, null, symTable.builtinPos, VIRTUAL);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                 new BTupleMember(symTable.stringType, stringVarSymbol),
                 new BTupleMember(restType, varSymbol))), null);
@@ -4569,6 +4569,8 @@ public class Desugar extends BLangNodeVisitor {
             List<String> keysToRemove = getKeysToRemove(mappingMatchPattern);
             BType restType = ((BRecordType) restMatchPattern.getBType()).restFieldType;
             BVarSymbol varSymbol = new BVarSymbol(restType.flags, null, null, restType, null, null, null);
+            BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                    symTable.stringType, null, symTable.builtinPos, VIRTUAL);
             BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                     new BTupleMember(symTable.stringType, stringVarSymbol),
                     new BTupleMember(restType, varSymbol))), null);
@@ -4739,6 +4741,10 @@ public class Desugar extends BLangNodeVisitor {
                 BLangRestMatchPattern restMatchPattern = errorMatchPattern.errorFieldMatchPatterns.restMatchPattern;
                 Location restPatternPos = restMatchPattern.pos;
                 List<String> keysToRemove = getKeysToRemove(errorMatchPattern.errorFieldMatchPatterns);
+                BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                        symTable.stringType, null, symTable.builtinPos, VIRTUAL);
+                BVarSymbol anydataVarSymbol = new BVarSymbol(0, null, null,
+                        symTable.anydataType, null, symTable.builtinPos, VIRTUAL);
                 BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                         new BTupleMember(symTable.stringType, stringVarSymbol),
                         new BTupleMember(symTable.anydataType, anydataVarSymbol))), null);

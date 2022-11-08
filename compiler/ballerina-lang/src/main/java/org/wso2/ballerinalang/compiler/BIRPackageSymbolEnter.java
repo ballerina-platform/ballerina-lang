@@ -1006,8 +1006,8 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMember tupleMember : tupleType.memberTypes) {
-                    populateParameterizedType(tupleMember.type, paramsMap, invSymbol);
+                for (BType tupleMemberType : tupleType.getTupleTypes()) {
+                    populateParameterizedType(tupleMemberType, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
                 break;
