@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/modules/module1/module1.bal",
-          272
+          {
+            "line": 11,
+            "character": 20
+          }
         ]
       },
       "resolvable": false
