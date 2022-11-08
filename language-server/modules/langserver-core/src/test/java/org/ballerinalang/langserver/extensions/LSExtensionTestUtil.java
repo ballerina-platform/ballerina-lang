@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCalls
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromExpressionRequest;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromFnSignatureRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromExpressionResponse;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
@@ -66,6 +67,7 @@ public class LSExtensionTestUtil {
     private static final String GET_SYMBOL = "ballerinaSymbol/getSymbol";
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
+    private static final String GET_TYPE_FROM_FN_SIGNATURE = "ballerinaSymbol/getTypesFromFnSignature";
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -234,5 +236,27 @@ public class LSExtensionTestUtil {
         typeFromExpressionRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
         CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_EXPRESSION, typeFromExpressionRequest);
         return (TypesFromExpressionResponse) result.get();
+    }
+
+    /**
+     * Get the ballerinaDocument/getTypesFromFnSignature response.
+     *
+     * @param filePath      Path of the Bal file
+     * @param fnPosition    Ranges of the expressions to get associated types
+     * @param returnTypeDescPosition    Service Endpoint to Language Server
+     * @param serviceEndpoint   Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static TypesFromSymbolResponse getTypesFromFnSignature(URI filePath,
+                                                                  LinePosition fnPosition,
+                                                                  LinePosition returnTypeDescPosition,
+                                                                  Endpoint serviceEndpoint)
+            throws ExecutionException, InterruptedException {
+        TypesFromFnSignatureRequest typesFromFnSignatureRequest = new TypesFromFnSignatureRequest();
+        typesFromFnSignatureRequest.setFnPosition(fnPosition);
+        typesFromFnSignatureRequest.setReturnTypeDescPosition(returnTypeDescPosition);
+        typesFromFnSignatureRequest.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        CompletableFuture<?> result = serviceEndpoint.request(GET_TYPE_FROM_FN_SIGNATURE, typesFromFnSignatureRequest);
+        return (TypesFromSymbolResponse) result.get();
     }
 }
