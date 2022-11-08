@@ -257,7 +257,7 @@ public class CodeGenerator {
             Context context = Context.newBuilder(object).resolver(
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
-                    FieldValueResolver.INSTANCE).build();
+                    new CustomFieldValueResolver()).build();
             writer = new PrintWriter(outPath, "UTF-8");
             writer.println(template.apply(context));
         } finally {
@@ -455,7 +455,7 @@ public class CodeGenerator {
     private String getContent(BallerinaOpenApi object, String templateDir, String templateName) throws IOException {
         Template template = compileTemplate(templateDir, templateName);
         Context context = Context.newBuilder(object)
-                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
+                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, new CustomFieldValueResolver())
                 .build();
         return template.apply(context);
     }
