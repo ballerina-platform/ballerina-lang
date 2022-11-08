@@ -257,7 +257,7 @@ public class CodeGenerator {
             Context context = Context.newBuilder(object).resolver(
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
-                    FieldValueResolver.INSTANCE).build();
+                    new CustomFieldValueResolver()).build();
             writer = new PrintWriter(outPath, "UTF-8");
             writer.println(template.apply(context));
         } finally {
@@ -455,9 +455,29 @@ public class CodeGenerator {
     private String getContent(BallerinaOpenApi object, String templateDir, String templateName) throws IOException {
         Template template = compileTemplate(templateDir, templateName);
         Context context = Context.newBuilder(object)
-                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
+                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, new CustomFieldValueResolver())
                 .build();
         return template.apply(context);
+    }
+
+    static class CustomFieldValueResolver extends FieldValueResolver {
+        @Override
+        protected Set<FieldWrapper> members(Class<?> clazz) {
+            Set members = super.members(clazz);
+            return (Set<FieldWrapper>) members.stream()
+                    .filter(fw -> isValidField((FieldWrapper) fw))
+                    .collect(Collectors.toSet());
+        }
+
+        boolean isValidField(FieldWrapper fw) {
+            if (fw instanceof AccessibleObject) {
+                if (isUseSetAccessible(fw)) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
     }
 
     public String getSrcPackage() {
