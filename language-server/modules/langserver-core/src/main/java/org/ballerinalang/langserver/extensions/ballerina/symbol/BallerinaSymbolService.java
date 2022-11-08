@@ -196,18 +196,18 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
             try {
                 for (LinePosition position: request.getPositions()) {
                     ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
-                        Optional<SemanticModel> semanticModel =
-                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                        Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
-                        if (semanticModel.isEmpty() || document.isEmpty()) {
-                            return typeFromSymbolResponse;
-                        }
-                        LinePosition linePosition = LinePosition.from(position.line(), position.offset());
-                        Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
-                        Type.clearParentSymbols();
-                        Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
-                        resolvedType.setType(type);
-                        types.add(resolvedType);
+                    Optional<SemanticModel> semanticModel =
+                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                    Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
+                    if (semanticModel.isEmpty() || document.isEmpty()) {
+                        return typeFromSymbolResponse;
+                    }
+                    LinePosition linePosition = LinePosition.from(position.line(), position.offset());
+                    Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
+                    Type.clearParentSymbols();
+                    Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
+                    resolvedType.setType(type);
+                    types.add(resolvedType);
                 }
                 typeFromSymbolResponse.setTypes(types);
                 return typeFromSymbolResponse;
