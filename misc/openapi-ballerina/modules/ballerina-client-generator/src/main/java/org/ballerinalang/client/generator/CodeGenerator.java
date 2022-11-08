@@ -29,9 +29,12 @@ import org.ballerinalang.client.generator.exception.ClientGeneratorException;
 import org.ballerinalang.client.generator.model.ClientContextHolder;
 
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <p>This class generates Service definitions, clients for a provided ballerina service.</p>
@@ -113,11 +116,31 @@ public class CodeGenerator {
         Context context = Context.newBuilder(object).resolver(
                 MapValueResolver.INSTANCE,
                 JavaBeanValueResolver.INSTANCE,
-                FieldValueResolver.INSTANCE).build();
+                new CustomFieldValueResolver()).build();
         try {
             return template.apply(context);
         } catch (IOException e) {
             throw new ClientGeneratorException("Error while generating converted string", e);
+        }
+    }
+
+    static class CustomFieldValueResolver extends FieldValueResolver {
+        @Override
+        protected Set<FieldWrapper> members(Class<?> clazz) {
+            Set members = super.members(clazz);
+            return (Set<FieldWrapper>) members.stream()
+                    .filter(fw -> isValidField((FieldWrapper) fw))
+                    .collect(Collectors.toSet());
+        }
+
+        boolean isValidField(FieldWrapper fw) {
+            if (fw instanceof AccessibleObject) {
+                if (isUseSetAccessible(fw)) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
     }
 
