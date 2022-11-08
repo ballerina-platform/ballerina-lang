@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithIntersectionType.bal",
-          229
+          {
+            "line": 7,
+            "character": 47
+          }
         ]
       },
       "resolvable": false

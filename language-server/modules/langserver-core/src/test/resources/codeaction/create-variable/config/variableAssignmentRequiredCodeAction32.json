@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable5.bal",
-          929
+          {
+            "line": 44,
+            "character": 124
+          }
         ]
       },
       "resolvable": false

@@ -54,7 +54,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable9.bal",
-          389
+          {
+            "line": 22,
+            "character": 18
+          }
         ]
       },
       "resolvable": false
@@ -108,7 +111,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable9.bal",
-          398
+          {
+            "line": 22,
+            "character": 15
+          }
         ]
       },
       "resolvable": false
@@ -136,7 +142,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable9.bal",
-          389
+          {
+            "line": 22,
+            "character": 18
+          }
         ]
       },
       "resolvable": false

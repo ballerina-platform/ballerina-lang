@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithTuple1.bal",
-          52
+          {
+            "line": 1,
+            "character": 27
+          }
         ]
       },
       "resolvable": false
@@ -69,7 +72,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithTuple1.bal",
-          52
+          {
+            "line": 1,
+            "character": 27
+          }
         ]
       },
       "resolvable": false
@@ -123,7 +129,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithTuple1.bal",
-          61
+          {
+            "line": 1,
+            "character": 21
+          }
         ]
       },
       "resolvable": false

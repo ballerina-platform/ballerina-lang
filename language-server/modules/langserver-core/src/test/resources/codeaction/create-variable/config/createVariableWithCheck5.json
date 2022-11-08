@@ -55,7 +55,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithCheck.bal",
-          584
+          {
+            "line": 21,
+            "character": 8
+          }
         ]
       },
       "resolvable": false

@@ -54,7 +54,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
-          180
+          {
+            "line": 8,
+            "character": 26
+          }
         ]
       },
       "resolvable": false
@@ -101,19 +104,6 @@
             }
           },
           "newText": " returns error?"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import testproject.module2;\n"
         }
       ],
       "command": {
@@ -121,7 +111,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
-          189
+          {
+            "line": 8,
+            "character": 20
+          }
         ]
       },
       "resolvable": false
@@ -162,7 +155,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
-          180
+          {
+            "line": 8,
+            "character": 26
+          }
         ]
       },
       "resolvable": false

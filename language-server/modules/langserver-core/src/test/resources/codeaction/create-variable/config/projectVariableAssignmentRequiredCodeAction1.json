@@ -41,7 +41,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
-          111
+          {
+            "line": 4,
+            "character": 20
+          }
         ]
       },
       "resolvable": false

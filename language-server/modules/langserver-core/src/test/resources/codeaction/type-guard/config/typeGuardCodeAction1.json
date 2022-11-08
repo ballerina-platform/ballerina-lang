@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "typeGuard.bal",
-          62
+          {
+            "line": 3,
+            "character": 21
+          }
         ]
       },
       "resolvable": false

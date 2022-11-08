@@ -28,7 +28,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableForOptionalFieldAccess2.bal",
-          89
+          {
+            "line": 8,
+            "character": 6
+          }
         ]
       },
       "resolvable": false
