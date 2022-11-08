@@ -177,6 +177,7 @@ public class Bootstrap {
         symResolver.boostrapErrorType();
         symResolver.bootstrapCloneableType();
         symResolver.bootstrapIntRangeType();
+        symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         symbolTable.langArrayModuleSymbol = loadLangLibFromBala(ARRAY, compilerContext);
         symbolTable.langDecimalModuleSymbol = loadLangLibFromBala(DECIMAL, compilerContext);
         symbolTable.langErrorModuleSymbol = loadLangLibFromBala(ERROR, compilerContext);
@@ -184,7 +185,6 @@ public class Bootstrap {
         symbolTable.langFunctionModuleSymbol = loadLangLibFromBala(FUNCTION, compilerContext);
         symbolTable.langFutureModuleSymbol = loadLangLibFromBala(FUTURE, compilerContext);
         symbolTable.langIntModuleSymbol = loadLangLibFromBala(INT, compilerContext);
-        symbolTable.langMapModuleSymbol = loadLangLibFromBala(MAP, compilerContext);
         symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
         symResolver.loadRawTemplateType();
         symResolver.bootstrapIterableType();

@@ -3702,13 +3702,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langFutureModuleSymbol = packageSymbol;
             return;
         }
+        if (langLib.equals(MAP)) {
+            symTable.langMapModuleSymbol = packageSymbol;
+            return;
+        }
         if (langLib.equals(INT)) {
             symTable.langIntModuleSymbol = packageSymbol;
             symTable.updateIntSubtypeOwners();
-            return;
-        }
-        if (langLib.equals(MAP)) {
-            symTable.langMapModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(OBJECT)) {
