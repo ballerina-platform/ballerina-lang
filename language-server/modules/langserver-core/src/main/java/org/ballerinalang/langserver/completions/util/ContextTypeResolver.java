@@ -488,7 +488,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
-        // TODO: Add other cases like error constructors here
+        // TODO: Add other cases like error constructors here (when adding, update @CodeActionContextTypeResolver.java 
+        //  as well)
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
