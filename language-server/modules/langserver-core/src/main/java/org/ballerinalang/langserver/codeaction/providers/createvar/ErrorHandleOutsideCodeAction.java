@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -101,7 +102,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(
                 CommandConstants.CREATE_VAR_ADD_CHECK_TITLE, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, codeAction, modifiedTextEdits.renamePositions.get(0), importEdits.size());
+        addRenamePopup(context, codeAction, modifiedTextEdits.renamePositions.get(0), 
+                importEdits.size() + modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 
@@ -125,6 +127,10 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
+        
+        Position renamePosition = createVarTextEdits.renamePositions.get(0);
+        renamePosition.setCharacter(
+                renamePosition.getCharacter() - (typeWithError.length() - typeWithoutError.length()));
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
