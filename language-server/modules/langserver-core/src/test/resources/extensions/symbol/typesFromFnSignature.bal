@@ -65,7 +65,7 @@ type MessageProperties record {
     string MessageId;
 };
 
-function transform(Input input, Input2 Input2) returns Output[] => {
+function transform(Input input, Input2 Input2) returns Output => {
     data: {
         MessageContent: {
             Assets: from var item in input.Assets

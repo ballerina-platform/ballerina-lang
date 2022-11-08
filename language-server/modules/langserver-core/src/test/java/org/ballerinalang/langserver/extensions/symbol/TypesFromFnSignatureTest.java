@@ -38,7 +38,7 @@ import java.util.concurrent.ExecutionException;
 public class TypesFromFnSignatureTest {
     private Endpoint serviceEndpoint;
 
-    private final Path typeFromFnSignatureBalFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path typesFromFnSignatureBalFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("symbol")
             .resolve("typesFromFnSignature.bal");
 
@@ -49,7 +49,7 @@ public class TypesFromFnSignatureTest {
 
     @Test(description = "type info retrieved for the return type symbol node")
     public void testTypeForReturnTypeNode() throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -63,6 +63,8 @@ public class TypesFromFnSignatureTest {
 
         ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
         Assert.assertEquals(type.getType().name, "Output");
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(fnPosition, type.getRequestedPosition()));
+        Assert.assertTrue(type.getType() instanceof RecordType);
 
         RecordType recordType = (RecordType) type.getType();
         Assert.assertEquals(recordType.fields.size(), 2);
