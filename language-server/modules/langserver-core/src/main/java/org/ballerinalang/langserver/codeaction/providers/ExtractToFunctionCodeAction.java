@@ -502,9 +502,10 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
     private Optional<TypeSymbol> getTypeSymbol(CodeActionContext context, TypeSymbol typeSymbol,
                                                NonTerminalNode node) {
+        // If the type symbol kind is union, return the narrowed type using typeOf() for the particular node.
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-            return Optional.of(context.currentSemanticModel().flatMap(semanticModel ->
-                    semanticModel.typeOf(node.children().get(0)).flatMap(SymbolUtil::getTypeDescriptor)).get());
+            return context.currentSemanticModel().flatMap(semanticModel ->
+                    semanticModel.typeOf(node.children().get(0)).flatMap(SymbolUtil::getTypeDescriptor));
         }
         return Optional.of(typeSymbol);
     }
