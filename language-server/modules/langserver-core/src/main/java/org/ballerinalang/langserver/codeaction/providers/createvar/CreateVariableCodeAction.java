@@ -179,7 +179,8 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<TextEdit> imports;
         List<Position> renamePositions;
 
-        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports, List<Position> renamePositions) {
+        public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports, 
+                                 List<Position> renamePositions) {
             this.name = name;
             this.types = types;
             this.edits = edits;
