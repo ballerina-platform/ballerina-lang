@@ -404,16 +404,16 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                 .map(path -> path.toUri().toString()
                                         .replace("\\", "/")
                                         .replace(sourceRoot.toUri().toString(), ""));
-                int actualRenamePosition = actualArgs.get(1).getAsInt();
+                JsonObject actualRenamePosition = actualArgs.get(1).getAsJsonObject();
                 String expectedFilePath = expArgs.get(0).getAsString();
-                int expectedRenamePosition = expArgs.get(1).getAsInt();
+                JsonObject expectedRenamePosition = expArgs.get(1).getAsJsonObject();
                 if (actualFilePath.isPresent()) {
                     String actualPath = actualFilePath.get();
                     if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
                         actualPath = actualFilePath.get().substring(1);
                     }
                     if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))
-                            && actualRenamePosition == expectedRenamePosition) {
+                            && actualRenamePosition.equals(expectedRenamePosition)) {
                         return true;
                     }
                     JsonArray newArgs = new JsonArray();
