@@ -75,7 +75,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     }
                 } else {
                     response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed,
-                            forceFormatRecordFields);
+                            forceFormatRecordFields, null);
                 }
             } catch (JsonSyntaxException e) {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});

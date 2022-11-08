@@ -18,7 +18,10 @@
 
 package io.ballerina.jsonmapper.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -27,10 +30,20 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +59,7 @@ public final class ConverterUtils {
 
     private ConverterUtils() {}
 
+    private static final String ARRAY_RECORD_SUFFIX = "Item";
     private static final String QUOTED_IDENTIFIER_PREFIX = "'";
     private static final String ESCAPE_NUMERIC_PATTERN = "\\b\\d.*";
     private static final List<String> KEYWORDS = SyntaxInfo.keywords();
@@ -72,6 +86,93 @@ public final class ConverterUtils {
             }
             return identifier;
         }
+    }
+
+    public static List<String> getExistingTypeNames(Path filePath) {
+        List<String> existingTypeNames = new ArrayList<>();
+        if (filePath == null) {
+            return existingTypeNames;
+        }
+
+        Project project;
+        // Check if the provided file is a SingleFileProject
+        try {
+            project = SingleFileProject.load(filePath);
+            List<Symbol> moduleSymbols =
+                    project.currentPackage().getDefaultModule().getCompilation().getSemanticModel().moduleSymbols();
+            moduleSymbols.forEach(symbol -> {
+                if (symbol.getName().isPresent()) {
+                    existingTypeNames.add(symbol.getName().get());
+                }
+            });
+        } catch (ProjectException pe) {
+            // Check if the provided file is a part of BuildProject
+            Path projectRoot = ProjectUtils.findProjectRoot(filePath);
+            if (projectRoot != null) {
+                try {
+                    project = BuildProject.load(projectRoot);
+                    List<Symbol> moduleSymbols = project.currentPackage().module(project.documentId(filePath).moduleId())
+                            .getCompilation().getSemanticModel().moduleSymbols();
+                    moduleSymbols.forEach(symbol -> {
+                        if (symbol.getName().isPresent()) {
+                            existingTypeNames.add(symbol.getName().get());
+                        }
+                    });
+                } catch (ProjectException pe1) {
+                    return existingTypeNames;
+                }
+            }
+        }
+        return existingTypeNames;
+    }
+
+    public static JsonObject modifyJsonObjectWithUpdatedFieldNames(JsonObject jsonObject,
+                                                                   List<String> existingFieldNames,
+                                                                   Map<String, String> updatedFieldNames) {
+        Set<Map.Entry<String, JsonElement>> jsonObjectEntries = jsonObject.deepCopy().entrySet();
+        for (Map.Entry<String, JsonElement> entry : jsonObjectEntries) {
+            if (entry.getValue().isJsonObject()) {
+                JsonObject updatedJsonObject =
+                        modifyJsonObjectWithUpdatedFieldNames(jsonObject.remove(entry.getKey()).getAsJsonObject(),
+                                existingFieldNames, updatedFieldNames);
+                jsonObject.add(entry.getKey(), updatedJsonObject);
+
+                String fieldName = StringUtils.capitalize(entry.getKey());
+                if (existingFieldNames.contains(fieldName)) {
+                    String updatedFieldName = updatedFieldNames.containsKey(fieldName) ?
+                            updatedFieldNames.get(fieldName) : getUpdatedFieldName(fieldName, existingFieldNames);
+                    updatedFieldNames.put(fieldName, updatedFieldName);
+                    JsonElement removedJsonObject = jsonObject.remove(entry.getKey());
+                    jsonObject.add(fieldName.equals(entry.getKey()) ? updatedFieldName :
+                            StringUtils.uncapitalize(updatedFieldName) , removedJsonObject);
+                }
+
+            } else if (entry.getValue().isJsonArray()) {
+                for (JsonElement element : entry.getValue().getAsJsonArray()) {
+                    if (element.isJsonObject()) {
+                        JsonObject updatedJsonObject =
+                                modifyJsonObjectWithUpdatedFieldNames(jsonObject.remove(entry.getKey()).getAsJsonObject(),
+                                        existingFieldNames, updatedFieldNames);
+                        jsonObject.add(entry.getKey(), updatedJsonObject);
+                    }
+                }
+                String arrayItemFieldName = StringUtils.capitalize(entry.getKey()) + ARRAY_RECORD_SUFFIX;
+                if (existingFieldNames.contains(arrayItemFieldName)) {
+                    String updatedFieldName = updatedFieldNames.containsKey(arrayItemFieldName) ?
+                            updatedFieldNames.get(arrayItemFieldName) :
+                            getUpdatedFieldName(arrayItemFieldName, existingFieldNames);
+                    String updatedArrayItemFieldName = StringUtils.capitalize(entry.getKey()) +
+                            updatedFieldName.substring(arrayItemFieldName.length());
+                    updatedFieldNames.put(arrayItemFieldName, updatedArrayItemFieldName + ARRAY_RECORD_SUFFIX);
+                    JsonElement removedJsonArray = jsonObject.remove(entry.getKey());
+                    jsonObject.add(StringUtils.capitalize(entry.getKey()).equals(entry.getKey()) ? updatedArrayItemFieldName :
+                            StringUtils.uncapitalize(updatedArrayItemFieldName) , removedJsonArray);
+                }
+            }
+            jsonObject.add(entry.getKey(), jsonObject.remove(entry.getKey()));
+        }
+
+        return jsonObject;
     }
 
     /**
@@ -209,6 +310,14 @@ public final class ConverterUtils {
                     .equals(typeDescNodeToBeInserted.toSourceCode()))) {
                 typeDescNodes.add(typeDescNodeToBeInserted);
             }
+        }
+    }
+
+    private static String getUpdatedFieldName(String fieldName, List<String> existingFieldNames) {
+        if (!existingFieldNames.contains(fieldName)) {
+            return fieldName;
+        } else {
+            return getUpdatedFieldName(fieldName + "Duplicate", existingFieldNames);
         }
     }
 }

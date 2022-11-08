@@ -53,8 +53,10 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
 import org.javatuples.Pair;
 
+import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,8 +68,10 @@ import static io.ballerina.jsonmapper.util.ConverterUtils.escapeIdentifier;
 import static io.ballerina.jsonmapper.util.ConverterUtils.extractArrayTypeDescNode;
 import static io.ballerina.jsonmapper.util.ConverterUtils.extractTypeDescriptorNodes;
 import static io.ballerina.jsonmapper.util.ConverterUtils.extractUnionTypeDescNode;
+import static io.ballerina.jsonmapper.util.ConverterUtils.getExistingTypeNames;
 import static io.ballerina.jsonmapper.util.ConverterUtils.getNumberOfDimensions;
 import static io.ballerina.jsonmapper.util.ConverterUtils.getPrimitiveTypeName;
+import static io.ballerina.jsonmapper.util.ConverterUtils.modifyJsonObjectWithUpdatedFieldNames;
 import static io.ballerina.jsonmapper.util.ConverterUtils.sortTypeDescriptorNodes;
 import static io.ballerina.jsonmapper.util.ListOperationUtils.difference;
 import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
@@ -88,7 +92,7 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean)}} instead.
+     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, Path)}} instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
      * @param recordName Name of the generated record
@@ -99,7 +103,7 @@ public class JsonToRecordMapper {
     @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
-        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false);
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false, null);
     }
 
     /**
@@ -113,7 +117,8 @@ public class JsonToRecordMapper {
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordFields) {
+                                               boolean isClosed, boolean forceFormatRecordFields, Path filePath) {
+        List<String> existingTypeNames = getExistingTypeNames(filePath);
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
         List<DiagnosticMessage> diagnosticMessages = new ArrayList<>();
@@ -121,8 +126,10 @@ public class JsonToRecordMapper {
 
         try {
             JsonElement parsedJson = JsonParser.parseString(jsonString);
+
             if (parsedJson.isJsonObject()) {
-                generateRecords(parsedJson.getAsJsonObject(), null, isClosed,
+                JsonObject updated = modifyJsonObjectWithUpdatedFieldNames(parsedJson.getAsJsonObject(), existingTypeNames, new HashMap<>());
+                generateRecords(updated, null, isClosed,
                         recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
