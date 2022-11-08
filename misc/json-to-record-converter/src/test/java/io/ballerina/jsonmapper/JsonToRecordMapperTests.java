@@ -37,29 +37,32 @@ import java.util.Map;
 public class JsonToRecordMapperTests {
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final String BAL_DIR_NAME = "ballerina";
+    private static final String JSON_DIR_NAME = "json";
+    private static final String PROJECT_DIR_NAME = "project";
 
-    private final Path sample0Json = RES_DIR.resolve("json")
+    private final Path sample0Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_0.json");
-    private final Path sample0Bal = RES_DIR.resolve("ballerina")
+    private final Path sample0Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_0.bal");
 
-    private final Path sample1Json = RES_DIR.resolve("json")
+    private final Path sample1Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_1.json");
-    private final Path sample1Bal = RES_DIR.resolve("ballerina")
+    private final Path sample1Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_1.bal");
 
-    private final Path sample2Json = RES_DIR.resolve("json")
+    private final Path sample2Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_2.json");
-    private final Path sample2Bal = RES_DIR.resolve("ballerina")
+    private final Path sample2Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_2.bal");
-    private final Path sample2TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample2TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_2_type_desc.bal");
 
-    private final Path sample3Json = RES_DIR.resolve("json")
+    private final Path sample3Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_3.json");
-    private final Path sample3Bal = RES_DIR.resolve("ballerina")
+    private final Path sample3Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_3.bal");
-    private final Path sample3TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample3TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_3_type_desc.bal");
     private final Path sample3PersonBal = RES_DIR.resolve("ballerina")
             .resolve("sample_3_person.bal");
@@ -68,66 +71,78 @@ public class JsonToRecordMapperTests {
     private final Path sample3SpecialCharBal = RES_DIR.resolve("ballerina")
             .resolve("sample_3_special_char.bal");
 
-    private final Path sample4Json = RES_DIR.resolve("json")
+    private final Path sample4Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_4.json");
-    private final Path sample4Bal = RES_DIR.resolve("ballerina")
+    private final Path sample4Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_4.bal");
-    private final Path sample4TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample4TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_4_type_desc.bal");
 
-    private final Path sample5Json = RES_DIR.resolve("json")
+    private final Path sample5Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_5.json");
-    private final Path sample5Bal = RES_DIR.resolve("ballerina")
+    private final Path sample5Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_5.bal");
 
-    private final Path sample6Json = RES_DIR.resolve("json")
+    private final Path sample6Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_6.json");
-    private final Path sample6Bal = RES_DIR.resolve("ballerina")
+    private final Path sample6Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_6.bal");
-    private final Path sample6TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample6TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_6_type_desc.bal");
 
-    private final Path sample7Json = RES_DIR.resolve("json")
+    private final Path sample7Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_7.json");
-    private final Path sample7Bal = RES_DIR.resolve("ballerina")
+    private final Path sample7Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_7.bal");
 
-    private final Path sample8Json = RES_DIR.resolve("json")
+    private final Path sample8Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_8.json");
-    private final Path sample8Bal = RES_DIR.resolve("ballerina")
+    private final Path sample8Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_8.bal");
-    private final Path sample8TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample8TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_8_type_desc.bal");
 
-    private final Path sample9Json = RES_DIR.resolve("json")
+    private final Path sample9Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_9.json");
-    private final Path sample9Bal = RES_DIR.resolve("ballerina")
+    private final Path sample9Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_9.bal");
-    private final Path sample9TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample9TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_9_type_desc.bal");
 
-    private final Path sample10Json = RES_DIR.resolve("json")
+    private final Path sample10Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_10.json");
-    private final Path sample10Bal = RES_DIR.resolve("ballerina")
+    private final Path sample10Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_10.bal");
-    private final Path sample10TypeDescBal = RES_DIR.resolve("ballerina")
+    private final Path sample10TypeDescBal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_10_type_desc.bal");
 
-    private final Path sample11Json = RES_DIR.resolve("json")
+    private final Path sample11Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_11.json");
-    private final Path sample11Bal = RES_DIR.resolve("ballerina")
+    private final Path sample11Bal = RES_DIR.resolve(BAL_DIR_NAME)
             .resolve("sample_11.bal");
 
-    private final Path sample12Json = RES_DIR.resolve("json")
+    private final Path sample12Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_12.json");
 
-    private final Path sample13Json = RES_DIR.resolve("json")
+    private final Path sample13Json = RES_DIR.resolve(JSON_DIR_NAME)
             .resolve("sample_13.json");
+
+    private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR_NAME).resolve("singleFileProject")
+            .resolve("SingleBalFile.bal");
+
+    private final Path invalidBalFile = RES_DIR.resolve(PROJECT_DIR_NAME).resolve("singleFileProject")
+            .resolve("InvalidBalFile.bal");
+
+    private final Path balProjectFileDefault = RES_DIR.resolve(PROJECT_DIR_NAME).resolve("balProject")
+            .resolve("main.bal");
+
+    private final Path balProjectFileUtilModule = RES_DIR.resolve(PROJECT_DIR_NAME).resolve("balProject")
+            .resolve("modules").resolve("util").resolve("util.bal");
 
     @Test(description = "Test for primitive and null types")
     public void testForPrimitiveAndNullTypes() throws IOException {
         String jsonFileContent = Files.readString(sample0Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -136,7 +151,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for all number types")
     public void testForJsonNumberTypes() throws IOException {
         String jsonFileContent = Files.readString(sample1Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample1Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -145,7 +160,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for differencing fields in same JSON object")
     public void testForDifferencingFields() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -154,7 +169,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for differencing fields in same JSON object - inline")
     public void testForDifferencingFieldsInLine() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample2TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -163,7 +178,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for differencing field values in same JSON object")
     public void testForDifferencingFieldValues() throws IOException {
         String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -172,7 +187,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for differencing field values in same JSON object - inline")
     public void testForDifferencingFieldValuesInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -181,7 +196,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for empty and non-empty JSON array")
     public void testForEmptyNonEmptyJsonArray() throws IOException {
         String jsonFileContent = Files.readString(sample4Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample4Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -190,7 +205,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for empty and non-empty JSON array - inline")
     public void testForEmptyNonEmptyJsonArrayInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample4Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample4TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -199,7 +214,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON array with values of same and different type")
     public void testForSameAndDifferentTypeValuesInArray() throws IOException {
         String jsonFileContent = Files.readString(sample5Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample5Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -208,7 +223,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for different objects in JSON array")
     public void testForDifferentObjectsInJsonArray() throws IOException {
         String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample6Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -217,7 +232,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for different objects in JSON array - inline")
     public void testForDifferentObjectsInJsonArrayInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample6TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -226,7 +241,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for multi dimensional JSON array")
     public void testForMultiDimensionalJsonArray() throws IOException {
         String jsonFileContent = Files.readString(sample7Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample7Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -235,7 +250,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for complex JSON object")
     public void testForComplexJsonObject() throws IOException {
         String jsonFileContent = Files.readString(sample8Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample8Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -244,7 +259,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for complex JSON object - inline")
     public void testForComplexJsonObjectInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample8Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample8TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -253,7 +268,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for many types in JSON array")
     public void testForMultipleItemsJsonArray() throws IOException {
         String jsonFileContent = Files.readString(sample9Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample9Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -262,7 +277,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for many types in JSON array - inline")
     public void testForMultipleItemsJsonArrayInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample9Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample9TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -271,7 +286,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON array of objects")
     public void testForJsonArrayOfObjects() throws IOException {
         String jsonFileContent = Files.readString(sample10Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample10Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -280,7 +295,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON array of objects - inline")
     public void testForJsonArrayOfObjectsInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample10Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample10TypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -289,7 +304,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON field names with special characters")
     public void testForJsonFieldsOfSpecialChars() throws IOException {
         String jsonFileContent = Files.readString(sample11Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample11Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -299,7 +314,7 @@ public class JsonToRecordMapperTests {
     public void testForInvalidJson() throws IOException {
         String jsonFileContent = Files.readString(sample12Json);
         List<JsonToRecordMapperDiagnostic> diagnostics =
-                JsonToRecordMapper.convert(jsonFileContent, "", false, false, false).getDiagnostics();
+                JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, null).getDiagnostics();
         String diagnosticMessage =
                 "Provided JSON is invalid : Unterminated object at line 15 column 8 path $.friend.address.city";
         Assert.assertEquals(diagnostics.size(), 1);
@@ -310,7 +325,7 @@ public class JsonToRecordMapperTests {
     public void testForSimilarRecordNameAndFieldName() throws IOException {
         String jsonFileContent = Files.readString(sample13Json);
         List<JsonToRecordMapperDiagnostic> diagnostics =
-                JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false).getDiagnostics();
+                JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false, null).getDiagnostics();
         String diagnosticMessage = "Provided record name 'Person' conflicts with the other generated records. " +
                 "Consider providing a different name.";
         Assert.assertEquals(diagnostics.size(), 1);
@@ -348,13 +363,13 @@ public class JsonToRecordMapperTests {
     public void testChoreoTransPayloads() throws IOException {
         Map<Path, Path> samples = new HashMap<>();
         for (int i = 0; i <= 3; i++) {
-            Path jsonInputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads")
+            Path jsonInputPath = RES_DIR.resolve(JSON_DIR_NAME).resolve("ChoreoTransPayloads")
                     .resolve(String.format("sample_%d_input.json", i));
-            Path balInputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads")
+            Path balInputPath = RES_DIR.resolve(BAL_DIR_NAME).resolve("ChoreoTransPayloads")
                     .resolve(String.format("sample_%d_input.bal", i));
-            Path jsonOutputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads")
+            Path jsonOutputPath = RES_DIR.resolve(JSON_DIR_NAME).resolve("ChoreoTransPayloads")
                     .resolve(String.format("sample_%d_output.json", i));
-            Path balOutputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads")
+            Path balOutputPath = RES_DIR.resolve(BAL_DIR_NAME).resolve("ChoreoTransPayloads")
                     .resolve(String.format("sample_%d_output.bal", i));
             samples.put(jsonInputPath, balInputPath);
             samples.put(jsonOutputPath, balOutputPath);
@@ -362,7 +377,7 @@ public class JsonToRecordMapperTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
-                    JsonToRecordMapper.convert(jsonFileContent, null, false, false, false);
+                    JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, null);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
@@ -373,5 +388,17 @@ public class JsonToRecordMapperTests {
                 //TODO: react when there is a diagnostic message.
             }
         }
+    }
+
+    @Test(description = "Test for conflicting record names in single bal file project")
+    public void testForConflictingRecordNamesInSingleBalFileProject() throws IOException {
+        String jsonFileContent = Files.readString(sample2Json);
+        JsonToRecordResponse response =
+                JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false, singleBalFile);
+        System.out.println(response.getCodeBlock());
+//        String diagnosticMessage = "Provided record name 'Person' conflicts with the other generated records. " +
+//                "Consider providing a different name.";
+//        Assert.assertEquals(diagnostics.size(), 1);
+//        Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
     }
 }
