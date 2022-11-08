@@ -47,7 +47,10 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "extractToVariableInExplicitNewExpression.bal",
-          228
+          {
+            "line": 12,
+            "character": 20
+          }
         ]
       },
       "resolvable": false
