@@ -460,26 +460,6 @@ public class CodeGenerator {
         return template.apply(context);
     }
 
-    static class CustomFieldValueResolver extends FieldValueResolver {
-        @Override
-        protected Set<FieldWrapper> members(Class<?> clazz) {
-            Set members = super.members(clazz);
-            return (Set<FieldWrapper>) members.stream()
-                    .filter(fw -> isValidField((FieldWrapper) fw))
-                    .collect(Collectors.toSet());
-        }
-
-        boolean isValidField(FieldWrapper fw) {
-            if (fw instanceof AccessibleObject) {
-                if (isUseSetAccessible(fw)) {
-                    return true;
-                }
-                return false;
-            }
-            return true;
-        }
-    }
-
     public String getSrcPackage() {
         return srcPackage;
     }
