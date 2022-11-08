@@ -530,6 +530,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         switch (namedArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
             case METHOD_CALL:
+            case REMOTE_METHOD_CALL_ACTION:
                 NonTerminalNode parentNode = namedArgumentNode.parent();
                 Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
                         .flatMap(semanticModel -> semanticModel.symbol(parentNode))
@@ -543,8 +544,9 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
-                    if (parameterSymbol.getName().stream()
-                            .anyMatch(name -> name.equals(namedArgumentNode.argumentName().name().text()))) {
+                    if (parameterSymbol.getName()
+                            .filter(name -> name.equals(namedArgumentNode.argumentName().name().text()))
+                            .isPresent()) {
                         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
                         return Optional.of(typeDescriptor);
                     }
