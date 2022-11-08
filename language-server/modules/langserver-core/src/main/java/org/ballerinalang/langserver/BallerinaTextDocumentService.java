@@ -265,7 +265,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                             Path filePath = PathUtil.getPathFromLocation(module, location);
                             String uri = filePath.toUri().toString();
                             // If path is readonly, change the URI scheme
-                            if (PathUtil.isWriteProtectedPath(filePath)) {
+                            if (PathUtil.isWriteProtectedPath(filePath, context.workspace())) {
                                 try {
                                     uri = PathUtil.getBalaUriForPath(serverContext, filePath);
                                 } catch (URISyntaxException e) {

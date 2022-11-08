@@ -111,7 +111,7 @@ public class DefinitionUtil {
 
         String fileUri;
         // Check if file resides in a protected dir
-        if (PathUtil.isWriteProtectedPath(filepath.get())) {
+        if (PathUtil.isWriteProtectedPath(filepath.get(), context.workspace())) {
             try {
                 fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
             } catch (URISyntaxException e) {

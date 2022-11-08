@@ -24,11 +24,13 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -48,7 +50,7 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 public class PathUtil {
-    
+
     /**
      * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
      * we convert it to file scheme and provide a valid Path.
@@ -78,11 +80,14 @@ public class PathUtil {
      * @param filePath Path to be checked
      * @return True if the provided path should be readonly
      */
-    public static boolean isWriteProtectedPath(Path filePath) {
+    public static boolean isWriteProtectedPath(Path filePath, WorkspaceManager workspaceManager) {
         Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
         Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
+        Optional<Path> generatedModulesRoot = workspaceManager.project(filePath)
+                .map(project -> project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT));
 
-        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
+        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome)
+                || (generatedModulesRoot.isPresent() && filePath.startsWith(generatedModulesRoot.get()));
     }
 
     /**
@@ -198,8 +203,8 @@ public class PathUtil {
     /**
      * Returns the modified URI.
      *
-     * @param workspaceManager  workspace manager instance
-     * @param uri original URI
+     * @param workspaceManager workspace manager instance
+     * @param uri              original URI
      * @return modified URI
      */
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
@@ -216,7 +221,7 @@ public class PathUtil {
     /**
      * Returns the URI given the location.
      *
-     * @param module  Module where the location resides
+     * @param module   Module where the location resides
      * @param location Location
      * @return URI
      */
@@ -227,7 +232,7 @@ public class PathUtil {
     /**
      * Returns the file path given the location.
      *
-     * @param module  Module where the location resides
+     * @param module   Module where the location resides
      * @param location Location
      * @return file path
      */
