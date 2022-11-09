@@ -31,6 +31,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -49,6 +50,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -57,6 +59,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -67,6 +70,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
  * @since 2.3.0
  */
 public class RunNativeImageTestTask implements Task {
+
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
     private final PrintStream out;
     private final String includesInCoverage;
     private String groupList;
@@ -224,6 +230,20 @@ public class RunNativeImageTestTask implements Task {
         String packageName = currentPackage.packageName().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         String jacocoAgentJarPath = "";
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
+
+        if (nativeImageCommand == null) {
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable");
+        }
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
 
         if (coverage) {
             // Generate the exec in a separate process
@@ -271,7 +291,7 @@ public class RunNativeImageTestTask implements Task {
         }
 
         List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add("native-image");
+        cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
