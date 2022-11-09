@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -140,9 +141,10 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             (4) service / <cursor>
              */
             if (!node.onKeyword().isMissing() ||
-                    context.getNodeAtCursor().textRange().endOffset() == context.getCursorPositionInTree()
+                    context.getNodeAtCursor().textRange().endOffset() == context.getCursorPositionInTree() 
                             && (context.getNodeAtCursor().toSourceCode().split(" ").length == 1
-                            && context.getNodeAtCursor().toSourceCode().contains("/"))) {
+                            && context.getNodeAtCursor().toSourceCode()
+                                .contains(SyntaxKind.SLASH_TOKEN.stringValue()))) {
                 return Collections.emptyList();
             }
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
