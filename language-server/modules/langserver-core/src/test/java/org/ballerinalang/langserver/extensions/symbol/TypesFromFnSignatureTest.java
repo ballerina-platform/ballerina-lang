@@ -382,7 +382,7 @@ public class TypesFromFnSignatureTest {
         ResolvedTypeForSymbol paramType = typesFromSymbolResponse.getTypes().get(1);
         Assert.assertEquals(paramType.getType().typeName, SymbolServiceTestUtil.STRING);
         Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(paramPosition, paramType.getRequestedPosition()));
-        // TODO: Assert defaultable status and the default value
+        Assert.assertTrue(paramType.getType().defaultable);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -556,7 +556,6 @@ public class TypesFromFnSignatureTest {
         Assert.assertEquals(submissionRecordType.fields.get(0).name, "id");
         Assert.assertEquals(submissionRecordType.fields.get(0).typeName, SymbolServiceTestUtil.INTEGER);
         Assert.assertTrue(submissionRecordType.fields.get(0).defaultable);
-        // TODO: Assert default value
 
         Assert.assertEquals(submissionRecordType.fields.get(1).name, "date");
         Assert.assertEquals(submissionRecordType.fields.get(1).typeName, SymbolServiceTestUtil.STRING);
