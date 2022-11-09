@@ -1,81 +1,61 @@
 import ballerina/http;
+import ballerina/jwt;
 
-type Input record {
-    MessageProperties MessageProperties;
+type Person record {
+    int id;
+    string firstName;
+    string lastName;
+    int age?;
+};
+
+type Course record {
+    string id;
+    string name;
+    int credits;
+};
+
+type Submission record {
+    int id = 0;
+    string date;
+    http:QueryParams params;
+};
+
+type Student record {
+    int? id;
+    string fullName;
+    string age;
     record {
-        int Type;
-        string Id;
-        boolean Confirmed;
-    }[] Assets;
-    record {
-        string StopId;
-        string CurrOrPickedTrailer;
-        any Driver2;
-        string Driver1;
-        decimal Latitude;
-        any Unit;
-        decimal Longitude;
-        string TripId;
-        string Weight;
-        string BillOfLading;
-        string ETA;
-        decimal user_id;
-        string DroppedTrailer;
-        string Seal;
-        record {
-            anydata[] warnings;
-            anydata[] errors;
-        } form_meta;
-        string Pieces;
-    } Content;
-    string FormId;
-    string CreateDate;
+        string title;
+        int credits;
+    }[] courses;
+    int totalCredits;
 };
 
-type Input2 record {
-    http:Bucket bucket;
-};
+function transform1(string str) returns string => "";
 
-type Output record {
-    record {
-        string MessageContentType;
-        record {
-            string[] Content;
-            record {
-                int OType;
-                string OId;
-                boolean OConfirmed;
-            }[] Assets;
-            record {
-                decimal Latitude;
-                decimal Longitude;
-            } Coordinates;
-            string FormId;
-            string CreateDate;
-        } MessageContent;
-        string ParentMessageGuid;
-        string MessageGuid;
-    } data;
-    string 'type;
-};
+function transform2(Person person) returns Student => {};
 
-type MessageProperties record {
-    string EventType;
-    string AuditId;
-    string MessageId;
-};
+function transform3(Person person, Course course, Submission submission) returns Student => {};
 
-function transform(Input input, Input2 Input2) returns Output => {
-    data: {
-        MessageContent: {
-            Assets: from var item in input.Assets
-                select {
-                    OType: item.Type,
-                    OId: item.Id,
-                    OConfirmed: item.Confirmed
-                }
-        },
-        MessageGuid: input.MessageProperties.AuditId,
-        MessageContentType: input.MessageProperties.EventType
-    }
-};
+function transform4(Person person, int i) returns float => 0.0;
+
+function transform5(http:CertKey certKey) returns jwt:CertKey => {};
+
+function transform6(string[] names) returns string[] => [];
+
+function transform7(Person[] people, Course[] courses) returns Student[] => [];
+
+function transform8(http:CertKey[] keys) returns jwt:CertKey[] => [];
+
+function transform9(Person? person) returns Student? => {};
+
+function transform10(string str = "") returns string|error => "";
+
+function transform11(record {string houseNo; string street; string city;} address)
+    returns record {string number; string street; string city; int zip;} => {};
+
+function transform12() => ();
+
+function transform13(string str) => ();
+
+function transform14() returns string => "";
