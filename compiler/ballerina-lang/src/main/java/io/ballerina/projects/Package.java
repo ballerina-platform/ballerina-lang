@@ -31,6 +31,7 @@ import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -275,8 +276,10 @@ public class Package {
         Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         List<String> unusedModules = new ArrayList<>();
         if (Files.exists(modulesRoot)) {
-            unusedModules.addAll(Files.list(modulesRoot).filter(Files::isDirectory).map(path ->
-                    Optional.of(path.getFileName()).get().toString()).collect(Collectors.toList()));
+            try (Stream<Path> fileList = Files.list(modulesRoot)) {
+                unusedModules.addAll(fileList.filter(Files::isDirectory).map(path ->
+                        Optional.of(path.getFileName()).get().toString()).collect(Collectors.toList()));
+            }
         }
         for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
             if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {

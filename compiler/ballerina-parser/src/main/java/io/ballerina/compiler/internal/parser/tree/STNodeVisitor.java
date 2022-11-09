@@ -309,10 +309,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
     }
 
-    public void visit(STClientDeclarationNode clientDeclarationNode) {
-        visitSyntaxNode(clientDeclarationNode);
-    }
-
     public void visit(STModuleClientDeclarationNode moduleClientDeclarationNode) {
         visitSyntaxNode(moduleClientDeclarationNode);
     }

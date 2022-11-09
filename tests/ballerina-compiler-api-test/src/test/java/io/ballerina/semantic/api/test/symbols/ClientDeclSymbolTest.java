@@ -87,7 +87,6 @@ public class ClientDeclSymbolTest {
     public Object[][] getClientDeclInfo() {
         return new Object[][]{
                 {19, 69, "myapi", "https://postman-echo.com/get?name=projectapiclientplugin"},
-                {29, 67, "bar", "https://postman-echo.com/get?name=simpleclienttest"},
         };
     }
 
