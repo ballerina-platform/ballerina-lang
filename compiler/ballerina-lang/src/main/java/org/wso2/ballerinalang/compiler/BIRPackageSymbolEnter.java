@@ -1299,9 +1299,9 @@ public class BIRPackageSymbolEnter {
 
                     int defaultValues = inputStream.readInt();
                     for (int i = 0; i < defaultValues; i++) {
-                        String paramName = getStringCPEntryValue(inputStream);
+                        String fieldName = getStringCPEntryValue(inputStream);
                         BInvokableSymbol invokableSymbol = getSymbolOfClosure();
-                        recordSymbol.defaultValues.put(paramName, invokableSymbol);
+                        recordSymbol.defaultValues.put(fieldName, invokableSymbol);
                     }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix

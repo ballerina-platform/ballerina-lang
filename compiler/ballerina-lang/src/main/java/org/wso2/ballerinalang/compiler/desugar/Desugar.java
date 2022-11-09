@@ -373,7 +373,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
     private ClosureDesugar closureDesugar;
-    private GenerateClosuresForDefaultValues generateClosuresForDefaultValues;
+    private ClosureGenerator closureGenerator;
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
@@ -446,7 +446,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
-        this.generateClosuresForDefaultValues = GenerateClosuresForDefaultValues.getInstance(context);
+        this.closureGenerator = ClosureGenerator.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
@@ -766,7 +766,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // create closures for default values
-        generateClosuresForDefaultValues.visit(pkgNode);
+        closureGenerator.visit(pkgNode);
 
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
@@ -1165,7 +1165,6 @@ public class Desugar extends BLangNodeVisitor {
 
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
-//            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, env);
         }
 
         recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
@@ -5762,13 +5761,14 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
     }
 
+    @Override
     public void visit(BFunctionPointerInvocation functionPointerInvocation) {
         result = functionPointerInvocation;
     }
 
-    private List<String> getNamesOfRecordFields(List<RecordLiteralNode.RecordField> fields) {
+    private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
-        for (RecordLiteralNode.RecordField field : fields) {
+        for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
             if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
@@ -5801,14 +5801,14 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void updateFieldsOfRecordLiteral(BLangRecordLiteral recordLiteral,
-                                             List<RecordLiteralNode.RecordField> fields) {
+                                             List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getReferredType(recordLiteral.getBType());
         if (type.getKind() != TypeKind.RECORD) {
             return;
         }
-        List<String> fieldNames = getNamesOfRecordFields(fields);
+        List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
         Location pos = recordLiteral.pos;
-        updateFieldsOfRecordLiteral((BRecordType) type, fields, fieldNames, pos);
+        updateFieldsOfRecordLiteral((BRecordType) type, userSpecifiedFields, fieldNames, pos);
     }
 
     private void updateFieldsOfRecordLiteral(BRecordType recordType, List<RecordLiteralNode.RecordField> fields,
@@ -10206,7 +10206,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fields.clear();
-        // no need of map literal
         return new BLangMapLiteral(pos, type, rewrittenFields);
     }
 

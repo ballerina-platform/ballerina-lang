@@ -192,13 +192,12 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * GenerateClosuresForDefaultValues for create closures for default values.
+ * ClosureGenerator for create closures for default values.
  *
  * @since 2201.3.0
  */
-public class GenerateClosuresForDefaultValues extends BLangNodeVisitor {
-    private static final CompilerContext.Key<GenerateClosuresForDefaultValues> PARAMETER_DESUGAR_KEY =
-                                                                                            new CompilerContext.Key<>();
+public class ClosureGenerator extends BLangNodeVisitor {
+    private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
 
     private SymbolTable symTable;
@@ -207,17 +206,17 @@ public class GenerateClosuresForDefaultValues extends BLangNodeVisitor {
     private BLangNode result;
     private SymbolResolver symResolver;
 
-    public static GenerateClosuresForDefaultValues getInstance(CompilerContext context) {
-        GenerateClosuresForDefaultValues generateClosuresForDefaultValues = context.get(PARAMETER_DESUGAR_KEY);
-        if (generateClosuresForDefaultValues == null) {
-            generateClosuresForDefaultValues = new GenerateClosuresForDefaultValues(context);
+    public static ClosureGenerator getInstance(CompilerContext context) {
+        ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
+        if (closureGenerator == null) {
+            closureGenerator = new ClosureGenerator(context);
         }
 
-        return generateClosuresForDefaultValues;
+        return closureGenerator;
     }
 
-    private GenerateClosuresForDefaultValues(CompilerContext context) {
-        context.put(PARAMETER_DESUGAR_KEY, this);
+    private ClosureGenerator(CompilerContext context) {
+        context.put(CLOSURE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
         this.symResolver = SymbolResolver.getInstance(context);
@@ -498,12 +497,10 @@ public class GenerateClosuresForDefaultValues extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.FIELD) && varNode.symbol.isDefaultable) {
             typeNodeOfRecordField = varNode.typeNode;
             String closureName = generateName(varNode.symbol.name.value, env.node);
-            bLangExpression = createClosureForDefaultValueOfRecordField(closureName, varNode.name.value, varNode);
-            varNode.expr = bLangExpression;
+            createClosureForDefaultValueOfRecordField(closureName, varNode.name.value, varNode);
             result = varNode;
             return;
         }
@@ -511,6 +508,7 @@ public class GenerateClosuresForDefaultValues extends BLangNodeVisitor {
         if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
+        BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
             String closureName = generateName(varNode.symbol.name.value, env.node);
             bLangExpression = createClosureForDefaultValueOfParameter(closureName, varNode.name.value, varNode);
