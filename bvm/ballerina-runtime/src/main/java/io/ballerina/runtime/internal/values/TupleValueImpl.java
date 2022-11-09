@@ -42,7 +42,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -87,13 +86,6 @@ public class TupleValueImpl extends AbstractArrayValue {
                 hasRestElement == that.hasRestElement &&
                 tupleType.equals(that.tupleType) &&
                 Arrays.equals(refValues, that.refValues);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(tupleType, minSize, hasRestElement);
-        result = 31 * result + Arrays.hashCode(refValues);
-        return result;
     }
 
     public TupleValueImpl(Object[] values, TupleType type) {
