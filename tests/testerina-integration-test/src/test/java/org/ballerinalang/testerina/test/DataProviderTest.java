@@ -77,11 +77,15 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testValidDataProviderWithFail")
     public void testValidDataProviderCase() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#'json1'",
                 "data-providers"});
+        String msg1 = "1 passing";
+        String msg2 = "0 failing";
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertForTestFailures(output, "map based data provider failure");
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("map based data provider failure.");
+        }
     }
 
     @Test (dependsOnMethods = "testValidDataProviderCase")
@@ -98,28 +102,6 @@ public class DataProviderTest extends BaseTestCase {
     }
 
     @Test (dependsOnMethods = "testDataProviderWithMixedType")
-    public void testInvalidDataProvider() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "invalidDataProviderTest",
-                "data-providers"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains("The provided data set does not match the supported formats.")) {
-            Assert.fail("Test failed due to failure in handling invalid data provider.");
-        }
-    }
-
-    @Test (dependsOnMethods = "testInvalidDataProvider")
-    public void testErrorDataProvider() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "errorDataProviderTest",
-                "data-providers"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains("Error occurred while generating data set.")) {
-            Assert.fail("Test failed due to failure in handling errors in data provider.");
-        }
-    }
-
-    @Test (dependsOnMethods = "testErrorDataProvider")
     public void testWithSpecialKeys() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction2",
                 "data-providers"});
