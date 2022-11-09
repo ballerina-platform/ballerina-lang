@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.nodevisitors;
+package io.ballerina.projectdesign.generators.service.nodevisitors;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
@@ -42,11 +42,12 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projectdesign.servicemodel.components.Interaction;
-import io.ballerina.projectdesign.servicemodel.components.ResourceId;
+import io.ballerina.projectdesign.model.service.Interaction;
+import io.ballerina.projectdesign.model.service.ResourceId;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -67,11 +68,13 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final SemanticModel semanticModel;
     private final Package currentPackage;
     private final List<Interaction> interactionList = new LinkedList<>();
+    private final String filePath;
 
-    public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage) {
+    public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage, String filePath) {
 
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
+        this.filePath = filePath;
     }
 
     public List<Interaction> getInteractionList() {
@@ -85,7 +88,7 @@ public class ActionNodeVisitor extends NodeVisitor {
         String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
-        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
+        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel, filePath);
         NonTerminalNode parent = clientResourceAccessActionNode.parent().parent();
 
         // todo: get the connector type using semantic model
@@ -99,10 +102,13 @@ public class ActionNodeVisitor extends NodeVisitor {
             }
         }
 
-        Interaction resourceId = new Interaction(
+        LineRange lineRange = LineRange.from(filePath, clientResourceAccessActionNode.lineRange().startLine(),
+                clientResourceAccessActionNode.lineRange().endLine());
+
+        Interaction interaction = new Interaction(
                 new ResourceId(statementVisitor.getServiceId(), resourceMethod, resourcePath),
-                statementVisitor.getConnectorType());
-        interactionList.add(resourceId);
+                statementVisitor.getConnectorType(), lineRange);
+        interactionList.add(interaction);
 
     }
 
@@ -123,7 +129,7 @@ public class ActionNodeVisitor extends NodeVisitor {
         // todo : Other combinations
         String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
         NonTerminalNode parent = remoteMethodCallActionNode.parent().parent();
-        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel);
+        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel, filePath);
 
         //todo : implement using semantic model. Need to wait till bug fix
         // semanticModel.symbol(remoteMethodCallActionNode.expression()); -> returns null
@@ -136,8 +142,10 @@ public class ActionNodeVisitor extends NodeVisitor {
                 break;
             }
         }
+        LineRange lineRange = LineRange.from(filePath, remoteMethodCallActionNode.lineRange().startLine(),
+                remoteMethodCallActionNode.lineRange().endLine());
         Interaction interaction = new Interaction(new ResourceId(statementVisitor.getServiceId(),
-                resourceMethod, null), statementVisitor.getConnectorType());
+                resourceMethod, null), statementVisitor.getConnectorType(), lineRange);
         interactionList.add(interaction);
 
     }
@@ -194,7 +202,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                                 String referencedFunctionName = functionDefinitionNode.functionName().text();
                                 if (methodName.equals(referencedFunctionName)) {
                                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel,
-                                            currentPackage);
+                                            currentPackage, this.filePath);
                                     functionDefinitionNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
                                 }
@@ -203,7 +211,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                                 String referencedFunctionName = methodDeclarationNode.methodName().text();
                                 if (methodName.equals(referencedFunctionName)) {
                                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel,
-                                            currentPackage);
+                                            currentPackage, this.filePath);
                                     methodDeclarationNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
                                 }

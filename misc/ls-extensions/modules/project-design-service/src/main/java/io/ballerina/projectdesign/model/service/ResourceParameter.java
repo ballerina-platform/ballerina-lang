@@ -16,7 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
@@ -25,19 +28,20 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class ResourceParameter {
+public class ResourceParameter extends ComponentModelItem {
 
     private final List<String> type;
     private final String name;
     private final String in;
     private final boolean isRequired;
 
-    public ResourceParameter(List<String> type, String name, String in, boolean isRequired) {
-
+    public ResourceParameter(List<String> type, String name, String in, boolean isRequired, LineRange lineRange) {
+        super(lineRange);
         this.type = type;
         this.name = name;
         this.in = in;
         this.isRequired = isRequired;
+
     }
 
     public List<String> getType() {
