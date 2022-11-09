@@ -1219,6 +1219,11 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Ignore incomplete worker-flush expressions
+        // Ex: var a = flush;
+        if (workerFlushExpr.workerIdentifier == null) {
+            return;
+        }
         addIfSameSymbol(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 
