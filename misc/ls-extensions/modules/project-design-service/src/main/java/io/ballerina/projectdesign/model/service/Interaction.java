@@ -16,29 +16,32 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.tools.text.LineRange;
 
 /**
- * Represents display annotation.
+ * Represent interaction with another service.
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation {
+public class Interaction extends ComponentModelItem {
 
-    private final String id;
-    private final String label;
+    private final ResourceId resourceId;
+    private final String connectorType;
 
-    public ServiceAnnotation(String id, String label) {
-
-        this.id = id;
-        this.label = label;
+    public Interaction(ResourceId resourceId, String connectorType, LineRange lineRange) {
+        super(lineRange);
+        this.resourceId = resourceId;
+        this.connectorType = connectorType;
     }
 
-    public String getId() {
-        return id;
+    public ResourceId getResourceId() {
+        return resourceId;
     }
 
-    public String getLabel() {
-        return label;
+    public String getConnectorType() {
+        return connectorType;
     }
 }

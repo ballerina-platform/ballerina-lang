@@ -16,37 +16,38 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
 
-import java.util.List;
+import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.tools.text.LineRange;
 
 /**
- * Represent a parameter of a Ballerina Object Method.
+ * Represents display annotation.
  *
  * @since 2201.2.2
  */
-public class FunctionParameter {
+public class ServiceAnnotation extends ComponentModelItem {
 
-    private final List<String> type;
-    private final String name;
-    private final boolean isRequired;
+    private final String id;
+    private final String label;
 
-    public FunctionParameter(List<String> type, String name, boolean isRequired) {
-
-        this.type = type;
-        this.name = name;
-        this.isRequired = isRequired;
+    public ServiceAnnotation() {
+        super(null);
+        this.id = "";
+        this.label = "";
     }
 
-    public List<String> getType() {
-        return type;
+    public ServiceAnnotation(String id, String label, LineRange lineRange) {
+        super(lineRange);
+        this.id = id;
+        this.label = label;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public boolean isRequired() {
-        return isRequired;
+    public String getLabel() {
+        return label;
     }
 }

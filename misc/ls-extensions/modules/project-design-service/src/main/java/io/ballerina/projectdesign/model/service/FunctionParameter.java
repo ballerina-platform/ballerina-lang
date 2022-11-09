@@ -16,45 +16,40 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
 /**
- * Represents a Ballerina remote function.
+ * Represent a parameter of a Ballerina Object Method.
  *
  * @since 2201.2.2
  */
-public class RemoteFunction {
+public class FunctionParameter extends ComponentModelItem {
 
+    private final List<String> type;
     private final String name;
-    private final List<FunctionParameter> parameters;
-    private final List<String> returns;
+    private final boolean isRequired;
 
-    private final List<Interaction> interactions;
-
-    public RemoteFunction(String name, List<FunctionParameter> parameters, List<String> returns,
-                          List<Interaction> interactions) {
-
+    public FunctionParameter(List<String> type, String name, boolean isRequired, LineRange lineRange) {
+        super(lineRange);
+        this.type = type;
         this.name = name;
-        this.parameters = parameters;
-        this.returns = returns;
-        this.interactions = interactions;
+        this.isRequired = isRequired;
+    }
+
+    public List<String> getType() {
+        return type;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<FunctionParameter> getParameters() {
-        return parameters;
-    }
-
-    public List<String> getReturns() {
-        return returns;
-    }
-
-    public List<Interaction> getInteractions() {
-        return interactions;
+    public boolean isRequired() {
+        return isRequired;
     }
 }

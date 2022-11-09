@@ -8,8 +8,9 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projectdesign.servicemodel.components.ServiceAnnotation;
+import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.projects.Package;
+import io.ballerina.tools.text.LineRange;
 
 import java.util.Map;
 
@@ -36,13 +37,16 @@ public class Utils {
         return componentModelMap.containsKey(getQualifiedPackageName(packageId));
     }
 
-    public static ServiceAnnotation getServiceAnnotation(NodeList<AnnotationNode> annotationNodes) {
+    public static ServiceAnnotation getServiceAnnotation(NodeList<AnnotationNode> annotationNodes, String filePath) {
 
         String id = "";
         String label = "";
+        LineRange lineRange = null;
         for (AnnotationNode annotationNode : annotationNodes) {
             String annotationName = annotationNode.annotReference().toString().trim();
             if (annotationName.equals(DISPLAY_ANNOTATION)) {
+                lineRange = LineRange.from(filePath, annotationNode.lineRange().startLine(),
+                        annotationNode.lineRange().endLine());
                 if (annotationNode.annotValue().isPresent()) {
                     SeparatedNodeList<MappingFieldNode> fields = annotationNode.annotValue().get().fields();
                     for (MappingFieldNode mappingFieldNode : fields) {
@@ -64,6 +68,7 @@ public class Utils {
                 }
             }
         }
-        return new ServiceAnnotation(id, label);
+
+        return new ServiceAnnotation(id, label, lineRange);
     }
 }

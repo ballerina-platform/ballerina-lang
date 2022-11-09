@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.nodevisitors;
+package io.ballerina.projectdesign.generators.service.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -43,8 +43,8 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projectdesign.ComponentModel;
 import io.ballerina.projectdesign.Utils;
-import io.ballerina.projectdesign.servicemodel.components.Service;
-import io.ballerina.projectdesign.servicemodel.components.ServiceAnnotation;
+import io.ballerina.projectdesign.model.service.Service;
+import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.text.LineRange;
 
@@ -85,7 +85,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
 
         StringBuilder serviceNameBuilder = new StringBuilder();
-        ServiceAnnotation serviceAnnotation = new ServiceAnnotation("", "");
+        ServiceAnnotation serviceAnnotation = new ServiceAnnotation();
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
             serviceNameBuilder.append(serviceNameNode.toString().replace("\"", ""));
@@ -94,7 +94,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceAnnotation = Utils.getServiceAnnotation(annotationNodes);
+            serviceAnnotation = Utils.getServiceAnnotation(annotationNodes, this.filePath);
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
@@ -102,7 +102,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
         ServiceMemberFunctionNodeVisitor serviceMemberFunctionNodeVisitor =
                 new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
-                        semanticModel, currentPackage, packageId);
+                        semanticModel, currentPackage, packageId, filePath);
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         LineRange lineRange = LineRange.from(filePath,
                 serviceDeclarationNode.lineRange().startLine(), serviceDeclarationNode.lineRange().endLine());

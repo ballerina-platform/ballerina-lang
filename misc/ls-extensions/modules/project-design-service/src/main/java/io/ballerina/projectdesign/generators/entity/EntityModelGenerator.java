@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.entitymodel;
+package io.ballerina.projectdesign.generators.entity;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
@@ -32,9 +32,9 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projectdesign.ComponentModel;
 import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
-import io.ballerina.projectdesign.entitymodel.components.Association;
-import io.ballerina.projectdesign.entitymodel.components.Attribute;
-import io.ballerina.projectdesign.entitymodel.components.Entity;
+import io.ballerina.projectdesign.model.entity.Association;
+import io.ballerina.projectdesign.model.entity.Attribute;
+import io.ballerina.projectdesign.model.entity.Type;
 import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
@@ -66,9 +66,9 @@ public class EntityModelGenerator {
         this.moduleRootPath = moduleRootPath;
     }
 
-    public Map<String, Entity> generate() {
+    public Map<String, Type> generate() {
 
-        Map<String, Entity> entities = new HashMap<>();
+        Map<String, Type> types = new HashMap<>();
         List<Symbol> symbols = semanticModel.moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
@@ -92,22 +92,17 @@ public class EntityModelGenerator {
                         List<Association> associations =
                                 getAssociations(fieldEntryValue.typeDescriptor(), entityName, optional, nillable);
                         Attribute attribute =
-                                new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations);
+                                new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
+                                        getLineRange(fieldEntryValue));
                         attributeList.add(attribute);
                     }
-                    LineRange recordLineRange = null;
-                    if (typeDefinitionSymbol.getLocation().isPresent()) {
-                        LineRange typeLineRange = typeDefinitionSymbol.getLocation().get().lineRange();
-                        String filePath = String.format("%s/%s", moduleRootPath, typeLineRange.filePath());
-                        recordLineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
-                    }
 
-                    Entity entity = new Entity(attributeList, inclusionList, recordLineRange);
-                    entities.put(entityName, entity);
+                    Type type = new Type(attributeList, inclusionList, getLineRange(typeDefinitionSymbol));
+                    types.put(entityName, type);
                 }
             }
         }
-        return entities;
+        return types;
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
@@ -288,5 +283,15 @@ public class EntityModelGenerator {
             }
         }
         return associations;
+    }
+
+    private LineRange getLineRange(Symbol symbol) {
+        LineRange lineRange = null;
+        if (symbol.getLocation().isPresent()) {
+            LineRange typeLineRange = symbol.getLocation().get().lineRange();
+            String filePath = String.format("%s/%s", moduleRootPath, typeLineRange.filePath());
+            lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
+        }
+        return lineRange;
     }
 }
