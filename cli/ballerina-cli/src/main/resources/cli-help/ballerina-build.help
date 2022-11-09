@@ -52,9 +52,11 @@ OPTIONS
            Target directory path.
 
        --native
-           Generate a GraalVM native image. Native image generation is an
-           experimental feature which supports only a limited set of
-           functionality.
+           [Experimental] Generate a GraalVM native image. Native image is an
+           ahead-of-time compilation technology that generates standalone
+           executables. The generated executable contains the modules in the
+           current package, their dependencies, Ballerina runtime,
+           and statically linked native code from the JDK.
 
 
 

@@ -21,12 +21,8 @@ package io.ballerina.projects;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.plugins.CompilerPlugins;
@@ -162,7 +158,7 @@ class IDLPluginManager {
         private final String sourceDoc;
         private final Package currentPackage;
         private final IDLClients idlClients;
-        private final Node clientNode;
+        private final ModuleClientDeclarationNode clientNode;
         private final Set<ModuleLoadRequest> moduleLoadRequests;
         private final List<ModuleConfig> moduleConfigs;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
@@ -170,7 +166,8 @@ class IDLPluginManager {
         private final List<IDLClientEntry> cachedClientEntries;
         private final Map<String, Integer> aliasNameCounter;
 
-        public IDLSourceGeneratorContextImpl(Node clientNode, PackageID sourcePkgId, String sourceDoc,
+        public IDLSourceGeneratorContextImpl(ModuleClientDeclarationNode clientNode, PackageID sourcePkgId,
+                                             String sourceDoc,
                                              Package currentPackage, Path resourcePath,
                                              IDLClients idlClients,
                                              Set<ModuleLoadRequest> moduleLoadRequests,
@@ -190,7 +187,7 @@ class IDLPluginManager {
         }
 
         @Override
-        public Node clientNode() {
+        public ModuleClientDeclarationNode clientNode() {
             return clientNode;
         }
 
@@ -220,14 +217,7 @@ class IDLPluginManager {
         @Override
         public void addClient(ModuleConfig moduleConfig, NodeList<AnnotationNode> supportedAnnotations) {
             ModuleConfig newModuleConfig = createModuleConfigWithRandomName(moduleConfig);
-            LineRange lineRange;
-            if (this.clientNode.kind().equals(SyntaxKind.MODULE_CLIENT_DECLARATION)) {
-                ModuleClientDeclarationNode moduleClientNode = (ModuleClientDeclarationNode) this.clientNode;
-                lineRange = moduleClientNode.clientPrefix().location().lineRange();
-            } else {
-                ClientDeclarationNode clientDeclarationNode = (ClientDeclarationNode) this.clientNode;
-                lineRange = clientDeclarationNode.clientPrefix().location().lineRange();
-            }
+            LineRange lineRange = this.clientNode.clientPrefix().location().lineRange();
             idlClients.addEntry(sourcePkgId, sourceDoc, lineRange,
                     newModuleConfig.moduleDescriptor().moduleCompilationId());
             this.moduleLoadRequests.add(new ModuleLoadRequest(
@@ -251,16 +241,8 @@ class IDLPluginManager {
             this.cachedClientEntries.add(idlCacheInfo);
         }
 
-        private String getUri(Node clientNode) {
-            BasicLiteralNode clientUri;
-
-            if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-                clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-            } else {
-                clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-            }
-
-            String text = clientUri.literalToken().text();
+        private String getUri(ModuleClientDeclarationNode clientNode) {
+            String text = clientNode.clientUri().literalToken().text();
             return text.substring(1, text.length() - 1);
         }
 

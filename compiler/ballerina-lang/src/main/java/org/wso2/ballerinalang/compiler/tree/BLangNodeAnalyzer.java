@@ -139,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -624,8 +623,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangWorkerSend node, T data);
 
     public abstract void visit(BLangXMLNSStatement node, T data);
-
-    public abstract void visit(BLangClientDeclarationStatement node, T data);
 
     // Types
 

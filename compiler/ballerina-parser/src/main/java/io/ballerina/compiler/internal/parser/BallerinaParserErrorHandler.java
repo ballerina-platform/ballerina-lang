@@ -109,7 +109,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
             ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.DO_BLOCK,
-            ParserRuleContext.FAIL_STATEMENT, ParserRuleContext.BLOCK_STMT, ParserRuleContext.CLIENT_DECLARATION };
+            ParserRuleContext.FAIL_STATEMENT, ParserRuleContext.BLOCK_STMT };
 
     private static final ParserRuleContext[] ASSIGNMENT_STMT_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.COMPOUND_BINARY_OPERATOR };

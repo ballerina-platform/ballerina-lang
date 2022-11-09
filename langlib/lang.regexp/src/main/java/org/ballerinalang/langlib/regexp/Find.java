@@ -46,6 +46,25 @@ public class Find {
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region(startIndex, str.length());
+        if (matcher.find()) {
+            resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
+            if (matcher.groupCount() != 0) {
+                BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
+                for (int i = 0; i < spanArr.getLength(); i++) {
+                    resultArray.append(spanArr.get(i));
+                }
+            }
+        }
+        if (resultArray.getLength() == 0) {
+            return null;
+        }
+        return resultArray;
+    }
+
+    public static BArray findAll(BRegexpValue regExp, BString str, int startIndex) {
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        matcher.region(startIndex, str.length());
         while (matcher.find()) {
             resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
         }
@@ -60,12 +79,6 @@ public class Find {
         matcher.region(startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
-            if (matcher.groupCount() == 0) {
-                BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-                group.append(RegexUtil.getGroupZeroAsSpan(matcher));
-                groupArray.append(group);
-                break;
-            }
             BArray group = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
             if (group.getLength() != 0) {
                 groupArray.append(group);
