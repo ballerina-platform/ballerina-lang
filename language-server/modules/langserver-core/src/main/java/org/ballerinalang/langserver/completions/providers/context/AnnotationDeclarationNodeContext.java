@@ -69,6 +69,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
                 List<Symbol> filteredSymbols = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
 
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
+                completionItemList.addAll(this.getClientDeclCompletionItemList(context, qNameRef, predicate));
             } else {
                 List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                         .filter(predicate)
@@ -93,7 +94,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         Token annotationKeyword = node.annotationKeyword();
         Token semicolonToken = node.semicolonToken();
         int cursor = context.getCursorPositionInTree();
-        
+
         return !annotationKeyword.isMissing() && cursor >= annotationKeyword.textRange().endOffset()
                 && (semicolonToken.isMissing() || cursor < semicolonToken.textRange().endOffset());
     }

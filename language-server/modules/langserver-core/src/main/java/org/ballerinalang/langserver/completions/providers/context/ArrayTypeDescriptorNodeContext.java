@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ArrayTypeDescriptorNode} context.
- * 
+ * <p>
  * Array type descriptor suggests the completions only if the cursor is within the brackets
  * eg:
  * (1) TypeName[[cursor]] ...
@@ -62,6 +62,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
             List<Symbol> moduleConstants = QNameRefCompletionUtil.getModuleContent(context, qName, constantFilter());
 
             completionItems.addAll(this.getCompletionItemList(moduleConstants, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qName, constantFilter()));
         } else {
             List<Symbol> constants = visibleSymbols.stream()
                     .filter(constantFilter())
@@ -103,7 +104,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
                 return true;
             }
         }
-        
+
         return false;
     }
 }

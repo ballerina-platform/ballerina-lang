@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -62,6 +63,7 @@ public class RequiredParameterNodeContext extends AbstractCompletionProvider<Req
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
                     .getTypesInModule(context, qNameRef), context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, CommonUtil.typesFilter()));
         } else {
             /*
               covers the following

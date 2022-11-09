@@ -324,7 +324,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getClientDeclarationCompletionItems(context));
 
         return completionItems;
     }
@@ -438,6 +437,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits, alias);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });
+        //Get prefixes of client declarations
+        completionItems.addAll(this.getClientDeclarationCompletionItems(ctx));
 
         return completionItems;
     }

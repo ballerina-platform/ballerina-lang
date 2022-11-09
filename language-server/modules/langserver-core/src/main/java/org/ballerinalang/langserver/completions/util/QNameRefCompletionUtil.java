@@ -66,10 +66,7 @@ public class QNameRefCompletionUtil {
         Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(ctx, alias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        || symbol.kind() == SymbolKind.TYPE_DEFINITION
-                        || symbol.kind() == SymbolKind.CLASS
-                        || symbol instanceof VariableSymbol)
+                .filter(CommonUtil.expressionsFilter())
                 .collect(Collectors.toList())).orElseGet(ArrayList::new);
     }
 

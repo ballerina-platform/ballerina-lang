@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -62,6 +63,7 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             visibleSymbols.addAll(QNameRefCompletionUtil.getModuleContent(ctx, nameRef, filter));
+            completionItems.addAll(this.getClientDeclCompletionItemList(ctx, nameRef, filter));
         } else {
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             List<Symbol> filteredSymbols = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
@@ -71,7 +73,7 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
         }
         completionItems.addAll(this.getCompletionItemList(visibleSymbols, ctx));
         this.sort(ctx, node, completionItems);
-        
+
         return completionItems;
     }
 

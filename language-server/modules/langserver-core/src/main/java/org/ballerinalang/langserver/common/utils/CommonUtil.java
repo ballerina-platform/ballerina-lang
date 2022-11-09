@@ -289,8 +289,8 @@ public class CommonUtil {
     /**
      * Check if the provided union type is a union of members of provided type desc kind.
      *
-     * @param typeSymbol Union type symbol
-     * @param typeDescKind    Type desc kind
+     * @param typeSymbol   Union type symbol
+     * @param typeDescKind Type desc kind
      * @return true if provided union contains members of provided type desc kind
      */
     public static boolean isUnionOfType(TypeSymbol typeSymbol, TypeDescKind typeDescKind) {
@@ -395,6 +395,18 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Get the common predicate to filter the types.
+     *
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> expressionsFilter() {
+        return symbol -> symbol.kind() == SymbolKind.FUNCTION
+                || symbol.kind() == SymbolKind.TYPE_DEFINITION
+                || symbol.kind() == SymbolKind.CLASS
+                || symbol instanceof VariableSymbol;
     }
 
     /**
@@ -604,7 +616,6 @@ public class CommonUtil {
         return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
-
 
     /**
      * Returns ballerina text edit for a given lsp4j text edit.

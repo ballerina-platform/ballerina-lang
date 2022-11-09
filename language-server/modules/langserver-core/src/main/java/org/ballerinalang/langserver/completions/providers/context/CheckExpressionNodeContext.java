@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -66,9 +67,12 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
 
             NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
             if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
-                List<Symbol> expressions = QNameRefCompletionUtil.getExpressionContextEntries(ctx, 
+                List<Symbol> expressions = QNameRefCompletionUtil.getExpressionContextEntries(ctx,
                         (QualifiedNameReferenceNode) nodeAtCursor);
                 completionItems.addAll(getCompletionItemList(expressions, ctx));
+                completionItems.addAll(this.getClientDeclCompletionItemList(ctx,
+                        (QualifiedNameReferenceNode) nodeAtCursor,
+                        CommonUtil.expressionsFilter()));
             } else {
 
                 //We add the action keywords in order to support the check action context completions.

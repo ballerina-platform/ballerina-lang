@@ -74,6 +74,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                     || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, filter));
         } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
             /*
             Captures the following case.

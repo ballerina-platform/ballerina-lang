@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -91,6 +92,8 @@ public class ClientResourceAccessActionNodeContext
                 List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
+                completionItems.addAll(this.getClientDeclCompletionItemList(context,
+                        qNameRef, CommonUtil.expressionsFilter()));
             } else {
                 completionItems.addAll(this.actionKWCompletions(context));
                 completionItems.addAll(this.expressionCompletions(context));

@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -59,6 +60,7 @@ public class ComputedResourceAccessSegmentNodeContext extends
                     || symbol.kind() == SymbolKind.FUNCTION;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, filter));
         } else {
             /*
             Captures the following cases

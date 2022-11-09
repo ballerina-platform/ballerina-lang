@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -59,7 +60,7 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
             eg: int n = true ? module1:
              */
             String middleExprName = ((SimpleNameReferenceNode) node.middleExpression()).name().text();
-            List<Symbol> expressionContextSymbols = 
+            List<Symbol> expressionContextSymbols =
                     QNameRefCompletionUtil.getExpressionContextEntries(context, middleExprName);
             if (expressionContextSymbols.isEmpty()) {
                 completionItems.addAll(this.expressionCompletions(context));
@@ -67,20 +68,22 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
                 completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
             }
         } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Symbol> expressionContextSymbols = QNameRefCompletionUtil.getExpressionContextEntries(context, 
+            List<Symbol> expressionContextSymbols = QNameRefCompletionUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, 
+                    (QualifiedNameReferenceNode) nodeAtCursor, CommonUtil.expressionsFilter()));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
         return completionItems;
     }
-    
+
     private boolean isMiddleExpressionQNameRef(ConditionalExpressionNode node) {
         Node middleExpression = node.middleExpression();
         Node endExpression = node.endExpression();
-        return !middleExpression.isMissing() && middleExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE 
+        return !middleExpression.isMissing() && middleExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && !endExpression.isMissing() && endExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
     }
 

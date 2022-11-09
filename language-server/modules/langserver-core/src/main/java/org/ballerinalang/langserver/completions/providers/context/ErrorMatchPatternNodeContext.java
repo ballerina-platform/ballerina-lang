@@ -62,6 +62,8 @@ public class ErrorMatchPatternNodeContext extends MatchStatementContext<ErrorMat
             // Covers 3 and 4
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             errorTypes = QNameRefCompletionUtil.getModuleContent(context, qNameRef, this.errorTypeFilter());
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef,
+                    this.errorTypeFilter()));
         } else {
             // covers 1 and 2
             List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());

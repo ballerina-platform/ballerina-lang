@@ -72,6 +72,7 @@ public class DistinctTypeDescriptorNodeContext extends AbstractCompletionProvide
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, predicate));
         } else {
             // Error type will be added via the module completion items
             completionItems.addAll(this.getModuleCompletionItems(context));

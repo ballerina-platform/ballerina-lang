@@ -84,7 +84,11 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
                     || symbol.kind() == SymbolKind.TYPE_DEFINITION
                     || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
-            return this.getCompletionItemList(moduleContent, context);
+
+            List<LSCompletionItem> completionItems = new ArrayList<>();
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, filter));
+            return completionItems;
         }
 
         if (onSuggestionsAfterQualifiers(context, initializer)) {

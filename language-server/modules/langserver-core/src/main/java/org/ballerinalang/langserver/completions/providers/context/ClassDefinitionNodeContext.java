@@ -157,15 +157,17 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
                                                            ClassDefinitionNode node) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
-            return this.getCompletionItemList(typesInModule, context);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, CommonUtil.typesFilter()));
+            return completionItems;
         }
         if (onSuggestionsAfterQualifiers(context, context.getNodeAtCursor())) {
             return this.getCompletionItemsOnQualifiers(context.getNodeAtCursor(), context);
         }
-        List<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Here we do not add the function keyword as type descriptor completion items add it.
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));

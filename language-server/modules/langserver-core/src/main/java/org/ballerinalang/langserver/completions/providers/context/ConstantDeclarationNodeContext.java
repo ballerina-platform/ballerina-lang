@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -60,6 +61,7 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+                completionItems.addAll(this.getClientDeclCompletionItemList(context, qNameRef, CommonUtil.typesFilter()));
             } else {
                 completionItems.addAll(this.getTypeDescContextItems(context));
                 // [public] [const] annotation [type-descriptor]

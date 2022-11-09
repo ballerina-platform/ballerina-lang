@@ -105,7 +105,10 @@ public class ErrorConstructorExpressionNodeContext extends
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+            completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
+                    .getExpressionContextEntries(ctx, qNameRef), ctx));
+            completionItems.addAll(this.getClientDeclCompletionItemList(ctx, qNameRef,
+                    CommonUtil.expressionsFilter()));
         }
 
         completionItems.addAll(this.expressionCompletions(ctx));
@@ -117,11 +120,15 @@ public class ErrorConstructorExpressionNodeContext extends
     private List<LSCompletionItem> getErrorTypeRefCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+            List<LSCompletionItem> completionItems = new ArrayList<>();
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(ctx, qNameRef,
                     SymbolUtil.isOfType(TypeDescKind.ERROR));
 
-            return this.getCompletionItemList(moduleContent, ctx);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, ctx));
+            completionItems.addAll(this.getClientDeclCompletionItemList(ctx, 
+                    qNameRef, SymbolUtil.isOfType(TypeDescKind.ERROR)));
+            return completionItems;
         }
 
         List<Symbol> errorTypes = ctx.visibleSymbols(ctx.getCursorPosition()).stream()
