@@ -61,6 +61,10 @@ public class JsonToRecordMapperTests {
             .resolve("sample_3.bal");
     private final Path sample3TypeDescBal = RES_DIR.resolve("ballerina")
             .resolve("sample_3_type_desc.bal");
+    private final Path sample3PersonBal = RES_DIR.resolve("ballerina")
+            .resolve("sample_3_person.bal");
+    private final Path sample3PersonTypeDescBal = RES_DIR.resolve("ballerina")
+            .resolve("sample_3_person_type_desc.bal");
 
     private final Path sample4Json = RES_DIR.resolve("json")
             .resolve("sample_4.json");
@@ -309,6 +313,24 @@ public class JsonToRecordMapperTests {
                 "Consider providing a different name.";
         Assert.assertEquals(diagnostics.size(), 1);
         Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage);
+    }
+
+    @Test(description = "Test for JSON with user defined record name")
+    public void testForUserDefinedRecordName() throws IOException {
+        String jsonFileContent = Files.readString(sample3Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample3PersonBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for JSON with user defined record name - inline")
+    public void testForUserDefinedRecordNameInLIne() throws IOException {
+        String jsonFileContent = Files.readString(sample3Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", true, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample3PersonTypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
