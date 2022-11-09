@@ -53,4 +53,5 @@ public class SymTag {
     public static final int ENUM = 1 << 28 | TYPE_DEF;
     public static final int TYPE_REF = 1 << 29;
     public static final int ANNOTATION_ATTACHMENT = 1 << 30;
+    public static final int SEQUENCE = 1 << 31 | MAIN;
 }
