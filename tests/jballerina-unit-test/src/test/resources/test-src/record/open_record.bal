@@ -99,15 +99,15 @@ function testStructExpressionAsIndex () returns string {
     return dpt.employees[0].family.children[dpt.employees[0].family.noOfChildren - 1];
 }
 
-type Mat record {|
+type Mat record {
     int x = fn();
-|};
+};
 
 isolated function fn() returns int {
     return 10;
 }
 
-function testDefaultVal () returns [string, string, int, int, int] {
+function testDefaultVal() returns [string, string, int, int, int] {
     Person p = {};
     Mat m = {};
     Mat m2 = {x: 1};

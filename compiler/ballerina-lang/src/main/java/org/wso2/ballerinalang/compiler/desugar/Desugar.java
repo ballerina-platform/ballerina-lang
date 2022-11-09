@@ -5756,7 +5756,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
         List<RecordLiteralNode.RecordField> fields =  recordLiteral.fields;
-        updateFieldsOfRecordLiteral(recordLiteral, fields);
+        generateFieldsForUserUnspecifiedRecordFields(recordLiteral, fields);
         fields.sort((v1, v2) -> Boolean.compare(isComputedKey(v1), isComputedKey(v2)));
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
     }
@@ -5781,8 +5781,8 @@ public class Desugar extends BLangNodeVisitor {
         return fieldNames;
     }
 
-    private void updateFieldsOfRecordLiteral(List<RecordLiteralNode.RecordField> fields, List<String> fieldNames,
-                                             Map<String, BInvokableSymbol> defaultValues, Location pos) {
+    private void generateFieldsForUserUnspecifiedRecordFields(List<RecordLiteralNode.RecordField> fields, List<String> fieldNames,
+                                                              Map<String, BInvokableSymbol> defaultValues, Location pos) {
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
             if (fieldNames.contains(fieldName)) {
@@ -5800,26 +5800,28 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void updateFieldsOfRecordLiteral(BLangRecordLiteral recordLiteral,
-                                             List<RecordLiteralNode.RecordField> userSpecifiedFields) {
+    private void generateFieldsForUserUnspecifiedRecordFields(BLangRecordLiteral recordLiteral,
+                                                              List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         BType type = Types.getReferredType(recordLiteral.getBType());
         if (type.getKind() != TypeKind.RECORD) {
             return;
         }
         List<String> fieldNames = getNamesOfUserSpecifiedRecordFields(userSpecifiedFields);
         Location pos = recordLiteral.pos;
-        updateFieldsOfRecordLiteral((BRecordType) type, userSpecifiedFields, fieldNames, pos);
+        generateFieldsForUserUnspecifiedRecordFields((BRecordType) type, userSpecifiedFields, fieldNames, pos);
     }
 
-    private void updateFieldsOfRecordLiteral(BRecordType recordType, List<RecordLiteralNode.RecordField> fields,
-                                             List<String> fieldNames, Location pos) {
+    private void generateFieldsForUserUnspecifiedRecordFields(BRecordType recordType,
+                                                              List<RecordLiteralNode.RecordField> fields,
+                                                              List<String> fieldNames, Location pos) {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
-        updateFieldsOfRecordLiteral(fields, fieldNames, defaultValues, pos);
+        generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos);
 
         List<BType> typeInclusions = recordType.typeInclusions;
 
         for (BType typeInclusion : typeInclusions) {
-            updateFieldsOfRecordLiteral((BRecordType) Types.getReferredType(typeInclusion), fields, fieldNames, pos);
+            generateFieldsForUserUnspecifiedRecordFields((BRecordType) Types.getReferredType(typeInclusion), fields,
+                                                         fieldNames, pos);
         }
     }
 
