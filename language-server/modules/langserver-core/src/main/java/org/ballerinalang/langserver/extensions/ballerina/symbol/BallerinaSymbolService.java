@@ -246,7 +246,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     if (fnSymbol instanceof FunctionSymbol) {
                         FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
 
-                        Optional<ResolvedTypeForSymbol> returnType = getTypeForReturnTypeDesc(fnTypeSymbol, fnPosition);
+                        Optional<ResolvedTypeForSymbol> returnType =
+                                getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
                         returnType.ifPresent(types::add);
 
                         Optional<List<ResolvedTypeForSymbol>> paramTypes = getTypesForFnParams(fnTypeSymbol);
