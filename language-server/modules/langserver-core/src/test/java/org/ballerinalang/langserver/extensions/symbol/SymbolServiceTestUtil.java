@@ -23,6 +23,16 @@ import io.ballerina.tools.text.LineRange;
  */
 public class SymbolServiceTestUtil {
 
+    public static final String INTEGER = "int";
+    public static final String STRING = "string";
+    public static final String FLOAT = "float";
+    public static final String RECORD = "record";
+    public static final String ARRAY = "array";
+    public static final String UNION = "union";
+    public static final String ERROR = "error";
+    public static final String NULL = "()";
+    public static final String NEVER = "never";
+
     public static boolean isPositionsEquals(LinePosition expectedPosition, LinePosition actualPosition) {
         return expectedPosition.line() == actualPosition.line()
                 && expectedPosition.offset() == actualPosition.offset();
