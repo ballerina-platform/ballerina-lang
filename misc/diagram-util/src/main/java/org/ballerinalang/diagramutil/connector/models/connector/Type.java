@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -317,6 +318,9 @@ public class Type {
         } else if (symbol instanceof ParameterSymbol) {
             ParameterSymbol parameterSymbol = (ParameterSymbol) symbol;
             type = fromSemanticSymbol(parameterSymbol.typeDescriptor());
+            if (type != null) {
+                type.defaultable = parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE;
+            }
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }
