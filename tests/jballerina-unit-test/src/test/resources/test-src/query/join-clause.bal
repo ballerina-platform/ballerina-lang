@@ -490,12 +490,23 @@ public function testOuterJoin() {
                     ids.push(user?.id);
                 };
 
+    string?[] ordered_names = [];
+    error? e2 = from Login login in logins
+            outer join var user in users on login.userId equals user?.id
+            order by user?.id
+            do {
+                ordered_names.push(user?.name);
+            };
+
     assertEquality("Anne", selected[0]);
     assertEquality("Keith", selected[1]);
     assertEquality(null, selected[2]);
     assertEquality(6789, ids[0]);
     assertEquality(1234, ids[1]);
     assertEquality(null, ids[2]);
+    assertEquality("Keith", ordered_names[0]);
+    assertEquality("Anne", ordered_names[1]);
+    assertEquality(null, ordered_names[2]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
