@@ -116,21 +116,30 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
         
         // Selection is a position
-        List<Node> nodeList = new ArrayList<>();
+        List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
+        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
+        
+        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(), 
+                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition)));
+        
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(), 
+                            textEditMap)), CodeActionKind.RefactorExtract));
+    }
+
+    private List<Node> getPossibleExpressionNodes(Node node, BasicLiteralNodeValidator nodeValidator) {
         // Identify the sub-expressions to be extracted
-        while (!(node instanceof StatementNode) && !(node instanceof ModuleMemberDeclarationNode)
-                && node.kind() != SyntaxKind.OBJECT_FIELD && !nodeValidator.getInvalidNode()) {
+        List<Node> nodeList = new ArrayList<>();
+        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD && !nodeValidator.getInvalidNode()) {
             nodeList.add(node);
             node = node.parent();
             node.accept(nodeValidator);
         }
+        return nodeList;
+    }
 
-        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(), 
-                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition)));
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(), 
-                            textEditMap)), CodeActionKind.RefactorExtract));
+    private boolean isExpressionNode(Node node) {
+        return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
     @Override
