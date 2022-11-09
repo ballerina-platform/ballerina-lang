@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign;
 
-import io.ballerina.projectdesign.entitymodel.components.Entity;
-import io.ballerina.projectdesign.servicemodel.components.Service;
+import io.ballerina.projectdesign.model.entity.Type;
+import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.Package;
 
 import java.util.Map;
@@ -33,13 +33,13 @@ public class ComponentModel {
 
     private final PackageId packageId;
     private final Map<String, Service> services;
-    private final Map<String, Entity> entities;
+    private final Map<String, Type> types;
 
-    public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Entity> entities) {
+    public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Type> entities) {
 
         this.packageId = packageId;
         this.services = services;
-        this.entities = entities;
+        this.types = entities;
     }
 
     public PackageId getPackageId() {
@@ -52,9 +52,9 @@ public class ComponentModel {
         return services;
     }
 
-    public Map<String, Entity> getEntities() {
+    public Map<String, Type> getTypes() {
 
-        return entities;
+        return types;
     }
 
     /**
