@@ -22,6 +22,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Expression Context tests.
@@ -45,5 +47,16 @@ public class TypeDescContextTest extends CompletionTest {
     @Override
     public String getTestResourceDir() {
         return "typedesc_context";
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Arrays.asList(
+                // expected type cases
+            "function_typedesc15a.json",
+            "function_typedesc15b.json",
+            "function_typedesc15c.json",
+            "function_typedesc15d.json"
+        );
     }
 }

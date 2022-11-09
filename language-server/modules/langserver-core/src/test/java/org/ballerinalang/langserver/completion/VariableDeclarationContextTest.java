@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,12 +42,18 @@ public class VariableDeclarationContextTest extends CompletionTest {
     }
 
     @Override
-    public List<String> skipList() {
-        return Collections.singletonList("var_def_ctx_config16.json");
+    public String getTestResourceDir() {
+        return "variable-declaration";
     }
 
     @Override
-    public String getTestResourceDir() {
-        return "variable-declaration";
+    public List<String> skipList() {
+        return Arrays.asList(
+                // expected type cases
+            "var_def_ctx_config7.json",
+            "var_def_ctx_config20.json",
+            "var_def_ctx_config16.json",
+            "var_def_in_obj_constructor_config1.json"
+        );
     }
 }

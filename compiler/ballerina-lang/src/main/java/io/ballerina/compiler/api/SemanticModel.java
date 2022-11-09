@@ -211,4 +211,14 @@ public interface SemanticModel {
      * @return {@link List} of diagnostics for the module
      */
     List<Diagnostic> diagnostics();
+
+    /**
+     * Get the expected type for a given position.
+     *
+     * @param sourceDocument The source file document in which to look up the position
+     * @param linePosition linePosition to get expected type
+     * @return the type symbol if available, if not, returns empty
+     */
+
+    Optional<TypeSymbol> expectedType(Document sourceDocument, LinePosition linePosition);
 }

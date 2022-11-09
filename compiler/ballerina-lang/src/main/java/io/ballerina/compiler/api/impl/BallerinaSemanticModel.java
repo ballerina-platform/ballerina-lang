@@ -27,12 +27,17 @@ import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -137,8 +142,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                                                         position.line(), position.line(),
-                                                         position.offset(), position.offset());
+                                                                        position.line(), position.line(),
+                                                                        position.offset(), position.offset());
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
@@ -381,6 +386,35 @@ public class BallerinaSemanticModel implements SemanticModel {
         return this.bLangPackage.getDiagnostics();
     }
 
+    @Override
+    public Optional<TypeSymbol> expectedType(Document sourceDocument, LinePosition linePosition) {
+        Optional<TypeSymbol> typeSymbol;
+        TypeSymbol expectedTypeSymbol;
+        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
+        SyntaxTree syntaxTree = sourceDocument.syntaxTree();
+        Node node = findNode(linePosition, syntaxTree);
+        ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(this, compilationUnit,
+                this.compilerContext, linePosition, sourceDocument);
+        try {
+            do {
+                typeSymbol = node.apply(expectedTypeFinder);
+                // To handle the cases related to ExternalTreeNodeList
+                if (typeSymbol == null || typeSymbol.isEmpty()) {
+                    expectedTypeSymbol = null;
+                } else {
+                    expectedTypeSymbol = typeSymbol.get();
+                }
+
+                node = node.parent();
+            } while (expectedTypeSymbol == null && node != null);
+
+        } catch (IllegalStateException e) {
+            typeSymbol = Optional.empty();
+        }
+
+        return typeSymbol;
+    }
+
     // Private helper methods for the public APIs above.
 
     private Optional<Symbol> lookupSymbol(BLangCompilationUnit compilationUnit, LinePosition position) {
@@ -618,4 +652,12 @@ public class BallerinaSemanticModel implements SemanticModel {
     private boolean isPackageImportedOnTheCompUnit(BSymbol symbol, String compUnit) {
         return symbol.getKind() == SymbolKind.PACKAGE && ((BPackageSymbol) symbol).compUnit.getValue().equals(compUnit);
     }
+
+    private static NonTerminalNode findNode(LinePosition linePosition, SyntaxTree syntaxTree) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        int start = textDocument.textPositionFrom(linePosition);
+        int end = textDocument.textPositionFrom(linePosition);
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+    }
+
 }
