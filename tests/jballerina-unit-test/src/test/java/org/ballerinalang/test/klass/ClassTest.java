@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -34,11 +35,13 @@ public class ClassTest {
 
     private CompileResult compileResult;
     private CompileResult distinctCompUnit;
+    private CompileResult classDefCompileResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/klass/simple_class.bal");
         distinctCompUnit = BCompileUtil.compile("test-src/klass/distinct-class-def.bal");
+        classDefCompileResult = BCompileUtil.compile("test-src/klass/class_def_test.bal");
     }
 
     @Test
@@ -114,13 +117,14 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
-    @Test(description = "Negative tests to check fields that have initialized using another field")
+    @Test(description = "Negative tests to check fields that have been initialized using other fields")
     public void classDefFieldsInitializedUsingAnotherField() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_field_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 19, 13);
         BAssertUtil.validateError(negative, i++, "undefined symbol 'a'", 27, 19);
         BAssertUtil.validateError(negative, i++, "undefined symbol 'name'", 36, 20);
+        BAssertUtil.validateError(negative, i++, "undefined symbol 'name'", 44, 20);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
@@ -136,12 +140,17 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
-    @Test(description = "A test case covering ballerina-platform/ballerina-lang#36172")
-    public void classDefTest() {
-        CompileResult result = BCompileUtil.compile("test-src/klass/class_def_test.bal");
-        Assert.assertEquals(result.getErrorCount(), 0);
-        BRunUtil.invoke(result, "testFooClass");
-        BRunUtil.invoke(result, "testGlobalVariablesAssignmentToFields");
+    @Test(dataProvider = "classDefTestFunctions")
+    public void testClassDef(String functionName) {
+        BRunUtil.invoke(classDefCompileResult, functionName);
+    }
+
+    @DataProvider(name = "classDefTestFunctions")
+    public Object[] classDefTestFunctions() {
+        return new String[]{
+                "testUnionTypeInInitParameter",
+                "testModuleLevelVariableAsFieldDefault"
+        };
     }
 
     @AfterClass
