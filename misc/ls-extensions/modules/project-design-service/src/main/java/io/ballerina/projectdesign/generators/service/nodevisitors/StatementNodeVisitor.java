@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.nodevisitors;
+package io.ballerina.projectdesign.generators.service.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -53,11 +53,13 @@ public class StatementNodeVisitor extends NodeVisitor {
     private String connectorType = null;
     private final SemanticModel semanticModel;
     private final String clientName;
+    private final String filePath;
 
-    public StatementNodeVisitor(String clientName, SemanticModel semanticModel) {
+    public StatementNodeVisitor(String clientName, SemanticModel semanticModel, String filePath) {
 
         this.clientName = clientName;
         this.semanticModel = semanticModel;
+        this.filePath = filePath;
     }
 
     public String getServiceId() {
@@ -75,7 +77,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             TypeDescriptorNode typeDescriptorNode = variableDeclarationNode.typedBindingPattern().typeDescriptor();
             connectorType = getClientModuleName(typeDescriptorNode);
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
-            this.serviceId = Utils.getServiceAnnotation(annotations).getId();
+            this.serviceId = Utils.getServiceAnnotation(annotations, this.filePath).getId();
         }
     }
 
@@ -88,7 +90,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = objectFieldNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getServiceAnnotation(annotationNodes).getId();
+                serviceId = Utils.getServiceAnnotation(annotationNodes, this.filePath).getId();
             }
         }
     }
@@ -103,7 +105,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = moduleVariableDeclarationNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getServiceAnnotation(annotationNodes).getId();
+                serviceId = Utils.getServiceAnnotation(annotationNodes, this.filePath).getId();
             }
         }
     }

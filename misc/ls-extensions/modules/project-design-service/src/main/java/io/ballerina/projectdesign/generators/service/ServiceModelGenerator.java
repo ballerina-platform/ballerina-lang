@@ -16,13 +16,13 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel;
+package io.ballerina.projectdesign.generators.service;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projectdesign.ComponentModel;
-import io.ballerina.projectdesign.servicemodel.components.Service;
-import io.ballerina.projectdesign.servicemodel.nodevisitors.ServiceDeclarationNodeVisitor;
+import io.ballerina.projectdesign.generators.service.nodevisitors.ServiceDeclarationNodeVisitor;
+import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;

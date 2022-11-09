@@ -16,20 +16,28 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.tools.text.LineRange;
 
 /**
  * Represents display annotation.
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation {
+public class ServiceAnnotation extends ComponentModelItem {
 
     private final String id;
     private final String label;
 
-    public ServiceAnnotation(String id, String label) {
-
+    public ServiceAnnotation() {
+        super(null);
+        this.id = "";
+        this.label = "";
+    }
+    public ServiceAnnotation(String id, String label, LineRange lineRange) {
+        super(lineRange);
         this.id = id;
         this.label = label;
     }
