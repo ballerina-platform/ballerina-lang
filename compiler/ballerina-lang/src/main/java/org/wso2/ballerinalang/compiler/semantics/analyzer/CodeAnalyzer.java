@@ -1882,18 +1882,24 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
         for (BLangExpression varRef : varRefs) {
             NodeKind kind = varRef.getKind();
-            if (kind == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
-                if (simpleVarRef.symbol != null && !symbols.add(simpleVarRef.symbol)) {
-                    this.dlog.error(varRef.pos, DiagnosticErrorCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
-                            simpleVarRef.symbol);
-                }
-            } else if (kind == NodeKind.RECORD_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangRecordVarRef) varRef), symbols);
-            } else if (kind == NodeKind.ERROR_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangErrorVarRef) varRef), symbols);
-            } else if (kind == NodeKind.TUPLE_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangTupleVarRef) varRef), symbols);
+            switch (kind) {
+                case SIMPLE_VARIABLE_REF:
+                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+                    if (simpleVarRef.symbol != null && !symbols.add(simpleVarRef.symbol)) {
+                        this.dlog.error(varRef.pos, DiagnosticErrorCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
+                                simpleVarRef.symbol);
+                    }
+                    break;
+                case RECORD_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangRecordVarRef) varRef), symbols);
+                    break;
+                case ERROR_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangErrorVarRef) varRef), symbols);
+                    break;
+                case TUPLE_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangTupleVarRef) varRef), symbols);
+                    break;
+                default:
             }
         }
     }
