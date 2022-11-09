@@ -157,4 +157,9 @@ public class MultiplyOperationTest {
                 "testNoShortCircuitingInMultiplicationWithNonNullable"
         };
     }
+
+    @Test
+    public void testDecimalMultiplicationUnderflow() {
+        BRunUtil.invoke(result, "testDecimalMultiplicationUnderflow");
+    }
 }
