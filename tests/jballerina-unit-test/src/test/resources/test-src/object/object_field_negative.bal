@@ -24,15 +24,3 @@ class Person {
         self.'error = er;
     }
 }
-
-function testFieldInitializationUsingAnotherField() {
-    int a = 10;
-
-    var _ = object {
-        int x = a;
-        int y = x; // error
-
-        function init() {
-        }
-    };
-}

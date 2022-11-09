@@ -26,7 +26,7 @@ public class Foo {
     }
 }
 
-function testFooClass() {
+function testUnionTypeInInitParameter() {
     Foo f = new;
     assertEquality(f.s, COMMA);
 }
@@ -38,13 +38,15 @@ public class Bar {
     int b = a;
 
     function init() {
-        assertEquality(self.b, 3);
     }
 }
 
-function testGlobalVariablesAssignmentToFields() {
+function testModuleLevelVariableAsFieldDefault() {
     Bar b = new();
+    a = 6;
     assertEquality(b.b, 3);
+    Bar b2 = new;
+    assertEquality(b2.b, 6);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

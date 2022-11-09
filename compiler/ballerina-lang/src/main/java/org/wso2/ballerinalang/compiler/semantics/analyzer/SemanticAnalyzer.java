@@ -739,7 +739,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition,
-                createFieldsRemovedScope(classDefinition.symbol.scope), currentEnv);
+                createClassScopeWithoutFields(classDefinition.symbol.scope), currentEnv);
         for (BLangSimpleVariable field : classDefinition.fields) {
             data.env = classEnv;
             analyzeNode(field, data);
@@ -772,14 +772,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzerClassInitMethod(classDefinition, data);
     }
 
-    private Scope createFieldsRemovedScope(Scope classScope) {
+    private Scope createClassScopeWithoutFields(Scope classScope) {
         Scope scope = new Scope(classScope.owner);
-        for (Name key : classScope.entries.keySet()) {
-            Scope.ScopeEntry entry = classScope.entries.get(key);
-             BSymbol fieldSymbol = entry.symbol;
-             if (!Symbols.isFlagOn(fieldSymbol.flags, Flags.FIELD)) {
-                 scope.entries.put(key, entry);
-             }
+        Map<Name, Scope.ScopeEntry> classScopeEntries = classScope.entries;
+        Map<Name, Scope.ScopeEntry> scopeEntries = scope.entries;
+        for (Name key : classScopeEntries.keySet()) {
+            Scope.ScopeEntry entry = classScopeEntries.get(key);
+            if (!Symbols.isFlagOn(entry.symbol.flags, Flags.FIELD)) {
+                scopeEntries.put(key, entry);
+            }
         }
         return scope;
     }
