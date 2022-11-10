@@ -37,7 +37,7 @@ public class BallerinaSymbolServiceServerCapabilitySetter extends
         capabilities.setGetSymbol(true);
         capabilities.setGetTypeFromExpression(true);
         capabilities.setGetTypeFromSymbol(true);
-        capabilities.setGetTypesFromFnSignature(true);
+        capabilities.setGetTypesFromFnDefinition(true);
         return Optional.of(capabilities);
     }
 
