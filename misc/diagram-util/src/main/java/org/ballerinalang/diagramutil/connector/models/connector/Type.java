@@ -256,6 +256,7 @@ public class Type {
             Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
                     fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
             type = new RecordType(fields, restType);
+            parentSymbols.remove(parentSymbols.size() - 1);
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
             type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
