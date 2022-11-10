@@ -44,13 +44,6 @@ public class ModuleConstantContextTest extends CompletionTest {
     }
 
     @Override
-    public List<String> skipList() {
-        return List.of(
-                "config7.json"
-        );
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "module_const_context";
     }
