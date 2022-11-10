@@ -61,8 +61,6 @@ public class IDLClientCompilerTests {
 
     private static final String UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR =
             "exposing a construct from a module generated for a client declaration is not yet supported";
-    private static final String NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR =
-            "a module generated for a client declaration must have an object type or class named 'Client'";
     private static final String MUTABLE_STATE_IN_GENERATED_MODULE_ERROR =
             "a module generated for a client declaration cannot have mutable state";
     private static final String INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR =
@@ -194,9 +192,6 @@ public class IDLClientCompilerTests {
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
-        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
-        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
-        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 9, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 11, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 13, 1);

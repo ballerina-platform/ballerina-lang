@@ -94,7 +94,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -4946,38 +4945,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             for (Map.Entry<String, Map<LineRange, Optional<PackageID>>> compUnitEntry :
                     pkgIdEntry.getValue().entrySet()) {
                 if (compUnitEntry.getValue().containsValue(Optional.of(bLangPackage.packageID))) {
-                    checkForClientObjectTypeOrClass(bLangPackage);
                     checkForMutableState(bLangPackage, data);
                 }
             }
         }
 
         checkForPubliclyExposedConstructsFromClientDeclModules(bLangPackage);
-    }
-
-    private void checkForClientObjectTypeOrClass(BLangPackage bLangPackage) {
-        for (BLangClassDefinition classDefinition : bLangPackage.classDefinitions) {
-            if (classDefinition.name.value.equals(Names.CLIENT.value) &&
-                    classDefinition.flagSet.contains(Flag.CLIENT)) {
-                return;
-            }
-        }
-
-        for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
-            BType bType = typeDefinition.typeNode.getBType();
-            if (bType.tag != TypeTags.OBJECT) {
-                continue;
-            }
-
-            if (Names.CLIENT.value.equals(bType.tsymbol.name.value) &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLIENT)) {
-                return;
-            }
-        }
-
-        List<BLangCompilationUnit> compUnits = bLangPackage.compUnits;
-        dlog.error(compUnits.isEmpty() ? bLangPackage.symbol.pos : compUnits.get(0).pos,
-                   DiagnosticErrorCode.MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE);
     }
 
     private void checkForMutableState(BLangPackage bLangPackage, AnalyzerData data) {
