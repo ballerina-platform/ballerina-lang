@@ -34,6 +34,8 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     private boolean getTypeFromSymbol;
 
+    private boolean getTypesFromFnSignature;
+
     public boolean isGetSymbol() {
         return getSymbol;
     }
@@ -72,6 +74,14 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     public void setGetTypeFromSymbol(boolean getTypeFromSymbol) {
         this.getTypeFromSymbol = getTypeFromSymbol;
+    }
+
+    public boolean isGetTypesFromFnSignature() {
+        return getTypesFromFnSignature;
+    }
+
+    public void setGetTypesFromFnSignature(boolean getTypesFromFnSignature) {
+        this.getTypesFromFnSignature = getTypesFromFnSignature;
     }
 
     public BallerinaSymbolClientCapabilities() {
