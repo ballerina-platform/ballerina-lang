@@ -223,7 +223,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<TypesFromSymbolResponse> getTypesFromFnSignature(TypesFromFnSignatureRequest request) {
+    public CompletableFuture<TypesFromSymbolResponse> getTypesFromFnDefinition(TypesFromFnDefinitionRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             TypesFromSymbolResponse typeFromSymbolResponse = new TypesFromSymbolResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
@@ -257,8 +257,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 typeFromSymbolResponse.setTypes(types);
                 return typeFromSymbolResponse;
             } catch (Throwable e) {
-                String msg = "Operation 'ballerinaSymbol/getTypesFromFnSignature' failed!";
-                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_FN_SIGNATURE_API, msg, e,
+                String msg = "Operation 'ballerinaSymbol/getTypesFromFnDefinition' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_TYPE_FROM_FN_DEFINITION_API, msg, e,
                         request.getDocumentIdentifier(), (Position) null);
                 return typeFromSymbolResponse;
             }
