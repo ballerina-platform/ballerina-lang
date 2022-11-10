@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 /**
  * Represents a request to get type info given for given positions of symbols.
  */
-public class TypesFromFnSignatureRequest {
+public class TypesFromFnDefinitionRequest {
     private TextDocumentIdentifier documentIdentifier;
     private LinePosition fnPosition;
     private LinePosition returnTypeDescPosition;
