@@ -259,11 +259,11 @@ public class TestBalaProject {
         Assert.assertEquals(project.kind(), ProjectKind.BALA_PROJECT);
         PackageCompilation compilation = project.currentPackage().getCompilation();
         int errorCount = compilation.diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount, 3);
+        Assert.assertEquals(errorCount, 0);
 
         BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v3");
         int errorCount2 = project.currentPackage().getCompilation().diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount2, 3);
+        Assert.assertEquals(errorCount2, 0);
 
         project.clearCaches();
         int errorCount3 = project.currentPackage().getCompilation().diagnosticResult().errorCount();

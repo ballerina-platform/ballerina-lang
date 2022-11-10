@@ -263,11 +263,11 @@ public class TestSingleFileProject {
         SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
         PackageCompilation compilation = singleFileProject.currentPackage().getCompilation();
         int errorCount = compilation.diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount, 3);
+        Assert.assertEquals(errorCount, 0);
 
         BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v2");
         int errorCount2 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount2, 3);
+        Assert.assertEquals(errorCount2, 0);
 
         singleFileProject.clearCaches();
         int errorCount3 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
