@@ -1022,7 +1022,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     /**
-     * Get the TypeSymbol related to first argument in bLangInvocationNode
+     * Get the TypeSymbol related to first argument in bLangInvocationNode.
      *
      * @param bLangNode bLangInvocationNode related to the function/method
      * @return  the type symbol if available, if not, returns empty
@@ -1081,8 +1081,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     /**
      * Get the expected type for a function argument.
      *
-     * @param bLangInvocation bLangInvocationNode related to the function/method.
-     * @return the type symbol if available, if not, returns empty.
+     * @param bLangInvocation bLangInvocationNode related to the function/method
+     * @return the type symbol if available, if not, returns empty
      */
     private Optional<TypeSymbol> getExpectedTypeFromFunction(BLangInvocation bLangInvocation) {
         int size = bLangInvocation.argExprs.size();
