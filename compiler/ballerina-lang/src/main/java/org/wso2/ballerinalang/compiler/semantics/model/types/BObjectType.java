@@ -44,8 +44,6 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String READONLY = "readonly";
     public boolean markedIsolatedness;
 
-    private BIntersectionType intersectionType = null;
-
     public BObjectType mutableType = null;
     public BLangClassDefinition classDef = null;
 

@@ -1126,7 +1126,7 @@ public class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, typeOwner,
                     JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) type), GET_TYPE_REF_TYPE_IMPL);
         } else {
-            loadType(mv, JvmCodeGenUtil.getReferredType(type));
+            loadType(mv, JvmCodeGenUtil.getReferredType(type, false));
         }
     }
 }

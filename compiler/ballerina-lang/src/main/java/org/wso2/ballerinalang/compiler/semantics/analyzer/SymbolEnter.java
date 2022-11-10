@@ -1746,24 +1746,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean isErrorIntersection = isErrorIntersection(definedType);
         if (isErrorIntersection) {
-            populateSymbolNameOfErrorIntersection(definedType, typeDefinition.name.value);
             populateAllReadyDefinedErrorIntersection(definedType, typeDefinition, env);
         }
 
         BType referenceConstraintType = Types.getReferredType(definedType, false);
-        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
-
-        BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
-                referenceConstraintType;
-
-        boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
-                isIntersectionType && effectiveDefinedType.tsymbol != null;
-
-        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-            effectiveTypeSymbol.name = typeDefSymbol.name;
-            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
-        }
 
         handleDistinctDefinition(typeDefinition, typeDefSymbol, definedType, referenceConstraintType);
 
@@ -1791,14 +1777,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         definedType.flags |= typeDefSymbol.flags;
-
-        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-            effectiveTypeSymbol.flags |= definedType.tsymbol.flags;
-            effectiveTypeSymbol.origin = VIRTUAL;
-            effectiveDefinedType.flags |= definedType.flags;
-        }
-
         typeDefinition.symbol = typeDefSymbol;
 
         if (typeDefinition.hasCyclicReference) {

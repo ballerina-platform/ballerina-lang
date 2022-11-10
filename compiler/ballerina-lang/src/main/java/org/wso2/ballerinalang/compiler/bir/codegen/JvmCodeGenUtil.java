@@ -505,12 +505,17 @@ public class JvmCodeGenUtil {
     }
 
     static String cleanupObjectTypeName(String typeName) {
-        int index = typeName.indexOf(".");
-        if (index > 0 && index != typeName.length() - 1) { // Resource method name can contain . at the end
+        int index = typeName.lastIndexOf("."); // Internal type names can contain dots hence use the `lastIndexOf`
+        int typeNameLength = typeName.length();
+        if (index > 0 && index != typeNameLength - 1) { // Resource method name can contain . at the end 
             return typeName.substring(index + 1);
-        } else {
-            return typeName;
+        } else if (index > 0) {
+            // We will reach here for resource methods eg: (MyClient8.$get$.)
+            index = typeName.substring(0, typeNameLength - 1).lastIndexOf("."); // Index of the . before the last .
+            return typeName.substring(index + 1);
         }
+        
+        return typeName;
     }
 
     public static void loadChannelDetails(MethodVisitor mv, List<BIRNode.ChannelDetails> channels,
@@ -720,10 +725,10 @@ public class JvmCodeGenUtil {
         }
 
         if (type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType, effectiveType);
         }
         
-        if (effectiveType & type.tag == TypeTags.INTERSECTION) {
+        if (effectiveType && type.tag == TypeTags.INTERSECTION) {
             return getReferredType(((BIntersectionType) type).effectiveType);
         }
         
