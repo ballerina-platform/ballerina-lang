@@ -48,15 +48,4 @@ public class TypeDescContextTest extends CompletionTest {
     public String getTestResourceDir() {
         return "typedesc_context";
     }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList(
-                // expected type cases
-            "function_typedesc15a.json",
-            "function_typedesc15b.json",
-            "function_typedesc15c.json",
-            "function_typedesc15d.json"
-        );
-    }
 }
