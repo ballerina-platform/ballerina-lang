@@ -4238,7 +4238,6 @@ public class BallerinaParser extends AbstractParser {
                 STNode varOrFuncName = consume();
                 return createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
             case MAP_KEYWORD:
-            case CLIENT_KEYWORD:
                 colon = consume();
                 STToken keyword = consume();
                 STNode refName = STNodeFactory.createIdentifierToken(keyword.text(), keyword.leadingMinutiae(),

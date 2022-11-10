@@ -61,11 +61,10 @@ public class IDLClientCompilerTests {
 
     private static final String UNSUPPORTED_EXPOSURE_OF_PUBLIC_CONSTRUCT_ERROR =
             "exposing a construct from a module generated for a client declaration is not yet supported";
+    private static final String NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR =
+            "a module generated for a client declaration must have an object type or class named 'client'";
     private static final String MUTABLE_STATE_IN_GENERATED_MODULE_ERROR =
             "a module generated for a client declaration cannot have mutable state";
-    private static final String INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR =
-            "invalid usage of the 'client' keyword as an unquoted identifier in a qualified identifier: " +
-                    "allowed only with client declarations";
 
     private CompileResult result;
 
@@ -192,6 +191,9 @@ public class IDLClientCompilerTests {
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
+        validateError(diagnostics, index++, NO_CLIENT_OBJECT_NAMED_CLIENT_IN_GENERATED_MODULE_ERROR, 1, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 9, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 11, 1);
         validateError(diagnostics, index++, MUTABLE_STATE_IN_GENERATED_MODULE_ERROR, 13, 1);
@@ -216,28 +218,6 @@ public class IDLClientCompilerTests {
         validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 24, 5);
         validateError(diagnostics, index++, "undefined module 'bar'", 25, 5);
         validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 25, 5);
-        Assert.assertEquals(diagnostics.length, index);
-    }
-
-    @Test
-    public void testInvalidUsageOfUnquotedClientKeywordNegative() {
-        Project project = loadPackage("simpleclientnegativetestsix");
-        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
-        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
-                          TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
-        PackageCompilation compilation = project.currentPackage().getCompilation();
-
-        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
-        int index = 0;
-        // main.bal
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 21, 1);
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 25, 5);
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 26, 5);
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 26, 27);
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 31, 9);
-        // oth.bal
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 20, 5);
-        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 21, 9);
         Assert.assertEquals(diagnostics.length, index);
     }
 

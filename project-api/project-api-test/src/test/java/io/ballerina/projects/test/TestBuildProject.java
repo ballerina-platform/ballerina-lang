@@ -1775,11 +1775,11 @@ public class TestBuildProject extends BaseTest {
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
         int errorCount = compilation.diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount, 0);
+        Assert.assertEquals(errorCount, 3);
 
         BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two");
         int errorCount2 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();
-        Assert.assertEquals(errorCount2, 0);
+        Assert.assertEquals(errorCount2, 3);
 
         buildProject.clearCaches();
         int errorCount3 = buildProject.currentPackage().getCompilation().diagnosticResult().errorCount();

@@ -18,7 +18,7 @@ client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 function testModuleClientDecl() {
     foo:ClientConfiguration config = {'limit: 5};
-    foo:client cl = new (config);
+    foo:Client cl = new (config);
     int 'limit = cl->getLimit();
     assertEquals(5, 'limit);
     cl->setLimit(10);'limit = cl->getLimit();
@@ -37,7 +37,7 @@ bar:ClientConfiguration clientConfig = {'limit: 15};
 client "https://postman-echo.com/get?name=simpleclienttest-clientobjecttype.yaml" as foo3;
 
 function testClientDeclModuleWithClientObjectType() {
-    foo3:client cl = foo3:fn();
+    foo3:Client cl = foo3:fn();
     int index = cl->getIndex();
     assertEquals(10, index);
 }
