@@ -280,10 +280,9 @@ public class RunNativeImageTestTask implements Task {
         for (Map.Entry<String, String> functionMockModuleMapping : functionMockModuleMappings.entrySet()) {
             String moduleJar = functionMockModuleMapping.getKey();
             String replacedJar = functionMockModuleMappings.get(moduleJar);
-            if (replacedJar != null) {
-                modClassPath = classPath.replace(moduleJar, replacedJar);
-                classPath = modClassPath;
-            }
+            modClassPath = classPath.replace(moduleJar, replacedJar);
+            classPath = modClassPath;
+
         }
 
         String jacocoAgentJarPath = "";
@@ -426,21 +425,20 @@ public class RunNativeImageTestTask implements Task {
                                              Map<String, String> functionMockModuleMapping) throws IOException {
         String mainJarName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
                 testSuite.getVersion() + JAR_EXTENSION;
-        String testJardName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
+        String testJarName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
                 testSuite.getVersion() + HYPHEN + TESTABLE + JAR_EXTENSION;
-        String modJar = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN + testSuite.getVersion() + HYPHEN +
+        String modifiedJar = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN + testSuite.getVersion() + HYPHEN +
                 MODIFIED + JAR_EXTENSION;
         if (testSuite.getMockFunctionNamesMap().isEmpty()) {
-            functionMockModuleMapping.put(mainJarName, null);
             return false;
         }
-        functionMockModuleMapping.put(mainJarName, modJar);
+        functionMockModuleMapping.put(mainJarName, modifiedJar);
         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
 
 
         List<String> mockFunctionDependencies = new ArrayList<>();
         for (String testExecutionDependency : testExecutionDependencies) {
-            if (testExecutionDependency.endsWith(mainJarName) || testExecutionDependency.endsWith(testJardName)) {
+            if (testExecutionDependency.endsWith(mainJarName) || testExecutionDependency.endsWith(testJarName)) {
                 mockFunctionDependencies.add(testExecutionDependency);
             }
         }
@@ -462,7 +460,7 @@ public class RunNativeImageTestTask implements Task {
         Map<String, byte[]> unmodifiedFiles = loadUnmodifiedFilesWithinJar(mockFunctionDependencies, mainJarName);
         String modifiedJarPath = (target.path().resolve(CACHE_DIR).resolve(testSuite.getOrgName()).resolve
                 (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_11_DIR)).toString()
-                 + PATH_SEPARATOR + modJar;
+                 + PATH_SEPARATOR + modifiedJar;
         dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);
         return true;
     }
