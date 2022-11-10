@@ -48,14 +48,4 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
     public String getTestResourceDir() {
         return "field_access_expression_context";
     }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList(
-            "foreach_stmt_ctx_config24.json",
-            "foreach_stmt_ctx_config20.json",
-            "field_access_ctx_config20.json",
-            "field_access_ctx_config4.json"
-        );
-    }
 }
