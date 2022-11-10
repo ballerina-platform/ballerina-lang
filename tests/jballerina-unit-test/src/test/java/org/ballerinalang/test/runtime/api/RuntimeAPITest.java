@@ -45,7 +45,8 @@ public class RuntimeAPITest {
                 "types",
                 "invalid_values",
                 "utils",
-                "stop_handler"
+                "stop_handler",
+                "identifier_utils"
         };
     }
 }
