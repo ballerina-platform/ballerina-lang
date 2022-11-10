@@ -27,7 +27,7 @@ public enum SymbolContext implements LSOperation {
     SC_GET_TYPE_FROM_EXPRESSION_API("ballerinaSymbol/getTypeFromExpression"),
     SC_GET_SYMBOL_API("ballerinaSymbol/getSymbol"),
     SC_GET_TYPE_FROM_SYMBOL_API("ballerinaSymbol/getTypeFromSymbol"),
-    SC_GET_TYPE_FROM_FN_SIGNATURE_API("ballerinaSymbol/getTypesFromFnSignature");
+    SC_GET_TYPE_FROM_FN_DEFINITION_API("ballerinaSymbol/getTypesFromFnDefinition");
     private final String name;
 
     SymbolContext(String name) {

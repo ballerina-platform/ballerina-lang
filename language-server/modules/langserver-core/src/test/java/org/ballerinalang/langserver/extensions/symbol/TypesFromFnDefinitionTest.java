@@ -36,14 +36,14 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Test type info retrieved via getTypesFromFnSignature endpoint.
+ * Test type info retrieved via getTypesFromFnDefinition endpoint.
  */
-public class TypesFromFnSignatureTest {
+public class TypesFromFnDefinitionTest {
     private Endpoint serviceEndpoint;
 
-    private final Path typesFromFnSignatureBalFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path typesFromFnDefinitionBalFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("symbol")
-            .resolve("typesFromFnSignature.bal");
+            .resolve("typesFromFnDefinition.bal");
 
     @BeforeClass
     public void startLangServer() {
@@ -53,7 +53,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for primitive type param and primitive type return")
     public void testTypesForPrimitiveTypeParamAndPrimitiveTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -61,7 +61,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(33, 27);
         LinePosition returnTypeDescPosition = LinePosition.from(33, 40);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -81,7 +81,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for record type param and record type return")
     public void testTypesForRecordTypeParamAndRecordTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -89,7 +89,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(35, 27);
         LinePosition returnTypeDescPosition = LinePosition.from(33, 43);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -109,7 +109,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for multiple params and record type return")
     public void testTypesForMultipleParamsAndRecordTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -119,7 +119,7 @@ public class TypesFromFnSignatureTest {
         LinePosition param3Position = LinePosition.from(37, 61);
         LinePosition returnTypeDescPosition = LinePosition.from(37, 81);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -147,7 +147,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for multiple params and primitive type return")
     public void testTypesForMultipleParamsAndPrimitiveTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -156,7 +156,7 @@ public class TypesFromFnSignatureTest {
         LinePosition param2Position = LinePosition.from(39, 39);
         LinePosition returnTypeDescPosition = LinePosition.from(39, 50);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -180,7 +180,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for record type(from http module) param and record type(from jwt module) return")
     public void testTypesForRecordTypeParamAndRecordTypeReturn2()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -188,7 +188,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(41, 33);
         LinePosition returnTypeDescPosition = LinePosition.from(41, 50);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -208,7 +208,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for primitive type array param and primitive type array return")
     public void testTypesForPrimitiveTypeArrayParamAndPrimitiveTypeArrayReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -216,7 +216,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(43, 29);
         LinePosition returnTypeDescPosition = LinePosition.from(43, 44);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -242,7 +242,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for record type array params and record type array return")
     public void testTypesForRecordTypeArrayParamsAndRecordTypeArrayReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -251,7 +251,7 @@ public class TypesFromFnSignatureTest {
         LinePosition param2Position = LinePosition.from(45, 46);
         LinePosition returnTypeDescPosition = LinePosition.from(45, 63);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -284,7 +284,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for record type(from imported module) array params and record type(from imported module) array return")
     public void testTypesForRecordTypeArrayParamsAndRecordTypeArrayReturn2()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -292,7 +292,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(47, 35);
         LinePosition returnTypeDescPosition = LinePosition.from(47, 49);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -318,7 +318,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for optional record type param and optional record type return")
     public void testTypesForOptionalRecordTypeParamAndOptionalRecordTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -326,7 +326,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(49, 28);
         LinePosition returnTypeDescPosition = LinePosition.from(49, 44);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -356,7 +356,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for primitive type defaultable param and primitive type return")
     public void testTypesForPrimitiveTypeDefaultableParamAndPrimitiveTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -364,7 +364,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(51, 28);
         LinePosition returnTypeDescPosition = LinePosition.from(51, 46);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -390,7 +390,7 @@ public class TypesFromFnSignatureTest {
     @Test(description = "type info retrieved for inline record type param and inline record type return")
     public void testTypesForInlineRecordTypeParamAndInlineRecordTypeReturn()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
@@ -398,7 +398,7 @@ public class TypesFromFnSignatureTest {
         LinePosition paramPosition = LinePosition.from(53, 74);
         LinePosition returnTypeDescPosition = LinePosition.from(54, 12);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -430,13 +430,13 @@ public class TypesFromFnSignatureTest {
     @Test(description = "test no params and no return type")
     public void testNoParamsAndNoReturnType()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition fnPosition = LinePosition.from(56, 9);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, null, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -452,14 +452,14 @@ public class TypesFromFnSignatureTest {
     @Test(description = "test primitive type param and no return type")
     public void testPrimitiveTypeParamAndNoReturnType()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition fnPosition = LinePosition.from(58, 9);
         LinePosition paramPosition = LinePosition.from(58, 28);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, null, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -478,14 +478,14 @@ public class TypesFromFnSignatureTest {
     @Test(description = "test no params and primitive return type")
     public void testNoParamsAndPrimitiveReturnType()
             throws IOException, ExecutionException, InterruptedException {
-        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnSignatureBalFile);
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         LinePosition fnPosition = LinePosition.from(60, 9);
         LinePosition returnTypeDescPosition = LinePosition.from(60, 31);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
@@ -502,7 +502,7 @@ public class TypesFromFnSignatureTest {
         LinePosition fnPosition = LinePosition.from(60, 9);
         LinePosition returnTypeDescPosition = LinePosition.from(60, 31);
 
-        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnSignature(
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 URI.create("file://+"), fnPosition, returnTypeDescPosition, this.serviceEndpoint);
 
         Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
