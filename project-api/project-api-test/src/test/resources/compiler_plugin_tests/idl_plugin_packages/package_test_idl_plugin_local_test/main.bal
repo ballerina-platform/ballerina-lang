@@ -25,7 +25,7 @@ client "./projectapiclientplugin.json" as baz;
 
 function testModuleClientDecl() returns string {
     foo:ClientConfiguration config = {specVersion : "3.0.0"};
-    foo:client cl = new (config);
+    foo:Client cl = new (config);
     return cl->getSpecVersion();
 }
 
@@ -37,6 +37,6 @@ function testModuleClientDecl() returns string {
 
 function testModuleClientDecl2() returns string {
     baz:ClientConfiguration config = {specVersion : "3.0.0"};
-    baz:client cl = new (config);
+    baz:Client cl = new (config);
     return cl->getSpecVersion();
 }

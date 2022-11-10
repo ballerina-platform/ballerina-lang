@@ -18,10 +18,10 @@ client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-
 foo:MyClientClass a = new;
 
 client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml" as bar;
-bar:'client b = new;
+bar:Client b = new;
 
 client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml" as baz;
-baz:'client? _ = ();
+baz:Client? _ = ();
 
 client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-four.yaml" as qux;
-qux:client _ = new;
+qux:Client _ = new;

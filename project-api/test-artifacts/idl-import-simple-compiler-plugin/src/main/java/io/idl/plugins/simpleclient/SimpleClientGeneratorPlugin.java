@@ -167,7 +167,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "    }\n" +
                                 "}\n" +
                                 "\n" +
-                                "public type Client client object {\n" +
+                                "public type 'client client object {\n" +
                                 "    remote function getId();\n" +
                                 "};", "simple_client.bal");
             }
