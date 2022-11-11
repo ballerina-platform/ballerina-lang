@@ -432,7 +432,7 @@ public class JsonToRecordMapperTests {
     public void testForConflictingRecordNamesInInvalidBalFile() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
         JsonToRecordResponse response =
-                JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, invalidBalFile);
+                JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, invalidBalFile.toString());
         String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -456,7 +456,7 @@ public class JsonToRecordMapperTests {
             Path jsonFilePath = entry.getValue().getValue1();
             Path balFilePath = RES_DIR.resolve(PROJECT_DIR).resolve(ASSERT_DIR).resolve("singleFileProject")
                     .resolve(entry.getKey());
-            Path balExistingFilePath = entry.getValue().getValue0();
+            String balExistingFilePath = entry.getValue().getValue0().toString();
             String jsonFileContent = Files.readString(jsonFilePath);
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, balExistingFilePath);
@@ -468,7 +468,7 @@ public class JsonToRecordMapperTests {
             Path jsonFilePath = entry.getValue().getValue1();
             Path balFilePath = RES_DIR.resolve(PROJECT_DIR).resolve(ASSERT_DIR).resolve("singleFileProject")
                     .resolve(entry.getKey());
-            Path balExistingFilePath = entry.getValue().getValue0();
+            String balExistingFilePath = entry.getValue().getValue0().toString();
             String jsonFileContent = Files.readString(jsonFilePath);
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordMapper.convert(jsonFileContent, null, true, false, false, balExistingFilePath);
@@ -482,7 +482,7 @@ public class JsonToRecordMapperTests {
     public void testForConflictingParentRecordName() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
         List<JsonToRecordMapperDiagnostic> diagnostics = JsonToRecordMapper
-                .convert(jsonFileContent, "Friend", false, false, false, sample2Bal).getDiagnostics();
+                .convert(jsonFileContent, "Friend", false, false, false, sample2Bal.toString()).getDiagnostics();
         String diagnosticMessage = "Provided record name 'Friend' conflicts with already existing records. " +
                 "Consider providing a different name.";
         Assert.assertEquals(diagnostics.size(), 1);
@@ -493,7 +493,7 @@ public class JsonToRecordMapperTests {
     public void testForConflictingRecordNamesInBalProjectDefault() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
         String generatedCodeBlock = JsonToRecordMapper
-                .convert(jsonFileContent, null, false, false, false, balProjectFileDefaultModule)
+                .convert(jsonFileContent, null, false, false, false, balProjectFileDefaultModule.toString())
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(balProjectFileDefaultModuleAssert).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -503,9 +503,24 @@ public class JsonToRecordMapperTests {
     public void testForConflictingRecordNamesInBalProjectNonDefault() throws IOException {
         String jsonFileContent = Files.readString(sample6Json);
         String generatedCodeBlock = JsonToRecordMapper
-                .convert(jsonFileContent, "", false, false, false, balProjectFileUtilModule)
+                .convert(jsonFileContent, "", false, false, false, balProjectFileUtilModule.toString())
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(balProjectFileUtilModuleAssert).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for conflicting record name rename diagnostics")
+    public void testForConflictingRecordNameRenameDiagnostics() throws IOException {
+        String jsonFileContent = Files.readString(sample6Json);
+        List<JsonToRecordMapperDiagnostic> diagnostics = JsonToRecordMapper
+                .convert(jsonFileContent, "NewRecord", false, false, false, balProjectFileUtilModule.toString())
+                .getDiagnostics();
+        String diagnosticMessage0 = "The record name 'State' is renamed as 'State_01'. " +
+                "Consider rename it back to a meaningful name.";
+        String diagnosticMessage1 = "The record name 'Author' is renamed as 'Author_01'. " +
+                "Consider rename it back to a meaningful name.";
+        Assert.assertEquals(diagnostics.size(), 2);
+        Assert.assertEquals(diagnostics.get(0).message(), diagnosticMessage0);
+        Assert.assertEquals(diagnostics.get(1).message(), diagnosticMessage1);
     }
 }
