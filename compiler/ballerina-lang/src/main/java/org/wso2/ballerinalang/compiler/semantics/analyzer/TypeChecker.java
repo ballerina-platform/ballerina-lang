@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -206,7 +207,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -2842,16 +2842,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-        } else if (Names.CLIENT.equals(varName) &&
-                !identifier.isLiteral) {
-            PackageID sourcePkg = data.env.enclPkg.packageID;
-            String sourceDoc = varRefExpr.pos.lineRange().filePath();
-            if (!symTable.clientDeclarations.containsKey(sourcePkg) ||
-                    !symTable.clientDeclarations.get(sourcePkg).containsKey(sourceDoc) ||
-                    !symTable.clientDeclarations.get(sourcePkg).get(sourceDoc)
-                            .containsValue(Optional.of(pkgSymbol.pkgID))) {
-                dlog.error(identifier.pos,
-                        DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
+        } else if (Names.CLIENT.equals(varName) && !identifier.isLiteral) {
+            if (pkgSymbol != symTable.notFoundSymbol &&
+                    !symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
+                dlog.error(varRefExpr.pos,
+                           DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
             }
         }
 
@@ -3715,7 +3710,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BResourceFunction resourceFunction = (BResourceFunction) targetFunc;
                 BLangExpression clonedResourceAccPathSeg = 
                         nodeCloner.cloneNode(resourceAccessInvocation.resourceAccessPathSegments);
-                BType resolvedType = checkExprSilent(clonedResourceAccPathSeg, resourceFunction.resourcePathType, data);
+                BType resolvedType = checkExprSilent(clonedResourceAccPathSeg,
+                        getResourcePathType(resourceFunction.pathSegmentSymbols), data);
                 if (resolvedType != symTable.semanticError) {
                     resourceFunctions.add(resourceFunction);
                 }
@@ -3741,11 +3737,33 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.semanticError;
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments,
+                    getResourcePathType(targetResourceFunc.pathSegmentSymbols), data);
             resourceAccessInvocation.symbol = targetResourceFunc.symbol;
             resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
+    }
+    
+    private BTupleType getResourcePathType(List<BResourcePathSegmentSymbol> pathSegmentSymbols) {
+        BType restType = null;
+        int pathSegmentCount = pathSegmentSymbols.size();
+        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentCount - 1);
+        if (lastPathSegmentSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            restType = lastPathSegmentSym.type;
+            pathSegmentCount--;
+        }
+
+        BTupleType resourcePathType;
+        if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+            resourcePathType = new BTupleType(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
+                    .map(s -> s.type).collect(Collectors.toList()));
+        } else {
+            resourcePathType = new BTupleType(new ArrayList<>());
+        }
+        
+        resourcePathType.restType = restType;
+        return resourcePathType;
     }
 
     /**

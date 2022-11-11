@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -740,11 +739,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BLangIdentifier prefix = clientDeclaration.prefix;
             dlog.error(prefix.pos, DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX, prefix.value);
         }
-    }
-    
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     @Override

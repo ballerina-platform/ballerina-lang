@@ -20,10 +20,8 @@ foo:MyClientClass a = new;
 client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml" as bar;
 bar:'client b = new;
 
-function fn() {
-    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml" as baz;
-    baz:'client? _ = ();
+client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml" as baz;
+baz:'client? _ = ();
 
-    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-four.yaml" as qux;
-    qux:client _ = new;
-}
+client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-four.yaml" as qux;
+qux:client _ = new;

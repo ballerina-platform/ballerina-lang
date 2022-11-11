@@ -195,7 +195,6 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                         .stream()
                         .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
             case MODULE_CLIENT_DECLARATION:
-            case CLIENT_DECLARATION:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.CLIENT);
             default:
                 return false;

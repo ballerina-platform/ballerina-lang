@@ -309,10 +309,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(moduleXMLNamespaceDeclarationNode);
     }
 
-    public T transform(STClientDeclarationNode clientDeclarationNode) {
-        return transformSyntaxNode(clientDeclarationNode);
-    }
-
     public T transform(STModuleClientDeclarationNode moduleClientDeclarationNode) {
         return transformSyntaxNode(moduleClientDeclarationNode);
     }

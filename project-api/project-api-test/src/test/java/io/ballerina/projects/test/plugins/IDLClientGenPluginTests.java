@@ -21,12 +21,14 @@ package io.ballerina.projects.test.plugins;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.IDLClientGeneratorResult;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.test.TestUtils;
+import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -38,7 +40,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -68,7 +73,7 @@ public class IDLClientGenPluginTests {
 
     @Test
     public void testIdlPluginBuildProject() {
-        assertIdlPluginProject("package_test_idl_plugin_1", 2);
+        assertIdlPluginProject("package_test_idl_plugin_1", 2, 1);
     }
 
     @Test
@@ -78,7 +83,7 @@ public class IDLClientGenPluginTests {
         Path mainPath = projectDir.resolve("main.bal");
         String originalContent = writeBalFile(projectDir, mainPath);
 
-        assertIdlPluginProject(projectName, 4);
+        assertIdlPluginProject(projectName, 4, 2);
 
         undoBalFile(mainPath, originalContent);
     }
@@ -105,9 +110,12 @@ public class IDLClientGenPluginTests {
         Files.write(balPath, oldContent.getBytes(StandardCharsets.UTF_8));
     }
 
-    private void assertIdlPluginProject(String projectName, int expectedModules) {
+    private void assertIdlPluginProject(String projectName, int expectedModules, int userModules) {
         Path projectDir = testResourceDir.resolve(projectName);
         Project project = TestUtils.loadBuildProject(projectDir);
+        Collection<ModuleId> moduleIds = project.currentPackage().moduleIds();
+        Assert.assertEquals(moduleIds.size(), userModules);
+
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
         Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
                 TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
@@ -118,6 +126,11 @@ public class IDLClientGenPluginTests {
                 TestUtils.getDiagnosticsAsString(diagnosticResult));
 
         Assert.assertEquals(project.currentPackage().moduleIds().size(), expectedModules);
+
+        List<ModuleId> nonGeneratedModuleIds = project.currentPackage().moduleIds().stream().filter(moduleId1 ->
+                !DependencyUtils.isGeneratedModule(project.currentPackage().module(moduleId1)))
+                .collect(Collectors.toList());
+        Assert.assertEquals(nonGeneratedModuleIds.size(), expectedModules - userModules);
     }
 
     @Test(dependsOnMethods = "testIdlPluginBuildProject")

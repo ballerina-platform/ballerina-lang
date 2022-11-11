@@ -21,8 +21,6 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
-public type RegExp regexp:RegExp;
-
 # Returns the length of the string.
 #
 # + str - the string
@@ -311,13 +309,27 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
     name: "padZero"
 } external;
 
-# True if there is a match of `re` against all of `str`.
-# Use `includesMatch` to test whether `re` matches somewhere in `str`.
-public function matches(string str, RegExp 're) returns boolean {
-   return 're.isFullMatch(str);
+# Refers to the `RegExp` type defined by lang.regexp module.
+public type RegExp regexp:RegExp;
+
+# Tests whether there is a full match of a regular expression with a string.
+# A match of a regular expression in a string is a full match if it
+# starts at index 0 and ends at index `n`, where `n` is the length of the string.
+# This is equivalent to `regex:isFullMatch(re, str)`.
+#
+# + str - the string
+# + re - the regular expression
+# + return - true if there is full match of `re` with `str`, and false otherwise
+public function matches(string str, RegExp re) returns boolean {
+   return re.isFullMatch(str);
 }
 
-# True if there is a match for `re` anywhere in `str`
-public function includesMatch(string str, RegExp 're, int startIndex = 0) returns boolean {
-   return 're.find(str, startIndex) != ();
+# Tests whether there is a match of a regular expression somewhere within a string.
+# This is equivalent to `regexp:find(re, str, startIndex) != ()`.
+#
+# + str - the string to be matched
+# + re - the regular expression
+# + return - true if the is a match of `re` somewhere within `str`, otherwise false
+public function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
+   return re.find(str, startIndex) != ();
 }

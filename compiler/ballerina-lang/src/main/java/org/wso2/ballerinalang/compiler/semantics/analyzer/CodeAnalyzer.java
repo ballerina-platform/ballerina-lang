@@ -193,7 +193,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -432,7 +431,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        if (Symbols.isPublic(funcNode.symbol)) {
+        if (Symbols.isPublic(funcNode.symbol) && !isMethodInServiceDeclaration(funcNode)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
                                                                               true,
                                                                               funcNode.pos));
@@ -460,6 +459,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
 
         validateNamedWorkerUniqueReferences(data);
+    }
+
+    private boolean isMethodInServiceDeclaration(BLangFunction func) {
+        BLangNode parent = func.parent;
+        return parent.getKind() == NodeKind.CLASS_DEFN &&
+                Symbols.isFlagOn(((BLangClassDefinition) parent).symbol.flags, Flags.SERVICE);
     }
 
     private void validateNamedWorkerUniqueReferences(AnalyzerData data) {
@@ -1703,7 +1708,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
-        int ownerSymTag = data.env.scope.owner.tag;
+        long ownerSymTag = data.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             dlog.error(letExpression.pos, DiagnosticErrorCode.LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD);
         } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
@@ -1732,7 +1737,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        int ownerSymTag = data.env.scope.owner.tag;
+        long ownerSymTag = data.env.scope.owner.tag;
         if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD || (ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
             analyzeExportableTypeRef(data.env.scope.owner, varNode.getBType().tsymbol, false, varNode.pos);
         } else if ((ownerSymTag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
@@ -1962,11 +1967,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement, AnalyzerData data) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, data);
     }
 
     @Override

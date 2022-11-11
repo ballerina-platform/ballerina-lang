@@ -49,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
@@ -415,8 +416,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             return completionItems;
         }
         project.get().currentPackage().modules().forEach(module -> {
-            if (module.isDefaultModule()) {
-                // Skip the default module
+            if (module.isDefaultModule() || DependencyUtils.isGeneratedModule(module)) {
+                // Skip the default module and generated modules
                 return;
             }
             String moduleNamePart = module.moduleName().moduleNamePart();

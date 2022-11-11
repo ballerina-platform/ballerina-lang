@@ -19,12 +19,8 @@ package io.ballerina.projects.internal.plugins;
 
 import io.ballerina.compiler.internal.parser.tree.STAnnotationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.plugins.CompilerPlugin;
@@ -163,16 +159,8 @@ public class CompilerPlugins {
         return annotations;
     }
 
-    public static String getUri(Node clientNode) {
-        BasicLiteralNode clientUri;
-
-        if (clientNode.kind() == SyntaxKind.MODULE_CLIENT_DECLARATION) {
-            clientUri = ((ModuleClientDeclarationNode) clientNode).clientUri();
-        } else {
-            clientUri = ((ClientDeclarationNode) clientNode).clientUri();
-        }
-
-        String text = clientUri.literalToken().text();
+    public static String getUri(ModuleClientDeclarationNode clientNode) {
+        String text = clientNode.clientUri().literalToken().text();
         return text.substring(1, text.length() - 1);
     }
 }
