@@ -22,14 +22,16 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.generators.entity.EntityModelGenerator;
 import io.ballerina.projectdesign.generators.service.ServiceModelGenerator;
-import io.ballerina.projectdesign.model.entity.Type;
+import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Construct component model fpr project with multiple service.
@@ -40,11 +42,14 @@ public class ComponentModelBuilder {
 
     public ComponentModel constructComponentModel(Package currentPackage) {
 
+
         Map<String, Service> services = new HashMap<>();
         // todo: Change to TypeDefinition
-        Map<String, Type> types = new HashMap<>();
+        Map<String, Entity> entities = new HashMap<>();
 
         PackageId packageId = new PackageId(currentPackage);
+
+        AtomicBoolean hasDiagnosticErrors = new AtomicBoolean(false);
 
         currentPackage.modules().forEach(module -> {
             String moduleRootPath = module.project().sourceRoot().toAbsolutePath().toString();
@@ -52,8 +57,11 @@ public class ComponentModelBuilder {
                 moduleRootPath = moduleRootPath + "/" + module.moduleName().moduleNamePart();
             }
             Collection<DocumentId> documentIds = module.documentIds();
-            SemanticModel currentSemanticModel =
-                    currentPackage.getCompilation().getSemanticModel(module.moduleId());
+            PackageCompilation currentPackageCompilation = currentPackage.getCompilation();
+            SemanticModel currentSemanticModel = currentPackageCompilation.getSemanticModel(module.moduleId());
+            if (currentPackageCompilation.diagnosticResult().hasErrors() && !hasDiagnosticErrors.get()) {
+                hasDiagnosticErrors.set(true);
+            }
             // todo : Check project diagnostics
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(
                     currentSemanticModel, packageId, moduleRootPath);
@@ -61,9 +69,9 @@ public class ComponentModelBuilder {
 
             EntityModelGenerator entityModelGenerator = new EntityModelGenerator(
                     currentSemanticModel, packageId, moduleRootPath);
-            types.putAll(entityModelGenerator.generate());
+            entities.putAll(entityModelGenerator.generate());
         });
 
-        return new ComponentModel(packageId, services, types);
+        return new ComponentModel(packageId, services, entities, hasDiagnosticErrors.get());
     }
 }

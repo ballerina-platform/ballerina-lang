@@ -18,7 +18,7 @@
 
 package io.ballerina.projectdesign;
 
-import io.ballerina.projectdesign.model.entity.Type;
+import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.Package;
 
@@ -33,13 +33,16 @@ public class ComponentModel {
 
     private final PackageId packageId;
     private final Map<String, Service> services;
-    private final Map<String, Type> types;
+    private final Map<String, Entity> entities;
 
-    public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Type> entities) {
+    private boolean hasDiagnosticErrors;
+
+    public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Entity> entities, boolean hasDiagnosticErrors) {
 
         this.packageId = packageId;
         this.services = services;
-        this.types = entities;
+        this.entities = entities;
+        this.hasDiagnosticErrors = hasDiagnosticErrors;
     }
 
     public PackageId getPackageId() {
@@ -52,9 +55,13 @@ public class ComponentModel {
         return services;
     }
 
-    public Map<String, Type> getTypes() {
+    public Map<String, Entity> getEntities() {
 
-        return types;
+        return entities;
+    }
+
+    public boolean isHasDiagnosticErrors() {
+        return hasDiagnosticErrors;
     }
 
     /**
@@ -74,18 +81,16 @@ public class ComponentModel {
         }
 
         public String getName() {
-
             return name;
         }
 
         public String getOrg() {
-
             return org;
         }
 
         public String getVersion() {
-
             return version;
         }
+
     }
 }
