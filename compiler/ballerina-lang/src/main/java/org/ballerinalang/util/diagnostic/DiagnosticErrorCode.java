@@ -783,8 +783,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
 
-    INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER(
-            "BCE4038", "invalid.usage.of.the.client.keyword.as.an.unquoted.identifier"),
     INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION("BCE4039", "invalid.non.anydata.client.decl.annotation"),
     NO_MODULE_GENERATED_FOR_CLIENT_DECL("BCE4040", "no.module.generated.for.client.decl"),
     UNUSED_CLIENT_DECL_PREFIX("BCE4041", "unused.client.decl.prefix"),

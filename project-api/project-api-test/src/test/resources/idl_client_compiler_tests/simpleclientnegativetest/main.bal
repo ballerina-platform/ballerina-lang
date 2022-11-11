@@ -17,11 +17,11 @@
 client "https://postman-echo.com/get?name=simpleclienttest.yaml" as foo;
 
 foo:Config config = 1;
-foo:Client cl;
+foo:client cl;
 
 function testModuleClientDeclNegative() {
     foo:ClientConfig config = 1;
-    foo:Client cl;
+    foo:client cl;
 }
 
 client "https://postman-echo.com/get?name=simpleclienttest-disallow.yaml" as qux;

@@ -4977,7 +4977,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         List<BLangCompilationUnit> compUnits = bLangPackage.compUnits;
         dlog.error(compUnits.isEmpty() ? bLangPackage.symbol.pos : compUnits.get(0).pos,
-                   DiagnosticErrorCode.MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE);
+            DiagnosticErrorCode.MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE);
     }
 
     private void checkForMutableState(BLangPackage bLangPackage, AnalyzerData data) {

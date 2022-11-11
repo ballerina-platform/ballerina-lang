@@ -18,6 +18,6 @@ client "./../../projectapiclientplugin.json" as foo;
 
 public function testModuleClientDecl() returns string {
     foo:ClientConfiguration config = {specVersion : "3.0.0"};
-    foo:client cl = new (config);
+    foo:Client cl = new (config);
     return cl->getSpecVersion();
 }

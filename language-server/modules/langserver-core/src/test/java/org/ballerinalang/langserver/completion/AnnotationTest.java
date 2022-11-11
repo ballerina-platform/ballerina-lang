@@ -22,7 +22,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,7 +46,8 @@ public class AnnotationTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("anonFuncExprAnnotation5.json");
+        return Arrays.asList("anonFuncExprAnnotation5.json",
+                "clientDeclAnnotation3.json", "moduleClientDeclAnnotation3.json");
     }
 
     @Override

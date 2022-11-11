@@ -1,7 +1,7 @@
-myapi:client c1 = new;
+myapi:Client c1 = new;
 
 function fn() {
-    myapi:client c2;
+    myapi:Client c2;
 
-    any t = myapi:client;
+    any t = myapi:Client;
 }

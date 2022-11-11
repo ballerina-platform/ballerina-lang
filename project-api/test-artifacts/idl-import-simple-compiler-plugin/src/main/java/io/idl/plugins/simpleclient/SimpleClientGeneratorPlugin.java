@@ -98,7 +98,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "    int 'limit;\n" +
                                 "};\n" +
                                 "\n" +
-                                "public isolated client class 'client {\n" +
+                                "public isolated client class Client {\n" +
                                 "    public final string url;\n" +
                                 "    private int 'limit;\n" +
                                 "\n" +
@@ -123,13 +123,13 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
 
             if ("https://postman-echo.com/get?name=simpleclienttest-clientobjecttype.yaml".equals(uri)) {
                 return DocumentConfig.from(
-                        documentId, "public type 'client client object {\n" +
+                        documentId, "public type Client client object {\n" +
                                 "    int index;\n" +
                                 "\n" +
                                 "    remote function getIndex() returns int;\n" +
                                 "};\n" +
                                 "\n" +
-                                "public function fn() returns 'client {\n" +
+                                "public function fn() returns Client {\n" +
                                 "    return client object {\n" +
                                 "        int index = 10;\n" +
                                 "\n" +
@@ -143,7 +143,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                             "    string url;\n" +
                             "};\n" +
                             "\n" +
-                            "public isolated client class 'client {\n" +
+                            "public isolated client class Client {\n" +
                             "    private string url;\n" +
                             "\n" +
                             "    public function init(*Config config) {\n" +
@@ -167,14 +167,14 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                                 "    }\n" +
                                 "}\n" +
                                 "\n" +
-                                "public type Client client object {\n" +
+                                "public type 'client client object {\n" +
                                 "    remote function getId();\n" +
                                 "};", "simple_client.bal");
             }
 
             if (uri.equals("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml")) {
                 return DocumentConfig.from(
-                        documentId, "public class 'client { // Not a client class\n" +
+                        documentId, "public class Client { // Not a client class\n" +
                                 "    function fn() {\n" +
                                 "        \n" +
                                 "    }\n" +
@@ -183,7 +183,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
 
             if (uri.equals("https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml")) {
                 return DocumentConfig.from(
-                        documentId, "public type 'client object { // Not a client object\n" +
+                        documentId, "public type Client object { // Not a client object\n" +
                                 "    function fn();\n" +
                                 "};", "simple_client.bal");
             }
@@ -209,7 +209,7 @@ public class SimpleClientGeneratorPlugin extends IDLGeneratorPlugin {
                             "\n" +
                             "var j = d; // error\n" +
                             "\n" +
-                            "public client class 'client {\n" +
+                            "public client class Client {\n" +
                             "    remote function fn() {\n" +
                             "        \n" +
                             "    }\n" +

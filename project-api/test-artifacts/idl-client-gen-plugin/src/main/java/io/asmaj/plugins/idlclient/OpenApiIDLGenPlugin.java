@@ -101,7 +101,7 @@ public class OpenApiIDLGenPlugin extends IDLGeneratorPlugin {
                             "    string specVersion;\n" +
                             "};\n" +
                             "\n" +
-                            "public isolated client class 'client {\n" +
+                            "public isolated client class Client {\n" +
                             "    public final string specVersion;\n" +
                             "\n" +
                             "    public function init(*ClientConfiguration config) {\n" +
