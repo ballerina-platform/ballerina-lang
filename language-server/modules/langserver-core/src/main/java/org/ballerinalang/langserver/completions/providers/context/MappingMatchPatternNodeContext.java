@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -47,7 +48,7 @@ public class MappingMatchPatternNodeContext extends MappingContextProvider<Mappi
             throws LSCompletionException {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        Optional<Node> evalNode = getEvalNode(context);
+        Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(context.getNodeAtCursor());
         if (evalNode.isEmpty()) {
             return completionItems;
         }
