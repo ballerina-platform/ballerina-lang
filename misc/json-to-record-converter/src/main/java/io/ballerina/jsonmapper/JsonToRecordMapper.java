@@ -189,6 +189,13 @@ public class JsonToRecordMapper {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
             diagnosticMessages.add(message);
         }
+        if (!updatedFieldNames.isEmpty()) {
+            updatedFieldNames.forEach((oldFieldName, updateFieldName) -> {
+                DiagnosticMessage message =
+                        DiagnosticMessage.jsonToRecordConverter106(new String[]{oldFieldName, updateFieldName});
+                diagnosticMessages.add(message);
+            });
+        }
         return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
     }
 
