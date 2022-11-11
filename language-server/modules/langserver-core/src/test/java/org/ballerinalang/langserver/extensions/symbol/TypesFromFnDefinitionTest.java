@@ -177,7 +177,7 @@ public class TypesFromFnDefinitionTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
-    @Test(description = "type info retrieved for record type(from http module) param and record type(from jwt module) return")
+    @Test(description = "type info retrieved for record type param and record type return (types from modules)")
     public void testTypesForRecordTypeParamAndRecordTypeReturn2()
             throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
@@ -281,7 +281,7 @@ public class TypesFromFnDefinitionTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
-    @Test(description = "type info retrieved for record type(from imported module) array params and record type(from imported module) array return")
+    @Test(description = "type info retrieved for record array params and record array return (types from modules)")
     public void testTypesForRecordTypeArrayParamsAndRecordTypeArrayReturn2()
             throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
