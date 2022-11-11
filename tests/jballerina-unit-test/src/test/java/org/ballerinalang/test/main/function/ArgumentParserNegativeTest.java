@@ -70,6 +70,18 @@ public class ArgumentParserNegativeTest {
         }
     }
 
+    @Test(dataProvider = "floatValues")
+    public void testInvalidFloatArg(String arg) {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_float_param.bal");
+            BRunUtil.runMain(compileResult, new String[]{arg});
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
+                    "' for parameter 'f', expected float value");
+        }
+    }
+
     @Test(dataProvider = "decimalValues")
     public void testInvalidDecimalArg(String arg) {
         try {
@@ -129,13 +141,31 @@ public class ArgumentParserNegativeTest {
         };
     }
 
+    @DataProvider(name = "floatValues")
+    public Object[] floatValues() {
+        return new Object[]{
+                "13.24f",
+                "123asd",
+                "0x1ef.a2pa5",
+                "2.0d",
+                "-2d",
+                "-4.5f",
+                "0x23dfp-2d"
+        };
+    }
+
     @DataProvider(name = "decimalValues")
     public Object[] decimalValues() {
         return new Object[]{
                 "13.24f",
                 "123asd",
                 "0x1ef.a2",
-                "0X1EF.A2P-2"
+                "0X1EF.A2P-2",
+                "-0X1EF.A2p-2",
+                "2.0d",
+                "-2d",
+                "4.5f",
+                "0x23dfp-2d"
         };
     }
 }
