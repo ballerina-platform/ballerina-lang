@@ -19,14 +19,20 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.TaskExecutor;
+import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.cli.task.PullDependenciesTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -48,9 +54,12 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
+import static io.ballerina.projects.util.ProjectUtils.isBallerinaProject;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -67,10 +76,10 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class PullCommand implements BLauncherCmd {
 
     private static final String USAGE_TEXT =
-            "bal pull {<org-name>/<package-name> | <org-name>/<package-name>:<version>}";
+            "bal pull [<org-name>/<package-name> | <org-name>/<package-name>:<version>]";
 
-    private PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final PrintStream errStream;
+    private final boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -80,6 +89,11 @@ public class PullCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
+
+    private String orgName;
+    private String packageName;
+    private String version;
+    private Path projectPath;
 
     public PullCommand() {
         this.errStream = System.err;
@@ -99,16 +113,9 @@ public class PullCommand implements BLauncherCmd {
             return;
         }
 
-        if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no package given", "bal pull <package-name> ", false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
-        if (argList.size() > 1) {
-            CommandUtil.printError(this.errStream, "too many arguments", "bal pull <package-name> ", false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+        if (argList != null && argList.size() > 1) {
+            CommandUtil.printError(errStream, "too many arguments", "bal pull <package-name> ", false);
+            CommandUtil.exitError(exitWhenFinish);
         }
 
         // Enable remote debugging
@@ -118,18 +125,32 @@ public class PullCommand implements BLauncherCmd {
 
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
+        if (isPullSpecifiedPackage()) {
+            pullSpecifiedPackage();
+        } else if (isPullPackageDependencies()) {
+            pullPackageDependencies();
+        } else {
+            return;
+        }
+
+        if (exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    private boolean isPullSpecifiedPackage() {
+        if (!hasArgs()) {
+            return false;
+        }
         String resourceName = argList.get(0);
-        String orgName;
-        String packageName;
-        String version;
 
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return false;
         }
         orgName = moduleInfo[0];
         String moduleNameAndVersion = moduleInfo[1];
@@ -144,23 +165,22 @@ public class PullCommand implements BLauncherCmd {
             version = Names.EMPTY.getValue();
         } else {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return false;
         }
 
-        // Validate package org, name and version
         if (!validateOrgName(orgName)) {
             CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return false;
         }
         if (!validatePackageName(packageName)) {
             CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
-                                   USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return false;
         }
         if (!version.equals(Names.EMPTY.getValue())) {
             // check version is compatible with semver
@@ -168,11 +188,27 @@ public class PullCommand implements BLauncherCmd {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
                 CommandUtil.printError(errStream, "invalid package version. " + e.getMessage(), USAGE_TEXT, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
+                CommandUtil.exitError(exitWhenFinish);
+                return false;
             }
         }
+        return true;
+    }
 
+    private boolean isPullPackageDependencies() {
+        if (hasArgs()) {
+            return false;
+        }
+        projectPath = Path.of(System.getProperty(USER_DIR));
+        if (!isBallerinaProject(projectPath)) {
+            CommandUtil.printError(errStream, "working directory is not a ballerina project. ", USAGE_TEXT, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return false;
+        }
+        return true;
+    }
+
+    private void pullSpecifiedPackage() {
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME)
@@ -181,7 +217,7 @@ public class PullCommand implements BLauncherCmd {
         try {
             createDirectories(packagePathInBalaCache);
         } catch (IOException e) {
-            CommandUtil.exitError(this.exitWhenFinish);
+            CommandUtil.exitError(exitWhenFinish);
             throw createLauncherException(
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
@@ -200,7 +236,7 @@ public class PullCommand implements BLauncherCmd {
                         initializeProxy(settings.getProxy()),
                         getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
-                                   RepoUtils.getBallerinaVersion(), false);
+                        RepoUtils.getBallerinaVersion(), false);
                 if (version.equals(Names.EMPTY.getValue())) {
                     List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
                             RepoUtils.getBallerinaVersion());
@@ -208,22 +244,56 @@ public class PullCommand implements BLauncherCmd {
                 }
                 boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version);
                 if (hasCompilationErrors) {
-                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
+                    CommandUtil.printError(errStream, "compilation contains errors", null, false);
+                    CommandUtil.exitError(exitWhenFinish);
                     return;
                 }
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
+                CommandUtil.exitError(exitWhenFinish);
             } catch (CentralClientException e) {
                 errStream.println("unexpected error occurred while pulling package:" + e.getMessage());
-                CommandUtil.exitError(this.exitWhenFinish);
+                CommandUtil.exitError(exitWhenFinish);
             }
         }
+    }
 
-        if (this.exitWhenFinish) {
-            Runtime.getRuntime().exit(0);
+    private void pullPackageDependencies() {
+        Project project;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (ProjectException e) {
+            CommandUtil.printError(errStream, e.getMessage(), null, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return;
         }
+
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(exitWhenFinish);
+            return;
+        }
+
+        try {
+            RepoUtils.readSettings();
+        } catch (SettingsTomlException e) {
+            errStream.println("warning: " + e.getMessage());
+        }
+
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask(isPackageModified, false), false)
+                .addTask(new ResolveMavenDependenciesTask(errStream))
+                .addTask(new PullDependenciesTask(errStream, isPackageModified))
+                .build();
+        taskExecutor.executeTasks(project);
+    }
+
+    private boolean hasArgs() {
+        return argList != null && argList.size() > 0;
     }
 
     private String getLatestVersion(List<String> versions) {
@@ -280,7 +350,7 @@ public class PullCommand implements BLauncherCmd {
 
     private void printDiagnostics(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic: diagnostics) {
-            CommandUtil.printError(this.errStream, diagnostic.toString(), null, false);
+            CommandUtil.printError(errStream, diagnostic.toString(), null, false);
         }
     }
 
