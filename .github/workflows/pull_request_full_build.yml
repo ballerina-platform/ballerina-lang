@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - type-reference-support
 
 jobs:
   build-lang:
