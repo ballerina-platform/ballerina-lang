@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class QNameRefCompletionUtil {
+
     private QNameRefCompletionUtil() {
     }
 
@@ -57,8 +59,8 @@ public class QNameRefCompletionUtil {
     /**
      * Get the completions for the qualified name reference context.
      *
-     * @param ctx           language server operation context
-     * @param moduleAlias   module alias of the qualified name reference
+     * @param ctx         language server operation context
+     * @param moduleAlias module alias of the qualified name reference
      * @return {@link List} of completion items
      */
     public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx, String moduleAlias) {
@@ -105,12 +107,20 @@ public class QNameRefCompletionUtil {
     public static List<Symbol> getModuleContent(PositionedOperationContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
-        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, 
+        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context,
                 QNameRefCompletionUtil.getAlias(qNameRef));
-        return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
-                .filter(predicate)
-                .collect(Collectors.toList()))
+        List<Symbol> symbols = module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
+
+        Optional<ClientDeclSymbol> clientDeclSymbol = ModuleUtil.searchClientDeclarationForAlias(context,
+                QNameRefCompletionUtil.getAlias(qNameRef));
+        symbols.addAll(clientDeclSymbol.map(symbol -> symbol.moduleSymbol().allSymbols().stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList()))
+                .orElseGet(ArrayList::new));
+        return symbols;
     }
 
     /**
@@ -122,11 +132,11 @@ public class QNameRefCompletionUtil {
      */
     public static List<Symbol> getTypesInModule(BallerinaCompletionContext context,
                                                 QualifiedNameReferenceNode qNameRef) {
-        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, 
+        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context,
                 QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(CommonUtil.typesFilter())
-                .collect(Collectors.toList()))
+                        .filter(CommonUtil.typesFilter())
+                        .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
 

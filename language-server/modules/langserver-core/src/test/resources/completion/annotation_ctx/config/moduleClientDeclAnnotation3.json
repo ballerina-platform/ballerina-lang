@@ -15,24 +15,6 @@
       "additionalTextEdits": []
     },
     {
-      "label": "sourceVarAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "sourceVarAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "sourceVarAnnotation2",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "sourceVarAnnotation2",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "commonAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
@@ -47,6 +29,24 @@
       "detail": "Annotation",
       "sortText": "B",
       "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceClientDeclaration1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceClientDeclaration1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceClientDeclaration2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceClientDeclaration2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

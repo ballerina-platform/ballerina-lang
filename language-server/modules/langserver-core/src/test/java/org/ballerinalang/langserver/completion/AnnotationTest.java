@@ -46,8 +46,7 @@ public class AnnotationTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("anonFuncExprAnnotation5.json",
-                "clientDeclAnnotation3.json", "moduleClientDeclAnnotation3.json");
+        return Arrays.asList("anonFuncExprAnnotation5.json");
     }
 
     @Override

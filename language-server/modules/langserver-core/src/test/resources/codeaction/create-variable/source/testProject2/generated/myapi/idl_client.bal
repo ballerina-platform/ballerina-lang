@@ -2,7 +2,7 @@ public type ClientConfiguration record {
     string specVersion;
 };
 
-public isolated client class 'client {
+public isolated client class Client {
     public final string specVersion;
 
     public function init(*ClientConfiguration config) {

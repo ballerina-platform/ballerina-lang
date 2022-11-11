@@ -109,7 +109,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                         Snippet.KW_TYPE, Snippet.KW_ISOLATED,
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
-                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, 
+                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
                         Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
@@ -157,8 +157,6 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             completionItems.addAll(this.getCompletionItemList(types, context));
-            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, predicate));
             return completionItems;
         }
 

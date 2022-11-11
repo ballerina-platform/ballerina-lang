@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "client",
+      "label": "Client",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "D",
-      "insertText": "client",
+      "insertText": "Client",
       "insertTextFormat": "Snippet"
     }
   ]

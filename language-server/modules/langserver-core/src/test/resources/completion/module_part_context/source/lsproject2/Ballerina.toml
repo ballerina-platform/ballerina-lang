@@ -1,0 +1,5 @@
+[package]
+org="lstest"
+
+[build-options]
+observabilityIncluded = false
