@@ -102,22 +102,30 @@ public class CliUtil {
 
     private static long getIntegerValue(String argument, String parameterName) {
         try {
-            if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
+            if (isHexValueString(argument)) {
                 return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
             }
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "integer")));
+            throw getInvalidArgumentError(argument, parameterName, "integer");
         }
     }
 
+    private static boolean isHexValueString(String value) {
+        String upperCaseVal = value.toUpperCase();
+        return upperCaseVal.startsWith("0X") || upperCaseVal.startsWith("-0X");
+    }
+
     private static double getFloatValue(String argument, String parameterName) {
+        String upperCaseValue = argument.toUpperCase();
+        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
+            throw getInvalidArgumentError(argument, parameterName, "float");
+        }
+
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "float")));
+            throw getInvalidArgumentError(argument, parameterName, "float");
         }
     }
 
@@ -125,9 +133,13 @@ public class CliUtil {
         try {
             return new DecimalValue(argument);
         } catch (NumberFormatException | BError e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "decimal")));
+            throw getInvalidArgumentError(argument, parameterName, "decimal");
         }
+    }
+
+    private static BError getInvalidArgumentError(String argument, String parameterName, String type) {
+        return ErrorCreator.createError(
+                StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, type)));
     }
 
     static boolean isSupportedType(int tag) {

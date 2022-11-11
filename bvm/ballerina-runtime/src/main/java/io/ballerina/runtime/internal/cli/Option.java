@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
@@ -49,6 +50,9 @@ public class Option {
     private final List<String> operandArgs;
     private final Set<BString> recordKeysFound;
     private final int location;
+
+    private final Pattern NUMBER_PATTERN = Pattern.compile("[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?[fd]?");
+    private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     public Option(Type recordType, int location) {
         this((RecordType) recordType,
@@ -84,7 +88,14 @@ public class Option {
     }
 
     private boolean isShortOption(String arg) {
-        return arg.startsWith("-");
+        return arg.startsWith("-") && !isNumeric(arg);
+    }
+
+    private boolean isNumeric(String str) {
+        if (str == null) {
+            return false;
+        }
+        return HEX_LITERAL.matcher(str).matches() || NUMBER_PATTERN.matcher(str).matches();
     }
 
     private void validateConfigOption(String arg) {
