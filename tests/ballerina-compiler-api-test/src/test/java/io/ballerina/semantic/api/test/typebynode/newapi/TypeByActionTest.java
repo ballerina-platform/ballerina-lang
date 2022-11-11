@@ -41,7 +41,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Tests for getting the type of actions.
  *
- * @since 2.0.0
+ * @since 2201.4.0
  */
 
 @Test

@@ -703,10 +703,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        if (lookupNodes(awaitExpr.exprList)) {
-            return;
-        }
-
+        lookupNodes(awaitExpr.exprList);
         setEnclosingNode(awaitExpr, awaitExpr.pos);
     }
 
