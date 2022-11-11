@@ -172,6 +172,12 @@ public class Types {
     private boolean ignoreObjectTypeIds = false;
     private static final String BASE_16 = "base16";
 
+    private static final BigDecimal DECIMAL_MAX =
+            new BigDecimal("9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
+
+    private static final BigDecimal DECIMAL_MIN =
+            new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -4040,6 +4046,24 @@ public class Types {
         return true;
     }
 
+    boolean isValidDecimalNumber(Location pos, String decimalLiteral) {
+        BigDecimal bd;
+        try {
+            bd = new BigDecimal(decimalLiteral, MathContext.DECIMAL128);
+        } catch (NumberFormatException e) {
+            // If there is an error, that means there is a parsing error.
+            if (dlog.errorCount() == 0) {
+                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, decimalLiteral, symTable.decimalType);
+            }
+            return false;
+        }
+        if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
+            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, decimalLiteral, symTable.decimalType);
+            return false;
+        }
+        return true;
+    }
+
     boolean isByteLiteralValue(Long longObject) {
 
         return (longObject >= BBYTE_MIN_VALUE && longObject <= BBYTE_MAX_VALUE);
@@ -6517,7 +6541,7 @@ public class Types {
                     // skip check for fields with self referencing type and not required fields.
                     if ((SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.REQUIRED) ||
                             !SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.OPTIONAL)) &&
-                            !visitedTypeSet.contains(field.type) &&
+                            visitedTypeSet.add(field.type) &&
                             isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type, visitedTypeSet)) {
                         return true;
                     }

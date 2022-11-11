@@ -3344,14 +3344,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
-        retryBody.stmts.add(retryTransaction.transaction);
-
         //transactions:Info? prevAttempt = ();
         BLangSimpleVariableDef prevAttemptVarDef = transactionDesugar.createPrevAttemptInfoVarDef(env,
                 retryTransaction.pos);
         retryTransaction.transaction.prevAttemptInfo = ASTBuilderUtil.createVariableRef(retryTransaction.pos,
                 prevAttemptVarDef.var.symbol);
+
+        // the positions are removed to prevent unnecessary observability calls from desugared code.
+        retryTransaction.pos = null;
+        retryTransaction.retrySpec.pos = null;
+        retryTransaction.transaction.pos = null;
+        retryTransaction.transaction.transactionBody.pos = null;
+
+        BLangBlockStmt retryBody = ASTBuilderUtil.createBlockStmt(retryTransaction.pos);
+        retryBody.stmts.add(retryTransaction.transaction);
 
         BLangRetry retry = (BLangRetry) TreeBuilder.createRetryNode();
         retry.commonStmtForRetries = prevAttemptVarDef;

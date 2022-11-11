@@ -313,11 +313,11 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
 
 # True if there is a match of `re` against all of `str`.
 # Use `includesMatch` to test whether `re` matches somewhere in `str`.
-public function matches(string str, RegExp regExp) returns boolean {
-   return regExp.isFullMatch(str);
+public function matches(string str, RegExp 're) returns boolean {
+   return 're.isFullMatch(str);
 }
 
 # True if there is a match for `re` anywhere in `str`
-public function includesMatch(string str, RegExp regExp, int startIndex = 0) returns boolean {
-   return regExp.find(str, startIndex) != ();
+public function includesMatch(string str, RegExp 're, int startIndex = 0) returns boolean {
+   return 're.find(str, startIndex) != ();
 }
