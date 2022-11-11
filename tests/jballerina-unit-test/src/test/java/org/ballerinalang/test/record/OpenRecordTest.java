@@ -534,6 +534,11 @@ public class OpenRecordTest {
     }
 
     @Test
+    public void testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
+        BRunUtil.invoke(compileResult, "testIntersectionOfReadonlyAndRecordTypeWithDefaultValues");
+    }
+
+    @Test
     public void testRecordsWithFieldsWithBuiltinNames() {
         BRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
     }

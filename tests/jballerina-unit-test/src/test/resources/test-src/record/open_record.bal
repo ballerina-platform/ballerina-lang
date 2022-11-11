@@ -541,6 +541,7 @@ function removeRest() {
 type Student record {
     int id;
     string name?;
+    Details details = {name: "chirans"};
 };
 
 type Grades record {
@@ -623,6 +624,22 @@ function testRecordsWithFieldsWithBuiltinNames() {
 
     assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
 }
+
+type Details record {
+    string name;
+    BirthDay birthDay = {};
+};
+
+type BirthDay record {
+    int year = 2000;
+};
+
+function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
+    Student & readonly student = {id: 0};
+    assert(student.details.name, "chirans");
+    assert(student.details.birthDay.year, 2000);
+}
+
 // Util functions
 
 function assert(anydata expected, anydata actual) {
