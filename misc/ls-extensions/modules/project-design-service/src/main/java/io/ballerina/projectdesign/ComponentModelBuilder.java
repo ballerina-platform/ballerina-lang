@@ -28,6 +28,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class ComponentModelBuilder {
         currentPackage.modules().forEach(module -> {
             String moduleRootPath = module.project().sourceRoot().toAbsolutePath().toString();
             if (module.moduleName().moduleNamePart() != null) {
-                moduleRootPath = moduleRootPath + "/" + module.moduleName().moduleNamePart();
+                moduleRootPath = moduleRootPath + File.separator + module.moduleName().moduleNamePart();
             }
             Collection<DocumentId> documentIds = module.documentIds();
             PackageCompilation currentPackageCompilation = currentPackage.getCompilation();

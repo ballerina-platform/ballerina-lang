@@ -38,6 +38,7 @@ import io.ballerina.projectdesign.model.entity.Attribute;
 import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.tools.text.LineRange;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -69,8 +70,6 @@ public class EntityModelGenerator {
         this.packageId = packageId;
         this.moduleRootPath = moduleRootPath;
     }
-
-
 
     public Map<String, Entity> generate() {
         List<Symbol> symbols = semanticModel.moduleSymbols();
@@ -328,7 +327,7 @@ public class EntityModelGenerator {
         LineRange lineRange = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
-            String filePath = String.format("%s/%s", moduleRootPath, typeLineRange.filePath());
+            String filePath = moduleRootPath + File.separator + typeLineRange.filePath();
             lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
         }
         return lineRange;
