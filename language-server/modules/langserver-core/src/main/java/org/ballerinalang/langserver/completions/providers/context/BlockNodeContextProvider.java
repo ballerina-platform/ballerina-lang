@@ -79,7 +79,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
-            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, filter));
         } else if (onSuggestionsAfterQualifiers(context, nodeAtCursor)) {
             completionItems.addAll(getCompletionItemsOnQualifiers(nodeAtCursor, context));
         } else {
@@ -224,7 +223,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
                 .collect(Collectors.toList());
-        
+
         return this.getCompletionItemList(filteredList, context);
     }
 
