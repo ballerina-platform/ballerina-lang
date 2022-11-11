@@ -163,8 +163,9 @@ public class JsonToRecordMapper {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     String recordTypeName = entry.getKey() == null ?
                             (recordName == null || recordName.equals("")) ?
-                                    NEW_RECORD_NAME : escapeIdentifier(StringUtils.capitalize(recordName)) :
-                            entry.getKey();
+                                    getAndUpdateFieldNames(NEW_RECORD_NAME, false,
+                                            existingFieldNames, updatedFieldNames)
+                                    : recordName : entry.getKey();
                     IdentifierToken typeName = AbstractNodeFactory
                             .createIdentifierToken(escapeIdentifier(recordTypeName));
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);

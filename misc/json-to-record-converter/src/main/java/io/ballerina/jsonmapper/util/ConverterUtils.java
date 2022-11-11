@@ -112,7 +112,8 @@ public final class ConverterUtils {
             if (projectRoot != null) {
                 try {
                     project = BuildProject.load(projectRoot);
-                    List<Symbol> moduleSymbols = project.currentPackage().module(project.documentId(filePath).moduleId())
+                    List<Symbol> moduleSymbols = project.currentPackage()
+                            .module(project.documentId(filePath).moduleId())
                             .getCompilation().getSemanticModel().moduleSymbols();
                     moduleSymbols.forEach(symbol -> {
                         if (symbol.getName().isPresent()) {

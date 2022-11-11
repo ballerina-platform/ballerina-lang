@@ -135,7 +135,7 @@ public class JsonToRecordMapperTests {
             .resolve("sample_13.json");
 
     private final Path singleBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
-            .resolve("singleFileProject") .resolve("SingleBalFile.bal");
+            .resolve("singleFileProject").resolve("SingleBalFile.bal");
 
     private final Path invalidBalFile = RES_DIR.resolve(PROJECT_DIR).resolve(SOURCE_DIR)
             .resolve("InvalidBalFile.txt");
@@ -442,7 +442,7 @@ public class JsonToRecordMapperTests {
     public void testForConflictingRecordNamesInSingleBalFileProject() throws IOException {
         Map<String, Pair<Path, Path>> existingRecordsToJsonSamples = new HashMap<>() {{
             put("sample_4.bal", new Pair<>(sample4Bal, sample4Json));
-            put("sample_8.bal", new Pair<>(sample8Bal,sample8Json));
+            put("sample_8.bal", new Pair<>(sample8Bal, sample8Json));
             put("sample_10.bal", new Pair<>(sample10Bal, sample10Json));
             put("sample_11.bal", new Pair<>(sample11Bal, sample11Json));
         }};
@@ -492,7 +492,8 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for conflicting record names in bal project default module")
     public void testForConflictingRecordNamesInBalProjectDefault() throws IOException {
         String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, null, false, false, false, balProjectFileDefaultModule)
+        String generatedCodeBlock = JsonToRecordMapper
+                .convert(jsonFileContent, null, false, false, false, balProjectFileDefaultModule)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(balProjectFileDefaultModuleAssert).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -501,7 +502,8 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for conflicting record names in bal project non-default module")
     public void testForConflictingRecordNamesInBalProjectNonDefault() throws IOException {
         String jsonFileContent = Files.readString(sample6Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "", false, false, false, balProjectFileUtilModule)
+        String generatedCodeBlock = JsonToRecordMapper
+                .convert(jsonFileContent, "", false, false, false, balProjectFileUtilModule)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(balProjectFileUtilModuleAssert).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
