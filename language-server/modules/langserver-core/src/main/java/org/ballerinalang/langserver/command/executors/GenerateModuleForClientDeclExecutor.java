@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Project;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
@@ -41,7 +40,6 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -95,14 +93,14 @@ public class GenerateModuleForClientDeclExecutor implements LSCommandExecutor {
                     languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                             Either.forLeft(beginNotification)));
                 })
-                .thenRunAsync(() -> {
-                    Optional<IDLClientGeneratorResult> idlClientGeneratorResult =
-                            context.workspace().waitAndRunIDLGeneratorPlugins(filePath, project);
-                    if (idlClientGeneratorResult.isEmpty() 
-                            || idlClientGeneratorResult.get().reportedDiagnostics().diagnostics().size() > 0) {
-                        throw new UserErrorException("Failed to generate modules for client declarations");
-                    }
-                })
+//                .thenRunAsync(() -> {
+//                    Optional<IDLClientGeneratorResult> idlClientGeneratorResult =
+//                            context.workspace().waitAndRunIDLGeneratorPlugins(filePath, project);
+//                    if (idlClientGeneratorResult.isEmpty()
+//                            || idlClientGeneratorResult.get().reportedDiagnostics().diagnostics().size() > 0) {
+//                        throw new UserErrorException("Failed to generate modules for client declarations");
+//                    }
+//                })
                 .thenRunAsync(() -> {
                     DocumentServiceContext docContext = ContextBuilder.buildDocumentServiceContext(
                             filePath.toUri().toString(),

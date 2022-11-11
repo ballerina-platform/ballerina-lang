@@ -28,18 +28,13 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
-import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -60,13 +55,6 @@ public class BalaProject extends Project {
         PackageConfig packageConfig = PackageConfigCreator.createBalaProjectConfig(balaPath);
         BalaProject balaProject = new BalaProject(environmentBuilder, balaPath);
         balaProject.addPackage(packageConfig);
-        Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> idlClientMap =
-                PackageConfigCreator.getIDLClientMap(balaPath);
-        if (!idlClientMap.isEmpty()) {
-            IDLClients idlClients = IDLClients.getInstance(balaProject.projectEnvironmentContext()
-                    .getService(CompilerContext.class));
-            idlClients.idlClientMap().putAll(idlClientMap);
-        }
         return balaProject;
     }
 

@@ -415,8 +415,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             return completionItems;
         }
         project.get().currentPackage().modules().forEach(module -> {
-            if (module.isDefaultModule() || DependencyUtils.isGeneratedModule(module)) {
-                // Skip the default module and generated modules
+            if (module.isDefaultModule()) {
+                // Skip the default module
                 return;
             }
             String moduleNamePart = module.moduleName().moduleNamePart();
