@@ -35,6 +35,7 @@ import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,16 +90,23 @@ public final class ConverterUtils {
      * @param filePath FilePath of the/a file in a singleFileProject or module
      * @return {@link List<String>} List of already existing Types
      */
-    public static List<String> getExistingTypeNames(Path filePath) {
+    public static List<String> getExistingTypeNames(String filePath) {
         List<String> existingTypeNames = new ArrayList<>();
         if (filePath == null) {
+            return existingTypeNames;
+        }
+
+        Path filePathResolved;
+        try {
+            filePathResolved = Path.of(filePath);
+        } catch (InvalidPathException e) {
             return existingTypeNames;
         }
 
         Project project;
         // Check if the provided file is a SingleFileProject
         try {
-            project = SingleFileProject.load(filePath);
+            project = SingleFileProject.load(filePathResolved);
             List<Symbol> moduleSymbols =
                     project.currentPackage().getDefaultModule().getCompilation().getSemanticModel().moduleSymbols();
             moduleSymbols.forEach(symbol -> {
@@ -108,12 +116,12 @@ public final class ConverterUtils {
             });
         } catch (ProjectException pe) {
             // Check if the provided file is a part of BuildProject
-            Path projectRoot = ProjectUtils.findProjectRoot(filePath);
+            Path projectRoot = ProjectUtils.findProjectRoot(filePathResolved);
             if (projectRoot != null) {
                 try {
                     project = BuildProject.load(projectRoot);
                     List<Symbol> moduleSymbols = project.currentPackage()
-                            .module(project.documentId(filePath).moduleId())
+                            .module(project.documentId(filePathResolved).moduleId())
                             .getCompilation().getSemanticModel().moduleSymbols();
                     moduleSymbols.forEach(symbol -> {
                         if (symbol.getName().isPresent()) {

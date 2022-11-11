@@ -53,7 +53,6 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
 import org.javatuples.Pair;
 
-import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,7 +91,7 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, Path)}} instead.
+     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String)}} instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
      * @param recordName Name of the generated record
@@ -117,7 +116,7 @@ public class JsonToRecordMapper {
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordFields, Path filePath) {
+                                               boolean isClosed, boolean forceFormatRecordFields, String filePath) {
         List<String> existingFieldNames = getExistingTypeNames(filePath);
         Map<String, String> updatedFieldNames = new HashMap<>();
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();

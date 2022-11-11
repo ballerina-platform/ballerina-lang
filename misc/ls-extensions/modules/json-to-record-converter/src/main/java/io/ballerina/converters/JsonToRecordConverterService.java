@@ -61,6 +61,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
             boolean isClosed = request.getIsClosed();
             boolean forceFormatRecordFields = request.getForceFormatRecordFields();
+            String filePath = request.getFilePath();
 
             try {
                 JsonElement parsedJson = JsonParser.parseString(jsonString);
@@ -75,7 +76,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     }
                 } else {
                     response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed,
-                            forceFormatRecordFields, null);
+                            forceFormatRecordFields, filePath);
                 }
             } catch (JsonSyntaxException e) {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});
