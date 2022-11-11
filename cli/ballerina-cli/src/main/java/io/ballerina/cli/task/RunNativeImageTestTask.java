@@ -180,6 +180,14 @@ public class RunNativeImageTestTask implements Task {
         }
 
         TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
+        Path nativeConfigPath = null;
+        try {
+            nativeConfigPath = target.getNativeConfigPath();
+            createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary reflection config", e);
+        }
+
 
         if (hasTests) {
             int testResult = 1;
@@ -296,8 +304,7 @@ public class RunNativeImageTestTask implements Task {
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
-        // Create Configs
-        createReflectConfig(nativeConfigPath, currentPackage);
+
 
         // Run native-image command with generated configs
         cmdArgs.addAll(Lists.of("-cp", classPath));
