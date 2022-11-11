@@ -18,5 +18,4 @@ import ballerina/lang.'object as obj
 import ballerina/http as ht;
 
 function testFunction() {
-
 }
