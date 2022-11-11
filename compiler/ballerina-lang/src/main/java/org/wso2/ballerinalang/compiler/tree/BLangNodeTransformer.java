@@ -314,10 +314,6 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
-    public R transform(BLangClientDeclaration node, T data) {
-        return transformNode(node, data);
-    }
-
     // Binding-patterns
 
     public R transform(BLangCaptureBindingPattern node, T data) {

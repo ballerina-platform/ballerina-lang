@@ -38,7 +38,6 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -117,7 +116,6 @@ import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -285,7 +283,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -300,6 +297,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -437,7 +435,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -782,50 +779,61 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
         bLFunction.methodName = createIdentifier(accessorName);
 
-        bLFunction.resourcePath =  new ArrayList<>();
         List<BLangSimpleVariable> params = new ArrayList<>();
-        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        List<BLangResourcePathSegment> resourcePathSegments = new ArrayList<>();
         for (Node pathSegment : relativeResourcePath) {
+            BLangResourcePathSegment bLangPathSegment;
             switch (pathSegment.kind()) {
                 case SLASH_TOKEN:
                     continue;
                 case RESOURCE_PATH_SEGMENT_PARAM:
                     BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLangPathSegment = TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_PARAM_SEGMENT);
                     if (!param.name.value.equals(Names.EMPTY.value)) {
                         params.add(param);
                         bLFunction.addPathParam(param);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^");
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "$^");
                     }
 
-                    tupleTypeNode.memberTypeNodes.add(param.typeNode);
+                    bLangPathSegment.typeNode = param.typeNode;
+                    bLangPathSegment.pos = param.pos;
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLangPathSegment = 
+                            TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT);
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^^");
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "$^^");
                     }
                     
-                    tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
+                    bLangPathSegment.typeNode = ((BLangArrayType) restParam.typeNode).elemtype;
+                    bLangPathSegment.pos = restParam.pos;
                     break;
                 case DOT_TOKEN:
-                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    bLangPathSegment = TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_ROOT_PATH_SEGMENT);
+                    bLangPathSegment.name = createIdentifier((Token) pathSegment);
+                    bLangPathSegment.pos = bLangPathSegment.name.pos;
                     break;
                 default:
-                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    bLangPathSegment = 
+                            TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_IDENTIFIER_SEGMENT);
+                    bLangPathSegment.name = createIdentifier((Token) pathSegment);
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
-                    tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
+                    bLangPathSegment.typeNode = bLangFiniteTypeNode;
+                    bLangPathSegment.pos = bLangPathSegment.name.pos;
             }
+            resourcePathSegments.add(bLangPathSegment);
         }
         bLFunction.getParameters().addAll(0, params);
-        bLFunction.resourcePathType = tupleTypeNode;
+        bLFunction.resourcePathSegments = resourcePathSegments;
 
         return bLFunction;
     }
@@ -3626,27 +3634,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ClientDeclarationNode clientDeclarationNode) {
-        BLangClientDeclarationStatement clientDeclarationStatement =
-                (BLangClientDeclarationStatement) TreeBuilder.createClientDeclarationStatementNode();
-        Location position = getPosition(clientDeclarationNode);
-        clientDeclarationStatement.clientDeclaration = createClientDeclaration(clientDeclarationNode.clientUri(),
-                                                                               clientDeclarationNode.clientPrefix(),
-                                                                               position,
-                                                                               clientDeclarationNode.annotations());
-        clientDeclarationStatement.pos = position;
-        return clientDeclarationStatement;
-    }
-
-    @Override
-    public BLangNode transform(ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        return createClientDeclaration(moduleClientDeclarationNode.clientUri(),
-                                       moduleClientDeclarationNode.clientPrefix(),
-                                       getPosition(moduleClientDeclarationNode),
-                                       moduleClientDeclarationNode.annotations());
-    }
-
-    @Override
     public BLangNode transform(XMLQualifiedNameNode xmlQualifiedNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
         xmlName.localname = createIdentifier(getPosition(xmlQualifiedNameNode.name()),
@@ -5415,15 +5402,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangIdentifier[] nameReference = createBLangNameReference(actionOrExpression);
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             bLVarRef.pos = getPosition(actionOrExpression);
-
-            BLangIdentifier alias = nameReference[0];
-            bLVarRef.pkgAlias = this.createIdentifier(alias.getPosition(), alias.getValue());
-            bLVarRef.pkgAlias.setLiteral(alias.isLiteral);
-
-            BLangIdentifier name = nameReference[1];
-            bLVarRef.variableName = this.createIdentifier(name.getPosition(), name.getValue());
-            bLVarRef.variableName.setLiteral(name.isLiteral);
-
+            bLVarRef.pkgAlias = this.createIdentifier(nameReference[0].getPosition(), nameReference[0].getValue());
+            bLVarRef.variableName = this.createIdentifier(nameReference[1].getPosition(), nameReference[1].getValue());
             return bLVarRef;
         } else if (actionOrExpression.kind() == SyntaxKind.BRACED_EXPRESSION) {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
@@ -6010,12 +5990,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         String textValue;
         if (literal instanceof BasicLiteralNode) {
-            Token token = ((BasicLiteralNode) literal).literalToken();
-            if (type == SyntaxKind.STRING_LITERAL && token.isMissing()) {
-                textValue = "\"\"";
-            } else {
-                textValue = token.text();
-            }
+            textValue = ((BasicLiteralNode) literal).literalToken().text();
         } else if (literal instanceof Token) {
             textValue = ((Token) literal).text();
         } else {
@@ -6979,16 +6954,5 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     throw new RuntimeException("Syntax kind is not supported: " + kind);
             }
         }
-    }
-
-    private BLangClientDeclaration createClientDeclaration(BasicLiteralNode basicLiteralNode,
-                                                           IdentifierToken identifierToken, Location position,
-                                                           NodeList<AnnotationNode> annotations) {
-        BLangClientDeclaration clientDeclaration = (BLangClientDeclaration) TreeBuilder.createClientDeclarationNode();
-        clientDeclaration.uri = createSimpleLiteral(basicLiteralNode);
-        clientDeclaration.prefix = createIdentifier(identifierToken);
-        clientDeclaration.pos = position;
-        clientDeclaration.annAttachments = applyAll(annotations);
-        return clientDeclaration;
     }
 }

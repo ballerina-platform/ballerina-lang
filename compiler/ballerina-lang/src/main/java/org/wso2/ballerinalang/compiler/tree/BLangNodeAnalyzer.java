@@ -255,8 +255,6 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangXMLNS.BLangPackageXMLNS node, T data);
 
-    public abstract void visit(BLangClientDeclaration node, T data);
-
     // Binding-patterns
 
     public abstract void visit(BLangCaptureBindingPattern node, T data);

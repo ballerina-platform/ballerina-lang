@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
@@ -60,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -105,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -127,7 +127,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -205,6 +204,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -239,6 +239,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
+    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -412,11 +413,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-
-        for (BLangClientDeclaration clientDeclaration : pkgNode.clientDeclarations) {
-            defineNode(clientDeclaration, pkgEnv);
-        }
-
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -443,6 +439,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
+        populateTypeToTypeDefMap(typeAndClassDefs);
         defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
@@ -495,6 +492,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                         varSymbol.tag = SymTag.ENDPOINT;
                     }
                 }
+            }
+        }
+    }
+
+    private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
+        typeToTypeDef = new HashMap<>(typeDefNodes.size());
+        for (BLangNode typeDef : typeDefNodes) {
+            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
+                BType type = typeDefNode.typeNode.getBType();
+                typeToTypeDef.put(type, typeDefNode);
             }
         }
     }
@@ -1075,11 +1083,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (symResolver.isModuleGeneratedForClientDeclaration(enclPackageID, pkgId)) {
-            dlog.error(importPkgNode.pos, DiagnosticErrorCode.CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL);
-            return;
-        }
-
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
         // entry package has a version. So we check import cycles which starts with the entry package in next step.
         if (importedPackages.contains(pkgId)) {
@@ -1234,53 +1237,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        BLangIdentifier prefix = clientDeclaration.prefix;
-
-        if (!symTable.clientDeclarations.containsKey(this.env.enclPkg.packageID) ||
-                !symTable.clientDeclarations.get(this.env.enclPkg.packageID)
-                        .containsKey(clientDeclaration.pos.lineRange().filePath())) {
-            dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
-        } else {
-            Map<LineRange, Optional<PackageID>> lineRangeMap =
-                    symTable.clientDeclarations.get(this.env.enclPkg.packageID)
-                    .get(clientDeclaration.pos.lineRange().filePath());
-            if (!lineRangeMap.containsKey(prefix.pos.lineRange())) {
-                dlog.error(clientDeclaration.pos, DiagnosticErrorCode.NO_MODULE_GENERATED_FOR_CLIENT_DECL);
-            }
-        }
-
-        Name prefixName = names.fromIdNode(prefix);
-
-        BClientDeclarationSymbol clientDeclarationSymbol =
-                Symbols.createClientDeclarationSymbol(prefixName, (String) clientDeclaration.uri.value,
-                                                      env.enclPkg.symbol.pkgID, env.scope.owner, prefix.pos,
-                                                      getOrigin(prefixName));
-        clientDeclaration.symbol = clientDeclarationSymbol;
-
-        // Check for module imports with the same prefix separately since the owner for a module is not the current
-        // module.
-        BSymbol foundSym = symResolver.lookupSymbolInPrefixSpace(env, clientDeclarationSymbol.name);
-        if ((foundSym.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
-            foundSym = symTable.notFoundSymbol;
-        }
-
-        if (foundSym != symTable.notFoundSymbol) {
-            dlog.error(prefix.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, clientDeclarationSymbol.name);
-            return;
-        }
-
-        // Define it in the enclosing scope. This will check for the owner equality.
-        defineSymbol(prefix.pos, clientDeclarationSymbol);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        defineNode(clientDeclarationStatement.clientDeclaration, env);
-    }
-
     private void defineTypeNodes(List<BLangNode> typeDefs, SymbolEnv env) {
         if (typeDefs.isEmpty()) {
             return;
@@ -3526,7 +3482,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
     }
 
-    private BTypeSymbol createTypeSymbol(int type, SymbolEnv env) {
+    private BTypeSymbol createTypeSymbol(long type, SymbolEnv env) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
                 null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
@@ -3913,9 +3869,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case CLASS_DEFN:
                 pkgNode.classDefinitions.add((BLangClassDefinition) node);
-                break;
-            case CLIENT_DECL:
-                pkgNode.clientDeclarations.add((BLangClientDeclaration) node);
         }
     }
 
@@ -4982,11 +4935,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                                      BInvokableType funcType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
         BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
         Name accessor = names.fromIdNode(resourceFunction.methodName);
-        List<Name> resourcePath = resourceFunction.resourcePath.stream()
-                .map(names::fromIdNode)
-                .collect(Collectors.toList());
 
         List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
                 .map(p -> {
@@ -5001,10 +4952,32 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
-        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
-        return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, 
-                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
+        BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
+                funcType, accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+
+        List<BLangResourcePathSegment> pathSegments = resourceFunction.resourcePathSegments;
+        int resourcePathCount = pathSegments.size();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
+        BResourcePathSegmentSymbol parentResource = null;
+        for (int i = 0; i < resourcePathCount; i++) {
+            BLangResourcePathSegment pathSegment = pathSegments.get(i);
+            Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
+            BType resourcePathSegmentType = pathSegment.typeNode == null ? 
+                    symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
+            pathSegment.setBType(resourcePathSegmentType);
+
+            BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(resourcePathSymbolName,
+                    env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol, pathSegment.pos,
+                    parentResource, bResourceFunction, SOURCE);
+
+            objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
+            pathSegmentSymbols.add(pathSym);
+            pathSegment.symbol = pathSym;
+            parentResource = pathSym;
+        }
+
+        bResourceFunction.pathSegmentSymbols = pathSegmentSymbols;
+        return bResourceFunction;
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -5159,6 +5132,26 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
+        for (BLangType typeRef : typeRefs) {
+            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            referredType = Types.getReferredType(referredType);
+            if (referredType == symTable.semanticError) {
+                continue;
+            }
+            if (referredType.tag != TypeTags.RECORD) {
+                continue;
+            }
+            var fields = ((BStructureType) referredType).fields.values();
+            for (BField field : fields) {
+                BType type = field.type;
+                BLangTypeDefinition typeDefinition = typeToTypeDef.get(type);
+                if (typeDefinition != null && typeDefinition.typeNode != null &&
+                        typeDefinition.typeNode.getKind() == RECORD_TYPE) {
+                    defineReferencedFieldsOfRecordTypeDef(typeDefinition);
+                }
+            }
+        }
+
         structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
@@ -5299,10 +5292,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc;
         if (referencedFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
-            attachedFunc = new BResourceFunction(referencedFunc.funcName,
-                    funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
-                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    resourceFunction.resourcePathType, referencedFunc.pos);
+            BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
+                    (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, referencedFunc.pos);
+            cacheFunc.pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+            attachedFunc = cacheFunc;
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

@@ -112,5 +112,4 @@ public class ModuleConfig {
     public List<ResourceConfig> testResources() {
         return testResources;
     }
-
 }
