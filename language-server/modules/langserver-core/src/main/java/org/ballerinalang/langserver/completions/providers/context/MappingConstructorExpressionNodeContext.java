@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -55,7 +56,7 @@ public class MappingConstructorExpressionNodeContext extends
                                                  MappingConstructorExpressionNode node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        Optional<Node> evalNode = getEvalNode(context);
+        Optional<Node> evalNode = CommonUtil.getMappingContextEvalNode(nodeAtCursor);
         if (evalNode.isEmpty()) {
             return completionItems;
         }
