@@ -33,9 +33,9 @@ import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCalls
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromExpressionRequest;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromFnDefinitionRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypeFromSymbolRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromExpressionResponse;
+import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromFnDefinitionRequest;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.TypesFromSymbolResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
