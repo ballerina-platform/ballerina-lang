@@ -281,10 +281,6 @@
         <Bug pattern="URF_UNREAD_FIELD"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.bala.IDLClientsJson"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-    </Match>
-    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer$OptimizerEnv"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
@@ -314,11 +310,6 @@
     <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
-    </Match>
-    <Match>
-        <Class name="io.ballerina.projects.internal.BalaFiles" />
-        <Method name="createIDLClientsMapFromJson" />
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
         <Class name="io.ballerina.projects.internal.ProjectFiles" />

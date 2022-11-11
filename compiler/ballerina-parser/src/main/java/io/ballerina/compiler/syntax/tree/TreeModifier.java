@@ -1300,30 +1300,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ModuleClientDeclarationNode transform(
-            ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        NodeList<AnnotationNode> annotations =
-                modifyNodeList(moduleClientDeclarationNode.annotations());
-        Token clientKeyword =
-                modifyToken(moduleClientDeclarationNode.clientKeyword());
-        BasicLiteralNode clientUri =
-                modifyNode(moduleClientDeclarationNode.clientUri());
-        Token asKeyword =
-                modifyToken(moduleClientDeclarationNode.asKeyword());
-        IdentifierToken clientPrefix =
-                modifyNode(moduleClientDeclarationNode.clientPrefix());
-        Token semicolonToken =
-                modifyToken(moduleClientDeclarationNode.semicolonToken());
-        return moduleClientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
     public FunctionBodyBlockNode transform(
             FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBraceToken =

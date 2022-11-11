@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -43,10 +42,5 @@ public class BNeverType extends BType {
     @Override
     public String toString() {
         return Names.NEVER.value;
-    }
-
-    @Override
-    public void accept(TypeVisitor visitor) {
-        visitor.visit(this);
     }
 }

@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -1132,12 +1131,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         panicNode.expr = rewriteExpr(panicNode.expr);
         result = panicNode;
     }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        this.result = clientDeclaration;
-    }
-
     public void visit(BLangDo doNode) {
         doNode.body = rewrite(doNode.body, env);
         result = doNode;
@@ -1618,7 +1611,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
+                        new ArrayList<>());
         interpolationsList.forEach(this::rewriteExpr);
         result = regExpTemplateLiteral;
     }

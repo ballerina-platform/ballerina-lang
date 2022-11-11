@@ -138,7 +138,6 @@
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
-            <class name="io.ballerina.semantic.api.test.symbols.ClientDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ConstAnnotationAttachmentSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ConstDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.EnumDeclSymbolTest" />

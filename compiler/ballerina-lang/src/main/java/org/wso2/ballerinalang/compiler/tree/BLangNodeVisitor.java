@@ -233,10 +233,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangFunction funcNode) {
         throw new AssertionError();
     }

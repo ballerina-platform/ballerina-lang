@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -224,7 +223,6 @@ public class SymbolTable {
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
     public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
-    public Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> clientDeclarations;
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -325,8 +323,6 @@ public class SymbolTable {
         this.invokableType.tsymbol = tSymbol;
 
         defineReadonlyCompoundType();
-
-        this.clientDeclarations = new HashMap<>();
     }
 
     private void defineReadonlyCompoundType() {
