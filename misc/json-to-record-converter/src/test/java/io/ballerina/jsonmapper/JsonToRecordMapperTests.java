@@ -373,7 +373,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON with user defined record name")
     public void testForUserDefinedRecordName() throws IOException {
         String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", false, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3PersonBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
@@ -382,7 +382,7 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON with user defined record name - inline")
     public void testForUserDefinedRecordNameInLIne() throws IOException {
         String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", true, false, false)
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", true, false, false, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3PersonTypeDescBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
