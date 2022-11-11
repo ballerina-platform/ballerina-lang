@@ -5781,8 +5781,10 @@ public class Desugar extends BLangNodeVisitor {
         return fieldNames;
     }
 
-    private void generateFieldsForUserUnspecifiedRecordFields(List<RecordLiteralNode.RecordField> fields, List<String> fieldNames,
-                                                              Map<String, BInvokableSymbol> defaultValues, Location pos) {
+    private void generateFieldsForUserUnspecifiedRecordFields(List<RecordLiteralNode.RecordField> fields,
+                                                              List<String> fieldNames,
+                                                              Map<String, BInvokableSymbol> defaultValues,
+                                                              Location pos, boolean isReadonly) {
         for (Map.Entry<String, BInvokableSymbol> entry : defaultValues.entrySet()) {
             String fieldName = entry.getKey();
             if (fieldNames.contains(fieldName)) {
@@ -5790,12 +5792,14 @@ public class Desugar extends BLangNodeVisitor {
             }
             fieldNames.add(fieldName);
             BInvokableSymbol invokableSymbol = entry.getValue();
-            BLangInvocation closureInvocation = getInvocation(invokableSymbol);
+            BLangExpression expression = getInvocation(invokableSymbol);
+            if (isReadonly && !Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.READONLY)) {
+                expression = visitCloneReadonly(expression, invokableSymbol.retType);
+            }
             BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
             member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                                                                                                            fieldName));
-            member.valueExpr = addConversionExprIfRequired(closureInvocation, closureInvocation.getBType());
-
+                                                                                            fieldName));
+            member.valueExpr = addConversionExprIfRequired(expression, expression.getBType());
             fields.add(member);
         }
     }
@@ -5815,7 +5819,8 @@ public class Desugar extends BLangNodeVisitor {
                                                               List<RecordLiteralNode.RecordField> fields,
                                                               List<String> fieldNames, Location pos) {
         Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
-        generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos);
+        generateFieldsForUserUnspecifiedRecordFields(fields, fieldNames, defaultValues, pos,
+                                                     Symbols.isFlagOn(recordType.flags, Flags.READONLY));
 
         List<BType> typeInclusions = recordType.typeInclusions;
 
