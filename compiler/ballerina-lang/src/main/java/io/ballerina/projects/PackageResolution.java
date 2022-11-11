@@ -81,13 +81,11 @@ public class PackageResolution {
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
-    private final List<ModuleConfig> generatedModules;
 
     private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        this.generatedModules = new ArrayList<>();
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
