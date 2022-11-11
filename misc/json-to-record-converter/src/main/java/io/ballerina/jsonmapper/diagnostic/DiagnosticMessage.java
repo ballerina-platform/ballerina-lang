@@ -96,4 +96,16 @@ public final class DiagnosticMessage {
                 "Provided record name conflicts with the other generated records. " +
                         "Consider providing a different name.", DiagnosticSeverity.ERROR, null);
     }
+
+    public static DiagnosticMessage jsonToRecordConverter105(Object[] args) {
+        if (args != null) {
+            return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_105",
+                    String.format("Provided record name ''%s'' conflicts with already existing records. " +
+                            "Consider providing a different name.", args[0]), DiagnosticSeverity.ERROR,
+                    Arrays.copyOfRange(args, 1, args.length));
+        }
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_104",
+                "Provided record name conflicts with already existing records. " +
+                        "Consider providing a different name.", DiagnosticSeverity.ERROR, null);
+    }
 }

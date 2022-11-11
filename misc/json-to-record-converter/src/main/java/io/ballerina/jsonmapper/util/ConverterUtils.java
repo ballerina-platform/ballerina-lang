@@ -18,8 +18,6 @@
 
 package io.ballerina.jsonmapper.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
@@ -35,15 +33,14 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,6 +85,12 @@ public final class ConverterUtils {
         }
     }
 
+    /**
+     * This method returns existing Types on a module/file(for single file projects).
+     *
+     * @param filePath FilePath of the/a file in a singleFileProject or module
+     * @return {@link List<String>} List of already existing Types
+     */
     public static List<String> getExistingTypeNames(Path filePath) {
         List<String> existingTypeNames = new ArrayList<>();
         if (filePath == null) {
@@ -126,53 +129,23 @@ public final class ConverterUtils {
         return existingTypeNames;
     }
 
-    public static JsonObject modifyJsonObjectWithUpdatedFieldNames(JsonObject jsonObject,
-                                                                   List<String> existingFieldNames,
-                                                                   Map<String, String> updatedFieldNames) {
-        Set<Map.Entry<String, JsonElement>> jsonObjectEntries = jsonObject.deepCopy().entrySet();
-        for (Map.Entry<String, JsonElement> entry : jsonObjectEntries) {
-            if (entry.getValue().isJsonObject()) {
-                JsonObject updatedJsonObject =
-                        modifyJsonObjectWithUpdatedFieldNames(jsonObject.remove(entry.getKey()).getAsJsonObject(),
-                                existingFieldNames, updatedFieldNames);
-                jsonObject.add(entry.getKey(), updatedJsonObject);
-
-                String fieldName = StringUtils.capitalize(entry.getKey());
-                if (existingFieldNames.contains(fieldName)) {
-                    String updatedFieldName = updatedFieldNames.containsKey(fieldName) ?
-                            updatedFieldNames.get(fieldName) : getUpdatedFieldName(fieldName, existingFieldNames);
-                    updatedFieldNames.put(fieldName, updatedFieldName);
-                    JsonElement removedJsonObject = jsonObject.remove(entry.getKey());
-                    jsonObject.add(fieldName.equals(entry.getKey()) ? updatedFieldName :
-                            StringUtils.uncapitalize(updatedFieldName) , removedJsonObject);
-                }
-
-            } else if (entry.getValue().isJsonArray()) {
-                for (JsonElement element : entry.getValue().getAsJsonArray()) {
-                    if (element.isJsonObject()) {
-                        JsonObject updatedJsonObject =
-                                modifyJsonObjectWithUpdatedFieldNames(jsonObject.remove(entry.getKey()).getAsJsonObject(),
-                                        existingFieldNames, updatedFieldNames);
-                        jsonObject.add(entry.getKey(), updatedJsonObject);
-                    }
-                }
-                String arrayItemFieldName = StringUtils.capitalize(entry.getKey()) + ARRAY_RECORD_SUFFIX;
-                if (existingFieldNames.contains(arrayItemFieldName)) {
-                    String updatedFieldName = updatedFieldNames.containsKey(arrayItemFieldName) ?
-                            updatedFieldNames.get(arrayItemFieldName) :
-                            getUpdatedFieldName(arrayItemFieldName, existingFieldNames);
-                    String updatedArrayItemFieldName = StringUtils.capitalize(entry.getKey()) +
-                            updatedFieldName.substring(arrayItemFieldName.length());
-                    updatedFieldNames.put(arrayItemFieldName, updatedArrayItemFieldName + ARRAY_RECORD_SUFFIX);
-                    JsonElement removedJsonArray = jsonObject.remove(entry.getKey());
-                    jsonObject.add(StringUtils.capitalize(entry.getKey()).equals(entry.getKey()) ? updatedArrayItemFieldName :
-                            StringUtils.uncapitalize(updatedArrayItemFieldName) , removedJsonArray);
-                }
-            }
-            jsonObject.add(entry.getKey(), jsonObject.remove(entry.getKey()));
+    /**
+     * This method returns an alternative fieldName if the given filedName is already exist.
+     *
+     * @param fieldName Field name of the JSON Object/Array
+     * @param isArrayField To denote whether given field is an array or not
+     * @param existingFieldNames The list of already existing field names
+     * @param updatedFieldNames The list of updated field names
+     * @return {@link List<String>} List of already existing Types
+     */
+    public static String getAndUpdateFieldNames(String fieldName, boolean isArrayField, List<String> existingFieldNames,
+                                                Map<String, String> updatedFieldNames) {
+        String updatedFieldName = getUpdatedFieldName(fieldName, isArrayField, existingFieldNames, updatedFieldNames);
+        if (!fieldName.equals(updatedFieldName)) {
+            updatedFieldNames.put(fieldName, updatedFieldName);
+            return updatedFieldName;
         }
-
-        return jsonObject;
+        return fieldName;
     }
 
     /**
@@ -313,11 +286,28 @@ public final class ConverterUtils {
         }
     }
 
-    private static String getUpdatedFieldName(String fieldName, List<String> existingFieldNames) {
-        if (!existingFieldNames.contains(fieldName)) {
+    private static String getUpdatedFieldName(String fieldName, boolean isArrayField, List<String> existingFieldNames,
+                                              Map<String, String> updatedFieldNames) {
+        if (updatedFieldNames.containsKey(fieldName)) {
+            return updatedFieldNames.get(fieldName);
+        }
+        if (!existingFieldNames.contains(fieldName) && !updatedFieldNames.containsValue(fieldName)) {
             return fieldName;
         } else {
-            return getUpdatedFieldName(fieldName + "Duplicate", existingFieldNames);
+            String extractedFieldName = isArrayField ?
+                    fieldName.substring(0, fieldName.length() - ARRAY_RECORD_SUFFIX.length()) : fieldName;
+            String[] fieldNameSplit = extractedFieldName.split("_");
+            String numericSuffix = fieldNameSplit[fieldNameSplit.length - 1]; // 01
+            if (NumberUtils.isParsable(numericSuffix)) {
+                return getUpdatedFieldName(String.join("_",
+                                Arrays.copyOfRange(fieldNameSplit, 0, fieldNameSplit.length - 1)) + "_" +
+                                String.format("%02d", Integer.parseInt(numericSuffix) + 1) +
+                                (isArrayField ? ARRAY_RECORD_SUFFIX : ""),
+                        isArrayField, existingFieldNames, updatedFieldNames);
+            } else {
+                return getUpdatedFieldName(extractedFieldName + "_01" + (isArrayField ? ARRAY_RECORD_SUFFIX : ""),
+                        isArrayField, existingFieldNames, updatedFieldNames);
+            }
         }
     }
 }
