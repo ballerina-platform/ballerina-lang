@@ -18,12 +18,10 @@
 package io.ballerina.projects;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -63,6 +61,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -196,6 +195,7 @@ class DocumentContext {
         // Remove the client entries generated from the previous edit
         if (idlClients.idlClientMap().containsKey(currentModuleDesc.moduleCompilationId())) {
             idlClients.idlClientMap().get(currentModuleDesc.moduleCompilationId()).remove(name);
+            idlPluginManager.uriMap().remove(documentId);
         }
         syntaxTree.rootNode().accept(new ClientNodeVisitor(
                 idlPluginManager, compilationOptions, currentPkg, idlClients, moduleLoadRequests,
@@ -291,30 +291,8 @@ class DocumentContext {
                     moduleClientDeclarationNode.clientPrefix().location().lineRange());
         }
 
-        @Override
-        public void visit(ClientDeclarationNode clientDeclarationNode) {
-            // report unsupported project error for single file
-            if (this.currentPkg.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                ProjectDiagnosticErrorCode errorCode =
-                        ProjectDiagnosticErrorCode.CLIENT_DECL_IN_UNSUPPORTED_PROJECT_KIND;
-                Location location = clientDeclarationNode.location();
-                String message = "client declaration is not supported with standalone Ballerina file";
-                pluginDiagnosticList.add(createDiagnostic(errorCode, location, message));
-                return;
-            }
-
-            if (loadExistingModule(clientDeclarationNode, clientDeclarationNode.annotations(),
-                    clientDeclarationNode.clientPrefix().location().lineRange())) {
-                return;
-            }
-
-            // client declaration is in a BuildProject
-            executeIDLPlugin(clientDeclarationNode, clientDeclarationNode.location(),
-                    clientDeclarationNode.clientPrefix().location().lineRange());
-        }
-
         private boolean loadExistingModule(
-                Node clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
+                ModuleClientDeclarationNode clientNode, NodeList<AnnotationNode> annotationsList, LineRange lineRange) {
             String uri = CompilerPlugins.getUri(clientNode);
             try {
                 if (!isRemoteUrl(uri)) {
@@ -338,17 +316,17 @@ class DocumentContext {
                             CompilerPlugins.annotationsAsStr(annotationsList))) {
                         continue;
                     }
+                    File specFile = new File(cachedPlugin.filePath());
+                    if (specFile.exists()) {
+                        if (cachedPlugin.lastModifiedTime() != specFile.lastModified()) {
+                            // the idl resource file has been modified
+                            return false;
+                        }
+                    }
                     if (idlPluginManager.generatedModuleConfigs().stream().noneMatch(moduleConfig ->
                             moduleConfig.moduleDescriptor().name().moduleNamePart()
                                     .equals(cachedPlugin.generatedModuleName()))) {
 
-                        File specFile = new File(cachedPlugin.filePath());
-                        if (specFile.exists()) {
-                            if (cachedPlugin.lastModifiedTime() != specFile.lastModified()) {
-                                // the idl resource file has been modified
-                                return false;
-                            }
-                        }
                         if (!CompilerPlugins.moduleExists(cachedPlugin.generatedModuleName(), currentPkg.project())) {
                             // user has deleted the module
                             return false;
@@ -362,7 +340,7 @@ class DocumentContext {
             return false;
         }
 
-        private void executeIDLPlugin(Node clientNode, Location location, LineRange lineRange) {
+        private void executeIDLPlugin(ModuleClientDeclarationNode clientNode, Location location, LineRange lineRange) {
             if (!compilationOptions.withIDLGenerators()) {
                 return;
             }
@@ -392,6 +370,10 @@ class DocumentContext {
                         if (idlClientGenerator.canHandle(idlSourceGeneratorContext)) {
                             idlClientGenerator.perform(idlSourceGeneratorContext);
                             pluginDiagnosticList.addAll(idlSourceGeneratorContext.reportedDiagnostics());
+                            if (!idlPluginManager.uriMap().containsKey(this.documentId)) {
+                                idlPluginManager.uriMap().put(this.documentId, new HashSet<>());
+                            }
+                            idlPluginManager.uriMap().get(this.documentId).add(CompilerPlugins.getUri(clientNode));
                             return;
                         }
                     } catch (Exception e) {
@@ -424,6 +406,10 @@ class DocumentContext {
                     PackageDependencyScope.DEFAULT,
                     DependencyResolutionType.SOURCE));
             idlPluginManager.addModuleToLoadFromCache(cachedPlugin.generatedModuleName());
+            if (!idlPluginManager.uriMap().containsKey(this.documentId)) {
+                idlPluginManager.uriMap().put(this.documentId, new HashSet<>());
+            }
+            idlPluginManager.uriMap().get(this.documentId).add(cachedPlugin.url());
         }
 
         private Diagnostic createDiagnostic(ProjectDiagnosticErrorCode errorCode, Location location, String message) {
@@ -446,7 +432,7 @@ class DocumentContext {
             return !url.getProtocol().equals("file");
         }
 
-        private Path getIdlPath(Node clientNode) throws IOException {
+        private Path getIdlPath(ModuleClientDeclarationNode clientNode) throws IOException {
             String uri = CompilerPlugins.getUri(clientNode);
             if (!isRemoteUrl(uri)) {
                 return resolveLocalPath(uri);

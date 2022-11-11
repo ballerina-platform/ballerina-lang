@@ -31,7 +31,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.tree.ClientDeclarationNode;
-import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -40,12 +39,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,6 +65,9 @@ public class IDLClientCompilerTests {
             "a module generated for a client declaration must have an object type or class named 'client'";
     private static final String MUTABLE_STATE_IN_GENERATED_MODULE_ERROR =
             "a module generated for a client declaration cannot have mutable state";
+    private static final String INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR =
+            "invalid usage of the 'client' keyword as an unquoted identifier in a qualified identifier: " +
+                    "allowed only with client declarations";
 
     private CompileResult result;
 
@@ -103,8 +101,6 @@ public class IDLClientCompilerTests {
     public Object[] testFuncNames() {
         return new Object[] {
             "testModuleClientDecl",
-            "testClientDeclStmt",
-            "testClientDeclScoping1",
             "testClientDeclModuleWithClientObjectType"
         };
     }
@@ -115,25 +111,19 @@ public class IDLClientCompilerTests {
         IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
 
         // Expected to get 2 'no matching plugin found' errors
-        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 2,
+        Assert.assertEquals(idlClientGeneratorResult.reportedDiagnostics().diagnostics().size(), 1,
                 TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
         Assert.assertEquals(TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()),
-                "ERROR [main.bal:(40:1,40:82)] no matching plugin found for client declaration\n" +
-                        "ERROR [main.bal:(43:5,43:87)] no matching plugin found for client declaration\n");
+                "ERROR [main.bal:(27:1,27:82)] no matching plugin found for client declaration\n");
         PackageCompilation compilation = project.currentPackage().getCompilation();
 
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
-        validateError(diagnostics, index++, "no matching plugin found for client declaration", 40, 1);
-        validateError(diagnostics, index++, "no matching plugin found for client declaration", 43, 5);
+        validateError(diagnostics, index++, "no matching plugin found for client declaration", 27, 1);
         validateError(diagnostics, index++, "unknown type 'Config'", 19, 1);
         validateError(diagnostics, index++, "unknown type 'Client'", 20, 1);
         validateError(diagnostics, index++, "unknown type 'ClientConfig'", 23, 5);
         validateError(diagnostics, index++, "unknown type 'Client'", 24, 5);
-        validateError(diagnostics, index++, "unknown type 'ClientConfiguratin'", 29, 5);
-        validateError(diagnostics, index++, "unknown type 'clients'", 30, 5);
-        validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 36, 5);
-        validateError(diagnostics, index++, "unknown type 'Config'", 37, 5);
         Assert.assertEquals(diagnostics.length, index);
     }
 
@@ -148,13 +138,9 @@ public class IDLClientCompilerTests {
         Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
         int index = 0;
         validateError(diagnostics, index++, "unused client declaration prefix 'foo'", 17, 69);
-        validateError(diagnostics, index++, "unused client declaration prefix 'bar'", 20, 74);
-        validateError(diagnostics, index++, "unused client declaration prefix 'baz'", 23, 78);
-        validateError(diagnostics, index++, "unused client declaration prefix 'p2'", 30, 70);
-        validateError(diagnostics, index++, "unused client declaration prefix 'p1'", 38, 74);
-        validateError(diagnostics, index++, "unused client declaration prefix 'p3'", 40, 74);
-        validateError(diagnostics, index++, "unused client declaration prefix 'p4'", 43, 70);
-        validateError(diagnostics, index++, "unused client declaration prefix 'p5'", 45, 70);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p2'", 22, 70);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p4'", 28, 70);
+        validateError(diagnostics, index++, "unused client declaration prefix 'p5'", 30, 70);
         Assert.assertEquals(diagnostics.length, index);
     }
 
@@ -220,6 +206,47 @@ public class IDLClientCompilerTests {
     }
 
     @Test
+    public void testInvalidImportOfGeneratedModuleNegative() {
+        Project project = loadPackage("simpleclientnegativetestfive");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                          TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        validateError(diagnostics, index++, "a module generated for a client declaration cannot be imported", 17, 1);
+        validateError(diagnostics, index++, "a module generated for a client declaration cannot be imported", 18, 1);
+        validateError(diagnostics, index++, "undefined module 'client1'", 24, 5);
+        validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 24, 5);
+        validateError(diagnostics, index++, "undefined module 'bar'", 25, 5);
+        validateError(diagnostics, index++, "unknown type 'ClientConfiguration'", 25, 5);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
+    public void testInvalidUsageOfUnquotedClientKeywordNegative() {
+        Project project = loadPackage("simpleclientnegativetestsix");
+        IDLClientGeneratorResult idlClientGeneratorResult = project.currentPackage().runIDLGeneratorPlugins();
+        Assert.assertTrue(idlClientGeneratorResult.reportedDiagnostics().diagnostics().isEmpty(),
+                          TestUtils.getDiagnosticsAsString(idlClientGeneratorResult.reportedDiagnostics()));
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+
+        Diagnostic[] diagnostics = compilation.diagnosticResult().diagnostics().toArray(new Diagnostic[0]);
+        int index = 0;
+        // main.bal
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 21, 1);
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 25, 5);
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 26, 5);
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 26, 27);
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 31, 9);
+        // oth.bal
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 20, 5);
+        validateError(diagnostics, index++, INVALID_USAGE_OF_UNQUOTED_CLIENT_KEYWORD_ERROR, 21, 9);
+        Assert.assertEquals(diagnostics.length, index);
+    }
+
+    @Test
     public void testAnnotationOnClientDeclaration() {
         List<? extends ClientDeclarationNode> clientDeclarations = result.getAST().getClientDeclarations();
 
@@ -234,26 +261,7 @@ public class IDLClientCompilerTests {
         attachments =
                 ((BClientDeclarationSymbol) ((BLangClientDeclaration) clientDeclarationNode).symbol).getAnnotations();
         Assert.assertEquals(attachments.size(), 1);
-        assertAttachmentSymbol(attachments.get(0), 123L);
-    }
-
-    @Test
-    public void testAnnotationOnClientDeclarationStmt() {
-        FunctionNode functionNode = result.getAST().getFunctions().stream()
-                .filter(fn -> "testClientDeclAnnotSymbols".equals(((BLangFunction) fn).name.value)).findFirst().get();
-
-        BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(0);
-        List<? extends AnnotationAttachmentSymbol> attachments =
-                ((BClientDeclarationSymbol) ((BLangClientDeclarationStatement) stmt).clientDeclaration.symbol)
-                        .getAnnotations();
-        Assert.assertEquals(attachments.size(), 2);
-        assertAttachmentSymbol(attachments.get(0), 12L);
-        assertAttachmentSymbol(attachments.get(1), 13L);
-
-        stmt = ((BLangBlockFunctionBody) ((BLangFunction) functionNode).body).stmts.get(2);
-        attachments = ((BClientDeclarationSymbol) ((BLangClientDeclarationStatement) stmt).clientDeclaration.symbol)
-                .getAnnotations();
-        Assert.assertEquals(attachments.size(), 0);
+        assertAttachmentSymbol(attachments.get(0));
     }
 
     private Project loadPackage(String path) {
@@ -274,7 +282,7 @@ public class IDLClientCompilerTests {
                             "incorrect column position:");
     }
 
-    private void assertAttachmentSymbol(AnnotationAttachmentSymbol attachmentSymbol, Object value) {
+    private void assertAttachmentSymbol(AnnotationAttachmentSymbol attachmentSymbol) {
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachmentSymbol;
         Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "ClientAnnot");
         Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
@@ -285,6 +293,6 @@ public class IDLClientCompilerTests {
 
         Map<String, BLangConstantValue> mapConst = (Map<String, BLangConstantValue>) constValue;
         Assert.assertEquals(mapConst.size(), 1);
-        Assert.assertEquals(mapConst.get("i").value, value);
+        Assert.assertEquals(mapConst.get("i").value, 123L);
     }
 }

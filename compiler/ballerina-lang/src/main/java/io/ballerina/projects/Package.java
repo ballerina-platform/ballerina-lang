@@ -31,6 +31,7 @@ import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -265,15 +266,20 @@ public class Package {
         if (this.packageContext.cachedCompilation() == null) {
             return this;
         }
-        return duplicate(this.project);
+        return new Package(packageContext.duplicate(project, true), project);
     }
 
     private void saveGeneratedModules(PackageResolution resolution) throws IOException {
+        if (resolution.packageContext().project().kind() != ProjectKind.BUILD_PROJECT) {
+            return;
+        }
         Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         List<String> unusedModules = new ArrayList<>();
         if (Files.exists(modulesRoot)) {
-            unusedModules.addAll(Files.list(modulesRoot).map(path ->
-                    Optional.of(path.getFileName()).get().toString()).collect(Collectors.toList()));
+            try (Stream<Path> fileList = Files.list(modulesRoot)) {
+                unusedModules.addAll(fileList.filter(Files::isDirectory).map(path ->
+                        Optional.of(path.getFileName()).get().toString()).collect(Collectors.toList()));
+            }
         }
         for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
             if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
@@ -287,11 +293,13 @@ public class Package {
             ProjectUtils.deleteDirectory(modulesRoot.resolve(unusedModule));
         }
 
-        if (!resolution.clientsToCache().isEmpty()) {
-            String json = new Gson().toJson(resolution.clientsToCache());
-            Files.writeString(this.project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
-                    .resolve(ProjectConstants.IDL_CACHE_FILE), json);
+        Path idlClientCacheJson = this.project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
+                .resolve(ProjectConstants.IDL_CACHE_FILE);
+        if (resolution.clientsToCache().isEmpty() && Files.notExists(idlClientCacheJson)) {
+            return;
         }
+        String json = new Gson().toJson(resolution.clientsToCache());
+        Files.writeString(idlClientCacheJson, json);
     }
 
     /**
@@ -342,6 +350,7 @@ public class Package {
         }
 
         if (compilerPluginManager.engagedCodeModifierCount() > 0) {
+            compilerPluginManager = pkg.getCompilation(compOptions).compilerPluginManager();
             CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
             CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(pkg);
             diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);
@@ -497,11 +506,6 @@ public class Package {
             for (ModuleContext newModuleContext : newModuleContexts) {
                 this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
             }
-            return this;
-        }
-
-        Modifier withCompilationOptions(CompilationOptions compilationOptions) {
-            this.compilationOptions = this.compilationOptions.acceptTheirs(compilationOptions);
             return this;
         }
 

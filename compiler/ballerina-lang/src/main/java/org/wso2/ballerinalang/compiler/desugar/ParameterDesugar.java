@@ -129,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -516,7 +515,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
                                                          BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
         BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) env.node.getBType().tsymbol;
-        BLangFunction function = createFunction(closureName, varNode.pos, symbol.pkgID, owner, varNode.getBType());
+        BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         updateFunctionParams(function, symbol.params, paramName);
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = varNode.expr;
@@ -1497,11 +1496,6 @@ public class ParameterDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangClientDeclaration clientDeclaration) {
         this.result = clientDeclaration;
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        this.result = clientDeclarationStatement;
     }
 
     // Rewrite methods

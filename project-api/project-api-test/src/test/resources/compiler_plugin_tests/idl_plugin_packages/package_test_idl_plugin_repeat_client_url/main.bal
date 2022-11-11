@@ -22,6 +22,4 @@ public function testModuleClientDecl() returns string {
     return cl->getSpecVersion();
 }
 
-public function testSameClientUri() {
-    client "https://postman-echo.com/get?name=projectapiclientplugin" as bar;
-}
+client "https://postman-echo.com/get?name=projectapiclientplugin" as bar; // same URI

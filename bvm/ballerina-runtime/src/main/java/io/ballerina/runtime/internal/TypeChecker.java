@@ -1861,16 +1861,16 @@ public class TypeChecker {
             return Optional.empty();
         }
 
-        List<Type> lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).resourcePathType.getTupleTypes();
-        List<Type> rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).resourcePathType.getTupleTypes();
+        Type[] lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).pathSegmentTypes;
+        Type[] rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).pathSegmentTypes;
 
-        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
-        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
+        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.length;
+        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.length) {
             return Optional.empty();
         }
 
         for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
-            if (!checkIsType(lhsFuncResourcePathTypes.get(i), rhsFuncResourcePathTypes.get(i))) {
+            if (!checkIsType(lhsFuncResourcePathTypes[i], rhsFuncResourcePathTypes[i])) {
                 return Optional.empty();
             }
         }
