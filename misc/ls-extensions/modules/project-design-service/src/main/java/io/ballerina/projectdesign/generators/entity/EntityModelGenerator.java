@@ -34,9 +34,10 @@ import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
 import io.ballerina.projectdesign.model.entity.Association;
 import io.ballerina.projectdesign.model.entity.Attribute;
-import io.ballerina.projectdesign.model.entity.Type;
+import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.tools.text.LineRange;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,9 +68,9 @@ public class EntityModelGenerator {
     }
 
 
-    public Map<String, Type> generate() {
+    public Map<String, Entity> generate() {
 
-        Map<String, Type> types = new HashMap<>();
+        Map<String, Entity> entities = new HashMap<>();
         List<Symbol> symbols = semanticModel.moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
@@ -98,12 +99,12 @@ public class EntityModelGenerator {
                         attributeList.add(attribute);
                     }
 
-                    Type type = new Type(attributeList, inclusionList, getLineRange(typeDefinitionSymbol));
-                    types.put(entityName, type);
+                    Entity entity = new Entity(attributeList, inclusionList, getLineRange(typeDefinitionSymbol));
+                    entities.put(entityName, entity);
                 }
             }
         }
-        return types;
+        return entities;
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
@@ -290,7 +291,7 @@ public class EntityModelGenerator {
         LineRange lineRange = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
-            String filePath = String.format("%s/%s", moduleRootPath, typeLineRange.filePath());
+            String filePath = moduleRootPath + File.separator + typeLineRange.filePath();
             lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
         }
         return lineRange;
