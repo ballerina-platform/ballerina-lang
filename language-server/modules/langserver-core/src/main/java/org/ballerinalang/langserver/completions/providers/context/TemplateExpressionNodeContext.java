@@ -104,9 +104,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RETURN.get()));
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NEWLINE.get()));
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_TAB.get()));
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_FLAG_EXPR 
-                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx
-                .getCursorPositionInTree()) {
+        } else if (isFlagExpr(nodeAtCursor, ctx)) {
             // Eg: re `(?<cursor>)`
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MULTILINE_FLAG.get()));
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_ALL_FLAG.get()));
@@ -118,6 +116,11 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_SQUARE_BRACKET.get()));
         } 
             return completionItems;
+    }
+
+    private boolean isFlagExpr(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
+        return nodeAtCursor.kind() == SyntaxKind.RE_FLAG_EXPR 
+                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx.getCursorPositionInTree();
     }
 
     @Override
