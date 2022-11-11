@@ -3625,27 +3625,6 @@ public class FormattingTreeModifier extends TreeModifier {
         return formatToken(token, env.trailingWS, env.trailingNL);
     }
 
-
-    @Override
-    public ModuleClientDeclarationNode transform(
-            ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
-                                           env.trailingNL);
-        return moduleClientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(clientPrefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
-    }
-
     // ------------------------------------- Set of private helper methods -------------------------------------
 
     /**
