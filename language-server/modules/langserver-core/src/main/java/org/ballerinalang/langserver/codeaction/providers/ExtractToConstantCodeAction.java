@@ -130,7 +130,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     private List<Node> getPossibleExpressionNodes(Node node, BasicLiteralNodeValidator nodeValidator) {
         // Identify the sub-expressions to be extracted
         List<Node> nodeList = new ArrayList<>();
-        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD && !nodeValidator.getInvalidNode()) {
+        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD 
+                && !nodeValidator.getInvalidNode()) {
             nodeList.add(node);
             node = node.parent();
             node.accept(nodeValidator);
