@@ -51,7 +51,7 @@ public class Option {
     private final Set<BString> recordKeysFound;
     private final int location;
 
-    private final Pattern NUMBER_PATTERN = Pattern.compile("[-+]?\\d+(\\.\\d+)?([eE][-+]?\\d+)?[fd]?");
+    private final Pattern NUMBER_PATTERN = Pattern.compile("-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?[fFdD]?");
     private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
 
     public Option(Type recordType, int location) {
