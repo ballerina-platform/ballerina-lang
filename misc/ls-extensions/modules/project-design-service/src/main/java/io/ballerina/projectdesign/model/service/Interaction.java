@@ -27,6 +27,7 @@ import io.ballerina.tools.text.LineRange;
  * @since 2201.2.2
  */
 public class Interaction extends ComponentModelItem {
+
     private final ResourceId resourceId;
     private final String connectorType;
 

@@ -28,14 +28,14 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Type extends ComponentModelItem {
+public class Entity extends ComponentModelItem {
 
     private List<Attribute> attributes;
     private final List<String> inclusions;
 
     // todo : send the location
 
-    public Type(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
+    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
         super(lineRange);
         this.attributes = attributes;
         this.inclusions = inclusions;
