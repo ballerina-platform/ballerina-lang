@@ -1,3 +1,4 @@
-type Message record {
-    string messageTitle;
+type Friend record {
+    string firstName;
+    string lastName;
 };

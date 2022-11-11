@@ -4,13 +4,20 @@
 #
 # + name - name as a string
 # + return - "Hello, " with the input string name
-function hello(string name) returns string {
+function Author(string name) returns string {
     if !(name is "") {
         return "Hello, " + name;
     }
     return "Hello, World!";
 }
 
-type UtilRec record {
-    string utilMessage;
+type Book record {
+    string name;
+    int publishedYear?;
+    decimal price?;
+};
+
+type State record {
+    string name;
+    string code;
 };
