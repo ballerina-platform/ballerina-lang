@@ -19,10 +19,17 @@
 package io.ballerina.cli.cmd;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 /**
  * Pull command tests.
@@ -32,24 +39,26 @@ import java.io.IOException;
 public class PullCommandTest extends BaseCommandTest {
 
     private static final String TEST_PKG_NAME = "wso2/winery:1.2.3";
+    private Path testResources;
 
-    @Test(description = "Pull package without package name", enabled = false)
-    public void testPullWithoutPackage() throws IOException {
-        // TODO: update for the new way
-        PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse();
-        pullCommand.execute();
-
-        String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: no package given"));
-        Assert.assertTrue(actual.contains("bal pull <package-name>"));
+    @BeforeClass
+    public void setup() throws IOException {
+        super.setup();
+        try {
+            this.testResources = super.tmpDir.resolve("build-test-resources");
+            URI testResourcesURI = Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("test-resources")).toURI();
+            Files.walkFileTree(Paths.get(testResourcesURI), new BuildCommandTest.Copy(Paths.get(testResourcesURI),
+                    this.testResources));
+        } catch (URISyntaxException e) {
+            Assert.fail("error loading resources");
+        }
     }
 
     @Test(description = "Pull package with too many args")
     public void testPullWithTooManyArgs() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(TEST_PKG_NAME, "tests");
+        new CommandLine(pullCommand).parseArgs(TEST_PKG_NAME, "tests");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -61,7 +70,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid package name")
     public void testPullInvalidPackage() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery/1.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery/1.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -75,7 +84,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid org")
     public void testPullPackageWithInvalidOrg() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2-dev/winery");
+        new CommandLine(pullCommand).parseArgs("wso2-dev/winery");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -89,7 +98,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid name")
     public void testPullPackageWithInvalidName() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery$:1.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery$:1.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -103,7 +112,7 @@ public class PullCommandTest extends BaseCommandTest {
     @Test(description = "Pull package with invalid version")
     public void testPullPackageWithInvalidVersion() throws IOException {
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse("wso2/winery:1.0.0.0");
+        new CommandLine(pullCommand).parseArgs("wso2/winery:1.0.0.0");
         pullCommand.execute();
 
         String buildLog = readOutput(true);
@@ -119,7 +128,7 @@ public class PullCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(args);
+        new CommandLine(pullCommand).parseArgs(args);
         pullCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-pull - Fetch packages from Ballerina Central"));
@@ -130,9 +139,36 @@ public class PullCommandTest extends BaseCommandTest {
         // Test if no arguments was passed in
         String[] args = { "-h" };
         PullCommand pullCommand = new PullCommand(printStream, false);
-        new CommandLine(pullCommand).parse(args);
+        new CommandLine(pullCommand).parseArgs(args);
         pullCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-pull - Fetch packages from Ballerina Central"));
+    }
+
+    @Test(description = "Pull package dependencies without current directory being a Ballerina pkg")
+    public void testPullWithoutPkgArgAndWorkingDirNotABalPkg() throws IOException {
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs();
+        pullCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("working directory is not a ballerina project."));
+        Assert.assertTrue(actual.contains("bal pull [<org-name>/<package-name> | " +
+                "<org-name>/<package-name>:<version>]"));
+    }
+
+    @Test(description = "Pull package dependencies inside a bal pkg that does not have source files")
+    public void testPullWithoutPkgArgInsideAnEmptyBalPkg() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PullCommand pullCommand = new PullCommand(printStream, false);
+        new CommandLine(pullCommand).parseArgs();
+        pullCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("package is empty. Please add at least one .bal file."));
     }
 }
