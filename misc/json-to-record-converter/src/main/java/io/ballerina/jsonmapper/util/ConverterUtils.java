@@ -75,8 +75,6 @@ public final class ConverterUtils {
                 identifier = identifier.substring(1);
             }
             identifier = unescapeUnicodeCodepoints(identifier);
-            // TODO: Escape Special Character does not escapes backslashes.
-            //  Refer - https://github.com/ballerina-platform/ballerina-lang/issues/36912
             identifier = escapeSpecialCharacters(identifier);
             if (identifier.matches(ESCAPE_NUMERIC_PATTERN)) {
                 identifier = "\\" + identifier;

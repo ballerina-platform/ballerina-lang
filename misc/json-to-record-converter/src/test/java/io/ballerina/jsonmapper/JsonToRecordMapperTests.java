@@ -444,7 +444,7 @@ public class JsonToRecordMapperTests {
             put("sample_4.bal", new Pair<>(sample4Bal, sample4Json));
             put("sample_8.bal", new Pair<>(sample8Bal,sample8Json));
             put("sample_10.bal", new Pair<>(sample10Bal, sample10Json));
-//            put("sample_11.bal", new Pair<>(sample11Bal, sample11Json));
+            put("sample_11.bal", new Pair<>(sample11Bal, sample11Json));
         }};
         Map<String, Pair<Path, Path>> existingRecordsToJsonTypeDescSamples = new HashMap<>() {{
             put("sample_4_type_desc.bal", new Pair<>(sample4Bal, sample4Json));
