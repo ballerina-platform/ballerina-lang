@@ -1,21 +1,14 @@
 package io.ballerina.projects;
 
-import com.google.gson.Gson;
-import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +23,6 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * {@code Package} represents a Ballerina Package.
@@ -224,82 +215,6 @@ public class Package {
 
     Package duplicate(Project project) {
         return new Package(packageContext.duplicate(project), project);
-    }
-
-    public IDLClientGeneratorResult runIDLGeneratorPlugins() {
-        ResolutionOptions resolutionOptions = ResolutionOptions.builder()
-                .setOffline(this.packageContext.compilationOptions().offlineBuild())
-                .setSticky(this.packageContext.compilationOptions().sticky()).build();
-        return runIDLGeneratorPlugins(resolutionOptions);
-    }
-
-    public IDLClientGeneratorResult runIDLGeneratorPlugins(ResolutionOptions resolutionOptions) {
-        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
-            throw new ProjectException(
-                    "IDL plugin generation is not supported for project kind: " + ProjectKind.BALA_PROJECT);
-        }
-
-        // Clear existing module and document contexts.
-        // Otherwise the cached compilations will be reused skipping the IDL client generator plugins.
-        Package updatedPackage = resetIfCompiled();
-        this.project.setCurrentPackage(updatedPackage);
-
-        // Generate IDL client modules
-        CompilationOptions newCompilationOptions = this.packageContext.compilationOptions().acceptTheirs(
-                CompilationOptions.builder()
-                        .withIDLGenerators(true)
-                        .setOffline(resolutionOptions.offline())
-                        .setSticky(resolutionOptions.sticky())
-                        .build());
-        PackageResolution packageResolution = updatedPackage.getResolution(newCompilationOptions);
-
-        // Save the generated client modules
-        try {
-            saveGeneratedModules(packageResolution);
-        } catch (IOException e) {
-            throw new ProjectException("failed to save generated IDL client modules: " + e.getMessage(), e);
-        }
-        return new IDLClientGeneratorResult(updatedPackage, packageResolution.pluginDiagnosticList());
-    }
-
-    private Package resetIfCompiled() {
-        if (this.packageContext.cachedCompilation() == null) {
-            return this;
-        }
-        return new Package(packageContext.duplicate(project, true), project);
-    }
-
-    private void saveGeneratedModules(PackageResolution resolution) throws IOException {
-        if (resolution.packageContext().project().kind() != ProjectKind.BUILD_PROJECT) {
-            return;
-        }
-        Path modulesRoot = this.project().sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-        List<String> unusedModules = new ArrayList<>();
-        if (Files.exists(modulesRoot)) {
-            try (Stream<Path> fileList = Files.list(modulesRoot)) {
-                unusedModules.addAll(fileList.filter(Files::isDirectory).map(path ->
-                        Optional.of(path.getFileName()).get().toString()).collect(Collectors.toList()));
-            }
-        }
-        for (ModuleId moduleId : resolution.packageContext().moduleIds()) {
-            if (resolution.packageContext().moduleContext(moduleId).isGenerated()) {
-                Utils.writeModule(project.currentPackage().module(moduleId), modulesRoot);
-                unusedModules.remove(resolution.packageContext().moduleContext(moduleId).moduleName().moduleNamePart());
-            }
-        }
-
-        // Delete unused generated module directories
-        for (String unusedModule : unusedModules) {
-            ProjectUtils.deleteDirectory(modulesRoot.resolve(unusedModule));
-        }
-
-        Path idlClientCacheJson = this.project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT)
-                .resolve(ProjectConstants.IDL_CACHE_FILE);
-        if (resolution.clientsToCache().isEmpty() && Files.notExists(idlClientCacheJson)) {
-            return;
-        }
-        String json = new Gson().toJson(resolution.clientsToCache());
-        Files.writeString(idlClientCacheJson, json);
     }
 
     /**
@@ -662,8 +577,7 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                     this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
-                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph(),
-                    this.oldPackageContext.idlPluginManager());
+                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
             if (oldPackageContext.cachedCompilation() != null) {
@@ -782,8 +696,7 @@ public class Package {
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap,
-                        oldModuleContext.kind()));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
             }
             updateModules(moduleContextSet);
         }
