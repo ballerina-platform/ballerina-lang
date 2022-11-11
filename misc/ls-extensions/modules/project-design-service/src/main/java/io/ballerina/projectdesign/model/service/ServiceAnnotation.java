@@ -36,6 +36,7 @@ public class ServiceAnnotation extends ComponentModelItem {
         this.id = "";
         this.label = "";
     }
+
     public ServiceAnnotation(String id, String label, LineRange lineRange) {
         super(lineRange);
         this.id = id;
