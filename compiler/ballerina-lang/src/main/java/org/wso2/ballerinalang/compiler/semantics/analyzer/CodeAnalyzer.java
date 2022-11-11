@@ -161,7 +161,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
@@ -1882,34 +1881,25 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void checkDuplicateVarRefs(List<BLangExpression> varRefs, Set<BSymbol> symbols) {
         for (BLangExpression varRef : varRefs) {
-            if (varRef == null) {
-                continue;
-            }
             NodeKind kind = varRef.getKind();
-            if (kind != NodeKind.SIMPLE_VARIABLE_REF
-                    && kind != NodeKind.RECORD_VARIABLE_REF
-                    && kind != NodeKind.ERROR_VARIABLE_REF
-                    && kind != NodeKind.TUPLE_VARIABLE_REF) {
-                continue;
-            }
-
-            if (kind == NodeKind.SIMPLE_VARIABLE_REF
-                    && names.fromIdNode(((BLangSimpleVarRef) varRef).variableName) == Names.IGNORE) {
-                continue;
-            }
-
-            if (kind == NodeKind.TUPLE_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangTupleVarRef) varRef), symbols);
-            } else if (kind == NodeKind.RECORD_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangRecordVarRef) varRef), symbols);
-            } else if (kind == NodeKind.ERROR_VARIABLE_REF) {
-                checkDuplicateVarRefs(getVarRefs((BLangErrorVarRef) varRef), symbols);
-            }
-
-            BLangVariableReference varRefExpr = (BLangVariableReference) varRef;
-            if (varRefExpr.symbol != null && !symbols.add(varRefExpr.symbol)) {
-                this.dlog.error(varRef.pos, DiagnosticErrorCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
-                        varRefExpr.symbol);
+            switch (kind) {
+                case SIMPLE_VARIABLE_REF:
+                    BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) varRef;
+                    if (simpleVarRef.symbol != null && !symbols.add(simpleVarRef.symbol)) {
+                        this.dlog.error(varRef.pos, DiagnosticErrorCode.DUPLICATE_VARIABLE_IN_BINDING_PATTERN,
+                                simpleVarRef.symbol);
+                    }
+                    break;
+                case RECORD_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangRecordVarRef) varRef), symbols);
+                    break;
+                case ERROR_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangErrorVarRef) varRef), symbols);
+                    break;
+                case TUPLE_VARIABLE_REF:
+                    checkDuplicateVarRefs(getVarRefs((BLangTupleVarRef) varRef), symbols);
+                    break;
+                default:
             }
         }
     }
@@ -1917,7 +1907,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private List<BLangExpression> getVarRefs(BLangRecordVarRef varRef) {
         List<BLangExpression> varRefs = varRef.recordRefFields.stream()
                 .map(e -> e.variableReference).collect(Collectors.toList());
-        varRefs.add(varRef.restParam);
+        if (varRef.restParam != null) {
+            varRefs.add(varRef.restParam);
+        }
         return varRefs;
     }
 
@@ -1930,13 +1922,17 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             varRefs.add(varRef.cause);
         }
         varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
-        varRefs.add(varRef.restVar);
+        if (varRef.restVar != null) {
+            varRefs.add(varRef.restVar);
+        }
         return varRefs;
     }
 
     private List<BLangExpression> getVarRefs(BLangTupleVarRef varRef) {
         List<BLangExpression> varRefs = new ArrayList<>(varRef.expressions);
-        varRefs.add(varRef.restParam);
+        if (varRef.restParam != null) {
+            varRefs.add(varRef.restParam);
+        }
         return varRefs;
     }
 
