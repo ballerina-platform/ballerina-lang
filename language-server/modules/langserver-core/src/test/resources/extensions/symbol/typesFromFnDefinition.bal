@@ -1,5 +1,4 @@
-import ballerina/http;
-import ballerina/jwt;
+import ballerina/lang.'typedesc;
 
 type Person record {
     int id;
@@ -17,7 +16,7 @@ type Course record {
 type Submission record {
     int id = 0;
     string date;
-    http:QueryParams params;
+    'typedesc:ModuleId moduleId;
 };
 
 type Student record {
@@ -39,13 +38,13 @@ function transform3(Person person, Course course, Submission submission) returns
 
 function transform4(Person person, int i) returns float => 0.0;
 
-function transform5(http:CertKey certKey) returns jwt:CertKey => {};
+function transform5('typedesc:ModuleId moduleId) returns 'typedesc:TypeId => {};
 
 function transform6(string[] names) returns string[] => [];
 
 function transform7(Person[] people, Course[] courses) returns Student[] => [];
 
-function transform8(http:CertKey[] keys) returns jwt:CertKey[] => [];
+function transform8('typedesc:ModuleId[] moduleIds) returns 'typedesc:TypeId[] => [];
 
 function transform9(Person? person) returns Student? => {};
 
