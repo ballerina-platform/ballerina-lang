@@ -31,7 +31,8 @@ public class SymbolServiceTestUtil {
     public static final String UNION = "union";
     public static final String ERROR = "error";
     public static final String NULL = "()";
-    public static final String NEVER = "never";
+    public static final String INTERSECTION = "intersection";
+    public static final String READ_ONLY = "readonly";
 
     public static boolean isPositionsEquals(LinePosition expectedPosition, LinePosition actualPosition) {
         return expectedPosition.line() == actualPosition.line()
