@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions.symbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.IntersectionType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.UnionType;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
@@ -57,9 +58,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(33, 9);
-        LinePosition paramPosition = LinePosition.from(33, 27);
-        LinePosition returnTypeDescPosition = LinePosition.from(33, 40);
+        LinePosition fnPosition = LinePosition.from(32, 9);
+        LinePosition paramPosition = LinePosition.from(32, 27);
+        LinePosition returnTypeDescPosition = LinePosition.from(32, 40);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -85,9 +86,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(35, 9);
-        LinePosition paramPosition = LinePosition.from(35, 27);
-        LinePosition returnTypeDescPosition = LinePosition.from(33, 43);
+        LinePosition fnPosition = LinePosition.from(34, 9);
+        LinePosition paramPosition = LinePosition.from(34, 27);
+        LinePosition returnTypeDescPosition = LinePosition.from(34, 43);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -113,11 +114,11 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(37, 9);
-        LinePosition param1Position = LinePosition.from(37, 27);
-        LinePosition param2Position = LinePosition.from(37, 42);
-        LinePosition param3Position = LinePosition.from(37, 61);
-        LinePosition returnTypeDescPosition = LinePosition.from(37, 81);
+        LinePosition fnPosition = LinePosition.from(36, 9);
+        LinePosition param1Position = LinePosition.from(36, 27);
+        LinePosition param2Position = LinePosition.from(36, 42);
+        LinePosition param3Position = LinePosition.from(36, 61);
+        LinePosition returnTypeDescPosition = LinePosition.from(36, 81);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -151,10 +152,10 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(39, 9);
-        LinePosition param1Position = LinePosition.from(39, 27);
-        LinePosition param2Position = LinePosition.from(39, 39);
-        LinePosition returnTypeDescPosition = LinePosition.from(39, 50);
+        LinePosition fnPosition = LinePosition.from(38, 9);
+        LinePosition param1Position = LinePosition.from(38, 27);
+        LinePosition param2Position = LinePosition.from(38, 39);
+        LinePosition returnTypeDescPosition = LinePosition.from(38, 50);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -184,9 +185,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(41, 9);
-        LinePosition paramPosition = LinePosition.from(41, 33);
-        LinePosition returnTypeDescPosition = LinePosition.from(41, 50);
+        LinePosition fnPosition = LinePosition.from(40, 9);
+        LinePosition paramPosition = LinePosition.from(40, 39);
+        LinePosition returnTypeDescPosition = LinePosition.from(40, 57);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -194,12 +195,12 @@ public class TypesFromFnDefinitionTest {
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
 
         ResolvedTypeForSymbol returnType = typesFromSymbolResponse.getTypes().get(0);
-        assertCertKeyType(returnType.getType(), "jwt");
+        assertTypeIdType(returnType.getType());
         Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(
                 returnTypeDescPosition, returnType.getRequestedPosition()));
 
         ResolvedTypeForSymbol paramType = typesFromSymbolResponse.getTypes().get(1);
-        assertCertKeyType(paramType.getType(), "http");
+        assertModuleIdType(paramType.getType());
         Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(paramPosition, paramType.getRequestedPosition()));
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
@@ -212,9 +213,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(43, 9);
-        LinePosition paramPosition = LinePosition.from(43, 29);
-        LinePosition returnTypeDescPosition = LinePosition.from(43, 44);
+        LinePosition fnPosition = LinePosition.from(42, 9);
+        LinePosition paramPosition = LinePosition.from(42, 29);
+        LinePosition returnTypeDescPosition = LinePosition.from(42, 44);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -246,10 +247,10 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(45, 9);
-        LinePosition param1Position = LinePosition.from(45, 29);
-        LinePosition param2Position = LinePosition.from(45, 46);
-        LinePosition returnTypeDescPosition = LinePosition.from(45, 63);
+        LinePosition fnPosition = LinePosition.from(44, 9);
+        LinePosition param1Position = LinePosition.from(44, 29);
+        LinePosition param2Position = LinePosition.from(44, 46);
+        LinePosition returnTypeDescPosition = LinePosition.from(44, 63);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -288,9 +289,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(47, 9);
-        LinePosition paramPosition = LinePosition.from(47, 35);
-        LinePosition returnTypeDescPosition = LinePosition.from(47, 49);
+        LinePosition fnPosition = LinePosition.from(46, 9);
+        LinePosition paramPosition = LinePosition.from(46, 41);
+        LinePosition returnTypeDescPosition = LinePosition.from(46, 60);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -303,14 +304,14 @@ public class TypesFromFnDefinitionTest {
                 returnTypeDescPosition, returnType.getRequestedPosition()));
         Assert.assertTrue(returnType.getType() instanceof ArrayType);
         ArrayType arrayReturnType = (ArrayType) returnType.getType();
-        assertCertKeyType(arrayReturnType.memberType, "jwt");
+        assertTypeIdType(arrayReturnType.memberType);
 
         ResolvedTypeForSymbol paramType = typesFromSymbolResponse.getTypes().get(1);
         Assert.assertEquals(paramType.getType().typeName, SymbolServiceTestUtil.ARRAY);
         Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(paramPosition, paramType.getRequestedPosition()));
         Assert.assertTrue(paramType.getType() instanceof ArrayType);
         ArrayType arrayParamType = (ArrayType) paramType.getType();
-        assertCertKeyType(arrayParamType.memberType, "http");
+        assertModuleIdType(arrayParamType.memberType);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -322,9 +323,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(49, 9);
-        LinePosition paramPosition = LinePosition.from(49, 28);
-        LinePosition returnTypeDescPosition = LinePosition.from(49, 44);
+        LinePosition fnPosition = LinePosition.from(48, 9);
+        LinePosition paramPosition = LinePosition.from(48, 28);
+        LinePosition returnTypeDescPosition = LinePosition.from(48, 44);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -360,9 +361,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(51, 9);
-        LinePosition paramPosition = LinePosition.from(51, 28);
-        LinePosition returnTypeDescPosition = LinePosition.from(51, 46);
+        LinePosition fnPosition = LinePosition.from(50, 9);
+        LinePosition paramPosition = LinePosition.from(50, 28);
+        LinePosition returnTypeDescPosition = LinePosition.from(50, 46);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -394,9 +395,9 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(53, 9);
-        LinePosition paramPosition = LinePosition.from(53, 74);
-        LinePosition returnTypeDescPosition = LinePosition.from(54, 12);
+        LinePosition fnPosition = LinePosition.from(52, 9);
+        LinePosition paramPosition = LinePosition.from(52, 74);
+        LinePosition returnTypeDescPosition = LinePosition.from(53, 12);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -434,7 +435,7 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(56, 9);
+        LinePosition fnPosition = LinePosition.from(55, 9);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, null, this.serviceEndpoint);
@@ -456,8 +457,8 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(58, 9);
-        LinePosition paramPosition = LinePosition.from(58, 28);
+        LinePosition fnPosition = LinePosition.from(57, 9);
+        LinePosition paramPosition = LinePosition.from(57, 28);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, null, this.serviceEndpoint);
@@ -482,8 +483,8 @@ public class TypesFromFnDefinitionTest {
         URI uri = URI.create(inputFile.toUri().toString());
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
-        LinePosition fnPosition = LinePosition.from(60, 9);
-        LinePosition returnTypeDescPosition = LinePosition.from(60, 31);
+        LinePosition fnPosition = LinePosition.from(59, 9);
+        LinePosition returnTypeDescPosition = LinePosition.from(59, 31);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 uri, fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -499,8 +500,8 @@ public class TypesFromFnDefinitionTest {
 
     @Test(description = "test invalid file path")
     public void testInvalidFilePath() throws ExecutionException, InterruptedException {
-        LinePosition fnPosition = LinePosition.from(60, 9);
-        LinePosition returnTypeDescPosition = LinePosition.from(60, 31);
+        LinePosition fnPosition = LinePosition.from(59, 9);
+        LinePosition returnTypeDescPosition = LinePosition.from(59, 31);
 
         TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
                 URI.create("file://+"), fnPosition, returnTypeDescPosition, this.serviceEndpoint);
@@ -560,30 +561,7 @@ public class TypesFromFnDefinitionTest {
         Assert.assertEquals(submissionRecordType.fields.get(1).name, "date");
         Assert.assertEquals(submissionRecordType.fields.get(1).typeName, SymbolServiceTestUtil.STRING);
 
-        Assert.assertEquals(submissionRecordType.fields.get(2).name, "params");
-        Assert.assertEquals(submissionRecordType.fields.get(2).typeInfo.name, "QueryParams");
-        Assert.assertEquals(submissionRecordType.fields.get(2).typeInfo.orgName, "ballerina");
-        Assert.assertEquals(submissionRecordType.fields.get(2).typeInfo.moduleName, "http");
-        Assert.assertTrue(submissionRecordType.fields.get(2) instanceof RecordType);
-        RecordType queryParamsRecordType = (RecordType) submissionRecordType.fields.get(2);
-        Assert.assertEquals(queryParamsRecordType.fields.size(), 4);
-
-        Assert.assertEquals(queryParamsRecordType.fields.get(0).name, "headers");
-        Assert.assertEquals(queryParamsRecordType.fields.get(0).typeName, SymbolServiceTestUtil.NEVER);
-        Assert.assertTrue(queryParamsRecordType.fields.get(0).optional);
-        Assert.assertEquals(queryParamsRecordType.fields.get(1).name, "targetType");
-        Assert.assertEquals(queryParamsRecordType.fields.get(1).typeName, SymbolServiceTestUtil.NEVER);
-        Assert.assertTrue(queryParamsRecordType.fields.get(1).optional);
-        Assert.assertEquals(queryParamsRecordType.fields.get(2).name, "message");
-        Assert.assertEquals(queryParamsRecordType.fields.get(2).typeName, SymbolServiceTestUtil.NEVER);
-        Assert.assertTrue(queryParamsRecordType.fields.get(2).optional);
-        Assert.assertEquals(queryParamsRecordType.fields.get(3).name, "mediaType");
-        Assert.assertEquals(queryParamsRecordType.fields.get(3).typeName, SymbolServiceTestUtil.NEVER);
-        Assert.assertTrue(queryParamsRecordType.fields.get(3).optional);
-        Assert.assertTrue(queryParamsRecordType.hasRestType);
-        Assert.assertTrue(queryParamsRecordType.restType instanceof UnionType);
-        UnionType unionType = (UnionType) queryParamsRecordType.restType;
-        Assert.assertEquals(unionType.members.size(), 6);
+        assertModuleIdType(submissionRecordType.fields.get(2));
     }
 
     private void assertStudentType(Type resolvedType) {
@@ -622,24 +600,63 @@ public class TypesFromFnDefinitionTest {
         Assert.assertEquals(studentRecordType.fields.get(4).typeName, SymbolServiceTestUtil.INTEGER);
     }
 
-    private void assertCertKeyType(Type resolvedType, String module) {
-        Assert.assertEquals(resolvedType.typeName, SymbolServiceTestUtil.RECORD);
-        Assert.assertEquals(resolvedType.name, "CertKey");
-        Assert.assertTrue(resolvedType instanceof RecordType);
-        RecordType certKeyRecordType = (RecordType) resolvedType;
-        Assert.assertEquals(certKeyRecordType.typeInfo.name, "CertKey");
-        Assert.assertEquals(certKeyRecordType.typeInfo.orgName, "ballerina");
-        Assert.assertEquals(certKeyRecordType.typeInfo.moduleName, module);
-        Assert.assertEquals(certKeyRecordType.fields.size(), 3);
+    private void assertModuleIdType(Type resolvedType) {
+        Assert.assertEquals(resolvedType.typeName, SymbolServiceTestUtil.INTERSECTION);
+        Assert.assertEquals(resolvedType.typeInfo.name, "ModuleId");
+        Assert.assertEquals(resolvedType.typeInfo.orgName, "ballerina");
+        Assert.assertEquals(resolvedType.typeInfo.moduleName, "lang.typedesc");
+        Assert.assertTrue(resolvedType instanceof IntersectionType);
+        IntersectionType moduleIdRecordType = (IntersectionType) resolvedType;
+        Assert.assertEquals(moduleIdRecordType.members.size(), 2);
 
-        Assert.assertEquals(certKeyRecordType.fields.get(0).name, "certFile");
-        Assert.assertEquals(certKeyRecordType.fields.get(0).typeName, SymbolServiceTestUtil.STRING);
+        Assert.assertEquals(moduleIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertNull(moduleIdRecordType.members.get(0).name);
+        Assert.assertTrue(moduleIdRecordType.members.get(0) instanceof RecordType);
+        RecordType recordType = (RecordType) moduleIdRecordType.members.get(0);
 
-        Assert.assertEquals(certKeyRecordType.fields.get(1).name, "keyFile");
-        Assert.assertEquals(certKeyRecordType.fields.get(1).typeName, SymbolServiceTestUtil.STRING);
+        Assert.assertEquals(recordType.fields.size(), 3);
+        Assert.assertEquals(recordType.fields.get(0).name, "organization");
+        Assert.assertEquals(recordType.fields.get(0).typeName, SymbolServiceTestUtil.STRING);
+        Assert.assertEquals(recordType.fields.get(1).name, "name");
+        Assert.assertEquals(recordType.fields.get(1).typeName, SymbolServiceTestUtil.STRING);
+        Assert.assertEquals(recordType.fields.get(2).name, "platformParts");
+        Assert.assertEquals(recordType.fields.get(2).typeName, SymbolServiceTestUtil.ARRAY);
+        Assert.assertTrue(recordType.fields.get(2) instanceof ArrayType);
+        ArrayType arrayReturnType = (ArrayType) recordType.fields.get(2);
+        Assert.assertEquals(arrayReturnType.memberType.typeName, SymbolServiceTestUtil.STRING);
 
-        Assert.assertEquals(certKeyRecordType.fields.get(2).name, "keyPassword");
-        Assert.assertEquals(certKeyRecordType.fields.get(2).typeName, SymbolServiceTestUtil.STRING);
-        Assert.assertTrue(certKeyRecordType.fields.get(2).optional);
+        Assert.assertEquals(moduleIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.READ_ONLY);
+        Assert.assertNull(moduleIdRecordType.members.get(1).name);
+    }
+
+    private void assertTypeIdType(Type resolvedType) {
+        Assert.assertEquals(resolvedType.typeName, SymbolServiceTestUtil.INTERSECTION);
+        Assert.assertEquals(resolvedType.typeInfo.name, "TypeId");
+        Assert.assertEquals(resolvedType.typeInfo.orgName, "ballerina");
+        Assert.assertEquals(resolvedType.typeInfo.moduleName, "lang.typedesc");
+        Assert.assertTrue(resolvedType instanceof IntersectionType);
+        IntersectionType typeIdRecordType = (IntersectionType) resolvedType;
+        Assert.assertEquals(typeIdRecordType.members.size(), 2);
+
+        Assert.assertEquals(typeIdRecordType.members.get(0).typeName, SymbolServiceTestUtil.RECORD);
+        Assert.assertNull(typeIdRecordType.members.get(0).name);
+        Assert.assertTrue(typeIdRecordType.members.get(0) instanceof RecordType);
+        RecordType recordType = (RecordType) typeIdRecordType.members.get(0);
+
+        Assert.assertEquals(recordType.fields.size(), 2);
+        Assert.assertEquals(recordType.fields.get(0).name, "moduleId");
+        Assert.assertEquals(recordType.fields.get(0).typeName, SymbolServiceTestUtil.INTERSECTION);
+        assertModuleIdType(recordType.fields.get(0));
+        Assert.assertEquals(recordType.fields.get(1).name, "localId");
+        Assert.assertEquals(recordType.fields.get(1).typeName, SymbolServiceTestUtil.UNION);
+
+        Assert.assertTrue(recordType.fields.get(1) instanceof UnionType);
+        UnionType unionType = (UnionType) recordType.fields.get(1);
+        Assert.assertEquals(unionType.members.size(), 2);
+        Assert.assertEquals(unionType.members.get(0).typeName, SymbolServiceTestUtil.STRING);
+        Assert.assertEquals(unionType.members.get(1).typeName, SymbolServiceTestUtil.INTEGER);
+
+        Assert.assertEquals(typeIdRecordType.members.get(1).typeName, SymbolServiceTestUtil.READ_ONLY);
+        Assert.assertNull(typeIdRecordType.members.get(1).name);
     }
 }
