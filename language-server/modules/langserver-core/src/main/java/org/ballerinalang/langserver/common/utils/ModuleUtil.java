@@ -150,11 +150,6 @@ public class ModuleUtil {
         return pkgPrefix;
     }
 
-    private static Boolean isMatchingModule(ModuleID moduleID, Module module) {
-        return moduleID.orgName().equals(module.packageInstance().packageOrg().value())
-                && moduleID.moduleName().equals(module.moduleName().toString());
-    }
-
     /**
      * Returns module prefix.
      *

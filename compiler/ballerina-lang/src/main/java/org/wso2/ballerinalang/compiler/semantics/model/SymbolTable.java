@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
@@ -327,7 +326,7 @@ public class SymbolTable {
 
         defineReadonlyCompoundType();
 
-        this.clientDeclarations = IDLClients.getInstance(context).idlClientMap();
+        this.clientDeclarations = new HashMap<>();
     }
 
     private void defineReadonlyCompoundType() {
