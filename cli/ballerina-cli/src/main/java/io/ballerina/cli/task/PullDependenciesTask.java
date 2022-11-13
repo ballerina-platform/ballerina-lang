@@ -19,8 +19,12 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -68,6 +72,23 @@ public class PullDependenciesTask implements Task {
             diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
             diagnostics.forEach(d -> err.println(d.toString()));
             throw createLauncherException("package resolution contains errors");
+        }
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+
+        // Report package compilation and backend diagnostics
+        diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+        boolean hasErrors = false;
+        for (Diagnostic d : diagnostics) {
+            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                hasErrors = true;
+            }
+            err.println(d);
+        }
+        if (hasErrors) {
+            throw createLauncherException("dependency pulling contains errors");
         }
     }
 }
