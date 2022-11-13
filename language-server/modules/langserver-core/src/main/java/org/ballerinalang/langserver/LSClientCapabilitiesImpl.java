@@ -157,6 +157,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(lsLightWeightMode));
         initializationOptions.setEnableLSLightWeightMode(enableLSLightWeightMode);
 
+        
+        Object positionalRenameSupport = initOptions.get(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT);
+        boolean enablePositionalRenameSupport = positionalRenameSupport != null && 
+                Boolean.parseBoolean(String.valueOf(positionalRenameSupport));
+        initializationOptions.setSupportPositionalRenamePopup(enablePositionalRenameSupport);
+        
         return initializationOptions;
     }
 
@@ -207,7 +213,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean supportRenamePopup = false;
         private boolean supportQuickPick = false;
         private boolean enableLSLightWeightMode = false;
-
+        private boolean supportPositionalRenamePopup = false;
+        
         @Override
         public boolean isBalaSchemeSupported() {
             return supportBalaScheme;
@@ -228,6 +235,15 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         @Override
         public boolean isRefactorRenameSupported() {
             return supportRenamePopup;
+        }
+
+        @Override
+        public boolean isPositionalRefactoredRenameSupported() {
+            return supportPositionalRenamePopup;
+        }
+
+        public void setSupportPositionalRenamePopup(boolean supportPositionalRenamePopup) {
+            this.supportPositionalRenamePopup = supportPositionalRenamePopup;
         }
 
         public void setSupportRenamePopup(boolean supportRenamePopup) {
