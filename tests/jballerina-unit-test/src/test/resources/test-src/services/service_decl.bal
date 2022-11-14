@@ -211,8 +211,19 @@ function testServiceDecl() {
         (checkpanic(wait callMethod(<service object {}> getService(), "$get$foo")));
     string str = <string> (checkpanic (wait callMethod(inner, "$get$foo")));
     assertEquality(str, "foo/foo");
-
+    testWithLocalVar();
     reset();
+}
+
+function testWithLocalVar() {
+    int[] t = [];
+    var _ = service object {
+        resource function get name() {
+            worker A {
+                int[] _ = t;
+            }
+        }
+    };
 }
 
 function assertEquality(any|error actual, any|error expected) {

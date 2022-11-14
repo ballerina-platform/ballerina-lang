@@ -1664,7 +1664,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
 
             // If the node is not a function, then get its enclosing env and continue.
-            if (symbolEnv.node.getKind() != NodeKind.FUNCTION) {
+            if (symbolEnv.node.getKind() != NodeKind.FUNCTION && symbolEnv.node.getKind() != NodeKind.RESOURCE_FUNC) {
                 symbolEnv = symbolEnv.enclEnv;
                 continue;
             }
