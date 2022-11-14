@@ -800,10 +800,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
-            "BCE4047", "outer.join.must.be.declared.with.var"),
+        "BCE4047", "outer.join.must.be.declared.with.var"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4048",
-            "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected")        
+        "cannot.use.alternate.wait.action.within.multiple.wait.action"),
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected")
     ;
 
     private String diagnosticId;
