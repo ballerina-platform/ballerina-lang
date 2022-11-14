@@ -798,7 +798,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
             "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
-            "cannot.infer.typedesc.argument.without.cet");
+            "cannot.infer.typedesc.argument.without.cet"),
+    OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
+            "BCE4047", "outer.join.must.be.declared.with.var")        
     ;
 
     private String diagnosticId;

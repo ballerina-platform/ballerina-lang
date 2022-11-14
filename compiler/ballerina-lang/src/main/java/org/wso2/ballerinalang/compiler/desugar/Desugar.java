@@ -3191,8 +3191,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangDo retryDo = wrapStatementWithinDo(pos, retryBody, internalOnFail);
 
-        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(pos, retryResultRef,
-                getErrorTypeNode());
+        BLangTypeTestExpr isErrorCheck = createTypeCheckExpr(pos, retryResultRef, getErrorTypeNode());
         BLangBinaryExpr shouldRetryCheck = ASTBuilderUtil.createBinaryExpr(pos, isErrorCheck, shouldRetryRef,
                 symTable.booleanType, OperatorKind.AND, null);
         BLangGroupExpr rhsCheck =  new BLangGroupExpr();
@@ -3380,9 +3379,10 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    protected void createErrorReturn(Location pos, BlockNode blockStmt, BLangSimpleVarRef resultRef) {
+    void failFastForErrorResult(Location pos, BlockNode blockStmt, BLangTypeTestExpr typeTestExpr,
+                                          BLangExpression resultRef) {
         BLangIf returnError = ASTBuilderUtil.createIfStmt(pos, blockStmt);
-        returnError.expr = createTypeCheckExpr(pos, resultRef, getErrorTypeNode());
+        returnError.expr = typeTestExpr;
         returnError.body = ASTBuilderUtil.createBlockStmt(pos);
         BLangFail failExpressionNode = (BLangFail) TreeBuilder.createFailNode();
         failExpressionNode.expr = addConversionExprIfRequired(resultRef, symTable.errorType);
@@ -7249,11 +7249,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef rhsVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, rhsVarDef.var.symbol);
         blockStmt.addStatement(rhsVarDef);
 
-        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, lhsVarRef, getNillTypeNode());
-        typeTestExprOne.setBType(symTable.booleanType);
-
-        BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos, rhsVarRef, getNillTypeNode());
-        typeTestExprTwo.setBType(symTable.booleanType);
+        BLangTypeTestExpr typeTestExprOne = getNilTypeTestExpr(binaryExpr.pos, lhsVarRef);
+        BLangTypeTestExpr typeTestExprTwo = getNilTypeTestExpr(binaryExpr.pos, rhsVarRef);
 
         BLangBinaryExpr ifBlockCondition = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, typeTestExprOne,
                 typeTestExprTwo, symTable.booleanType, OperatorKind.OR, binaryExpr.opSymbol);
@@ -7282,6 +7279,10 @@ public class Desugar extends BLangNodeVisitor {
         stmtExpr.setBType(binaryExpr.getBType());
 
         return stmtExpr;
+    }
+
+    BLangTypeTestExpr getNilTypeTestExpr(Location pos, BLangExpression expr) {
+        return createTypeCheckExpr(pos, expr, getNillTypeNode());
     }
 
     private BType getBinaryExprOperandNonNilType(BType operandType) {
@@ -7542,8 +7543,8 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(pos);
         elseBody.addStatement(notNilAssignment);
 
-        BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos,
-                createTypeCheckExpr(pos, lhsResultVarRef, getNillTypeNode()), ifBody, elseBody);
+        BLangIf ifStmt = ASTBuilderUtil.createIfElseStmt(pos, getNilTypeTestExpr(pos, lhsResultVarRef),
+                ifBody, elseBody);
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>() {{
             add(resultVarDef);
             add(lhsResultVarDef);
@@ -7649,9 +7650,7 @@ public class Desugar extends BLangNodeVisitor {
 
         blockStmt.addStatement(tempVarDef);
 
-        BLangTypeTestExpr typeTestExpr = createTypeCheckExpr(unaryExpr.pos, unaryExpr.expr,
-                getNillTypeNode());
-        typeTestExpr.setBType(symTable.booleanType);
+        BLangTypeTestExpr typeTestExpr = getNilTypeTestExpr(unaryExpr.pos, unaryExpr.expr);
 
         BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
         BLangAssignment bLangAssignmentIf = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, ifBody);
@@ -10083,7 +10082,7 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.intType));
     }
 
-    private BLangLiteral getBooleanLiteral(boolean value) {
+    BLangLiteral getBooleanLiteral(boolean value) {
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.value = value;
         literal.setBType(symTable.booleanType);
