@@ -37,6 +37,10 @@ public class BLangSimpleVarRef extends BLangVariableReference implements SimpleV
     public BLangIdentifier pkgAlias;
     public BLangIdentifier variableName;
 
+    // To retain context information of non grouping keys in `group by` clause inside a query expression
+    public enum WHICH_GROUPBY_CONTEXT {SPREADOP, RESTARG, NOT_IN_SEQUENCE};
+    public WHICH_GROUPBY_CONTEXT context = WHICH_GROUPBY_CONTEXT.NOT_IN_SEQUENCE;
+
     // Semantic Data
     public BSymbol varSymbol;
 

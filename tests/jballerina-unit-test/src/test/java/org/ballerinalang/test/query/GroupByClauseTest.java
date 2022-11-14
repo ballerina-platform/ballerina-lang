@@ -49,6 +49,7 @@ public class GroupByClauseTest {
                 {result, "testGroupByWithVarRef"},
                 {result, "testGroupByWithVarDef"},
                 {result, "testGroupByWithVarDefAndVarRef"},
+                {result, "testNonGroupingKeyInFunctionContextWithoutPrefix"}
         };
     }
 

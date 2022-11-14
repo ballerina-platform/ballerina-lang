@@ -19,7 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.*;
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -28,11 +29,11 @@ import org.wso2.ballerinalang.compiler.util.Name;
  *
  * @since 2201.4.0
  */
-public class BSequenceSymbol extends BSymbol {
+public class BSequenceSymbol extends BVarSymbol {
 
     public BSequenceSymbol(int tag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                            Location pos) {
-        super(tag, flags, name, pkgID, type, owner, pos, SymbolOrigin.VIRTUAL);
+        super(tag, flags, name, name, pkgID, type, owner, pos, SymbolOrigin.VIRTUAL, SymbolKind.SEQUENCE);
     }
 
     @Override

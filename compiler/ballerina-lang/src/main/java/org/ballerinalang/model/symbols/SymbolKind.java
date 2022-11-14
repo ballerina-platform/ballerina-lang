@@ -35,6 +35,7 @@ public enum SymbolKind {
     ANNOTATION_ATTRIBUTE,
     CONSTANT,
     VARIABLE,
+    SEQUENCE,
     PACKAGE_VARIABLE,
     TRANSFORMER,
     TYPE_DEF,
