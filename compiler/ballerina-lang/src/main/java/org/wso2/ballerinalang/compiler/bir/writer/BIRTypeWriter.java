@@ -424,6 +424,15 @@ public class BIRTypeWriter implements TypeVisitor {
         writeTypeCpIndex(initializerFunc.type);
 
         writeTypeInclusions(bRecordType.typeInclusions);
+        BVarSymbol annotations = tsymbol.annotations;
+        boolean annotationsExist = annotations != null;
+        buff.writeBoolean(annotationsExist);
+        if (annotationsExist) {
+            buff.writeInt(addStringCPEntry(annotations.name.value));
+            buff.writeLong(annotations.flags);
+            writeMarkdownDocAttachment(buff, annotations.markdownDocumentation);
+            writeTypeCpIndex(annotations.type);
+        }
     }
 
     @Override

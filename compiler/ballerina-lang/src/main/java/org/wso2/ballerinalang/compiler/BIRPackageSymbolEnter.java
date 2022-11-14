@@ -1314,6 +1314,18 @@ public class BIRPackageSymbolEnter {
                     }
 
                     recordType.typeInclusions = readTypeInclusions();
+                    boolean hasAnnotations = inputStream.readBoolean();
+                    if (hasAnnotations) {
+                        String fieldName = getStringCPEntryValue(inputStream);
+                        var fieldFlags = inputStream.readLong();
+                        byte[] docBytes = readDocBytes(inputStream);
+                        BType fieldType = readTypeFromCp();
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName),
+                                                              recordSymbol.pkgID, fieldType, recordSymbol,
+                                                              symTable.builtinPos, COMPILED_SOURCE);
+                        defineMarkDownDocAttachment(varSymbol, docBytes);
+                        recordSymbol.annotations = varSymbol;
+                    }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
