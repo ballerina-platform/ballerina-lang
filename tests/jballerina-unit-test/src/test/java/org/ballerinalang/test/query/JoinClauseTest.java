@@ -156,7 +156,7 @@ public class JoinClauseTest {
         validateError(negativeResult, i++, "undefined symbol 'dept'", 329, 24);
         validateError(negativeResult, i++, "missing equals keyword", 330, 1);
         validateError(negativeResult, i++, "missing identifier", 330, 1);
-        validateError(negativeResult, i++, "outer join must be declared with var", 353, 19);
+        validateError(negativeResult, i++, "outer join must be declared with 'var'", 353, 19);
         validateError(negativeResult, i++, "undefined symbol 'dept'", 357, 19);
         validateError(negativeResult, i++, "invalid operation: type 'Person?' does not support field access", 374, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 389, 59);
