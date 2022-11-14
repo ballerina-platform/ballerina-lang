@@ -40,3 +40,14 @@ function testInvalidDecimalInference() {
     float k = 2.0;
     decimal g = 1.0 * 2.0 + 0.002 / k;
 }
+
+function testOverflow() {
+    decimal _ = 9.999999999999999999999999999999999e6144; // no error
+    decimal _ = 9.999999999999999999999999999999999e6144d; // no error
+    decimal _ = 9.999999999999999999999999999999998e6144d; // no error
+    decimal _ = 9.9999999999999999999999999999999999e6144d; // error
+    decimal _ = 9.999999999999999999999999999999999e6145d; // error
+    decimal _ = 9.999999999999999999999999999999999e6143d; // no error
+    decimal _ = -9.999999999999999999999999999999999e6144d; // no error
+    decimal _ = -9.9999999999999999999999999999999999e6144d; // error
+}
