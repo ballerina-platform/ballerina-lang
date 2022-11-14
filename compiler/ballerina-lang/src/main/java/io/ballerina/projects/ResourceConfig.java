@@ -19,7 +19,6 @@
 package io.ballerina.projects;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * {@code ResourceConfig} contains necessary configuration elements required
@@ -64,11 +63,8 @@ public class ResourceConfig {
         return name;
     }
 
-    public Optional<byte[]> content() {
-        if (content == null) {
-            return Optional.empty();
-        }
-        return Optional.of(content);
+    byte[] content() {
+        return content;
     }
 
     Path path() {
