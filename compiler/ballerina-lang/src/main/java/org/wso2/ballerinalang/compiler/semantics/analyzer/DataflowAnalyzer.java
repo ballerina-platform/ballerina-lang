@@ -396,6 +396,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
+        this.unusedLocalVariables = new HashMap<>();
+        this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
         this.currDependentSymbolDeque.push(funcNode.symbol);
 
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
@@ -409,6 +411,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.currDependentSymbolDeque.pop();
+
+        prevUnusedLocalVariables.keySet().removeIf(bSymbol -> !this.unusedLocalVariables.containsKey(bSymbol));
+        this.unusedLocalVariables.keySet().removeAll(prevUnusedLocalVariables.keySet());
 
         emitUnusedVariableWarnings(this.unusedLocalVariables);
         this.unusedLocalVariables = prevUnusedLocalVariables;
