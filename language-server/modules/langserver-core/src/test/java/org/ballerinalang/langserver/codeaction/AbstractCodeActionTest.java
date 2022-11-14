@@ -283,7 +283,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
     }
 
-    private Path getConfigJsonPath(String configFilePath) {
+    protected Path getConfigJsonPath(String configFilePath) {
         return FileUtils.RES_DIR.resolve("codeaction")
                 .resolve(getResourceDir())
                 .resolve("config")
@@ -457,6 +457,35 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 newArgs.add(actualFilePath);
                 newArgs.add(actualTextEdits);
                 actualCommand.add("arguments", newArgs);
+            }
+            return false;
+        }
+
+        if ("ballerina.action.positional.rename".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 2) {
+                Optional<String> actualFilePath =
+                        PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
+                                .map(path -> path.toUri().toString()
+                                        .replace(sourceRoot.toUri().toString(), ""));
+                JsonObject actualRenamePosition = expArgs.get(1).getAsJsonObject();
+                String expectedFilePath = expArgs.get(0).getAsString();
+                JsonObject expectedRenamePosition = expArgs.get(1).getAsJsonObject();
+                if (actualFilePath.isPresent()) {
+                    String actualPath = actualFilePath.get();
+                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
+                        actualPath = actualFilePath.get().substring(1);
+                    }
+                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))
+                            && actualRenamePosition.equals(expectedRenamePosition)) {
+                        return true;
+                    }
+                    JsonArray newArgs = new JsonArray();
+                    newArgs.add(actualPath);
+                    newArgs.add(actualRenamePosition);
+
+                    //Replace the args of the actual command to update the test config
+                    actualCommand.add("arguments", newArgs);
+                }
             }
             return false;
         }
