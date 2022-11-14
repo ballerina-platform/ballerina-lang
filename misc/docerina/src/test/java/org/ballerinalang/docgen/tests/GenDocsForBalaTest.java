@@ -48,7 +48,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaTest() throws IOException {
+    public void generatingDocsForBalaTest() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.5.bala");
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -91,7 +91,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaWithAnnotationTest() throws IOException {
+    public void generatingDocsForBalaWithAnnotationTest() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("bar-testannotation-any-1.0.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -106,7 +106,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaWithAnnotationTest2() throws IOException {
+    public void generatingDocsForBalaWithAnnotationTest2() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
