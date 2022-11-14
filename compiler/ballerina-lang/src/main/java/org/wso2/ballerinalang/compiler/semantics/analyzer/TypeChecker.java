@@ -4682,12 +4682,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (isSimpleWorkerReference(expression, data)) {
             return;
         }
-        if (expression.expectedType.tag != TypeTags.FUTURE) {
-            dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_OF_FUTURE_TYPE_EXPECTED);
+
+        BType expectedType = expression.expectedType;
+        if (expectedType.tag != TypeTags.FUTURE) {
+            dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_OF_FUTURE_TYPE_EXPECTED, expectedType);
             return;
         }
 
-        BFutureType futureType = (BFutureType) expression.expectedType;
+        BFutureType futureType = (BFutureType) expectedType;
         BType currentType = futureType.constraint;
         if (types.containsErrorType(currentType)) {
             return;
