@@ -497,6 +497,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
                         ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
                         positionalArgumentNode.parent(), context, context.getCursorPositionInTree());
+            case REMOTE_METHOD_CALL_ACTION:
+                return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                        ((RemoteMethodCallActionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent(), context, context.getCursorPositionInTree());
             case PARENTHESIZED_ARG_LIST:
                 ParenthesizedArgList parenthesizedArgList = (ParenthesizedArgList) positionalArgumentNode.parent();
                 switch (parenthesizedArgList.parent().kind()) {
