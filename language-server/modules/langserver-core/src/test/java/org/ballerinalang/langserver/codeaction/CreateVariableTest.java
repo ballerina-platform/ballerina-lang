@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -29,6 +31,11 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateVariableTest extends AbstractCodeActionTest {
+
+    @Override
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_RENAME_SUPPORT, true);
+    }
 
     @Override
     public String getResourceDir() {

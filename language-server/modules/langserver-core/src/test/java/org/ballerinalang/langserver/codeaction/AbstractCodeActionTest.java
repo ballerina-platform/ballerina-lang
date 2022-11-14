@@ -411,8 +411,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
-                                .map(path -> path.toString().replace(sourceRoot.toString(), ""));
-                int actualRenamePosition = expArgs.get(1).getAsInt();
+                                .map(path -> path.toUri().toString().replace(sourceRoot.toUri().toString(), ""));
+                int actualRenamePosition = actualArgs.get(1).getAsInt();
                 String expectedFilePath = expArgs.get(0).getAsString();
                 int expectedRenamePosition = expArgs.get(1).getAsInt();
                 if (actualFilePath.isPresent()) {
@@ -425,7 +425,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         return true;
                     }
                     JsonArray newArgs = new JsonArray();
-                    newArgs.add(actualPath);
+                    newArgs.add(actualArgs.get(0).getAsString());
                     newArgs.add(actualRenamePosition);
 
                     //Replace the args of the actual command to update the test config
