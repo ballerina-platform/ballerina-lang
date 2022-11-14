@@ -42,8 +42,8 @@
         "arguments": [
           "extractToConstant.bal",
           {
-            "line": 2,
-            "character": 21
+            "line": 25,
+            "character": 28
           }
         ]
       },
