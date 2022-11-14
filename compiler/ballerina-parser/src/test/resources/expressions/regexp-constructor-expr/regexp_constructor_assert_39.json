@@ -963,26 +963,12 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
-                                      ],
-                                      "trailingMinutiae": [
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "children": [
                                         {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "COMMA_TOKEN"
-                                              }
-                                            ]
-                                          }
+                                          "kind": "COMMA_TOKEN"
                                         }
                                       ]
                                     }
@@ -1348,26 +1334,12 @@
                                 },
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
-                                      ],
-                                      "trailingMinutiae": [
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "children": [
                                         {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "COMMA_TOKEN"
-                                              }
-                                            ]
-                                          }
+                                          "kind": "COMMA_TOKEN"
                                         }
                                       ]
                                     }

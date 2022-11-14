@@ -128,44 +128,32 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_UNICODE_PROPERTY_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_PROPERTY",
-                                          "value": "p"
-                                        },
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN",
+                                          "kind": "RE_SYNTAX_CHAR",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "RE_UNICODE_GENERAL_CATEGORY",
-                                          "hasDiagnostics": true,
-                                          "children": [
+                                            "ERROR_MISSING_RE_SYNTAX_CHAR"
+                                          ],
+                                          "trailingMinutiae": [
                                             {
-                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
-                                              ]
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "p"
+                                                  }
+                                                ]
+                                              }
                                             }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
                                         }
                                       ]

@@ -5870,12 +5870,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private void checkValidityOfFlags(String flags, Location pos) {
-        List<Character> charList = new ArrayList<>();
+        Set<Character> charList = new HashSet<>();
         for (int i = 0; i < flags.length(); i++) {
             char flag = flags.charAt(i);
             if (charList.contains(flag)) {
                 dlog.error(pos, DiagnosticErrorCode.DUPLICATE_FLAGS, flag);
-                return;
             }
             charList.add(flag);
         }

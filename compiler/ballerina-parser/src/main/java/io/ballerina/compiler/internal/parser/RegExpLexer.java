@@ -213,8 +213,13 @@ public class RegExpLexer extends AbstractLexer {
             case 'p':
             case 'P':
                 this.reader.advance();
-                // Change the parser mode to handle ReUnicodePropertyEscape.
-                startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+                if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    // Change the parser mode to handle ReUnicodePropertyEscape.
+                    startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
+                } else {
+                    // Change the parser mode to handle ReQuoteEscape.
+                    startMode(ParserMode.RE_ESCAPE);
+                }
                 break;
             default:
                 this.reader.advance();
@@ -281,8 +286,11 @@ public class RegExpLexer extends AbstractLexer {
         switch (nextChar) {
             case 'p':
             case 'P':
-                this.reader.advance();
-                return getRegExpText(SyntaxKind.RE_PROPERTY);
+                if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    this.reader.advance();
+                    return getRegExpText(SyntaxKind.RE_PROPERTY);
+                }
+                break;
             case LexerTerminals.OPEN_BRACE:
                 this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
@@ -461,6 +469,11 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         boolean invalidTokenFound = false;
+        if (!isReUnicodePropertyValueChar(peek())) {
+            this.reader.advance();
+            invalidTokenFound = true;
+        }
+
         while (!isEndOfUnicodePropertyEscape()) {
             if (!invalidTokenFound && !isReUnicodePropertyValueChar(peek())) {
                 invalidTokenFound = true;
@@ -515,7 +528,7 @@ public class RegExpLexer extends AbstractLexer {
                 return getRegExpSyntaxToken(SyntaxKind.MINUS_TOKEN);
             default:
                 if (!isReFlag(nextToken)) {
-                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
                 }
                 return getRegExpText(SyntaxKind.RE_FLAGS_VALUE);
         }

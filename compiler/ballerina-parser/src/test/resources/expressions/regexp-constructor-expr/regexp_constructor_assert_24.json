@@ -539,7 +539,7 @@
                                                           "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                           ],
                                                           "value": "a"
                                                         },
@@ -547,7 +547,7 @@
                                                           "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                           ],
                                                           "value": ")"
                                                         }
@@ -701,7 +701,7 @@
                                                           "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                           ],
                                                           "value": "a"
                                                         },
@@ -709,7 +709,7 @@
                                                           "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                           ],
                                                           "value": "b"
                                                         },
@@ -717,7 +717,7 @@
                                                           "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_INVALID_TOKEN_IN_REG_EXP"
+                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                           ],
                                                           "value": ")"
                                                         }
