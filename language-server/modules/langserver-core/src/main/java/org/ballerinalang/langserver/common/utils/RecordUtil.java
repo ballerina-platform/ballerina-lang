@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -59,7 +60,7 @@ public class RecordUtil {
                                                                        RawTypeSymbolWrapper wrapper) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach((name, field) -> {
-            DefaultValueGenerationUtil.SnippetContext snippetContext = new DefaultValueGenerationUtil.SnippetContext();
+            SnippetContext snippetContext = new SnippetContext();
             String insertText = getRecordFieldCompletionInsertText(field, snippetContext);
 
             String detail;
@@ -107,7 +108,7 @@ public class RecordUtil {
         String detail = NameUtil.getRecordTypeName(context, wrapper);
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
-            DefaultValueGenerationUtil.SnippetContext snippetContext = new DefaultValueGenerationUtil.SnippetContext();
+            SnippetContext snippetContext = new SnippetContext();
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
@@ -196,7 +197,7 @@ public class RecordUtil {
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
-                                                            DefaultValueGenerationUtil.SnippetContext snippetContext) {
+                                                            SnippetContext snippetContext) {
 
         StringBuilder insertText = new StringBuilder(CommonUtil.escapeReservedKeyword(bField.getName().get()) + ": ");
         insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), snippetContext)
