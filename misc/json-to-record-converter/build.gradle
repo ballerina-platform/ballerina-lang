@@ -28,6 +28,7 @@ dependencies {
     compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
     compileOnly project(':formatter:formatter-core')
+    compileOnly project(':language-server:language-server-commons')
 
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
@@ -36,8 +37,9 @@ dependencies {
     implementation "org.javatuples:javatuples:${project.javaTuples}"
 
     testCompile 'org.testng:testng'
-    testCompile project(':formatter:formatter-core')
     testCompile project(':ballerina-lang')
+    testCompile project(':formatter:formatter-core')
+    testCompile project(':language-server:language-server-commons')
     testCompile "org.javatuples:javatuples:${project.javaTuples}"
 }
 

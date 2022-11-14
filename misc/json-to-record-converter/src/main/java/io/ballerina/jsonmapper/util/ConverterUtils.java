@@ -34,7 +34,10 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -87,19 +90,31 @@ public final class ConverterUtils {
     /**
      * This method returns existing Types on a module/file(for single file projects).
      *
-     * @param filePath FilePath of the/a file in a singleFileProject or module
+     * @param workspaceManager Workspace manager instance
+     * @param filePathUri FilePath URI of the/a file in a singleFileProject or module
      * @return {@link List<String>} List of already existing Types
      */
-    public static List<String> getExistingTypeNames(String filePath) {
+    public static List<String> getExistingTypeNames(WorkspaceManager workspaceManager, String filePathUri) {
         List<String> existingTypeNames = new ArrayList<>();
-        if (filePath == null) {
+        if (filePathUri == null) {
             return existingTypeNames;
         }
 
         Path filePathResolved;
         try {
-            filePathResolved = Path.of(filePath);
-        } catch (InvalidPathException e) {
+            URI filePathUriResolved = new URI(filePathUri);
+            filePathResolved = Path.of(filePathUriResolved);
+        } catch (InvalidPathException | URISyntaxException e) {
+            return existingTypeNames;
+        }
+
+        if (workspaceManager != null && workspaceManager.semanticModel(filePathResolved).isPresent()) {
+            List<Symbol> moduleSymbols = workspaceManager.semanticModel(filePathResolved).get().moduleSymbols();
+            moduleSymbols.forEach(symbol -> {
+                if (symbol.getName().isPresent()) {
+                    existingTypeNames.add(symbol.getName().get());
+                }
+            });
             return existingTypeNames;
         }
 

@@ -430,7 +430,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(sample10Json);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false, sample10Bal.toString());
+                false, false, false, sample10Bal.toUri().toString());
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();

@@ -3,6 +3,7 @@ module io.ballerina.jsonmapper {
     requires io.ballerina.formatter.core;
     requires io.ballerina.identifier;
     requires io.ballerina.lang;
+    requires io.ballerina.language.server.commons;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
     requires javatuples;

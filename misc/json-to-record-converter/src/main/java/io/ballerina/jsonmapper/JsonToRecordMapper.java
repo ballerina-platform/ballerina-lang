@@ -51,6 +51,7 @@ import org.ballerinalang.formatter.core.ForceFormattingOptions;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.formatter.core.FormattingOptions;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.javatuples.Pair;
 
 import java.util.AbstractMap;
@@ -91,7 +92,8 @@ public class JsonToRecordMapper {
      * @deprecated
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
-     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String)}} instead.
+     * <p> Use {@link JsonToRecordMapper#convert(String, String, boolean, boolean, boolean, String, WorkspaceManager)}}
+     * instead.
      *
      * @param jsonString JSON string of the JSON value to be converted to Ballerina record
      * @param recordName Name of the generated record
@@ -102,7 +104,7 @@ public class JsonToRecordMapper {
     @Deprecated
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
-        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false, null);
+        return convert(jsonString, recordName, isRecordTypeDesc, isClosed, false, null, null);
     }
 
     /**
@@ -113,11 +115,14 @@ public class JsonToRecordMapper {
      * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
      * @param isClosed To denote whether the response record is closed or not
      * @param forceFormatRecordFields To denote whether the inline records to be formatted for multi-line or in-line
+     * @param filePathUri FilePath URI of the/a file in a singleFileProject or module
+     * @param workspaceManager Workspace manager instance
      * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
      */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed, boolean forceFormatRecordFields, String filePath) {
-        List<String> existingFieldNames = getExistingTypeNames(filePath);
+                                               boolean isClosed, boolean forceFormatRecordFields, String filePathUri,
+                                               WorkspaceManager workspaceManager) {
+        List<String> existingFieldNames = getExistingTypeNames(workspaceManager, filePathUri);
         Map<String, String> updatedFieldNames = new HashMap<>();
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
         Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
