@@ -101,6 +101,7 @@ public class RegExpParser extends AbstractParser {
             case RE_LITERAL_CHAR:
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
+            case COMMA_TOKEN:
             case DOT_TOKEN:
             case DIGIT:
                 reAtom = parseChars();
