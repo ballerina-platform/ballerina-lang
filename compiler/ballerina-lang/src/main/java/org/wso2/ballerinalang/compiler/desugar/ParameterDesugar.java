@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -202,6 +203,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private BLangNode result;
     private SymbolResolver symResolver;
+    private AnnotationDesugar annotationDesugar;
 
     public static ParameterDesugar getInstance(CompilerContext context) {
         ParameterDesugar parameterDesugar = context.get(PARAMETER_DESUGAR_KEY);
@@ -217,6 +219,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
         this.symResolver = SymbolResolver.getInstance(context);
+        this.annotationDesugar = AnnotationDesugar.getInstance(context);
     }
 
     @Override
@@ -380,6 +383,18 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        PackageID pkgID = recordTypeNode.symbol.pkgID;
+        BSymbol owner = recordTypeNode.symbol.owner;
+
+        if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
+            BLangLambdaFunction lambdaFunction =
+                    annotationDesugar.defineAnnotationsForLocalRecords(recordTypeNode, env.enclPkg, env, pkgID, owner);
+            if (lambdaFunction != null) {
+                BInvokableSymbol invokableSymbol = createSimpleVariable(lambdaFunction.function, lambdaFunction);
+                ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).annotations =
+                        createSimpleVariable(invokableSymbol);
+            }
+        }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             rewrite(field, env);
         }
@@ -557,7 +572,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
         return lambdaFunction;
     }
 
-    private BInvokableSymbol createSimpleVariable(BLangFunction function, BLangLambdaFunction lambdaFunction) {
+    public BInvokableSymbol createSimpleVariable(BLangFunction function, BLangLambdaFunction lambdaFunction) {
         BInvokableSymbol invokableSymbol = function.symbol;
         BType type = function.getBType();
         BInvokableSymbol varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, invokableSymbol.name,
@@ -574,6 +589,30 @@ public class ParameterDesugar extends BLangNodeVisitor {
         queue.add(variableDef);
 
         return varSymbol;
+    }
+
+    public BVarSymbol createSimpleVariable(BInvokableSymbol invokableSymbol) {
+        BType type = invokableSymbol.retType;
+        BVarSymbol varSymbol = new BVarSymbol(0, invokableSymbol.name, invokableSymbol.originalName,
+                invokableSymbol.pkgID, type, invokableSymbol.owner, invokableSymbol.pos,
+                VIRTUAL);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(invokableSymbol.pos,
+                invokableSymbol.name.value, type, getInvocation(invokableSymbol), varSymbol);
+        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(invokableSymbol.pos);
+        variableDef.var = simpleVariable;
+        variableDef.setBType(type);
+        queue.add(variableDef);
+
+        return varSymbol;
+    }
+
+    private BLangInvocation getInvocation(BInvokableSymbol symbol) {
+        BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        funcInvocation.setBType(symbol.retType);
+        funcInvocation.symbol = symbol;
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
+        funcInvocation.functionPointerInvocation = true;
+        return funcInvocation;
     }
 
     private BLangFunction createFunction(String funcName, Location pos, PackageID pkgID, BSymbol owner, BType bType) {
@@ -845,6 +884,14 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
+        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                keyValueField.key.expr = rewriteExpr(keyValueField.key.expr);
+                keyValueField.valueExpr = rewriteExpr(keyValueField.valueExpr);
+            }
+        }
         result = recordLiteral;
     }
 
@@ -953,6 +1000,23 @@ public class ParameterDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation invocation) {
         rewriteInvocationExpr(invocation);
+        if (invocation.functionPointerInvocation) {
+            BLangInvokableNode encInvokable = env.enclInvokable;
+            if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)) {
+                BVarSymbol varSymbol = (BVarSymbol) invocation.symbol;
+                if (!varSymbol.closure && encInvokable != null && !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
+                        encInvokable.flagSet.contains(Flag.LAMBDA)) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, invocation.symbol.name,
+                            SymTag.VARIABLE);
+                    if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                        varSymbol.closure = true;
+                        ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol,
+                                invocation.pos));
+                    }
+                }
+            }
+        }
     }
 
     public void rewriteInvocationExpr(BLangInvocation invocation) {
@@ -1130,7 +1194,7 @@ public class ParameterDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-
+        result = localVarRef;
     }
 
     @Override
