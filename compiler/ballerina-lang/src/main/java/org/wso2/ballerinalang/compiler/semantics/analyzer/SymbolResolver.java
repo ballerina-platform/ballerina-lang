@@ -472,10 +472,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 return symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
+                    ((BPackageSymbol) symbol).compUnit.equals(compUnit)) {
+                ((BPackageSymbol) symbol).isUsed = true;
+                return symbol;
             }
 
             entry = entry.next;
@@ -2596,8 +2596,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 .get();
     }
 
-    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList,
-                                                          List<BLangExpression> interpolationsList) {
+    public List<BLangExpression> getListOfInterpolations(List<BLangExpression> sequenceList) {
+        List<BLangExpression> interpolationsList = new ArrayList<>();
         for (BLangExpression seq : sequenceList) {
             if (seq.getKind() != NodeKind.REG_EXP_SEQUENCE) {
                 continue;
@@ -2615,8 +2615,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 }
                 if (kind == NodeKind.REG_EXP_CAPTURING_GROUP) {
                     interpolationsList.addAll(
-                            getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList,
-                                    interpolationsList));
+                            getListOfInterpolations(((BLangReCapturingGroups) atom).disjunction.sequenceList));
                 }
             }
         }

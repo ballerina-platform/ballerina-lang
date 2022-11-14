@@ -5829,8 +5829,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
         // Check expr with insertions to resolve its type.
         List<BLangExpression> interpolationsList =
-                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList,
-                        new ArrayList<>());
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
         interpolationsList.forEach(interpolation -> checkExpr(interpolation, data));
         data.resultType = types.checkType(regExpTemplateLiteral, symTable.regExpType, data.expType);
     }
