@@ -7100,7 +7100,8 @@ public class Types {
         DEFAULT,
         STREAM,
         MAP,
-        TABLE
+        TABLE,
+        ACTION
     }
 
     QueryConstructType getQueryConstructType(BLangQueryExpr queryExpr) {
