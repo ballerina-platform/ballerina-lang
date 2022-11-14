@@ -309,6 +309,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        lookupNodes(funcNode.annAttachments);
         // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
         // container of the function.
         if (!this.range.equals(funcNode.symbol.pos.lineRange())) {

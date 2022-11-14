@@ -6458,6 +6458,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkExpr(joinClause.collection, data.commonAnalyzerData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
+        if (joinClause.isOuterJoin) {
+            if (!joinClause.isDeclaredWithVar) {
+                this.dlog.error(joinClause.variableDefinitionNode.getPosition(),
+                        DiagnosticErrorCode.OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR);
+                return;
+            }
+            joinClause.varType = types.addNilForNillableAccessType(joinClause.varType);
+        }
         handleInputClauseVariables(joinClause, data.commonAnalyzerData.queryEnvs.peek());
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this, data);
