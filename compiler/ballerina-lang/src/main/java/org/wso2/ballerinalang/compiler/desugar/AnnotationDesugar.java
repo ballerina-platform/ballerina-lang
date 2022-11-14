@@ -139,7 +139,7 @@ public class AnnotationDesugar {
     private final Names names;
     private SymbolResolver symResolver;
     private ConstantValueResolver constantValueResolver;
-    private ParameterDesugar parameterDesugar;
+    private ClosureGenerator closureGenerator;
 
     public static AnnotationDesugar getInstance(CompilerContext context) {
         AnnotationDesugar annotationDesugar = context.get(ANNOTATION_DESUGAR_KEY);
@@ -157,7 +157,7 @@ public class AnnotationDesugar {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
-        this.parameterDesugar = ParameterDesugar.getInstance(context);
+        this.closureGenerator = ClosureGenerator.getInstance(context);
     }
 
     /**
@@ -648,7 +648,7 @@ public class AnnotationDesugar {
                                                                      pkgID, owner, false);
             if (fieldAnnotLambda != null) {
                 BInvokableSymbol invokableSymbol =
-                        parameterDesugar.createSimpleVariable(fieldAnnotLambda.function, fieldAnnotLambda);
+                        closureGenerator.createSimpleVariable(fieldAnnotLambda.function, fieldAnnotLambda);
                 env.scope.define(invokableSymbol.name, invokableSymbol);
                 if (!annotFunctionDefined) {
                     function = defineFunction(recordTypeNode.pos, pkgID, owner);

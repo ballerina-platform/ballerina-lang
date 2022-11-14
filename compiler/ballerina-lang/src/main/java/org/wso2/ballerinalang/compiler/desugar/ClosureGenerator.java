@@ -195,8 +195,8 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  *
  * @since 2201.3.0
  */
-public class ParameterDesugar extends BLangNodeVisitor {
-    private static final CompilerContext.Key<ParameterDesugar> PARAMETER_DESUGAR_KEY = new CompilerContext.Key<>();
+public class ClosureGenerator extends BLangNodeVisitor {
+    private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
 
     private SymbolTable symTable;
@@ -205,17 +205,17 @@ public class ParameterDesugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private AnnotationDesugar annotationDesugar;
 
-    public static ParameterDesugar getInstance(CompilerContext context) {
-        ParameterDesugar parameterDesugar = context.get(PARAMETER_DESUGAR_KEY);
-        if (parameterDesugar == null) {
-            parameterDesugar = new ParameterDesugar(context);
+    public static ClosureGenerator getInstance(CompilerContext context) {
+        ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
+        if (closureGenerator == null) {
+            closureGenerator = new ClosureGenerator(context);
         }
 
-        return parameterDesugar;
+        return closureGenerator;
     }
 
-    private ParameterDesugar(CompilerContext context) {
-        context.put(PARAMETER_DESUGAR_KEY, this);
+    private ClosureGenerator(CompilerContext context) {
+        context.put(CLOSURE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
         this.symResolver = SymbolResolver.getInstance(context);
