@@ -42,7 +42,7 @@ public class DependencyEvaluationTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test(description = "Test for expression evaluations against Ballerina lang library sources.")
+    @Test(enabled = false, description = "Test for expression evaluations against Ballerina lang library sources.")
     protected void testEvaluationsOnLangLibs() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 18));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
