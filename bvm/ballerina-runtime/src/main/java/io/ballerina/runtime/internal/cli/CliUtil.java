@@ -117,11 +117,6 @@ public class CliUtil {
     }
 
     private static double getFloatValue(String argument, String parameterName) {
-        String upperCaseValue = argument.toUpperCase();
-        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
-            throw getInvalidArgumentError(argument, parameterName, "float");
-        }
-
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
