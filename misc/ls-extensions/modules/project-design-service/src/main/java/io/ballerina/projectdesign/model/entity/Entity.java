@@ -32,13 +32,15 @@ public class Entity extends ComponentModelItem {
 
     private List<Attribute> attributes;
     private final List<String> inclusions;
+    private final boolean isAnonymous;
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
+    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange, boolean isAnonymous) {
         super(lineRange);
         this.attributes = attributes;
         this.inclusions = inclusions;
+        this.isAnonymous = isAnonymous;
     }
 
     public List<Attribute> getAttributes() {
@@ -51,6 +53,10 @@ public class Entity extends ComponentModelItem {
 
     public List<String> getInclusions() {
         return inclusions;
+    }
+
+    public boolean isAnonymous() {
+        return isAnonymous;
     }
 }
 
