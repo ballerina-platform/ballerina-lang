@@ -2264,6 +2264,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         setTypeOfVarRefInAssignment(varRef, data);
         data.expType = varRef.getBType();
 
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) varRef).symbol != null
+                && (((BLangSimpleVarRef) varRef).symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+            dlog.error(assignNode.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
+                    Names.FUNCTION);
+            data.expType = symTable.semanticError;
+        }
+
         checkInvalidTypeDef(varRef);
         if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && data.expType.tag != TypeTags.SEMANTIC_ERROR) {
             BLangFieldBasedAccess fieldBasedAccessVarRef = (BLangFieldBasedAccess) varRef;
