@@ -116,7 +116,22 @@ function testRecursiveRecordEquality() {
     RecursiveRecordWithOptionalTypeA a2 = {i:5, f:a1};
     RecursiveRecordWithOptionalTypeB b2 = {i:5};
     assertFalse(checkRefEquality(a2, b2));
-    assertFalse(checkRefEquality(a2, b2));
+    assertFalse(checkValueEquality(a2, b2));
+
+    RecursiveRecordWithUnionOne a3 = {i:4, r:{i:4, r:5}};
+    RecursiveRecordWithUnionOne b3 = {i:4, r:{i:4, r:5}};
+    assertTrue(checkValueEquality(a3,b3));
+    assertFalse(checkRefEquality(a3,b3));
+
+    RecursiveRecordWithUnionTwo a4 = {i: "a", r:{i:4, r:5}};
+    RecursiveRecordWithUnionTwo b4 = {i: "a", r:{i:4, r:5}};
+    assertTrue(checkValueEquality(a4,b4));
+    assertFalse(checkRefEquality(a4,b4));
+
+    RecursiveRecordWithUnionTwo a5 = {i: "a", r:b};
+    RecursiveRecordWithUnionTwo b5 = {i: "a", r:b};
+    assertTrue(checkValueEquality(a5,b5));
+    assertFalse(checkRefEquality(a5,b5));
 }
 
 type RecursiveRecordWithOptionalTypeA record {|
