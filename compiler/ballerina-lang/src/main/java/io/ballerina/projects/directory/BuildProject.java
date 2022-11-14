@@ -127,10 +127,6 @@ public class BuildProject extends Project {
     }
 
     private Optional<Path> modulePath(ModuleId moduleId) {
-        if (isGeneratedModule(currentPackage().module(moduleId))) {
-            return Optional.of(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(
-                    currentPackage().module(moduleId).moduleName().moduleNamePart()));
-        }
         if (currentPackage().moduleIds().contains(moduleId)) {
             if (currentPackage().getDefaultModule().moduleId() == moduleId) {
                 return Optional.of(sourceRoot);

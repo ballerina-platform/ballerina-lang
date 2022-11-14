@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable.BLangErrorDetailEntry;
@@ -446,15 +445,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.namespaceURI = clone(source.namespaceURI);
         clone.prefix = source.prefix;
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration source) {
-        BLangClientDeclaration clone = new BLangClientDeclaration();
-        source.cloneRef = clone;
-        clone.uri = clone(source.uri);
-        clone.prefix = source.prefix;
-        clone.annAttachments = cloneList(source.annAttachments);
     }
 
     @Override

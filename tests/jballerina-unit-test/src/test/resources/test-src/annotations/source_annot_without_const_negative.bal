@@ -24,7 +24,6 @@ annotation Bar v6 on source listener, return;
 annotation Bar v7 on class, source function;
 annotation Bar v8 on source object function, source parameter;
 annotation map<string> v9 on source worker;
-annotation map<string> v10 on source client;
 
 type Foo record {
     string val1;

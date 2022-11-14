@@ -55,8 +55,7 @@ public class PackageDiagnostic extends Diagnostic {
         this.location = location;
     }
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project,
-                             boolean isGenerated) {
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;
         ModuleName moduleName = moduleDescriptor.name();
         if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
@@ -65,13 +64,7 @@ public class PackageDiagnostic extends Diagnostic {
                     diagnostic.location().lineRange().filePath()).toString();
         } else {
             if (!moduleName.isDefaultModuleName()) {
-                Path modulePath;
-                if (isGenerated) {
-                    modulePath = Paths.get(ProjectConstants.GENERATED_MODULES_ROOT)
-                            .resolve(moduleName.moduleNamePart());
-                } else {
-                    modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
-                }
+                Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
                 filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
             } else {
                 filePath = diagnostic.location().lineRange().filePath();

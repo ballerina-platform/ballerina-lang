@@ -91,7 +91,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -2148,11 +2147,6 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         // do nothing
     }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-    }
-
     @Override
     public void visit(BLangLocalXMLNS xmlnsNode) {
         generateXMLNamespace(xmlnsNode);

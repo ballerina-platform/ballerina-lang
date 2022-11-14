@@ -37,7 +37,6 @@ public class ProjectPathsTest {
     Path tempDir;
     Path tempStandAloneFileInTmpDir;
     Path buildProjectPath;
-    Path buildProjectPathWithGeneratedModules;
     Path balaProjectPath;
 
     @BeforeClass
@@ -57,18 +56,6 @@ public class ProjectPathsTest {
         Files.createFile(buildProjectPath.resolve("modules").resolve("module1").resolve("main.bal"));
         Files.createFile(
                 buildProjectPath.resolve("modules").resolve("module1").resolve("tests").resolve("main_test.bal"));
-
-        // Create a build project with a generated module
-        buildProjectPathWithGeneratedModules = tempDir.resolve("testProj2");
-        Files.createDirectories(buildProjectPathWithGeneratedModules);
-
-        Files.createFile(buildProjectPathWithGeneratedModules.resolve(ProjectConstants.BALLERINA_TOML));
-        Files.createFile(buildProjectPathWithGeneratedModules.resolve("main.bal"));
-
-        // Create a generated module
-        Files.createDirectories(buildProjectPathWithGeneratedModules.resolve("generated").resolve("module1"));
-        Files.createFile(buildProjectPathWithGeneratedModules.resolve("generated").resolve("module1")
-                .resolve("main.bal"));
 
         // Create standalone files outside project directory
         Files.createFile(tempDir.resolve("test.bal")); // path - /tmp/ballerina-test-223233/test.bal
@@ -107,30 +94,6 @@ public class ProjectPathsTest {
     }
 
     @Test
-    public void testPackageRootWithGeneratedModules() throws IOException {
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve(ProjectConstants.BALLERINA_TOML)), buildProjectPathWithGeneratedModules);
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve("main.bal")), buildProjectPathWithGeneratedModules);
-
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve("generated")), buildProjectPathWithGeneratedModules);
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve("generated").resolve("module1")), buildProjectPathWithGeneratedModules);
-
-        Files.createDirectories(
-                buildProjectPathWithGeneratedModules.resolve("generated").resolve("module1").resolve("tests"));
-        Files.createFile(
-                buildProjectPathWithGeneratedModules.resolve("generated").resolve("module1")
-                        .resolve("tests").resolve("main_test.bal"));
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve("generated").resolve("module1").resolve("tests")), buildProjectPathWithGeneratedModules);
-        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules
-                .resolve("generated").resolve("module1").resolve("tests").resolve("main_test.bal")),
-                buildProjectPathWithGeneratedModules);
-    }
-
-    @Test
     public void testPackageRootWithDirectory() {
         // test package root of build project
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath), buildProjectPath);
@@ -142,6 +105,7 @@ public class ProjectPathsTest {
                 .resolve("modules").resolve("module1").resolve("tests")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve("modules")), buildProjectPath);
+
         // test package root of bala project
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath), balaProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
@@ -179,13 +143,6 @@ public class ProjectPathsTest {
     @Test(expectedExceptions = ProjectException.class)
     public void testPackageRootNegative6() {
         ProjectPaths.packageRoot(tempDir);
-    }
-
-    @Test(expectedExceptions = ProjectException.class)
-    public void testPackageRootNegativeGenerated() throws IOException {
-        // Create a random file
-        Files.createFile(buildProjectPathWithGeneratedModules.resolve("generated").resolve("foo.bal"));
-        ProjectPaths.packageRoot(buildProjectPathWithGeneratedModules.resolve("generated").resolve("foo.bal"));
     }
 
     @Test

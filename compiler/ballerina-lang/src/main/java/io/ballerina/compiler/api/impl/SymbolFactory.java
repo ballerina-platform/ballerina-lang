@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationAttachmentSymbo
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaClientDeclSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
@@ -67,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttach
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -232,10 +230,6 @@ public class SymbolFactory {
 
         if (symbol.kind == SymbolKind.XMLNS) {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
-        }
-
-        if (symbol.kind == SymbolKind.CLIENT_DECL) {
-            return createClientDeclSymbol((BClientDeclarationSymbol) symbol);
         }
 
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
@@ -672,37 +666,6 @@ public class SymbolFactory {
                 new BallerinaXMLNSSymbol.XmlNSSymbolBuilder(symbol.name.getValue(), symbol, this.context);
 
         return symbolBuilder.build();
-    }
-
-    /**
-     * Creates a client declaration Symbol.
-     *
-     * @param symbol declaration symbol to convert
-     * @return {@link BallerinaClientDeclSymbol}
-     */
-    private BallerinaClientDeclSymbol createClientDeclSymbol(BClientDeclarationSymbol symbol) {
-        BallerinaClientDeclSymbol.ClientDeclSymbolBuilder symbolBuilder =
-                new BallerinaClientDeclSymbol.ClientDeclSymbolBuilder(symbol.getName().getValue(), symbol, context);
-
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
-            BallerinaAnnotationAttachmentSymbol annotAttachment =
-                    createAnnotAttachment((BAnnotationAttachmentSymbol) annot);
-            symbolBuilder.withAnnotationAttachment(annotAttachment);
-            symbolBuilder.withAnnotation(annotAttachment.typeDescriptor());
-        }
-
-        return symbolBuilder.build();
-    }
-
-    /**
-     * Get associated module of the given client declaration symbol.
-     *
-     * @param clientDeclSymbol Client declaration Symbol
-     * @return {@link BallerinaModule} symbol generated
-     */
-    public BallerinaModule getAssociatedModule(BClientDeclarationSymbol clientDeclSymbol) {
-        BPackageSymbol packageSymbol = (BPackageSymbol) symResolver.resolveClientDeclPrefix(clientDeclSymbol);
-        return createModuleSymbol(packageSymbol, packageSymbol.getName().value);
     }
 
     /**
