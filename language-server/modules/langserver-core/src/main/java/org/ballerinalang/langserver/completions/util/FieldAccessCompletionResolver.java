@@ -91,15 +91,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
             Optional<TypeSymbol> typeSymbol = semanticModel.get()
                     .typeOf(((FieldAccessExpressionNode) node.parent()).expression());
-            if (typeSymbol.isEmpty()) {
-                if (symbol.isEmpty()) {
-                    return Optional.empty();
-                }
-
-                return SymbolUtil.getTypeDescriptor(symbol.get());
+            if (typeSymbol.isPresent()) {
+                return SymbolUtil.getTypeDescriptor(typeSymbol.get());
             }
-
-            return SymbolUtil.getTypeDescriptor(typeSymbol.get());
         }
 
         if (symbol.isEmpty()) {
