@@ -31,7 +31,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "version",
+      "label": "'version",
       "kind": "Field",
       "detail": "Application.version",
       "sortText": "K",
