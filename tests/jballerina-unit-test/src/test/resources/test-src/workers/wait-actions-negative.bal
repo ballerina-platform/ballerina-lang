@@ -97,26 +97,18 @@ type WaitResult record {|
 
 function waitForAllTest2() {
     worker Producer1 returns boolean|error {
-        int i = 100;
-        i -> Consumer;
-        error? unionResult = flush Consumer1;
         return true;
     }
 
     worker Producer2 returns boolean|error {
-        int i = 100;
-        i -> Consumer;
-        error? unionResult = flush Consumer1;
         return true;
     }
 
     worker Consumer1 returns boolean {
-        int i = <- Producer;
         return false;
     }
 
     worker Consumer2 returns boolean {
-        int i = <- Producer;
         return false;
     }
 
