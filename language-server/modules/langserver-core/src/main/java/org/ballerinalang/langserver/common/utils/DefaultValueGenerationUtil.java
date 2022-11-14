@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import org.ballerinalang.langserver.commons.SnippetContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class DefaultValueGenerationUtil {
      * @return {@link String}   Default value as a String
      */
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
-        return getDefaultValueForType(bType, false, new SnippetContext(-1));
+        return getDefaultValueForType(bType, false, new SnippetContext());
     }
     
     /**
@@ -162,16 +163,16 @@ public class DefaultValueGenerationUtil {
                         .collect(Collectors.toList());
 
                 if (memberDefaultValues.isEmpty()) {
-                    valueString = isSnippet ? "[${" + context.getPlaceholderCount() + "}]" : "[]";
+                    valueString = isSnippet ? "[${" + context.incrementAndGetPlaceholderCount() + "}]" : "[]";
                     break;
                 }
                 List<String> memberSnippets = new ArrayList<>();
                 for (String value : memberDefaultValues) {
-                    memberSnippets.add(isSnippet ? generateSnippetEntry(value, context.getPlaceholderCount()) : value);
-                    context.incrementPlaceholderCount();
+                    memberSnippets.add(isSnippet ?
+                            generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value);
                 }
                 valueString = "[" + String.join(", ", memberSnippets) + "]";
-                context.incrementPlaceholderCount();
+                context.incrementAndGetPlaceholderCount();
                 break;
             case ARRAY:
                 // Filler value of an array is []
@@ -179,12 +180,11 @@ public class DefaultValueGenerationUtil {
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
                     String value = getDefaultValueForTypeDescKind(arrayType.memberTypeDescriptor())
                             .orElse("");
-                    valueString = "[" + (isSnippet ? generateSnippetEntry(value, context.getPlaceholderCount())
-                            : value) + "]";
-                    context.incrementPlaceholderCount();
+                    valueString = "[" + (isSnippet ?
+                            generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value) + "]";
                     break;
                 }
-                valueString = isSnippet ? "[${" + context.getPlaceholderCount() + "}]" : "[]";
+                valueString = isSnippet ? "[${" + context.incrementAndGetPlaceholderCount() + "}]" : "[]";
                 break;
             case RECORD:
                 // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
@@ -198,9 +198,8 @@ public class DefaultValueGenerationUtil {
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
                     String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
                             .typeDescriptor())).orElse("");
-                    fieldInsertText.add(mandatoryField.getName().get() + ": "
-                            + (isSnippet ? generateSnippetEntry(value, context.getPlaceholderCount()) : value));
-                    context.incrementPlaceholderCount();
+                    fieldInsertText.add(mandatoryField.getName().get() + ": " + (isSnippet ?
+                            generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value));
                 }
                 valueString += String.join(", ", fieldInsertText);
                 valueString += "}";
@@ -216,18 +215,17 @@ public class DefaultValueGenerationUtil {
                             String value =
                                     getDefaultValueForTypeDescKind(CommonUtil.getRawType(param.typeDescriptor()))
                                             .orElse("");
-                            paramSnippets.add(isSnippet ? generateSnippetEntry(value, context.getPlaceholderCount())
-                                    : value);
-                            context.incrementPlaceholderCount();
+                            paramSnippets.add(isSnippet ?
+                                    generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value);
                         }
                         valueString = "new (" + String.join(", ", paramSnippets) + ")";
                     } else {
-                        valueString = isSnippet ? "${" + context.getPlaceholderCount() + ":new ()}" : "new ()";
-                        context.incrementPlaceholderCount();
+                        valueString = isSnippet ?
+                                "${" + context.incrementAndGetPlaceholderCount() + ":new ()}" : "new ()";
                     }
                 } else {
-                    valueString = isSnippet ? "${" + context.getPlaceholderCount() + ":object {}}" : "object {}";
-                    context.incrementPlaceholderCount();
+                    valueString = isSnippet ?
+                            "${" + context.incrementAndGetPlaceholderCount() + ":object {}}" : "object {}";
                 }
                 break;
             case UNION:
@@ -237,12 +235,11 @@ public class DefaultValueGenerationUtil {
                         .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
                     valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(members.get(0))).orElse("");
-                    valueString = isSnippet ? generateSnippetEntry(valueString, context.getPlaceholderCount())
-                            : valueString;
-                    context.incrementPlaceholderCount();
+                    valueString = isSnippet ?
+                            generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 } else {
-                    valueString = isSnippet ? generateSnippetEntry("()", context.getPlaceholderCount()) : "()";
-                    context.incrementPlaceholderCount();
+                    valueString = isSnippet ?
+                            generateSnippetEntry("()", context.incrementAndGetPlaceholderCount()) : "()";
                 }
                 break;
             case INTERSECTION:
@@ -252,7 +249,8 @@ public class DefaultValueGenerationUtil {
                     // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
                     // further checks here. Get the member type from intersection which is not readonly and get its 
                     // default value
-                    valueString = isSnippet ? generateSnippetEntry("()", context.getPlaceholderCount()) : "()";
+                    valueString = isSnippet ?
+                            generateSnippetEntry("()", context.incrementAndGetPlaceholderCount()) : "()";
                     Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
                             .memberTypeDescriptors().stream()
                             .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
@@ -260,24 +258,21 @@ public class DefaultValueGenerationUtil {
                     if (memberType.isPresent()) {
                         valueString =
                                 getDefaultValueForTypeDescKind(CommonUtil.getRawType(memberType.get())).orElse("");
-                        valueString = isSnippet ? generateSnippetEntry(valueString, context.getPlaceholderCount())
-                                : valueString;
-                        context.incrementPlaceholderCount();
+                        valueString = isSnippet ? generateSnippetEntry(valueString,
+                                context.incrementAndGetPlaceholderCount()) : valueString;
                     }
                 } else {
                     valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(effectiveType))
                             .orElse("");
-                    valueString = isSnippet ? generateSnippetEntry(valueString, context.getPlaceholderCount())
-                            : valueString;
-                    context.incrementPlaceholderCount();
+                    valueString = isSnippet ?
+                            generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 }
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
                 String rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
-                valueString = "table [" + (isSnippet ? generateSnippetEntry(rowValue, context.getPlaceholderCount())
-                        : rowValue) + "]";
-                context.incrementPlaceholderCount();
+                valueString = "table [" + (isSnippet ?
+                        generateSnippetEntry(rowValue, context.incrementAndGetPlaceholderCount()) : rowValue) + "]";
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
@@ -292,10 +287,9 @@ public class DefaultValueGenerationUtil {
                             String defValue =
                                     getDefaultValueForTypeDescKind(CommonUtil.getRawType(field.typeDescriptor()))
                                             .orElse("");
-                            detailFieldSnippets.add(field.getName().get()
-                                    + " = " + (isSnippet ? generateSnippetEntry(defValue, context.getPlaceholderCount())
+                            detailFieldSnippets.add(field.getName().get() + " = " + (isSnippet
+                                    ? generateSnippetEntry(defValue, context.incrementAndGetPlaceholderCount())
                                     : defValue));
-                            context.incrementPlaceholderCount();
                         }
                         errorString.append(String.join(", ", detailFieldSnippets));
                     }
@@ -305,51 +299,25 @@ public class DefaultValueGenerationUtil {
                 break;
             case SINGLETON:
                 valueString = rawType.signature();
-                valueString =
-                        isSnippet ? generateSnippetEntry(valueString, context.getPlaceholderCount()) : valueString;
-                context.incrementPlaceholderCount();
+                valueString = isSnippet ?
+                        generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 break;
             case JSON:
             case NIL:
             case ANY:
                 valueString = "()";
-                valueString =
-                        isSnippet ? generateSnippetEntry(valueString, context.getPlaceholderCount()) : valueString;
-                context.incrementPlaceholderCount();
+                valueString = isSnippet ?
+                        generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 break;
             default:
                 Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
                 if (value.isEmpty()) {
                     return value;
                 }
-                valueString =
-                        isSnippet ? generateSnippetEntry(value.get(), context.getPlaceholderCount()) : value.get();
-                context.incrementPlaceholderCount();
+                valueString = isSnippet ?
+                        generateSnippetEntry(value.get(), context.incrementAndGetPlaceholderCount()) : value.get();
         }
 
         return Optional.of(valueString);
-    }
-
-    /**
-     * Represents a context to track the number of placeholders.
-     */
-    public static class SnippetContext {
-        private int placeholderCount;
-
-        public SnippetContext() {
-            placeholderCount = 1;
-        }
-
-        public SnippetContext(int placeholderCount) {
-            this.placeholderCount = placeholderCount;
-        }
-
-        public void incrementPlaceholderCount() {
-            placeholderCount++;
-        }
-
-        public int getPlaceholderCount() {
-            return placeholderCount;
-        }
     }
 }
