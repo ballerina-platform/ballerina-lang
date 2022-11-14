@@ -74,22 +74,21 @@ function testSimpleTypes() {
 }
 
 function testReferredTypes() {
-    Foo a = 1;
-    Foo2 b = 2.0;
-    Foo3 c = 1;
-    Foo4 d = 2.0;
+    map<any> annotationMapValue = getAnnotationValue(Foo);
+    AnnotationRecord? 'annotation = <AnnotationRecord?> annotationMapValue["BarAnnotation"];
+    assert('annotation, ());
 
-    Foo a2 = getReferredValue(a, Foo);
-    assert(a2, a);
+    map<any> annotationMapValue2 = getAnnotationValue(Foo2);
+    AnnotationRecord? annotation2 = <AnnotationRecord?> annotationMapValue2["BarAnnotation"];
+    assert(annotation2, ());
 
-    Foo2 b2 = getReferredValue(b, Foo2);
-    assert(b2, b);
+    map<any> annotationMapValue3 = getAnnotationValue(Foo3);
+    AnnotationRecord annotation3 = <AnnotationRecord> annotationMapValue3["BarAnnotation"];
+    assert(annotation3, {minValue: 18, maxValue: 36});
 
-    Foo3 c2 = getReferredValue(c, Foo3);
-    assert(a2, c);
-
-    Foo4 d2 = getReferredValue(d, Foo4);
-    assert(b2, d);
+    map<any> annotationMapValue4 = getAnnotationValue(Foo4);
+    AnnotationRecord annotation4 = <AnnotationRecord> annotationMapValue4["BarAnnotation"];
+    assert(annotation4, <AnnotationRecord> {minValue: 12, maxValue: 24});
 }
 
 function testRecordVarRef() {
@@ -282,10 +281,10 @@ function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @j
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-function getReferredValue(Foo|Foo2 x, typedesc<Foo|Foo2> y) returns y =
+function getAnnotationValue(typedesc<Foo|Foo2> y) returns map<any> =
     @java:Method {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-        name: "getWithUnionForReferenceType"
+        name: "getAnnotationValue"
     } external;
 
 function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {

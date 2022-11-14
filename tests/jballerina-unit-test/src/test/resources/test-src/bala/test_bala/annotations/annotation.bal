@@ -47,38 +47,41 @@ type Bar2 int|float;
     maxValue: 36
 }
 type Bar3 Bar4;
-type Bar4 int|float;
+type Bar4 Bar2;
+type Bar5 Bar;
 
 function testAnnotationsOnTypeRefTypes() {
-    var f1 = function (typedesc td) {
-        AnnotationRecord? 'annotation = td.@BarAnnotation;
-        assertTrue('annotation is AnnotationRecord);
-        AnnotationRecord rec = <AnnotationRecord> 'annotation;
-        assertEquality(rec.minValue, 18);
-        assertEquality(rec.maxValue, 36);
+    var f1 = function (typedesc td) returns AnnotationRecord? {
+        return td.@BarAnnotation;
     };
-    f1(Bar);
 
-    var f2 = function (typedesc td) {
-        AnnotationRecord? 'annotation = td.@BarAnnotation;
-        assertTrue('annotation is ());
-    };
-    f2(Bar2);
+    AnnotationRecord? 'annotation = f1(Bar);
+    assertTrue('annotation is AnnotationRecord);
+    AnnotationRecord rec = <AnnotationRecord> 'annotation;
+    assertEquality(rec.minValue, 18);
+    assertEquality(rec.maxValue, 36);
 
-    var f3 = function (typedesc td) {
-        AnnotationRecord? 'annotation = td.@BarAnnotation2;
-        assertTrue('annotation is AnnotationRecord);
-        AnnotationRecord rec = <AnnotationRecord> 'annotation;
-        assertEquality(rec.minValue, 18);
-        assertEquality(rec.maxValue, 36);
-    };
-    f3(Bar3);
+    'annotation = f1(Bar2);
+    assertTrue('annotation is ());
 
-    var f4 = function (typedesc td) {
-        AnnotationRecord? 'annotation = td.@BarAnnotation2;
-        assertTrue('annotation is ());
+    var f2 = function (typedesc td) returns AnnotationRecord? {
+        return td.@BarAnnotation2;
     };
-    f4(Bar4);
+
+    'annotation = f2(Bar3);
+    assertTrue('annotation is AnnotationRecord);
+    rec = <AnnotationRecord> 'annotation;
+    assertEquality(rec.minValue, 18);
+    assertEquality(rec.maxValue, 36);
+
+    'annotation = f2(Bar4);
+    assertTrue('annotation is ());
+
+    'annotation = f1(Bar5);
+    assertTrue('annotation is ());
+
+    'annotation = f2(Bar5);
+    assertTrue('annotation is ());
 }
 
 function assertTrue(anydata actual) {

@@ -63,7 +63,6 @@ import static io.ballerina.runtime.api.TypeTags.INT_TAG;
 import static io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
-import static io.ballerina.runtime.api.TypeTags.TYPE_REFERENCED_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
@@ -345,13 +344,8 @@ public class VariableReturnType {
         return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
     }
 
-    public static Object getWithUnionForReferenceType(Object x, BTypedesc y) {
-        int tag = y.getDescribingType().getTag();
-        if (tag == TYPE_REFERENCED_TYPE_TAG) {
-            return x;
-        }
-
-        return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
+    public static BMap<BString, Object> getAnnotationValue(BTypedesc y) {
+        return ((BTypeReferenceType) y.getDescribingType()).getAnnotations();
     }
 
     public static Object clientGetWithUnion(BObject client, Object x, BTypedesc y) {
