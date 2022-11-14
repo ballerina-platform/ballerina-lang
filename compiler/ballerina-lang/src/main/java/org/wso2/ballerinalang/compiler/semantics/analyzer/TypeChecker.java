@@ -2876,12 +2876,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
-
-                if (varRefExpr.isLValue && (varSym.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
-                    actualType = symTable.semanticError;
-                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
-                            Names.FUNCTION);
-                }
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
