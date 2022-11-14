@@ -56,9 +56,10 @@ public class EqualAndNotEqualOperationsTest {
     public Object[] getValueTestFunctions() {
         return new String[]{
                 "checkBooleanEquality", "checkIntEquality", "checkByteEquality", "checkFloatEquality",
-                "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality", "testIntByteEqualityPositive",
-                "testIntByteEqualityNegative", "testIntersectingUnionEquality", "testTableEquality",
-                "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes", "checkFiniteTypeEquality"
+                "checkDecimalEquality", "checkStringEquality", "checkEqualityToNil", "checkAnyDataEquality",
+                "testIntByteEqualityPositive", "testIntByteEqualityNegative", "testIntersectingUnionEquality",
+                "testTableEquality", "testEqualityWithNonAnydataType", "testEqualityByteWithIntSubTypes",
+                "checkFiniteTypeEquality"
         };
     }
 
