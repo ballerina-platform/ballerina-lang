@@ -98,6 +98,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         String constName = getConstantName(context);
+        String value = node.toSourceCode().strip();
+        LineRange replaceRange = node.lineRange();
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
@@ -105,16 +107,18 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         ConstantData constantData = getConstantData(context);
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
+        
+        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+        addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart());
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
             // Selection is a range
-            List<TextEdit> textEdits =
-                    getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart);
-            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract));
+            return Collections.singletonList(codeAction);
         }
 
         // Selection is a position
@@ -123,10 +127,10 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
         nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
                 getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
+        codeAction.setCommand(new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
+                textEditMap)));
 
-        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
-                        textEditMap)), CodeActionKind.RefactorExtract));
+        return Collections.singletonList(codeAction);
     }
 
     private List<Node> getPossibleExpressionNodes(Node node, BasicLiteralNodeValidator nodeValidator) {
@@ -143,6 +147,15 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     private boolean isExpressionNode(Node node) {
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
+    }
+
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactoredRenameSupported()) {
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(), new Position(position.getLine() + 1, position.getCharacter()))));
+        }
     }
 
     @Override
