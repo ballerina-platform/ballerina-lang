@@ -467,7 +467,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
                                 .map(path -> path.toUri().toString()
                                         .replace(sourceRoot.toUri().toString(), ""));
-                JsonObject actualRenamePosition = expArgs.get(1).getAsJsonObject();
+                JsonObject actualRenamePosition = actualArgs.get(1).getAsJsonObject();
                 String expectedFilePath = expArgs.get(0).getAsString();
                 JsonObject expectedRenamePosition = expArgs.get(1).getAsJsonObject();
                 if (actualFilePath.isPresent()) {
