@@ -107,6 +107,36 @@ function testRecursiveRecordWithReadOnlyType() {
     assertEquality(5, b["i"]);
 }
 
+function testRecursiveRecordEquality() {
+    RecursiveRecordWithOptionalTypeA a1 = {i:4};
+    RecursiveRecordWithOptionalTypeB b1 = {i:4};
+    assertTrue(checkValueEquality(a1,b1));
+    assertFalse(checkRefEquality(a1,b1));
+
+    RecursiveRecordWithOptionalTypeA a2 = {i:5, f:a1};
+    RecursiveRecordWithOptionalTypeB b2 = {i:5};
+    assertFalse(checkRefEquality(a2, b2));
+    assertFalse(checkRefEquality(a2, b2));
+}
+
+type RecursiveRecordWithOptionalTypeA record {|
+    int i;
+    RecursiveRecordWithOptionalTypeA f?;
+|};
+
+type RecursiveRecordWithOptionalTypeB record {|
+    int i;
+    RecursiveRecordWithOptionalTypeB f?;
+|};
+
+function checkRefEquality(RecursiveRecordWithOptionalTypeA a, RecursiveRecordWithOptionalTypeB b) returns boolean {
+    return a === b;
+}
+
+function checkValueEquality(RecursiveRecordWithOptionalTypeA a, RecursiveRecordWithOptionalTypeB b) returns boolean {
+    return a == b;
+}
+
 const ASSERTION_ERR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
@@ -121,4 +151,12 @@ function assertEquality(any|error expected, any|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
 }
