@@ -396,7 +396,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         Map<BSymbol, Location> prevUnusedLocalVariables = this.unusedLocalVariables;
-        this.unusedLocalVariables = new HashMap<>();
         this.currDependentSymbolDeque.push(funcNode.symbol);
 
         funcNode.annAttachments.forEach(bLangAnnotationAttachment -> analyzeNode(bLangAnnotationAttachment.expr, env));
