@@ -1,335 +1,187 @@
 {
   "position": {
-    "line": 13,
-    "character": 1
+    "line": 2,
+    "character": 9
   },
   "source": "annotation_ctx/source/moduleLevelAnnotation1.bal",
   "items": [
     {
-      "label": "ballerina/jballerina.java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "java",
-      "insertText": "java",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "value",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "runtime",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "module1",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "test",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "array",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "map",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stream",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "stream",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transaction",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "tainted",
+      "label": "typeAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "tainted",
+      "insertText": "typeAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "builtinSubtype",
+      "label": "typeAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "builtinSubtype",
+      "insertText": "typeAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "typeParam",
+      "label": "classAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "typeParam",
+      "insertText": "classAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "isolatedParam",
+      "label": "classAnnotation3",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "isolatedParam",
+      "insertText": "classAnnotation3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "deprecated",
+      "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "deprecated",
+      "insertText": "functionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "untainted",
+      "label": "objectFunctionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "untainted",
+      "insertText": "objectFunctionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "strand",
+      "label": "parameterAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "strand",
+      "insertText": "parameterAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "a2",
+      "label": "returnAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "a2 {\n\tfoo: ${1:\"\"}\n}",
+      "sortText": "B",
+      "insertText": "returnAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "serviceAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "serviceAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "fieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "objectFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "recordFieldAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceAnnotationAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceAnnotationAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceExternalAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceExternalAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceVarAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceVarAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceConstAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceConstAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceListenerAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceListenerAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceWorkerAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceWorkerAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "serviceRemoteFunctionAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "serviceRemoteFunctionAnnotation2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -337,26 +189,8 @@
       "label": "annotationCommon",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "a3",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "a3 {\n\tfoo: ${1:\"\"}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
       "sortText": "B",
-      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -364,138 +198,181 @@
       "label": "a1",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "A",
+      "sortText": "B",
       "insertText": "a1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "test/project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project2",
-      "insertText": "project2",
+      "label": "a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "a2 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project2;\n"
-        }
-      ]
+      "additionalTextEdits": []
     },
     {
-      "label": "test/project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "project1",
-      "insertText": "project1",
+      "label": "typeAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "typeAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/project1;\n"
-        }
-      ]
+      "additionalTextEdits": []
     },
     {
-      "label": "test/local_project2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project2",
-      "insertText": "local_project2",
+      "label": "classAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "classAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project2;\n"
-        }
-      ]
+      "additionalTextEdits": []
     },
     {
-      "label": "test/local_project1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "local_project1",
-      "insertText": "local_project1",
+      "label": "functionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "functionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import test/local_project1;\n"
-        }
-      ]
+      "additionalTextEdits": []
     },
     {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "function",
-      "insertTextFormat": "Snippet"
+      "label": "objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "objectFunctionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     },
     {
-      "label": "ballerina/lang.regexp",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "filterText": "regexp",
-      "insertText": "regexp",
+      "label": "parameterAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "parameterAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.regexp;\n"
-        }
-      ]
+      "additionalTextEdits": []
+    },
+    {
+      "label": "returnAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "returnAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "serviceAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "serviceAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "fieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "fieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "objectFieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "recordFieldAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "recordFieldAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceAnnotationAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceAnnotationAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceExternalAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceExternalAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceVarAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceVarAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceConstAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceConstAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceListenerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceListenerAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "sourceWorkerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "sourceWorkerAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "commonAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "commonAnnotation2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "serviceRemoteFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "serviceRemoteFunctionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
