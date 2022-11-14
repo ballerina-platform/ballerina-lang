@@ -181,4 +181,7 @@ public class CommandConstants {
     public static final String GENERATE_MODULE_FOR_CLIENT_DECLARATION_TITLE = "Generate module for client declaration";
 
     public static final String FILL_REQUIRED_FIELDS = "Fill '%s' required fields";
+    
+    public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Convert to '%s' template";
+    
 }

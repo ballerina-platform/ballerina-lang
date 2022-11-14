@@ -354,7 +354,7 @@ function testCatchingErrorAtOnFail() {
     error? res14 = ();
     do {
         _ = from int i in 1 ... 3
-            outer join int j in (from int jj in 1 ... 3
+            outer join var j in (from int jj in 1 ... 3
                 select check verifyCheck(jj))
             on i equals j
             select i;
@@ -460,7 +460,7 @@ function checkErrorAtOnEqualRHS() returns error? {
 
 function checkErrorAtOuterJoin() returns error? {
     _ = from int i in 1 ... 3
-        outer join int j in (from int jj in 1 ... 3
+        outer join var j in (from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
         select i;
@@ -468,14 +468,14 @@ function checkErrorAtOuterJoin() returns error? {
 
 function checkErrorAtOuterJoinOnEqualLHS() returns error? {
     _ = from int i in 1 ... 3
-        outer join int j in 1 ... 3
+        outer join var j in 1 ... 3
         on check verifyCheck(i) equals j
         select i;
 }
 
 function checkErrorAtOuterJoinOnEqualRHS() returns error? {
     _ = from int i in 1 ... 3
-        outer join int j in 1 ... 3
+        outer join var j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
 }
@@ -492,7 +492,7 @@ function checkErrorAtOrderBy() returns error? {
 
 // Utils ---------------------------------------------------------------------------------------------------------
 
-public function verifyCheck(int i) returns int|error {
+public function verifyCheck(int? i) returns int|error {
     return error("Verify Check.");
 }
 

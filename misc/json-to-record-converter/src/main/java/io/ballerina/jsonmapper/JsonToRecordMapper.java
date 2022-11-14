@@ -122,16 +122,21 @@ public class JsonToRecordMapper {
         try {
             JsonElement parsedJson = JsonParser.parseString(jsonString);
             if (parsedJson.isJsonObject()) {
-                generateRecords(parsedJson.getAsJsonObject(), recordName, isClosed,
+                generateRecords(parsedJson.getAsJsonObject(), null, isClosed,
                         recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
                 object.add(((recordName == null) || recordName.equals("")) ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed,
+                generateRecords(object, null, isClosed,
                         recordToTypeDescNodes, null, jsonFieldToElements, diagnosticMessages);
             } else {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
+                diagnosticMessages.add(message);
+                return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
+            }
+            if (recordName != null && recordToTypeDescNodes.containsKey(recordName)) {
+                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter104(new String[]{recordName});
                 diagnosticMessages.add(message);
                 return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
             }
@@ -145,8 +150,11 @@ public class JsonToRecordMapper {
         List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
+                    String recordTypeName = entry.getKey() == null ?
+                            (recordName == null || recordName.equals("")) ? NEW_RECORD_NAME : recordName :
+                            entry.getKey();
                     IdentifierToken typeName = AbstractNodeFactory
-                            .createIdentifierToken(escapeIdentifier(entry.getKey()));
+                            .createIdentifierToken(escapeIdentifier(recordTypeName));
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
@@ -254,8 +262,7 @@ public class JsonToRecordMapper {
                         fieldNodes, null, bodyEndDelimiter);
 
         if (moveBefore == null) {
-            recordToTypeDescNodes.put(((recordName == null) || recordName.equals("")) ? NEW_RECORD_NAME : recordName,
-                    recordTypeDescriptorNode);
+            recordToTypeDescNodes.put(recordName, recordTypeDescriptorNode);
         } else {
             List<Map.Entry<String, NonTerminalNode>> typeDescNodes = new ArrayList<>(recordToTypeDescNodes.entrySet());
             List<String> recordNames = typeDescNodes.stream().map(Map.Entry::getKey).collect(Collectors.toList());
