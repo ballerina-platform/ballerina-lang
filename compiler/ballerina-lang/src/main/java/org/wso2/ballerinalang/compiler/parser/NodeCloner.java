@@ -185,7 +185,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -667,13 +666,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangXMLNSStatement clone = new BLangXMLNSStatement();
         source.cloneRef = clone;
         clone.xmlnsDecl = clone(source.xmlnsDecl);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement source) {
-        BLangClientDeclarationStatement clone = new BLangClientDeclarationStatement();
-        source.cloneRef = clone;
-        clone.clientDeclaration = clone(source.clientDeclaration);
     }
 
     @Override

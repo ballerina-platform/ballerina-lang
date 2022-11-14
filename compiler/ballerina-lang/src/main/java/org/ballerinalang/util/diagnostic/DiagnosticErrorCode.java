@@ -782,12 +782,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_START_CHAR_CODE_IN_RANGE("BCE4035", "invalid.start.char.code.in.range"),
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
-    CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
-    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
+    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4038",
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
-            "BCE4047", "outer.join.must.be.declared.with.var")        
+            "BCE4039", "outer.join.must.be.declared.with.var")
     ;
 
     private String diagnosticId;
