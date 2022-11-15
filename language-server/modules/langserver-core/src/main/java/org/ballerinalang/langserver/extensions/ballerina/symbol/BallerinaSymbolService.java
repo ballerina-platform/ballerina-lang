@@ -236,25 +236,24 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 Optional<SemanticModel> semanticModel =
                         this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
                 Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
-                if (semanticModel.isEmpty() || document.isEmpty()) {
-                    return typeFromSymbolResponse;
-                }
-                LinePosition fnPosition = request.getFnPosition();
-                Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), fnPosition);
-                if (symbol.isPresent()) {
-                    Symbol fnSymbol = symbol.get();
-                    if (fnSymbol instanceof FunctionSymbol) {
-                        FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
+                if (semanticModel.isPresent() && document.isPresent()) {
+                    LinePosition fnPosition = request.getFnPosition();
+                    Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), fnPosition);
+                    if (symbol.isPresent()) {
+                        Symbol fnSymbol = symbol.get();
+                        if (fnSymbol instanceof FunctionSymbol) {
+                            FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
 
-                        Optional<ResolvedTypeForSymbol> returnType =
-                                getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
-                        returnType.ifPresent(types::add);
+                            Optional<ResolvedTypeForSymbol> returnType =
+                                    getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
+                            returnType.ifPresent(types::add);
 
-                        Optional<List<ResolvedTypeForSymbol>> paramTypes = getTypesForFnParams(fnTypeSymbol);
-                        paramTypes.ifPresent(types::addAll);
+                            List<ResolvedTypeForSymbol> paramTypes = getTypesForFnParams(fnTypeSymbol);
+                            types.addAll(paramTypes);
+                        }
                     }
+                    typeFromSymbolResponse.setTypes(types);
                 }
-                typeFromSymbolResponse.setTypes(types);
                 return typeFromSymbolResponse;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/getTypesFromFnDefinition' failed!";
@@ -474,25 +473,23 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return Optional.of(resolvedType);
     }
 
-    private Optional<List<ResolvedTypeForSymbol>> getTypesForFnParams(FunctionTypeSymbol fnTypeSymbol) {
-        Optional<List<ParameterSymbol>> params = fnTypeSymbol.params();
-        if (params.isEmpty()) {
-            return Optional.empty();
-        }
+    private List<ResolvedTypeForSymbol> getTypesForFnParams(FunctionTypeSymbol fnTypeSymbol) {
         List<ResolvedTypeForSymbol> types = new ArrayList<>();
-        for (ParameterSymbol param: params.get()) {
-            Optional<Location> location = param.getLocation();
-            if (location.isEmpty()) {
-                return Optional.empty();
+        Optional<List<ParameterSymbol>> params = fnTypeSymbol.params();
+        if (params.isPresent()) {
+            for (ParameterSymbol param: params.get()) {
+                Optional<Location> location = param.getLocation();
+                if (location.isPresent()) {
+                    LinePosition paramPosition = location.get().lineRange().startLine();
+                    ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(paramPosition);
+                    Type type = Type.fromSemanticSymbol(param);
+                    Type.clearParentSymbols();
+                    resolvedType.setType(type);
+                    types.add(resolvedType);
+                }
             }
-            LinePosition paramPosition = location.get().lineRange().startLine();
-            ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(paramPosition);
-            Type type = Type.fromSemanticSymbol(param);
-            Type.clearParentSymbols();
-            resolvedType.setType(type);
-            types.add(resolvedType);
         }
-        return Optional.of(types);
+        return types;
     }
 
     @Override
