@@ -140,11 +140,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             (3) service /<cursor>
             (4) service / <cursor>
              */
-            if (!node.onKeyword().isMissing() ||
-                    context.getNodeAtCursor().textRange().endOffset() == context.getCursorPositionInTree() 
-                            && (context.getNodeAtCursor().toSourceCode().split(" ").length == 1
-                            && context.getNodeAtCursor().toSourceCode()
-                                .contains(SyntaxKind.SLASH_TOKEN.stringValue()))) {
+            if (!node.onKeyword().isMissing() || isInBasicPathContext(context)) {
                 return Collections.emptyList();
             }
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
@@ -153,6 +149,13 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
         this.sort(context, node, completionItems, cursorContext);
 
         return completionItems;
+    }
+
+    private boolean isInBasicPathContext(BallerinaCompletionContext context) {
+        return context.getNodeAtCursor().textRange().endOffset() == context.getCursorPositionInTree()
+                && (context.getNodeAtCursor().toSourceCode().split(" ").length == 1
+                && context.getNodeAtCursor().toSourceCode()
+                .contains(SyntaxKind.SLASH_TOKEN.stringValue()));
     }
 
     private boolean onTypeDescContext(BallerinaCompletionContext context, ServiceDeclarationNode node) {
