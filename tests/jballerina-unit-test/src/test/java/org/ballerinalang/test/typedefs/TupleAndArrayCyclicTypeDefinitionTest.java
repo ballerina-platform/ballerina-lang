@@ -31,8 +31,8 @@ public class TupleAndArrayCyclicTypeDefinitionTest {
 
     @BeforeClass
     public void setup() {
-        //tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
-        arrayCompileResult = BCompileUtil.compile("test-src/typedefs/array_type_definitions_cyclic.bal");
+        tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
+        //arrayCompileResult = BCompileUtil.compile("test-src/typedefs/array_type_definitions_cyclic.bal");
     }
 
     @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
@@ -56,7 +56,9 @@ public class TupleAndArrayCyclicTypeDefinitionTest {
                 {"testCastingToImmutableCyclicTuple"},
                 {"recursiveTupleArrayCloneTest"},
                 {"testRecursiveTupleWithRestType"},
-                {"testUnionWithCyclicTuplesHashCode"}
+                {"testUnionWithCyclicTuplesHashCode"},
+                {"testUnionWithCyclicTuplesHashCode"},
+                {"testCloneOnRecursiveTuples"}
         };
     }
 
