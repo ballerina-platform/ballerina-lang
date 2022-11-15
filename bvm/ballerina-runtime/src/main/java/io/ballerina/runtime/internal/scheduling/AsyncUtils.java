@@ -140,7 +140,7 @@ public class AsyncUtils {
         Strand parent = Scheduler.getStrand();
         blockStrand(parent);
         AtomicInteger callCount = new AtomicInteger(0);
-        BFunctionType funcType = (BFunctionType) func.getType();
+        BFunctionType funcType = (BFunctionType) TypeUtils.getReferredType(func.getType());
         scheduleNextFunction(func, funcType, parent, strandName, metadata, noOfIterations, callCount, argsSupplier,
                 futureResultConsumer, returnValueSupplier, scheduler);
 
@@ -165,7 +165,7 @@ public class AsyncUtils {
 
     private static void getArgsWithDefaultValues(Scheduler scheduler, BFunctionPointer<?, ?> func, Callback callback,
                                                  Object... args) {
-        FunctionType functionType = (FunctionType) func.getType();
+        FunctionType functionType = (FunctionType) TypeUtils.getReferredType(func.getType());
         Module module = functionType.getPackage();
         if (args.length == 0 || module == null) {
             callback.notifySuccess(args);
@@ -326,5 +326,8 @@ public class AsyncUtils {
                 this.strand.scheduler.unblockStrand(strand);
             }
         }
+    }
+
+    private AsyncUtils() {
     }
 }
