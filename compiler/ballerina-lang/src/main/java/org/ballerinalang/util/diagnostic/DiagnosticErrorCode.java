@@ -782,7 +782,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
     CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4045", "cannot.import.module.generated.for.a.client.decl")
+            "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
+    OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
+            "BCE4046", "outer.join.must.be.declared.with.var")
     ;
 
     private String diagnosticId;
