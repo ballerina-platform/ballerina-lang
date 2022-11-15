@@ -779,7 +779,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
     OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
 
-    INVALID_GROUPING_KEY("BCE4035", "invalid.grouping.key")
+    INVALID_GROUPING_KEY("BCE4035", "invalid.grouping.key"),
+    UNDEFINED_FUNCTION_IN_SEQUENCE("BCE4036", "undefined.function.in.sequence"),
+    INCOMPATIBLE_TYPE_FOR_SEQUENCE("BCE4037", "incompatible.types.sequence"),
+    INVALID_SEQUENCE_ARGUMENT_IN_FUNCTION("BCE4038", "invalid.sequence.argument.in.function"),
+    SEQUENCE_BINDING_IN_INVALID_CONTEXT("BCE4039", "sequence.binding.in.invalid.context"),
+    SEQUENCE_BINDING_FOLLOWED_BY_ANOTHER_ARG("BCE4040", "sequence.binding.followed.by.another.arg"),
+    SEQUENCE_BINDING_WITH_ADDITIONAL_ARG("BCE4041", "sequence.binding.with.additional.arg")
     ;
 
     private String diagnosticId;

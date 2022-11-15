@@ -93,6 +93,33 @@ function testGroupByWithVarDefAndVarRef() {
     assertEquality(<string[]>["John", "Monica", "Tom", "Monica"], res);
 }
 
+function testNonGroupingKeyInFunctionContextWithoutPrefix() {
+    Order[] orderList = getOrders();
+
+    int[] res1 = from var {price1, price2, name} in orders
+        group by price1
+        select sum(price2);
+
+    string[] res2 = from var {price1, price2, name} in orderList
+        group by price1
+        select string:'join(",", name);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

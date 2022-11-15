@@ -49,6 +49,7 @@ public class GroupByClauseTest {
                 {result, "testGroupByWithVarRef"},
                 {result, "testGroupByWithVarDef"},
                 {result, "testGroupByWithVarDefAndVarRef"},
+                {result, "testNonGroupingKeyInFunctionContextWithoutPrefix"}
         };
     }
 
@@ -64,5 +65,110 @@ public class GroupByClauseTest {
                 46, 36);
         validateError(negativeResult, index, "operator '+' not defined for 'int' and 'string'",
                 54, 36);
+
+        validateError(negativeResult, index, "arguments not allowed after sequence binding argument",
+                65, 36);
+        validateError(negativeResult, index, "undefined function 'sum'",
+                65, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                65, 36);
+
+        validateError(negativeResult, index, "sequence binding argument cannot be combined with other " +
+                        "arguments when assigned to rest parameter",
+                69, 36);
+        validateError(negativeResult, index, "undefined function 'sum'",
+                69, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                69, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                73, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                77, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                77, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                77, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                81, 36);
+        validateError(negativeResult, index, "'string' sequence binding used in invalid context",
+                81, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                85, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                90, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                95, 36);
+
+        validateError(negativeResult, index, "undefined function 'sum'",
+                99, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                99, 36);
+
+        validateError(negativeResult, index, "undefined function 'startsWith'",
+                103, 36);
+        validateError(negativeResult, index, "'string' sequence binding used in invalid context",
+                103, 36);
+
+        validateError(negativeResult, index, "undefined function 'toHexString'",
+                107, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                107, 36);
+
+        validateError(negativeResult, index, "'price2' that contains a sequence binding cannot " +
+                "be used as an argument in user defined function 'userDefinedFunc1'", 116, 36);
+
+        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
+                121, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                121, 36);
+
+        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
+                126, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                126, 36);
+
+        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
+                131, 36);
+        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+                131, 36);
+
+        validateError(negativeResult, index, "'price2' that contains a sequence binding cannot be " +
+                "used as an argument in user defined function 'userDefinedFunc2'", 136, 36);
+
+        validateError(negativeResult, index, "incompatible types: expected 'int', found 'int' sequence",
+                152, 36);
+
+        validateError(negativeResult, index, "incompatible types: expected 'int[]', found 'int' sequence",
+                157, 36);
+
+        validateError(negativeResult, index, "arguments not allowed after sequence binding argument",
+                165, 36);
+        validateError(negativeResult, index, "incompatible types: expected 'int[]', found 'int' sequence",
+                165, 36);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

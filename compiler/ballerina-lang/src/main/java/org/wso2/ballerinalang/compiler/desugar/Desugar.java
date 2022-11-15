@@ -41,11 +41,7 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.*;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -5859,7 +5855,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
 
-        // XML qualified name reference. e.g: ns0:foo
+        // XML qualified name refeexpression.impConversionExpr != nullrence. e.g: ns0:foo
         if (varRefExpr.pkgSymbol != null && varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             BLangXMLQName qnameExpr = new BLangXMLQName(varRefExpr.variableName);
             qnameExpr.nsSymbol = (BXMLNSSymbol) varRefExpr.pkgSymbol;
@@ -5884,6 +5880,10 @@ public class Desugar extends BLangNodeVisitor {
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
             }
+        }
+        if (varRefExpr.context == BLangSimpleVarRef.WHICH_GROUPBY_CONTEXT.SPREADOP) {
+            replaceSequenceWithSpreadOp(varRefExpr);
+            return;
         }
 
         BType type = varRefExpr.getBType();
@@ -5950,6 +5950,30 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.setBType(genVarRefExpr.symbol.type);
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
+    }
+
+    private void replaceSequenceWithSpreadOp(BLangSimpleVarRef varRefExpr) {
+        BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+
+        varRefExpr.context = BLangSimpleVarRef.WHICH_GROUPBY_CONTEXT.NOT_IN_SEQUENCE;
+        varRefExpr.symbol.tag = SymTag.VARIABLE;
+
+        spreadOpExpr.setExpression(varRefExpr);
+        spreadOpExpr.pos = varRefExpr.pos;
+        spreadOpExpr.setBType(varRefExpr.getBType());
+        spreadOpExpr.setDeterminedType(varRefExpr.getDeterminedType());
+        spreadOpExpr.typeChecked = varRefExpr.typeChecked;
+        spreadOpExpr.expectedType = varRefExpr.expectedType;
+        spreadOpExpr.narrowedTypeInfo = varRefExpr.narrowedTypeInfo;
+        spreadOpExpr.constantPropagated = varRefExpr.constantPropagated;
+        spreadOpExpr.internal = varRefExpr.internal;
+        spreadOpExpr.cloneRef = varRefExpr.cloneRef;
+        spreadOpExpr.cloneAttempt = varRefExpr.cloneAttempt;
+        spreadOpExpr.impConversionExpr = varRefExpr.impConversionExpr;
+        spreadOpExpr.parent = varRefExpr.parent;
+        // Replace var ref as a spread operator in list constructor context after a group by clause
+        result = rewriteExpr(spreadOpExpr);
+
     }
 
     @Override
@@ -6574,9 +6598,49 @@ public class Desugar extends BLangNodeVisitor {
         bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
         return bLangRestArgsExpression;
     }
+
+    private void chackAndReplaceSequenceWithRestArg(BLangInvocation invocation) {
+        for (int i = 0; i < invocation.restArgs.size(); i++) {
+            BLangExpression restExpr = invocation.restArgs.get(i);
+            if (restExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    ((BLangSimpleVarRef) restExpr).symbol.tag == SymTag.SEQUENCE) {
+                BLangRestArgsExpression newRestArg = createeRestArgForSequence((BLangSimpleVarRef) restExpr);
+
+                // Replace simple var ref with a rest argument in langlib function call context after a group by clause
+                invocation.restArgs.set(i, newRestArg);
+            }
+        }
+    }
+
+    private BLangRestArgsExpression createeRestArgForSequence(BLangSimpleVarRef varRefExpr) {
+        BLangRestArgsExpression varArg = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
+
+        varRefExpr.context = BLangSimpleVarRef.WHICH_GROUPBY_CONTEXT.NOT_IN_SEQUENCE;
+        varRefExpr.symbol.tag = SymTag.VARIABLE;
+
+        varArg.expr = varRefExpr;
+        varArg.impConversionExpr = varRefExpr.impConversionExpr;
+        varArg.typeChecked = varRefExpr.typeChecked;
+        varArg.expectedType = varRefExpr.expectedType;
+        varArg.narrowedTypeInfo = varRefExpr.narrowedTypeInfo;
+        varArg.setBType(varRefExpr.getBType());
+        varArg.parent = varRefExpr.parent;
+        varArg.constantPropagated = varRefExpr.constantPropagated;
+        varArg.internal = varRefExpr.internal;
+        varArg.pos = varRefExpr.pos;
+        varArg.cloneRef = varRefExpr.cloneRef;
+        varArg.cloneAttempt = varRefExpr.cloneAttempt;
+        varArg.setDeterminedType(varRefExpr.getDeterminedType());
+
+        return varArg;
+    }
     
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
         BLangInvocation invRef = invocation;
+
+        if (!invocation.restArgs.isEmpty()) {
+            chackAndReplaceSequenceWithRestArg(invocation);
+        }
 
         if (!enclLocks.isEmpty()) {
             BLangLockStmt lock = enclLocks.peek();

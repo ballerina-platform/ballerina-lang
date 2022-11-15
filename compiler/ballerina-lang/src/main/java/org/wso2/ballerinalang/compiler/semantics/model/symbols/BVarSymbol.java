@@ -53,6 +53,13 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
         this.kind = SymbolKind.VARIABLE;
     }
 
+    public BVarSymbol(int tag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+                      Location pos, SymbolOrigin origin, SymbolKind symKind) {
+        super(tag, flags, name, originalName, pkgID, type, owner, pos, origin);
+        this.annotationAttachments = new ArrayList<>();
+        this.kind = symKind;
+    }
+
     public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
                       SymbolOrigin origin) {
         this(flags, name, name, pkgID, type, owner, pos, origin);

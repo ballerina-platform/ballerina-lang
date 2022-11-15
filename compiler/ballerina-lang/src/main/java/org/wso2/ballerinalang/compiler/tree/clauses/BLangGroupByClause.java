@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class BLangGroupByClause extends BLangGroupingKey implements GroupByClaus
     public List<BLangGroupingKey> groupingKeyList = new ArrayList<>();
 
     // For caching purposes
-    public List<String> nonGroupingKeyList = new ArrayList<>();
+    public List<BLangSimpleVariable> nonGroupingKeyList = new ArrayList<>();
 
     // Semantic Data
     public SymbolEnv env;
