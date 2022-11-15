@@ -381,6 +381,14 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "lang",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "C",
+      "insertText": "lang",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
