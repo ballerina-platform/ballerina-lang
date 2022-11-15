@@ -47,7 +47,6 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -68,12 +67,12 @@ import java.util.stream.Collectors;
  * @since 2201.4.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActionProvider {
+public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
 
     private static final String NAME = "Create variable with type";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
         return diagnostic.diagnosticInfo().code().equals("BCE3934")
                 && context.currentSemanticModel().isPresent()
@@ -122,11 +121,12 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
         return actions;
     }
 
-    private CreateVariableCodeAction.CreateVariableOut getCreateVariableTextEdits(Range range, 
-                                                                                  DiagBasedPositionDetails posDetails,
-                                                                                  TypeSymbol typeDescriptor,
-                                                                                  CodeActionContext context,
-                                                                                  ImportsAcceptor importsAcceptor) {
+    @Override
+    protected CreateVariableCodeAction.CreateVariableOut getCreateVariableTextEdits(Range range,
+                                                                                    DiagBasedPositionDetails posDetails,
+                                                                                    TypeSymbol typeDescriptor,
+                                                                                    CodeActionContext context,
+                                                                                    ImportsAcceptor importsAcceptor) {
         Symbol matchedSymbol = posDetails.matchedSymbol();
 
         Position position = PositionUtil.toPosition(posDetails.matchedNode().lineRange().startLine());
@@ -145,9 +145,8 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
-            renamePositions.add(type.length() + 1);
         }
-        return new CreateVariableCodeAction.CreateVariableOut(name, types, edits, 
+        return new CreateVariableCodeAction.CreateVariableOut(name, types, edits,
                 importsAcceptor.getNewImportTextEdits(), renamePositions);
     }
 
@@ -184,9 +183,9 @@ public class CreateVariableCodeActionWithType implements DiagnosticBasedCodeActi
                             if (memberTypeSymbol.typeKind() == TypeDescKind.ERROR
                                     || CommonUtil.getRawType(memberTypeSymbol).typeKind() == TypeDescKind.ERROR) {
                                 errorTypes.add(memberTypeSymbol);
-                            } else {
-                                possibleTypes.add(getTypeName(memberTypeSymbol, context));
+                                return;
                             }
+                            possibleTypes.add(getTypeName(memberTypeSymbol, context));
                         }
                     });
         } else {
