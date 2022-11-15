@@ -85,7 +85,9 @@ public class GenDocsForBalaTest {
         try {
             BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "doc gen failed due to compilation errors: [ERROR [foo/fb.errors/1.3.6::world.bal:(24:16,24:24)] incompatible types: expected 'string', found 'int']");
+            Assert.assertEquals(e.getMessage(), "doc gen failed due to compilation errors: [ERROR " +
+                    "[foo/fb.errors/1.3.6::world.bal:(24:16,24:24)] incompatible types: expected 'string'," +
+                    " found 'int']");
         }
     }
 
