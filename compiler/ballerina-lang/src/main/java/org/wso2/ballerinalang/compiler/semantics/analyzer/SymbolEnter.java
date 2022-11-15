@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -206,9 +205,15 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.tree.NodeKind.ARRAY_TYPE;
+import static org.ballerinalang.model.tree.NodeKind.CONSTRAINED_TYPE;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.model.tree.NodeKind.INTERSECTION_TYPE_NODE;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
+import static org.ballerinalang.model.tree.NodeKind.TUPLE_TYPE_NODE;
+import static org.ballerinalang.model.tree.NodeKind.UNION_TYPE_NODE;
 import static org.ballerinalang.model.tree.NodeKind.USER_DEFINED_TYPE;
+import static org.ballerinalang.model.tree.NodeKind.VALUE_TYPE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
@@ -1532,10 +1537,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
                 NodeKind unresolvedTypeNodeKind = typeDefinition.getTypeNode().getKind();
-                if (fromStructuredType && (unresolvedTypeNodeKind == NodeKind.UNION_TYPE_NODE
-                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE
-                        || unresolvedTypeNodeKind == NodeKind.INTERSECTION_TYPE_NODE
-                        || (unresolvedTypeNodeKind == NodeKind.USER_DEFINED_TYPE))) {
+                if (fromStructuredType) {
                     // Type definitions with tuples and unions are allowed to have cyclic references atm
                     typeDefinition.hasCyclicReference = true;
                     return;
@@ -2021,30 +2023,82 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BType defineSymbolForCyclicTypeDefinition(BLangTypeDefinition typeDef, SymbolEnv env) {
         Name newTypeDefName = names.fromIdNode(typeDef.name);
         BTypeSymbol typeDefSymbol;
-        BType newTypeNode;
+        BType newTypeNode, type;
 
         switch (typeDef.typeNode.getKind()) {
             case TUPLE_TYPE_NODE:
-                newTypeNode = new BTupleType(null, new ArrayList<>(), true);
+//                symbol = getCyclicDefinedTypeSymbol(typeDef.typeNode);
+//                if (symbol != null || symbol.type != null) {
+//                    symbolType = symbol.type;
+//                }
+//                newTypeNode = symbolType;
+                newTypeNode = getCyclicDefinedType(typeDef.typeNode);
+                if (newTypeNode == null) {
+                    newTypeNode = symTable.neverType;
+                }
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
             case INTERSECTION_TYPE_NODE:
-                newTypeNode = new BIntersectionType(null, new LinkedHashSet<>(),
-                        (IntersectableReferenceType) symTable.anyType);
+//                symbol = getCyclicDefinedTypeSymbol(typeDef.typeNode);
+//                if (symbol != null || symbol.type != null) {
+//                    symbolType = symbol.type;
+//                }
+//                newTypeNode = symbolType;
+                newTypeNode = getCyclicDefinedType(typeDef.typeNode);
+                if (newTypeNode == null) {
+                    newTypeNode = symTable.anyType;
+                }
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
             case UNION_TYPE_NODE:
-                newTypeNode = BUnionType.create(null, new LinkedHashSet<>(), true);
+//                symbol = getCyclicDefinedTypeSymbol(typeDef.typeNode);
+//                if (symbol != null || symbolType != null) {
+//                    symbolType = symbol.type;
+//                }
+//                newTypeNode = symbolType;
+//                typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
+//                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+//                        typeDef.name.pos, SOURCE);
+                newTypeNode = getCyclicDefinedType(typeDef.typeNode);
+                if (newTypeNode == null) {
+                    newTypeNode = symTable.neverType;
+                }
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
                 break;
+            case ARRAY_TYPE:
+                type = getCyclicDefinedType(getInnerBLangType(typeDef.typeNode));
+                // Need to define a default type ====================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>          []
+                if (type == null) {
+                    type = symTable.neverType;
+                }
+                newTypeNode = new BArrayType(type);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+                break;
+            case CONSTRAINED_TYPE:
+                newTypeNode = getCyclicDefinedType(getInnerBLangType(typeDef.typeNode));
+                // Need to define a default type ====================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>          []
+                if (newTypeNode == null) {
+                    newTypeNode = symTable.neverType;
+                }
+                newTypeNode = new BMapType(TypeTags.MAP, newTypeNode, null);
+                typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(typeDef.flagSet),
+                        newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
+                        typeDef.name.pos, SOURCE);
+                break;
             default:
-                newTypeNode = new BAnyType(TypeTags.ANY, null);
+                newTypeNode = getCyclicDefinedType(typeDef.typeNode);
+                // Need to define a default type ====================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>          []
+                if (newTypeNode == null) {
+                    newTypeNode = symTable.anyType;
+                }
                 typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(typeDef.flagSet),
                         newTypeDefName, env.enclPkg.symbol.pkgID, newTypeNode, env.scope.owner,
                         typeDef.name.pos, SOURCE);
@@ -2054,6 +2108,79 @@ public class SymbolEnter extends BLangNodeVisitor {
         newTypeNode.tsymbol = typeDefSymbol;
         newTypeNode.flags |= typeDefSymbol.flags;
         return newTypeNode;
+    }
+
+    public BLangType getInnerBLangType(BLangType typeNode) {
+        NodeKind nodeKind = typeNode.getKind();
+        if (nodeKind == ARRAY_TYPE) {
+            return ((BLangArrayType) typeNode).elemtype;
+        } else if (nodeKind == CONSTRAINED_TYPE) {
+            return ((BLangConstrainedType) typeNode).constraint;
+        } else {
+            return typeNode;
+        }
+    }
+
+    private BType getCyclicDefinedType(BLangType typeNode) {
+        BType type;
+        if (typeNode.getKind() == USER_DEFINED_TYPE) {
+            String typeName = ((BLangUserDefinedType) typeNode).typeName.value;
+            if (this.env.scope.entries.containsKey(Names.fromString(typeName))) {
+                return this.env.scope.lookup(Names.fromString(typeName)).symbol.type;
+            }
+        } else if (typeNode.getKind() == TUPLE_TYPE_NODE) {
+            ArrayList<BType> tupleTypes = new ArrayList<>();
+            for (BLangType langType: ((BLangTupleTypeNode) typeNode).memberTypeNodes) {
+                type = getCyclicDefinedType(langType);
+                if (type == null) {
+                    continue;
+                }
+                tupleTypes.add(type);
+            }
+            return new BTupleType(null, tupleTypes);
+        } else if (typeNode.getKind() == UNION_TYPE_NODE) {
+            LinkedHashSet<BType> unionTypes = new LinkedHashSet<>();
+//            BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
+            for (BLangType langType: ((BLangUnionTypeNode) typeNode).memberTypeNodes) {
+                type = getCyclicDefinedType(langType);
+                if (type == null) {
+//                    unionTypes.add(symTable.neverType);
+                    continue;
+                }
+                unionTypes.add(type);
+//                unionType.add(type);
+            }
+//            BUnionType a =  BUnionType.create(null, unionTypes);
+//            a.isCyclic = true;
+//            return unionType;
+            return  BUnionType.create(null, unionTypes);
+        } else if (typeNode.getKind() == VALUE_TYPE) {
+            return typeNode.getBType().tsymbol.type;
+        } else if (typeNode.getKind() == ARRAY_TYPE) {
+            BType arrayType = getCyclicDefinedType(getInnerBLangType(typeNode));
+            return new BArrayType(arrayType);
+        } else if (typeNode.getKind() == CONSTRAINED_TYPE) {
+            BType constraintType = getCyclicDefinedType(getInnerBLangType(typeNode));
+            return new BMapType(TypeTags.MAP, constraintType, null);
+        } else if (typeNode.getKind() == INTERSECTION_TYPE_NODE) {
+            LinkedHashSet<BType> intersectionTypes = new LinkedHashSet<>();
+            BType effectiveType = symTable.anyType;
+            for (BLangType langType: ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes) {
+                type = getCyclicDefinedType(langType);
+                if (type == null || type.getKind() == TypeKind.READONLY) {
+                    continue;
+                }
+                if (effectiveType == symTable.anyType) {
+                    effectiveType = type;
+                } else {
+                    effectiveType = types.getTypeIntersection(Types.IntersectionContext
+                            .compilerInternalIntersectionTestContext(), effectiveType, type, this.env);
+                }
+                intersectionTypes.add(type);
+            }
+            return new BIntersectionType(null, intersectionTypes, (IntersectableReferenceType) effectiveType);
+        }
+        return null;
     }
 
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {

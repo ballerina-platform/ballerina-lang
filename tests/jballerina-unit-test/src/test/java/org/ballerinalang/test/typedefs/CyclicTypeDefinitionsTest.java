@@ -33,40 +33,14 @@ import org.testng.annotations.Test;
  */
 public class CyclicTypeDefinitionsTest {
 
-    private CompileResult unionCompileResult, negativeResult, tupleCompileResult, readonlyCompileResult;
+    private CompileResult unionCompileResult, negativeResult, readonlyCompileResult;
     private static final String INVALID_CYCLIC_MESSAGE = "invalid cyclic type reference in '[%s]'";
 
     @BeforeClass
     public void setup() {
         unionCompileResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic.bal");
         negativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
-        tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
         readonlyCompileResult = BCompileUtil.compile("test-src/typedefs/readonly-type-definitions-cyclic.bal");
-    }
-
-    @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
-    public void testTupleCyclicTypeDef(String funcName) {
-        BRunUtil.invoke(tupleCompileResult, funcName);
-    }
-
-    @DataProvider(name = "FunctionListTuple")
-    public Object[][] getTestTupleFunctions() {
-        return new Object[][]{
-                {"testCycleTypeArray"},
-                {"testCycleTypeMap"},
-                {"testCycleTypeTable"},
-                {"testCyclicAsFunctionParams"},
-                {"testCyclicTypeDefInRecord"},
-                {"testCyclicTypeDefInUnion"},
-                {"testComplexCyclicTuple"},
-                {"testCyclicUserDefinedTypes"},
-                {"testIndirectRecursion"},
-                {"testCyclicRestType"},
-                {"testCastingToImmutableCyclicTuple"},
-                {"recursiveTupleArrayCloneTest"},
-                {"testRecursiveTupleWithRestType"},
-                {"testUnionWithCyclicTuplesHashCode"}
-        };
     }
 
     @Test(description = "Positive tests for union cyclic type definitions", dataProvider = "FunctionListUnion")
@@ -102,7 +76,6 @@ public class CyclicTypeDefinitionsTest {
     public void testCyclicTypeDefNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "A, A"), 1, 1);
-        BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "B, B"), 3, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "C, D, C"), 5, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "D, C, D"), 6, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
@@ -150,6 +123,5 @@ public class CyclicTypeDefinitionsTest {
     public void tearDown() {
         negativeResult = null;
         unionCompileResult = null;
-        tupleCompileResult = null;
     }
 }
