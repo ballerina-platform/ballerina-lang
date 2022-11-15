@@ -322,34 +322,34 @@ Ints2 ints2 = 2;
 float:NaN floatNan = 1.0;
 float:Infinity floatInf = 1.0;
 
-// Test arithmatic errors
 const NUM1 = -1;
 const int NUM2 = -9223372036854775807 - 1;
 const int NUM3 = 0;
 const int NUM4 = 9223372036854775807;
 const int NUM5 = 10;
 
-const int ANS1 = NUM2 / NUM1;          // error
-const int ANS2 = NUM2 / NUM3;          // error
+// Test arithmetic errors
+const int ANS1 = NUM2 / NUM1;
+const int ANS2 = NUM2 / NUM3;
 
-const int ANS3 = NUM2 * NUM1;          // error
-const int ANS4 = NUM2 * 5;             // error
+const int ANS3 = NUM2 * NUM1;
+const int ANS4 = NUM2 * 5;
 
-const int ANS5 = NUM2 % NUM3;          // error
-const int ANS6 = -NUM2;                // error
+const int ANS5 = NUM2 % NUM3;
+const int ANS6 = -NUM2;
 
-const int ANS7 = NUM2 + NUM1;          // error
-const int ANS8 = NUM4 + NUM5;          // error
+const int ANS7 = NUM2 + NUM1;
+const int ANS8 = NUM4 + NUM5;
 
-const int ANS10 = NUM2 - NUM5;         // error
-const int ANS11 = NUM4 - NUM1;         // error
+const int ANS10 = NUM2 - NUM5;
+const int ANS11 = NUM4 - NUM1;
 
-const decimal ANS12 = 5 % 0;           // error
+const decimal ANS12 = 5 % 0;
 
-const int ANS7 = NUM2 - 1;             // error
+const int ANS7 = NUM2 - 1;
 
-const decimal d1 = 9.999999999999999999999999999999999E6001d * 1E145d;   // error
-const decimal d2 = -9.999999999999999999999999999999999E6141d * 1E5d;    // error
-const decimal d3 = 9.999999999999999999999999999999999E6144d + 1E6143d;  // error
-const decimal d4 = -1E6144d - 9.999999999999999999999999999999999E6144d; // error
-const decimal d5 = 1E614d / 2E-5800d;                                    // error
+const decimal d1 = 9.999999999999999999999999999999999E6001d * 1E145d;
+const decimal d2 = -9.999999999999999999999999999999999E6141d * 1E5d;
+const decimal d3 = 9.999999999999999999999999999999999E6144d + 1E6143d;
+const decimal d4 = -1E6144d - 9.999999999999999999999999999999999E6144d;
+const decimal d5 = 1E614d / 2E-5800d;

@@ -167,6 +167,18 @@ function testConstRemainderOperation() {
     assertEqual(ANS8.toString(), "100");
 }
 
+const decimal ANS11 = 1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS12 = 1.000000000000000000000000000000000e-6143 * 1e-100;
+const decimal ANS13 = -1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS14 = -1.000000000000000000000000000000000e-6143 * 1e-150;
+
+function testConstDecimalSubnormals() {
+    assertEqual(ANS11.toString(), "0");
+    assertEqual(ANS12.toString(), "0");
+    assertEqual(ANS13.toString(), "0");
+    assertEqual(ANS14.toString(), "0");
+}
+
 function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
