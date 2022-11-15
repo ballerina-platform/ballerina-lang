@@ -189,6 +189,7 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "'-1.100000000000000000000000000000000E+6145'" +
                 " is out of range for 'decimal'", 354, 20);
         BAssertUtil.validateError(compileResult, index++, "'5E+6413' is out of range for 'decimal'", 355, 20);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 357, 19);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

@@ -131,6 +131,7 @@ const boolean CUB = !(true);
 const map<int> CUE = {
     a: -1
 };
+const int CUI5 = -int:MAX_VALUE;
 
 function testConstUnaryExpressions() {
     assertEqual(CUI1, -10);
@@ -142,6 +143,7 @@ function testConstUnaryExpressions() {
     assertEqual(CUD, -15.5d);
     assertEqual(CUB, false);
     assertEqual(CUE["a"], -1);
+    assertEqual(CUI5, -9223372036854775807);
 }
 
 const float X1 = 5.5;
