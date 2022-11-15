@@ -497,16 +497,15 @@ public class QueryDesugar extends BLangNodeVisitor {
                                           List<BLangStatement> stmtsToBePropagated,
                                           BLangVariableReference initPipeline) {
         for (int i = 0; i < groupByClause.groupingKeyList.size(); i++) {
-            BLangGroupingKey groupingKey = groupByClause.groupingKeyList.get(i);
-            if (groupingKey.variableDef != null) {
-                BLangSimpleVariableDef groupingKeyVarDef = (BLangSimpleVariableDef) groupingKey.getGroupingKey();
+            BLangGroupingKey groupingKeyNode = groupByClause.groupingKeyList.get(i);
+            if (groupingKeyNode.groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
+                BLangSimpleVariableDef groupingKeyVarDef = (BLangSimpleVariableDef) groupingKeyNode.getGroupingKey();
                 BLangVariableReference letFunc = addLetFunction(blockStmt,
                         getLetClause(groupingKeyVarDef), stmtsToBePropagated);
                 addStreamFunction(blockStmt, initPipeline, letFunc);
 
                 // Replace variable def grouping key with variable ref that refers the created variable in let clause.
-                groupingKey.variableRef = getGroupingKeyVarRef(groupingKeyVarDef);
-                groupingKey.variableDef = null;
+                groupingKeyNode.groupingKey = getGroupingKeyVarRef(groupingKeyVarDef);
             }
         }
 

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
+
 type Order record {|
     int cusId;
     int price1;
@@ -54,3 +56,167 @@ function testGroupByClausWithInvalidGroupingKey3() {
         group by string totPrice = price1 + name
         select name;
 }
+
+function testNonGroupingKeyInLangLibFunctionContext() {
+    Order[] orderList = getOrders();
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(price2, 1);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(1, price2);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(1, 2);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(price2, cusId);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(name);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum();
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        let int[] a = [1, 2]
+        select sum(...a);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        let int b = 1
+        select sum(b);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select sum(price2 + price1);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select startsWith(",", name);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select toHexString(price2);
+}
+
+function testNonGroupingKeyInUserDefinedFunctionContext() {
+    Order[] orderList = getOrders();
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int b = userDefinedFunc1(price2)
+        select price1;
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int b = undefinedFunc(price2)
+        select price1;
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int b = undefinedFunc(price2, 1)
+        select price1;
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int b = undefinedFunc(1, price2)
+        select price1;
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int b = userDefinedFunc2(1, price2)
+        select price1;
+}
+
+function userDefinedFunc1 (int... arg1) returns int {
+    return int:sum(...arg1);
+}
+
+function userDefinedFunc2 (int arg1, int... arg2) returns int {
+    return int:sum(...arg2);
+}
+
+function testNonGroupingKeysUsedByItself() {
+    Order[] orderList = getOrders();
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select price2;
+
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        let int[] a = price2
+        select price1;
+}
+
+function testNonGroupingKeyInLangLibFunctionContextWithPrefix() {
+    Order[] orderList = getOrders();
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(price2, 1);
+
+
+
+
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(1, price2);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(1, 2);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(price2, cusId);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(name);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum();
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        let int[] a = [1, 2]
+        select int:sum(...a);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        let int b = 1
+        select int:sum(b);
+
+    int[] _ = from var {cusId, price1, price2, name} in orderList
+        group by price1
+        select int:sum(price2 + price1);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select string:startsWith(",", name);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select int:toHexString(price2);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select array:length(price2);
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select undefined:sum(price2);
+}
+
+

@@ -96,10 +96,13 @@ function testGroupByWithVarDefAndVarRef() {
 function testNonGroupingKeyInFunctionContextWithoutPrefix() {
     Order[] orderList = getOrders();
 
-    int[] res = from var {price1, price2, name} in orders
+    int[] res1 = from var {price1, price2, name} in orders
         group by price1
         select sum(price2);
 
+    string[] res2 = from var {price1, price2, name} in orderList
+        group by price1
+        select string:'join(",", name);
 }
 
 

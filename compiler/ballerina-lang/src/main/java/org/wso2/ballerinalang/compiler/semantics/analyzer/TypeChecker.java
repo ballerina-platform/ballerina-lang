@@ -2842,10 +2842,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     varRefExpr.symbol = symbol; // not found symbol
                     if (data.expType == symTable.noType ) {
                         dlog.error(varRefExpr.pos, DiagnosticErrorCode.SEQUENCE_BINDING_IN_INVALID_CONTEXT,
-                                nonGroupingVar.type);
+                                ((BArrayType) nonGroupingVar.getType()).eType);
                     } else {
                         dlog.error(varRefExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_SEQUENCE,
-                                data.expType, nonGroupingVar.type);
+                                data.expType, ((BArrayType) nonGroupingVar.getType()).eType);
                     }
                     data.resultType = symTable.semanticError;
                     return;
@@ -6996,7 +6996,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             // Check if user defined function supports aggregated keys as args
-            if (data.commonAnalyzerData.isAfterGroupBy && iExpr.pkgAlias.value == "" &&
+            if (data.commonAnalyzerData.isAfterGroupBy && iExpr.pkgAlias.value.equals("") &&
                     symbol != symTable.notFoundSymbol) {
                 checkIfNonGroupingKeysInArgs(iExpr, data);
             }
@@ -7009,21 +7009,32 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return funcSymbol;
     }
 
-    private boolean checkIfFuncAcceptsAggregatedParams(BSymbol funcSymbol, BSymbol firstArgSymbol) {
+    private boolean checkIfFuncAcceptsAggregatedParams(BSymbol funcSymbol, BLangInvocation iExpr) {
         BType invocableType = Types.getReferredType(funcSymbol.type);
         if (invocableType.tag == TypeTags.INVOKABLE) {
             BInvokableType funcType = (BInvokableType) invocableType;
-
-            if (!funcType.getParameterTypes().isEmpty()) {
-               BType firstParamType = funcType.getParameterTypes().iterator().next();
-               return firstParamType.tag == TypeTags.ARRAY;
-            }
-
             if (funcType.restType != null) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isSSequenceBindingInArgList(BLangInvocation iExpr, AnalyzerData data) {
+        for (BLangExpression argExpr : iExpr.argExprs) {
+            // Langlib functions cannot be invoked without prefix or expression when a sequence binding in not
+            // present as an argument
+            if (argExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                return checkIfSimpleVarRefSymbolIsSequence((BLangSimpleVarRef) argExpr, data);
+            }
+        }
+        return false;
+    }
+
+    private boolean checkIfSimpleVarRefSymbolIsSequence(BLangSimpleVarRef varRef, AnalyzerData data) {
+        Name argName = names.fromIdNode(varRef.variableName);
+        BSymbol argSymbol = symResolver.lookupSymbolInMainSpace(data.env, argName);
+        return argSymbol.tag == SymTag.SEQUENCE;
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, AnalyzerData data) {
@@ -7039,12 +7050,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             // We come here only if functions without expr or prefix exists. ex: sum(price2)
             // Then we check if function is defined inside the langlib if it occurs after a group by clause.
-            if (funcSymbol == symTable.notFoundSymbol && data.commonAnalyzerData.isAfterGroupBy && !iExpr.argExprs.isEmpty()) {
+            if (funcSymbol == symTable.notFoundSymbol && data.commonAnalyzerData.isAfterGroupBy &&
+                    !iExpr.argExprs.isEmpty() && isSSequenceBindingInArgList(iExpr, data)) {
                 BLangExpression firstArgInExpr = iExpr.argExprs.iterator().next();
                 BType typeOfFirstArg;
                 BSymbol argSymbol = symTable.notFoundSymbol;
+
                 if (firstArgInExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                    Name argName = names.fromIdNode(((BLangSimpleVarRef) firstArgInExpr).variableName);
+                    Name argName = names.fromIdNode(((BLangSimpleVarRef)firstArgInExpr).variableName);
                     argSymbol = symResolver.lookupSymbolInMainSpace(data.env, argName);
                     if (argSymbol.tag == SymTag.SEQUENCE) {
                         typeOfFirstArg =  argSymbol.getType();
@@ -7054,18 +7067,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 } else {
                     typeOfFirstArg = checkExpr(firstArgInExpr, data.env);
                 }
-                funcSymbol = symResolver.lookupLangLibMethod(typeOfFirstArg, names.fromIdNode(iExpr.name), data.env);
-                // In case the first parameter of the function accepts a rest argument
-                if (funcSymbol == symTable.notFoundSymbol && typeOfFirstArg.getKind() == TypeKind.ARRAY &&
-                        argSymbol.tag == SymTag.SEQUENCE) {
+
+                if (argSymbol.tag == SymTag.SEQUENCE) {
                     funcSymbol = symResolver.lookupLangLibMethod(((BArrayType) typeOfFirstArg).eType,
                             names.fromIdNode(iExpr.name), data.env);
+                } else {
+                    funcSymbol =
+                            symResolver.lookupLangLibMethod(typeOfFirstArg, names.fromIdNode(iExpr.name), data.env);
                 }
-                if (argSymbol.tag == SymTag.SEQUENCE) {
-                    funcSymbol = checkIfFuncAcceptsAggregatedParams(funcSymbol, argSymbol) ?
+                funcSymbol = checkIfFuncAcceptsAggregatedParams(funcSymbol, iExpr) ?
                             funcSymbol : symTable.notFoundSymbol;
-                }
-
             }
         }
 
@@ -7815,6 +7826,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // We reach here if args are provided for the rest param as both individual rest args and a vararg.
             // Thus, the rest param type is the original rest param type which is an array type.
             BType elementType = ((BArrayType) listTypeRestArg).eType;
+
+            // There cannot be arguments after a sequence binding similar to a rest argument
+            BLangExpression firstArg = iExpr.argExprs.iterator().next();
+            if (firstArg.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                    checkIfSimpleVarRefSymbolIsSequence((BLangSimpleVarRef) firstArg, data) &&
+                    iExpr.argExprs.size() > 1) {
+                dlog.error(iExpr.pos, DiagnosticErrorCode.SEQUENCE_BINDING_FOLLOWED_BY_ANOTHER_ARG);
+            }
 
             for (BLangExpression restArg : iExpr.restArgs) {
                 checkTypeParamExpr(restArg, elementType, true, data);
