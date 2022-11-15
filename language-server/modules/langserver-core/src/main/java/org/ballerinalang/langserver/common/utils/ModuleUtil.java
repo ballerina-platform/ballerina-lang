@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -45,7 +44,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLIENT_DECLARATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
@@ -98,26 +96,6 @@ public class ModuleUtil {
         for (Symbol symbol : visibleSymbols) {
             if (symbol.kind() == MODULE && Objects.equals(symbol.getName().orElse(null), alias)) {
                 return Optional.of((ModuleSymbol) symbol);
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    /**
-     * Get the client declaration symbol associated with the given alias.
-     *
-     * @param context Language server operation context
-     * @param alias   alias value
-     * @return {@link Optional} scope entry for the client declaration symbol
-     */
-    public static Optional<ClientDeclSymbol> searchClientDeclarationForAlias(PositionedOperationContext context, 
-                                                                             String alias) {
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        for (Symbol symbol : visibleSymbols) {
-            if (symbol.kind() == CLIENT_DECLARATION && symbol.getModule().isPresent()
-                    && Objects.equals(symbol.getName().orElse(null), alias)) {
-                return Optional.of(((ClientDeclSymbol) symbol));
             }
         }
 

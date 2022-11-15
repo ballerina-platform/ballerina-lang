@@ -4,7 +4,6 @@
     "character": 9
   },
   "source": "statement_context/source/panic_stmt_ctx_source1.bal",
-  "description": "Checks for statement block completions (specifically the panic keyword snippet for panic statement)",
   "items": [
     {
       "label": "start",
@@ -888,15 +887,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "client",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "Q",
-      "filterText": "client",
-      "insertText": "client \"${1}\" as ${2:clientName};",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.regexp",

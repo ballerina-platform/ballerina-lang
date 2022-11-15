@@ -588,18 +588,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Namespace Declaration Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getClientDeclarationSnippet() {
-        String snippet = "client \"${1}\" as ${2:clientName};";
-
-        return new SnippetBlock(ItemResolverConstants.CLIENT, ItemResolverConstants.CLIENT, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.STATEMENT);
-    }
-
-    /**
      * Get Object Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

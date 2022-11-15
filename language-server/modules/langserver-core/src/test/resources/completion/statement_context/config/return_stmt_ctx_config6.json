@@ -869,15 +869,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "client",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "client",
-      "insertText": "client \"${1}\" as ${2:clientName};",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
