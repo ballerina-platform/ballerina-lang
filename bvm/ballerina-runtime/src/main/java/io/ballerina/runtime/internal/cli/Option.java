@@ -99,7 +99,7 @@ public class Option {
         if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
             stringVal = upperCaseValue.substring(0, stringVal.length() - 1);
         }
-        return HEX_LITERAL.matcher(stringVal).matches() || NUMBER_PATTERN.matcher(stringVal).matches();
+        return NUMBER_PATTERN.matcher(stringVal).matches() || HEX_LITERAL.matcher(stringVal).matches();
     }
 
     private void validateConfigOption(String arg) {

@@ -137,7 +137,10 @@ public class ArgumentParserNegativeTest {
                 {"0b2101"},
                 {"0B11015"},
                 {"0xkef"},
-                {"0XFSF1"}
+                {"0XFSF1"},
+                {"12d"},
+                {"-128D"},
+                {""}
         };
     }
 
@@ -150,7 +153,12 @@ public class ArgumentParserNegativeTest {
                 "2.0d",
                 "-2d",
                 "-4.5f",
-                "0x23dfp-2d"
+                "0x23dfp-2d",
+                "124.56f",
+                "-345.34F",
+                "-4.235E34f",
+                "-5.278e-45D",
+                ""
         };
     }
 
@@ -165,7 +173,11 @@ public class ArgumentParserNegativeTest {
                 "2.0d",
                 "-2d",
                 "4.5f",
-                "0x23dfp-2d"
+                "0x23dfp-2d",
+                "42.46D",
+                "-456.678d",
+                "-1.34e-6145f",
+                ""
         };
     }
 }

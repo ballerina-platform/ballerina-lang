@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.List;
@@ -105,20 +106,15 @@ public class CliUtil {
             if (isHexValueString(argument)) {
                 return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
             }
-            return Long.parseLong(argument);
+            return TypeConverter.stringToInt(argument);
         } catch (NumberFormatException e) {
             throw getInvalidArgumentError(argument, parameterName, "integer");
         }
     }
 
-    private static boolean isHexValueString(String value) {
-        String upperCaseVal = value.toUpperCase();
-        return upperCaseVal.startsWith("0X") || upperCaseVal.startsWith("-0X");
-    }
-
     private static double getFloatValue(String argument, String parameterName) {
         try {
-            return Double.parseDouble(argument);
+            return TypeConverter.stringToFloat(argument);
         } catch (NumberFormatException e) {
             throw getInvalidArgumentError(argument, parameterName, "float");
         }
@@ -126,10 +122,15 @@ public class CliUtil {
 
     private static DecimalValue getDecimalValue(String argument, String parameterName) {
         try {
-            return new DecimalValue(argument);
+            return TypeConverter.stringToDecimal(argument);
         } catch (NumberFormatException | BError e) {
             throw getInvalidArgumentError(argument, parameterName, "decimal");
         }
+    }
+
+    private static boolean isHexValueString(String value) {
+        String upperCaseVal = value.toUpperCase();
+        return upperCaseVal.startsWith("0X") || upperCaseVal.startsWith("-0X");
     }
 
     private static BError getInvalidArgumentError(String argument, String parameterName, String type) {
