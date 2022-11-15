@@ -21,7 +21,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +49,9 @@ public class ClientDeclarationContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.emptyList();
+        List<String> skipList = new ArrayList<>();
+        // Skipping due to https://github.com/ballerina-platform/ballerina-lang/issues/38234
+        skipList.add("completions_inside_generated_idl_client.json");
+        return skipList;
     }
 }

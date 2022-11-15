@@ -75,6 +75,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -312,8 +313,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
             if (compilation.diagnosticResult().diagnostics().stream()
-                    .anyMatch(diagnostic -> DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId()
-                            .equals(diagnostic.diagnosticInfo().code()))) {
+                    .anyMatch(diagnostic -> 
+                            Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
+                                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId())
+                            .contains(diagnostic.diagnosticInfo().code()))) {
                 projectPair.get().setCrashed(true);
                 projectPair.get().project().clearCaches();
             }
