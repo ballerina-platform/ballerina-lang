@@ -76,6 +76,20 @@ public class GenDocsForBalaTest {
     }
 
     @Test
+    public void generatingDocsForBalaWithCompileErrors() {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.6.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        try {
+            BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), "doc gen failed due to compilation errors: [ERROR [foo/fb.errors/1.3.6::world.bal:(24:16,24:24)] incompatible types: expected 'string', found 'int']");
+        }
+    }
+
+    @Test
     public void testDocutilsGetSummary() {
         String description = "Connects the fb communication services!@#$%^&*()-=+_';/?><|\"";
         String summary = BallerinaDocUtils.getSummary(description);
