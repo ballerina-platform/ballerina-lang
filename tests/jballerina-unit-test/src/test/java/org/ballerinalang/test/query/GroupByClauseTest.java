@@ -21,8 +21,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -55,8 +53,7 @@ public class GroupByClauseTest {
 
     @Test(description = "Test negative scenarios for group by clause")
     public void testNegativeScenarios() {
-        CompileResult negativeResult;negativeResult =
-                BCompileUtil.compile("test-src/query/group-by-clause-negative.bal");
+        CompileResult negativeResult = BCompileUtil.compile("test-src/query/group-by-clause-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int index = 0;
 
