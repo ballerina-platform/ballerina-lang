@@ -509,6 +509,20 @@ public class TypesFromFnDefinitionTest {
         Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
     }
 
+    @Test(description = "test empty positions")
+    public void testEmptyPositions() throws IOException, ExecutionException, InterruptedException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(typesFromFnDefinitionBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypesFromFnDefinition(
+                uri, null, null, this.serviceEndpoint);
+
+        Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
+
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
     private void assertPersonType(Type resolvedType) {
         Assert.assertEquals(resolvedType.typeName, SymbolServiceTestUtil.RECORD);
         Assert.assertEquals(resolvedType.name, "Person");
