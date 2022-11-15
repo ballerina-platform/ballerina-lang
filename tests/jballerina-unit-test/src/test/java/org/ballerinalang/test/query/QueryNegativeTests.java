@@ -56,7 +56,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
                 "'(string|float)'", 222, 10);
         validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found '()'", 266, 13);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);
@@ -102,11 +102,14 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in table " +
                 "constraint type 'record {| User user; |}'", 518, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', found '(error|int)'", 520, 47);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 525, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 530, 20);
         Assert.assertEquals(compileResult.getErrorCount(), index);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
-                " no expression type is equivalent to error type", 526, 15);
+                " no expression type is equivalent to error type", 544, 15);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
-                " no expression type is equivalent to error type", 535, 15);
+                " no expression type is equivalent to error type", 553, 15);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 
     @Test
@@ -118,13 +121,47 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'person'", 44, 17);
         validateWarning(compileResult, index++, "unused variable 'outputNameList'", 58, 5);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 62, 10);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 13);
-        validateWarning(compileResult, index++, "unused variable 'a'", 79, 16);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 9);
+        validateWarning(compileResult, index++, "unused variable 'a'", 79, 10);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 9);
+        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test
+    public void testQueryingEmptyTupleNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_empty_tuple_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 19, 16);
+        validateWarning(compileResult, index++, "unused variable 'x1'", 21, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 22, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 25, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 25, 16);
+        validateWarning(compileResult, index++, "unused variable 'x2'", 27, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 28, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 32, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 36, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 39, 20);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 40, 16);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 44, 20);
+        validateWarning(compileResult, index++, "unused variable 'err'", 46, 5);
+        validateError(compileResult, index++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 48, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

@@ -248,7 +248,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BLangMissingNodesHelper missingNodesHelper;
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
-    private Map<BType, BLangTypeDefinition> typeToTypeDef;
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
@@ -453,7 +452,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
-        populateTypeToTypeDefMap(typeAndClassDefs);
         defineDependentFields(typeAndClassDefs, pkgEnv);
 
         // Calculate error intersections types.
@@ -506,17 +504,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         varSymbol.tag = SymTag.ENDPOINT;
                     }
                 }
-            }
-        }
-    }
-
-    private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
-        typeToTypeDef = new HashMap<>(typeDefNodes.size());
-        for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
-                BType type = typeDefNode.typeNode.getBType();
-                typeToTypeDef.put(type, typeDefNode);
             }
         }
     }
@@ -1095,6 +1082,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                         importPkgNode.getQualifiedPackageName());
                 return;
             }
+        }
+
+        if (symResolver.isModuleGeneratedForClientDeclaration(enclPackageID, pkgId)) {
+            dlog.error(importPkgNode.pos, DiagnosticErrorCode.CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL);
+            return;
         }
 
         // Detect cyclic module dependencies. This will not detect cycles which starts with the entry package because
@@ -2218,6 +2210,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     break;
             }
+        }
         }
         typeDef.typeNode.setBType(newTypeNode);
         typeDef.typeNode.getBType().tsymbol.type = newTypeNode;
@@ -4308,7 +4301,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void validateInclusionsForNonPrivateMembers(List<BLangType> inclusions) {
         for (BLangType inclusion : inclusions) {
-            BType type = inclusion.getBType();
+            BType type = Types.getReferredType(inclusion.getBType());
 
             if (type.tag != TypeTags.OBJECT) {
                 continue;
@@ -4538,7 +4531,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             BSymbol symbol = typeDef.symbol;
-            BStructureType structureType = (BStructureType) symbol.type;
+            BStructureType structureType = (BStructureType) Types.getReferredType(symbol.type);
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
                 if (structureType.tag != TypeTags.OBJECT) {
@@ -5238,10 +5231,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        if (funcNode.receiver.getBType().tag == TypeTags.OBJECT
-                && !this.env.enclPkg.symbol.pkgID.equals(funcNode.receiver.getBType().tsymbol.pkgID)) {
+        BType receiverType = funcNode.receiver.getBType();
+        BType referredReceiverType = Types.getReferredType(receiverType);
+        if (referredReceiverType.tag == TypeTags.OBJECT
+                && !this.env.enclPkg.symbol.pkgID.equals(receiverType.tsymbol.pkgID)) {
             dlog.error(funcNode.receiver.pos, DiagnosticErrorCode.FUNC_DEFINED_ON_NON_LOCAL_TYPE,
-                       funcNode.name.value, funcNode.receiver.getBType().toString());
+                       funcNode.name.value, receiverType.toString());
             return false;
         }
         return true;
@@ -5313,26 +5308,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             fieldNames.put(fieldVariable.name.value, fieldVariable);
         }
 
-        for (BLangType typeRef : typeRefs) {
-            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            referredType = Types.getReferredType(referredType);
-            if (referredType == symTable.semanticError) {
-                continue;
-            }
-            if (referredType.tag != TypeTags.RECORD) {
-                continue;
-            }
-            var fields = ((BStructureType) referredType).fields.values();
-            for (BField field : fields) {
-                BType type = field.type;
-                BLangTypeDefinition typeDefinition = typeToTypeDef.get(type);
-                if (typeDefinition != null && typeDefinition.typeNode != null &&
-                        typeDefinition.typeNode.getKind() == RECORD_TYPE) {
-                    defineReferencedFieldsOfRecordTypeDef(typeDefinition);
-                }
-            }
-        }
-
         structureTypeNode.includedFields = typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
             referredType = Types.getReferredType(referredType);
@@ -5347,7 +5322,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
             int referredTypeTag = referredType.tag;
-            if (structureTypeNode.getBType().tag == TypeTags.OBJECT) {
+            if (Types.getReferredType(structureTypeNode.getBType()).tag == TypeTags.OBJECT) {
                 if (referredTypeTag != TypeTags.OBJECT) {
                     DiagnosticErrorCode errorCode = DiagnosticErrorCode.INCOMPATIBLE_TYPE_REFERENCE;
 
@@ -5632,7 +5607,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         for (BType constituentType : ((BIntersectionType) includedType).getConstituentTypes()) {
-            int constituentTypeTag = constituentType.tag;
+            int constituentTypeTag = Types.getReferredType(constituentType).tag;
 
             if (constituentTypeTag != TypeTags.OBJECT && constituentTypeTag != TypeTags.READONLY) {
                 return true;

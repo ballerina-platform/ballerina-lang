@@ -184,5 +184,11 @@
         }
       ]
     }
+  },
+  {
+    "description": "Compare two identical module variable declarations",
+    "oldCode": "#documentation\npublic int id = 10;",
+    "newCode": "#documentation\npublic int id = 10;",
+    "expectedOutput": "No Changes"
   }
 ]
