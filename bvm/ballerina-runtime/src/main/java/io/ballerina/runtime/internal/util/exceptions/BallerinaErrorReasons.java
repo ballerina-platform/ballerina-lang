@@ -121,6 +121,8 @@ public class BallerinaErrorReasons {
     public static final BString FAILED_TO_DECODE_BYTES = StringUtils.fromString("FailedToDecodeBytes");
 
     public static final String REG_EXP_PARSING_ERROR_IDENTIFIER = "RegularExpressionParsingError";
+    public static final BString REG_EXP_PARSING_ERROR =
+            StringUtils.fromString(BALLERINA_PREFIX.concat(REG_EXP_PARSING_ERROR_IDENTIFIER));
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

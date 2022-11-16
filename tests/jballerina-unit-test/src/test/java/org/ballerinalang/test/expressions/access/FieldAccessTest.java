@@ -46,7 +46,6 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 37);
         int i = 0;
         validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type " +
                 "that includes nil, use optional field access or member access", 32, 9);
@@ -127,7 +126,20 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
                 "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD' and type includes nil in " +
                 "record(s) 'BC'", 331, 17);
-        validateError(negativeResult, i, "undefined field 'id' in union '(AB|BC)'", 337, 5);
+        validateError(negativeResult, i++, "undefined field 'id' in union '(AB|BC)'", 337, 5);
+
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 369, 20);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 371, 11);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 373, 26);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 375, 15);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 377, 15);
+
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
