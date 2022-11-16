@@ -5973,7 +5973,6 @@ public class Desugar extends BLangNodeVisitor {
         spreadOpExpr.parent = varRefExpr.parent;
         // Replace var ref as a spread operator in list constructor context after a group by clause
         result = rewriteExpr(spreadOpExpr);
-
     }
 
     @Override

@@ -34,120 +34,175 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 
 public class GroupByClauseTest {
 
-    @Test(dataProvider = "groupby-positive-data-provider")
-    public void testGroupByWithVarRef(CompileResult result, String functionName) {
-        BRunUtil.invoke(result, functionName);
-    }
-
-    @DataProvider(name = "groupby-positive-data-provider")
-    public Object[][] groupByPositiveTestDataProvider() {
-        CompileResult result = BCompileUtil.compile("test-src/query/group-by-clause.bal");
-
-        return new Object[][]{
-                {result, "testGroupByWithVarRef"},
-                {result, "testGroupByWithVarDef"},
-                {result, "testGroupByWithVarDefAndVarRef"},
-                {result, "testNonGroupingKeyInFunctionContextWithoutPrefix"}
-        };
-    }
+//    @Test(dataProvider = "groupby-positive-data-provider")
+//    public void testGroupByWithVarRef(CompileResult result, String functionName) {
+//        BRunUtil.invoke(result, functionName);
+//    }
+//
+//    @DataProvider(name = "groupby-positive-data-provider")
+//    public Object[][] groupByPositiveTestDataProvider() {
+//        CompileResult result = BCompileUtil.compile("test-src/query/group-by-clause.bal");
+//
+//        return new Object[][]{
+//                {result, "testGroupByWithVarRef"},
+//                {result, "testGroupByWithVarDef"},
+//                {result, "testGroupByWithVarDefAndVarRef"},
+//                {result, "testNonGroupingKeyInFunctionContext"},
+//                {result, "testNonGroupingKeyInListConstructorContext"}
+//        };
+//    }
 
     @Test(description = "Test negative scenarios for group by clause")
     public void testNegativeScenarios() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/query/group-by-clause-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 55);
         int index = 0;
 
-        validateError(negativeResult, index++, "undefined symbol 'year'", 38, 18);
+        validateError(negativeResult, index++, "undefined symbol 'year'", 40, 18);
+        validateError(negativeResult, index++, "'string' sequence binding used in " +
+                "invalid context", 41, 18);
+        //TODO:FIX AND REVISIT
         validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'",
                 46, 36);
-        validateError(negativeResult, index, "operator '+' not defined for 'int' and 'string'",
+        //TODO:FIX AND REVISIT
+        validateError(negativeResult, index++, "operator '+' not defined for 'int' and 'string'",
                 54, 36);
 
-        validateError(negativeResult, index, "arguments not allowed after sequence binding argument",
-                65, 36);
-        validateError(negativeResult, index, "undefined function 'sum'",
-                65, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "arguments not allowed after sequence binding argument",
                 65, 36);
 
-        validateError(negativeResult, index, "sequence binding argument cannot be combined with other " +
-                        "arguments when assigned to rest parameter",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 69, 36);
-        validateError(negativeResult, index, "undefined function 'sum'",
-                69, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
                 69, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 73, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "arguments not allowed after sequence binding argument",
                 77, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
-                77, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'int[]'",
                 77, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 81, 36);
-        validateError(negativeResult, index, "'string' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "'string' sequence binding used in invalid context",
                 81, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 85, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 90, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 95, 36);
 
-        validateError(negativeResult, index, "undefined function 'sum'",
+        validateError(negativeResult, index++, "undefined function 'sum'",
                 99, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
                 99, 36);
 
-        validateError(negativeResult, index, "undefined function 'startsWith'",
+        validateError(negativeResult, index++, "undefined function 'startsWith'",
                 103, 36);
-        validateError(negativeResult, index, "'string' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "'string' sequence binding used in invalid context",
                 103, 36);
 
-        validateError(negativeResult, index, "undefined function 'toHexString'",
+        validateError(negativeResult, index++, "undefined function 'toHexString'",
                 107, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
                 107, 36);
 
-        validateError(negativeResult, index, "'price2' that contains a sequence binding cannot " +
-                "be used as an argument in user defined function 'userDefinedFunc1'", 116, 36);
+        validateError(negativeResult, index++, "'price2' that contains a sequence binding cannot " +
+                "be used as an argument in user defined function 'userDefinedFunc1'", 115, 36);
 
-        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
-                121, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
-                121, 36);
+        validateError(negativeResult, index++, "undefined function 'undefinedFunc'",
+                120, 36);
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                120, 36);
 
-        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
-                126, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
-                126, 36);
+        validateError(negativeResult, index++, "undefined function 'undefinedFunc'",
+                125, 36);
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                125, 36);
 
-        validateError(negativeResult, index, "undefined function 'undefinedFunc'",
-                131, 36);
-        validateError(negativeResult, index, "'int' sequence binding used in invalid context",
-                131, 36);
+        validateError(negativeResult, index++, "undefined function 'undefinedFunc'",
+                130, 36);
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                130, 36);
 
-        validateError(negativeResult, index, "'price2' that contains a sequence binding cannot be " +
-                "used as an argument in user defined function 'userDefinedFunc2'", 136, 36);
+        validateError(negativeResult, index++, "'price2' that contains a sequence binding cannot be " +
+                "used as an argument in user defined function 'userDefinedFunc2'", 135, 36);
 
-        validateError(negativeResult, index, "incompatible types: expected 'int', found 'int' sequence",
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'int' sequence",
                 152, 36);
 
-        validateError(negativeResult, index, "incompatible types: expected 'int[]', found 'int' sequence",
+        validateError(negativeResult, index++, "incompatible types: expected 'int[]', found 'int' sequence",
                 157, 36);
 
-        validateError(negativeResult, index, "arguments not allowed after sequence binding argument",
+        validateError(negativeResult, index++, "arguments not allowed after sequence binding argument",
                 165, 36);
-        validateError(negativeResult, index, "incompatible types: expected 'int[]', found 'int' sequence",
-                165, 36);
+
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'int' sequence",
+                169, 36);
+
+        validateError(negativeResult, index++, "arguments not allowed after sequence binding argument",
+                173, 36);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'int[]'",
+                173, 36);
+
+        validateError(negativeResult, index++, "incompatible types: expected 'int[]', found 'string[]'",
+                177, 36);
+
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                181, 36);
+
+        validateError(negativeResult, index++, "incompatible types: expected 'string', found 'boolean'",
+                185, 36);
+        validateError(negativeResult, index++, "incompatible types: expected 'string', " +
+                "found 'string' sequence", 185, 36);
+
+        validateError(negativeResult, index++, "incompatible types: expected 'int', " +
+                "found 'int' sequence", 189, 36);
+
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(any|error)[]', found 'int' sequence", 193, 36);
+
+        validateError(negativeResult, index++, "undefined function 'sum'", 197, 36);
+        validateError(negativeResult, index++, "undefined module 'undefined'", 197, 36);
+        validateError(negativeResult, index++, "'int' sequence binding used " +
+                "in invalid context", 197, 36);
+
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                205, 36);
+
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                209, 36);
+
+        validateError(negativeResult, index++, "'int' sequence binding used in invalid context",
+                213, 36);
+
+        validateError(negativeResult, index++, "invalid usage of spread operator: fixed " +
+                "length list expected", 221, 36);
+
+        //TODO:CHECK
+        validateError(negativeResult, index++, "incompatible types: expected '[int[]]'," +
+                " found '[int[]][]'", 223, 36);
+        //TODO:CHECK
+        validateError(negativeResult, index++, "sequence binding without an expected type or with" +
+                " only a readonly type is not supported in this version", 229, 36);
+        //TODO:CHECK
+        validateError(negativeResult, index++, "sequence binding without an expected type or " +
+                "with only a readonly type is not supported in this version", 233, 36);
+
+        //TODO readonly,intersection,typerefdec,typedef?
+
+
+
+
+
+
+
 
 
 

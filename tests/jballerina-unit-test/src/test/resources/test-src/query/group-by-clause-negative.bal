@@ -66,7 +66,7 @@ function testNonGroupingKeyInLangLibFunctionContext() {
 
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
-        select sum(1, price2);
+        select sum((price2));
 
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
@@ -164,17 +164,9 @@ function testNonGroupingKeyInLangLibFunctionContextWithPrefix() {
         group by price1
         select int:sum(price2, 1);
 
-
-
-
-
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
-        select int:sum(1, price2);
-
-    int[] _ = from var {cusId, price1, price2, name} in orderList
-        group by price1
-        select int:sum(1, 2);
+        select int:sum((price2));
 
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
@@ -183,20 +175,6 @@ function testNonGroupingKeyInLangLibFunctionContextWithPrefix() {
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
         select int:sum(name);
-
-    int[] _ = from var {cusId, price1, price2, name} in orderList
-        group by price1
-        select int:sum();
-
-    int[] _ = from var {cusId, price1, price2, name} in orderList
-        group by price1
-        let int[] a = [1, 2]
-        select int:sum(...a);
-
-    int[] _ = from var {cusId, price1, price2, name} in orderList
-        group by price1
-        let int b = 1
-        select int:sum(b);
 
     int[] _ = from var {cusId, price1, price2, name} in orderList
         group by price1
@@ -210,7 +188,7 @@ function testNonGroupingKeyInLangLibFunctionContextWithPrefix() {
         group by price1
         select int:toHexString(price2);
 
-    string[] _ = from var {price1, price2, name} in orderList
+    int[] _ = from var {price1, price2, name} in orderList
         group by price1
         select array:length(price2);
 
@@ -219,4 +197,50 @@ function testNonGroupingKeyInLangLibFunctionContextWithPrefix() {
         select undefined:sum(price2);
 }
 
+function testNonGroupingKeyInLangLibFunctionContextWithExpression() {
+    Order[] orderList = getOrders();
 
+    int[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select price2.sum();
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select price2.toHexString();
+
+    string[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select price2.concat();
+}
+
+function testNonGroupingKeyInListConstructorContext() {
+    Order[] orderList = getOrders();
+
+    int[*][*] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select [price2];
+
+    [int[]] a = from var {price1, price2, name} in orderList
+        group by price1
+        select [price2];
+
+    var _ = from var {price1, price2, name} in orderList
+        group by price1
+        select [price2];
+
+    readonly[] _ = from var {price1, price2, name} in orderList
+        group by price1
+        select [price2];
+}
+
+//TODO
+function testNonGroupingKeyWithoutTypebinding() {
+    //int[] _ = from var item in orderList
+      //  group by int a = item.price1
+        //select (item.price2);
+}
+
+//TODO
+function testNonGroupingKeyInLangLibFunctionContextWhenNested() {
+
+}

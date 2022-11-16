@@ -785,7 +785,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_SEQUENCE_ARGUMENT_IN_FUNCTION("BCE4038", "invalid.sequence.argument.in.function"),
     SEQUENCE_BINDING_IN_INVALID_CONTEXT("BCE4039", "sequence.binding.in.invalid.context"),
     SEQUENCE_BINDING_FOLLOWED_BY_ANOTHER_ARG("BCE4040", "sequence.binding.followed.by.another.arg"),
-    SEQUENCE_BINDING_WITH_ADDITIONAL_ARG("BCE4041", "sequence.binding.with.additional.arg")
+    SEQUENCE_BINDING_WITH_ADDITIONAL_ARG("BCE4041", "sequence.binding.with.additional.arg"),
+    SEQUENCE_BINDING_CONTEXT_NOT_SUPPORTED("BCE4042", "sequence.context.binding.not.supported")
     ;
 
     private String diagnosticId;
