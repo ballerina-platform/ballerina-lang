@@ -37,7 +37,7 @@ import io.ballerina.projectdesign.model.entity.Attribute;
 import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.tools.text.LineRange;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,10 +57,10 @@ public class EntityModelGenerator {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
-    private final String moduleRootPath;
+    private final Path moduleRootPath;
 
     public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
-                                String moduleRootPath) {
+                                Path moduleRootPath) {
 
         this.semanticModel = semanticModel;
         this.packageId = packageId;
@@ -291,7 +291,7 @@ public class EntityModelGenerator {
         LineRange lineRange = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
-            String filePath = moduleRootPath + File.separator + typeLineRange.filePath();
+            String filePath = moduleRootPath.resolve(typeLineRange.filePath()).toAbsolutePath().toString();
             lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
         }
         return lineRange;
