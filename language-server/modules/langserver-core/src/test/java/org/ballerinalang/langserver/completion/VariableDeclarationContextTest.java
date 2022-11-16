@@ -45,15 +45,4 @@ public class VariableDeclarationContextTest extends CompletionTest {
     public String getTestResourceDir() {
         return "variable-declaration";
     }
-
-    @Override
-    public List<String> skipList() {
-        return Arrays.asList(
-                // expected type cases
-            "var_def_ctx_config7.json",
-            "var_def_ctx_config20.json",
-            "var_def_ctx_config16.json",
-            "var_def_in_obj_constructor_config1.json"
-        );
-    }
 }
