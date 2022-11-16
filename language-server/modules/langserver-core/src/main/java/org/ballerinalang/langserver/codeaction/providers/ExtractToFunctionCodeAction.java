@@ -48,10 +48,12 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -220,7 +222,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
                 CodeActionKind.RefactorExtract);
-
+        addRenamePopup(context, codeAction, replaceFuncCallStartPos);
         return List.of(codeAction);
     }
 
@@ -386,7 +388,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 replaceFunctionCall);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-
+        addRenamePopup(context, codeAction, replaceEdit.getRange().getStart());
         return List.of(codeAction);
     }
 
@@ -538,6 +540,15 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         }
 
         return false;
+    }
+
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactoredRenameSupported()) {
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(), position)));
+        }
     }
 
     /*
