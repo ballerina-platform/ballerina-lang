@@ -150,7 +150,8 @@ public class JsonToRecordMapper {
         List<TypeDefinitionNode> typeDefNodes = recordToTypeDescNodes.entrySet().stream()
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-                    String recordTypeName = (entry.getKey() == null || entry.getKey().equals("")) ? NEW_RECORD_NAME :
+                    String recordTypeName = entry.getKey() == null ?
+                            (recordName == null || recordName.equals("")) ? NEW_RECORD_NAME : recordName :
                             entry.getKey();
                     IdentifierToken typeName = AbstractNodeFactory
                             .createIdentifierToken(escapeIdentifier(recordTypeName));

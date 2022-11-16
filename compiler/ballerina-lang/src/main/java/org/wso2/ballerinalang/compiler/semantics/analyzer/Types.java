@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
@@ -171,6 +172,12 @@ public class Types {
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
     private static final String BASE_16 = "base16";
+
+    private static final BigDecimal DECIMAL_MAX =
+            new BigDecimal("9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
+
+    private static final BigDecimal DECIMAL_MIN =
+            new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -1819,63 +1826,14 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                BType constraint = getReferredType(((BXMLType) collectionType).constraint);
-                while (constraint.tag == TypeTags.XML) {
-                    collectionType = constraint;
-                    constraint = getReferredType(((BXMLType) collectionType).constraint);
+                BType typedBindingPatternType = getTypedBindingPatternTypeForXmlCollection(collectionType);
+                if (typedBindingPatternType == null) {
+                    foreachNode.varType = symTable.semanticError;
+                    foreachNode.resultType = symTable.semanticError;
+                    foreachNode.nillableResultType = symTable.semanticError;
+                    return;
                 }
-                switch (constraint.tag) {
-                    case TypeTags.XML_ELEMENT:
-                        varType = symTable.xmlElementType;
-                        break;
-                    case TypeTags.XML_COMMENT:
-                        varType = symTable.xmlCommentType;
-                        break;
-                    case TypeTags.XML_TEXT:
-                        varType = symTable.xmlTextType;
-                        break;
-                    case TypeTags.XML_PI:
-                        varType = symTable.xmlPIType;
-                        break;
-                    case TypeTags.NEVER:
-                        varType = symTable.neverType;
-                        break;
-                    case TypeTags.INTERSECTION:
-                        varType = getReferredType(((BIntersectionType) constraint).getEffectiveType());
-                        break;
-                    case TypeTags.UNION:
-                        Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
-                        Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
-                                ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                        if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
-                            varType = symTable.xmlType;
-                        } else {
-                            LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
-                            for (BType subType : collectionTypes) {
-                                switch (subType.tag) {
-                                    case TypeTags.XML_ELEMENT:
-                                        collectionTypesInSymTable.add(symTable.xmlElementType);
-                                        break;
-                                    case TypeTags.XML_COMMENT:
-                                        collectionTypesInSymTable.add(symTable.xmlCommentType);
-                                        break;
-                                    case TypeTags.XML_TEXT:
-                                        collectionTypesInSymTable.add(symTable.xmlTextType);
-                                        break;
-                                    case TypeTags.XML_PI:
-                                        collectionTypesInSymTable.add(symTable.xmlPIType);
-                                        break;
-                                }
-                            }
-                            varType = BUnionType.create(null, collectionTypesInSymTable);
-                        }
-                        break;
-                    default:
-                        foreachNode.varType = symTable.semanticError;
-                        foreachNode.resultType = symTable.semanticError;
-                        foreachNode.nillableResultType = symTable.semanticError;
-                        return;
-                }
+                varType = typedBindingPatternType;
                 break;
             case TypeTags.XML_TEXT:
                 varType = symTable.xmlTextType;
@@ -1961,6 +1919,56 @@ public class Types {
         bLangInputClause.nillableResultType = nextMethodReturnType;
     }
 
+    private BType getTypedBindingPatternTypeForXmlCollection(BType collectionType) {
+        BType constraint = getReferredType(((BXMLType) collectionType).constraint);
+        while (constraint.tag == TypeTags.XML) {
+            collectionType = constraint;
+            constraint = getReferredType(((BXMLType) collectionType).constraint);
+        }
+        switch (constraint.tag) {
+            case TypeTags.XML_ELEMENT:
+                return symTable.xmlElementType;
+            case TypeTags.XML_COMMENT:
+                return symTable.xmlCommentType;
+            case TypeTags.XML_TEXT:
+                return symTable.xmlTextType;
+            case TypeTags.XML_PI:
+                return symTable.xmlPIType;
+            case TypeTags.NEVER:
+                return symTable.neverType;
+            case TypeTags.INTERSECTION:
+                return getReferredType(((BIntersectionType) constraint).getEffectiveType());
+            case TypeTags.UNION:
+                Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
+                Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
+                        ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
+                if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
+                    return symTable.xmlType;
+                } else {
+                    LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
+                    for (BType subType : collectionTypes) {
+                        switch (subType.tag) {
+                            case TypeTags.XML_ELEMENT:
+                                collectionTypesInSymTable.add(symTable.xmlElementType);
+                                break;
+                            case TypeTags.XML_COMMENT:
+                                collectionTypesInSymTable.add(symTable.xmlCommentType);
+                                break;
+                            case TypeTags.XML_TEXT:
+                                collectionTypesInSymTable.add(symTable.xmlTextType);
+                                break;
+                            case TypeTags.XML_PI:
+                                collectionTypesInSymTable.add(symTable.xmlPIType);
+                                break;
+                        }
+                    }
+                    return BUnionType.create(null, collectionTypesInSymTable);
+                }
+            default:
+                return null;
+        }
+    }
+
     private BType visitCollectionType(BLangInputClause bLangInputClause, BType collectionType) {
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1977,8 +1985,8 @@ public class Types {
                 BRecordType recordType = (BRecordType) collectionType;
                 return inferRecordFieldType(recordType);
             case TypeTags.XML:
-                BXMLType xmlType = (BXMLType) collectionType;
-                return xmlType.constraint;
+                BType bindingPatternType = getTypedBindingPatternTypeForXmlCollection(collectionType);
+                return bindingPatternType == null ? symTable.semanticError : bindingPatternType;
             case TypeTags.XML_TEXT:
                 return symTable.xmlTextType;
             case TypeTags.TABLE:
@@ -4036,6 +4044,24 @@ public class Types {
                 return false;
             }
 
+        }
+        return true;
+    }
+
+    boolean isValidDecimalNumber(Location pos, String decimalLiteral) {
+        BigDecimal bd;
+        try {
+            bd = new BigDecimal(decimalLiteral, MathContext.DECIMAL128);
+        } catch (NumberFormatException e) {
+            // If there is an error, that means there is a parsing error.
+            if (dlog.errorCount() == 0) {
+                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, decimalLiteral, symTable.decimalType);
+            }
+            return false;
+        }
+        if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
+            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, decimalLiteral, symTable.decimalType);
+            return false;
         }
         return true;
     }
@@ -6517,7 +6543,7 @@ public class Types {
                     // skip check for fields with self referencing type and not required fields.
                     if ((SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.REQUIRED) ||
                             !SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.OPTIONAL)) &&
-                            !visitedTypeSet.contains(field.type) &&
+                            visitedTypeSet.add(field.type) &&
                             isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type, visitedTypeSet)) {
                         return true;
                     }
@@ -7056,11 +7082,37 @@ public class Types {
     public static class CommonAnalyzerData {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
+        boolean queryCompletesEarly = false;
         boolean checkWithinQueryExpr = false;
+        HashSet<BType> completeEarlyErrorList = new HashSet<>();
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
+    }
+
+    /**
+     * Enum to represent query construct type.
+     *
+     * @since 2201.3.0
+     */
+    enum QueryConstructType {
+        DEFAULT,
+        STREAM,
+        MAP,
+        TABLE,
+        ACTION
+    }
+
+    QueryConstructType getQueryConstructType(BLangQueryExpr queryExpr) {
+        if (queryExpr.isMap) {
+            return QueryConstructType.MAP;
+        } else if (queryExpr.isTable) {
+            return QueryConstructType.TABLE;
+        } else if (queryExpr.isStream) {
+            return QueryConstructType.STREAM;
+        }
+        return QueryConstructType.DEFAULT;
     }
 
     public byte[] convertToByteArray(String literalExpr) {
