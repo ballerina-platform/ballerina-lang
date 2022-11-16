@@ -411,6 +411,7 @@ public class Desugar extends BLangNodeVisitor {
     private int varargCount = 0;
     private int funcParamCount = 1;
     private boolean isVisitingQuery;
+    private boolean desugarToReturn;
 
     // Safe navigation related variables
     private Stack<BLangMatchStatement> matchStmtStack = new Stack<>();
@@ -5064,9 +5065,14 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangDo doNode) {
         BLangOnFailClause currentOnFailClause = this.onFailClause;
+        boolean prevDesugarToReturn = this.desugarToReturn;
         analyzeOnFailClause(doNode.onFailClause, doNode.body);
+        if (this.onFailClause != null) {
+            this.desugarToReturn = false;
+        }
         result = rewrite(doNode.body, this.env);
         swapAndResetEnclosingOnFail(currentOnFailClause);
+        this.desugarToReturn = prevDesugarToReturn;
     }
 
     private void swapAndResetEnclosingOnFail(BLangOnFailClause onFailClause) {
@@ -8074,7 +8080,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null && !this.isVisitingQuery) {
+        if (this.onFailClause != null && !this.desugarToReturn) {
             if (this.onFailClause.bodyContainsFail) {
                 result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
@@ -8430,10 +8436,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         boolean prevIsVisitingQuery = this.isVisitingQuery;
+        boolean prevDesugarToReturn = this.desugarToReturn;
         this.isVisitingQuery = true;
+        this.desugarToReturn = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevIsVisitingQuery;
+        this.desugarToReturn = prevDesugarToReturn;
     }
 
     List<BLangStatement> getVisibleXMLNSStmts(SymbolEnv env) {
@@ -8447,10 +8456,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         boolean prevIsVisitingQuery = this.isVisitingQuery;
+        boolean prevDesugarToReturn = this.desugarToReturn;
+        this.desugarToReturn = true;
         this.isVisitingQuery = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevIsVisitingQuery;
+        this.desugarToReturn = prevDesugarToReturn;
     }
 
     @Override
