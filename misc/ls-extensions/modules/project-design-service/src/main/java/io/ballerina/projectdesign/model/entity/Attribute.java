@@ -18,7 +18,7 @@
 
 package io.ballerina.projectdesign.model.entity;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.projectdesign.model.ModelElement;
 import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Attribute extends ComponentModelItem {
+public class Attribute extends ModelElement {
 
     private final String name;
     private final String type;

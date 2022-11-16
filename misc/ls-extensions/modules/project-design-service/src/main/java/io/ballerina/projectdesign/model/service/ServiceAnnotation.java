@@ -18,7 +18,7 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.projectdesign.model.ModelElement;
 import io.ballerina.tools.text.LineRange;
 
 /**
@@ -26,13 +26,13 @@ import io.ballerina.tools.text.LineRange;
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation extends ComponentModelItem {
+public class ServiceAnnotation extends ModelElement {
 
     private final String id;
     private final String label;
 
     public ServiceAnnotation() {
-        super(null);
+        super();
         this.id = "";
         this.label = "";
     }
