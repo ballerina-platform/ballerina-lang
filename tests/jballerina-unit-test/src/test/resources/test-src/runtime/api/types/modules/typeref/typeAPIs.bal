@@ -213,6 +213,29 @@ function validateValueWithUnion() {
     test:assertTrue(result);
 }
 
+
+type Sample record {
+    readonly int id;
+    readonly int depId;
+    string name;
+};
+
+type RecordRef Sample;
+
+type RecordRef2 RecordRef;
+
+type RecordTable table<RecordRef2> key(id, depId);
+
+function validateTableMultipleKey() {
+    RecordTable recTab = table [{id: 101, depId: 99, name: "aaa"}];
+    boolean result = validateTableKeys(recTab);
+    test:assertTrue(result);
+}
+
+function validateTableKeys(any value) returns boolean = @java:Method { 
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
+} external;
+
 public function validateGetDetailType(any value) returns boolean = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.TypeReference"
 } external;

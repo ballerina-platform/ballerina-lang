@@ -2959,7 +2959,7 @@ public class TypeChecker {
         int lhsValTypeTag = lhsValType.getTag();
         int rhsValTypeTag = rhsValType.getTag();
         if (rhsValTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            rhsValType = ((BTypeReferenceType) rhsValType).getReferredType();
+            rhsValType = TypeUtils.getReferredType(rhsValType);
             rhsValTypeTag = rhsValType.getTag();
         }
 

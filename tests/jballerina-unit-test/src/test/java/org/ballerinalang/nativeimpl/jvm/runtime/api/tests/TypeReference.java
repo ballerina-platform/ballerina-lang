@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -311,6 +312,21 @@ public class TypeReference {
             throw error;
         }
         if (type.getTag() != describingType.getTag() || !type.toString().equals(describingType.toString())) {
+            throw error;
+        }
+        return true;
+    }
+
+    public static boolean validateTableKeys(BTable table) {
+        BError error = ErrorCreator.createError(StringUtils.fromString("Table keys does not provide type-reference " +
+                "type."));
+        if (table.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw error;
+        }
+        if (table.size() != 1) {
+            throw error;
+        }
+        if (table.getKeyType().getTag() !=  TypeTags.TUPLE_TAG) {
             throw error;
         }
         return true;
