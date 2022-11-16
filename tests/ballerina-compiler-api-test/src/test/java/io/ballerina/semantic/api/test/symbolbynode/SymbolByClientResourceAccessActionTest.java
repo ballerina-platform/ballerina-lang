@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -60,7 +61,11 @@ public class SymbolByClientResourceAccessActionTest extends SymbolByNodeTest {
                 ResourceMethodSymbol symbol =
                         (ResourceMethodSymbol) assertSymbol(clientResourceAccessActionNode, model, RESOURCE_METHOD,
                                                                 "post");
-                symbol.resourcePath();
+
+                // expression
+                assertSymbol(clientResourceAccessActionNode.expression(), model, VARIABLE, "cl");
+
+                // Resource-path
                 assertEquals(symbol.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
 
                 PathSegmentList pathSegmentList = (PathSegmentList) symbol.resourcePath();
@@ -90,7 +95,7 @@ public class SymbolByClientResourceAccessActionTest extends SymbolByNodeTest {
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 2);
+        assertEquals(getAssertCount(), 3);
     }
 
     private Symbol assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {

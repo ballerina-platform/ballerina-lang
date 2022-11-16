@@ -3840,7 +3840,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         if (errorExpressionType == symTable.semanticError ||
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
-            dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
+            dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpressionType);
         }
         data.notCompletedNormally = true;
     }
@@ -3963,6 +3963,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private void flatMapAndGetObjectTypes(Set<BType> result, BType type) {
+        type = Types.getReferredType(type);
         if (!types.checkListenerCompatibilityAtServiceDecl(type)) {
             return;
         }

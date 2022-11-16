@@ -107,6 +107,7 @@
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByReferenceTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
+            <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByActionTest" />
 
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeNarrowedTypeDescriptorTest" />
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
@@ -187,6 +188,7 @@
             <!--Type Of-->
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInCallStatementsTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfInResourceAccessActionTest" />
+            <class name="io.ballerina.semantic.api.test.typeof.TypeOfNegativeTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfQueryExprTest" />
             <class name="io.ballerina.semantic.api.test.typeof.TypeOfRegressionTest" />
 

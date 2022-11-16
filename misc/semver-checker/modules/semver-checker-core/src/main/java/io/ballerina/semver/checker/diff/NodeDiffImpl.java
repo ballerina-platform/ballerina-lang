@@ -78,8 +78,6 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             this.diffType = DiffType.NEW;
         } else if (newNode == null && oldNode != null) {
             this.diffType = DiffType.REMOVED;
-        } else if (newNode != null) {
-            this.diffType = DiffType.MODIFIED;
         } else {
             this.diffType = DiffType.UNKNOWN;
         }
@@ -235,8 +233,10 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
                 }
                 nodeDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeDiff);
-            } else if (nodeDiff.getType() == DiffType.NEW || nodeDiff.getType() == DiffType.REMOVED
-                    || nodeDiff.getMessage().isPresent()) {
+            } else if (nodeDiff.getType() == DiffType.NEW || nodeDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(nodeDiff);
+            } else if (nodeDiff.getMessage().isPresent()) {
+                nodeDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeDiff);
             }
 
