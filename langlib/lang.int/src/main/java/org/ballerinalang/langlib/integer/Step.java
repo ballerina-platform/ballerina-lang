@@ -23,9 +23,6 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-
 /**
  * Native implementation of lang.int:externalCheckStep(int).
  *
