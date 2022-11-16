@@ -1573,7 +1573,7 @@ public class BIRPackageSymbolEnter {
                     BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
                     bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BTupleMember> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    List<BTupleMember> tupleMembers = new ArrayList<>(tupleMemberCount);
                     BSymbol tupleOwner = tupleTypeSymbol.owner;
                     PackageID tuplePkg = tupleTypeSymbol.pkgID;
 
@@ -1587,9 +1587,9 @@ public class BIRPackageSymbolEnter {
 
                         defineAnnotAttachmentSymbols(inputStream, varSymbol);
 
-                        tupleMemberTypes.add(new BTupleMember(memberType, varSymbol));
+                        tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
-                    bTupleType.memberTypes = tupleMemberTypes;
+                    bTupleType.memberTypes = tupleMembers;
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();

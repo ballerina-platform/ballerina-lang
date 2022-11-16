@@ -216,17 +216,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        List<BTupleMember> newMemberTypes = new ArrayList<>();
+        List<BTupleMember> newTupleMembers = new ArrayList<>();
 
-        List<BType> tupleTypes = typeInSymbol.getTupleTypes();
+        List<BTupleMember> tupleMembers = typeInSymbol.getTupleMembers();
         boolean areAllSameType = true;
 
-        for (BType type : tupleTypes) {
-            BType newType = resolve(type, boundType);
-            areAllSameType &= newType == type;
-            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
-                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
-            newMemberTypes.add(new BTupleMember(newType, varSymbol));
+        for (BTupleMember tupleMember : tupleMembers) {
+            BType newType = resolve(tupleMember.type, boundType);
+            areAllSameType &= newType == tupleMember.type;
+            BVarSymbol varSymbol = createNewVarSymbol(tupleMember.symbol, newType);
+            newTupleMembers.add(new BTupleMember(newType, varSymbol));
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
@@ -235,7 +234,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.tsymbol, newMemberTypes, newRestType, typeInSymbol.flags,
+        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 

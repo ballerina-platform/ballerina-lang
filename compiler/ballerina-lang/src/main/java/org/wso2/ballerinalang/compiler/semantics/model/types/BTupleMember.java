@@ -21,7 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 /**
  * {@code {@link BTupleMember}} represents a member in a tuple.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class BTupleMember {
 

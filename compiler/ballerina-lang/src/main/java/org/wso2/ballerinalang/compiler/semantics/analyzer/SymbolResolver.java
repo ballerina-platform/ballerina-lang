@@ -1459,11 +1459,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         if (hasUndefinedMember) {
             return symTable.noType;
         }
-        List<BTupleMember> tupleMemberTypes = new ArrayList<>();
-        memberTypes.forEach(member -> tupleMemberTypes.add(new BTupleMember(member.getBType(),
+        List<BTupleMember> tupleMembers = new ArrayList<>();
+        memberTypes.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
                 new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
                         member.symbol.owner, member.pos, SOURCE))));
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMemberTypes);
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
