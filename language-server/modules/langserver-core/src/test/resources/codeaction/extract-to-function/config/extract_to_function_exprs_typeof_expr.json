@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_typeof_expr.bal",
+  "description": "Extract to function for expressions, typeof expression",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int localVar) returns typedesc\u003cint\u003e {\n    return typeof localVar;\n}\n"
+          "newText": "\n\nfunction extracted(int localVar) returns typedesc<int> {\n    return typeof localVar;\n}\n"
         },
         {
           "range": {
@@ -41,8 +42,19 @@
           },
           "newText": "extracted(localVar)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_typeof_expr.bal",
+          {
+            "line": 2,
+            "character": 35
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, typeof expression"
+  ]
 }
