@@ -69,13 +69,13 @@ public class TableWithRecordKeySpecifierTest {
     }
 
     @Test(description = "Test table with default record fields as key fields",
-            dataProvider = "functionsToTestTableWithDefaultValueFieldAsKeyField")
+            dataProvider = "tableWithDefaultableRecordFieldAsKeyFieldTestFunctions")
     public void testTableWithDefaultValueFieldAsKeyField(String function) {
         BRunUtil.invoke(result, function);
     }
 
     @DataProvider
-    public  Object[] functionsToTestTableWithDefaultValueFieldAsKeyField() {
+    public  Object[] tableWithDefaultableRecordFieldAsKeyFieldTestFunctions() {
         return new String[] {
                 "testDefaultValueFieldAsKeyField",
                 "testDefaultValueFieldAsKeyField2",
