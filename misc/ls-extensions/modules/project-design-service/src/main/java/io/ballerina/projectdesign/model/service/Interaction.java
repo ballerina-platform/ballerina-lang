@@ -18,7 +18,7 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
+import io.ballerina.projectdesign.model.ModelElement;
 import io.ballerina.tools.text.LineRange;
 
 /**
@@ -26,7 +26,7 @@ import io.ballerina.tools.text.LineRange;
  *
  * @since 2201.2.2
  */
-public class Interaction extends ComponentModelItem {
+public class Interaction extends ModelElement {
     private final ResourceId resourceId;
     private final String connectorType;
 
