@@ -423,6 +423,13 @@ public class SymbolFactory {
         }
         String name = symbol.getOriginalName().getValue().isBlank() ? null : symbol.getOriginalName().getValue();
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.type);
+
+        // Get the referred type of type reference, if the symbol is defined within a langlib.
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE && symbol.pkgID.getOrgName().getValue().equals(
+                "ballerina") && symbol.pkgID.getName().getValue().startsWith("lang.")) {
+            typeDescriptor = ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor();
+        }
+
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
