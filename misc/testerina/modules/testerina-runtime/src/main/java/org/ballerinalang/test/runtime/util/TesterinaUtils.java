@@ -47,6 +47,7 @@ import java.util.regex.Pattern;
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -142,6 +143,9 @@ public class TesterinaUtils {
         }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
+
+        // start TRAP signal handler which produces the strand dump
+        startTrapSignalHandler();
 
         // This will init and start the test module.
         startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args);

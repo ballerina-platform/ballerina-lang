@@ -147,7 +147,7 @@ function moduleStatusReport(ReportData data) {
     data.failedCases().forEach(result => tests.push({
         "name": result.fullName(),
         "status": "FAILURE",
-        "failureMessage": result.message()
+        "failureMessage": replaceDoubleQuotes(result.message())
     }));
     data.skippedCases().forEach(result => tests.push({
         "name": result.fullName(),
@@ -167,4 +167,16 @@ function moduleStatusReport(ReportData data) {
     if err is error {
         println(err.message());
     }
+}
+
+function replaceDoubleQuotes(string originalString) returns string {
+    string updatedString = "";
+    foreach string chr in originalString {
+        if chr == "\"" {
+            updatedString += "\\\"";
+        } else {
+            updatedString += chr;
+        }
+    }
+    return updatedString;
 }
