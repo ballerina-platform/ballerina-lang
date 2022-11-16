@@ -33,15 +33,15 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class Step {
 
-    public static long checkStep(long step) {
+    public static long checkStepDirection(long step) {
         if (step == 0) {
-            throw ErrorCreator.createError(getModulePrefixedReason(INT_LANG_LIB,
-                            BallerinaErrorReasons.ZERO_STEP_RANGE_ERROR_IDENTIFIER),
+            throw ErrorCreator.createError(BallerinaErrorReasons.ZERO_STEP_RANGE_ERROR,
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.RANGE_WITH_ZERO_STEP));
-        } else if (step > 0) {
-            return -1;
-        } else {
-            return 1;
         }
+
+        if (step > 0) {
+            return -1;
+        }
+        return 1;
     }
 }

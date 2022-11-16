@@ -186,5 +186,5 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
 
 isolated function externalCheckStep(int step) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.integer.Step",
-    name: "checkStep"
+    name: "checkStepDirection"
 } external;
