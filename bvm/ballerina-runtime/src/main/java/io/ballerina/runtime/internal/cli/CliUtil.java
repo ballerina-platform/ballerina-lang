@@ -35,7 +35,6 @@ import java.util.List;
  */
 public class CliUtil {
 
-    private static final String HEX_PREFIX = "0X";
     private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s' for parameter '%s', expected %s value";
 
 
@@ -103,9 +102,6 @@ public class CliUtil {
 
     private static long getIntegerValue(String argument, String parameterName) {
         try {
-            if (isHexValueString(argument)) {
-                return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
-            }
             return TypeConverter.stringToInt(argument);
         } catch (NumberFormatException e) {
             throw getInvalidArgumentError(argument, parameterName, "integer");
@@ -126,11 +122,6 @@ public class CliUtil {
         } catch (NumberFormatException | BError e) {
             throw getInvalidArgumentError(argument, parameterName, "decimal");
         }
-    }
-
-    private static boolean isHexValueString(String value) {
-        String upperCaseVal = value.toUpperCase();
-        return upperCaseVal.startsWith("0X") || upperCaseVal.startsWith("-0X");
     }
 
     private static BError getInvalidArgumentError(String argument, String parameterName, String type) {

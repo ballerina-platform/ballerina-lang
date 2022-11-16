@@ -130,17 +130,23 @@ public class ArgumentParserNegativeTest {
     }
 
     @DataProvider(name = "intValues")
-    public Object[][] intValues() {
-        return new Object[][]{
-                {"5ss"},
-                {"0c10"},
-                {"0b2101"},
-                {"0B11015"},
-                {"0xkef"},
-                {"0XFSF1"},
-                {"12d"},
-                {"-128D"},
-                {""}
+    public Object[] intValues() {
+        return new Object[]{
+                "10.0",
+                "142.5",
+                "5ss",
+                "0c10",
+                "0b2101",
+                "0B11015",
+                "0x1efa2",
+                "-0x1efa2",
+                "0XFAF1",
+                "-0XFAF1",
+                "0xkef",
+                "0XFSF1",
+                "12d",
+                "-128D",
+                ""
         };
     }
 

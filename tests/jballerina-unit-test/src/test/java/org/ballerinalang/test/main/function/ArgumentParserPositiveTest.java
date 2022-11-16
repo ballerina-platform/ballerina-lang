@@ -155,11 +155,7 @@ public class ArgumentParserPositiveTest {
     public Object[][] intValues() {
         return new Object[][]{
                 {"10", "10"},
-                {"-10", "-10"},
-                {"0x1efa2", "126882"},
-                {"-0x1efa2", "-126882"},
-                {"0XFAF1", "64241"},
-                {"-0XFAF1", "-64241"}
+                {"-10", "-10"}
         };
     }
 
