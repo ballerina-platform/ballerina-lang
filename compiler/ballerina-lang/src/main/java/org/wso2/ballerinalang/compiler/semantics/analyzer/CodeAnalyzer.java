@@ -431,7 +431,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        if (Symbols.isPublic(funcNode.symbol)) {
+        if (Symbols.isPublic(funcNode.symbol) && !isMethodInServiceDeclaration(funcNode)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
                                                                               true,
                                                                               funcNode.pos));
@@ -459,6 +459,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
 
         validateNamedWorkerUniqueReferences(data);
+    }
+
+    private boolean isMethodInServiceDeclaration(BLangFunction func) {
+        BLangNode parent = func.parent;
+        return parent.getKind() == NodeKind.CLASS_DEFN &&
+                Symbols.isFlagOn(((BLangClassDefinition) parent).symbol.flags, Flags.SERVICE);
     }
 
     private void validateNamedWorkerUniqueReferences(AnalyzerData data) {
