@@ -66,7 +66,7 @@ public class ImportsAcceptor {
         //The project should not be empty.
         String currentPkgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
         String currentOrgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageOrg().value());
-        
+
         return (orgName, codeActionModuleId) -> {
             boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
@@ -89,7 +89,7 @@ public class ImportsAcceptor {
                         !modulePrefix.equals(codeActionModuleId.modulePrefix())) {
                     moduleName = codeActionModuleId.moduleName() + " as " + codeActionModuleId.modulePrefix();
                 }
-                
+
                 pkgName = orgName.isEmpty() || orgName.equals(currentOrgName) ?
                         moduleName : orgName + "/" + moduleName;
                 newImports.add(pkgName);
@@ -127,7 +127,7 @@ public class ImportsAcceptor {
         int endCol = 0;
         int endLine = lastImport.isEmpty() ? 0 : lastImport.get().location().lineRange().endLine().line();
 
-        String editText = "import " + pkgName + ";\n";
+        String editText = String.format("import %s;%n", pkgName);
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         return new TextEdit(range, editText);
     }
