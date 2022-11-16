@@ -17,13 +17,20 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.TextEdit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Test Cases for CodeActions.
@@ -52,6 +59,52 @@ public class CreateVariableTest extends AbstractCodeActionTest {
     @Test(dataProvider = "negative-test-data-provider")
     public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
         super.negativeTest(config);
+    }
+
+    @Override
+    protected boolean validateAndModifyArguments(JsonObject actualCommand,
+                                                 JsonArray actualArgs,
+                                                 JsonArray expArgs,
+                                                 Path sourceRoot,
+                                                 Path sourcePath,
+                                                 List<TextEdit> actualEdits,
+                                                 TestConfig testConfig) {
+        if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
+            if (actualArgs.size() == 2) {
+                Optional<String> actualFilePath =
+                        PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
+                                .map(path -> path.toUri().toString().replace(sourceRoot.toUri().toString(), ""));
+                int actualRenamePosition = actualArgs.get(1).getAsInt();
+                String expectedFilePath = expArgs.get(0).getAsString();
+                int expectedRenamePosition = expArgs.get(1).getAsInt();
+                if (actualFilePath.isPresent()) {
+                    String actualPath = actualFilePath.get();
+                    if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
+                        actualPath = actualFilePath.get().substring(1);
+                    }
+                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))) {
+                        if (System.lineSeparator().equals("\r\n")) {
+                            int newImportCount = (int) actualEdits.stream()
+                                    .filter(edit -> edit.getNewText().startsWith("import ")).count();
+                            int noOfNewLinesBeforeCursorPos = testConfig.position.getLine() + newImportCount;
+                            if (actualRenamePosition == expectedRenamePosition + noOfNewLinesBeforeCursorPos) {
+                                return true;
+                            }
+                        } else if (actualRenamePosition == expectedRenamePosition) {
+                            return true;
+                        }
+                    }
+
+                    JsonArray newArgs = new JsonArray();
+                    newArgs.add(actualPath);
+                    newArgs.add(actualRenamePosition);
+
+                    //Replace the args of the actual command to update the test config
+                    actualCommand.add("arguments", newArgs);
+                }
+            }
+        }
+        return false;
     }
 
     @DataProvider(name = "codeaction-data-provider")

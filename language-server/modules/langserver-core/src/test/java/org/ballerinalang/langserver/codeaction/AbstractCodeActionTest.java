@@ -190,8 +190,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                         JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
                         if (expArgs == null
-                                || !validateAndModifyArguments(
-                                actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                                || !validateAndModifyArguments(actualCommand, actualArgs, expArgs, sourceRoot,
+                                sourcePath, actual.edits, testConfig)) {
                             misMatched = true;
                         }
                         actual.command = actualCommand;
@@ -405,7 +405,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                                  JsonArray actualArgs,
                                                  JsonArray expArgs,
                                                  Path sourceRoot,
-                                                 Path sourcePath) {
+                                                 Path sourcePath,
+                                                 List<TextEdit> actualEdits,
+                                                 TestConfig testConfig) {
         //Validate the args of rename command
         if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
@@ -420,8 +422,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     if (actualFilePath.get().startsWith("/") || actualFilePath.get().startsWith("\\")) {
                         actualPath = actualFilePath.get().substring(1);
                     }
-                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath))
-                            && actualRenamePosition == expectedRenamePosition) {
+                    if (sourceRoot.resolve(actualPath).equals(sourceRoot.resolve(expectedFilePath)) &&
+                            actualRenamePosition == expectedRenamePosition) {
                         return true;
                     }
                     JsonArray newArgs = new JsonArray();
