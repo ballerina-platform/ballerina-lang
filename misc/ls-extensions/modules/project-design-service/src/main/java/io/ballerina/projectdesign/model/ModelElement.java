@@ -16,40 +16,29 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.model.service;
+package io.ballerina.projectdesign.model;
 
-import io.ballerina.projectdesign.model.ModelElement;
 import io.ballerina.tools.text.LineRange;
 
-import java.util.List;
+import java.util.Optional;
 
 /**
- * Represent a parameter of a Ballerina Object Method.
+ * Represents the abstract model for a component model item.
  *
- * @since 2201.2.2
+ * @since 2201.3.1
  */
-public class FunctionParameter extends ModelElement {
+public abstract class ModelElement {
+    private final Optional<LineRange> lineRange;
 
-    private final List<String> type;
-    private final String name;
-    private final boolean isRequired;
-
-    public FunctionParameter(List<String> type, String name, boolean isRequired, LineRange lineRange) {
-        super(lineRange);
-        this.type = type;
-        this.name = name;
-        this.isRequired = isRequired;
+    public ModelElement() {
+        this.lineRange = Optional.empty();
     }
 
-    public List<String> getType() {
-        return type;
+    public ModelElement(LineRange lineRange) {
+        this.lineRange = Optional.ofNullable(lineRange);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public boolean isRequired() {
-        return isRequired;
+    public Optional<LineRange> getLineRange() {
+        return lineRange;
     }
 }
