@@ -797,6 +797,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(orderKeyNode);
     }
 
+    public void visit(STGroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public void visit(STOnFailClauseNode onFailClauseNode) {
         visitSyntaxNode(onFailClauseNode);
     }

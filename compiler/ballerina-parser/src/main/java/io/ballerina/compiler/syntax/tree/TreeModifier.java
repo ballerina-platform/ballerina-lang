@@ -3167,6 +3167,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public GroupByClauseNode transform(
+            GroupByClauseNode groupByClauseNode) {
+        Token groupKeyword =
+                modifyToken(groupByClauseNode.groupKeyword());
+        Token byKeyword =
+                modifyToken(groupByClauseNode.byKeyword());
+        SeparatedNodeList<Node> groupingKey =
+                modifySeparatedNodeList(groupByClauseNode.groupingKey());
+        return groupByClauseNode.modify(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    @Override
+    public GroupingKeyVarDeclarationNode transform(
+            GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(groupingKeyVarDeclarationNode.typeDescriptor());
+        BindingPatternNode simpleBindingPattern =
+                modifyNode(groupingKeyVarDeclarationNode.simpleBindingPattern());
+        Token equalsToken =
+                modifyToken(groupingKeyVarDeclarationNode.equalsToken());
+        ExpressionNode expression =
+                modifyNode(groupingKeyVarDeclarationNode.expression());
+        return groupingKeyVarDeclarationNode.modify(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
+    }
+
+    @Override
     public OnFailClauseNode transform(
             OnFailClauseNode onFailClauseNode) {
         Token onKeyword =
