@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
 import ballerina/lang.'float;
 import ballerina/lang.'xml;
 
@@ -174,19 +175,18 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    error? x =
-        from var emp in (stream from var e in empList select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                let string deptName = "Engineering"
-                where d.name == deptName
-                select d)
-            on emp.deptId equals dept.id
-        do {
-            DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
-            deptPersonList[deptPersonList.length()] = dp;
-        };
+    from var emp in (stream from var e in empList select e)
+    join Person psn in (table key() from var p in personList select p)
+        on emp.personId equals psn.id
+    join Department dept in (from var d in deptList
+            let string deptName = "Engineering"
+            where d.name == deptName
+            select d)
+        on emp.deptId equals dept.id
+    do {
+        DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
+        deptPersonList[deptPersonList.length()] = dp;
+    };
 
     boolean testPassed = true;
     DeptPerson dp;
@@ -340,16 +340,16 @@ function testQueryExpWithinSelectClause2() {
 
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[2, 3, 4]];
-    check from int[] arr in data
-        do {
-            function () returns int[] func = function() returns int[] {
-                int[] evenNumbers = from int i in arr
-                    where i % 2 == 0
-                    select i;
-                return evenNumbers;
-            };
-            int[] expected = [2, 4];
-            assertEquality(expected, func());
+    from int[] arr in data
+    do {
+        function () returns int[] func = function() returns int[] {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            return evenNumbers;
+        };
+        int[] expected = [2, 4];
+        assertEquality(expected, func());
     };
 }
 
@@ -659,6 +659,30 @@ function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
             value: "A" + j.idx.toString()
         }
         on conflict error("Duplicate Key in Outer Query");
+}
+
+function testQueryAsFuncArgument() {
+    string[][] arr = [["ABCD ", "BCDE"], ["DEFG ", "EFGH"]];
+    string[][] expected = [["ABCD", "BCDE"], ["DEFG", "EFGH"]];
+
+    string[][] newArr1 = from string[] subArr in arr
+        let string[] strArr = fooFunc(from string str in subArr
+            select str.trim())
+        select strArr;
+    assertEquality(expected, newArr1);
+
+    string[][] newArr2 = from string[] subArr in arr
+        select fooFunc(from string str in subArr
+            select str.trim());
+    assertEquality(expected, newArr2);
+
+    int arrLength = array:length(from int i in 1 ... 3
+        select i);
+    assertEquality(3, arrLength);
+}
+
+function fooFunc(string[] s) returns string[] {
+    return s;
 }
 
 function assertEquality(any|error expected, any|error actual) {
