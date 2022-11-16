@@ -27,7 +27,7 @@ import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,9 +48,9 @@ public class ComponentModelBuilder {
         PackageId packageId = new PackageId(currentPackage);
 
         currentPackage.modules().forEach(module -> {
-            String moduleRootPath = module.project().sourceRoot().toAbsolutePath().toString();
+            Path moduleRootPath = module.project().sourceRoot().toAbsolutePath();
             if (module.moduleName().moduleNamePart() != null) {
-                moduleRootPath = moduleRootPath + File.separator + module.moduleName().moduleNamePart();
+                moduleRootPath = moduleRootPath.resolve(module.moduleName().moduleNamePart());
             }
             Collection<DocumentId> documentIds = module.documentIds();
             SemanticModel currentSemanticModel =
