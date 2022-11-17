@@ -77,8 +77,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private static final String EXTRACTED_PREFIX = "extracted";
 
     private static final Set<SyntaxKind> unSupportedModuleLevelSyntaxKinds = Set.of(SyntaxKind.CONST_DECLARATION,
-            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION, 
-            SyntaxKind.MODULE_CLIENT_DECLARATION);
+            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
