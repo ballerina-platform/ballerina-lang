@@ -175,19 +175,18 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    error? x =
-        from var emp in (stream from var e in empList select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                let string deptName = "Engineering"
-                where d.name == deptName
-                select d)
-            on emp.deptId equals dept.id
-        do {
-            DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
-            deptPersonList[deptPersonList.length()] = dp;
-        };
+    from var emp in (stream from var e in empList select e)
+    join Person psn in (table key() from var p in personList select p)
+        on emp.personId equals psn.id
+    join Department dept in (from var d in deptList
+            let string deptName = "Engineering"
+            where d.name == deptName
+            select d)
+        on emp.deptId equals dept.id
+    do {
+        DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
+        deptPersonList[deptPersonList.length()] = dp;
+    };
 
     boolean testPassed = true;
     DeptPerson dp;
@@ -341,16 +340,16 @@ function testQueryExpWithinSelectClause2() {
 
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[2, 3, 4]];
-    check from int[] arr in data
-        do {
-            function () returns int[] func = function() returns int[] {
-                int[] evenNumbers = from int i in arr
-                    where i % 2 == 0
-                    select i;
-                return evenNumbers;
-            };
-            int[] expected = [2, 4];
-            assertEquality(expected, func());
+    from int[] arr in data
+    do {
+        function () returns int[] func = function() returns int[] {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            return evenNumbers;
+        };
+        int[] expected = [2, 4];
+        assertEquality(expected, func());
     };
 }
 

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testQuery() returns error?{
+function testQuery() returns error? {
     int i = 0;
     while (i > 2) {
         fail getError();
@@ -22,6 +22,56 @@ function testQuery() returns error?{
     }
     i = 7;
     return;
+}
+
+function testReturnsWithOnFail1() returns int {
+    do {
+        return 1;
+    } on fail {
+    }
+}
+
+function testReturnsWithOnFail2() returns int {
+    do {
+        return 1;
+    } on fail {
+        return -1;
+    }
+}
+
+function testReturnsWithOnFail3() returns int {
+    do {
+        int _ = 1;
+    } on fail {
+        return -1;
+    }
+}
+
+function testReturnsWithOnFail4() returns int {
+    do {
+        int _ = 1;
+    } on fail {
+        int _ = -1;
+    }
+    return 0;
+}
+
+function testReturnsWithOnFail5() returns int|error {
+    transaction {
+        check commit;
+        int _ = 1;
+    } on fail {
+        return -1;
+    }
+}
+
+function testReturnsWithOnFail6() returns int|error {
+    transaction {
+        check commit;
+        return 1;
+    } on fail {
+        return -1;
+    }
 }
 
 function getError() returns error {

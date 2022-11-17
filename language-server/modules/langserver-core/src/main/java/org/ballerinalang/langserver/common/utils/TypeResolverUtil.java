@@ -41,7 +41,6 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
-import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,57 +51,15 @@ import java.util.Optional;
  * @since 2201.1.1
  */
 public class TypeResolverUtil {
-    
-    /**
-     * Given the function type symbol and existing arguments
-     * returns the type of the parameter symbol corresponding to the given context.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param cursorPosition     Cursor Position.
-     * @param arguments          List of function argument nodes.
-     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
-     */
-    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                  int cursorPosition,
-                                                                  NodeList<FunctionArgumentNode> arguments) {
-        return resolveParameterTypeSymbol(functionTypeSymbol, cursorPosition, arguments, false);
-    }
 
     /**
-     * Given the function type symbol and existing arguments
-     * returns the type of the parameter symbol corresponding to the given context.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param cursorPosition     Cursor Position.
-     * @param arguments          List of function argument nodes.
-     * @param isLangLibFunction  Flag indicating whether the provided function type belongs to a langlib.
-     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
-     */
-    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                  int cursorPosition,
-                                                                  NodeList<FunctionArgumentNode> arguments,
-                                                                  boolean isLangLibFunction) {
-        Optional<ParameterSymbol> parameterSymbol =
-                resolveParameterSymbol(functionTypeSymbol, cursorPosition, arguments, isLangLibFunction);
-        if (parameterSymbol.isEmpty()) {
-            return Optional.empty();
-        }
-        TypeSymbol typeSymbol = parameterSymbol.get().typeDescriptor();
-        if (parameterSymbol.get().paramKind() == ParameterKind.REST && typeSymbol.typeKind() == TypeDescKind.ARRAY) {
-            return Optional.of(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
-        }
-        return Optional.of(typeSymbol);
-    }
-
-    /**
-     * Given a positional argument node, it's parent (function or method call expression node) and function's/method's
-     * argument nodes; this method returns the type symbol of the argument corresponding to the positional argument
-     * provided.
+     * Given a set of argument nodes and a function or method call expression node, 
+     * this method returns the type symbol of the argument corresponding to the cursor position provided.
      *
      * @param argumentNodes            Argument nodes of the function/method call expression
      * @param functionOrMethodCallExpr Function/method call expression
-     * @param context                  Document Service context
-     * @param cursorPosition           Cursor position
+     * @param context                  DocumentServiceContext
+     * @param cursorPosition           cursor position in the tree
      * @return {@link Optional<TypeSymbol>} Type symbol.
      */
     public static Optional<TypeSymbol> getPositionalArgumentTypeForFunction(
@@ -113,10 +70,10 @@ public class TypeResolverUtil {
 
         FunctionTypeSymbol functionTypeSymbol = null;
 
-        // Look for function symbol in lang lib functions
+        //Look for function symbol in lang lib functions
         boolean isLangLibMethod = false;
         if (functionOrMethodCallExpr.kind() == SyntaxKind.METHOD_CALL) {
-            Optional<FunctionTypeSymbol> langLibMethod = TypeResolverUtil.findMethodInLangLibFunctions(
+            Optional<FunctionTypeSymbol> langLibMethod = findMethodInLangLibFunctions(
                     (MethodCallExpressionNode) functionOrMethodCallExpr, context);
             if (langLibMethod.isPresent()) {
                 functionTypeSymbol = langLibMethod.get();
@@ -138,24 +95,24 @@ public class TypeResolverUtil {
         if (functionTypeSymbol == null) {
             return Optional.empty();
         }
-        return TypeResolverUtil.resolveParameterTypeSymbol(functionTypeSymbol, cursorPosition,
-                argumentNodes, isLangLibMethod);
+        return resolveParameterTypeSymbol(functionTypeSymbol, argumentNodes, isLangLibMethod, cursorPosition);
     }
 
     /**
-     * Given a new expression node and a positional argument node, this method finds the type of the argument at the
-     * positional argument.
+     * Given an expression node and a set of positional argument nodes, this method finds the type of the argument at 
+     * the given cursor position.
      *
      * @param argumentNodes     Argument nodes
      * @param newExpressionNode Implicit/explicit new expression node
-     * @param context           Document Service context
-     * @param cursorPosition    Cursor position
+     * @param context           DocumentServiceContext
+     * @param cursorPosition    cursor position in the tree
      * @return Optional type symbol of the parameter
      */
-    public static Optional<TypeSymbol> getPositionalArgumentTypeForNewExpr(NodeList<FunctionArgumentNode> argumentNodes,
-                                                                           NewExpressionNode newExpressionNode,
-                                                                           DocumentServiceContext context,
-                                                                           int cursorPosition) {
+    public static Optional<TypeSymbol> getPositionalArgumentTypeForNewExpr(
+            NodeList<FunctionArgumentNode> argumentNodes,
+            NewExpressionNode newExpressionNode,
+            DocumentServiceContext context,
+            int cursorPosition) {
 
         Optional<MethodSymbol> methodSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(newExpressionNode))
@@ -178,15 +135,55 @@ public class TypeResolverUtil {
         if (methodSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), cursorPosition,
-                argumentNodes);
+        return resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), argumentNodes, cursorPosition);
     }
-    
+
     /**
-     * Finds the corresponding function type symbol from lang libs method given a method call expression node. 
+     * Given the function type symbol and existing arguments
+     * returns the type of the parameter symbol corresponding to the given context.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param arguments          List of function argument nodes.
+     * @param cursorPosition     cursor position in the tree
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
+     */
+    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                  NodeList<FunctionArgumentNode> arguments,
+                                                                  int cursorPosition) {
+        return resolveParameterTypeSymbol(functionTypeSymbol, arguments, false, cursorPosition);
+    }
+
+    /**
+     * Given the function type symbol and existing arguments
+     * returns the type of the parameter symbol corresponding to the given context.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param arguments          List of function argument nodes.
+     * @param isLangLibFunction  Flag indicating whether the provided function type belongs to a langlib.
+     * @param cursorPosition     cursor position in the tree
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
+     */
+    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                  NodeList<FunctionArgumentNode> arguments,
+                                                                  boolean isLangLibFunction,
+                                                                  int cursorPosition) {
+        Optional<ParameterSymbol> parameterSymbol =
+                resolveParameterSymbol(functionTypeSymbol, arguments, isLangLibFunction, cursorPosition);
+        if (parameterSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        TypeSymbol typeSymbol = parameterSymbol.get().typeDescriptor();
+        if (parameterSymbol.get().paramKind() == ParameterKind.REST && typeSymbol.typeKind() == TypeDescKind.ARRAY) {
+            return Optional.of(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
+        }
+        return Optional.of(typeSymbol);
+    }
+
+    /**
+     * Finds the corresponding function type symbol from lang libs method given a method call expression node.
      *
      * @param methodCallExprNode method call expression node.
-     * @param context context
+     * @param context            context
      * @return {@link Optional<ParameterSymbol>} function type symbol
      */
     public static Optional<FunctionTypeSymbol> findMethodInLangLibFunctions(MethodCallExpressionNode methodCallExprNode,
@@ -207,66 +204,61 @@ public class TypeResolverUtil {
     /**
      * Check if the cursor is positioned in a function call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
-     * @param node FunctionCallExpressionNode
+     * @param node           FunctionCallExpressionNode
+     * @param cursorPosition cursor position in the tree
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
-    public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
-                                                           FunctionCallExpressionNode node) {
-        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    public static Boolean isInFunctionCallParameterContext(FunctionCallExpressionNode node, int cursorPosition) {
+        return isWithinParenthesis(node.openParenToken(), node.closeParenToken(), cursorPosition);
     }
 
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
-     * @param node MethodCallExpressionNode
+     * @param node           MethodCallExpressionNode
+     * @param cursorPosition cursor position in the tree
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
-    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
-                                                         MethodCallExpressionNode node) {
-        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    public static Boolean isInMethodCallParameterContext(MethodCallExpressionNode node, int cursorPosition) {
+        return isWithinParenthesis(node.openParenToken(), node.closeParenToken(), cursorPosition);
     }
 
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
-     * @param node RemoteMethodCallActionNode
+     * @param node           RemoteMethodCallActionNode
+     * @param cursorPosition cursor position in the tree
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
-    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
-                                                         RemoteMethodCallActionNode node) {
-        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    public static Boolean isInMethodCallParameterContext(RemoteMethodCallActionNode node, int cursorPosition) {
+        return isWithinParenthesis(node.openParenToken(), node.closeParenToken(), cursorPosition);
     }
 
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
-     * @param node RemoteMethodCallActionNode
+     * @param node           RemoteMethodCallActionNode
+     * @param cursorPosition cursor position in the tree
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
-    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
-                                                            ImplicitNewExpressionNode node) {
+    public static Boolean isInNewExpressionParameterContext(ImplicitNewExpressionNode node, int cursorPosition) {
         Optional<ParenthesizedArgList> argList = node.parenthesizedArgList();
         if (argList.isEmpty()) {
             return false;
         }
-        return isWithinParenthesis(ctx, argList.get().openParenToken(), argList.get().closeParenToken());
+        return isWithinParenthesis(argList.get().openParenToken(), argList.get().closeParenToken(), cursorPosition);
     }
 
     /**
      * Check if the cursor is positioned in a method call expression parameter context.
      *
-     * @param ctx  PositionedOperationContext
-     * @param node RemoteMethodCallActionNode
+     * @param node           RemoteMethodCallActionNode
+     * @param cursorPosition cursor position in the tree
      * @return {@link Boolean} whether the cursor is in parameter context.
      */
-    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
-                                                            ExplicitNewExpressionNode node) {
+    public static Boolean isInNewExpressionParameterContext(ExplicitNewExpressionNode node, int cursorPosition) {
         ParenthesizedArgList argList = node.parenthesizedArgList();
-        return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
+        return isWithinParenthesis(argList.openParenToken(), argList.closeParenToken(), cursorPosition);
     }
 
     /**
@@ -274,15 +266,15 @@ public class TypeResolverUtil {
      * returns the parameter symbol of the function type corresponding to the given context.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param cursorPosition     Cursor Position.
      * @param arguments          List of function argument nodes.
-     * @param isLangLibFunction  Whether the function is a langlib function.                         
+     * @param isLangLibFunction  Whether the function is a langlib function.
+     * @param cursorPosition     cursor position in the tree
      * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
      */
     private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                    int cursorPosition,
                                                                     NodeList<FunctionArgumentNode> arguments,
-                                                                    boolean isLangLibFunction) {
+                                                                    boolean isLangLibFunction,
+                                                                    int cursorPosition) {
         int argIndex = 0;
         for (Node child : arguments) {
             if (child.textRange().endOffset() < cursorPosition) {
@@ -312,8 +304,7 @@ public class TypeResolverUtil {
         return restParam;
     }
 
-    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
-        int cursorPosition = ctx.getCursorPositionInTree();
+    private static boolean isWithinParenthesis(Token openParen, Token closedParen, int cursorPosition) {
         return (!openParen.isMissing())
                 && (openParen.textRange().endOffset() <= cursorPosition)
                 && (!closedParen.isMissing())

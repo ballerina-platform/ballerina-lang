@@ -799,8 +799,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
             "cannot.infer.typedesc.argument.without.cet"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4047", "invalid.error.query.construct.type"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4048", "invalid.error.query.construct.map.type");
+    OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
+            "BCE4047", "outer.join.must.be.declared.with.var"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4048", "invalid.error.query.construct.type"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4049", "invalid.error.query.construct.map.type")
     ;
 
     private String diagnosticId;

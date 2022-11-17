@@ -592,7 +592,7 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new ProjectException("unable to create native image");
             }
         } catch (IOException e) {
-            throw new ProjectException("unable to create native image:" + e.getMessage());
+            throw new ProjectException("unable to create native image : " + e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

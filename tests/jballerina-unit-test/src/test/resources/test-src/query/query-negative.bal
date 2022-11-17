@@ -539,7 +539,7 @@ function foo(int[] s) returns int[] {
 }
 
 function testInvalidCheckExpressionInQueryAction() returns string|error {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return "string 1";
@@ -548,7 +548,7 @@ function testInvalidCheckExpressionInQueryAction() returns string|error {
 }
 
 function testInvalidCheckExpressionInQueryAction2() returns error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return;

@@ -239,7 +239,7 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
-                     "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
+                     "& readonly)> & readonly', found 'xml'",
                 263, 41);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
@@ -304,42 +304,46 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 432, 100);
-        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
-                438, 13);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 442, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 445, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', " +
+                        "found 'table<record {| |}>'", 460, 13);
         validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
-                "found 'table<record {| |}>'", 439, 19);
+                        "found 'table<record {| |}>'", 461, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'string', " +
-                "found 'table<record {| int a; int b; |}>'", 440, 16);
+                        "found 'table<record {| int a; int b; |}>'", 462, 16);
         validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained with 'int'",
-                451, 49);
+                473, 49);
         validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained " +
-                "with '[int,int,int,int]'", 452, 49);
+                "with '[int,int,int,int]'", 474, 49);
         validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'string'",
-                456, 42);
+                478, 42);
         validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'int'",
-                457, 42);
+                479, 42);
         validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with " +
-                "'[int,int,int,int]'", 458, 42);
+                "'[int,int,int,int]'", 480, 42);
         validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
-                "cannot be constrained with 'int'", 465, 41);
+                "cannot be constrained with 'int'", 487, 41);
         validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
-                "cannot be constrained with '[string,int]'", 466, 41);
+                "cannot be constrained with '[string,int]'", 488, 41);
         validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
-                "cannot be constrained with 'table<Employee> key(name)'", 467, 41);
+                "cannot be constrained with 'table<Employee> key(name)'", 489, 41);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 471, 36);
+                "start with the map keyword", 493, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 472, 36);
+                "start with the map keyword", 494, 36);
         validateError(negativeResult, index++, "query expression that constructs a mapping must " +
-                "start with the map keyword", 473, 36);
+                "start with the map keyword", 495, 36);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'int'", 474, 40);
+                "[string,any|error], found 'int'", 496, 40);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
-                "[string,any|error], found 'record {| int A; |}'", 475, 40);
+                "[string,any|error], found 'record {| int A; |}'", 497, 40);
         validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
-                "cannot be constrained with 'int'", 482, 37);
+                "cannot be constrained with 'int'", 504, 37);
         validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
-                "cannot be constrained with 'T1'", 483, 37);
+                "cannot be constrained with 'T1'", 505, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
