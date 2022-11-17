@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -29,6 +30,7 @@ import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -89,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -1619,7 +1622,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
         lookupNodes(resourceAccessInvocation.annAttachments);
-        lookupNode(resourceAccessInvocation.resourceAccessPathSegments); //TODO: Need symbols for path segments (#37604)
+        lookupResourceAccessPathSegments(resourceAccessInvocation);
         lookupNodes(resourceAccessInvocation.requiredArgs);
         lookupNodes(resourceAccessInvocation.restArgs);
         lookupNode(resourceAccessInvocation.expr);
@@ -1631,7 +1634,9 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+        if (this.symbolAtCursor == null) {
+            setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+        }
     }
 
     @Override
@@ -1709,6 +1714,35 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(reFlagExpression.questionMark);
         lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
+    }
+
+    private void lookupResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        if (resourceAccessInvocation.targetResourceFunc == null) {
+            // Return if target-function is not set.
+            // Ex: Ambiguous target-functions
+            return;
+        }
+
+        List<BResourcePathSegmentSymbol> pathSegSymbols = resourceAccessInvocation.targetResourceFunc.pathSegmentSymbols;
+        List<BLangExpression> pathExprs = resourceAccessInvocation.resourceAccessPathSegments.exprs;
+        BResourcePathSegmentSymbol restResourcePathSeg;
+
+        if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+            // Returns since the resource-function has only the root-path segment
+            return;
+        }
+
+        // iterate through path expressions
+        for (int i = 0; i < pathExprs.size(); i++) {
+            BLangExpression expr = pathExprs.get(i);
+            BResourcePathSegmentSymbol pathSymbol = pathSegSymbols.get(i);
+            if (expr.getKind() == NodeKind.LITERAL &&
+                    pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+                setEnclosingNode(pathSymbol, expr.pos);
+            }
+        }
+
+
     }
 
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {

@@ -41,6 +41,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLNSSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.symbols.resourcepath.util.BallerinaNamedPathSegment;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
@@ -74,6 +75,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -233,6 +235,10 @@ public class SymbolFactory {
             return createXMLNamespaceSymbol((BXMLNSSymbol) symbol);
         }
 
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
+            return createResourceNamedPathSegment((BResourcePathSegmentSymbol) symbol);
+        }
+
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
     }
 
@@ -375,8 +381,18 @@ public class SymbolFactory {
         return new BallerinaMemberTypeSymbol(context, symbol, type);
     }
 
+    /**
+     * Create a named path segment symbol.
+     *
+     * @param symbol {@link BResourcePathSegmentSymbol} to convert
+     * @return {@link BallerinaNamedPathSegment} generated
+     */
+    public BallerinaNamedPathSegment createResourceNamedPathSegment(BResourcePathSegmentSymbol symbol) {
+        return new BallerinaNamedPathSegment(symbol, context);
+    }
+
     private boolean isReadonlyIntersectionArrayType(BType type) {
-        if (type.tag == TypeTags.INTERSECTION 
+        if (type.tag == TypeTags.INTERSECTION
                 && type.tsymbol != null && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
             return true;
         }

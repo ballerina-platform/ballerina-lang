@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -72,14 +73,13 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
         BObjectTypeSymbol classSymbol = (BObjectTypeSymbol) this.internalSymbol.owner;
         BResourceFunction resourceFn = getBResourceFunction(classSymbol.attachedFuncs, this.internalSymbol);
-        List<Name> internalResPath = resourceFn.pathSegmentSymbols.stream().map(s -> s.name)
-                                     .collect(Collectors.toList());
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFn.pathSegmentSymbols;
 
-        if (internalResPath.isEmpty()) {
+        if (pathSegmentSymbols.isEmpty()) {
             throw new IllegalStateException("Resource path is empty in resource function: " + resourceFn.toString());
         }
 
-        switch (internalResPath.get(0).value) {
+        switch (pathSegmentSymbols.get(0).getName().getValue()) {
             case DOT_RESOURCE_PATH:
                 this.resourcePath = new BallerinaDotResourcePath();
                 break;
@@ -87,7 +87,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
                 this.resourcePath = new BallerinaPathRestParam(resourceFn.restPathParam, this.context);
                 break;
             default:
-                this.resourcePath = new BallerinaPathSegmentList(internalResPath, resourceFn.pathParams,
+                this.resourcePath = new BallerinaPathSegmentList(resourceFn.pathSegmentSymbols, resourceFn.pathParams,
                                                                  resourceFn.restPathParam, this.context);
         }
 
