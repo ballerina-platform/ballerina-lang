@@ -193,7 +193,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
     ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
-    ERROR_MISSING_GROUP_KEYWORD("BCE0295", "error.missing.group.keyword"),
+    ERROR_MISSING_GROUP_KEYWORD("BCE0296", "error.missing.group.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
