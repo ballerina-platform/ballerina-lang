@@ -284,4 +284,14 @@ public class FieldAccessTest {
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
+
+    @Test
+    public void testFieldAccessOnJsonTypedRecordFields() {
+        BRunUtil.invoke(result, "testFieldAccessOnJsonTypedRecordFields");
+    }
+
+    @Test
+    public void testFieldAccessOnJsonTypedRecordFieldsResultingInErrors() {
+        BRunUtil.invoke(result, "testFieldAccessOnJsonTypedRecordFieldsResultingInErrors");
+    }
 }
