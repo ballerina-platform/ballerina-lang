@@ -356,7 +356,16 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
 
 function getErrorMessage(error err) returns string {
     string|error message = err.detail()["message"].ensureType();
-    return message is error ? err.message() : message;
+    if message is error {
+        message = trap err.message();
+        if message is error {
+            return "No content";
+        } else {
+            return message;
+        }
+    } else {
+        return message;
+    }
 }
 
 function orderTests() returns error? {
