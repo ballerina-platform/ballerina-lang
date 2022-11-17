@@ -139,4 +139,19 @@ public class AnnotationSymbolTest {
                 {115, 5, "v5", null}
         };
     }
+
+    @Test(dataProvider = "FunctionAnnotPosProvider")
+    public void functionAnnotationTest(int line, int col, SymbolKind kind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), kind);
+    }
+
+    @DataProvider(name = "FunctionAnnotPosProvider")
+    public Object[][] getFunctionAnnotPos() {
+        return new Object[][]{
+                {84, 5, ANNOTATION},
+                {85, 8, RECORD_FIELD}
+        };
+    }
 }

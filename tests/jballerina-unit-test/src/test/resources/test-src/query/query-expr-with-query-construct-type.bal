@@ -1391,6 +1391,34 @@ function testMapConstructingQueryExprWithStringSubtypes() {
     assertEqual(mp11, {"key1":1.4,"key2":2,"key3":3});
 }
 
+function testDiffQueryConstructsUsedAsFuncArgs() returns error? {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    int tblLength = getTableLength(table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        });
+    assertEqual(tblLength, 3);
+
+    FooBar1[] list1 = [["key1", "foo"], ["key2", "foo"], ["key3", "foo"]];
+    int mapLength = getMapLength(map from var item in list1 select item);
+    assertEqual(mapLength, 3);
+}
+
+function getTableLength(CustomerTable tbl) returns int {
+    return tbl.length();
+}
+
+function getMapLength(map<string> strMap) returns int {
+    return strMap.length();
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

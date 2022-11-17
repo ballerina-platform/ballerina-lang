@@ -299,15 +299,17 @@ public class SortingUtil {
      * Check if the provided completion item is assignable to the provided type.
      *
      * @param completionItem Completion item
-     * @param typeSymbol     Type
+     * @param typeSymbol    Type
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
-        if (typeSymbol.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (rawType.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
             Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
             if (optionalSymbol.isPresent() && (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
-                    || optionalSymbol.get().kind() == SymbolKind.TYPE)) {
-                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
+                    || optionalSymbol.get().kind() == SymbolKind.TYPE 
+                    || optionalSymbol.get().kind() == SymbolKind.CLASS)) {
+                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(rawType);
                 if (optionalTypeParamTypeSymbol.isPresent()) {
                     Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
                     return optionalTypeSymbol.isPresent()
@@ -319,7 +321,7 @@ public class SortingUtil {
             return false;
         }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
-        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(rawType);
     }
 
     /**
@@ -534,6 +536,7 @@ public class SortingUtil {
                             break;
                         case Function:
                             rank = onQnameRef ? 1 : 3;
+                            rank = completionItem.getCompletionItem().getLabel().startsWith("main(") ? 25 : rank;
                             break;
                         case Method:
                             rank = 4;

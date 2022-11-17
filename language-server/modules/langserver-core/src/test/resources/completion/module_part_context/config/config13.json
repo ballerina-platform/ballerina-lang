@@ -31,6 +31,15 @@
       "filterText": "function",
       "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function <name>(..) => <expression>",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} => (${4});",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
