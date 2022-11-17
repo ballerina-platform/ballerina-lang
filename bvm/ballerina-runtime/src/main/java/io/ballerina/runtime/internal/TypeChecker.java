@@ -583,19 +583,6 @@ public class TypeChecker {
      * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
-    public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {
-        Type describingType = typedescValue.getDescribingType();
-        if (!(describingType instanceof BAnnotatableType)) {
-            return null;
-        }
-        if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
-                ((BTypeReferenceType) describingType).getReferredType().getTag() == TypeTags.TUPLE_TAG) {
-            return ((BAnnotatableType) ((BTypeReferenceType) describingType).getReferredType())
-                    .getAnnotation(StringUtils.fromString(annotTag));
-        }
-        return ((BAnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
-    }
-
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
         Type describingType = typedescValue.getDescribingType();
         if (!(describingType instanceof BAnnotatableType)) {

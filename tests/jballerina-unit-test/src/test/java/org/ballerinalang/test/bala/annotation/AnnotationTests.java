@@ -377,6 +377,30 @@ public class AnnotationTests {
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
         Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
         Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+
+        symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T1")).symbol);
+        Assert.assertEquals(symbol.getAnnotations().size(), 0);
+        members = ((BTupleType) symbol.type).memberTypes;
+        m1 = members.get(1).symbol.getAnnotations();
+
+        m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
+        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertTrue(m1a1.isConstAnnotation());
+        constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
+
+        symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T2")).symbol);
+        Assert.assertEquals(symbol.getAnnotations().size(), 0);
+        members = ((BTupleType) symbol.type).memberTypes;
+        m1 = members.get(1).symbol.getAnnotations();
+
+        m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
+        Assert.assertEquals(m1a1.annotTag.value, "Member");
+        Assert.assertTrue(m1a1.isConstAnnotation());
+        constAttachmentSymbol = (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) m1a1;
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(constAttachmentSymbol.attachmentValueSymbol.value.value, Boolean.TRUE);
     }
 
     @Test

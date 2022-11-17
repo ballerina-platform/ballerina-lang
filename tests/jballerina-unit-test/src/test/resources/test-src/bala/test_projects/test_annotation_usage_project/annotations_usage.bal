@@ -33,6 +33,9 @@ public type Recx record {|
 @Ann
 public type Tup [@Member int, string];
 
+public type T1 [int, @Member int, string...];
+public type T2 [int, @Member int, string];
+
 @Custom
 public annotation map<int> NonConstAllow on parameter;
 
