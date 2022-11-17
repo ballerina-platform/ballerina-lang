@@ -55,7 +55,7 @@ import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
 /**
- * Build command tests.
+ * Test command tests.
  *
  * @since 2.0.0
  */
