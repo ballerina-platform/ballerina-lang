@@ -7,6 +7,7 @@ function runKeySpecifierTestCases() {
     testTableTypeWithCompositeKeyTypeConstraint();
     testTableTypeWithMultiFieldKeys();
     testVariableNameFieldAsKeyField();
+    testVariableNameFieldAsKeyField2();
 }
 
 type Customer record {
@@ -193,21 +194,50 @@ function testInferTableTypeV2() {
 const int id = 1;
 
 function testVariableNameFieldAsKeyField() {
+    record {readonly int id; string name;}[] expected = [
+        <record {readonly int id; string name;}> {"id": 1, "name": "Jo"},
+        <record {readonly int id; string name;}> {"id": 2, "name": "Amy"}
+    ];
     table<record {readonly int id; string name;}> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <record {readonly int id; string name;}> {"id": 1, "name": "Jo"});
-    assertEquality(tb[2], <record {readonly int id; string name;}> {"id": 2, "name": "Amy"});
+
+    foreach int i in 0..< tb.length() {
+        assertEquality(tb[i + 1], expected[i]);
+    }
+}
+
+function testVariableNameFieldAsKeyField2() {
+    int index = 0;
+    var expected = [
+        {"id": 1, "name": "Jo"},
+        {"id": 2, "name": "Amy"}
+    ];
+    table<record {readonly int id; string name;}> tb = table key(id) [
+        {id, name: "Jo"},
+        {id: 2, name: "Amy"}
+    ];
+
+    foreach var rec in tb {
+        assertEquality(rec, expected[index]);
+        index = index + 1;
+    }
 }
 
 function testDefaultValueFieldAsKeyField() {
+    record {readonly int id; string name;}[] expected = [
+        <record {readonly int id; string name;}> {"id": 1, "name": "Jo"},
+        <record {readonly int id; string name;}> {"id": 2, "name": "Amy"}
+    ];
     table<record {readonly int id = 1; string name;}> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <record {readonly int id = 1; string name;}> {"id": 1, "name": "Jo"});
-    assertEquality(tb[2], <record {readonly int id = 1; string name;}> {"id": 2, "name": "Amy"});
+
+    foreach int i in 0..< tb.length() {
+        assertEquality(tb[i + 1], expected[i]);
+    }
 }
 
 type CustomRecord record {
@@ -216,12 +246,18 @@ type CustomRecord record {
 };
 
 function testDefaultValueFieldAsKeyField2() {
+    record {readonly int id; string name;}[] expected = [
+        <record {readonly int id; string name;}> {"id": 1, "name": "Jo"},
+        <record {readonly int id; string name;}> {"id": 2, "name": "Amy"}
+    ];
     table<CustomRecord> key (id) tb = table [
         {id, name: "Jo"},
         {id: 2, name: "Amy"}
     ];
-    assertEquality(tb[1], <CustomRecord> {"id": 1, "name": "Jo"});
-    assertEquality(tb[2], <CustomRecord> {"id": 2, "name": "Amy"});
+
+    foreach int i in 0..< tb.length() {
+        assertEquality(tb[i + 1], expected[i]);
+    }
 }
 
 type CustomRecord2 record {
@@ -233,12 +269,69 @@ type CustomRecord2 record {
 const string status = "status - 1";
 
 function testDefaultValueFieldAsKeyField3() {
+    CustomRecord2[] expected = [
+        <CustomRecord2> {"id": 1, "status":"status - 1", "name": "Jo"},
+        <CustomRecord2> {"id": 2, "status":"status - 2", "name": "Amy"}
+    ];
     table<CustomRecord2> key (id, status) tb = table [
         {id, status, name: "Jo"},
         {id: 2, status: "status - 2", name: "Amy"}
     ];
-    assertEquality(tb[1, "status - 1"], <CustomRecord2> {"id": 1, "status": "status - 1", "name": "Jo"});
-    assertEquality(tb[2, "status - 2"], <CustomRecord2> {"id": 2, "status": "status - 2", "name": "Amy"});
+
+    foreach int i in 0..< tb.length() {
+        assertEquality(tb[i + 1, string `status - ${i + 1}`], expected[i]);
+    }
+}
+
+function testDefaultValueFieldAsKeyField4() {
+    int index = 0;
+    var expected = [
+        {"id": 1, "name": "Jo"},
+        {"id": 2, "name": "Amy"}
+    ];
+    table<record {readonly int id = 1; string name;}> tb = table key (id) [
+        {id, name: "Jo"},
+        {id: 2, name: "Amy"}
+    ];
+
+    foreach var rec in tb {
+        assertEquality(rec, expected[index]);
+        index = index + 1;
+    }
+}
+
+function testDefaultValueFieldAsKeyField5() {
+    int index = 0;
+    var expected = [
+        {"id": 1, "name": "Jo"},
+        {"id": 2, "name": "Amy"}
+    ];
+    table<CustomRecord> tb = table key (id) [
+        {id, name: "Jo"},
+        {id: 2, name: "Amy"}
+    ];
+
+    foreach var rec in tb {
+        assertEquality(rec, expected[index]);
+        index = index + 1;
+    }
+}
+
+function testDefaultValueFieldAsKeyField6() {
+    int index = 0;
+    var expected = [
+        {"id": 1, "status":"status - 1", "name": "Jo"},
+        {"id": 2, "status":"status - 2", "name": "Amy"}
+    ];
+    table<CustomRecord2> tb = table key (id, status) [
+        {id, status, name: "Jo"},
+        {id: 2, status: "status - 2", name: "Amy"}
+    ];
+
+    foreach var rec in tb {
+        assertEquality(rec, expected[index]);
+        index = index + 1;
+    }
 }
 
 function assertTrue(any|error actual) {

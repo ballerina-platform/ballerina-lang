@@ -1463,12 +1463,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return true;
     }
 
-    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames, List<BLangRecordLiteral> recordLiterals,
+    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames, List<BLangRecordLiteral> rows,
                                           BType constraint, AnalyzerData data) {
-        for (BLangRecordLiteral recordLiteral : recordLiterals) {
+        for (BLangRecordLiteral row : rows) {
             for (String fieldName : keySpecifierFieldNames) {
                 BField field = types.getTableConstraintField(constraint, fieldName);
-                BLangExpression recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                BLangExpression recordKeyValueField = getRecordKeyValueField(row, fieldName);
                 if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
@@ -1476,10 +1476,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 long flags = field.symbol.flags;
                 if (recordKeyValueField == null && !(Symbols.isFlagOn(flags, Flags.OPTIONAL)
                         || Symbols.isFlagOn(flags, Flags.REQUIRED))) {
-                    dlog.error(recordLiteral.pos,
+                    dlog.error(row.pos,
                             DiagnosticErrorCode.UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER);
                 } else {
-                    dlog.error(recordLiteral.pos,
+                    dlog.error(row.pos,
                             DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 }
                 data.resultType = symTable.semanticError;

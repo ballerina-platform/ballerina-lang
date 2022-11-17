@@ -49,7 +49,7 @@ public class RecordConstraintTableTest {
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
                 "row key('id, name') : '13, Foo'", 23, 5);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
-                "row key('m') : ' {AAA: DDDD}'", 36, 7);
+                "row key('m') : ' {AAA: DDDD}'", 36, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
                 44, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
@@ -59,9 +59,9 @@ public class RecordConstraintTableTest {
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
                 " row key('idNum, name') : 'idNum, Jo'", 68, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('m')" +
-                " : ' {AAA: DDDD}'", 83, 7);
+                " : ' {AAA: DDDD}'", 83, 9);
         BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
-                " row key('m, age') : ' {AAA: DDDD}, 11'", 97, 7);
+                " row key('m, age') : ' {AAA: DDDD}, 11'", 97, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

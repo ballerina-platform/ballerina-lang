@@ -79,7 +79,10 @@ public class TableWithRecordKeySpecifierTest {
         return new String[] {
                 "testDefaultValueFieldAsKeyField",
                 "testDefaultValueFieldAsKeyField2",
-                "testDefaultValueFieldAsKeyField3"
+                "testDefaultValueFieldAsKeyField3",
+                "testDefaultValueFieldAsKeyField4",
+                "testDefaultValueFieldAsKeyField5",
+                "testDefaultValueFieldAsKeyField6"
         };
     }
 

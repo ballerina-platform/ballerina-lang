@@ -16,12 +16,12 @@ type PersonTable table<Person> key(name);
 PersonTable tab1 = table [
     {name: "AAA", age: 31},
     {name: "AAA", age: 34}
-    ];
+];
 
 CustomerTable tab2 = table [
     {id: 13 , name: "Foo", lname: "QWER"},
     {id: 13 , name: "Foo" , lname: "UYOR"}
-    ];
+];
 
 type Foo record {
     readonly map<string> m;
@@ -32,8 +32,8 @@ type GlobalTable2 table<Foo> key(m);
 
 function testTableConstructExprWithDuplicateKeys() {
     GlobalTable2 _ = table [
-      {m: {"AAA": "DDDD"}, age: 31},
-      {m: {"AAA": "DDDD"}, age: 34}
+        {m: {"AAA": "DDDD"}, age: 31},
+        {m: {"AAA": "DDDD"}, age: 34}
     ];
 }
 
@@ -79,8 +79,8 @@ type GlobalTable3 table<Foo2> key(m);
 
 function testTableConstructExprWithDuplicateKeys2() {
     GlobalTable3 _ = table [
-      {m: {"AAA": "DDDD"}, age: 31},
-      {m: {"AAA": "DDDD"}, age: 34}
+        {m: {"AAA": "DDDD"}, age: 31},
+        {m: {"AAA": "DDDD"}, age: 34}
     ];
 }
 
@@ -93,7 +93,7 @@ type GlobalTable4 table<Foo3> key(m, age);
 
 function testTableConstructExprWithDuplicateKeys3() {
     GlobalTable4 _ = table [
-      {m: {"AAA": "DDDD"}, age: 11},
-      {m: {"AAA": "DDDD"}, age: 11}
+        {m: {"AAA": "DDDD"}, age: 11},
+        {m: {"AAA": "DDDD"}, age: 11}
     ];
 }
