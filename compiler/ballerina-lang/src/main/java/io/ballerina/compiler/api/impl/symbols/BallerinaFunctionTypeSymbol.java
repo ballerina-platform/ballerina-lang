@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
@@ -136,9 +137,17 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
     @Override
     public Optional<TypeSymbol> returnTypeDescriptor() {
-        if (returnType == null) {
-            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.returnType = typesFactory.getTypeDescriptor(this.typeSymbol.returnType);
+        if (returnType != null) {
+            return Optional.of(this.returnType);
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+        this.returnType = typesFactory.getTypeDescriptor(this.typeSymbol.returnType);
+
+        if (returnType.typeKind() == TypeDescKind.TYPE_REFERENCE
+                && this.typeSymbol.pkgID.getOrgName().getValue().equals("ballerina")
+                && typeSymbol.pkgID.getName().getValue().startsWith("lang.")) {
+            this.returnType = ((TypeReferenceTypeSymbol) returnType).typeDescriptor();
         }
 
         return Optional.ofNullable(this.returnType);
