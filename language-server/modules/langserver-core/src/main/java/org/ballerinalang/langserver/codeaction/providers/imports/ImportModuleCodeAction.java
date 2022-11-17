@@ -131,9 +131,9 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
                     String pkgName = pkgEntry.packageName().value();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
-                    String importText = orgName.isEmpty() ? ItemResolverConstants.IMPORT + " " + moduleName + ";" +
-                            CommonUtil.LINE_SEPARATOR : ItemResolverConstants.IMPORT + " " + orgName + "/"
-                            + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
+                    String importText = orgName.isEmpty() ?
+                            String.format("%s %s;%n", ItemResolverConstants.IMPORT, moduleName)
+                            : String.format("%s %s/%s;%n", ItemResolverConstants.IMPORT, orgName, moduleName);
                     String commandTitle = orgName.isEmpty() ? String.format(CommandConstants.IMPORT_MODULE_TITLE,
                             moduleName) : String.format(CommandConstants.IMPORT_MODULE_TITLE,
                             orgName + "/" + moduleName);
