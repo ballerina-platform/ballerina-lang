@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.entity;
 
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.ModelElement;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
@@ -35,8 +35,8 @@ public class Entity extends ModelElement {
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
-        super(lineRange);
+    public Entity(List<Attribute> attributes, List<String> inclusions, ElementLocation elementLocation) {
+        super(elementLocation);
         this.attributes = attributes;
         this.inclusions = inclusions;
     }
