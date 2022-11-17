@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -127,7 +128,7 @@ public class ImportsAcceptor {
         int endCol = 0;
         int endLine = lastImport.isEmpty() ? 0 : lastImport.get().location().lineRange().endLine().line();
 
-        String editText = String.format("import %s;%n", pkgName);
+        String editText = String.format("%s %s;%n", ItemResolverConstants.IMPORT, pkgName);
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         return new TextEdit(range, editText);
     }
