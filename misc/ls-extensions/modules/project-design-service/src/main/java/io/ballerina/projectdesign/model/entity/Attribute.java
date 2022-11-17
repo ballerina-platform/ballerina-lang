@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.entity;
 
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.ModelElement;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
@@ -38,8 +38,8 @@ public class Attribute extends ModelElement {
     private final List<Association> associations; // can have multiple association when union is found
 
     public Attribute(String name, String type, boolean optional, boolean nillable, String defaultValue,
-                     List<Association> associations, LineRange lineRange) {
-        super(lineRange);
+                     List<Association> associations, ElementLocation elementLocation) {
+        super(elementLocation);
         this.name = name;
         this.type = type;
         this.optional = optional;

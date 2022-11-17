@@ -42,6 +42,7 @@ public class ServiceModelGenerator {
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
     private final Path moduleRootPath;
+
     public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
                                  Path moduleRootPath) {
 
