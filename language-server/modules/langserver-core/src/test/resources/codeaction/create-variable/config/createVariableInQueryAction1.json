@@ -22,7 +22,16 @@
           },
           "newText": "int[] listResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableInQueryAction1.bal",
+          67
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

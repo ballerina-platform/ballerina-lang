@@ -22,7 +22,16 @@
           },
           "newText": "xml<xml:Element> xmlResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableInQueryAction2.bal",
+          228
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
