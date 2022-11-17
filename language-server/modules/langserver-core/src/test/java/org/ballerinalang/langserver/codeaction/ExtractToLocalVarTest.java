@@ -95,9 +95,7 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInQNameRefNegative.json"},
                 {"extractToVariableInModLevelDeclNegative.json"},
                 {"extractToVariableInModLevelDeclNegative2.json"},
-                {"extractToVariableInStartActionNegative.json"},
-                {"extractToVariableInClientDeclNegative.json"},
-                {"extractToVariableInModuleClientDeclNegative.json"}
+                {"extractToVariableInStartActionNegative.json"}
         };
     }
     
