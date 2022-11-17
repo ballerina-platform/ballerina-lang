@@ -180,12 +180,11 @@ public class RunNativeImageTestTask implements Task {
         }
 
         TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
-        Path nativeConfigPath = null;
         try {
-            nativeConfigPath = target.getNativeConfigPath();
+            Path nativeConfigPath = target.getNativeConfigPath();
             createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
         } catch (IOException e) {
-            throw createLauncherException("error while generating the necessary reflection config", e);
+            throw createLauncherException("error while generating the necessary graalvm reflection config", e);
         }
 
 
@@ -303,8 +302,6 @@ public class RunNativeImageTestTask implements Task {
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
-
-
 
         // Run native-image command with generated configs
         cmdArgs.addAll(Lists.of("-cp", classPath));

@@ -63,45 +63,44 @@ public class NativeUtils {
             String name = module.moduleName().toString();
             String moduleName = ProjectUtils.getJarFileName(module);
 
-
-            ReflectConfigClass testInitClass = new ReflectConfigClass(getQualifiedClassName(org, name, version,
+            ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
                     MODULE_INIT_CLASS_NAME));
 
-            testInitClass.addReflectConfigClassMethod(
+            testInitRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
                             "$moduleInit",
                             new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
                     )
             );
 
-            testInitClass.addReflectConfigClassMethod(
+            testInitRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
                             "$moduleStart",
                             new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
                     )
             );
 
-            testInitClass.addReflectConfigClassMethod(
+            testInitRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
                             "$moduleStop",
                             new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
                     )
             );
 
-            ReflectConfigClass testConfigurationMapper = new ReflectConfigClass(getQualifiedClassName(org, name,
-                    version, MODULE_CONFIGURATION_MAPPER));
+            ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
+                    getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
 
-            testConfigurationMapper.addReflectConfigClassMethod(
+            testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
                             "$configureInit",
                             new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
                     )
             );
-            ReflectConfigClass testTestExecuteGenerated = new ReflectConfigClass("");
-            if (testSuiteMap.get(moduleName) != null) {
-                testTestExecuteGenerated = new ReflectConfigClass(testSuiteMap.get(moduleName)
+            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass("");
+            if (testSuiteMap.containsKey(moduleName)) {
+                testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(testSuiteMap.get(moduleName)
                         .getTestUtilityFunctions().get("__execute__"));
-                testTestExecuteGenerated.addReflectConfigClassMethod(
+                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
                         new ReflectConfigClassMethod(
                                 "__execute__",
                                 new String[]{
@@ -121,27 +120,27 @@ public class NativeUtils {
                 );
             }
 
-            ReflectConfigClass testNameZeroName =
+            ReflectConfigClass testNameZeroNameRefConfClz =
                     new ReflectConfigClass(getQualifiedClassName(org, name, version, name));
-            testNameZeroName.setQueryAllDeclaredMethods(true);
+            testNameZeroNameRefConfClz.setQueryAllDeclaredMethods(true);
 
             // Add all class values to the array
-            classList.add(testInitClass);
-            classList.add(testConfigurationMapper);
-            classList.add(testTestExecuteGenerated);
+            classList.add(testInitRefConfClz);
+            classList.add(testConfigurationMapperRefConfClz);
+            classList.add(testTestExecuteGeneratedRefConfClz);
 
-            classList.add(testNameZeroName);
+            classList.add(testNameZeroNameRefConfClz);
 
             // Increment tally to cover executable_<tally> class
             tally += 1;
         }
 
-        ReflectConfigClass runtimeEntityTestSuite = new ReflectConfigClass("org.ballerinalang.test.runtime.entity" +
-                ".TestSuite");
-        runtimeEntityTestSuite.setAllDeclaredFields(true);
-        runtimeEntityTestSuite.setUnsafeAllocated(true);
+        ReflectConfigClass runtimeEntityTestSuiteRefConfClz = new ReflectConfigClass(
+                "org.ballerinalang.test.runtime.entity" + ".TestSuite");
+        runtimeEntityTestSuiteRefConfClz.setAllDeclaredFields(true);
+        runtimeEntityTestSuiteRefConfClz.setUnsafeAllocated(true);
 
-        classList.add(runtimeEntityTestSuite);
+        classList.add(runtimeEntityTestSuiteRefConfClz);
 
         // Write the array to the config file
         try (Writer writer = new FileWriter(nativeConfigPath.resolve("reflect-config.json").toString(),
