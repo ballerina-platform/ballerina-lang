@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Test Cases for CodeActions.
+ * Test cases for create variable code action with positional rename support capability.
  *
  * @since 2201.4.0
  */
@@ -43,7 +43,7 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
     protected Path getConfigJsonPath(String configFilePath) {
         return FileUtils.RES_DIR.resolve("codeaction")
                 .resolve(getResourceDir())
-                .resolve("config-ren-pos-cap")
+                .resolve("config-rename-positional-capability")
                 .resolve(configFilePath);
     }
 
