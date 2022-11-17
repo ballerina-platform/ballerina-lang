@@ -264,4 +264,9 @@ public class ClosureTest {
     public void errorConstructorWithClosureTest() {
         BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
     }
+
+    @Test(description = "Test closure levels with forEach")
+    public void forEachWithClosure() {
+        BRunUtil.invoke(compileResult, "test30");
+    }
 }
