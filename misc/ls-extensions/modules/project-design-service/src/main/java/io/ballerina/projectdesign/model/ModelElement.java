@@ -18,27 +18,20 @@
 
 package io.ballerina.projectdesign.model;
 
-import io.ballerina.tools.text.LineRange;
-
-import java.util.Optional;
-
 /**
  * Represents the abstract model for a component model item.
  *
  * @since 2201.3.1
  */
 public abstract class ModelElement {
-    private final Optional<LineRange> lineRange;
 
-    public ModelElement() {
-        this.lineRange = Optional.empty();
+    private final ElementLocation elementLocation;
+
+    public ModelElement(ElementLocation elementLocation) {
+        this.elementLocation = elementLocation;
     }
 
-    public ModelElement(LineRange lineRange) {
-        this.lineRange = Optional.ofNullable(lineRange);
-    }
-
-    public Optional<LineRange> getLineRange() {
-        return lineRange;
+    public ElementLocation getElementLocation() {
+        return elementLocation;
     }
 }

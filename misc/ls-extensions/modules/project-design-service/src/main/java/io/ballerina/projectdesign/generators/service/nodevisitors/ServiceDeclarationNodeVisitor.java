@@ -42,11 +42,10 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projectdesign.ComponentModel;
-import io.ballerina.projectdesign.Utils;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
 import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.projects.Package;
-import io.ballerina.tools.text.LineRange;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -95,7 +94,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceAnnotation = Utils.getServiceAnnotation(annotationNodes, this.filePath.toString());
+            serviceAnnotation = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath.toString());
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
@@ -105,11 +104,10 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
                 new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
                         semanticModel, currentPackage, packageId, filePath.toString());
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
-        LineRange lineRange = LineRange.from(filePath.toString(),
-                serviceDeclarationNode.lineRange().startLine(), serviceDeclarationNode.lineRange().endLine());
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
                 getServiceType(serviceDeclarationNode), serviceMemberFunctionNodeVisitor.getResources(),
-                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation, lineRange));
+                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation, GeneratorUtils.
+                getElementLocation(filePath.toString(), serviceDeclarationNode.lineRange())));
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {

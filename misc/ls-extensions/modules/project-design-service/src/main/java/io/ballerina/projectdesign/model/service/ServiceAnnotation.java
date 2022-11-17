@@ -18,28 +18,29 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ModelElement;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
 
 /**
  * Represents display annotation.
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation extends ModelElement {
+public class ServiceAnnotation {
 
     private final String id;
     private final String label;
+    private final ElementLocation elementLocation;
 
     public ServiceAnnotation() {
-        super();
         this.id = "";
         this.label = "";
+        elementLocation = null;
     }
-    public ServiceAnnotation(String id, String label, LineRange lineRange) {
-        super(lineRange);
+
+    public ServiceAnnotation(String id, String label, ElementLocation elementLocation) {
         this.id = id;
         this.label = label;
+        this.elementLocation = elementLocation;
     }
 
     public String getId() {
@@ -48,5 +49,9 @@ public class ServiceAnnotation extends ModelElement {
 
     public String getLabel() {
         return label;
+    }
+
+    public ElementLocation getElementLocation() {
+        return elementLocation;
     }
 }

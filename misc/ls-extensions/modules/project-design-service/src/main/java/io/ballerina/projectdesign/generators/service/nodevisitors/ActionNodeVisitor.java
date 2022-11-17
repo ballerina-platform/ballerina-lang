@@ -42,12 +42,12 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
 import io.ballerina.projectdesign.model.service.Interaction;
 import io.ballerina.projectdesign.model.service.ResourceId;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -102,12 +102,10 @@ public class ActionNodeVisitor extends NodeVisitor {
             }
         }
 
-        LineRange lineRange = LineRange.from(filePath, clientResourceAccessActionNode.lineRange().startLine(),
-                clientResourceAccessActionNode.lineRange().endLine());
-
         Interaction interaction = new Interaction(
                 new ResourceId(statementVisitor.getServiceId(), resourceMethod, resourcePath),
-                statementVisitor.getConnectorType(), lineRange);
+                statementVisitor.getConnectorType(), GeneratorUtils.getElementLocation(filePath,
+                clientResourceAccessActionNode.lineRange()));
         interactionList.add(interaction);
 
     }
@@ -142,10 +140,9 @@ public class ActionNodeVisitor extends NodeVisitor {
                 break;
             }
         }
-        LineRange lineRange = LineRange.from(filePath, remoteMethodCallActionNode.lineRange().startLine(),
-                remoteMethodCallActionNode.lineRange().endLine());
         Interaction interaction = new Interaction(new ResourceId(statementVisitor.getServiceId(),
-                resourceMethod, null), statementVisitor.getConnectorType(), lineRange);
+                resourceMethod, null), statementVisitor.getConnectorType(),
+                GeneratorUtils.getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
         interactionList.add(interaction);
 
     }
