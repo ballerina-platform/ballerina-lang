@@ -110,7 +110,7 @@ function processAfterEachAnnotation(string name, function f) returns boolean {
 function processBeforeGroupsAnnotation(string name, function f) returns boolean {
     BeforeGroupsConfig? config = (typeof f).@BeforeGroups;
     if config != () {
-        config.value.forEach(group => beforeGroupsRegistry.addFunction(group,
+        config.value.forEach('group => beforeGroupsRegistry.addFunction('group,
             name = name, executableFunction = f));
         return true;
     }
@@ -120,7 +120,7 @@ function processBeforeGroupsAnnotation(string name, function f) returns boolean 
 function processAfterGroupsAnnotation(string name, function f) returns boolean {
     AfterGroupsConfig? config = (typeof f).@AfterGroups;
     if config != () {
-        config.value.forEach(group => afterGroupsRegistry.addFunction(group,
+        config.value.forEach('group => afterGroupsRegistry.addFunction('group,
             name = name, executableFunction = f, alwaysRun = (<AfterGroupsConfig>config).alwaysRun));
         return true;
     }
@@ -128,8 +128,8 @@ function processAfterGroupsAnnotation(string name, function f) returns boolean {
 }
 
 function hasGroup(string[] groups, string[] filter) returns boolean {
-    foreach string group in groups {
-        if filter.indexOf(group) is int {
+    foreach string 'group in groups {
+        if filter.indexOf('group) is int {
             return true;
         }
     }
