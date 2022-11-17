@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.service;
 
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.ModelElement;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
@@ -34,8 +34,8 @@ public class FunctionParameter extends ModelElement {
     private final String name;
     private final boolean isRequired;
 
-    public FunctionParameter(List<String> type, String name, boolean isRequired, LineRange lineRange) {
-        super(lineRange);
+    public FunctionParameter(List<String> type, String name, boolean isRequired, ElementLocation elementLocation) {
+        super(elementLocation);
         this.type = type;
         this.name = name;
         this.isRequired = isRequired;

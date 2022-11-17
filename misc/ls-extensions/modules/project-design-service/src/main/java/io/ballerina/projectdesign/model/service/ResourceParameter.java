@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.service;
 
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.ModelElement;
-import io.ballerina.tools.text.LineRange;
 
 import java.util.List;
 
@@ -35,8 +35,9 @@ public class ResourceParameter extends ModelElement {
     private final String in;
     private final boolean isRequired;
 
-    public ResourceParameter(List<String> type, String name, String in, boolean isRequired, LineRange lineRange) {
-        super(lineRange);
+    public ResourceParameter(List<String> type, String name, String in, boolean isRequired,
+                             ElementLocation elementLocation) {
+        super(elementLocation);
         this.type = type;
         this.name = name;
         this.in = in;

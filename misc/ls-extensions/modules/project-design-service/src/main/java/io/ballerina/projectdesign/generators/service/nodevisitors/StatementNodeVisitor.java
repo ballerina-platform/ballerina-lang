@@ -36,7 +36,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projectdesign.Utils;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
 
 import java.util.Optional;
 
@@ -77,7 +77,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             TypeDescriptorNode typeDescriptorNode = variableDeclarationNode.typedBindingPattern().typeDescriptor();
             connectorType = getClientModuleName(typeDescriptorNode);
             NodeList<AnnotationNode> annotations = variableDeclarationNode.annotations();
-            this.serviceId = Utils.getServiceAnnotation(annotations, this.filePath).getId();
+            this.serviceId = GeneratorUtils.getServiceAnnotation(annotations, this.filePath).getId();
         }
     }
 
@@ -90,7 +90,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = objectFieldNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getServiceAnnotation(annotationNodes, this.filePath).getId();
+                serviceId = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath).getId();
             }
         }
     }
@@ -105,7 +105,7 @@ public class StatementNodeVisitor extends NodeVisitor {
             Optional<MetadataNode> metadataNode = moduleVariableDeclarationNode.metadata();
             if (metadataNode.isPresent()) {
                 NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-                serviceId = Utils.getServiceAnnotation(annotationNodes, this.filePath).getId();
+                serviceId = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath).getId();
             }
         }
     }

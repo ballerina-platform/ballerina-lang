@@ -32,6 +32,8 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projectdesign.ComponentModel;
 import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.entity.Association;
 import io.ballerina.projectdesign.model.entity.Attribute;
 import io.ballerina.projectdesign.model.entity.Entity;
@@ -67,7 +69,6 @@ public class EntityModelGenerator {
         this.moduleRootPath = moduleRootPath;
     }
 
-
     public Map<String, Entity> generate() {
 
         Map<String, Entity> entities = new HashMap<>();
@@ -95,11 +96,11 @@ public class EntityModelGenerator {
                                 getAssociations(fieldEntryValue.typeDescriptor(), entityName, optional, nillable);
                         Attribute attribute =
                                 new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
-                                        getLineRange(fieldEntryValue));
+                                        getElementLocation(fieldEntryValue));
                         attributeList.add(attribute);
                     }
 
-                    Entity entity = new Entity(attributeList, inclusionList, getLineRange(typeDefinitionSymbol));
+                    Entity entity = new Entity(attributeList, inclusionList, getElementLocation(typeDefinitionSymbol));
                     entities.put(entityName, entity);
                 }
             }
@@ -287,13 +288,13 @@ public class EntityModelGenerator {
         return associations;
     }
 
-    private LineRange getLineRange(Symbol symbol) {
-        LineRange lineRange = null;
+    private ElementLocation getElementLocation(Symbol symbol) {
+        ElementLocation elementLocation = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
             String filePath = moduleRootPath.resolve(typeLineRange.filePath()).toAbsolutePath().toString();
-            lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
+            elementLocation = GeneratorUtils.getElementLocation(filePath, typeLineRange);
         }
-        return lineRange;
+        return elementLocation;
     }
 }
