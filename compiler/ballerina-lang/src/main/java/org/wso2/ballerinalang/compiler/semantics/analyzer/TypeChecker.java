@@ -1497,6 +1497,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case BINARY_EXPR:
             case TYPE_TEST_EXPR:
             case TERNARY_EXPR:
+            case REG_EXP_TEMPLATE_LITERAL:
                 return true;
             case SIMPLE_VARIABLE_REF:
                 return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
