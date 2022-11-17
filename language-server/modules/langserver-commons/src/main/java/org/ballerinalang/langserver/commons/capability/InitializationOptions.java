@@ -77,7 +77,7 @@ public interface InitializationOptions {
      * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
      * @return True if supported, false otherwise
      */
-    boolean isPositionalRefactoredRenameSupported();
+    boolean isPositionalRefactorRenameSupported();
 
     /**
      * Returns if the client supports quick picks.

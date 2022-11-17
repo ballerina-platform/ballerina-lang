@@ -220,7 +220,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
                                CodeAction codeAction, int renameOffset,
                                Position varRenamePosition, int newImportsCount) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactoredRenameSupported()) {
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.POSITIONAL_RENAME_COMMAND,
                     List.of(context.fileUri(),
