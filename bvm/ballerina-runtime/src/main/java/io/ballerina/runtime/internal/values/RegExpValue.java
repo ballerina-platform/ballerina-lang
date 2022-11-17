@@ -99,4 +99,9 @@ public class RegExpValue implements BRegexpValue, RefValue {
     public void freezeDirect() {
         // RegExpValue is always readonly
     }
+
+    @Override
+    public String toString() {
+        return this.stringValue(null);
+    }
 }
