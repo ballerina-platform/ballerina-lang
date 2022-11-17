@@ -219,11 +219,18 @@ function testLangLibRange6() {
 }
 
 function testZeroStepRangeError() {
+    int[]|error e = trap zeroStepRange();
+    assert(e is error, true);
+}
+
+function zeroStepRange() returns int[] {
     int[] r =[];
 
     foreach int i in int:range(0, 4, 0) {
         r.push(i);
     }
+
+    return r;
 }
 
 class Iter {

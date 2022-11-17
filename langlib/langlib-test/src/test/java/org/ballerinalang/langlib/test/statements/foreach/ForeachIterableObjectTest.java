@@ -18,7 +18,6 @@
 package org.ballerinalang.langlib.test.statements.foreach;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -115,9 +114,7 @@ public class ForeachIterableObjectTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.int\\}ZeroStepInRange \\{\"message\":" +
-                    "\"Step in range function cannot be 0\"\\}.*")
+    @Test
     public void testZeroStepRangeError() {
         BRunUtil.invoke(program, "testZeroStepRangeError");
     }
