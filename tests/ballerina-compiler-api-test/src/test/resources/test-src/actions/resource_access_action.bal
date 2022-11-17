@@ -43,4 +43,45 @@ public function main() {
    string yVal = fooClient->/bar/["3"].post("myname");
 }
 
-const x = 1;
+client class Bar {
+    resource function get [string s1]/[string s2]() {}
+}
+
+client class Baz {
+    resource function get [string... ss]() {}
+}
+
+client class Qux {
+    resource function get path1/path2() {}
+}
+
+public function mmmm() {
+    Bar barCl = new;
+
+    barCl->/seg1/seg2(); // Identifier path segments
+    barCl->/[...["seg1", "seg2"]](); // List constructor spread
+    barCl->/["seg1"]/["seg2"]();    // Path params
+
+    //===================================================
+    Baz bazCl = new;
+
+    bazCl ->/seg1/seg2();   // Identifier path segments
+    bazCl->/[...["seg1", "seg2"]]();    // List constructor spread
+    bazCl->/["seg1"]/["seg2"]();    // Path params
+
+    //===================================================
+    Qux quxCl = new;
+
+    quxCl ->/path1/path2();   // [1] Identifier path segments
+    quxCl->/[...["path1", "path2"]]();    // [2] List constructor spread
+    quxCl->/["path1"]/["path2"]();    // [3] Path params
+
+    //===================================================
+    Quux quuxCl = new;
+
+    quuxCl->/();
+}
+
+client class Quux {
+    resource function get . () {}
+}

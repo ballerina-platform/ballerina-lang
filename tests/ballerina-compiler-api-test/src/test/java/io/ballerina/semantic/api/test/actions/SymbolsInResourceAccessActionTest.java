@@ -109,6 +109,23 @@ public class SymbolsInResourceAccessActionTest {
         };
     }
 
+    @Test
+    public void testPathSymbolInResourceAccessAction() {
+        Optional<Symbol> symbol1 = model.symbol(srcFile, LinePosition.from(60, 12));
+        Optional<Symbol> symbol2 = model.symbol(srcFile, LinePosition.from(61, 17));
+        Optional<Symbol> symbol3 = model.symbol(srcFile, LinePosition.from(62, 13));
+
+        Optional<Symbol> symbol4 = model.symbol(srcFile, LinePosition.from(67, 13));
+        Optional<Symbol> symbol5 = model.symbol(srcFile, LinePosition.from(68, 17));
+        Optional<Symbol> symbol6 = model.symbol(srcFile, LinePosition.from(69, 13));
+
+        Optional<Symbol> symbol7 = model.symbol(srcFile, LinePosition.from(74, 13));
+        Optional<Symbol> symbol8 = model.symbol(srcFile, LinePosition.from(75, 17));
+        Optional<Symbol> symbol9 = model.symbol(srcFile, LinePosition.from(76, 13));
+
+        Optional<Symbol> symbol10 = model.symbol(srcFile, LinePosition.from(81, 13));
+    }
+
     // Utils
     private void assertPathSegment(Map<String, PathSegment.Kind> expected, List<PathSegment> actual) {
         expected.forEach((expName, expKind) ->
