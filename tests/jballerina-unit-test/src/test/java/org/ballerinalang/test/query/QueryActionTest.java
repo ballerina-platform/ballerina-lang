@@ -208,6 +208,21 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testQueryWithOptionalFieldRecord");
     }
 
+    @Test(dataProvider = "dataToTestQueryAction")
+    public void testQueryAction(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryAction() {
+        return new Object[]{
+                "testQueryActionWithRegExp",
+                "testQueryActionWithRegExpWithInterpolations",
+                "testNestedQueryActionWithRegExp",
+                "testJoinedQueryActionWithRegExp"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

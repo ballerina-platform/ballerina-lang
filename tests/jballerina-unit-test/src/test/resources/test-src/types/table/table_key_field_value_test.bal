@@ -467,6 +467,44 @@ function testKeyCollision() {
     }
 }
 
+type Row9 record {
+    readonly string:RegExp k;
+    int value;
+};
+
+function testRegExpAsKeyValue() {
+    table<Row9> key(k) tbl = table [
+       {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17}
+    ];
+
+    tbl.add({k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?i-x:[cdeg-k]??)|)|^|PR?`, value: 25});
+    var tbl2 = table key(k) [{ k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17 },
+                             {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?i-x:[cdeg-k]??)|)|^|PR?`, value: 25}];
+    assertEqual(tbl2, tbl);
+
+    Row9 row = {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17};
+    assertEqual(row, tbl.get(re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`));
+
+    error? err = trap tbl.add({k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 20});
+    assertEqual(true, err is error);
+    if (err is error) {
+        map<string> msg = {"message":"a value found for key 'AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?'"};
+        assertEqual(msg, err.detail());
+    }
+
+    table<Row9> key(k)|error err2 = trap getTable();
+    assertEqual(true, err2 is error);
+    if (err2 is error) {
+        map<string> msg = {"message":"a value found for key 'AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?'"};
+        assertEqual(msg, err2.detail());
+    }
+}
+
+function getTable() returns table<Row9> key(k) {
+    return table [{k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17},
+                  {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17}];
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
