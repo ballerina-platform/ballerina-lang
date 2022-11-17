@@ -72,14 +72,14 @@ public class SymbolsInResourceAccessActionTest {
     @DataProvider(name = "ResourceAccessActionPosition")
     public Object[][] getResourceAccessActionPosAndPathSegments() {
         return new Object[][]{
-                {40, 34, "get", Map.of(
+                {42, 34, "get", Map.of(
                         "foo", PathSegment.Kind.NAMED_SEGMENT,
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string id]", PathSegment.Kind.PATH_PARAMETER)},
-                {41, 25, "get", Map.of(
+                {43, 25, "get", Map.of(
                         "foo", PathSegment.Kind.NAMED_SEGMENT,
                         "[string id]", PathSegment.Kind.PATH_PARAMETER)},
-                {42, 28, "post", Map.of(
+                {44, 28, "post", Map.of(
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string... ids]", PathSegment.Kind.PATH_REST_PARAMETER)},
         };
@@ -101,20 +101,64 @@ public class SymbolsInResourceAccessActionTest {
     @DataProvider(name = "SymbolPosInResourceAccessAction")
     public Object[][] getSymbolPosInResourceAccessAction() {
         return new Object[][]{
-                {40, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
-                {40, 32, null, null},   // -><c>/foo
-                {40, 34, "get", SymbolKind.RESOURCE_METHOD},    // <c>->
-//                {40, 35, "foo", <undefined>}, // ->/<c>foo    //TODO: Enable this after fixing #37604
-                {40, 49, "x", SymbolKind.CONSTANT}  // ["3"](<c>x, 2);
+                {42, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
+                {42, 32, null, null},   // -><c>/foo
+                {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // <c>->
+                {42, 35, "foo", SymbolKind.PATH_SEGMENT}, // ->/<c>foo
+                {42, 49, "x", SymbolKind.CONSTANT}  // ["3"](<c>x, 2);
+        };
+    }
+
+    @Test(dataProvider = "ResourceAccessActionPathPos1")
+    public void testResourceAccessActionPath1(int line, int col, String signature) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.RESOURCE_METHOD);
+        assertEquals(((ResourceMethodSymbol) symbol.get()).signature(), signature);
+    }
+
+    @DataProvider(name = "ResourceAccessActionPathPos1")
+    public Object[][] getResourceAccessActionPathPos1() {
+        return new Object[][]{
+                // Resource method: [string s1]/[string s2]()
+                {66, 12, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->/<CURSOR>seg1/seg2()
+                {67, 17, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->[...[<CURSOR>"seg1", "seg2"]]()
+                {68, 13, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->/[<CURSOR>"seg1"]/["seg2"]()
+
+                // Resource method: [string... ss]()
+                {70, 12, "resource function get [string... ss] () returns ()"},   // bazCl->/<CURSOR>seg1/seg2()
+                {71, 17, "resource function get [string... ss] () returns ()"},   // bazCl->[...[<CURSOR>"seg1", "seg2"]]()
+                {72, 13, "resource function get [string... ss] () returns ()"},   // bazCl->/[<CURSOR>"seg1"]/["seg2"]()
+        };
+    }
+
+    @Test(dataProvider = "ResourceAccessActionPathPos2")
+    public void testResourceAccessActionPath2(int line, int col, String signature) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.PATH_SEGMENT);
+        assertEquals(((PathSegment) symbol.get()).signature(), signature);
+    }
+
+    @DataProvider(name = "ResourceAccessActionPathPos2")
+    public Object[][] getResourceAccessActionPathPos2() {
+        return new Object[][]{
+                // Resource method: path1/path2()
+                {74, 12, "path1"},   // quxCl->/<CURSOR>path1/path2()
+//                {75, 17, ""},   // quxCl->[...[<CURSOR>"path1", "path2"]]() // TODO: Remove this invalid test case
+                {76, 13, "path1"},   // quxCl->/[<CURSOR>"path1"]/["path2"]()
+
+                // Resource method: get . ()
+//                {81, 13, ""},   // quxCl->/<CURSOR>()  TODO: Remove if this is not needed to evaluate
         };
     }
 
     // Utils
     private void assertPathSegment(Map<String, PathSegment.Kind> expected, List<PathSegment> actual) {
         expected.forEach((expName, expKind) ->
-            assertTrue(actual.stream()
-                    .anyMatch(actualName ->
-                            actualName.signature().equals(expName) && actualName.pathSegmentKind().equals(expKind)))
+                assertTrue(actual.stream()
+                        .anyMatch(actualName ->
+                                actualName.signature().equals(expName) && actualName.pathSegmentKind().equals(expKind)))
         );
     }
 }
