@@ -6457,7 +6457,7 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
 
-        // Add `@strand {thread: "any"}` annotation to an isolated start-action in an isolated function.
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action.
         if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
                 Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
