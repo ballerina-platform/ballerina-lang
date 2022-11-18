@@ -422,7 +422,7 @@ public class BallerinaDocGenerator {
             // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             DiagnosticResult diagnostics = module.getCompilation().diagnostics();
             if (diagnostics.hasErrors()) {
-                throw new Exception("doc gen failed due to compilation errors: " +
+                throw new Exception("API documentation generation failed due to compilation errors: " +
                         diagnostics.errors().toString());
             }
             ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
