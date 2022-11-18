@@ -132,7 +132,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-                    completionItems.add(new SnippetCompletionItem(context, 
+                    completionItems.add(new SnippetCompletionItem(context,
                             Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
@@ -171,7 +171,6 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             completionItems.addAll(this.getCompletionItemList(types, context));
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, predicate));
             return completionItems;
         }
 
