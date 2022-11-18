@@ -85,7 +85,13 @@ public abstract class AbstractLSTest {
         if (this.loadMockedPackages()) {
             setUp();
         }
-        this.serviceEndpoint = TestUtil.initializeLanguageSever(this.languageServer);
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(languageServer);
+        setupLanguageServer(builder);
+        this.serviceEndpoint = builder.build();
+    }
+    
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
     }
 
     public void setUp() {
