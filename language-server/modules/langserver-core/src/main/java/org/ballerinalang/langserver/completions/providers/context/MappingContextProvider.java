@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -214,15 +215,16 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         LinePosition linePosition = node.location().lineRange().endLine();
         Optional<TypeSymbol> resolvedType = context.currentSemanticModel().get()
                 .expectedType(context.currentDocument().get(), linePosition);
-        if (resolvedType.isEmpty() || resolvedType.get().typeKind() != TypeDescKind.MAP) {
+        if (resolvedType.isEmpty() ) {
             return Collections.emptyList();
         }
-        Predicate<Symbol> symbolFilter = this.getVariableFilter().or(symbol -> (symbol.kind() == FUNCTION));
+        Predicate<Symbol> symbolFilter = this.getVariableFilter();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbolFilter.and(symbol -> {
                     Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    return typeDescriptor.isPresent() && typeDescriptor.get().subtypeOf(resolvedType.get())
-                            && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP
+                    return typeDescriptor.isPresent() 
+                            && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP 
+                            && ((MapTypeSymbol) typeDescriptor.get()).typeParam().subtypeOf(resolvedType.get())
                             || CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.RECORD);
                 })).collect(Collectors.toList());
 
