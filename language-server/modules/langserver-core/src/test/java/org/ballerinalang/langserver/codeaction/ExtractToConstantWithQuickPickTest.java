@@ -15,18 +15,25 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 
 /**
- * Test cases for Extract to Constant code action.
+ * Test cases for Extract to Constant code action with quick pick.
  * 
- * @since 2201.2.0
+ * @since 2201.4.0
  */
-public class ExtractToConstantTest extends AbstractCodeActionTest {
+public class ExtractToConstantWithQuickPickTest extends AbstractCodeActionTest {
+    
+    @Override 
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_QUICKPICK_SUPPORT, true);
+    }
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
@@ -44,38 +51,20 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"extractIntToConstant.json"},
-                {"extractHexIntToConstant.json"},
-                {"extractFloatingPointToConstant.json"},
-                {"extractHexFloatingPointToConstant.json"},
-                {"extractBooleanToConstant.json"},
-                {"extractStringToConstant.json"},
-                {"extractClassDefToConstant.json"},
-                {"extractIntRangeToConstant.json"},
-                {"extractExpressionToConstant.json"},
-                {"extractConstDeclToConstant1.json"},
-                {"extractToConstantWithImports.json"},
-                {"extractUnaryNumericExprToConstant.json"},
-                {"extractUnaryNumericExprToConstant2.json"},
-                {"extractUnaryLogicalExprToConstant.json"},
-                {"extractBooleanLiteralInUnaryExprToConstant.json"},
-                {"extractNumericLiteralInUnaryExprToConstant.json"},
-                {"extractNumericLiteralInUnaryExprToConstant2.json"},
-                {"extractExprToConstant1.json"},
-                {"extractExprToConstant2.json"}
+                {"extractExprToConstantWithQuickPick1.json"},
+                {"extractExprToConstantWithQuickPick2.json"},
+                {"extractExprToConstantWithQuickPick3.json"},
+                {"extractExprToConstantWithQuickPick4.json"},
+                {"extractExprToConstantWithQuickPick5.json"},
+                {"extractExprToConstantWithQuickPick6.json"},
+                {"extractExprToConstantWithQuickPick7.json"}
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
-                {"extractConstDeclToConstant.json"},
-                {"extractInvalidExprStmtToConstant.json"},
-                {"extractExpressionToConstant1.json"},
-                {"extractExpressionToConstant2.json"},
-                {"extractExpressionToConstant3.json"},
-                {"extractServiceUriInModuleClientDeclToConstant.json"},
-                {"extractServiceUriInClientDeclarationToConstant.json"}
+                {"extractExprToConstantWithQuickPickNegative1.json"}
         };
     }
 
