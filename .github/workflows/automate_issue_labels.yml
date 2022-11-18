@@ -23,7 +23,7 @@ jobs:
         run: gh issue edit $ISSUE --add-label "needTriage"
       
       - name: Check for Compilation related issue
-        if: ${{ contains(github.event.issue.body, '-> Compilation') && {{ env.team_label_added == false }} }}
+        if: ${{ contains(github.event.issue.body, '-> Compilation') && ${{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Compilation" 
@@ -46,7 +46,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Central related isssue
-        if: ${{ contains(github.event.issue.body, '-> Central') && {{ env.team_label_added == false }} }}
+        if: ${{ contains(github.event.issue.body, '-> Central') && ${{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Central"
@@ -142,7 +142,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for Editor related issue 
-        if: ${{ contains(github.event.issue.body, '-> Editor') && {{ env.team_label_added == false }} }}
+        if: ${{ contains(github.event.issue.body, '-> Editor') && ${{ env.team_label_added == false }} }}
         run: |
           gh issue edit $ISSUE --add-label "needTriage"
           gh issue edit $ISSUE --add-label "userCategory/Editor"
@@ -174,7 +174,7 @@ jobs:
           ISSUE: ${{ github.event.issue.number }}
 
       - name: Check for other issues 
-        if: ${{ contains(github.event.issue.body, '-> Other Area') && {{ env.team_label_added == false }} }}
+        if: ${{ contains(github.event.issue.body, '-> Other Area') && ${{ env.team_label_added == false }} }}
         run: gh issue edit $ISSUE --add-label "needTriage"
         env:
           GITHUB_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
