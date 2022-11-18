@@ -107,7 +107,7 @@ public class ProjectFiles {
         }
     }
 
-    public static ModuleData loadModule(Path moduleDirPath) {
+    private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");

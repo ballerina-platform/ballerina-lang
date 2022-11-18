@@ -415,12 +415,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visit((BLangXMLNS) node, data);
     }
 
-    public void visit(BLangClientDeclaration node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.uri, data);
-        visitNode(node.prefix, data);
-    }
-
     // Binding-patterns
 
     public void visit(BLangCaptureBindingPattern node, T data) {

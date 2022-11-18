@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,8 +90,6 @@ class ModuleContext {
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
     private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
-    private final ModuleKind kind;
-    private List<Diagnostic> idlPluginDiagnostics;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -103,8 +100,7 @@ class ModuleContext {
                   MdDocumentContext moduleMd,
                   List<ModuleDescriptor> moduleDescDependencies,
                   Map<DocumentId, ResourceContext> resourceContextMap,
-                  Map<DocumentId, ResourceContext> testResourceContextMap,
-                  ModuleKind kind) {
+                  Map<DocumentId, ResourceContext> testResourceContextMap) {
         this.project = project;
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
@@ -119,12 +115,10 @@ class ModuleContext {
         this.testResourceContextMap = testResourceContextMap;
         this.resourceIds = Collections.unmodifiableCollection(resourceContextMap.keySet());
         this.testResourceIds = Collections.unmodifiableCollection(testResourceContextMap.keySet());
-        this.kind = kind;
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
-        this.idlPluginDiagnostics = new ArrayList<>();
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -151,7 +145,7 @@ class ModuleContext {
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
                 moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
                 moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
-                moduleConfig.dependencies(), resourceContextMap, testResourceContextMap, moduleConfig.kind());
+                moduleConfig.dependencies(), resourceContextMap, testResourceContextMap);
     }
 
     ModuleId moduleId() {
@@ -219,32 +213,27 @@ class ModuleContext {
         return moduleDescDependencies;
     }
 
-    Set<ModuleLoadRequest> populateModuleLoadRequests(IDLPluginManager idlPluginManager,
-                                                      CompilationOptions compilationOptions, Package currentPkg) {
+    Set<ModuleLoadRequest> populateModuleLoadRequests() {
         if (allModuleLoadRequests != null) {
             return allModuleLoadRequests;
         }
         allModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : srcDocContextMap.values()) {
             allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleDescriptor,
-                    PackageDependencyScope.DEFAULT, idlPluginManager, compilationOptions, currentPkg,
-                    idlPluginDiagnostics));
+                    PackageDependencyScope.DEFAULT));
         }
 
         return allModuleLoadRequests;
     }
 
-    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests(IDLPluginManager idlPluginManager,
-                                                             CompilationOptions compilationOptions,
-                                                             Package currentPkg) {
+    Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
         if (allTestModuleLoadRequests != null) {
             return allTestModuleLoadRequests;
         }
         allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         for (DocumentContext docContext : testDocContextMap.values()) {
             allTestModuleLoadRequests.addAll(
-                    docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY,
-                            idlPluginManager, compilationOptions, currentPkg, idlPluginDiagnostics));
+                    docContext.moduleLoadRequests(moduleDescriptor, PackageDependencyScope.TEST_ONLY));
         }
 
         return allTestModuleLoadRequests;
@@ -256,14 +245,6 @@ class ModuleContext {
 
     ModuleCompilationState compilationState() {
         return moduleCompState;
-    }
-
-    ModuleKind kind() {
-        return this.kind;
-    }
-
-    boolean isGenerated() {
-        return this.kind.equals(ModuleKind.COMPILER_GENERATED);
     }
 
     private BLangPackage getBLangPackageOrThrow() {
@@ -286,10 +267,6 @@ class ModuleContext {
         }
 
         return Collections.emptyList();
-    }
-
-    List<Diagnostic> idlPluginDiagnostics() {
-        return idlPluginDiagnostics;
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
@@ -593,7 +570,7 @@ class ModuleContext {
         }
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
                 srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
-                this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap, this.kind);
+                this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
     }
 
     /**
