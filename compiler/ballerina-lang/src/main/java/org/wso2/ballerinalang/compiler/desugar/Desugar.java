@@ -6473,8 +6473,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Add `@strand {thread: "any"}` annotation to an isolated start-action in an isolated function.
         if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
-                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED) &&
-                isInIsolatedFunction(env.enclInvokable)) {
+                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
             actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
             ((BInvokableSymbol) actionInvocation.symbol)
