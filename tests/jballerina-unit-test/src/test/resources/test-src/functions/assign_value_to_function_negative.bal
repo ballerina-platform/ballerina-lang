@@ -14,9 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function foo(string s, int i) returns string => "Foo";
+function foo() returns string => "Foo";
+function bar() returns string => "Bar";
 
-public function testAssignValueToFunctionNegative() {
-    foo = function(string s, int i) returns string => "Bar";
+function testAssignValueToFunctionIdentifierNegative() {
+    foo = function() returns string => "Bar";
     foo = foo;
+    [foo, bar] = [function() returns string => "Bar", bar];
+}
+
+type BarRec record {|
+    function() returns string func;
+    int id;
+|};
+
+function testAssignValueToFunctionIdentifierInMapBindingPatternNegative() {
+    int n;
+    BarRec rec = {func : function() returns string => "Bar", id : 1};
+    {func : foo, id : n} = rec;
+}
+
+type TestError error<BarRec>;
+
+function testAssignValueToFunctionIdentifierInErrorBindingPatternNegative() {
+    string reason;
+    int n;
+    TestError testError = error("Error", func = function() returns string => "Bar", id = 1);
+    error(reason, func = foo, id = n) = testError;
 }

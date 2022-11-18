@@ -3021,6 +3021,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             refItem.isLValue = true;
             checkExpr(refItem, data);
 
+            if (types.isFunctionVarRef(refItem)) {
+                dlog.error(refItem.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
+                        Names.FUNCTION);
+                unresolvedReference = true;
+            }
+
             if (!isValidVariableReference(refItem)) {
                 unresolvedReference = true;
                 continue;

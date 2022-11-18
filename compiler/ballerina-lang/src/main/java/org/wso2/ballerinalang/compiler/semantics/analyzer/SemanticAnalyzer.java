@@ -2264,12 +2264,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         setTypeOfVarRefInAssignment(varRef, data);
         data.expType = varRef.getBType();
 
-        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) varRef).symbol != null
-                && (((BLangSimpleVarRef) varRef).symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
-            dlog.error(assignNode.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
-                    Names.FUNCTION);
-            data.expType = symTable.semanticError;
-        }
+        validateFunctionVarRef(varRef, data);
 
         checkInvalidTypeDef(varRef);
         if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && data.expType.tag != TypeTags.SEMANTIC_ERROR) {
@@ -2292,6 +2287,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangExpression tupleVar : tupleDeStmt.varRef.expressions) {
             setTypeOfVarRefForBindingPattern(tupleVar, data);
             checkInvalidTypeDef(tupleVar);
+            validateFunctionVarRef(tupleVar, data);
         }
 
         if (tupleDeStmt.varRef.restParam != null) {
@@ -2307,6 +2303,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
+        }
+    }
+
+    private void validateFunctionVarRef(BLangExpression expr, AnalyzerData data) {
+        if (types.isFunctionVarRef(expr)) {
+            dlog.error(expr.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
+                    Names.FUNCTION);
+            data.expType = symTable.semanticError;
         }
     }
 
@@ -4415,6 +4419,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 setTypeOfVarRef(expr, data);
+                validateFunctionVarRef(expr, data);
                 break;
             case TUPLE_VARIABLE_REF:
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expr;
