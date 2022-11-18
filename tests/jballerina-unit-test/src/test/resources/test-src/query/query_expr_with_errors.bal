@@ -378,6 +378,30 @@ function testCatchingErrorAtOnFail() {
         res14 = err;
     }
     assertTrue(res14 is error);
+
+    error? res15 = ();
+    from int i in [1]
+    do {
+        do {
+           _ = check verifyCheck(i);
+        } on fail error e {
+            res15 = e;
+        }
+    };
+    assertTrue(res15 is error);
+
+    error? res16 = ();
+    from int i in [1]
+    do {
+        do {
+           do {
+             _ = check verifyCheck(i);
+           }
+        } on fail error e {
+            res16 = e;
+        }
+    };
+    assertTrue(res16 is error);
 }
 
 function testErrorReturnedFromSelect() {

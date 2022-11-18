@@ -6347,7 +6347,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             (BObjectType) Types.getReferredType(invokableSymbol.retType));
             }
             if (returnType != null) {
-                if (queryConstructType == Types.QueryConstructType.STREAM) {
+                if (queryConstructType == Types.QueryConstructType.STREAM ||
+                        queryConstructType == Types.QueryConstructType.ACTION) {
                     types.getAllTypes(returnType, true).stream()
                             .filter(t -> (types.isAssignable(t, symTable.errorType)
                                     || types.isAssignable(t, symTable.nilType)))
@@ -6433,7 +6434,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
         List<BType> collectionTypes = getCollectionTypes(clauses);
-        BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.DEFAULT, data);
+        BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
                 typeCheckerData.queryEnvs.peek()), data.prevEnvs, typeCheckerData);

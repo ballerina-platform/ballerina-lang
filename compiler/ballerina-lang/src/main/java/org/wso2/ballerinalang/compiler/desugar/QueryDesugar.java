@@ -2243,12 +2243,13 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
-        doNode.body.stmts.forEach(stmt -> this.acceptNode(stmt));
+        doNode.body.stmts.forEach(this::acceptNode);
+        this.acceptNode(doNode.onFailClause);
     }
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
-        onFailClause.body.stmts.forEach(stmt -> this.acceptNode(stmt));
+        onFailClause.body.stmts.forEach(this::acceptNode);
     }
 
     @Override
