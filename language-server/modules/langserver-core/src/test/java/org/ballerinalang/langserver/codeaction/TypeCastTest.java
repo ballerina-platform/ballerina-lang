@@ -85,7 +85,9 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"type_cast_in_conditional_expr3.json"},
                 {"type_cast_numeric1.json"},
                 {"type_cast_in_obj_field_config1.json"},
-                {"type_cast_in_obj_field_config2.json"}
+                {"type_cast_in_obj_field_config2.json"},
+
+                {"type_casts_in_constants.json"},
         };
     }
 
