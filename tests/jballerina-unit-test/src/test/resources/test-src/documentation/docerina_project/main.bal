@@ -24,21 +24,22 @@ public isolated function inlineRecordReturn(CommonResponse prvtRecord, Subscript
         decimal longitude;
         json...;
     |} {
+        return {
+            latitude: "",
+            longitude: 0
+        };
 }
 
 # Anydata type apram
-@typeParam
-type AnydataType anydata;
+public type AnydataType anydata;
 
 # A type param
-@typeParam
-type TypeParam any|error;
+public type TypeParam any|error;
 
 # Built-in subtype of string containing strings of length 1.
-@builtinSubtype
-type Char string;
+public type Char string;
 
-public isolated function cancelFuture(future<any|error> f) returns {
+public isolated function cancelFuture(future<any|error> f) returns () {
 }
 
 # Docs for tuple module variable.
