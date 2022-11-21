@@ -28,6 +28,7 @@ type IterableIntegerRange isolated object {
 #
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
+# + iStep - step of range expression
 # + iCurrent - current cursor
 public isolated class __IntRange {
 

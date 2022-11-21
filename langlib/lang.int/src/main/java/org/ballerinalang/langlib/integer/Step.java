@@ -24,13 +24,13 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
- * Native implementation of lang.int:externalCheckStep(int).
+ * Native implementation of lang.int:externalGetStepDirection(int).
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class Step {
 
-    public static long checkStepDirection(long step) {
+    public static long getStepDirection(long step) {
         if (step == 0) {
             throw ErrorCreator.createError(BallerinaErrorReasons.ZERO_STEP_RANGE_ERROR,
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.RANGE_WITH_ZERO_STEP));

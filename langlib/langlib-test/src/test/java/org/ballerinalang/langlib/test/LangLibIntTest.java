@@ -150,7 +150,7 @@ public class LangLibIntTest {
     public Object[] functionProvider() {
         return new String[] {"testToHexStringNonPositives", "testLangLibCallOnIntSubTypes",
                 "testLangLibCallOnFiniteType", "testIntOverflow", "testIntOverflowWithSum",
-                "testIntNonOverflowWithSum", "testIntRange", "testIntRangeDec"};
+                "testIntNonOverflowWithSum", "testIntRange", "testIntRangeDec", "testZeroStepIntRangeError"};
     }
 
 }

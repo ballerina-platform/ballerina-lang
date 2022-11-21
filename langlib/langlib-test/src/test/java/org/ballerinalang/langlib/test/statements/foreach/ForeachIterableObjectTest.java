@@ -97,26 +97,21 @@ public class ForeachIterableObjectTest {
         BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
     }
 
-    @Test(dataProvider = "langlibIntRangeTests")
-    public void testLangLibIntRange(String funcName) {
+    @Test(dataProvider = "langLibIntRangeFunctionTests")
+    public void testLangLibIntRangeFunction(String funcName) {
         BRunUtil.invoke(program, funcName);
     }
 
     @DataProvider
-    private Object[][] langlibIntRangeTests() {
+    private Object[][] langLibIntRangeFunctionTests() {
         return new Object[][]{
-                {"testLangLibRange1"},
-                {"testLangLibRange2"},
-                {"testLangLibRange3"},
-                {"testLangLibRange4"},
-                {"testLangLibRange5"},
-                {"testLangLibRange6"}
+                {"testLangLibRangeFunction1"},
+                {"testLangLibRangeFunction2"},
+                {"testLangLibRangeFunction3"},
+                {"testLangLibRangeFunction4"},
+                {"testLangLibRangeFunction5"},
+                {"testLangLibRangeFunction6"}
         };
-    }
-
-    @Test
-    public void testZeroStepRangeError() {
-        BRunUtil.invoke(program, "testZeroStepRangeError");
     }
 
     @Test

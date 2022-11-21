@@ -164,7 +164,7 @@ function testNextIsNotInvokedTwiseBeforeInvokingBody() {
 }
 
 
-function testLangLibRange1() {
+function testLangLibRangeFunction1() {
     int[] expected = [6, 4, 2];
     int[] actual = [];
     foreach int i in int:range(6, 0, -2) {
@@ -173,7 +173,7 @@ function testLangLibRange1() {
     assert(expected, actual);
 }
 
-function testLangLibRange2() {
+function testLangLibRangeFunction2() {
     int[] expected = [0, 2, 4];
     int[] actual = [];
     foreach int i in int:range(0, 6, 2) {
@@ -182,7 +182,7 @@ function testLangLibRange2() {
     assert(expected, actual);
 }
 
-function testLangLibRange3() {
+function testLangLibRangeFunction3() {
     int[] expected = [];
     int[] actual = [];
     foreach int i in int:range(0, 5, -2) {
@@ -191,7 +191,7 @@ function testLangLibRange3() {
     assert(expected, actual);
 }
 
-function testLangLibRange4() {
+function testLangLibRangeFunction4() {
     int[] expected = [];
     int[] actual = [];
     foreach int i in int:range(5, 0, 2) {
@@ -200,7 +200,7 @@ function testLangLibRange4() {
     assert(expected, actual);
 }
 
-function testLangLibRange5() {
+function testLangLibRangeFunction5() {
     int[] expected = [0, -2, -4];
     int[] actual = [];
     foreach int i in int:range(0, -6, -2) {
@@ -209,28 +209,13 @@ function testLangLibRange5() {
     assert(expected, actual);
 }
 
-function testLangLibRange6() {
+function testLangLibRangeFunction6() {
     int[] expected = [-6, -4, -2];
     int[] actual = [];
     foreach int i in int:range(-6, 0, 2) {
         actual.push(i);
     }
     assert(expected, actual);
-}
-
-function testZeroStepRangeError() {
-    int[]|error e = trap zeroStepRange();
-    assert(e is error, true);
-}
-
-function zeroStepRange() returns int[] {
-    int[] r =[];
-
-    foreach int i in int:range(0, 4, 0) {
-        r.push(i);
-    }
-
-    return r;
 }
 
 class Iter {

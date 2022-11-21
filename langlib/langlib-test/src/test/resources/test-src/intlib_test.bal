@@ -255,3 +255,29 @@ function testIntRangeDec() {
     }
     test:assertValueEqual([6,3], num);
 }
+
+function testZeroStepIntRangeError() {
+    int[]|error e = trap zeroStepRange();
+    assert(e is error, true);
+}
+
+function zeroStepRange() returns int[] {
+    int[] r =[];
+
+    foreach int i in int:range(0, 4, 0) {
+        r.push(i);
+    }
+
+    return r;
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
