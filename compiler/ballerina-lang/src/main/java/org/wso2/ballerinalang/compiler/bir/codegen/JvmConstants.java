@@ -177,6 +177,7 @@ public class JvmConstants {
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+    public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
@@ -293,6 +294,7 @@ public class JvmConstants {
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String ERROR_TYPE_CONSTANT_CLASS_NAME = "constants/$_berror_type_constants";
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
@@ -314,6 +316,7 @@ public class JvmConstants {
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
+    public static final String B_ERROR_TYPE_INIT_METHOD_PREFIX = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
