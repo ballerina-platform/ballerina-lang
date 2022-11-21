@@ -42,7 +42,7 @@ public class ClientDeclarationTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/module.declarations/client-decl/client_decl_undefined_prefix_negative_test.bal");
         int index = 0;
-        BAssertUtil.validateError(result, index++, "undefined module 'foo'", 17, 11);
+        BAssertUtil.validateError(result, index++, "undefined module 'foo'", 18, 15);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
