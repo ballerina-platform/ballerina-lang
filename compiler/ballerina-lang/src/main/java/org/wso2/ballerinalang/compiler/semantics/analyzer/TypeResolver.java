@@ -69,6 +69,7 @@ public class TypeResolver {
     private final ConstantTypeChecker.GetConstantValidType getConstantValidType;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
+    private final TypeChecker typeChecker;
 
     private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
     private List<BIntersectionType> intersectionTypeList;
@@ -93,6 +94,7 @@ public class TypeResolver {
         this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
         this.resolveConstantExpressionType = ConstantTypeChecker.ResolveConstantExpressionType.getInstance(context);
         this.getConstantValidType = ConstantTypeChecker.GetConstantValidType.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public static TypeResolver getInstance(CompilerContext context) {
@@ -114,7 +116,9 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
+                intersectionTypeList = new ArrayList<>();
                 extracted(pkgEnv, modTable, (BLangClassDefinition) def);
+                fillEffectiveTypeOfIntersectionTypes(intersectionTypeList, pkgEnv);
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
             } else {
@@ -262,6 +266,7 @@ public class TypeResolver {
             Iterator<BType> iterator = intersectionType.getConstituentTypes().iterator();
             BType effectiveType = iterator.next();
             if (effectiveType.tag == TypeTags.READONLY && iterator.hasNext()) {
+                intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 effectiveType = iterator.next();
             }
             while (iterator.hasNext()) {
@@ -320,6 +325,9 @@ public class TypeResolver {
         }
 
         // Resolve the type
+//        BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(defn.flagSet),
+//                names.fromIdNode(defn.name), symEnv.enclPkg.packageID, null, symEnv.scope.owner,
+//                defn.name.pos, symEnter.getOrigin(defn.name.value));
         BType type = resolveTypeDesc(symEnv, mod, defn, depth, defn.typeNode);
 
         // Define the typeDefinition. Add symbol, flags etc.
@@ -1301,12 +1309,39 @@ public class TypeResolver {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : td.valueSpace) {
-            literal.setBType(symTable.getTypeFromTag(literal.getBType().tag));
+//            TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
+//            BType type = typeChecker.checkExpr(literal, symTable.noType, data);
+            BType type = blangTypeUpdate(literal);
+            if (type != null) {
+                literal.setBType(symTable.getTypeFromTag(type.tag));
+            }
             finiteType.addValue(literal);
         }
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
+    }
+
+    private BType blangTypeUpdate(BLangExpression expression) {
+        BType type;
+        switch (expression.getKind()) {
+            case UNARY_EXPR:
+                type = blangTypeUpdate(((BLangUnaryExpr) expression).expr);
+                expression.setBType(type);
+                return type;
+            case GROUP_EXPR:
+                type = blangTypeUpdate(((BLangGroupExpr) expression).expression);
+                expression.setBType(type);
+                return type;
+            case LITERAL:
+                return ((BLangLiteral) expression).getBType();
+            case BINARY_EXPR:
+                type = blangTypeUpdate(((BLangBinaryExpr) expression).lhsExpr);
+                expression.setBType(type);
+                return type;
+            default:
+                return null;
+        }
     }
 
     private BType resolveTypeDesc(BLangTableTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
@@ -1505,7 +1540,7 @@ public class TypeResolver {
         }
 
 //        typeDefinition.setPrecedence(this.typePrecedence++);
-
+//        BSymbol typeDefSymbol = typeDefinition.symbol;
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
                 names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
                 typeDefinition.name.pos, symEnter.getOrigin(typeDefinition.name.value));
@@ -1643,6 +1678,10 @@ public class TypeResolver {
             staticType = resolveTypeDesc(symEnv, modTable, typeDef, 0, constant.typeNode);//symResolver.resolveTypeNode(constant.typeNode, symEnv);
         }
 
+        if (staticType == null) {
+            return;
+        }
+
         BConstantSymbol constantSymbol = symEnter.getConstantSymbol(constant);
         constant.symbol = constantSymbol;
 
@@ -1672,6 +1711,9 @@ public class TypeResolver {
                 dlog.error(constant.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, staticType, narrowedType);
                 return;
             }
+
+
+
         }
 
         // Get immutable type for the narrowed type.
@@ -1684,7 +1726,11 @@ public class TypeResolver {
 
         // Update the final type in necessary fields.
         constantSymbol.type = intersectionType;
-        constantSymbol.literalType = intersectionType;
+        if (intersectionType.tag == TypeTags.FINITE) {
+            constantSymbol.literalType = ((BFiniteType) intersectionType).getValueSpace().iterator().next().getBType();
+        } else {
+            constantSymbol.literalType = intersectionType;
+        }
         constant.setBType(intersectionType);
 
         // Get the constant value from the final type.
@@ -1709,6 +1755,22 @@ public class TypeResolver {
             return;
         }
         // Add the symbol to the enclosing scope.
+        BLangTypeDefinition typeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
+                narrowedType.tsymbol.name.value);
+        if (typeDefinition != null && constant.associatedTypeDefinition == null) {
+            constant.associatedTypeDefinition = typeDefinition;
+        }
+
         symEnv.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    public BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
+        for (int i = typeDefinitionArrayList.size() - 1; i >= 0; i--) {
+            BLangTypeDefinition typeDefinition = typeDefinitionArrayList.get(i);
+            if (typeDefinition.name.value.contains(name)) {
+                return typeDefinition;
+            }
+        }
+        return null;
     }
 }
