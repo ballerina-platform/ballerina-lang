@@ -18,12 +18,21 @@
 
 package org.ballerinalang.testerina.compiler;
 
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -31,13 +40,17 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.GeneratorTask;
 import io.ballerina.projects.plugins.SourceGeneratorContext;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -49,7 +62,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
-       for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
+        generateClassMockedFunctionMapping(generatorContext.currentPackage(), generatorContext);
+        for (ModuleId moduleId : generatorContext.currentPackage().moduleIds()) {
             Module module = generatorContext.currentPackage().module(moduleId);
             // Code generation skipped for the module since no tests are available.
             if (module.testDocumentIds().isEmpty()) {
@@ -152,4 +166,70 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
 //                        NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "))),
 //                expression);
 //    }
+
+    // Create a Mapping between mocked function and Ballerina file whenever function mocking call() is invoked
+    private static void generateClassMockedFunctionMapping(Package pack, SourceGeneratorContext context) {
+        Map<String, List<String>> testFileMockedFunctionMapping = new HashMap<>();
+        for (ModuleId moduleId : pack.moduleIds()) {
+            Module module = pack.module(moduleId);
+            String moduleName = module.moduleName().toString();
+            for (DocumentId documentId : module.testDocumentIds()) {
+                Document document = module.document(documentId);
+                String documentName = moduleName + "-" + document.name().replace(".bal", "")
+                        .replace("/", ".");
+                List<String> mockedFunctionList = new ArrayList<>();
+                Node node = document.syntaxTree().rootNode();
+                TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
+                node.accept(testFunctionVisitor);
+                for (FunctionDefinitionNode func : testFunctionVisitor.getTestStaticFunctions()) {
+                    FunctionBodyNode functionBodyNode = func.functionBody();
+                    NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
+                    for (int i = 0; i < statements.size(); i++) {
+                        StatementNode functionBodyContent = (StatementNode) statements.get(i);
+                        if (functionBodyContent instanceof ExpressionStatementNode) {
+                            ExpressionNode methodCallNode = ((ExpressionStatementNode) functionBodyContent)
+                                    .expression();
+                            if (methodCallNode instanceof MethodCallExpressionNode) {
+                                ExpressionNode expression = ((MethodCallExpressionNode) methodCallNode).expression();
+                                if (expression instanceof FunctionCallExpressionNode) {
+                                    gatherMockedFunctions(mockedFunctionList, (MethodCallExpressionNode)
+                                            methodCallNode, (FunctionCallExpressionNode) expression);
+                                } else if (expression instanceof MethodCallExpressionNode) {
+                                    expression = ((MethodCallExpressionNode) expression).expression();
+                                    if (expression instanceof FunctionCallExpressionNode) {
+                                        gatherMockedFunctions(mockedFunctionList, (MethodCallExpressionNode)
+                                                methodCallNode, (FunctionCallExpressionNode) expression);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                testFileMockedFunctionMapping.put(documentName, mockedFunctionList);
+            }
+        }
+        Path cachePath = pack.project().targetDir().resolve("cache").resolve("tests_cache")
+                .resolve("native-config");
+        TesterinaCompilerPluginUtils.writeCacheMapAsJson(testFileMockedFunctionMapping, cachePath,
+                "mocked-func-class-map.json");
+    }
+
+    private static void gatherMockedFunctions(List<String> mockedFunctionList,  MethodCallExpressionNode methodCallNode,
+                                              FunctionCallExpressionNode expression) {
+        NameReferenceNode functionName = expression.functionName();
+        if (functionName instanceof QualifiedNameReferenceNode) {
+            String modulePrefix = ((QualifiedNameReferenceNode) functionName).
+                    modulePrefix().text();
+            String identifier = ((QualifiedNameReferenceNode) functionName).
+                    identifier().text();
+            String methodName = methodCallNode.methodName()
+                    .toString().strip();
+            if ("test".equals(modulePrefix) && "call".equals(methodName)
+                    && "when".equals(identifier)) {
+                String mockedFunction = methodCallNode.arguments()
+                        .get(0).toString().replaceAll("\"", "");
+                mockedFunctionList.add(mockedFunction);
+            }
+        }
+    }
 }
