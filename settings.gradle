@@ -67,6 +67,7 @@ include ':ballerina-config-schema-builder'
 include(':testerina:testerina-core')
 include(':testerina')
 include(':testerina:report-tools')
+include(':testerina:testerina-compiler-plugin')
 include(':testerina:testerina-runtime')
 include(':testerina:testerina-core')
 include(':ballerina-spec-conformance-tests')
@@ -113,6 +114,7 @@ include(':ls-extensions:performance-analyzer-services')
 include(':ls-extensions:partial-parser')
 include(':ls-extensions:trigger-service')
 include(':ls-extensions:bal-shell-service')
+include(':ls-extensions:project-design-service')
 include(':project-api-test-artifact:event-logger-compiler-plugin')
 include(':project-api-test-artifact:compiler-plugin-with-one-dependency')
 include(':project-api-test-artifact:compiler-plugin-with-codeactions')
@@ -210,6 +212,7 @@ project(':ballerinalang-data-mapper').projectDir = file('misc/ballerinalang-data
 project(':ballerina-config-schema-builder').projectDir = file('misc/ballerina-config-schema-builder')
 project(':docerina-gradle-plugin').projectDir = file('misc/ballerina-gradle-plugins/docerina-gradle-plugin')
 project(':docerina').projectDir = file('misc/docerina')
+project(':testerina:testerina-compiler-plugin').projectDir = file('misc/testerina/modules/testerina-compiler-plugin')
 project(':testerina:testerina-core').projectDir = file('misc/testerina/modules/testerina-core')
 project(':testerina').projectDir = file('misc/testerina')
 project(':ballerina-spec-conformance-tests').projectDir = file('tests/ballerina-spec-conformance-tests')
@@ -253,6 +256,8 @@ project(':ls-extensions:performance-analyzer-services').projectDir = file('misc/
 project(':ls-extensions:partial-parser').projectDir = file('misc/ls-extensions/modules/partial-parser')
 project(':ls-extensions:trigger-service').projectDir = file('misc/ls-extensions/modules/trigger-service')
 project(':ls-extensions:bal-shell-service').projectDir = file('misc/ls-extensions/modules/bal-shell-service')
+project(':ls-extensions:project-design-service').projectDir = file('misc/ls-extensions/modules/project-design-service')
+
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"

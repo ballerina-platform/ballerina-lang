@@ -28,7 +28,7 @@ public class TesterinaConstants {
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
     public static final String TESTERINA_TEMP_DIR = ".testerina";
     public static final String TESTERINA_TEST_SUITE = "test_suit.json";
-    public static final String TESTERINA_LAUNCHER_CLASS_NAME = "org.ballerinalang.test.runtime.Main";
+    public static final String TESTERINA_LAUNCHER_CLASS_NAME = "org.ballerinalang.test.runtime.BTestMain";
     public static final String CODE_COV_GENERATOR_CLASS_NAME = "org.ballerinalang.test.runtime.CoverageMain";
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
 
