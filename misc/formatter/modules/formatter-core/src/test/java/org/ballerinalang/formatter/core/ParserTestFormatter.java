@@ -58,6 +58,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_03.bal",
                 "minutiae_test_04.bal",
                 "minutiae_test_05.bal",
+                "minutiae_test_04_with_no_newlines.bal",
                 "minutiae_test_05_with_no_newlines.bal",
                 "invalid_token_minutiae_test_01.bal",
                 "invalid_token_minutiae_test_02.bal",
@@ -90,6 +91,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",
 
+                "separated_node_list_import_decl.bal", "node_location_test_03.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
@@ -108,7 +111,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "tuple_type_source_04.bal", "tuple_type_source_06.bal", "trivia_source_02.bal",
                 "enum_decl_source_05.bal", "enum_decl_source_08.bal", "enum_decl_source_09.bal",
                 "service_decl_source_09.bal", "service_decl_source_15.bal", "service_decl_source_03.bal",
-                 "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
+                "service_decl_source_12.bal", "service_decl_source_10.bal", "service_decl_source_04.bal",
                 "service_decl_source_11.bal", "import_decl_source_19.bal", "import_decl_source_20.bal",
                 "import_decl_source_21.bal", "import_decl_source_23.bal", "import_decl_source_22.bal",
                 "import_decl_source_06.bal", "import_decl_source_04.bal", "import_decl_source_10.bal",
