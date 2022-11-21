@@ -30,15 +30,22 @@ public class FormattingOptions {
 
     private boolean lineWrapping;
 
+    private boolean optimizeImports;
+
     private ForceFormattingOptions forceFormattingOptions;
 
-    FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
-                      ForceFormattingOptions forceFormattingOptions) {
+    private ImportFormattingOptions importFormattingOptions;
+
+    private FormattingOptions(int tabSize, String wsCharacter, int columnLimit, boolean lineWrapping,
+                              boolean optimizeImports, ForceFormattingOptions forceFormattingOptions,
+                              ImportFormattingOptions importFormattingOptions) {
         this.tabSize = tabSize;
         this.wsCharacter = wsCharacter;
         this.columnLimit = columnLimit;
         this.lineWrapping = lineWrapping;
+        this.optimizeImports = optimizeImports;
         this.forceFormattingOptions = forceFormattingOptions;
+        this.importFormattingOptions = importFormattingOptions;
     }
 
     /**
@@ -136,8 +143,16 @@ public class FormattingOptions {
         this.lineWrapping = lineWrapping;
     }
 
+    public boolean getOptimizeImports() {
+        return optimizeImports;
+    }
+
     public ForceFormattingOptions getForceFormattingOptions() {
         return forceFormattingOptions;
+    }
+
+    public ImportFormattingOptions getImportFormattingOptions() {
+        return importFormattingOptions;
     }
 
     public static FormattingOptionsBuilder builder() {
@@ -154,7 +169,9 @@ public class FormattingOptions {
         private String wsCharacter = " ";
         private int columnLimit = 120;
         private boolean lineWrapping = false;
+        private boolean optimizeImports = true;
         private ForceFormattingOptions forceFormattingOptions = ForceFormattingOptions.builder().build();
+        private ImportFormattingOptions importFormattingOptions = ImportFormattingOptions.builder().build();
 
         public FormattingOptions.FormattingOptionsBuilder setTabSize(int tabSize) {
             this.tabSize = tabSize;
@@ -176,14 +193,26 @@ public class FormattingOptions {
             return this;
         }
 
+        public FormattingOptions.FormattingOptionsBuilder setOptimizeImports(boolean optimizeImports) {
+            this.optimizeImports = optimizeImports;
+            return this;
+        }
+
         public FormattingOptions.FormattingOptionsBuilder setForceFormattingOptions(
                 ForceFormattingOptions forceFormattingOptions) {
             this.forceFormattingOptions = forceFormattingOptions;
             return this;
         }
 
+        public FormattingOptions.FormattingOptionsBuilder setImportFormattingOptions(
+                ImportFormattingOptions importFormattingOptions) {
+            this.importFormattingOptions = importFormattingOptions;
+            return this;
+        }
+
         public FormattingOptions build() {
-            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, forceFormattingOptions);
+            return new FormattingOptions(tabSize, wsCharacter, columnLimit, lineWrapping, optimizeImports,
+                    forceFormattingOptions, importFormattingOptions);
         }
     }
 }
