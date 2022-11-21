@@ -332,6 +332,15 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(f2.get(1).value, "test");
     }
 
+    @Test
+    public void testConstAnnotWithUnaryExpr() {
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "Qux").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAttachmentSymbol(attachments.get(0), "v29", true, "increment", -1L);
+    }
+
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
         for (TypeDefinition typeDefinition : typeDefinitions) {
             BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) typeDefinition;
