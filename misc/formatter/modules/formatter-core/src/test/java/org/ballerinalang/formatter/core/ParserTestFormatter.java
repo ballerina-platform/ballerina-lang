@@ -94,6 +94,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "query_expr_source_126.bal", "match_stmt_source_21.bal",
                 "func_params_source_27.bal",
 
+                "separated_node_list_import_decl.bal", "node_location_test_03.bal",
+
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
