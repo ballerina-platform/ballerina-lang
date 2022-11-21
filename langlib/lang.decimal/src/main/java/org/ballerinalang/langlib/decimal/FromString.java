@@ -48,11 +48,6 @@ public class FromString {
 
     public static Object fromString(BString s) {
         String decimalFloatingPointNumber = s.getValue();
-        String upperCaseValue = decimalFloatingPointNumber.toUpperCase();
-        if (upperCaseValue.startsWith("0X") || upperCaseValue.startsWith("-0X")) {
-            return getTypeConversionError(decimalFloatingPointNumber);
-        }
-
         try {
             return TypeConverter.stringToDecimal(decimalFloatingPointNumber);
         } catch (NumberFormatException e) {

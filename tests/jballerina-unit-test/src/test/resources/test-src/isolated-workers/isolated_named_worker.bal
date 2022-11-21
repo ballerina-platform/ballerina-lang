@@ -255,6 +255,193 @@ function testIsolatedWorkerInForkStmtInIsolatedFunction() {
     }
 }
 
+final int[] & readonly intArr = [];
+
+isolated function f8(int[] b) returns int {
+    return b[0];
+}
+
+function testWorkersInIsolatedResourceFunctions() {
+    var _ = service object {
+        isolated resource function get foo() returns int[] {
+            final int[] & readonly a = [];
+            future<int> _ = start f8(intArr);
+
+            worker A {
+                future<int> _ = start f8(a);
+                int[] y = intArr;
+            }
+
+            future<int> _ = start f8(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f8(intArr);
+                    int[] y = a;
+                }
+
+                worker C {
+                    future<int> _ = start f8(a);
+                    int[] y = a;
+                }
+            }
+
+            return intArr;
+        }
+
+        isolated remote function bar() returns int[] {
+            final int[] & readonly a = [];
+            future<int> _ = start f8(intArr);
+
+            worker A {
+                future<int> _ = start f8(a);
+                int[] y = intArr;
+            }
+
+            future<int> _ = start f8(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f8(intArr);
+                    int[] y = a;
+                }
+
+                worker C {
+                    future<int> _ = start f8(a);
+                    int[] y = a;
+                }
+            }
+
+            return intArr;
+        }
+
+        isolated function bam() returns int[] {
+            final int[] & readonly a = [];
+            future<int> _ = start f8(intArr);
+
+            worker A {
+                future<int> _ = start f8(a);
+                int[] y = intArr;
+            }
+
+            future<int> _ = start f8(a);
+
+            fork {
+                worker B {
+                    future<int> _ = start f8(intArr);
+                    int[] y = a;
+                }
+
+                worker C {
+                    future<int> _ = start f8(a);
+                    int[] y = a;
+                }
+            }
+
+            return intArr;
+        }
+    };
+}
+
+listener Listener ep = new ();
+
+service /doSomething/here on ep {
+    isolated resource function get foo() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f8(intArr);
+
+        worker A {
+            future<int> _ = start f8(a);
+            int[] y = intArr;
+        }
+
+        future<int> _ = start f8(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f8(intArr);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f8(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr;
+    }
+
+    isolated remote function bar() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f8(intArr);
+
+        worker A {
+            future<int> _ = start f8(a);
+            int[] y = intArr;
+        }
+
+        future<int> _ = start f8(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f8(intArr);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f8(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr;
+    }
+
+    isolated function bam() returns int[] {
+        final int[] & readonly a = [];
+        future<int> _ = start f8(intArr);
+
+        worker A {
+            future<int> _ = start f8(a);
+            int[] y = intArr;
+        }
+
+        future<int> _ = start f8(a);
+
+        fork {
+            worker B {
+                future<int> _ = start f8(intArr);
+                int[] y = a;
+            }
+
+            worker C {
+                future<int> _ = start f8(a);
+                int[] y = a;
+            }
+        }
+
+        return intArr;
+    }
+}
+
+class Listener {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

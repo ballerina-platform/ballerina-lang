@@ -235,20 +235,19 @@ public class ParseFunctionBodyBlock {
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.PERCENT_TOKEN);
 
         tokens = funcBodyBlockNode.trailingInvalidTokens();
-        Assert.assertEquals(tokens.size(), 2);
+        Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
-        Assert.assertEquals(tokens.get(1).kind(), SyntaxKind.SEMICOLON_TOKEN);
 
         Token closeBraceToken = funcBodyBlockNode.closeBraceToken();
         tokens = closeBraceToken.leadingInvalidTokens();
         Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
 
-        tokens = closeBraceToken.trailingInvalidTokens();
-        Assert.assertEquals(tokens.size(), 2);
+        Optional<Token> semicolonToken = funcBodyBlockNode.semicolonToken();
+        tokens = semicolonToken.get().trailingInvalidTokens();
+        Assert.assertEquals(tokens.size(), 1);
         Assert.assertEquals(tokens.get(0).kind(), SyntaxKind.SEMICOLON_TOKEN);
-        Assert.assertEquals(tokens.get(1).kind(), SyntaxKind.SEMICOLON_TOKEN);
 
-        Assert.assertEquals(funcBodyBlockNode.toString(), " INVALID[%]{ int a; INVALID[;] } INVALID[;] INVALID[;]");
+        Assert.assertEquals(funcBodyBlockNode.toString(), " INVALID[%]{ int a; INVALID[;] }; INVALID[;]");
     }
 }

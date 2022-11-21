@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -39,10 +40,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -121,7 +120,7 @@ public class Scheduler {
      * Schedules given function by creating a new strand group.
      *
      * @param params     parameters to underlying function.
-     * @param fp         function ponter to be executed.
+     * @param fp         function pointer to be executed.
      * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
      * @param strandName name for new strand
@@ -169,6 +168,10 @@ public class Scheduler {
                                              Callback callback, Map<String, Object> properties, Type returnType,
                                              String strandName, StrandMetadata metadata) {
         FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
+        return scheduleToObjectGroup(params, function, future);
+    }
+
+    public FutureValue scheduleToObjectGroup(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -229,7 +232,7 @@ public class Scheduler {
         return schedule(params, function, future);
     }
 
-    private FutureValue schedule(Object[] params, Function function, FutureValue future) {
+    public FutureValue schedule(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -560,112 +563,5 @@ public class Scheduler {
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;
-    }
-}
-
-/**
- * Represent an executable item in Scheduler.
- *
- * @since 0.995.0
- */
-class SchedulerItem {
-    private Function function;
-    private Object[] params;
-    final FutureValue future;
-    boolean parked;
-
-    public SchedulerItem(Function function, Object[] params, FutureValue future) {
-        this.future = future;
-        this.function = function;
-        this.params = params;
-    }
-
-    @Deprecated
-    public SchedulerItem(Consumer consumer, Object[] params, FutureValue future) {
-        this.future = future;
-        this.function = val -> {
-            consumer.accept(val);
-            return null;
-        };
-        this.params = params;
-    }
-
-    public Object execute() {
-        return this.function.apply(this.params);
-    }
-
-    public boolean isYielded() {
-        return this.future.strand.isYielded();
-    }
-
-    public State getState() {
-        return this.future.strand.getState();
-    }
-
-    public void setState(State state) {
-        this.future.strand.setState(state);
-    }
-
-    @Override
-    public String toString() {
-        return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
-    }
-}
-
-/**
- * Represents a group of {@link SchedulerItem} that should run on same thread.
- */
-class ItemGroup {
-
-    private static final AtomicInteger nextItemGroupId = new AtomicInteger(0);
-
-    private final int id;
-
-    /**
-     * Keep the list of items that should run on same thread.
-     * Using a stack to get advantage of the locality.
-     */
-    Stack<SchedulerItem> items = new Stack<>();
-
-    /**
-     * Indicates this item is already in runnable list/executing or not.
-     */
-    AtomicBoolean scheduled = new AtomicBoolean(false);
-
-    private final ReentrantLock groupLock = new ReentrantLock();
-
-    public static final ItemGroup POISON_PILL = new ItemGroup();
-
-    public ItemGroup(SchedulerItem item) {
-        this();
-        items.push(item);
-    }
-
-    public ItemGroup() {
-        this.id = nextItemGroupId.incrementAndGet();
-    }
-
-    public void add(SchedulerItem item) {
-        items.push(item);
-    }
-
-    public SchedulerItem get() {
-        return items.pop();
-    }
-
-    public void lock() {
-        this.groupLock.lock();
-    }
-
-    public void unlock() {
-        this.groupLock.unlock();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public boolean isScheduled() {
-        return scheduled.get();
     }
 }

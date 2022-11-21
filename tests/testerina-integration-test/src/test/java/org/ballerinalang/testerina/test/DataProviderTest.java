@@ -77,11 +77,15 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testValidDataProviderWithFail")
     public void testValidDataProviderCase() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#json1",
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#'json1'",
                 "data-providers"});
+        String msg1 = "1 passing";
+        String msg2 = "0 failing";
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertForTestFailures(output, "map based data provider failure");
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("map based data provider failure.");
+        }
     }
 
     @Test (dependsOnMethods = "testValidDataProviderCase")
@@ -98,28 +102,6 @@ public class DataProviderTest extends BaseTestCase {
     }
 
     @Test (dependsOnMethods = "testDataProviderWithMixedType")
-    public void testInvalidDataProvider() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "invalidDataProviderTest",
-                "data-providers"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains("The provided data set does not match the supported formats.")) {
-            Assert.fail("Test failed due to failure in handling invalid data provider.");
-        }
-    }
-
-    @Test (dependsOnMethods = "testInvalidDataProvider")
-    public void testErrorDataProvider() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "errorDataProviderTest",
-                "data-providers"});
-        String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains("Error occurred while generating data set.")) {
-            Assert.fail("Test failed due to failure in handling errors in data provider.");
-        }
-    }
-
-    @Test (dependsOnMethods = "testErrorDataProvider")
     public void testWithSpecialKeys() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction2",
                 "data-providers"});
@@ -184,6 +166,7 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test
     public void testMapValueDataProvider() throws BallerinaTestException {
+
         String msg1 = "1 passing";
         String msg2 = "1 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testGetState", "data-providers"});
@@ -191,6 +174,60 @@ public class DataProviderTest extends BaseTestCase {
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
             Assert.fail("Test failed due to multi module single test exec failure with array based data provider.");
+        }
+    }
+
+    @Test
+    public void testValidDataProviderWithBeforeAfterFunctions() throws BallerinaTestException {
+        String msg1 = "6 passing";
+        String msg2 = "0 failing";
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testExecutionOfBeforeAfter", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to map based data provider failure.");
+        }
+    }
+
+    @Test
+    public void testValidDataProviderWithBeforeFailing() throws BallerinaTestException {
+        String msg1 = "5 passing";
+        String msg2 = "0 failing";
+        String msg3 = "1 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"--tests",
+                "testDividingValuesWithBeforeFailing,testExecutionOfBeforeFailing", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            Assert.fail("Test failed due to map based data provider failure.");
+        }
+    }
+
+    @Test
+    public void testValidDataProviderWithAfterFailing() throws BallerinaTestException {
+        String msg1 = "6 passing";
+        String msg2 = "0 failing";
+        String msg3 = "0 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"--tests",
+                "testDividingValuesWithAfterFailing,testExecutionOfAfterFailing", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            Assert.fail("Test failed due to map based data provider failure.");
+        }
+    }
+
+    @Test
+    public void testDataProviderSingleFailure() throws BallerinaTestException {
+        String msg1 = "5 passing";
+        String msg2 = "1 failing";
+        String msg3 = "0 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"--tests",
+                "testExecutionOfDataValueFailing", "data-providers"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
+            Assert.fail("Test failed due to map based data provider failure.");
         }
     }
 }

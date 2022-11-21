@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers.docs;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -64,18 +65,20 @@ public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider 
         return 999;
     }
 
+    @Override
+    public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
+        return positionDetails.matchedDocumentableNode().isPresent() 
+                && !hasDocs(positionDetails.matchedDocumentableNode().get())
+                && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getCodeActions(CodeActionContext context,
-                                           RangeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context, RangeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
         Optional<NonTerminalNode> documentableNode = posDetails.matchedDocumentableNode();
-
-        if (documentableNode.isEmpty() || hasDocs(documentableNode.get())) {
-            return Collections.emptyList();
-        }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,

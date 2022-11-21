@@ -96,6 +96,18 @@ public class MockTest extends BaseTestCase {
     }
 
     @Test()
+    public void testFunctionMockingModuleLevel() throws BallerinaTestException {
+        String msg1 = "3 passing";
+
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1)) {
+            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
+        }
+    }
+
+    @Test()
     public void testCoverageWithMocking() throws BallerinaTestException {
         String msg1 = "2 passing";
         String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});

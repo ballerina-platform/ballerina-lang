@@ -53,7 +53,7 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MakeConstructPublicCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "Make Construct Public";
-    public static final String DIAGNOSTIC_CODE = "BCE2038";
+    public static final String DIAGNOSTIC_CODE = "BCE20022";
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,

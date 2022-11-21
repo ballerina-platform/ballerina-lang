@@ -42,6 +42,8 @@ public class Target {
     private Path binPath;
     private Path reportPath;
     private Path docPath;
+    private Path nativePath;
+    private Path nativeConfigPath;
 
     public Target(Path targetPath) throws IOException {
         this.targetPath = targetPath;
@@ -53,6 +55,8 @@ public class Target {
         this.binPath = this.targetPath.resolve(ProjectConstants.BIN_DIR_NAME);
         this.reportPath = this.targetPath.resolve(ProjectConstants.REPORT_DIR_NAME);
         this.docPath = this.targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY);
+        this.nativePath = this.targetPath.resolve(ProjectConstants.NATIVE_DIR_NAME);
+        this.nativeConfigPath = this.testsCachePath.resolve(ProjectConstants.NATIVE_CONFIG_DIR_NAME);
 
         if (Files.exists(this.targetPath)) {
             ProjectUtils.checkWritePermission(this.targetPath);
@@ -199,9 +203,12 @@ public class Target {
     /**
      * Clean any files that created from the build.
      */
-    public void clean() throws IOException {
-        // Remove from cache
-        ProjectUtils.deleteDirectory(this.cache);
+    public void clean(boolean isModified, boolean cacheEnabled) throws IOException {
+        if (isModified || !cacheEnabled) {
+            // Remove from cache
+            ProjectUtils.deleteDirectory(this.cache);
+        }
+
         // Remove any generated bala
         ProjectUtils.deleteDirectory(this.balaCachePath);
         ProjectUtils.deleteDirectory(this.binPath);
@@ -215,5 +222,15 @@ public class Target {
     public void cleanCache() throws IOException {
         // Remove from cache
         ProjectUtils.deleteDirectory(this.cache);
+    }
+
+    public Path getNativePath() throws IOException {
+        Files.createDirectories(nativePath);
+        return nativePath;
+    }
+
+    public Path getNativeConfigPath() throws IOException {
+        Files.createDirectories(nativeConfigPath);
+        return nativeConfigPath;
     }
 }

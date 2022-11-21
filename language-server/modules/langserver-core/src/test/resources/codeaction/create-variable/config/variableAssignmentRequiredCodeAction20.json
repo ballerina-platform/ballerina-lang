@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "string remove \u003d "
+          "newText": "string remove = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable4.bal",
+          91
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

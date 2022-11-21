@@ -1037,6 +1037,11 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.RE:
+                if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
+                    return getSyntaxToken(SyntaxKind.RE_KEYWORD);
+                }
+                return getIdentifierToken();
             case LexerTerminals.GROUP:
                 return getSyntaxToken(SyntaxKind.GROUP_KEYWORD);
             default:
@@ -1045,6 +1050,50 @@ public class BallerinaLexer extends AbstractLexer {
 //                }
                 return getIdentifierToken();
         }
+    }
+
+    private int getNextNonWSOrNonCommentChar() {
+        int lookaheadCount = 0;
+        char nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                case LexerTerminals.FORM_FEED:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    lookaheadCount++;
+                    break;
+                case LexerTerminals.SLASH:
+                    if (reader.peek(lookaheadCount + 1) == LexerTerminals.SLASH) {
+                        lookaheadCount += 2;
+                        lookaheadCount = skipComment(lookaheadCount);
+                        break;
+                    }
+                    return nextChar;
+                default:
+                    return nextChar;
+            }
+            nextChar = reader.peek(lookaheadCount);
+        }
+        return nextChar;
+    }
+
+    private int skipComment(int lookaheadCount) {
+        int nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    lookaheadCount++;
+                    nextChar = reader.peek(lookaheadCount);
+                    continue;
+            }
+            break;
+        }
+        return lookaheadCount;
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
@@ -1248,35 +1297,6 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.STRING_LITERAL_TOKEN);
-    }
-
-    /**
-     * Process numeric escape.
-     * <p>
-     * <code>NumericEscape := \ u { CodePoint }</code>
-     */
-    private void processNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
-
-        // Process code-point
-        if (!isHexDigit(peek())) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        reader.advance();
-        while (isHexDigit(peek())) {
-            reader.advance();
-        }
-
-        // Process close brace
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        this.reader.advance();
     }
 
     /**

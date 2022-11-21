@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
+import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -59,8 +60,8 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static java.util.Objects.requireNonNull;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_ANNOTATION_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 
 /**
  * Main class to init the test suit.
@@ -105,10 +106,10 @@ public class Main {
                     for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey();
                         TestSuite testSuite = entry.getValue();
-
-                        out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
+                        String packageName = testSuite.getPackageName();
+                        out.println("\n\t" + (moduleName.equals(packageName) ?
                                 (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
-                                : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
+                                : packageName + TesterinaConstants.DOT + moduleName));
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
@@ -123,9 +124,9 @@ public class Main {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
-                        Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                                targetPath, classLoader);
+                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
+                                new TestArguments(args[0], packageName, moduleName,
+                                        args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -139,18 +140,14 @@ public class Main {
         Runtime.getRuntime().exit(exitStatus);
     }
 
-    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath,
-                                     Path targetPath, ClassLoader classLoader) throws IOException {
+    private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
+                                     TestArguments args) {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, targetPath, testSuite, classLoader);
+            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
-            if (testSuite.isReportRequired()) {
-                writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
-                ModuleStatus.clearInstance();
-            }
             return exitStatus;
         }
     }
@@ -208,13 +205,22 @@ public class Main {
             String key = entry.getKey();
             String functionToMockClassName;
             String functionToMock;
-            if (key.contains(MOCK_ANNOTATION_DELIMITER)) {
-                functionToMockClassName = key.substring(0, key.indexOf(MOCK_ANNOTATION_DELIMITER));
-                functionToMock = key.substring(key.indexOf(MOCK_ANNOTATION_DELIMITER));
-            } else {
+            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
                 functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
                 functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
+            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
+            } else {
+                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER));
+                } else {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
+                }
             }
+            functionToMock = functionToMock.replaceAll("\\\\", "");
             classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
                     k -> new ArrayList<>()).add(functionToMock);
         }
@@ -232,7 +238,7 @@ public class Main {
         byte[] classFile = new byte[0];
         boolean readFromBytes = false;
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
-            if (functionNames.contains(MOCK_ANNOTATION_DELIMITER + method1.getName())) {
+            if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
                 String desugaredMockFunctionName = "$MOCK_" + method1.getName();
                 String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                         suite.getTestPackageID(), suite.getVersion(),
@@ -253,25 +259,29 @@ public class Main {
                         }
                     }
                 }
-            } else if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
-                String key = className + MOCK_FN_DELIMITER + method1.getName();
+            } else if (functionNames.contains(MOCK_LEGACY_DELIMITER + method1.getName())) {
+                String key = className + MOCK_LEGACY_DELIMITER + method1.getName();
                 String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
-                String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
-                Class<?> mockFunctionClass;
-                try {
-                    mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
-                } catch (ClassNotFoundException e) {
-                    throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
-                }
-                for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
-                    if (method2.getName().equals(mockFunctionName)) {
-                        if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1, method2, instrumentDir, coverage);
-                            readFromBytes = true;
-                        } else {
-                            classFile = replaceMethodBody(classFile, method1, method2);
+                if (mockFunctionName != null) {
+                    String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
+                    Class<?> mockFunctionClass;
+                    try {
+                        mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw new BallerinaTestException("failed to load class: " + mockFunctionClassName);
+                    }
+                    for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
+                        if (method2.getName().equals(mockFunctionName)) {
+                            if (!readFromBytes) {
+                                classFile = replaceMethodBody(method1, method2, instrumentDir, coverage);
+                                readFromBytes = true;
+                            } else {
+                                classFile = replaceMethodBody(classFile, method1, method2);
+                            }
                         }
                     }
+                } else {
+                    continue;
                 }
             }
         }

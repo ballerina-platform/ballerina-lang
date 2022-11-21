@@ -12,6 +12,19 @@
         {
           "range": {
             "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country|error countryWithError = "
+        },
+        {
+          "range": {
+            "start": {
               "line": 0,
               "character": 0
             },
@@ -34,21 +47,17 @@
             }
           },
           "newText": "\n    if countryWithError is module2:Country {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 7,
-              "character": 4
-            },
-            "end": {
-              "line": 7,
-              "character": 4
-            }
-          },
-          "newText": "module2:Country|error countryWithError \u003d "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "testproject/main.bal",
+          180
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable and check error",
@@ -57,19 +66,6 @@
         {
           "range": {
             "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import testproject.module2;\n"
-        },
-        {
-          "range": {
-            "start": {
               "line": 7,
               "character": 4
             },
@@ -78,7 +74,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country countryWithError \u003d "
+          "newText": "module2:Country countryWithError = "
         },
         {
           "range": {
@@ -105,8 +101,30 @@
             }
           },
           "newText": " returns error?"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "testproject/main.bal",
+          189
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable",
@@ -123,7 +141,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country|error countryWithError \u003d "
+          "newText": "module2:Country|error countryWithError = "
         },
         {
           "range": {
@@ -138,7 +156,16 @@
           },
           "newText": "import testproject.module2;\n"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "testproject/main.bal",
+          180
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

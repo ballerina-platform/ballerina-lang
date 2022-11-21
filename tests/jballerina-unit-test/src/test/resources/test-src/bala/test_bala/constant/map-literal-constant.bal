@@ -184,21 +184,21 @@ function testInvalidRuntimeUpdateOfConstMaps() {
     };
     error? res = trap fn();
     // TODO: replace with an equality check once https://github.com/ballerina-platform/ballerina-lang/issues/34808 is fixed.
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$_0 & readonly\\)'");
 
     record {| 1 a; 2 b; |} b = foo:CCONST.a;
     fn = function () {
         b.b = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$_0 & readonly\\)'");
 
     map<map<int>> c = foo:CCONST;
     fn = function () {
         c["a"]["a"] = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$_0 & readonly\\)'");
 
     fn = function () {
         c["c"] = {};
@@ -211,7 +211,7 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$_[0-9]+ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CCONST\\$_0 & readonly\\)'");
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {

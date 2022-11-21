@@ -150,9 +150,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         List<String> existingFields = getFields(node);
         List<RecordFieldSymbol> validFields = new ArrayList<>();
         for (RawTypeSymbolWrapper<RecordTypeSymbol> wrapper : recordTypeDesc) {
-            Map<String, RecordFieldSymbol> fields = wrapper.getRawType().fieldDescriptors().entrySet().stream()
-                    .filter(e -> !existingFields.contains(e.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            Map<String, RecordFieldSymbol> fields = RecordUtil.getRecordFields(wrapper, existingFields);
             validFields.addAll(fields.values());
 
             completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
@@ -315,17 +313,6 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             return this.getExpressionsCompletionsForQNameRef(context, qNameRef);
         }
         return this.expressionCompletions(context);
-    }
-
-    protected Optional<Node> getEvalNode(BallerinaCompletionContext context) {
-        Predicate<Node> predicate = node ->
-                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
-                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
-                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
-                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
-                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
-                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
-        return CommonUtil.getMatchingNode(context.getNodeAtCursor(), predicate);
     }
 
     protected Map<String, RecordFieldSymbol> getValidFields(T node, RecordTypeSymbol recordTypeSymbol) {

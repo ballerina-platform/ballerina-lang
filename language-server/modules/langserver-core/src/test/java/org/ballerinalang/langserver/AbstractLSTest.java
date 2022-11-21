@@ -98,7 +98,7 @@ public abstract class AbstractLSTest {
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
     }
 
-    private static List<Package> getPackages(Map<String, String> projects,
+    protected static List<Package> getPackages(Map<String, String> projects,
                                              WorkspaceManager workspaceManager,
                                              LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {
@@ -132,5 +132,21 @@ public abstract class AbstractLSTest {
 
     public Endpoint getServiceEndpoint() {
         return this.serviceEndpoint;
+    }
+
+    public void setLsPackageLoader(LSPackageLoader lsPackageLoader) {
+        this.lsPackageLoader = lsPackageLoader;
+    }
+
+    public LSPackageLoader getLSPackageLoader() {
+        return this.lsPackageLoader;
+    }
+
+    public static List<LSPackageLoader.PackageInfo> getLocalPackages() {
+        return LOCAL_PACKAGES;
+    }
+
+    public static List<LSPackageLoader.PackageInfo> getRemotePackages() {
+        return REMOTE_PACKAGES;
     }
 }

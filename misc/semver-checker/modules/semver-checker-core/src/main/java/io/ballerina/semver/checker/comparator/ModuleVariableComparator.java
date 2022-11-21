@@ -84,7 +84,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         // Replace with a smart comparator implementation
         DumbNodeListComparator<AnnotationNode> annotComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.MODULE_VAR_ANNOTATION.toString());
+                DiffKind.MODULE_VAR_ANNOTATION);
         annotComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;

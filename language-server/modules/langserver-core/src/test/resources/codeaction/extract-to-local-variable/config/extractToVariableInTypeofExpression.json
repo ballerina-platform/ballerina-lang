@@ -1,0 +1,47 @@
+{
+  "range": {
+    "start": {
+      "line": 7,
+      "character": 22
+    },
+    "end": {
+      "line": 7,
+      "character": 30
+    }
+  },
+  "source": "extractToVariableInTypeofExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "typedesc\u003cT1\u003e var1 \u003d typeof a;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 22
+            },
+            "end": {
+              "line": 7,
+              "character": 30
+            }
+          },
+          "newText": "var1"
+        }
+      ]
+    }
+  ]
+}

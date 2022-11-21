@@ -228,37 +228,57 @@ public class ElvisExpressionTest {
 
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 17);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int?'", 5, 19);
-        BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
-        BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 19, 9);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'string'", 26, 17);
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'byte', found 'int'", 30, 17);
-        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'int', found '(int|byte)?'", 37,
-                10);
-        BAssertUtil.validateError(negativeResult, 6,
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'int?'", 5, 19);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 12, 14);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 19, 9);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 26, 17);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'byte', found 'int'", 30, 17);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found '(int|byte)?'", 37, 10);
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|int:Unsigned8|int:Signed8)?'", 44, 10);
-        BAssertUtil.validateError(negativeResult, 7,
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|byte|int:Signed8)?'", 45, 10);
-        BAssertUtil.validateError(negativeResult, 8,
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(decimal|float|int:Signed16)?'", 52, 10);
-        BAssertUtil.validateError(negativeResult, 9,
-                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed16)?'", 53,
-                10);
-        BAssertUtil.validateError(negativeResult, 10,
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed16)?'",
+                53, 10);
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|string|string:Char|string[])'", 60, 10);
-        BAssertUtil.validateError(negativeResult, 11, "incompatible types: expected 'int', found '(int|byte)?'", 67,
-                14);
-        BAssertUtil.validateError(negativeResult, 12,
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found '(int|byte)?'", 67, 14);
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|int:Unsigned8|int:Signed8)?'", 74, 14);
-        BAssertUtil.validateError(negativeResult, 13, "incompatible types: expected 'int', found '(int|byte)?'", 75,
-                14);
-        BAssertUtil.validateError(negativeResult, 14,
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'int', found '(int|byte)?'",
+                75, 14);
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(decimal|float|int:Signed8)?'", 82, 15);
-        BAssertUtil.validateError(negativeResult, 15,
-                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed8)?'", 83,
-                15);
-        BAssertUtil.validateError(negativeResult, 16,
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found '(decimal|float|int|int:Unsigned8|byte|int:Signed8)?'",
+                83, 15);
+        BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|string|string:Char|string[])'", 90, 15);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '/' not defined for '(json|error)' and 'int'", 97, 13);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '/' not defined for '(json|error)' and 'int'", 108, 13);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '+' not defined for '(json|error)' and 'string'", 109, 16);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '&&' not defined for '(json|error)' and 'boolean'", 110, 17);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '/' not defined for '(json|error)' and 'int'", 115, 13);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '/' not defined for '(json|error|any[])' and 'int'", 121, 13);
+        BAssertUtil.validateError(negativeResult, index++,
+                "operator '/' not defined for '(json|error|any[])' and 'int'", 127, 13);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

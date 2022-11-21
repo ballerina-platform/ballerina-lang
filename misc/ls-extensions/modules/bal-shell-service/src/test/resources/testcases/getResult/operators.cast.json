@@ -154,7 +154,7 @@
     "source": "value",
     "result": {
       "shellValue": {
-        "value":"{\"name\":\"Jane Doe\",\"age\":25,\"empNo\":1}",
+        "value":"{\"name\":\"Jane Doe\", \"age\":25, \"empNo\":1}",
         "mimeType":"ballerina-notebook/json-view",
         "type":"Employee"
       },

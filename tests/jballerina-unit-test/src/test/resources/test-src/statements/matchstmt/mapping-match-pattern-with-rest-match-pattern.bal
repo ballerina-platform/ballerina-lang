@@ -285,10 +285,9 @@ function mappingMatchPattern14(RecTwo rec)
         {p: var p, ...var q} => {
             return [p, q];
         }
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // {a: var a, b: var b, ...var c} => {
-        //     return [a, b, c];
-        // }
+        {a: var a, b: var b, ...var c} => {
+         return [a, b, c];
+        }
         {m: var m, ...var n} => {
             return [m, n];
         }
@@ -309,18 +308,17 @@ public function testRestMappingAtRuntime() {
     assertEquals(2, m1.length());
     assertEquals(<RecTwo> {m: 101, "p": "hello", "q": "world"}, rec);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-    // RecTwo rec2 = {m: 202, "a": "hello", "b": "world", "c": "ballerina"};
-    // var r2 = mappingMatchPattern14(rec2);
-    // assertEquals(true, r2 is [string, string, map<int|string>]);
-    // var v2 = <[string, string, map<int|string>]> r2;
-    // assertEquals("hello", v2[0]);
-    // assertEquals("world", v2[1]);
-    // var m2 = v2[2];
-    // assertEquals("ballerina", m2["c"]);
-    // assertEquals(202, m2["m"]);
-    // assertEquals(2, m2.length());
-    // assertEquals(<RecTwo> {m: 202, "a": "hello", "b": "world", "c": "ballerina"}, rec2);
+    RecTwo rec2 = {m: 202, "a": "hello", "b": "world", "c": "ballerina"};
+    var r2 = mappingMatchPattern14(rec2);
+    assertEquals(true, r2 is [string, string, map<int|string>]);
+    var v2 = <[string, string, map<int|string>]> r2;
+    assertEquals("hello", v2[0]);
+    assertEquals("world", v2[1]);
+    var m2 = v2[2];
+    assertEquals("ballerina", m2["c"]);
+    assertEquals(202, m2["m"]);
+    assertEquals(2, m2.length());
+    assertEquals(<RecTwo> {m: 202, "a": "hello", "b": "world", "c": "ballerina"}, rec2);
 
     RecTwo rec3 = {m: 303, "b": "ballerina"};
     var r3 = mappingMatchPattern14(rec3);

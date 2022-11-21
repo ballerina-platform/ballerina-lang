@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Stack;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -46,6 +47,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> errorVarCount;
     private Map<PackageID, Integer> intersectionRecordCount;
     private Map<PackageID, Integer> intersectionErrorCount;
+    private Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
 
     public static final String ANON_PREFIX = "$anon";
     private static final String ANON_TYPE = ANON_PREFIX + "Type$";
@@ -61,6 +63,7 @@ public class BLangAnonymousModelHelper {
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
     private static final String ERROR_VAR = "$errorVar$";
+    private static final String DOLLAR = "$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -78,6 +81,7 @@ public class BLangAnonymousModelHelper {
         intersectionRecordCount = new HashMap<>();
         intersectionErrorCount = new HashMap<>();
         distinctTypeIdCount = new HashMap<>();
+        anonTypesNamesPerPkg = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -95,6 +99,26 @@ public class BLangAnonymousModelHelper {
             return BUILTIN_ANON_TYPE + UNDERSCORE + nextValue;
         }
         return ANON_TYPE + UNDERSCORE + nextValue;
+    }
+
+    public String getNextAnonymousTypeKey(PackageID packageID, Stack<String> suffixes) {
+        if (suffixes.isEmpty()) {
+            return getNextAnonymousTypeKey(packageID);
+        }
+        return createAnonTypeName(suffixes, packageID);
+    }
+
+    private String createAnonTypeName(Stack<String> suffixes, PackageID pkgId) {
+        StringBuilder name = new StringBuilder(ANON_TYPE);
+        for (int i = suffixes.size() - 1; i >= 0; i--) {
+            name.append(suffixes.elementAt(i)).append(DOLLAR);
+        }
+        Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.computeIfAbsent(pkgId, key -> new HashMap<>());
+        String nameStr = name.toString();
+        anonTypesNames.putIfAbsent(nameStr, 0);
+        Integer id = anonTypesNames.get(nameStr);
+        anonTypesNames.put(nameStr, id + 1);
+        return name + UNDERSCORE + id;
     }
 
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {

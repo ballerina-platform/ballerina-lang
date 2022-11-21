@@ -215,6 +215,10 @@ public class ValueComparisonUtils {
 
         if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
             return Long.compare((long) lhsValue, (long) rhsValue);
+        } else if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.BYTE_TAG == rhsTypeTag) {
+            return Long.compare((long) lhsValue, (int) rhsValue);
+        } else if (TypeTags.BYTE_TAG == lhsTypeTag && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare((int) lhsValue, (long) rhsValue);
         }
 
         if (lhsTypeTag == rhsTypeTag) {
@@ -233,10 +237,12 @@ public class ValueComparisonUtils {
                         return 1;
                     }
                     return -1;
-                case TypeTags.ARRAY_TAG:
-                case TypeTags.TUPLE_TAG:
-                    return compareArrayValues(lhsValue, rhsValue, lhsTypeTag, direction);
             }
+        }
+
+        if ((lhsTypeTag == TypeTags.ARRAY_TAG || lhsTypeTag == TypeTags.TUPLE_TAG) &&
+                (rhsTypeTag == TypeTags.ARRAY_TAG || rhsTypeTag == TypeTags.TUPLE_TAG)) {
+            return compareArrayValues(lhsValue, rhsValue, lhsTypeTag, rhsTypeTag, direction);
         }
 
         throw ErrorUtils.createOperationNotSupportedError(TypeChecker.getType(lhsValue),
@@ -312,14 +318,19 @@ public class ValueComparisonUtils {
         return decimalValue.valueKind == DecimalValueKind.ZERO || decimalValue.valueKind == DecimalValueKind.OTHER;
     }
 
-    private static int compareArrayValues(Object lhsValue, Object rhsValue, int lhsTypeTag, String direction) {
+    private static int compareArrayValues(Object lhsValue, Object rhsValue, int lhsTypeTag, int rhsTypeTag,
+                                          String direction) {
         int lengthVal1;
         int lengthVal2;
         if (lhsTypeTag == TypeTags.ARRAY_TAG) {
             lengthVal1 = ((BArray) lhsValue).size();
-            lengthVal2 = ((BArray) rhsValue).size();
         } else {
             lengthVal1 = ((TupleValueImpl) lhsValue).size();
+        }
+
+        if (rhsTypeTag == TypeTags.ARRAY_TAG) {
+            lengthVal2 = ((BArray) rhsValue).size();
+        } else {
             lengthVal2 = ((TupleValueImpl) rhsValue).size();
         }
 
@@ -336,10 +347,18 @@ public class ValueComparisonUtils {
         int c = 0;
         for (int i = 0; i < len; i++) {
             if (lhsTypeTag == TypeTags.ARRAY_TAG) {
-                c = compareValues(((BArray) lhsValue).get(i), ((BArray) rhsValue).get(i), direction);
+                if (rhsTypeTag == TypeTags.ARRAY_TAG) {
+                    c = compareValues(((BArray) lhsValue).get(i), ((BArray) rhsValue).get(i), direction);
+                } else {
+                    c = compareValues(((BArray) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i), direction);
+                }
             } else {
-                c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i),
-                        direction);
+                if (rhsTypeTag == TypeTags.ARRAY_TAG) {
+                    c = compareValues(((TupleValueImpl) lhsValue).get(i), ((BArray) rhsValue).get(i), direction);
+                } else {
+                    c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i),
+                            direction);
+                }
             }
             if (c != 0) {
                 break;

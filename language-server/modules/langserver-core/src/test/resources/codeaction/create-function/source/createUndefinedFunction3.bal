@@ -1,3 +1,7 @@
-public function main() {
-    int x = <int> getValue();
+import ballerina/module1;
+
+service on new module1:Listener(9090) {
+    isolated resource function get . () {
+            int myInt = getInt();
+    }
 }

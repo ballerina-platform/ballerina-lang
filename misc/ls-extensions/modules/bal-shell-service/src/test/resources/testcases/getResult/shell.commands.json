@@ -1,0 +1,20 @@
+[
+  {
+    "source": "/help",
+    "result": {
+      "errors":["Parsing the node from the statement failed."],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "/xyz",
+    "result": {
+      "errors":["Parsing the node from the statement failed."],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

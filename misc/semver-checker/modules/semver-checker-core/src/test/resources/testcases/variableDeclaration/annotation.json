@@ -22,7 +22,7 @@
                   {
                     "type": "new",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module variable annotation",
                     "message": "a new module variable annotation list is added"
                   }
                 ]
@@ -56,7 +56,7 @@
                   {
                     "type": "removed",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module variable annotation",
                     "message": "an existing module variable annotation list is removed"
                   }
                 ]
@@ -90,7 +90,7 @@
                   {
                     "type": "modified",
                     "versionImpact": "ambiguous",
-                    "kind": "unknown",
+                    "kind": "module variable annotation",
                     "message": "module variable annotation list is modified"
                   }
                 ]

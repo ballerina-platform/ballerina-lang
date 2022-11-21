@@ -17,16 +17,12 @@
  */
 package io.ballerina.shell.service;
 
-import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Response format for get Result from BalShell endpoint.
@@ -58,12 +54,7 @@ public class BalShellGetResultResponse {
             return;
         }
 
-        Type type = TypeUtils.getType(value);
-        String stringValue = StringUtils.getJsonString(value);
-        if (Objects.equals(stringValue, "[]")) {
-            stringValue = StringUtils.getExpressionStringValue(value, null);
-        }
-        this.shellValue = new ShellValue(stringValue, type.toString(), type.getTag());
+        this.shellValue = new ShellValue(value);
     }
 
     /**

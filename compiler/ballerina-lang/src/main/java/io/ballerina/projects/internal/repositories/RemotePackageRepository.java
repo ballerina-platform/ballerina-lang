@@ -19,6 +19,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
@@ -27,6 +28,7 @@ import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.PrintStream;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -107,7 +109,14 @@ public class RemotePackageRepository implements PackageRepository {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                             RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
-                    // ignore when get package fail
+                    boolean enableOutputStream =
+                            Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+                    if (enableOutputStream) {
+                        final PrintStream out = System.out;
+                        out.println("Error while pulling package [" + orgName + "/" + packageName + ":" + version +
+                                "]: " + e.getMessage());
+
+                    }
                 }
             }
         }

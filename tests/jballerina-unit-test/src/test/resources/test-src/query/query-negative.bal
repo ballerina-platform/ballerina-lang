@@ -519,3 +519,42 @@ function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
                     where user.age > 21 && user.age < 60
                     select {user} on conflict msg;
 }
+
+function testQueryUsedAsFuncArg() {
+    int len = getLength(from string s in ["A", "B"]
+        select s);
+
+    string[][] ar = [];
+    int[][] newAr = from var c in ar
+        select foo(from var s in c
+            select s.trim());
+}
+
+function getLength(int[] arr) returns int {
+    return arr.length();
+}
+
+function foo(int[] s) returns int[] {
+    return s;
+}
+
+function testInvalidCheckExpressionInQueryAction() returns string|error {
+    from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
+}
+
+function testInvalidCheckExpressionInQueryAction2() returns error? {
+    from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
+}
+
+function returnNil() {
+}

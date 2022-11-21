@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 2,
+    "character": 13
+  },
+  "source": "add_conditional_default_in_return_statement.bal",
+  "description": "Test the code action in return statement context",
+  "expected": [
+    {
+      "title": "Add conditional default value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 15
+            },
+            "end": {
+              "line": 2,
+              "character": 15
+            }
+          },
+          "newText": " ?: 0"
+        }
+      ]
+    }
+  ]
+}

@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -228,6 +229,25 @@ public class ContextBuilder {
                                                            CodeActionParams params,
                                                            CancelChecker cancelChecker) {
         return new CodeActionContextImpl.CodeActionContextBuilder(params, serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
+                .build();
+    }
+
+    /**
+     * Build the code action resolve context.
+     *
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @param cancelChecker    cancellation checker
+     * @return {@link CodeActionResolveContext} generated resolver context
+     */
+    public static CodeActionResolveContext buildCodeActionResolveContext(String uri,
+                                                                         WorkspaceManager workspaceManager,
+                                                                         LanguageServerContext serverContext,
+                                                                         CancelChecker cancelChecker) {
+        return new CodeActionResolveContextImpl.CodeActionResolveContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCancelChecker(cancelChecker)

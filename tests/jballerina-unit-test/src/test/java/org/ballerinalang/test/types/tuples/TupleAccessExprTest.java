@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -199,6 +200,40 @@ public class TupleAccessExprTest {
                     "out of range: index: 6, size: 4.*")
     public void testTupleAccessUsingUnionWithFiniteTypesNegative() {
         BRunUtil.invoke(compileResult, "testTupleAccessUsingUnionWithFiniteTypesNegative");
+    }
+
+    @Test(dataProvider = "dataToTestTupleAccessUsingCustomTypes")
+    public void testTupleAccessUsingCustomTypes(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @Test(dataProvider = "dataToTestTupleWithRestTypesAccessFunctionList")
+    public void testTupleWithRestTypesAccess(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
+    }
+
+    @DataProvider
+    public Object[][] dataToTestTupleAccessUsingCustomTypes() {
+        return new Object[][]{
+                {"testTupleAccessWithCustomType"},
+                {"testTupleAccessWithCustomType2"},
+                {"testTupleAccessWithCustomUnionTypes"},
+                {"testTupleAccessWithCustomReadonlyUnionTypes"},
+                {"testModuleLevelTupleAccessWithCustomType"},
+                {"testTupleAccessWithByteType"},
+                {"testTupleAccessWithConstantType"},
+                {"testTupleAccessWithBindingPattern"},
+                {"testTupleAccessWithBindingPattern2"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] dataToTestTupleWithRestTypesAccessFunctionList() {
+        return new Object[][]{
+                {"testTupleWithRestTypesAccess"},
+                {"testTupleWithRestTypesAccess2"},
+                {"testCustomTupleWithRestTypesAccess"}
+        };
     }
 
     @AfterClass

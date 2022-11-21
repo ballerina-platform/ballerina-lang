@@ -1112,8 +1112,7 @@ function testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField() {
     assertTrue(b is record {| int a?; |});
     assertTrue(b is record {| int a?; never...; |});
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/33785
-    // record {| int a; |} _ = a;
+    record {| int a; |} _ = a;
 
     record {| int a; never...; |} _ = a;
     record { int a; } _ = a;

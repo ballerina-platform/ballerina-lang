@@ -79,7 +79,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         // Replace with a smart comparator implementation
         DumbNodeListComparator<AnnotationNode> annotComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.MODULE_CONST_ANNOTATION.toString());
+                DiffKind.MODULE_CONST_ANNOTATION);
         annotComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;

@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
 /**
@@ -57,6 +58,7 @@ public abstract class TypeBuilder {
     public FUNCTION FUNCTION_TYPE;
     public OBJECT OBJECT_TYPE;
     public RECORD RECORD_TYPE;
+    public UNION UNION_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -713,5 +715,26 @@ public abstract class TypeBuilder {
              */
             RECORD_FIELD get();
         }
+    }
+
+    /**
+     * Represents the methods required to build the Union type symbol of a Union type descriptor.
+     */
+    public interface UNION {
+
+        /**
+         * Sets the member type parameters used to build the Union type descriptor.
+         *
+         * @param memberTypes     The array of member type symbols
+         * @return The {@link UNION} instance with the member type parameters being set.
+         */
+        UNION withMemberTypes(TypeSymbol... memberTypes);
+
+        /**
+         * Build the Union type descriptor and returns the Union type symbol.
+         *
+         * @return The built {@link UnionTypeSymbol}
+         */
+        UnionTypeSymbol build();
     }
 }

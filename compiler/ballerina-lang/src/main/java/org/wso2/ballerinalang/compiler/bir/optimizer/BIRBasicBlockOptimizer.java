@@ -84,7 +84,6 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         birFunction.basicBlocks.removeAll(removableGOTOBasicBlocks);
 
         // Re-arrange basic blocks
-        birFunction.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(this::rearrangeBasicBlocks));
         birFunction.basicBlocks.forEach(this::rearrangeBasicBlocks);
         // Re-arrange error entries
         birFunction.errorTable.sort(Comparator.comparingInt(o ->
@@ -116,13 +115,18 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     private Set<BIRBasicBlock> getRemovableBasicBlocks(BIRNode.BIRFunction birFunction,
                                                        BIROptimizer.OptimizerEnv funcEnv) {
+        Set<BIRBasicBlock> errorTableTargetBBs = new HashSet<>();
+        for (BIRNode.BIRErrorEntry birErrorEntry : birFunction.errorTable) {
+            errorTableTargetBBs.add(birErrorEntry.targetBB);
+        }
+
         Set<BIRBasicBlock> removableBasicBlocks = new HashSet<>();
         for (int i = birFunction.basicBlocks.size() - 1; i >= 0; --i) {
             BIRBasicBlock basicBlock = birFunction.basicBlocks.get(i);
 
             // Remove basic blocks with unnecessary jump statement
             if (basicBlock.terminator instanceof BIRTerminator.GOTO && basicBlock.instructions.isEmpty()
-                    && basicBlock.terminator.pos == null) {
+                    && basicBlock.terminator.pos == null && !errorTableTargetBBs.contains(basicBlock)) {
                 funcEnv.currentBB = basicBlock;
                 funcEnv.nextBB = ((BIRTerminator.GOTO) basicBlock.terminator).targetBB;
                 this.optimizeNode(basicBlock, funcEnv);

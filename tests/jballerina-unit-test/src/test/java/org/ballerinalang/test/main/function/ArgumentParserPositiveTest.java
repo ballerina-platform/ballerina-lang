@@ -84,7 +84,7 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(output, expectedDecimal, "string arg parsed as invalid decimal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNoNamedArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
@@ -158,10 +158,7 @@ public class ArgumentParserPositiveTest {
         return new Object[][]{
                 {"10", "10"},
 //                {"-10.123", "-10.123"},
-                {"10.123e1423", "1.0123E+1424"},
-                {"0x1ef.a2", "495.63281250"},
-//                {"-0x1ef.a2p2", "-1982.531250"},
-                {"0X1EF.A2P-2", "123.9082031250"}
+                {"10.123e1423", "1.0123E+1424"}
         };
     }
 

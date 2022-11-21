@@ -95,11 +95,37 @@ function testFromJsonWithTypeRecord3() {
 
 type Student2Or3 Student2|Student3;
 
+type PetByAge record {
+    int age;
+    string nickname?;
+};
+
+type PetByType record {
+    "Cat"|"Dog" pet_type;
+    boolean hunts?;
+};
+
+type Pet PetByAge|PetByType;
+
 function testFromJsonWithTypeAmbiguousTargetType() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     json j = <json> checkpanic str.fromJsonString();
     Student3|error p = j.fromJsonWithType(Student2Or3);
-    assertEquality(p is error, true);
+    assertEquality(p is error, false);
+    assertEquality(p is Student3, true);
+    assertEquality(p is Student2Or3, true);
+    assertEquality(checkpanic p, <Student3> {name: "Name", age: 35});
+
+    json jval = {
+        "nickname": "Fido",
+        "pet_type": "Dog",
+        "age": 4
+    };
+
+    Pet pet = checkpanic jval.fromJsonWithType();
+    assertEquality(pet is PetByAge, true);
+    assertEquality(pet is PetByType, false);
+    assertEquality(checkpanic pet, <PetByAge>{"nickname": "Fido", "pet_type": "Dog", age: 4});
 }
 
 type XmlType xml;
@@ -238,12 +264,23 @@ json[] jStudentArr = [
 function testFromJsonWithTypeWithNullValues() {
     json j1 = {x: null};
     IntVal val = checkpanic j1.fromJsonWithType(IntVal);
-    assert(val, {x:()});
+    assert(val, {x: ()});
 
     PostGradStudent[] studentArr = checkpanic jStudentArr.fromJsonWithType(PostGradStudentArray);
-    assert(studentArr, [{employed:false,first_name:"Radha",address:{city:"Colombo",country:"Sri Lanka",
-    apartment_no:123,street:"Perera Mawatha"}},{employed:true,first_name:"Nilu",last_name:"Peiris",address:()},
-    {employed:false,first_name:"Meena",address:{city:"Colombo",country:(),street:"Main Street"}}]);
+    assert(studentArr, [
+        {
+            employed: false,
+            first_name: "Radha",
+            address: {
+                city: "Colombo",
+                country: "Sri Lanka",
+                apartment_no: 123,
+                street: "Perera Mawatha"
+            }
+        },
+        {employed: true, first_name: "Nilu", last_name: "Peiris", address: ()},
+        {employed: false, first_name: "Meena", address: {city: "Colombo", country: (), street: "Main Street"}}
+    ]);
 }
 
 function testFromJsonWithTypeWithNullValuesNegative() {
@@ -275,6 +312,7 @@ function testFromJsonWithTypeWithInferredArgument() {
 }
 
 type FooBar [StringType...];
+
 type StringType string;
 
 public function testFromJsonWithTypeWithTypeReferences() {
@@ -310,13 +348,12 @@ function testFromJsonWithTypeNestedRecordsNegative() {
 
     error err = <error> radha;
     string errorMsg = "'map<json>' value cannot be converted to '(Student & readonly)': " +
-     "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
-     "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string', found '7'" +
-     "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string', found 'false'";
+    "\n\t\tmissing required field 'address.country' of type 'string?' in record '(PermanentAddress & readonly)'" +
+    "\n\t\tfield 'address.city' in record '(PermanentAddress & readonly)' should be of type 'string', found '7'" +
+    "\n\t\tvalue of field 'employed' adding to the record '(Student & readonly)' should be of type 'string', found 'false'";
     assertEquality(<string> checkpanic err.detail()["message"], errorMsg);
-    assertEquality(err.message(),"{ballerina/lang.value}ConversionError");
+    assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
 }
-
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
@@ -365,7 +402,9 @@ function testFromJsonStringWithTypeRecord() {
 function testFromJsonStringWithAmbiguousType() {
     string str = "{\"name\":\"Name\",\"age\":35}";
     Student3|error p = str.fromJsonStringWithType(Student2Or3);
-    assertEquality(p is error, true);
+    assertEquality(p is error, false);
+    assertEquality(p is Student2Or3, true);
+    assertEquality(p is Student3, true);
 }
 
 function testFromJsonStringWithTypeMap() {
@@ -435,7 +474,8 @@ function tesFromJsonWithTypeMapWithDecimal() {
     assertEquality(castedValue["factor"], mp["factor"]);
     assertEquality(castedValue["name"], mp["name"]);
 }
-public type Maps record {|int i; int...;|}|record {|int i?;|};
+
+public type Maps record {|int i;int...; |}|record {|int i?;|};
 
 public type Value record {|
     Maps value;
@@ -444,14 +484,321 @@ public type Value record {|
 public function testConvertJsonToAmbiguousType() {
     json j = {"value": <map<int>> {i: 1}};
     Value|error res = j.cloneWithType(Value);
+    assertEquality(res is error, false);
+    assertEquality(res is Value, true);
+    assertEquality(checkpanic res, <Value> checkpanic {value: {i: 1}});
+}
 
-    if res is error {
-        assertEquality("'map<json>' value cannot be converted to 'Value': " +
-        "\n\t\tvalue '{\"i\":1}' cannot be converted to 'Maps': ambiguous target type", res.detail()["message"]);
-        return;
+type RegExpType string:RegExp;
+
+function testFromJsonWithTypeOnRegExp() {
+    string s = "AB+C*D{1,4}";
+    RegExpType|error x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `AB+C*D{1,4}` == x1, true);
     }
 
-    panic error("Invalid respone.", message = "Expected error");
+    s = "A?B+C*?D{1,4}";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A?B+C*?D{1,4}` == x1, true);
+    }
+
+    s = "A\\sB\\WC\\Dd\\\\";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A\sB\WC\Dd\\` == x1, true);
+    }
+
+    s = "\\s{1}\\p{sc=Braille}*";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\s{1}\p{sc=Braille}*` == x1, true);
+    }
+
+    s = "AB+\\p{gc=Lu}{1,}";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `AB+\p{gc=Lu}{1,}` == x1, true);
+    }
+
+    s = "A\\p{Lu}??B+\\W\\(+?C*D{1,4}?";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
+    }
+
+    s = "\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
+    }
+
+
+    s = "[\\r\\n\\^]";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\r\n\^]` == x1, true);
+    }
+
+    s = "[A\\sB\\WC\\Dd\\\\]";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[A\sB\WC\Dd\\]` == x1, true);
+    }
+
+    s = "[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
+    }
+
+    s = "[A\\sA-GB\\WC\\DJ-Kd\\\\]*";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
+    }
+
+    s = "[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
+    }
+
+    s = "[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
+    }
+
+    s = "(?:ABC)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?:ABC)` == x1, true);
+    }
+
+    s = "(?i:ABC)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i:ABC)` == x1, true);
+    }
+
+    s = "(?i-m:AB+C*)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-m:AB+C*)` == x1, true);
+    }
+
+    s = "(?imxs:AB+C*D{1,4})";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?imxs:AB+C*D{1,4})` == x1, true);
+    }
+
+    s = "(?imx-s:A?B+C*?D{1,4})";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
+    }
+
+    s = "(?i-s:\\s{1}\\p{sc=Braille}*)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
+    }
+
+    s = "(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
+    }
+
+    s = "(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
+    }
+
+    s = "(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
+    }
+
+    s = "(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
+    }
+
+    s = "(z)((a+)?(b+)?(c))*";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(z)((a+)?(b+)?(c))*` == x1, true);
+    }
+
+    s = "^^^^^^^robot$$$$";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `^^^^^^^robot$$$$` == x1, true);
+    }
+
+    s = "cx{0,93}c";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `cx{0,93}c` == x1, true);
+    }
+
+    s = "[\\d]*[\\s]*bc.";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\d]*[\s]*bc.` == x1, true);
+    }
+
+    s = "\\??\\??\\??\\??\\??";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\??\??\??\??\??` == x1, true);
+    }
+
+    s = ".?.?.?.?.?.?.?";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `.?.?.?.?.?.?.?` == x1, true);
+    }
+
+    s = "bc..[\\d]*[\\s]*";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `bc..[\d]*[\s]*` == x1, true);
+    }
+
+    s = "\\\\u123";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\\u123` == x1, true);
+    }
+
+    s = "";
+    x1 = s.fromJsonWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `` == x1, true);
+    }
+}
+
+function testFromJsonWithTypeOnRegExpNegative() {
+    string s = "AB+^*";
+    RegExpType|error x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\hCD";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\h'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\pCD";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\p'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\uCD";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\u{001CD";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u{001CD'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\p{sc=Lu";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing '}' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "[^abc";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ']' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "(abc";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ')' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "(ab^*)";
+    x1 = s.fromJsonWithType(RegExpType);
+    assert(x1 is error, true);
+    if (x1 is error) {
+        assert("{ballerina/lang.value}ConversionError", x1.message());
+        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
+        <string> checkpanic x1.detail()["message"]);
+    }
 }
 
 function assert(anydata actual, anydata expected) {

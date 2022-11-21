@@ -24,7 +24,9 @@ import org.ballerinalang.langserver.commons.LSOperation;
  */
 public enum SymbolContext implements LSOperation {
     SC_TYPE_API("ballerinaSymbol/type"),
-    SC_GET_SYMBOL_API("ballerinaSymbol/getSymbol");
+    SC_GET_TYPE_FROM_EXPRESSION_API("ballerinaSymbol/getTypeFromExpression"),
+    SC_GET_SYMBOL_API("ballerinaSymbol/getSymbol"),
+    SC_GET_TYPE_FROM_SYMBOL_API("ballerinaSymbol/getTypeFromSymbol");
     private final String name;
 
     SymbolContext(String name) {

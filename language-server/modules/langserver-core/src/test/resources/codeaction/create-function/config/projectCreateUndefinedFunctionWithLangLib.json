@@ -1,0 +1,57 @@
+{
+  "position": {
+    "line": 8,
+    "character": 25
+  },
+  "source": "testproject/langlib.bal",
+  "expected": [
+    {
+      "title": "Create function 'createListener(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 1
+            },
+            "end": {
+              "line": 9,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction createListener(int port) returns module1:Listener {\n    return new (0);\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "testproject/langlib.bal",
+        "range": {
+          "start": {
+            "line": 8,
+            "character": 25
+          },
+          "end": {
+            "line": 8,
+            "character": 45
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 8.0,
+              "character": 25.0
+            },
+            "end": {
+              "line": 8.0,
+              "character": 45.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

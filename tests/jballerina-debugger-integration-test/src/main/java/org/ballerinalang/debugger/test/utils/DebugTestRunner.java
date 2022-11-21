@@ -88,6 +88,8 @@ public class DebugTestRunner {
     private DebugHitListener hitListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
+    private final boolean isProjectBasedTest;
+    private boolean clientSupportsRunInTerminal;
 
     private static final int SCHEDULER_INTERVAL_MS = 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
@@ -101,6 +103,7 @@ public class DebugTestRunner {
             testEntryFilePath = testSingleFileBaseDir.resolve(testModuleFileName);
         }
 
+        this.isProjectBasedTest = isProjectBasedTest;
         // Hard assertions will be used by default.
         assertionMode = AssertionMode.HARD_ASSERT;
     }
@@ -142,11 +145,28 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
+        initDebugSession(executionKind, "");
+    }
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @param terminalKind The terminal type, if the debug session should be launched in a separate terminal
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    public boolean initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
+            throws BallerinaTestException {
         HashMap<String, Object> launchConfigs = new HashMap<>();
         HashMap<String, Object> extendedCapabilities = new HashMap<>();
         extendedCapabilities.put("supportsReadOnlyEditors", true);
         launchConfigs.put("capabilities", extendedCapabilities);
+        if (!terminalKind.isEmpty()) {
+            launchConfigs.put("terminal", terminalKind);
+        }
         initDebugSession(executionKind, launchConfigs);
+        return debugClientConnector.getRequestManager().getDidRunInIntegratedTerminal();
     }
 
     /**
@@ -189,7 +209,7 @@ public class DebugTestRunner {
                                  int port, Map<String, Object> launchArgs) throws BallerinaTestException {
 
         debugClientConnector = new DAPClientConnector(balServer.getServerHome(), testProjectPath, testEntryFilePath,
-                port);
+                port, clientSupportsRunInTerminal);
         debugClientConnector.createConnection();
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -204,6 +224,7 @@ public class DebugTestRunner {
         if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
         } else {
+            debugClientConnector.getRequestManager().setIsProjectBasedTest(isProjectBasedTest);
             launchDebuggee(executionKind, launchArgs);
         }
     }
@@ -850,6 +871,10 @@ public class DebugTestRunner {
 
     public void endSoftAssertions() {
         softAsserter.assertAll();
+    }
+
+    public void setClientSupportsRunInTerminal(boolean clientSupportsRunInTerminal) {
+        this.clientSupportsRunInTerminal = clientSupportsRunInTerminal;
     }
 
     /**

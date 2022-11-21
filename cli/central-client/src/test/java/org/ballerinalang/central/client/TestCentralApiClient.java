@@ -40,6 +40,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -84,6 +85,8 @@ public class TestCentralApiClient extends CentralAPIClient {
     private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
+    private final String balaUrl =
+            "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
     private final Call remoteCall = mock(Call.class);
     private final OkHttpClient client = mock(OkHttpClient.class);
 
@@ -133,15 +136,13 @@ public class TestCentralApiClient extends CentralAPIClient {
         Files.deleteIfExists(TMP_DIR);
     }
 
-    @Test(description = "Test pull package", enabled = false)
+    @Test(description = "Test pull package")
     public void testPullPackage() throws IOException, CentralClientException {
-        final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
         File balaFile = new File(String.valueOf(balaPath));
-        InputStream balaStream = null;
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
 
-        try {
-            balaStream = new FileInputStream(balaFile);
+        try (InputStream ignored = new FileInputStream(balaFile)) {
 
             Request mockRequest = new Request.Builder()
                     .get()
@@ -153,8 +154,22 @@ public class TestCentralApiClient extends CentralAPIClient {
                     .request(mockRequest)
                     .protocol(Protocol.HTTP_1_1)
                     .code(HttpURLConnection.HTTP_MOVED_TEMP)
-                    .addHeader(LOCATION, balaUrl)
-                    .addHeader(CONTENT_DISPOSITION, "attachment; filename=sf-2020r2-any-1.3.5.bala")
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("")
+                    .body(null)
+                    .build();
+
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_OK)
                     .message("")
                     .body(ResponseBody.create(
                             MediaType.get(APPLICATION_OCTET_STREAM),
@@ -162,20 +177,24 @@ public class TestCentralApiClient extends CentralAPIClient {
                     ))
                     .build();
 
-            when(this.remoteCall.execute()).thenReturn(mockResponse);
+            when(this.remoteCall.execute()).thenReturn(mockResponse, mockDownloadBalaResponse);
             when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
+            System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
             this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
-            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
+            Path balaDir = TMP_DIR.resolve("1.3.5").resolve("2020r2-any");
+            Assert.assertTrue(balaDir.toFile().exists());
+            Assert.assertTrue(balaDir.resolve("bala.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("modules").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("dependency-graph.json").toFile().exists());
+            Assert.assertTrue(balaDir.resolve("package.json").toFile().exists());
+
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and().with().pollDelay(Duration.ONE_SECOND).await()
                     .atMost(10, SECONDS)
                     .until(() -> buildLog.contains("foo/sf:1.3.5 pulled from central successfully"));
         } finally {
-            if (balaStream != null) {
-                balaStream.close();
-            }
             cleanTmpDir();
         }
     }
@@ -206,6 +225,97 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+    }
+
+    @DataProvider (name = "provideDataForBalaDownloadFailHttpCodes")
+    private Object[][] provideDataForBalaDownloadFailHttpCodes() {
+
+        // invalidRequestErrorMessage here might not be identical to the actual HTTP response error message
+        String invalidResponseErrorMessage = "package not found: foo/sf:*_any";
+        String unexpectedResponseErrorMessage = "error: failed to pull the package: 'foo/sf:1.3.5'. " +
+                "BALA content download from '" + this.balaUrl + "' failed.";
+        String remoteRepositoryErrorMessage = unexpectedResponseErrorMessage + " reason:" + invalidResponseErrorMessage;
+        String responseString = "{\"message\": \"" + invalidResponseErrorMessage + "\"}";
+
+        Object[][] data = new Object[7][3];
+        data[0] = new Object[]{HttpURLConnection.HTTP_NOT_FOUND, invalidResponseErrorMessage,
+                getResponseBody(responseString)};
+        data[1] = new Object[]{HttpURLConnection.HTTP_INTERNAL_ERROR, remoteRepositoryErrorMessage,
+                getResponseBody(responseString)};
+        data[2] = new Object[]{HttpURLConnection.HTTP_BAD_GATEWAY, remoteRepositoryErrorMessage,
+                getResponseBody(responseString)};
+        data[3] = new Object[]{HttpURLConnection.HTTP_UNAVAILABLE, remoteRepositoryErrorMessage,
+                getResponseBody(responseString)};
+        data[4] = new Object[]{HttpURLConnection.HTTP_GATEWAY_TIMEOUT, remoteRepositoryErrorMessage,
+                getResponseBody(responseString)};
+
+        // test BALA download with a response status code not handled specifically
+        data[5] = new Object[]{HttpURLConnection.HTTP_FORBIDDEN, unexpectedResponseErrorMessage,
+                getResponseBody(responseString)};
+
+        // test BALA download with no response body
+        data[6] = new Object[]{HttpURLConnection.HTTP_UNAVAILABLE, unexpectedResponseErrorMessage, null};
+        return data;
+    }
+
+    private ResponseBody getResponseBody(String responseString) {
+        return ResponseBody.create(MediaType.get(APPLICATION_JSON), responseString);
+    }
+
+    @Test(description = "Test pull package with different bala download failure response codes",
+            dataProvider = "provideDataForBalaDownloadFailHttpCodes")
+    public void testPullPackageWithBalaDownloadFailStatusCode(
+            int downloadBalaResponseCode, String errorMessage, ResponseBody responseBody)
+            throws IOException {
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        String balaFileName = "attachment; filename=sf-2020r2-any-1.3.5.bala";
+
+        try {
+            Request mockPullRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response mockPullResponse = new Response.Builder()
+                    .request(mockPullRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                    .addHeader(LOCATION, this.balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+
+            Request mockDownloadBalaRequest = new Request.Builder()
+                    .get()
+                    .url(this.balaUrl)
+                    .header(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(CONTENT_DISPOSITION, balaFileName)
+                    .build();
+            Response mockDownloadBalaResponse = new Response.Builder()
+                    .request(mockDownloadBalaRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(downloadBalaResponseCode)
+                    .message("")
+                    .body(responseBody)
+                    .build();
+
+            when(this.remoteCall.execute()).thenReturn(mockPullResponse, mockDownloadBalaResponse);
+            when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+            try {
+                this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
+                Assert.fail("pullPackage should throw a CentralClientException");
+            } catch (CentralClientException e) {
+                Assert.assertEquals(e.getMessage(), errorMessage);
+            }
+        } finally {
+            cleanTmpDir();
+        }
     }
 
     @Test(description = "Test get package")

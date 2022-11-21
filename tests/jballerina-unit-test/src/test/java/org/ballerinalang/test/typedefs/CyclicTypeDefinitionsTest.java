@@ -64,7 +64,8 @@ public class CyclicTypeDefinitionsTest {
                 {"testCastingToImmutableCyclicTuple"},
                 {"recursiveTupleArrayCloneTest"},
                 {"testRecursiveTupleWithRestType"},
-                {"testUnionWithCyclicTuplesHashCode"}
+                {"testUnionWithCyclicTuplesHashCode"},
+                {"testCloneOnRecursiveTuples"}
         };
     }
 
@@ -87,7 +88,8 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicUnionAgainstSubSetNegative"},
                 {"testImmutableImportedCyclicUnionVariable"},
                 {"testCastingToImmutableCyclicUnion"},
-                {"testIndirectRecursion"}
+                {"testIndirectRecursion"},
+                {"testRecursiveTupleTypeDefinitions"}
         };
     }
 

@@ -30,6 +30,10 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     private boolean getSymbol;
 
+    private boolean getTypeFromExpression;
+
+    private boolean getTypeFromSymbol;
+
     public boolean isGetSymbol() {
         return getSymbol;
     }
@@ -52,6 +56,22 @@ public class BallerinaSymbolClientCapabilities extends BallerinaClientCapability
 
     public void setType(boolean type) {
         this.type = type;
+    }
+
+    public boolean isGetTypeFromExpression() {
+        return getTypeFromExpression;
+    }
+
+    public void setGetTypeFromExpression(boolean getTypeFromExpression) {
+        this.getTypeFromExpression = getTypeFromExpression;
+    }
+
+    public boolean isGetTypeFromSymbol() {
+        return getTypeFromSymbol;
+    }
+
+    public void setGetTypeFromSymbol(boolean getTypeFromSymbol) {
+        this.getTypeFromSymbol = getTypeFromSymbol;
     }
 
     public BallerinaSymbolClientCapabilities() {

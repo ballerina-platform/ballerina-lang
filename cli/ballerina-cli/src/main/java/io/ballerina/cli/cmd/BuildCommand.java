@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
@@ -101,6 +102,17 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                 boolean dumpBuildTime, boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
+        this.nativeImage = nativeImage;
+    }
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")
@@ -158,6 +170,12 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
             " the services in the current package")
     private Boolean exportOpenAPI;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    private Boolean nativeImage;
 
     public void execute() {
         long start = 0;
@@ -228,6 +246,11 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
+        if ((project.buildOptions().nativeImage()) && (project.buildOptions().cloud().equals(""))) {
+            this.outStream.println("WARNING : Native image generation is an experimental feature, " +
+                    "which supports only a limited set of functionality.");
+        }
+
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -235,13 +258,16 @@ public class BuildCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -267,7 +293,9 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setExportOpenAPI(exportOpenAPI);
+                .setExportOpenAPI(exportOpenAPI)
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

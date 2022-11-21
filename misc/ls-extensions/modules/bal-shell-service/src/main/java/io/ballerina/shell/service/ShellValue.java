@@ -17,6 +17,7 @@
  */
 package io.ballerina.shell.service;
 
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.shell.service.util.TypeUtils;
 
 /**
@@ -29,10 +30,11 @@ public class ShellValue {
     private final String mimeType;
     private final String type;
 
-    public ShellValue(String value, String type, int tag) {
-        this.value = value;
-        this.type = type;
-        this.mimeType = TypeUtils.getMimeTypeFromName(tag);
+    public ShellValue(Object value) {
+        Type type = io.ballerina.runtime.api.utils.TypeUtils.getType(value);
+        this.value = TypeUtils.convertToJsonIfAcceptable(value);
+        this.type = type.toString();
+        this.mimeType = TypeUtils.getMimeTypeFromName(type);
     }
 
     public String getValue() {

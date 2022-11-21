@@ -41,6 +41,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -201,7 +202,10 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 fillOtherModuleDefinitions();
             }
 
-            BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
+            BuildOptions buildOptions = BuildOptions.builder()
+                    .setOffline(true)
+                    .targetDir(ProjectUtils.getTemporaryTargetPath())
+                    .build();
             return BuildProject.load(this.tempProjectDir, buildOptions);
         } catch (EvaluationException e) {
             throw e;

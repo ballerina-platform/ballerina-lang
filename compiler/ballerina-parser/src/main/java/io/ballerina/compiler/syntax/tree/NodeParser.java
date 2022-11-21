@@ -147,4 +147,16 @@ public class NodeParser {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parse().createUnlinkedFacade();
     }
+
+    /**
+     * Parses the input as an intermediate clause.
+     *
+     * @param text the input
+     * @param allowActions Allow actions
+     * @return a {@code IntermediateClauseNode}
+     */
+    public static IntermediateClauseNode parseIntermediateClause(String text, boolean allowActions) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsIntermediateClause(allowActions).createUnlinkedFacade();
+    }
 }

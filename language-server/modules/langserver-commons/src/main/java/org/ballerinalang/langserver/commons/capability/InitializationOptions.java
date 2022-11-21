@@ -33,6 +33,11 @@ public interface InitializationOptions {
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
 
     /**
+     * Whether the client supports rename popup.
+     */
+    String KEY_RENAME_SUPPORT = "supportRenamePopup";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -45,4 +50,11 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isEnableSemanticTokens();
+
+    /**
+     * Returns if the client supports rename popup.
+     *
+     * @return True if supported, false otherwise
+     */
+    boolean isRefactorRenameSupported();
 }

@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -57,6 +59,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -72,12 +76,14 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -145,7 +151,21 @@ public class CodeActionUtil {
     }
 
     /**
-     * Returns a list of possible types for this type descriptor.
+     * Returns first possible type for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return possible type for given type descriptor
+     */
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                   ImportsAcceptor importsAcceptor) {
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
+    }
+
+    /**
+     * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
      * @param importEdits    a list of import {@link TextEdit}
@@ -154,18 +174,57 @@ public class CodeActionUtil {
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    /**
+     * Returns a list of possible types for this type descriptor.
+     *
+     * @param typeDescriptor  {@link TypeSymbol}
+     * @param context         {@link CodeActionContext}
+     * @param importsAcceptor imports acceptor
+     * @return a list of possible types
+     */
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                ImportsAcceptor importsAcceptor) {
+        return new ArrayList<>(getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor).values());
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor,
+                                                                 List<TextEdit> importEdits,
+                                                                 CodeActionContext context) {
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        Map<TypeSymbol, String> possibleTypes = getPossibleTypeSymbols(typeDescriptor, context, importsAcceptor);
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
+        return possibleTypes;
+    }
+
+    public static Map<TypeSymbol, String> getPossibleTypeSymbols(TypeSymbol typeDescriptor, CodeActionContext context,
+                                                                 ImportsAcceptor importsAcceptor) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyMap();
+        }
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
-        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
-        List<String> types = new ArrayList<>();
+        Map<TypeSymbol, String> typesMap = new HashMap<>();
+        Types types = semanticModel.get().types();
+        TypeBuilder typeBuilder = types.builder();
         if (typeDescriptor.typeKind() == TypeDescKind.RECORD) {
             // Handle ambiguous mapping construct types {}
 
-            // Matching Record type
-            for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
-                if (symbol instanceof TypeDefinitionSymbol &&
+            Position cursorPosition = new Position(context.range().getStart().getLine(),
+                    context.range().getStart().getCharacter());
+            List<Symbol> visibleSymbols = context.visibleSymbols(cursorPosition);
+
+            //Record type definitions - Find matching Record type definitions
+            for (Symbol symbol : visibleSymbols) {
+                if (symbol.kind() == SymbolKind.TYPE_DEFINITION &&
                         ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
                         typeDescriptor.subtypeOf(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
                     Optional<ModuleSymbol> module = symbol.getModule();
@@ -175,113 +234,79 @@ public class CodeActionUtil {
                         fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
                     }
                     String moduleQualifiedName = fqPrefix + symbol.getName().get();
-                    types.add(FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
+                    typesMap.put(((TypeDefinitionSymbol) symbol).typeDescriptor(),
+                            FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
                 }
             }
 
+            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
             // Anon Record
             String rType = FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context);
-            RecordTypeSymbol recordLiteral = (RecordTypeSymbol) typeDescriptor;
-            types.add((recordLiteral.fieldDescriptors().size() > 0) ? rType : "record {}");
-
-            // A record can be an open record or a closed record:
-            //      record {| int field1; anydata...; |}
-            //      record {| int field1; |}
-            RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDescriptor;
+            typesMap.put(recordTypeSymbol, (recordTypeSymbol.fieldDescriptors().size() > 0) ? rType : "record {}");
 
             // JSON - Record fields and rest type descriptor should be json subtypes
             boolean jsonSubType = recordTypeSymbol.fieldDescriptors().values().stream()
                     .allMatch(recordFieldSymbol -> isJsonMemberType(recordFieldSymbol.typeDescriptor())) &&
                     recordTypeSymbol.restTypeDescriptor().map(CodeActionUtil::isJsonMemberType).orElse(true);
             if (jsonSubType) {
-                types.add("json");
+                typesMap.put(types.JSON, types.JSON.signature());
             }
 
             // Map
-            TypeSymbol prevType = null;
-            boolean isConstrainedMap = true;
-            for (RecordFieldSymbol recordField : recordLiteral.fieldDescriptors().values()) {
-                TypeDescKind typeDescKind = recordField.typeDescriptor().typeKind();
-                if (prevType != null && typeDescKind != prevType.typeKind()) {
-                    isConstrainedMap = false;
-                }
-                prevType = recordField.typeDescriptor();
+            Optional<TypeSymbol> firstFieldType =
+                    recordTypeSymbol.fieldDescriptors().values().stream().findFirst()
+                            .map(RecordFieldSymbol::typeDescriptor);
+            boolean isConstrainedMap = firstFieldType
+                    .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
+                    .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
+                            type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
+            if (isConstrainedMap) {
+                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
+                typesMap.put(typeBuilder.MAP_TYPE
+                        .withTypeParam(firstFieldType.get()).build(), "map<" + type + ">");
+                return typesMap;
             }
-            if (isConstrainedMap && prevType != null) {
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevType, context);
-                types.add("map<" + type + ">");
-            } else {
-                types.add("map<any>");
-            }
+            typesMap.put(typeBuilder.MAP_TYPE.withTypeParam(types.ANY).build(), "map<any>");
+
         } else if (typeDescriptor.typeKind() == TypeDescKind.TUPLE) {
             // Handle ambiguous list construct types []
             TupleTypeSymbol tupleType = (TupleTypeSymbol) typeDescriptor;
-            String arrayType = null;
-            TypeSymbol prevType = null;
-            TypeSymbol prevInnerType = null;
-            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty();
-            for (TypeSymbol memberType : tupleType.memberTypeDescriptors()) {
-                // Here we check previous member-type with current member-type for equality
-                // 1. Check type-kind is differs Tuple vs int
-                // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                if (prevType != null &&
-                        (prevType.typeKind() != memberType.typeKind() ||
-                                !prevType.signature().equals(memberType.signature()))) {
-                    isArrayCandidate = false;
-                }
-                if (memberType.typeKind() == TypeDescKind.TUPLE && prevInnerType == null) {
-                    // Checks inner element's type equality
-                    TupleTypeSymbol nType = (TupleTypeSymbol) memberType;
-                    boolean isSameInnerType = true;
-                    // Here we check previous inner-member-type with current inner-member-type for equality
-                    // 1. Check type-kind is differs Tuple vs int
-                    // 2. Check signature differs Tuple(int,string,int) vs Tuple(boolean, string)
-                    for (TypeSymbol innerType : nType.memberTypeDescriptors()) {
-                        if (prevInnerType != null &&
-                                (prevInnerType.typeKind() != innerType.typeKind() ||
-                                        !prevInnerType.signature().equals(innerType.signature()))) {
-                            isSameInnerType = false;
-                        }
-                        prevInnerType = innerType;
-                    }
-                    if (isSameInnerType && prevInnerType != null) {
-                        String type = FunctionGenerator.generateTypeSignature(importsAcceptor, prevInnerType, context);
-                        arrayType = type + "[]";
-                    }
-                }
-                String type = FunctionGenerator.generateTypeSignature(importsAcceptor, memberType, context);
-                prevType = memberType;
-                if (arrayType == null) {
-                    arrayType = type;
-                }
-            }
+            Optional<TypeSymbol> firstMemberType = tupleType.memberTypeDescriptors().stream().findFirst();
+            boolean isArrayCandidate = tupleType.restTypeDescriptor().isEmpty()
+                    && firstMemberType.map(first -> tupleType.memberTypeDescriptors().stream()
+                    .allMatch(typeSymbol -> typeSymbol.subtypeOf(first)
+                            || first.subtypeOf(typeSymbol))).orElse(false);
+
             // Add Array type if valid
             if (isArrayCandidate) {
-                types.add(arrayType + "[]");
+                getPossibleTypeSymbols(firstMemberType.get(), context, importsAcceptor).entrySet()
+                        .forEach(entry -> typesMap.put(typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build(),
+                                entry.getValue() + "[]"));
             }
             // Add tuple type
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
+            typesMap.put(tupleType, FunctionGenerator.generateTypeSignature(importsAcceptor, tupleType, context));
         } else if (typeDescriptor.typeKind() == TypeDescKind.ARRAY) {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), importEdits, context).stream()
-                    .map(m -> {
-                        switch (arrayTypeSymbol.memberTypeDescriptor().typeKind()) {
-                            case UNION:
+            getPossibleTypeSymbols(arrayTypeSymbol.memberTypeDescriptor(), context, importsAcceptor).entrySet()
+                    .forEach(entry -> {
+                        ArrayTypeSymbol newArrType = typeBuilder.ARRAY_TYPE.withType(entry.getKey()).build();
+                        String signature;
+                        switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
-                                return "(" + m + ")[]";
-
+                            case UNION:
+                                signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
+                                break;
                             default:
-                                return m + "[]";
+                                signature = newArrType.signature();
                         }
-                    })
-                    .collect(Collectors.toList());
+                        typesMap.put(newArrType, signature);
+                    });
         } else {
-            types.add(FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
+            typesMap.put(typeDescriptor, 
+                    FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
-
-        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
-        return types;
+        return typesMap;
     }
 
     /**
@@ -458,11 +483,17 @@ public class CodeActionUtil {
                             returnText = "returns " + typeName + "|error";
                             returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                         }
+                    } else if (enclosedRetTypeDesc.typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                        String returnType = enclosedRetTypeDescNode.type().toString().replaceAll("\\s+", "");
+                        returnText = "returns " + returnType + "|error";
+                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     } else {
                         // Parent function already has another return-type
-                        String typeName =
-                                CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
-                        returnText = "returns " + typeName + "|error";
+                        if (enclosedRetTypeDesc.typeKind() != TypeDescKind.ERROR) {
+                            String typeName =
+                                    CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
+                            returnText = "returns " + typeName + "|error";
+                        }
                         returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
@@ -628,9 +659,11 @@ public class CodeActionUtil {
 
     private static String generateGetterFunctionBodyText(String varName, String typeName, String spaces) {
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function get%s() returns %s{ ", functionName, typeName))
+                .append(String.format("public function get%s() returns %s { ", functionName, typeName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
                 .append(String.format("return self.%s;", varName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
@@ -640,11 +673,13 @@ public class CodeActionUtil {
     private static String generateSetterFunctionBodyText(String varName, String typeName, String spaces) {
 
         StringBuilder newTextBuilder = new StringBuilder();
-        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        String extractedVarName = removeQuotedIdentifier(varName);
+        String functionName = extractedVarName.substring(0, 1).toUpperCase(Locale.ROOT)
+                + extractedVarName.substring(1);
         newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
-                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, varName))
+                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append(spaces)
-                .append(String.format("self.%s = %s;", varName, varName))
+                .append(String.format("self.%s = %s;", varName, extractedVarName))
                 .append(LINE_SEPARATOR).append(spaces).append("}");
         return newTextBuilder.toString();
     }
@@ -709,7 +744,8 @@ public class CodeActionUtil {
     public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
         for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                if (((FunctionDefinitionNode) node).functionName().text()
+                        .equals(removeQuotedIdentifier(functionName))) {
                     return true;
                 }
             }
@@ -805,5 +841,45 @@ public class CodeActionUtil {
         CodeAction action = createCodeAction(commandTitle, edits, uri);
         action.setKind(codeActionKind);
         return action;
+    }
+
+    public static String removeQuotedIdentifier(String identifier) {
+        return identifier.startsWith("'") ? identifier.substring(1) : identifier;
+    }
+
+    /**
+     * Returns a Resolvable code action.
+     *
+     * @param commandTitle   title of the code action
+     * @param codeActionKind kind of the code action
+     * @param data           code action data
+     * @return {@link ResolvableCodeAction}
+     */
+    public static ResolvableCodeAction createResolvableCodeAction(String commandTitle, String codeActionKind,
+                                                                  CodeActionData data) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        ResolvableCodeAction action = new ResolvableCodeAction(commandTitle);
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        action.setKind(codeActionKind);
+        action.setData(data);
+        return action;
+    }
+
+    /**
+     * Returns if a new line should be appended to a new text edit at module level.
+     *
+     * @param enclosingNode Node at module level which is enclosing the cursor.
+     * @return @link{Boolean} W
+     */
+    public static boolean addNewLineAtEnd(Node enclosingNode) {
+        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
+        while (iterator.hasNext()) {
+            Node next = iterator.next();
+            if (next.textRange().length() > 0
+                    && next.lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }

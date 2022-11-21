@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.command.visitors;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -30,9 +32,11 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
@@ -67,6 +71,7 @@ import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.List;
@@ -82,16 +87,14 @@ import java.util.Optional;
 public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     private final SemanticModel semanticModel;
+    private FunctionCallExpressionNode functionCallExpr;
     private TypeSymbol returnTypeSymbol;
-    private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
 
-    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel) {
+    public FunctionCallExpressionTypeFinder(SemanticModel semanticModel,
+                                            FunctionCallExpressionNode functionCallExpr) {
         this.semanticModel = semanticModel;
-    }
-
-    public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
-        functionCallExpressionNode.accept(this);
+        this.functionCallExpr = functionCallExpr;
     }
 
     @Override
@@ -151,6 +154,14 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         }
 
         typeSymbol = semanticModel.typeOf(binaryExpressionNode.rhsExpr()).orElse(null);
+        if (binaryExpressionNode.operator().kind().name().equals("ELVIS_TOKEN")) {
+            Types types = semanticModel.types();
+            TypeBuilder builder = types.builder();
+            UnionTypeSymbol unionTypeSymbol =
+                    builder.UNION_TYPE.withMemberTypes(typeSymbol, types.NIL).build();
+            checkAndSetTypeResult(unionTypeSymbol);
+            return;
+        }
         checkAndSetTypeResult(typeSymbol);
     }
 
@@ -181,6 +192,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) returnTypeSymbol;
             TypeSymbol typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
             checkAndSetTypeResult(typeSymbol);
+        } else {
+            TypeSymbol nilTypeSymbol = semanticModel.types().NIL;
+            checkAndSetTypeResult(nilTypeSymbol);
         }
     }
 
@@ -243,7 +257,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         // This is the message parameter of an error constructor.
         if (returnTypeSymbol.typeKind() == TypeDescKind.ERROR) {
-            checkAndSetTypeDescResult(TypeDescKind.STRING);
+            checkAndSetTypeResult(semanticModel.types().STRING);
             return;
         }
 
@@ -304,7 +318,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             TypeSymbol detailType = CommonUtil.getRawType(errorTypeSymbol.detailTypeDescriptor());
             if (detailType.typeKind() != TypeDescKind.RECORD) {
                 // Should be a map<> - member type is assumed to be anydata at this time
-                checkAndSetTypeDescResult(TypeDescKind.ANYDATA);
+                checkAndSetTypeResult(semanticModel.types().ANYDATA);
                 return;
             }
 
@@ -382,6 +396,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(BlockStatementNode node) {
+        node.parent().accept(this);
+    }
+
+    @Override
     public void visit(ReturnStatementNode returnStatementNode) {
         this.semanticModel.typeOf(returnStatementNode).ifPresent(this::checkAndSetTypeResult);
         if (resultFound) {
@@ -403,27 +422,43 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         semanticModel.typeOf(unaryExpressionNode).ifPresent(this::checkAndSetTypeResult);
 
         if (!resultFound) {
-            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
         }
     }
 
     @Override
-    public void visit(IfElseStatementNode ifElseStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+    public void visit(IfElseStatementNode node) {
+        // Set function call type to boolean only if it's in the condition area
+        if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), node.condition().lineRange())) {
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
+            return;
+        }
+        node.parent().accept(this);
     }
 
     @Override
     public void visit(FailStatementNode failStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.ERROR);
+        checkAndSetTypeResult(semanticModel.types().ERROR);
     }
 
     @Override
     public void visit(WhileStatementNode whileStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+        if (PositionUtil.isWithinLineRange(functionCallExpr.lineRange(), whileStatementNode.condition().lineRange())) {
+            checkAndSetTypeResult(semanticModel.types().BOOLEAN);
+            return;
+        }
+        whileStatementNode.parent().accept(this);
     }
 
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        // Check if the function call expression is in LHS expression first
+        if (!conditionalExpressionNode.lhsExpression().isMissing() &&
+                PositionUtil.isWithinLineRange(this.functionCallExpr.lineRange(),
+                        conditionalExpressionNode.lhsExpression().lineRange())) {
+            checkAndSetTypeResult(this.semanticModel.types().BOOLEAN);
+            return;
+        }
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
                 .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR)
                 .or(() -> semanticModel.typeOf(conditionalExpressionNode.endExpression())
@@ -439,7 +474,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(CheckExpressionNode checkExpressionNode) {
         if (checkExpressionNode.parent().kind() == SyntaxKind.CALL_STATEMENT) {
-            checkAndSetTypeDescResult(TypeDescKind.ERROR);
+            checkAndSetTypeResult(semanticModel.types().ERROR);
         } else {
             checkExpressionNode.parent().accept(this);
         }
@@ -447,9 +482,9 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(PanicStatementNode panicStatementNode) {
-        checkAndSetTypeDescResult(TypeDescKind.ERROR);
+        checkAndSetTypeResult(semanticModel.types().ERROR);
     }
-    
+
     @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
@@ -466,39 +501,18 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         }
     }
 
-    private void checkAndSetTypeDescResult(TypeDescKind typeDescKind) {
-        if (typeDescKind == null) {
-            return;
-        }
-
-        this.returnTypeSymbol = null;
-        this.returnTypeDescKind = typeDescKind;
-        this.resultFound = true;
-    }
-
     private void resetResult() {
-        this.returnTypeDescKind = null;
         this.returnTypeSymbol = null;
         this.resultFound = false;
     }
 
     /**
-     * Get the type symbol of the return type of the function call expression provided to this instance. Should be
-     * invoked after invoking {@link #findTypeOf(FunctionCallExpressionNode)}.
+     * Get the type symbol of the return type of the function call expression provided to this instance.
+     * Should be invoked after executing this visitor.
      *
      * @return Optional type symbol of the return type of function call expression
      */
     public Optional<TypeSymbol> getReturnTypeSymbol() {
         return Optional.ofNullable(returnTypeSymbol);
-    }
-
-    /**
-     * Get the type descriptor kind of the return type of the function call expression. Should be used when
-     * {@link #getReturnTypeSymbol()} returns empty.
-     *
-     * @return Return type descriptor kind
-     */
-    public Optional<TypeDescKind> getReturnTypeDescKind() {
-        return Optional.ofNullable(returnTypeDescKind);
     }
 }

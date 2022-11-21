@@ -33,10 +33,12 @@ import org.ballerinalang.langserver.completions.providers.context.util.ModulePar
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -56,7 +58,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ModulePartNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
+        ResolvedContext resolvedContext = ResolvedContext.DEFAULT;
         if (ModulePartNodeContextUtil.onServiceTypeDescContext(context.getTokenAtCursor(), context)) {
             /*
             Covers the following cases
@@ -85,10 +87,14 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 currently the qualifier can be isolated/transactional/client.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
+            Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+            if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                resolvedContext = ResolvedContext.CONFIGURABLE_QUALIFIER;
+            }
         } else {
             completionItems.addAll(this.getModulePartContextItems(context));
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, resolvedContext);
 
         return completionItems;
     }
@@ -96,23 +102,23 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        if (lastQualifier.isEmpty()) {
             return completionItems;
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        switch (lastQualifier.kind()) {
+        Set<SyntaxKind> qualKinds = CommonUtil.getQualifiersOfNode(context, node)
+                .stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.get().kind()) {
             case PUBLIC_KEYWORD:
                 completionItems.addAll(getTypeDescContextItems(context));
                 List<Snippet> snippets = Arrays.asList(
                         Snippet.KW_TYPE, Snippet.KW_ISOLATED,
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
-                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, 
-                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
-                        Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
-                        Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
+                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION,
+                        Snippet.DEF_MAIN_FUNCTION, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET,
+                        Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
                         Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
                 );
@@ -126,6 +132,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                    completionItems.add(new SnippetCompletionItem(context, 
+                            Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLASS.get()));
@@ -141,23 +149,32 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 break;
             case TRANSACTIONAL_KEYWORD:
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
+                break;
+            case CONFIGURABLE_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
                 break;
             default:
+                break;
         }
         return completionItems;
     }
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             Predicate<Symbol> predicate =
                     symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-            return this.getCompletionItemList(types, context);
+            completionItems.addAll(this.getCompletionItemList(types, context));
+            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, predicate));
+            return completionItems;
         }
 
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeDescContextItems(context));
         completionItems.addAll(ServiceTemplateGenerator.getInstance(context.languageServercontext())
@@ -166,7 +183,27 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
     }
 
     @Override
-    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items) {
-        ModulePartNodeContextUtil.sort(items);
+    public void sort(BallerinaCompletionContext context, ModulePartNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+        boolean onQualifiedNameIdentifier = QNameRefCompletionUtil
+                .onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        if (resolvedContext != ResolvedContext.CONFIGURABLE_QUALIFIER && onQualifiedNameIdentifier) {
+            Optional<Token> lastQualifier = CommonUtil.getLastQualifier(
+                    context, context.getNodeAtCursor().parent().parent());
+            if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
+                resolvedContext = ResolvedContext.CONFIGURABLE_QUALIFIER;
+            }
+        }
+        if (resolvedContext == ResolvedContext.CONFIGURABLE_QUALIFIER) {
+            SortingUtil.sortCompletionsAfterConfigurableQualifier(context, completionItems, onQualifiedNameIdentifier);
+        } else {
+            ModulePartNodeContextUtil.sort(completionItems);
+        }
+    }
+
+    enum ResolvedContext {
+        DEFAULT,
+        CONFIGURABLE_QUALIFIER
     }
 }

@@ -381,19 +381,32 @@ function testLabeling() returns string {
 
 // -----------------------------------------------------------
 
-// Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/11183.
-//type M record { string f; }|Z;
-//
-//Z z1 = "V";
-//
-//Z z2 = "W";
-//
-//Z z3 = "X";
-//
-//
-//const string W = "W";
-//
-//const string X = "X";
+type M record { string f; }|Z;
+
+M m1 = { f: "test_project" };
+
+M m2 = "V";
+
+M m3 = "W";
+
+M m4 = "X";
+
+type Y X;
+
+type Z "V"|W|X;
+
+Y y = "X";
+
+Z z1 = "V";
+
+Z z2 = "W";
+
+Z z3 = "X";
+
+
+const string W = "W";
+
+const string X = "X";
 
 // -----------------------------------------------------------
 

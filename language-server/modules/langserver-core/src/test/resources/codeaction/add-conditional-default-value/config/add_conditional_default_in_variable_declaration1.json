@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 26
+  },
+  "source": "add_conditional_default_in_variable_declaration1.bal",
+  "description": "Test the code action when a value of optional type is assigned to a variable",
+  "expected": [
+    {
+      "title": "Add conditional default value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 30
+            },
+            "end": {
+              "line": 1,
+              "character": 30
+            }
+          },
+          "newText": " ?: 0"
+        }
+      ]
+    }
+  ]
+}

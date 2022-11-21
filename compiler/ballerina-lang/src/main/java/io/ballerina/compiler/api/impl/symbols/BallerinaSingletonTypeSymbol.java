@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -38,6 +39,8 @@ import java.util.List;
 public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements SingletonTypeSymbol {
 
     private final String typeName;
+    private final BLangLiteral shape;
+    private TypeSymbol originalType;
 
     public BallerinaSingletonTypeSymbol(CompilerContext context, BLangLiteral shape, BType bType) {
         super(context, TypeDescKind.SINGLETON, bType);
@@ -53,6 +56,8 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         } else {
             this.typeName = shape.toString();
         }
+
+        this.shape = shape;
     }
 
     @Override
@@ -81,5 +86,17 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
     @Override
     public <T> T apply(SymbolTransformer<T> transformer) {
         return transformer.transform(this);
+    }
+
+    @Override
+    public TypeSymbol originalType() {
+        if (originalType != null) {
+            return originalType;
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+        originalType = typesFactory.getTypeDescriptor(shape.getBType());
+
+        return originalType;
     }
 }

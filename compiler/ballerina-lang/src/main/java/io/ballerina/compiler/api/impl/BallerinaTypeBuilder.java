@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.impl.type.builders.BallerinaStreamTypeBuilder;
 import io.ballerina.compiler.api.impl.type.builders.BallerinaTableTypeBuilder;
 import io.ballerina.compiler.api.impl.type.builders.BallerinaTupleTypeBuilder;
 import io.ballerina.compiler.api.impl.type.builders.BallerinaTypeDescTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaUnionTypeBuilder;
 import io.ballerina.compiler.api.impl.type.builders.BallerinaXMLTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -55,5 +56,6 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         FUNCTION_TYPE = new BallerinaFunctionTypeBuilder(context);
         OBJECT_TYPE = new BallerinaObjectTypeBuilder(context);
         RECORD_TYPE = new BallerinaRecordTypeBuilder(context);
+        UNION_TYPE = new BallerinaUnionTypeBuilder(context);
     }
 }

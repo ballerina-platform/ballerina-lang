@@ -90,8 +90,7 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = (BArray) ValueCreator.createArrayValue((ArrayType) keys.getType(),
-                                                                        currentKeys.size());
+        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) keys.getType());
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

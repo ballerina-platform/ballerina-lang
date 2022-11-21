@@ -532,8 +532,8 @@ public function testStartActionWithDependentlyTypedFunctions() {
     };
     future<int|string|error> a = start getWithUnion("", IntOrString);
     assert1(a);
-    //future<int|string|error> b = start cl.get("", IntOrString);
-    //assert1(b);
+    future<int|string|error> b = start cl.get("", IntOrString);
+    assert1(b);
     future<int|string|error> c = start cl->remoteGet("", IntOrString);
     assert1(c);
 
@@ -544,10 +544,10 @@ public function testStartActionWithDependentlyTypedFunctions() {
     };
     future<int|error> d = start getWithUnion("hello", int);
     assert2(d, 5);
-    //future<int|error> e = start cl.get(3, int);
-    //assert2(e, 4);
-    //future<int|error> f = start cl.get("");
-    //assert2(f, 0);
+    future<int|error> e = start cl.get(3, int);
+    assert2(e, 4);
+    future<int|error> ff = start cl.get("");
+    assert2(ff, 0);
     future<int|error> g = start cl->remoteGet("hi", int);
     assert2(g, 2);
 
@@ -558,8 +558,8 @@ public function testStartActionWithDependentlyTypedFunctions() {
     };
     future<string|error> h = start getWithUnion("hello", string);
     assert3(h, "hello");
-    //future<string|error> i = start cl.get(1, string);
-    //assert3(i, "1");
+    future<string|error> i = start cl.get(1, string);
+    assert3(i, "1");
     future<string|error> j = start cl->remoteGet("", string);
     assert3(j, "");
 }
@@ -571,11 +571,10 @@ function getWithUnion(int|string x, typedesc<int|string> y) returns y|error =
     } external;
 
 client class Client {
-    // https://github.com/ballerina-platform/ballerina-lang/issues/28740
-    //function get(int|string x, typedesc<int|string> y = int) returns y|error = @java:Method {
-    //    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-    //    name: "clientGetWithUnion"
-    //} external;
+    function get(int|string x, typedesc<int|string> y = int) returns y|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientGetWithUnion"
+    } external;
 
     remote function remoteGet(int|string x, typedesc<int|string> y) returns y|error = @java:Method {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",

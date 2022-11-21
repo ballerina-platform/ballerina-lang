@@ -221,6 +221,42 @@ function testTypeRef() {
     testFieldAccessExp();
 }
 
+type IntStringFloat [int, string, float];
+
+function testTypeRef2() {
+    anydata a1 = [1.2, true];
+    boolean x1 = a1.cloneReadOnly() is FloatBooleanTuple;
+    assertTrue(x1);
+
+    anydata a2 = [1.2, true];
+    boolean x2 = a2.cloneReadOnly() is [float, boolean];
+    assertTrue(x2);
+
+    var a3 = [1.2, true];
+    boolean x3 = a3.cloneReadOnly() is FloatBooleanTuple;
+    assertTrue(x3);
+
+    var a4 = [1.2, true];
+    boolean x4 = a4.cloneReadOnly() is [float, boolean];
+    assertTrue(x4);
+
+    anydata a5 = [1, "string", 1.1];
+    boolean x5 = a5.cloneReadOnly() is IntStringFloat;
+    assertTrue(x5);
+
+    anydata a6 = [1, "string", 1.1];
+    boolean x6 = a6.cloneReadOnly() is [int, string, float];
+    assertTrue(x6);
+
+    var a7 = [1, "string", 1.1];
+    boolean x7 = a7.cloneReadOnly() is IntStringFloat;
+    assertTrue(x7);
+
+    var a8 = [1, "string", 1.1];
+    boolean x8 = a8.cloneReadOnly() is [int, string, float];
+    assertTrue(x8);
+}
+
 int i = 12;
 type Json json;
 type JsonMap map<json>;
@@ -317,6 +353,67 @@ function testUnionTypeRefWithMap() {
 
     assertTrue(map3 is any);
     assertEqual(map3.toString(), "{\"c\":3}");
+}
+
+public class Student {
+    string name;
+    int id;
+    float avg = 80.0;
+    public function init(string n, int i) {
+        self.name = n;
+        self.id = i;
+    }
+}
+
+public class NonReadOnlyStudent {
+    final string name;
+    final int id;
+    int yob;
+
+    public function init(string n, int i, int y) {
+        self.name = n;
+        self.id = i;
+        self.yob = y;
+    }
+}
+
+type StudentRef Student;
+type NonReadOnlyStudentRef NonReadOnlyStudent;
+
+type UnionRef StudentRef|NonReadOnlyStudentRef;
+
+function testObjectTypeReferenceType() {
+    StudentRef|NonReadOnlyStudentRef st1 = new ("John", 1234);
+    assertTrue(st1 is Student);
+    string name = st1.name;
+    assertEqual("John", name);
+
+    UnionRef st2 = new ("John", 1234);
+    assertTrue(st2 is Student);
+    name = st2.name;
+    assertEqual("John", name);
+
+    StudentRef st3 = new ("John", 1234);
+    assertTrue(st3 is Student);
+    name = st3.name;
+    assertEqual("John", name);
+}
+
+type BTable table<map<int>>|BarTable;
+
+type BarTable table<Bar>key(a);
+
+type Bar record {
+    readonly string a;
+};
+
+function testTableTypeReferenceType() {
+    BTable tab1 = table key(a) [{a : "a"}];
+    assertTrue(tab1 is BarTable);
+    assertTrue(tab1 is table<Bar>key(a));
+
+    BarTable tab2 = table key(a) [{a : "a"}];
+    assertTrue(tab2 is table<Bar>key(a));
 }
 
 function assertTrue(anydata actual) {

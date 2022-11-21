@@ -136,7 +136,7 @@
     "source": "j6.toJsonString()",
     "result": {
       "shellValue":{
-        "value":"\"{\\\"name\\\":\\\"apple\\\", \\\"color\\\":\\\"red\\\", \\\"price\\\":5.36}\"",
+        "value":"\"{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}\"",
         "mimeType":"plain/text",
         "type":"string"
       },
@@ -205,7 +205,7 @@
     "source": "j8.toJsonString()",
     "result": {
       "shellValue": {
-        "value":"\"[1, false, null, \\\"foo\\\", {\\\"first\\\":\\\"John\\\", \\\"last\\\":\\\"Pala\\\"}]\"",
+        "value":"\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\"",
         "mimeType":"plain/text",
         "type":"string"
       },
