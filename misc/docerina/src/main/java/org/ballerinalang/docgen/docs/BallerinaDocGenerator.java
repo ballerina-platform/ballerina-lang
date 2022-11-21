@@ -194,22 +194,42 @@ public class BallerinaDocGenerator {
         ModuleLibrary moduleLib = new ModuleLibrary();
         moduleLib.modules = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageVersion().toString());
-        writeAPIDocs(moduleLib, Path.of(output), false, excludeUI);
+        writeAPIDocs(moduleLib, Path.of(output), false, excludeUI, project);
     }
 
-    private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
+    private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI, Project project) {
         if (moduleLib.modules.size() == 0) {
-            log.error("No modules found to create docs.");
-            return;
+            log.error("No public modules found to create docs.");
+            String packageMDFilePath = project.sourceRoot().toString() + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME;
+            try {
+                String mdContent = BallerinaDocUtils.getPackageMdContent(packageMDFilePath);
+                ApiDocsJson apiDocsJson = new ApiDocsJson();
+                apiDocsJson.docsData = getDocsDataWhenNoPublicConstructors(project.currentPackage().packageId().toString(), project.currentPackage().packageOrg().toString(), project.currentPackage().packageVersion().toString(), mdContent);
+                apiDocsJson.searchData = getSearchDataWhenNoPublicConstructors(project.currentPackage().packageId().toString(), project.currentPackage().packageOrg().toString(), project.currentPackage().packageVersion().toString(), mdContent);
+                Path outputPath = output.resolve(project.currentPackage().packageOrg().toString()).resolve(project.currentPackage().packageId().toString()).resolve(project.currentPackage().packageVersion().toString());
+                if (excludeUI) {
+                    genApiDocsJson(moduleLib, outputPath, true, false, apiDocsJson);
+                    return;
+                } else {
+                    genApiDocsJson(moduleLib, outputPath, false, false, apiDocsJson);
+                    copyDocerinaUI(outputPath);
+                    return;
+                }
+
+
+            } catch (IOException e) {
+                assert false : "Could not retrieve Package.md content due to: " +
+                        (e.getMessage() != null ? ": " + e.getMessage() : " an unhandled exception");
+            }
         }
         if (!isMerge && excludeUI) {
             // Doc gen for a bala.
-            // Creates jsons for each modules
+            // Creates jsons for each module
             for (Module module : moduleLib.modules) {
                 ModuleLibrary tempLib = new ModuleLibrary();
                 tempLib.modules.add(module);
                 Path outputPath = output.resolve(module.orgName).resolve(module.id).resolve(module.version);
-                genApiDocsJson(tempLib, outputPath, true);
+                genApiDocsJson(tempLib, outputPath, true, true, null);
                 copyResources(module.resources, outputPath);
             }
             return;
@@ -218,11 +238,15 @@ public class BallerinaDocGenerator {
             output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
                     .resolve(moduleLib.modules.get(0).version);
         }
-        genApiDocsJson(moduleLib, output, false);
+        genApiDocsJson(moduleLib, output, false, true, null);
         for (Module module: moduleLib.modules) {
             copyResources(module.resources, output);
         }
         copyDocerinaUI(output);
+    }
+
+    private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
+        writeAPIDocs(moduleLib, output, isMerge, excludeUI, null);
     }
 
     private static void copyDocerinaUI(Path output) {
@@ -267,7 +291,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI) {
+    private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI, boolean hasPublicConstruct, ApiDocsJson defaultApiDocsJson) {
         try {
             Files.createDirectories(destination);
         } catch (IOException e) {
@@ -275,8 +299,13 @@ public class BallerinaDocGenerator {
         }
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
-        apiDocsJson.docsData = moduleLib;
-        apiDocsJson.searchData = genSearchJson(moduleLib);
+        if (hasPublicConstruct = true) {
+            apiDocsJson.docsData = moduleLib;
+            apiDocsJson.searchData = genSearchJson(moduleLib);
+        } else {
+            apiDocsJson = defaultApiDocsJson;
+        }
+
 
         File jsFile = destination.resolve(API_DOCS_JS).toFile();
         File jsonFile = destination.resolve(API_DOCS_JSON).toFile();
@@ -308,6 +337,32 @@ public class BallerinaDocGenerator {
         } catch (IOException e) {
             log.error("Failed to create {} file.", API_DOCS_JSON, e);
         }
+    }
+
+    private static ModuleLibrary getDocsDataWhenNoPublicConstructors(String id, String orgName, String version, String packageMdContent) {
+        ModuleMetaData defaultModuleMetaData = new ModuleMetaData();
+        defaultModuleMetaData.id = id;
+        defaultModuleMetaData.summary = "";
+        defaultModuleMetaData.description = packageMdContent;
+        defaultModuleMetaData.orgName = orgName;
+        defaultModuleMetaData.version = version;
+        defaultModuleMetaData.isDefaultModule = true;
+
+        Module defaultModule = new Module();
+        defaultModule.relatedModules.add(defaultModuleMetaData);
+
+        ModuleLibrary moduleLibrary = new ModuleLibrary();
+        moduleLibrary.modules.add(defaultModule);
+        return moduleLibrary;
+    }
+
+    private static SearchJson getSearchDataWhenNoPublicConstructors(String id, String orgName, String version, String packageMdContent) {
+        ModuleSearchJson moduleSearchJson = new ModuleSearchJson(id, packageMdContent, orgName, version, true);
+        SearchJson searchJson = new SearchJson();
+        List<ModuleSearchJson> modules = new ArrayList<>();
+        modules.add(moduleSearchJson);
+        searchJson.setModules(modules);
+        return searchJson;
     }
 
     private static SearchJson genSearchJson(ModuleLibrary moduleLib) {

@@ -19,9 +19,12 @@
 package org.ballerinalang.docgen.docs.utils;
 
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,5 +73,52 @@ public class BallerinaDocUtils {
         } else {
             return "";
         }
+    }
+
+    public static String getPackageMdContent(String docPath) throws IOException {
+        String packageMdContent = readFileAsString(docPath);
+        String[] contentArr = packageMdContent.split("\n");
+        String mdContent = "";
+        for (String line : contentArr) {
+            if (!line.startsWith("[//]:")) {
+                mdContent = mdContent + "\n" + line;
+            }
+        }
+        return mdContent;
+    }
+
+    public static String readFileAsString(String path) throws IOException {
+        InputStream is = new FileInputStream(path);
+        InputStreamReader inputStreamReader = null;
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            br = new BufferedReader(inputStreamReader);
+            String content = br.readLine();
+            if (content == null) {
+                return sb.toString();
+            }
+            sb.append(content);
+
+            while ((content = br.readLine()) != null) {
+                sb.append('\n').append(content);
+            }
+            sb.append('\n');
+        } finally {
+            if (inputStreamReader != null) {
+                try {
+                    inputStreamReader.close();
+                } catch (IOException ignore) {
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ignore) {
+                }
+            }
+        }
+        return sb.toString();
     }
 }
