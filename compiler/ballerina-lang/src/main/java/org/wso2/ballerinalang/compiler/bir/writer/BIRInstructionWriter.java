@@ -386,8 +386,8 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(NewArray birNewArray) {
         writeType(birNewArray.type);
-        if (birNewArray.rhsOp != null) {
-            birNewArray.rhsOp.accept(this);
+        if (birNewArray.typedescOp != null) {
+            birNewArray.typedescOp.accept(this);
         }
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);

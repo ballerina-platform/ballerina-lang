@@ -157,7 +157,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
@@ -221,7 +220,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_SPREAD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
@@ -1532,7 +1530,7 @@ public class JvmInstructionGen {
             }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
-            this.loadVar(inst.rhsOp.variableDcl);
+            this.loadVar(inst.typedescOp.variableDcl);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate", INSTANTIATE, true);
