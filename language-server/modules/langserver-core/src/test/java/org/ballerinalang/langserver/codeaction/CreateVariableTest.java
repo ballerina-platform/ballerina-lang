@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -69,7 +70,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                                                  Path sourcePath,
                                                  List<TextEdit> actualEdits,
                                                  TestConfig testConfig) {
-        if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
+        if (CommandConstants.RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())

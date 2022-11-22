@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.AbstractLSTest;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -409,7 +410,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                                                  List<TextEdit> actualEdits,
                                                  TestConfig testConfig) {
         //Validate the args of rename command
-        if ("ballerina.action.rename".equals(actualCommand.get("command").getAsString())) {
+        if (CommandConstants.RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
@@ -463,7 +464,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             return false;
         }
 
-        if ("ballerina.action.positional.rename".equals(actualCommand.get("command").getAsString())) {
+        if (CommandConstants.POSITIONAL_RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
             if (actualArgs.size() == 2) {
                 Optional<String> actualFilePath =
                         PathUtil.getPathFromURI(actualArgs.get(0).getAsString())
