@@ -172,6 +172,10 @@ public class QueryActionOrExprTest {
                 "statement in a worker", 133, 25);
         validateError(negativeResult, i++, "invalid worker receive statement position, must be a top level " +
                 "statement in a worker", 135, 20);
+        validateError(negativeResult, i++, "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker", 164, 24);
+        validateError(negativeResult, i++, "worker send statement position not supported yet, " +
+                "must be a top level statement in a worker", 175, 30);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

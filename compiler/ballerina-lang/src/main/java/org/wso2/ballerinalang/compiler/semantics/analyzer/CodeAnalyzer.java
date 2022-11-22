@@ -2021,8 +2021,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         } else if (asyncSendExpr.expr instanceof ActionNode) {
             this.dlog.error(asyncSendExpr.expr.pos, DiagnosticErrorCode.INVALID_SEND_EXPR);
-        } else if (!types.isAssignable(type, symTable.cloneableType)) {
-            this.dlog.error(asyncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND, type);
         }
 
         String workerName = asyncSendExpr.workerIdentifier.getValue();
@@ -2404,7 +2402,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
             case WORKER_RECEIVE:
-            case WORKER_SEND:
+            case WORKER_ASYNC_SEND:
             case WORKER_SYNC_SEND:
                 return;
             default:
@@ -3540,7 +3538,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private static boolean isWorkerSend(BLangNode action) {
-        return action.getKind() == NodeKind.WORKER_SEND;
+        return action.getKind() == NodeKind.WORKER_ASYNC_SEND;
     }
 
     private static boolean isWorkerSyncSend(BLangNode action) {

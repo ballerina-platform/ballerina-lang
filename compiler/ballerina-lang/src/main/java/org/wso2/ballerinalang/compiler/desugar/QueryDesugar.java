@@ -121,7 +121,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
@@ -2237,11 +2236,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         forkJoin.workers.forEach(worker -> this.acceptNode(worker));
-    }
-
-    @Override
-    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr) {
-        this.acceptNode(asyncSendExpr.expr);
     }
 
     @Override

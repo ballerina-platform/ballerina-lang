@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerAsyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -728,11 +727,6 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
-        checkStatementExecutionValidity(asyncSendExpr, data);
-    }
-
-    @Override
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         // This is to support when let expressions are used in return statements
         // Since variable declarations are visited after return node, this stops false positive unreachable code error
@@ -744,25 +738,25 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.statementReturnsPanicsOrFails = returnStateBefore;
     }
 
-    private void checkStatementExecutionValidity(BLangNode node, AnalyzerData data) {
+    private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {
         if (data.skipFurtherAnalysisInUnreachableBlock) {
             return;
         }
-        checkUnreachableCode(node.pos, data);
-        checkConditionInWhileOrIf(node, data);
+        checkUnreachableCode(statement.pos, data);
+        checkConditionInWhileOrIf(statement, data);
     }
 
-    private void checkConditionInWhileOrIf(BLangNode node, AnalyzerData data) {
-        switch (node.getKind()) {
+    private void checkConditionInWhileOrIf(BLangStatement statement, AnalyzerData data) {
+        switch (statement.getKind()) {
             case WHILE:
                 data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
-                        ((BLangWhile) node).expr);
+                        ((BLangWhile) statement).expr);
                 break;
             case IF:
-                data.unreachableBlock = node.parent != null && node.parent.getKind() == NodeKind.IF
+                data.unreachableBlock = statement.parent != null && statement.parent.getKind() == NodeKind.IF
                         && data.booleanConstCondition == symTable.trueType;
                 data.booleanConstCondition = ConditionResolver.checkConstCondition(types, symTable,
-                        ((BLangIf) node).expr);
+                        ((BLangIf) statement).expr);
                 break;
         }
     }

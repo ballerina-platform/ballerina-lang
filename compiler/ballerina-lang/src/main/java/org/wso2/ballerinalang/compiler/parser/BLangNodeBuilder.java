@@ -3166,7 +3166,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangNode expression = createActionOrExpression(startActionNode.expression());
 
         BLangInvocation invocation;
-        if (!(expression instanceof BLangWorkerAsyncSendExpr)) {
+        if (!(expression.getKind() == NodeKind.WORKER_ASYNC_SEND)) {
             invocation = (BLangInvocation) expression;
         } else {
             invocation = (BLangInvocation) ((BLangWorkerAsyncSendExpr) expression).expr;

@@ -4121,24 +4121,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     @Override
-    public void visit(BLangWorkerAsyncSendExpr asyncSendExpr, AnalyzerData data) {
-        SymbolEnv currentEnv = data.env;
-        // TODO Need to remove this cached env
-        asyncSendExpr.env = currentEnv;
-        this.typeChecker.checkExpr(asyncSendExpr.expr, currentEnv, data.prevEnvs, data.commonAnalyzerData);
-
-        BSymbol symbol =
-                symResolver.lookupSymbolInMainSpace(currentEnv, names.fromIdNode(asyncSendExpr.workerIdentifier));
-
-        if (symTable.notFoundSymbol.equals(symbol)) {
-            asyncSendExpr.setBType(symTable.semanticError);
-        } else {
-            asyncSendExpr.setBType(symbol.type);
-            asyncSendExpr.workerSymbol = symbol;
-        }
-    }
-
-    @Override
     public void visit(BLangReturn returnNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         this.typeChecker.checkExpr(returnNode.expr, currentEnv, currentEnv.enclInvokable.returnTypeNode.getBType(),

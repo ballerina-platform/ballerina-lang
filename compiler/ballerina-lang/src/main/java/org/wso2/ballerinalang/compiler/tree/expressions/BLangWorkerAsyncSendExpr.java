@@ -62,7 +62,7 @@ public class BLangWorkerAsyncSendExpr extends BLangExpression implements WorkerS
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.WORKER_SEND;
+        return NodeKind.WORKER_ASYNC_SEND;
     }
 
     @Override
