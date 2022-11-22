@@ -2228,6 +2228,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.acceptNode(workerReceiveNode.sendExpression);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        this.acceptNode(resourceAccessInvocation.expr);
+    }
+
     private void acceptNode(BLangNode node) {
         if (node == null) {
             return;
