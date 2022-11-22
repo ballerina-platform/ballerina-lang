@@ -98,8 +98,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         }
 
         String constName = getConstantName(context);
-        String value = node.toSourceCode().strip();
-        LineRange replaceRange = node.lineRange();
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
