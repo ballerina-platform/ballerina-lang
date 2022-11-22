@@ -71,6 +71,8 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
 public class CompilerPluginCodeActionExtension implements CodeActionExtension {
 
+    private final Gson gson = new Gson();
+
     @Override
     public boolean validate(CodeActionParams inputParams) {
         // Here we check the .bal extension
@@ -105,7 +107,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
         return context.diagnostics(context.filePath()).stream()
-                .filter(diagnostic -> PositionUtil.isWithinRange(cursorPos, 
+                .filter(diagnostic -> PositionUtil.isWithinRange(cursorPos,
                         PositionUtil.toRange(diagnostic.location().lineRange())))
                 .map(diagnostic -> {
                     CodeActionContext codeActionContext = CodeActionContextImpl.from(context.fileUri(),
@@ -140,26 +142,26 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
             return codeAction;
         }
 
-        Optional<Path> filePath = PathUtil.getPathFromURI(codeAction.getData().getFileUri());
+        CodeActionData codeActionData = codeAction.getData();
+        Optional<Path> filePath = PathUtil.getPathFromURI(codeActionData.getFileUri());
         if (filePath.isEmpty()) {
             return codeAction;
         }
 
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
-        String providerName = codeAction.getData().getCodeActionName();
+        String providerName = codeActionData.getCodeActionName();
         // Code action data have to be converted to an array of code action arguments
-        Gson gson = new Gson();
-        List<?> actionData = (List<?>) codeAction.getData().getActionData();
+        List<?> actionData = (List<?>) codeActionData.getActionData();
         List<CodeActionArgument> arguments = actionData.stream()
                 .map(gson::toJsonTree)
                 .map(CodeActionArgument::from)
                 .collect(Collectors.toList());
         // Build the execution context and execute code action
         CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(
-                codeAction.getData().getFileUri(),
+                codeActionData.getFileUri(),
                 filePath.get(),
-                PositionUtil.getLinePosition(codeAction.getData().getRange().getStart()),
+                PositionUtil.getLinePosition(codeActionData.getRange().getStart()),
                 context.currentDocument().get(),
                 context.currentSemanticModel().get(),
                 arguments
@@ -168,29 +170,36 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
 
         // Convert the returned edits into LSP4J edits
         List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
-        docEdits.forEach(docEdit -> {
-            Optional<SyntaxTree> originalST = PathUtil.getPathFromURI(docEdit.getFileUri())
-                    .flatMap(editedFilePath -> context.workspace().document(editedFilePath))
-                    .flatMap(doc -> Optional.of(doc.syntaxTree()));
-            if (originalST.isEmpty()) {
-                return;
-            }
-
-            TextRange textRange = originalST.get().rootNode().textRangeWithMinutiae();
-            TextDocument textDocument = originalST.get().textDocument();
-            LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
-            LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
-            LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
-            Range range = PositionUtil.toRange(LineRange.from(docEdit.getFileUri(),
-                    lineRange.startLine(), lineRange.endLine()));
-            TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
-            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
-                    docEdit.getFileUri(), null), Collections.singletonList(edit));
-            Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
-            edits.add(either);
-        });
+        docEdits.stream()
+                .map(docEdit -> toTextDocumentEdit(docEdit, context))
+                .filter(Optional::isPresent)
+                .forEach(docEdit -> {
+                    Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(docEdit.get());
+                    edits.add(either);
+                });
 
         codeAction.setEdit(new WorkspaceEdit(edits));
         return codeAction;
+    }
+
+    private Optional<TextDocumentEdit> toTextDocumentEdit(DocumentEdit docEdit, CodeActionResolveContext context) {
+        Optional<SyntaxTree> originalST = PathUtil.getPathFromURI(docEdit.getFileUri())
+                .flatMap(editedFilePath -> context.workspace().document(editedFilePath))
+                .flatMap(doc -> Optional.of(doc.syntaxTree()));
+        if (originalST.isEmpty()) {
+            return Optional.empty();
+        }
+
+        TextRange textRange = originalST.get().rootNode().textRangeWithMinutiae();
+        TextDocument textDocument = originalST.get().textDocument();
+        LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
+        LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
+        LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
+        Range range = PositionUtil.toRange(LineRange.from(docEdit.getFileUri(),
+                lineRange.startLine(), lineRange.endLine()));
+        TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
+        TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
+                docEdit.getFileUri(), null), Collections.singletonList(edit));
+        return Optional.of(textDocumentEdit);
     }
 }
