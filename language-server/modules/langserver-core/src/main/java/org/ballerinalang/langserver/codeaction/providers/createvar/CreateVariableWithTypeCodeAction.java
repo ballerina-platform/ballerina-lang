@@ -29,6 +29,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
@@ -74,14 +75,9 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.diagnosticInfo().code().equals("BCE3934")
+        return diagnostic.diagnosticInfo().code().equals("BCE4046")
                 && context.currentSemanticModel().isPresent()
-                && context.nodeAtRange().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
-                || context.nodeAtRange().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
-                || context.nodeAtRange().parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
-                || context.nodeAtRange().parent().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
-                || context.nodeAtRange().parent().parent().kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
-                || context.nodeAtRange().parent().parent().kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                && isInRemoteMethodCallOrResourceAccess(context)
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -163,7 +159,6 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     private List<String> getPossibleTypes(TypeSymbol typeSymbol, CodeActionContext context) {
         typeSymbol = getRawType(typeSymbol, context);
         Set<String> possibleTypes = new HashSet<>();
-        List<String> finalPossibleTypeSet = new ArrayList<>();
         List<TypeSymbol> errorTypes = new ArrayList<>();
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             ((UnionTypeSymbol) typeSymbol)
@@ -179,12 +174,10 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                                             .map(memberTSymbol -> getRawType(memberTSymbol, context))
                                             .map(symbol -> getTypeName(symbol, context))
                                             .collect(Collectors.toList()));
+                        } else if (memberTypeSymbol.typeKind() == TypeDescKind.ERROR ||
+                                CommonUtil.getRawType(memberTypeSymbol).typeKind() == TypeDescKind.ERROR) {
+                            errorTypes.add(memberTypeSymbol);
                         } else {
-                            if (memberTypeSymbol.typeKind() == TypeDescKind.ERROR
-                                    || CommonUtil.getRawType(memberTypeSymbol).typeKind() == TypeDescKind.ERROR) {
-                                errorTypes.add(memberTypeSymbol);
-                                return;
-                            }
                             possibleTypes.add(getTypeName(memberTypeSymbol, context));
                         }
                     });
@@ -199,15 +192,28 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
             String errorTypeStr = errorTypes.stream()
                     .map(type -> getTypeName(type, context))
                     .collect(Collectors.joining("|"));
-            finalPossibleTypeSet.addAll(possibleTypes.stream()
+            return possibleTypes.stream()
                     .filter(type -> !type.equals("any"))
-                    .map(type -> type + "|" + errorTypeStr).collect(Collectors.toSet()));
-        } else {
-            finalPossibleTypeSet.addAll(possibleTypes.stream()
-                    .filter(type -> !type.equals("any"))
-                    .collect(Collectors.toSet()));
+                    .map(type -> type + "|" + errorTypeStr)
+                    .collect(Collectors.toList());
         }
-        return finalPossibleTypeSet;
+        return possibleTypes.stream()
+                .filter(type -> !type.equals("any"))
+                .collect(Collectors.toList());
+    }
+
+    private Boolean isInRemoteMethodCallOrResourceAccess(CodeActionContext context) {
+        Node nodeAtRange = context.nodeAtRange();
+        int count = 0;
+        while (nodeAtRange.kind() != SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                && nodeAtRange.kind() != SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+            count++;
+            if (count == 3) {
+                return false;
+            }
+            nodeAtRange = nodeAtRange.parent();
+        }
+        return true;
     }
 
     private String getTypeName(TypeSymbol symbol, CodeActionContext context) {
