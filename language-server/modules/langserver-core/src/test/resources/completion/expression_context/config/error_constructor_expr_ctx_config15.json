@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 9,
-    "character": 43
+    "line": 8,
+    "character": 50
   },
-  "source": "expression_context/source/error_constructor_expr_ctx_source12.bal",
+  "source": "expression_context/source/error_constructor_expr_ctx_source15.bal",
   "items": [
     {
       "label": "ballerina/lang.runtime",
@@ -442,42 +442,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ce",
-      "kind": "Variable",
-      "detail": "ERR",
-      "sortText": "AB",
-      "insertText": "ce",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ERR",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "AL",
-      "insertText": "ERR",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "R",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "name()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "name",
-      "insertText": "name()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -489,14 +458,6 @@
       },
       "sortText": "Q",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorData",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "Q",
-      "insertText": "ErrorData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -553,24 +514,6 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cause = ...",
-      "kind": "Snippet",
-      "detail": "cause = error(\"\")",
-      "sortText": "A",
-      "filterText": "cause",
-      "insertText": "cause = ${1:error(\"\")}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "errID = ...",
-      "kind": "Snippet",
-      "detail": "errID = 0",
-      "sortText": "A",
-      "filterText": "errID",
-      "insertText": "errID = ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -736,6 +679,63 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "ErrorData",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "ErrorData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testError",
+      "kind": "Variable",
+      "detail": "ERR",
+      "sortText": "AB",
+      "insertText": "testError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ERR",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "AL",
+      "insertText": "ERR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "name",
+      "insertText": "name()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "code = ...",
+      "kind": "Snippet",
+      "detail": "code = 0",
+      "sortText": "A",
+      "filterText": "code",
+      "insertText": "code = ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "detail = ...",
+      "kind": "Snippet",
+      "detail": "detail = \"\"",
+      "sortText": "A",
+      "filterText": "detail",
+      "insertText": "detail = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

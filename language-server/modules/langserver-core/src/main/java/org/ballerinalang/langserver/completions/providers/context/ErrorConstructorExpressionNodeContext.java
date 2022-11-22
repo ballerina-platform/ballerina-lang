@@ -165,7 +165,7 @@ public class ErrorConstructorExpressionNodeContext extends
             return;
         }
 
-        if (isInErrorCauseArgContext(context, node)) {
+        if (isInErrorCauseArgContext(context, node) || node.typeReference().isPresent()) {
             /*
             Covers the following.
             error(arg1, <cursor>)
@@ -173,23 +173,23 @@ public class ErrorConstructorExpressionNodeContext extends
             UnionTypeSymbol optionalErrorTypeSymbol = types.builder().UNION_TYPE
                     .withMemberTypes(types.ERROR, types.NIL).build();
             for (LSCompletionItem completionItem : completionItems) {
-                completionItem.getCompletionItem().setSortText(SortingUtil
-                        .genSortTextByAssignability(context, completionItem, optionalErrorTypeSymbol));
+                String sortText;
+                if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+                    if (isInErrorCauseArgContext(context, node)) {
+                        sortText = SortingUtil.genSortText(1)
+                                + SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                    } else {
+                        sortText = SortingUtil.genSortText(1);
+                    }
+                } else {
+                    sortText = SortingUtil.genSortTextByAssignability(context, completionItem, optionalErrorTypeSymbol);
+                }
+                completionItem.getCompletionItem().setSortText(sortText);
             }
             return;
         }
 
-        for (LSCompletionItem completionItem : completionItems) {
-            String sortText;
-            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
-                sortText = SortingUtil.genSortText(1) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
-            } else {
-                sortText = SortingUtil.genSortText(2) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
-            }
-            completionItem.getCompletionItem().setSortText(sortText);
-        }
+        super.sort(context, node, completionItems);
     }
 
     private boolean withinArgs(BallerinaCompletionContext context, ErrorConstructorExpressionNode node) {
