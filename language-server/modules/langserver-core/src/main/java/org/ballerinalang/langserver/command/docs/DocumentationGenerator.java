@@ -20,7 +20,9 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
@@ -119,6 +121,12 @@ public class DocumentationGenerator {
             case CLASS_DEFINITION: {
                 return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
             }
+            case CONST_DECLARATION: {
+                return Optional.of(generateConstantDocumentation((ConstantDeclarationNode) node, syntaxTree));
+            }
+            case ENUM_DECLARATION: {
+                return Optional.of(generateEnumDocumentation((EnumDeclarationNode) node, syntaxTree));
+            }
             case MODULE_VAR_DECL: {
                 return Optional.of(generateModuleVarDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
             }
@@ -169,6 +177,42 @@ public class DocumentationGenerator {
         }
         String desc = String.format("Description%n");
         return new DocAttachmentInfo(desc, docStart, getPadding(serviceDeclrNode, syntaxTree));
+    }
+
+    /**
+     * Generate documentation for constant declaration node.
+     *
+     * @param constantDeclarationNode constant declaration node
+     * @param syntaxTree       syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
+     */
+    private static DocAttachmentInfo generateConstantDocumentation(ConstantDeclarationNode constantDeclarationNode,
+                                                                    SyntaxTree syntaxTree) {
+        Optional<MetadataNode> metadata = constantDeclarationNode.metadata();
+        Position docStart = PositionUtil.toRange(constantDeclarationNode.lineRange()).getStart();
+        if (metadata.isPresent() && !metadata.get().annotations().isEmpty()) {
+            docStart = PositionUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(constantDeclarationNode, syntaxTree));
+    }
+
+    /**
+     * Generate documentation for enum declaration node.
+     *
+     * @param enumDeclarationNode enum declaration node
+     * @param syntaxTree       syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
+     */
+    private static DocAttachmentInfo generateEnumDocumentation(EnumDeclarationNode enumDeclarationNode,
+                                                                   SyntaxTree syntaxTree) {
+        Optional<MetadataNode> metadata = enumDeclarationNode.metadata();
+        Position docStart = PositionUtil.toRange(enumDeclarationNode.lineRange()).getStart();
+        if (metadata.isPresent() && !metadata.get().annotations().isEmpty()) {
+            docStart = PositionUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(enumDeclarationNode, syntaxTree));
     }
 
     /**
