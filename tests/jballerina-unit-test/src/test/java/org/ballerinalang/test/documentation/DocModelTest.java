@@ -33,7 +33,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +44,7 @@ public class DocModelTest {
     private Module testModule;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         String sourceRoot = "test-src" + File.separator + "documentation" + File.separator + "docerina_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);

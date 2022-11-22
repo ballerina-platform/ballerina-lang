@@ -31,7 +31,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Map;
@@ -54,6 +53,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
             new BigDecimal("9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
     private static final BigDecimal DECIMAL_MIN =
             new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
+    private static final BigDecimal MIN_DECIMAL_MAGNITUDE =
+            new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
 
     // Variable used to track the kind of a decimal value.
     @Deprecated
@@ -71,20 +72,16 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public DecimalValue(String value) {
         // Check whether the number provided is a hexadecimal value.
         BigDecimal bd;
-        if (isHexValueString(value)) {
-            bd = hexToDecimalFloatingPointNumber(value);
-        } else {
-            try {
-                bd = new BigDecimal(value, MathContext.DECIMAL128);
-            } catch (NumberFormatException exception) {
-                String message = exception.getMessage();
-                if ((message != null) && (message.equals("Too many nonzero exponent digits.") ||
-                        message.equals("Exponent overflow."))) {
-                    throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
-                            BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
-                }
-                throw exception;
+        try {
+            bd = new BigDecimal(value, MathContext.DECIMAL128);
+        } catch (NumberFormatException exception) {
+            String message = exception.getMessage();
+            if ((message != null) && (message.equals("Too many nonzero exponent digits.") ||
+                    message.equals("Exponent overflow."))) {
+                throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
             }
+            throw exception;
         }
         this.value = getValidDecimalValue(bd);
 
@@ -102,65 +99,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
             throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.DECIMAL_VALUE_OUT_OF_RANGE));
+        } else if (bd.abs(MathContext.DECIMAL128).compareTo(MIN_DECIMAL_MAGNITUDE) < 0 &&
+                bd.abs(MathContext.DECIMAL128).compareTo(BigDecimal.ZERO) > 0) {
+            return BigDecimal.ZERO;
         }
         return bd;
-    }
-
-    private static boolean isHexValueString(String value) {
-        String upperCaseValue = value.toUpperCase();
-        return upperCaseValue.startsWith("0X") || upperCaseValue.startsWith("-0X");
-    }
-
-    /**
-     * Method used to convert the hexadecimal number to decimal floating point number.
-     * BigDecimal does not support hexadecimal numbers. Hence, we need to convert the hexadecimal number to a
-     * decimal floating point number before passing the string value to the BigDecimal constructor.
-     *
-     * @param value Hexadecimal string value that needs to be converted.
-     * @return BigDecimal corresponds to the hexadecimal number provided.
-     */
-    private static BigDecimal hexToDecimalFloatingPointNumber(String value) {
-        String upperCaseValue = value.toUpperCase();
-        // Remove the hexadecimal indicator prefix.
-        String hexValue = upperCaseValue.replace("0X", "");
-        if (!hexValue.contains("P")) {
-            hexValue = hexValue.concat("P0");
-        }
-        // Isolate the binary exponent and the number.
-        String[] splitAtExponent = hexValue.split("P");
-        int binaryExponent = Integer.parseInt(splitAtExponent[1]);
-        String numberWithoutExp = splitAtExponent[0];
-        String intComponent;
-
-        // Check whether the hex number has a decimal part.
-        // If there is a decimal part, turn the hex floating point number to a whole number by multiplying it by a
-        // power of 16.
-        // i.e: 23FA2.123 = 23FA2123 * 16^(-3)
-        if (numberWithoutExp.contains(".")) {
-            String[] numberComponents = numberWithoutExp.split("\\.");
-            intComponent = numberComponents[0];
-            String decimalComponent = numberComponents[1];
-            // Change the base of the hex power to 2 and calculate the binary exponent.
-            // i.e: 23FA2123 * 16^(-3) = 23FA2123 * (2^4)^(-3) = 23FA2123 * 2^(-12)
-            binaryExponent += 4 * (-1) * decimalComponent.length();
-            intComponent = intComponent.concat(decimalComponent);
-        } else {
-            intComponent = numberWithoutExp;
-        }
-
-        BigDecimal exponentValue;
-        // Find the value corresponding to the binary exponent.
-        if (binaryExponent >= 0) {
-            exponentValue = new BigDecimal(2).pow(binaryExponent);
-        } else {
-            //If negative exponent e, then the corresponding value equals to (1 / 2^(-e)).
-            exponentValue = BigDecimal.ONE.divide(new BigDecimal(2).pow(-binaryExponent), MathContext.DECIMAL128);
-        }
-        // Convert the hexadecimal whole number(without exponent) to decimal big integer.
-        BigInteger hexEquivalentNumber = new BigInteger(intComponent, 16);
-
-        // Calculate and return the final decimal floating point number equivalent to the hex number provided.
-        return new BigDecimal(hexEquivalentNumber).multiply(exponentValue, MathContext.DECIMAL128);
     }
 
     /**
