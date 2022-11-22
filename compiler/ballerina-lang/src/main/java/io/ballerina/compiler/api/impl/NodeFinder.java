@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -282,12 +281,6 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangXMLNS xmlnsNode) {
         lookupNode(xmlnsNode.namespaceURI);
     }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        lookupNode((BLangNode) clientDeclNode.getUri());
-    }
-
     @Override
     public void visit(BLangFunction funcNode) {
         // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the

@@ -489,7 +489,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 Name nsName = names.fromString(filter.namespace);
                 BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, nsName);
                 filter.namespaceSymbol = nsSymbol;
-                if (nsSymbol.getKind() != SymbolKind.XMLNS) {
+                if (nsSymbol == symTable.notFoundSymbol) {
                     dlog.error(filter.nsPos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, nsName);
                 }
             }
@@ -2821,14 +2821,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        BLangIdentifier identifier = varRefExpr.variableName;
-        Name varName = names.fromIdNode(identifier);
+        Name varName = names.fromIdNode(varRefExpr.variableName);
         if (varName == Names.IGNORE) {
             varRefExpr.setBType(this.symTable.anyType);
 
             // If the variable name is a wildcard('_'), the symbol should be ignorable.
             varRefExpr.symbol = new BVarSymbol(0, true, varName,
-                                               names.originalNameFromIdNode(identifier),
+                                               names.originalNameFromIdNode(varRefExpr.variableName),
                     data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
                                                varRefExpr.pos, VIRTUAL);
 
@@ -2837,23 +2836,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         Name compUnitName = getCurrentCompUnit(varRefExpr);
-        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias),
-                                                            compUnitName);
-        varRefExpr.pkgSymbol = pkgSymbol;
-        if (pkgSymbol == symTable.notFoundSymbol) {
+        varRefExpr.pkgSymbol =
+                symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
+        if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-        } else if (Names.CLIENT.equals(varName) && !identifier.isLiteral) {
-            if (pkgSymbol != symTable.notFoundSymbol &&
-                    !symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
-                dlog.error(varRefExpr.pos,
-                           DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
-            }
         }
 
-        if (pkgSymbol.tag == SymTag.XMLNS) {
+        if (varRefExpr.pkgSymbol.tag == SymTag.XMLNS) {
             actualType = symTable.stringType;
-        } else if (pkgSymbol != symTable.notFoundSymbol) {
+        } else if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
             BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, data.env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName);
             // if no symbol, check same for object attached function
@@ -3745,7 +3737,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
     }
-    
+
     private BTupleType getResourcePathType(List<BResourcePathSegmentSymbol> pathSegmentSymbols) {
         BType restType = null;
         int pathSegmentCount = pathSegmentSymbols.size();
@@ -3762,7 +3754,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             resourcePathType = new BTupleType(new ArrayList<>());
         }
-        
+
         resourcePathType.restType = restType;
         return resourcePathType;
     }
@@ -5579,15 +5571,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        SymbolKind kind = xmlnsSymbol.getKind();
-
-        if (kind == SymbolKind.CLIENT_DECL) {
-            dlog.error(bLangXMLQName.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, prefix);
-            data.resultType = symTable.semanticError;
-            return;
-        }
-
-        if (kind == SymbolKind.PACKAGE) {
+        if (xmlnsSymbol.getKind() == SymbolKind.PACKAGE) {
             xmlnsSymbol = findXMLNamespaceFromPackageConst(bLangXMLQName.localname.value, bLangXMLQName.prefix.value,
                     (BPackageSymbol) xmlnsSymbol, bLangXMLQName.pos, data);
         }
@@ -6478,6 +6462,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkExpr(joinClause.collection, data.commonAnalyzerData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
+        if (joinClause.isOuterJoin) {
+            if (!joinClause.isDeclaredWithVar) {
+                this.dlog.error(joinClause.variableDefinitionNode.getPosition(),
+                        DiagnosticErrorCode.OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR);
+                return;
+            }
+            joinClause.varType = types.addNilForNillableAccessType(joinClause.varType);
+        }
         handleInputClauseVariables(joinClause, data.commonAnalyzerData.queryEnvs.peek());
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this, data);
@@ -8771,7 +8763,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
         BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, names.fromString(nsPrefix));
 
-        if (nsSymbol == symTable.notFoundSymbol || nsSymbol.getKind() == SymbolKind.CLIENT_DECL) {
+        if (nsSymbol == symTable.notFoundSymbol) {
             dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE,
                     nsPrefixedFieldAccess.nsPrefix);
         } else if (nsSymbol.getKind() == SymbolKind.PACKAGE) {

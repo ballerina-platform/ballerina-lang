@@ -221,15 +221,6 @@ public class Symbols {
                                                  SymbolOrigin origin) {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
-
-    public static BClientDeclarationSymbol createClientDeclarationSymbol(Name name,
-                                                                         String nsURI,
-                                                                         PackageID pkgID,
-                                                                         BSymbol owner,
-                                                                         Location pos,
-                                                                         SymbolOrigin origin) {
-        return new BClientDeclarationSymbol(name, nsURI, pkgID, owner, pos, origin);
-    }
     
     public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,
                                                                              PackageID pkgID,

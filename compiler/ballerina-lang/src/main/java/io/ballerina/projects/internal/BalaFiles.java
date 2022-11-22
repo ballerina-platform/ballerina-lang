@@ -20,7 +20,6 @@ package io.ballerina.projects.internal;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.ModuleDescriptor;
@@ -33,18 +32,14 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
-import io.ballerina.projects.internal.bala.IDLClientsJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.model.elements.PackageID;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
@@ -70,7 +65,6 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
-import static io.ballerina.projects.util.ProjectConstants.IDL_CLIENTS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -245,36 +239,6 @@ public class BalaFiles {
                 dependencyGraphJson.getModuleDependencies());
 
         return new DependencyGraphResult(packageDependencyGraph, moduleDescriptorListMap);
-    }
-
-    static Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> createIDLClientsMapFromJson (
-            Path balaPath) {
-        if (Files.isDirectory(balaPath)) {
-            Path idlClientsJsonPath = balaPath.resolve(IDL_CLIENTS_JSON);
-            return getIdlClientsMap(idlClientsJsonPath);
-        }
-
-        URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
-        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
-            Path idlClientsJsonPath = zipFileSystem.getPath(IDL_CLIENTS_JSON);
-            return getIdlClientsMap(idlClientsJsonPath);
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read idl client file from .bala:" + balaPath);
-        }
-    }
-
-    private static Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> getIdlClientsMap(
-            Path idlClientsJsonPath) {
-        if (Files.notExists(idlClientsJsonPath)) {
-            return Collections.emptyMap();
-        }
-        Type clientMapType = new TypeToken<IDLClientsJson>() { }.getType();
-        try {
-            IDLClientsJson idlClientsJson = new Gson().fromJson(Files.readString(idlClientsJsonPath), clientMapType);
-            return IDLClientsJson.transformToMap(idlClientsJson);
-        } catch (IOException e) {
-            throw new ProjectException("failed to read idl clients file: " + idlClientsJsonPath);
-        }
     }
 
     private static PackageManifest createPackageManifestFromBalaFile(Path balrPath) {
