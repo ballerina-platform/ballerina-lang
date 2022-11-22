@@ -7724,7 +7724,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction function = bLangLambdaFunction.function;
         // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
         if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
-                isInIsolatedFunction(env.enclInvokable)) {
+                isIsolated(env.enclInvokable.symbol.flags)) {
             addStrandAnnotationWithThreadAny(function.pos);
             function.addAnnotationAttachment(this.strandAnnotAttachement);
             BInvokableSymbol funcSymbol = function.symbol;
@@ -7732,18 +7732,6 @@ public class Desugar extends BLangNodeVisitor {
             funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
         }
         result = bLangLambdaFunction;
-    }
-
-    private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {
-        if (enclInvokable == null) {
-            if (env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY ||
-                    env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR) {
-                return false;
-            }
-            return isIsolated(((BLangArrowFunction) env.enclEnv.node).funcType.flags);
-        }
-
-        return isIsolated(enclInvokable.symbol.flags);
     }
 
     private boolean isIsolated(long flags) {
