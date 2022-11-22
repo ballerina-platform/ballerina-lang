@@ -2225,6 +2225,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             BType expType = data.expType;
             if (expType.tag == TypeTags.FINITE) {
                 targetType = ((BFiniteType) expType).getValueSpace().iterator().next().getBType();
+            } else {
+                targetType = expType;
             }
 
             for (BType memberType : ((BUnionType) expressionType).getMemberTypes()) {
@@ -2303,7 +2305,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     ((BIntersectionType) resolvedType).effectiveType : resolvedType);
             for (String key : recordType.getFields().keySet()) {
                 if (key.equals(targetKey)) {
-                    return recordType.getFields().get(key).type;
+                    BType type = recordType.getFields().get(key).type;
+                    if (type.tag == TypeTags.FINITE) {
+                        return ((BFiniteType) type).getValueSpace().iterator().next().getBType();
+                    }
+                    return type;
                 }
             }
             return null;
