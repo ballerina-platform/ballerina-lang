@@ -287,6 +287,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand sizeOp;
         public BType type;
         public List<BIRListConstructorEntry> values;
+        public BIROperand rhsOp;
 
         public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
                         List<BIRListConstructorEntry> values) {
@@ -295,6 +296,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
             this.values = values;
+        }
+
+        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand rhsOp, BIROperand sizeOp,
+                        List<BIRListConstructorEntry> values) {
+            this(location, type, lhsOp, sizeOp, values);
+            this.rhsOp = rhsOp;
         }
 
         @Override
@@ -306,10 +313,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand[] getRhsOperands() {
             BIROperand[] operands = new BIROperand[values.size() + 1];
             int i = 0;
+            operands[i++] = rhsOp;
             operands[i++] = sizeOp;
             for (BIRListConstructorEntry listValueEntry : values) {
                 operands[i++] = listValueEntry.exprOp;
             }
+            operands = Arrays.copyOf(operands, i);
             return operands;
         }
     }

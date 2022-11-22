@@ -525,6 +525,9 @@ public class BIROptimizer {
             for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
                 this.optimizeNode(listValueEntry.exprOp, this.env);
             }
+            if (birNewArray.rhsOp != null) {
+                birNewArray.rhsOp.accept(this);
+            }
         }
 
         @Override

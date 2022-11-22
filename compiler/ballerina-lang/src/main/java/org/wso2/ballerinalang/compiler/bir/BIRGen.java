@@ -1652,6 +1652,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
+        visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList());
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -2661,6 +2662,7 @@ public class BIRGen extends BLangNodeVisitor {
             size = exprs.size();
         }
 
+        BIROperand rhsOp = this.env.targetOperand;
         BLangLiteral literal = new BLangLiteral();
         literal.pos = listConstructorExpr.pos;
         literal.value = size;
@@ -2681,9 +2683,15 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        setScopeAndEmit(
-                new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                        initialValues));
+        if (listConstructorExprType.tag == TypeTags.TUPLE) {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, rhsOp,
+                            sizeOp, initialValues));
+        } else {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
+                            initialValues));
+        }
         this.env.targetOperand = toVarRef;
     }
 

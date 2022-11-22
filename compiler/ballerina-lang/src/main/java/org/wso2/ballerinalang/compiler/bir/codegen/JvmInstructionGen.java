@@ -1514,7 +1514,7 @@ public class JvmInstructionGen {
         this.storeToVar(stringLoadIns.lhsOp.variableDcl);
     }
 
-    void generateArrayNewIns(BIRNonTerminator.NewArray inst) {
+    void generateArrayNewIns(BIRNonTerminator.NewArray inst, int localVarOffset) {
         BType instType = JvmCodeGenUtil.getReferredType(inst.type);
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
@@ -1532,11 +1532,10 @@ public class JvmInstructionGen {
             }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
-            this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
-            this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, instType);
+            this.loadVar(inst.rhsOp.variableDcl);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD, INIT_TUPLE, false);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate", INSTANTIATE, true);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
     }
@@ -2232,7 +2231,7 @@ public class JvmInstructionGen {
                     generateTableLoadIns((FieldAccess) inst);
                     break;
                 case NEW_ARRAY:
-                    generateArrayNewIns((BIRNonTerminator.NewArray) inst);
+                    generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
                     break;
                 case ARRAY_STORE:
                     generateArrayStoreIns((FieldAccess) inst);
