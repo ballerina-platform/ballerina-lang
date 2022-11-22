@@ -154,13 +154,13 @@ public class WaitActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++,
                 "cannot use an alternate wait action within a multiple wait action", 117, 58);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 133, 38);
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 132, 38);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<boolean>|future<boolean>)'", 134, 48);
+                " found '(future<boolean>|future<boolean>)'", 133, 48);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 135, 27);
+                " found '(future<(boolean|error)>|future<(boolean|error)>)'", 134, 27);
         BAssertUtil.validateError(resultNegative, index++, "expected an expression of type 'future'," +
-                " found '(future<boolean>|future<boolean>)'", 135, 40);
+                " found '(future<boolean>|future<boolean>)'", 134, 40);
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Wait actions negative test error count");
     }
 

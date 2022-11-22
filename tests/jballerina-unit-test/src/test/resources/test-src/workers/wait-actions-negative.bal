@@ -123,7 +123,6 @@ function waitActionWithInvalidType() {
     }
 
     worker Consumer1 returns boolean {
-        int i = <- Producer;
         return false;
     }
 
