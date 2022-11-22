@@ -122,6 +122,10 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
+        if (project.buildOptions().nativeImage()) {
+            return;
+        }
+
         Path relativePathToExecutable = currentDir.relativize(executablePath);
 
         if (project.buildOptions().getTargetPath() != null) {
