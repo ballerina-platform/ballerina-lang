@@ -208,6 +208,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                                 "could not find module specified ");
+                        break;
                     }
 
                     BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
@@ -219,10 +220,12 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, ((BLangFunction) functionNode).pos,
                                     "incompatible types: expected " + functionToMockType.toString()
                                             + " but found " + mockFunctionType.toString());
+                            break;
                         }
                     } else {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
                                 "could not find functions in module");
+                        break;
                     }
 
                     //Creating a bLangTestablePackage to add a mock function
