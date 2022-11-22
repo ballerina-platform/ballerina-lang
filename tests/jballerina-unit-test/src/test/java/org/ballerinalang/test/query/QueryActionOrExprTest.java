@@ -91,8 +91,8 @@ public class QueryActionOrExprTest {
                 27, 23);
         validateError(negativeResult, i++, "incompatible types: '(int[]|error)' is not an iterable collection",
                 30, 24);
-        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 39, 23);
-        validateError(negativeResult, i++, "incompatible types: 'error?' is not an iterable collection", 42, 24);
+        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 39, 23);
+        validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 42, 24);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 51, 27);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 61, 27);
         validateError(negativeResult, i++, "incompatible types: expected 'other', found 'int'", 71, 18);

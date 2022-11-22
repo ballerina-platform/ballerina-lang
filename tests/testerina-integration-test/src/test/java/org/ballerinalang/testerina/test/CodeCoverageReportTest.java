@@ -92,7 +92,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
         } else {
-            Assert.fail("Package Name Validation for coverage XML falied for single module project");
+            Assert.fail("Package Name Validation for coverage XML failed for single module project");
         }
     }
 

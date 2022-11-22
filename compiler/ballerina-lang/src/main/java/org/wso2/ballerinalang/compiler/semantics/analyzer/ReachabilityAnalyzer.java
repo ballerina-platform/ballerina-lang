@@ -515,7 +515,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetLastStatement(data);
         resetUnreachableBlock(data);
         analyzeReachability(onFailClause, data);
-        data.statementReturnsPanicsOrFails = currentStatementReturns;
+        data.statementReturnsPanicsOrFails = currentStatementReturns && data.statementReturnsPanicsOrFails;
     }
 
     @Override

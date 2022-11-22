@@ -658,7 +658,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "",
+      "filterText": "module3",
       "insertText": "module3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -716,7 +716,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "module11",
+      "filterText": "module1",
       "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -928,6 +928,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "function <name>(..) => <expression>",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} => (${4});",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

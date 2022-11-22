@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -44,8 +43,10 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getImportCompletion;
@@ -185,11 +186,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
-        List<String> orgNames = new ArrayList<>();
+        Set<String> orgNames = new HashSet<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<LSPackageLoader.PackageInfo> pkgList = 
+        List<LSPackageLoader.ModuleInfo> moduleList =
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
-        pkgList.forEach(pkg -> {
+        moduleList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
@@ -197,54 +198,30 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 // Avoid suggesting the ballerinai org name
                 return;
             }
-            String fullPkgNameLabel = orgName + Names.ORG_NAME_SEPARATOR.getValue() + pkgName;
-            String insertText = orgName + Names.ORG_NAME_SEPARATOR.getValue();
+            List<String> pkgNameComps = Arrays.stream(pkgName.split("\\."))
+                    .map(ModuleUtil::escapeModuleName)
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.toList());
+            String label = pkg.packageOrg().value().isEmpty() ? String.join(".", pkgNameComps)
+                    : CommonUtil.getPackageLabel(pkg);
+            String insertText = orgName.isEmpty() ? "" : orgName + Names.ORG_NAME_SEPARATOR.getValue();
+
             if (orgName.equals(Names.BALLERINA_ORG.value)
                     && pkgName.startsWith(PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + Names.DOT.getValue())) {
                 insertText += getLangLibModuleNameInsertText(pkgName);
             } else {
-                insertText += pkgName;
+                insertText += orgName.isEmpty() ? label : pkgName;
             }
             // Do not add the semicolon with the insert text since the user should be allowed to use the as keyword
-            LSCompletionItem fullPkgImport = getImportCompletion(ctx, fullPkgNameLabel, insertText);
+            LSCompletionItem fullPkgImport = getImportCompletion(ctx, label, insertText);
             completionItems.add(fullPkgImport);
-            if (!orgNames.contains(orgName)) {
+            if (!orgName.isEmpty() && !orgNames.contains(orgName)) {
                 LSCompletionItem orgNameImport =
                         getImportCompletion(ctx, orgName, (orgName + Names.ORG_NAME_SEPARATOR.getValue()));
                 completionItems.add(orgNameImport);
                 orgNames.add(orgName);
             }
         });
-        
-        /*
-        If within a project, suggest the project modules except the owner module of the file which being processed
-         */
-        Optional<Project> currentProject = ctx.workspace().project(ctx.filePath());
-        if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return completionItems;
-        }
-
-        Package currentPackage = currentProject.get().currentPackage();
-        String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
-
-        completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
-        Optional<Module> currentModule = ctx.currentModule();
-        for (Module module : currentPackage.modules()) {
-            if (module.isDefaultModule()
-                    || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))) {
-                continue;
-            }
-            String moduleNamePart = Arrays.stream(module.moduleName().moduleNamePart().split("\\."))
-                    .map(CommonUtil::escapeReservedKeyword)
-                    .collect(Collectors.joining("."));
-            String qualifiedModuleName = module.moduleName().packageName().value()
-                    + Names.DOT + moduleNamePart;
-            if (ModuleUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
-                continue;
-            }
-            String label = currentPackageName + "." + moduleNamePart;
-            completionItems.add(getImportCompletion(ctx, label, label));
-        }
 
         return completionItems;
     }
@@ -293,9 +270,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<LSPackageLoader.PackageInfo> packageList = 
+        List<LSPackageLoader.ModuleInfo> moduleList =
                 LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
-        packageList.forEach(ballerinaPackage -> {
+        moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
