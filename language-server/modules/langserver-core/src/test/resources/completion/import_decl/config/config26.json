@@ -520,7 +520,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "'join",
       "insertText": "'join",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -544,7 +544,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "'client",
       "insertText": "'client",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
