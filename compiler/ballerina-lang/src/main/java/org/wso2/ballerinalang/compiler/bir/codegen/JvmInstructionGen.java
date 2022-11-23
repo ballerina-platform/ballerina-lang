@@ -427,11 +427,21 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
 
         switch (varDcl.kind) {
+            case GLOBAL: {
+                BIRNode.BIRGlobalVariableDcl globalVar = (BIRNode.BIRGlobalVariableDcl) varDcl;
+                String moduleName = JvmCodeGenUtil.getPackageName(globalVar.pkgId);
+
+                String varName = varDcl.name.value;
+                String className = jvmPackageGen.lookupGlobalVarClassName(moduleName, varName);
+
+                String typeSig = getTypeDesc(bType);
+                mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
+                return;
+            }
             case SELF:
                 mv.visitVarInsn(ALOAD, 0);
                 return;
-            case CONSTANT:
-            case GLOBAL:
+            case CONSTANT: {
                 String varName = varDcl.name.value;
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -439,8 +449,7 @@ public class JvmInstructionGen {
                 String typeSig = getTypeDesc(bType);
                 mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
                 return;
-            default:
-                break;
+            }
         }
 
         generateVarLoadForType(mv, bType, valueIndex);

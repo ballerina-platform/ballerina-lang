@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -1859,7 +1858,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
             BIRGlobalVariableDcl newGlobalVarDcl = getNewGlobalVarDcl(pos, symbol);
-            this.env.enclPkg.importedGlobalVars.add(newGlobalVarDcl);
+            this.env.enclPkg.globalVars.add(newGlobalVarDcl);
             return newGlobalVarDcl;
         } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
             return getNewGlobalVarDcl(pos, symbol);

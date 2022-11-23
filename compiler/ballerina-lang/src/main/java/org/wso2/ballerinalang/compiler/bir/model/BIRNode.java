@@ -58,7 +58,6 @@ public abstract class BIRNode {
         public final List<BIRImportModule> importModules;
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
-        public final List<BIRGlobalVariableDcl> importedGlobalVars;
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
@@ -77,7 +76,6 @@ public abstract class BIRNode {
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
-            this.importedGlobalVars = new ArrayList<>();
             this.functions = new ArrayList<>();
             this.annotations = new ArrayList<>();
             this.constants = new ArrayList<>();
