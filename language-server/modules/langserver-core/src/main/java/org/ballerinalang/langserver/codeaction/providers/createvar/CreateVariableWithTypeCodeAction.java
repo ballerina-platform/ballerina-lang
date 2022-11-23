@@ -147,10 +147,10 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     }
 
     /**
-     * Get all possible return type combinations for the type infer required method.
-     * Here if the type symbol is a union we will check it contains an error member.
-     * Other members of the union will then combine with the error type and produce the output.
-     * In here we will `any` type.
+     * Get all possible return type combinations for a method with an inferred return type.
+     * Here if the type symbol is a union we will check whether it contains an error member.
+     * Other members of the union will be combined with the error type and returned.
+     * If union has `any` type member, `any` type member will be discarded when combining with the error type.
      *
      * @param typeSymbol Return type descriptor of the method.
      * @param context    CodeActionContext
@@ -183,7 +183,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                     });
         } else {
             String type = getTypeName(typeSymbol, context);
-            if (!type.equals("any")) {
+            if (!"any".equals(type)) {
                 return Collections.singletonList(type);
             }
         }
@@ -193,25 +193,25 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
                     .map(type -> getTypeName(type, context))
                     .collect(Collectors.joining("|"));
             return possibleTypes.stream()
-                    .filter(type -> !type.equals("any"))
+                    .filter(type -> !"any".equals(type))
                     .map(type -> type + "|" + errorTypeStr)
                     .collect(Collectors.toList());
         }
         return possibleTypes.stream()
-                .filter(type -> !type.equals("any"))
+                .filter(type -> !"any".equals(type))
                 .collect(Collectors.toList());
     }
 
     private Boolean isInRemoteMethodCallOrResourceAccess(CodeActionContext context) {
-        Node nodeAtRange = context.nodeAtRange();
+        Node evalNode = context.nodeAtRange();
         int count = 0;
-        while (nodeAtRange.kind() != SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
-                && nodeAtRange.kind() != SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+        while (evalNode.kind() != SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
+                && evalNode.kind() != SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
             count++;
             if (count == 3) {
                 return false;
             }
-            nodeAtRange = nodeAtRange.parent();
+            evalNode = evalNode.parent();
         }
         return true;
     }
