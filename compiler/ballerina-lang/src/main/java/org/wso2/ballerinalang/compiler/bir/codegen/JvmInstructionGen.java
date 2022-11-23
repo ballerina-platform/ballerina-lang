@@ -419,29 +419,24 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
 
         switch (varDcl.kind) {
-            case GLOBAL: {
-                BIRNode.BIRGlobalVariableDcl globalVar = (BIRNode.BIRGlobalVariableDcl) varDcl;
-                String moduleName = JvmCodeGenUtil.getPackageName(globalVar.pkgId);
-
-                String varName = varDcl.name.value;
-                String className = jvmPackageGen.lookupGlobalVarClassName(moduleName, varName);
-
-                String typeSig = getTypeDesc(bType);
-                mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
-                return;
-            }
             case SELF:
                 mv.visitVarInsn(ALOAD, 0);
                 return;
-            case CONSTANT: {
+            case CONSTANT:
+            case GLOBAL:
                 String varName = varDcl.name.value;
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
                 String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
                 String typeSig = getTypeDesc(bType);
+                boolean samePackage = pkgName.equals(this.currentPackageName);
+                if (!samePackage) {
+                    varName = Utils.encodeNonFunctionIdentifier(varName);
+                }
                 mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
                 return;
-            }
+            default:
+                break;
         }
 
         generateVarLoadForType(mv, bType, valueIndex);
@@ -513,6 +508,10 @@ public class JvmInstructionGen {
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
             String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
+            boolean samePackage = pkgName.equals(this.currentPackageName);
+            if (!samePackage) {
+                varName = Utils.encodeNonFunctionIdentifier(varName);
+            }
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
         }
