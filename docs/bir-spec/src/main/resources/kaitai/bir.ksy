@@ -1417,6 +1417,11 @@ types:
         type: s4
       - id: lhs_operand
         type: operand
+      - id: has_typedesc_operand
+        type: s1
+      - id: typedesc_operand
+        type: operand
+        if: has_typedesc_operand == 1
       - id: size_operand
         type: operand
       - id: init_values_count

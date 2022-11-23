@@ -386,10 +386,13 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(NewArray birNewArray) {
         writeType(birNewArray.type);
-        if (birNewArray.typedescOp != null) {
-            birNewArray.typedescOp.accept(this);
-        }
         birNewArray.lhsOp.accept(this);
+        if (birNewArray.typedescOp != null) {
+            buf.writeByte(1);
+            birNewArray.typedescOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
         birNewArray.sizeOp.accept(this);
         buf.writeInt(birNewArray.values.size());
         for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
