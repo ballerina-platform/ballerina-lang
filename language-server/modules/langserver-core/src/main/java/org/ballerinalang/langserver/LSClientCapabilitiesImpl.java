@@ -146,6 +146,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(renameSupport));
         initializationOptions.setSupportRenamePopup(enableRenameSupport);
 
+        Object quickPickSupport = initOptions.get(InitializationOptions.KEY_QUICKPICK_SUPPORT);
+        boolean enableQuickPickSupport = quickPickSupport != null &&
+                Boolean.parseBoolean(String.valueOf(quickPickSupport));
+        initializationOptions.setSupportQuickPick(enableQuickPickSupport);
+
         return initializationOptions;
     }
 
@@ -192,6 +197,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
         private boolean supportRenamePopup = false;
+        private boolean supportQuickPick = false;
         
         @Override
         public boolean isBalaSchemeSupported() {
@@ -217,6 +223,15 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setSupportRenamePopup(boolean supportRenamePopup) {
             this.supportRenamePopup = supportRenamePopup;
+        }
+
+        @Override
+        public boolean isQuickPickSupported() {
+            return supportQuickPick;
+        }
+
+        public void setSupportQuickPick(boolean supportQuickPick) {
+            this.supportQuickPick = supportQuickPick;
         }
     }
 }

@@ -221,12 +221,12 @@ function testOuterJoinClauseWithRecordVariable() returns boolean {
 
     DeptPerson[] deptPersonList =
        from var person in personList
-       outer join Department dept in deptList
-       on person.id equals dept.id
+       outer join var dept in deptList
+       on person.id equals dept?.id
        select {
            fname : person.fname,
            lname : person.lname,
-           dept : dept.name
+           dept : dept?.name
        };
 
     boolean testPassed = true;
@@ -332,11 +332,11 @@ function testOuterJoinClauseWithStream() returns boolean {
     stream<DeptPerson> deptPersonStream =
        stream from var person in personStream
        outer join var dept in deptStream
-       on person.id equals dept.id
+       on person.id equals dept?.id
        select {
            fname : person.fname,
            lname : person.lname,
-           dept : dept.name
+           dept : dept?.name
        };
 
     boolean testPassed = true;
@@ -358,13 +358,13 @@ function testOuterJoinClauseWithLimit() returns boolean {
 
     DeptPerson[] deptPersonList =
        from var person in personList
-       outer join Department dept in deptList
-       on person.id equals dept.id
+       outer join var dept in deptList
+       on person.id equals dept?.id
        limit 2
        select {
            fname : person.fname,
            lname : person.lname,
-           dept : dept.name
+           dept : dept?.name
        };
 
     boolean testPassed = true;
@@ -454,4 +454,74 @@ function getDeptName(int id) returns string {
     } else {
         return "Operations";
     }
+}
+
+type User record {|
+    readonly int id;
+    string name;
+|};
+
+type Login record {|
+    int userId;
+    string time;
+|};
+
+public function testOuterJoin() {
+    table<User> key(id) users = table [
+            {id: 1234, name: "Keith"},
+            {id: 6789, name: "Anne"}
+        ];
+
+    Login[] logins = [
+        {userId: 6789, time: "20:10:23"},
+        {userId: 1234, time: "10:30:02"},
+        {userId: 3987, time: "12:05:00"}
+    ];
+
+    string?[] selected = from var login in logins
+        outer join var user in users on login.userId equals user?.id
+        select (user?.name);
+
+    int?[] ids = [];
+
+    error? e = from Login login in logins
+                outer join var user in users on login.userId equals user?.id
+                do {
+                    ids.push(user?.id);
+                };
+
+    string?[] ordered_names = [];
+    error? e2 = from Login login in logins
+            outer join var user in users on login.userId equals user?.id
+            order by user?.id
+            do {
+                ordered_names.push(user?.name);
+            };
+
+    assertEquality("Anne", selected[0]);
+    assertEquality("Keith", selected[1]);
+    assertEquality(null, selected[2]);
+    assertEquality(6789, ids[0]);
+    assertEquality(1234, ids[1]);
+    assertEquality(null, ids[2]);
+    assertEquality("Keith", ordered_names[0]);
+    assertEquality("Anne", ordered_names[1]);
+    assertEquality(null, ordered_names[2]);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

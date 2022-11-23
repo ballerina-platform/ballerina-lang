@@ -31,6 +31,7 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -41,14 +42,17 @@ import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -57,6 +61,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
 import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -67,6 +72,9 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
  * @since 2.3.0
  */
 public class RunNativeImageTestTask implements Task {
+
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
     private final PrintStream out;
     private final String includesInCoverage;
     private String groupList;
@@ -174,6 +182,13 @@ public class RunNativeImageTestTask implements Task {
         }
 
         TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
+        try {
+            Path nativeConfigPath = target.getNativeConfigPath();
+            createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary graalvm reflection config", e);
+        }
+
 
         if (hasTests) {
             int testResult = 1;
@@ -224,6 +239,20 @@ public class RunNativeImageTestTask implements Task {
         String packageName = currentPackage.packageName().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         String jacocoAgentJarPath = "";
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
+
+        if (nativeImageCommand == null) {
+            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable");
+        }
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
 
         if (coverage) {
             // Generate the exec in a separate process
@@ -271,25 +300,33 @@ public class RunNativeImageTestTask implements Task {
         }
 
         List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add("native-image");
+        List<String> nativeArgs = new ArrayList<>();
+        cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
-        // Create Configs
-        createReflectConfig(nativeConfigPath, currentPackage);
-
         // Run native-image command with generated configs
-        cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
+        cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
+        nativeArgs.addAll(Lists.of("-cp", classPath));
+
 
         // set name and path
-        cmdArgs.add("-H:Name=" + packageName);
-        cmdArgs.add("-H:Path=" + nativeTargetPath);
+        nativeArgs.add("-H:Name=" + packageName);
+        nativeArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
-        cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
-        cmdArgs.add("--no-fallback");
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        nativeArgs.add("--no-fallback");
+
+        try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
+                .toString(), Charset.defaultCharset())) {
+            nativeArgumentWriter.write(String.join(" ", nativeArgs));
+            nativeArgumentWriter.flush();
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary graalvm argument file", e);
+        }
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(cmdArgs.toArray(new String[0]));

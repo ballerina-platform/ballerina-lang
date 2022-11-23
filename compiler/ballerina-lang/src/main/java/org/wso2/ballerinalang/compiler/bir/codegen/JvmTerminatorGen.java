@@ -174,7 +174,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_UNLOCK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE_LOCAL;
@@ -868,9 +868,8 @@ public class JvmTerminatorGen {
         String lockStore = "L" + LOCK_STORE + ";";
         String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
-        this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", PANIC_IF_UNLOCK, false);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", PANIC_IF_IN_LOCK, false);
 
         // Load the scheduler from strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -1026,9 +1025,8 @@ public class JvmTerminatorGen {
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
             this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
-            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", PANIC_IF_UNLOCK, false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock", PANIC_IF_IN_LOCK, false);
 
             // Load the scheduler from strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);

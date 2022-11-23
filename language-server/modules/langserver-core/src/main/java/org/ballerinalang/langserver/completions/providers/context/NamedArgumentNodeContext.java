@@ -62,7 +62,9 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
             Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                    || symbol.kind() == SymbolKind.FUNCTION;
+                    || symbol.kind() == SymbolKind.FUNCTION                     
+                    || symbol.kind() == SymbolKind.TYPE_DEFINITION
+                    || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
