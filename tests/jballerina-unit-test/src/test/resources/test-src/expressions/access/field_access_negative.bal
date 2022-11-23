@@ -337,6 +337,46 @@ function testInvalidAccessWhenTypeIsAnUnion() {
     abbc.id = "HR"; // error
 }
 
+service class ServiceClass {
+    remote function fn() {
+
+    }
+}
+
+client class ClientClass {
+    remote function fn() {
+
+    }
+}
+
+type ServiceObjectTypeDesc service object {
+    remote function fn(int i);
+};
+
+type ClientObjectTypeDesc client object {
+    remote function fn() returns int;
+};
+
+type RecordWithNetworkObjectField record {
+    ServiceObjectTypeDesc ser;
+};
+
+function testInvalidBoundMethodAccessWithRemoteMethod(ServiceClass a,
+                                                      ClientClass b,
+                                                      ServiceObjectTypeDesc c,
+                                                      ClientObjectTypeDesc d,
+                                                      RecordWithNetworkObjectField e) {
+    function _ = a.fn;
+
+    _ = b.fn;
+
+    function (int) _ = c.fn;
+
+    var _ = d.fn;
+
+    _ = e.ser.fn;
+}
+
 class ManagerR {
     function func(int i) returns int => i;
 }

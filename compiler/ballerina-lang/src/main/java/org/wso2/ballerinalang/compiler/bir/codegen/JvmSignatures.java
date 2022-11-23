@@ -298,7 +298,7 @@ public class JvmSignatures {
     public static final String INIT_LIST_INITIAL_SPREAD_ENTRY = "(L" + B_ARRAY + ";)V";
     public static final String INIT_RUNTIME_REGISTRY = "(L" + RUNTIME_REGISTRY_CLASS + ";)V";
     public static final String INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY = "(L" + B_MAP + ";)V";
-    public static final String INIT_MODULE = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
+    public static final String INIT_MODULE = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";Z)V";
     public static final String INIT_NON_BMP_STRING_VALUE = "(L" + STRING_VALUE + ";[I)V";
     public static final String INIT_OBJECT = "(L" + STRING_VALUE + ";L" + MODULE + ";J)V";
     public static final String INIT_OPERAND = "(ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
@@ -366,7 +366,7 @@ public class JvmSignatures {
     public static final String OBJECT_SET = "(L" + STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String OBJECT_TYPE_DUPLICATE = "()L" + OBJECT_TYPE_IMPL + ";";
     public static final String OBJECT_TYPE_IMPL_INIT = "(L" + OBJECT_TYPE_IMPL + ";)V";
-    public static final String PANIC_IF_UNLOCK = "(L" + STRING_VALUE + ";L" + STRAND_CLASS + ";)V";
+    public static final String PANIC_IF_IN_LOCK = "(L" + STRAND_CLASS + ";)V";
     public static final String PASS_BSTRING_RETURN_OBJECT = "(L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
     public static final String PASS_OBJECT_RETURN_OBJECT = "(L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String PASS_OBJECT_RETURN_SAME_TYPE = "(L" + OBJECT + ";)TV;";
@@ -471,7 +471,7 @@ public class JvmSignatures {
     public static final String CREATE_RE_CHAR_SET = "(L" + ARRAY_VALUE + ";)L" + REG_EXP_CHAR_SET + ";";
     public static final String CREATE_RE_CHAR_SET_RANGE = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" +
              B_STRING_VALUE + ";)L" + REG_EXP_CHAR_SET_RANGE + ";";
-    public static final String CREATE_RE_CAPTURING_GROUP = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_EXPR +
+    public static final String CREATE_RE_CAPTURING_GROUP = "(L" + B_STRING_VALUE + ";L" + OBJECT +
             ";L" + REG_EXP_DISJUNCTION + ";L" + B_STRING_VALUE + ";)L" + REG_EXP_CAPTURING_GROUP + ";";
     public static final String CREATE_RE_FLAG_EXPR = "(L" + B_STRING_VALUE + ";L" + REG_EXP_FLAG_ON_OFF +
             ";L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_EXPR + ";";

@@ -573,6 +573,17 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "module1:ClientError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Defines the possible client error types."
+      },
+      "sortText": "BL",
+      "insertText": "module1:ClientError",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

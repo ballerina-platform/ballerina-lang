@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -81,6 +82,19 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
         Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
                 node.name().text());
+
+        if (node.parent().kind() == SyntaxKind.FIELD_ACCESS) {
+            Optional<SemanticModel> semanticModel = this.context.currentSemanticModel();
+            if (semanticModel.isEmpty()) {
+                return Optional.empty();
+            }
+
+            Optional<TypeSymbol> typeSymbol = semanticModel.get()
+                    .typeOf(((FieldAccessExpressionNode) node.parent()).expression());
+            if (typeSymbol.isPresent()) {
+                return SymbolUtil.getTypeDescriptor(typeSymbol.get());
+            }
+        }
 
         if (symbol.isEmpty()) {
             return Optional.empty();

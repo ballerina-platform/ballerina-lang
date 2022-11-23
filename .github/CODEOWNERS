@@ -7,7 +7,7 @@
 /compiler/ @sameerajayasoma @hasithaa 
 /langlib/ @sameerajayasoma @hasithaa 
 /semtypes/ @sameerajayasoma @hasithaa 
-/language-server/ @mohanvive @nadeeshaan
+/language-server/ @mohanvive @IMS94
 /ballerina-shell/ @mohanvive
 /bvm/ @warunalakshitha
 /observelib/ @nadundesilva
@@ -18,6 +18,3 @@
 
 # CODEOWNERS file
 /.github/CODEOWNERS @sameerajayasoma @hasithaa @anupama-pathirage @warunalakshitha @mohanvive @manuranga @hevayo
-
-# Notify daily build failures
-* @gimantha @azinneera

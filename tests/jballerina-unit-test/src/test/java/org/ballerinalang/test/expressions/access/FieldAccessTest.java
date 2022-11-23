@@ -127,11 +127,22 @@ public class FieldAccessTest {
                 "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD' and type includes nil in " +
                 "record(s) 'BC'", 331, 17);
         validateError(negativeResult, i++, "undefined field 'id' in union '(AB|BC)'", 337, 5);
-        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|CompanyR)'", 354, 13);
-        validateError(negativeResult, i++, "undefined function 'func1'", 357, 9);
-        validateError(negativeResult, i++, "undefined function 'func2'", 360, 9);
-        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|EmployeeR)'", 363, 13);
-        validateError(negativeResult, i++, "undefined function 'func3'", 366, 9);
+
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 369, 20);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 371, 11);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 373, 26);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 375, 15);
+        validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
+                "expression", 377, 15);
+        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|CompanyR)'", 394, 13);
+        validateError(negativeResult, i++, "undefined function 'func1'", 397, 9);
+        validateError(negativeResult, i++, "undefined function 'func2'", 400, 9);
+        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|EmployeeR)'", 403, 13);
+        validateError(negativeResult, i++, "undefined function 'func3'", 406, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -276,10 +287,5 @@ public class FieldAccessTest {
     @Test
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
-    }
-
-    @Test
-    public void testAccessingMethodOnUnionObjectType() {
-        BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
     }
 }
