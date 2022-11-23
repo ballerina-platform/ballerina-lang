@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -1855,16 +1854,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
         BSymbol symbol = astPackageVarRefExpr.symbol;
-
-        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
-            Name encodedGlobalVarDclName = Names.fromString(Utils.encodeNonFunctionIdentifier(symbol.name.getValue()));
+        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
+                !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    encodedGlobalVarDclName, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
-                    symbol.name.getValue(), symbol.origin.toBIROrigin());
-        } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
-                    symbol.name.getValue(), symbol.origin.toBIROrigin());
+                                            symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
+                                            symbol.name.value, symbol.origin.toBIROrigin());
         }
 
         return this.globalVarMap.get(symbol);
