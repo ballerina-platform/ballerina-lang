@@ -1692,7 +1692,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
         providers.add(provider);
 
-        // Store the dependencies of functions seperately for lock optimization in later stage.
+        // Store the dependencies of functions separately for lock optimization in later stage.
         addFunctionToGlobalVarDependency(dependent, provider);
     }
 

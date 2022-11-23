@@ -6,14 +6,6 @@
   "source": "import_decl/source/lsproject/modules/module1/source1.bal",
   "items": [
     {
-      "label": "lsproject",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "lsproject.",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",

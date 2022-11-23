@@ -103,7 +103,7 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getConnectorMetadata() throws IOException {
+    public void getConnectorMetadata() throws Exception {
         List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
@@ -152,7 +152,7 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getFunctionMetadata() throws IOException {
+    public void getFunctionMetadata() throws Exception {
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(balaProject);
         ModuleDoc testConnector = moduleDocMap.get(moduleName);
         SyntaxTree st = testConnector.syntaxTreeMap.get("main.bal");

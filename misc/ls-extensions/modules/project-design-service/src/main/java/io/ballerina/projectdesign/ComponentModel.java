@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign;
 
-import io.ballerina.projectdesign.entitymodel.components.Entity;
-import io.ballerina.projectdesign.servicemodel.components.Service;
+import io.ballerina.projectdesign.model.entity.Entity;
+import io.ballerina.projectdesign.model.service.Service;
 import io.ballerina.projects.Package;
 
 import java.util.Map;

@@ -52,6 +52,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -334,6 +335,10 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
             case METHOD_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
                         ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent(), context, context.cursorPositionInTree());
+            case REMOTE_METHOD_CALL_ACTION:
+                return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                        ((RemoteMethodCallActionNode) positionalArgumentNode.parent()).arguments(),
                         positionalArgumentNode.parent(), context, context.cursorPositionInTree());
             case PARENTHESIZED_ARG_LIST:
                 ParenthesizedArgList parenthesizedArgList = (ParenthesizedArgList) positionalArgumentNode.parent();
