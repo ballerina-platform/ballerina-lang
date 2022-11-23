@@ -1,10 +1,10 @@
 {
   "position": {
-    "line": 6,
-    "character": 4
+    "line": 7,
+    "character": 7
   },
-  "source": "package_plugin_user_with_codeactions_1/main.bal",
-  "description": "Test compiler plugin code actions",
+  "source": "source1.bal",
+  "description": "Test compiler plugin code actions in a single file project",
   "expected": [
     {
       "title": "Introduce Variable",
@@ -17,39 +17,39 @@
               "character": 0
             },
             "end": {
-              "line": 12,
-              "character": 0
+              "line": 14,
+              "character": 26
             }
           },
-          "newText": "import lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n"
+          "newText": "// A Header comment here\nimport lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n\n// A trailing comment here"
         }
       ],
       "resolvable": true,
       "data": {
         "extName": "org.ballerinalang.langserver.codeaction.CompilerPluginCodeActionExtension",
         "codeActionName": "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR",
-        "fileUri": "package_plugin_user_with_codeactions_1/main.bal",
+        "fileUri": "source1.bal",
         "range": {
           "start": {
-            "line": 6,
-            "character": 4
+            "line": 7,
+            "character": 7
           },
           "end": {
-            "line": 6,
-            "character": 4
+            "line": 7,
+            "character": 7
           }
         },
         "actionData": [
           {
             "key": "node.range",
             "value": {
-              "filePath": "main.bal",
+              "filePath": "source1.bal",
               "startLine": {
-                "line": 6,
+                "line": 7,
                 "offset": 3
               },
               "endLine": {
-                "line": 6,
+                "line": 7,
                 "offset": 15
               }
             }
@@ -63,4 +63,3 @@
     }
   ]
 }
-
