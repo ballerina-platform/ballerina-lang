@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.entitymodel.components;
+package io.ballerina.projectdesign.model.entity;
 
 /**
  * Represent the relationship between records.

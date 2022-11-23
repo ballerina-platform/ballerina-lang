@@ -16,20 +16,23 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 /**
  * Represent interaction with another service.
  *
  * @since 2201.2.2
  */
-public class Interaction {
+public class Interaction extends ModelElement {
 
     private final ResourceId resourceId;
     private final String connectorType;
 
-    public Interaction(ResourceId resourceId, String connectorType) {
-
+    public Interaction(ResourceId resourceId, String connectorType, ElementLocation elementLocation) {
+        super(elementLocation);
         this.resourceId = resourceId;
         this.connectorType = connectorType;
     }
