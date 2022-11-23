@@ -365,7 +365,7 @@ class CompanyR {
     function func(int i) returns string => (i + 2).toString();
 }
 
-function testFieldAccessOnUnion() {
+function testAccessingMethodOnUnionObjectType() {
     EmployeeR|ManagerR ob1 = new ManagerR();
     function (int i) returns int func1 = ob1.func;
     assertEquals(func1(1), 2);
@@ -379,6 +379,11 @@ function testFieldAccessOnUnion() {
     (function (int i) returns string)|function (int i) returns int func3 = ob4.func;
     function (int i) returns int func4 = <function (int i) returns int> func3;
     assertEquals(func4(1), 2);
+
+    CompanyR|ManagerR ob5 = new ManagerR();
+    var func5 = ob5.func;
+    var func6 = <function (int i) returns int> func5;
+    assertEquals(func6(1), 2);
 }
 
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {

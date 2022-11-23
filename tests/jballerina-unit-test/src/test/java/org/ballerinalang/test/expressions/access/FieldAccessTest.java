@@ -46,7 +46,6 @@ public class FieldAccessTest {
 
     @Test
     public void testNegativeCases() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 37);
         int i = 0;
         validateError(negativeResult, i++, "field access cannot be used to access an optional field of a type " +
                 "that includes nil, use optional field access or member access", 32, 9);
@@ -127,7 +126,13 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "field access can only be used to access required fields or optional " +
                 "fields of non-nilable types, field 'z' is undeclared in record(s) 'CD' and type includes nil in " +
                 "record(s) 'BC'", 331, 17);
-        validateError(negativeResult, i, "undefined field 'id' in union '(AB|BC)'", 337, 5);
+        validateError(negativeResult, i++, "undefined field 'id' in union '(AB|BC)'", 337, 5);
+        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|CompanyR)'", 354, 13);
+        validateError(negativeResult, i++, "undefined function 'func1'", 357, 9);
+        validateError(negativeResult, i++, "undefined function 'func2'", 360, 9);
+        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|EmployeeR)'", 363, 13);
+        validateError(negativeResult, i++, "undefined function 'func3'", 366, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(dataProvider = "recordFieldAccessFunctions")
@@ -274,7 +279,7 @@ public class FieldAccessTest {
     }
 
     @Test
-    public void testFieldAccessOnUnion() {
-        BRunUtil.invoke(result, "testFieldAccessOnUnion");
+    public void testAccessingMethodOnUnionObjectType() {
+        BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
     }
 }
