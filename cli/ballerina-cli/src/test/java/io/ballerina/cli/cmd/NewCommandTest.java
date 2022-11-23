@@ -109,7 +109,7 @@ public class NewCommandTest extends BaseCommandTest {
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
         String expectedGitignoreContent = "target\n" +
-                "**/Config.toml\n";
+                "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
 
