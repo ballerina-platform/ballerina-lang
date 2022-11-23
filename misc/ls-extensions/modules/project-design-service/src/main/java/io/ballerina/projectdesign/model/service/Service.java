@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Service extends ComponentModelItem {
+public class Service extends ModelElement {
 
     private final String path;
     private final String serviceId;
@@ -38,8 +38,9 @@ public class Service extends ComponentModelItem {
     private final List<RemoteFunction> remoteFunctions;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
-                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation, LineRange lineRange) {
-        super(lineRange);
+                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation,
+                   ElementLocation elementLocation) {
+        super(elementLocation);
         this.annotation = annotation;
         this.path = path;
         this.serviceId = serviceId;

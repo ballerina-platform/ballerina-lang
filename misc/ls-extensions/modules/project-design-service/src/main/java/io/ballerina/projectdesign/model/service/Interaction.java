@@ -18,21 +18,21 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 /**
  * Represent interaction with another service.
  *
  * @since 2201.2.2
  */
-public class Interaction extends ComponentModelItem {
+public class Interaction extends ModelElement {
 
     private final ResourceId resourceId;
     private final String connectorType;
 
-    public Interaction(ResourceId resourceId, String connectorType, LineRange lineRange) {
-        super(lineRange);
+    public Interaction(ResourceId resourceId, String connectorType, ElementLocation elementLocation) {
+        super(elementLocation);
         this.resourceId = resourceId;
         this.connectorType = connectorType;
     }

@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Resource extends ComponentModelItem {
+public class Resource extends ModelElement {
 
     private final String identifier;
     private final ResourceId resourceId;
@@ -37,8 +37,8 @@ public class Resource extends ComponentModelItem {
     private final List<Interaction> interactions;
 
     public Resource(String identifier, ResourceId resourceId, List<ResourceParameter> parameters, List<String> returns,
-                    List<Interaction> interactions, LineRange lineRange) {
-        super(lineRange);
+                    List<Interaction> interactions, ElementLocation elementLocation) {
+        super(elementLocation);
         this.identifier = identifier;
         this.resourceId = resourceId;
         this.parameters = parameters;

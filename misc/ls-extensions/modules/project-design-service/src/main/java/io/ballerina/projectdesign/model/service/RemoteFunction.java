@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class RemoteFunction extends ComponentModelItem {
+public class RemoteFunction extends ModelElement {
 
     private final String name;
     private final List<FunctionParameter> parameters;
@@ -37,8 +37,8 @@ public class RemoteFunction extends ComponentModelItem {
     private final List<Interaction> interactions;
 
     public RemoteFunction(String name, List<FunctionParameter> parameters, List<String> returns,
-                          List<Interaction> interactions, LineRange lineRange) {
-        super(lineRange);
+                          List<Interaction> interactions, ElementLocation elementLocation) {
+        super(elementLocation);
         this.name = name;
         this.parameters = parameters;
         this.returns = returns;

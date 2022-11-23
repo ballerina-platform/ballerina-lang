@@ -33,12 +33,14 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projectdesign.ComponentModel;
 import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
+import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.entity.Association;
 import io.ballerina.projectdesign.model.entity.Attribute;
 import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.tools.text.LineRange;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -60,12 +62,12 @@ public class EntityModelGenerator {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
-    private final String moduleRootPath;
+    private final Path moduleRootPath;
 
     private final Map<String, Entity> types = new HashMap<>();
 
     public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
-                                String moduleRootPath) {
+                                Path moduleRootPath) {
 
         this.semanticModel = semanticModel;
         this.packageId = packageId;
@@ -81,14 +83,14 @@ public class EntityModelGenerator {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     this.types.put(entityName, getType(recordTypeSymbol, entityName,
-                            getLineRange(typeDefinitionSymbol), false));
+                            getElementLocation(typeDefinitionSymbol), false));
                 }
             }
         }
         return types;
     }
 
-    private Entity getType(RecordTypeSymbol recordTypeSymbol, String entityName, LineRange lineRange,
+    private Entity getType(RecordTypeSymbol recordTypeSymbol, String entityName, ElementLocation elementLocation,
                            boolean isAnonymous) {
         List<Attribute> attributeList = new ArrayList<>();
         List<String> inclusionList = new ArrayList<>();
@@ -97,7 +99,7 @@ public class EntityModelGenerator {
         for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
             attributeList.add(getAttribute(fieldEntry.getValue(), entityName));
         }
-        return new Entity(attributeList, inclusionList, lineRange, isAnonymous);
+        return new Entity(attributeList, inclusionList, elementLocation, isAnonymous);
     }
 
     private Attribute getAttribute(RecordFieldSymbol recordFieldSymbol, String entityName) {
@@ -117,7 +119,7 @@ public class EntityModelGenerator {
             String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
                     fieldName.substring(1);
             this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
-                    getLineRange(recordFieldSymbol), true));
+                    getElementLocation(recordFieldSymbol), true));
             String associateCardinality = optional ? CardinalityValue.ZERO_OR_ONE.getValue() :
                     CardinalityValue.ONE_AND_ONLY_ONE.getValue();
             Association association = new Association(inlineRecordName, new Association.Cardinality(
@@ -136,7 +138,7 @@ public class EntityModelGenerator {
                     CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
             associations = new LinkedList<>(List.of(association));
             this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
-                    getLineRange(recordFieldSymbol), true));
+                    getElementLocation(recordFieldSymbol), true));
 
         } else {
             associations =
@@ -145,7 +147,7 @@ public class EntityModelGenerator {
         }
         // todo: address when union types has anonymous records
         return new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
-                getLineRange(recordFieldSymbol));
+                getElementLocation(recordFieldSymbol));
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
@@ -328,13 +330,13 @@ public class EntityModelGenerator {
         return associations;
     }
 
-    private LineRange getLineRange(Symbol symbol) {
-        LineRange lineRange = null;
+    private ElementLocation getElementLocation(Symbol symbol) {
+        ElementLocation elementLocation = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
-            String filePath = moduleRootPath + File.separator + typeLineRange.filePath();
-            lineRange = LineRange.from(filePath, typeLineRange.startLine(), typeLineRange.endLine());
+            String filePath = moduleRootPath.resolve(typeLineRange.filePath()).toAbsolutePath().toString();
+            elementLocation = GeneratorUtils.getElementLocation(filePath, typeLineRange);
         }
-        return lineRange;
+        return elementLocation;
     }
 }

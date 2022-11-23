@@ -28,7 +28,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,6 @@ public class ComponentModelBuilder {
 
     public ComponentModel constructComponentModel(Package currentPackage) {
 
-
         Map<String, Service> services = new HashMap<>();
         // todo: Change to TypeDefinition
         Map<String, Entity> entities = new HashMap<>();
@@ -53,9 +52,9 @@ public class ComponentModelBuilder {
         AtomicBoolean hasDiagnosticErrors = new AtomicBoolean(false);
 
         currentPackage.modules().forEach(module -> {
-            String moduleRootPath = module.project().sourceRoot().toAbsolutePath().toString();
+            Path moduleRootPath = module.project().sourceRoot().toAbsolutePath();
             if (module.moduleName().moduleNamePart() != null) {
-                moduleRootPath = moduleRootPath + File.separator + module.moduleName().moduleNamePart();
+                moduleRootPath = moduleRootPath.resolve(module.moduleName().moduleNamePart());
             }
             Collection<DocumentId> documentIds = module.documentIds();
             PackageCompilation currentPackageCompilation = currentPackage.getCompilation();

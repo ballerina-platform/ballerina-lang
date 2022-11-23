@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     concurrency:
-      group: ${{ github.head_ref }}-full-build-pipeline
+      group: ${{ github.head_ref }}-FBP-lang
       cancel-in-progress: true
 
     steps:
@@ -46,6 +46,9 @@ jobs:
     name: Build Stdlib Level
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-FBP-stdlib-${{ matrix.level }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:
@@ -99,6 +102,10 @@ jobs:
     needs: build-lang
     name: Build Ballerina Distribution
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+    concurrency:
+      group: ${{ github.head_ref }}-FBP-distribution
+      cancel-in-progress: true
 
     steps:
       - name: Checkout Repository
@@ -117,7 +124,7 @@ jobs:
           perl -pi -e "s/^\s*ballerinaLangVersion=.*/ballerinaLangVersion=${{ needs.build-lang.outputs.lang_version }}/" gradle.properties
 
       - name: Build Module
-        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue
+        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue -x :project-api-tests:test
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}

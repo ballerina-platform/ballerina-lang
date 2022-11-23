@@ -18,8 +18,8 @@
 
 package io.ballerina.projectdesign.model.entity;
 
-import io.ballerina.projectdesign.model.ComponentModelItem;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Entity extends ComponentModelItem {
+public class Entity extends ModelElement {
 
     private List<Attribute> attributes;
     private final List<String> inclusions;
@@ -36,8 +36,9 @@ public class Entity extends ComponentModelItem {
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange, boolean isAnonymous) {
-        super(lineRange);
+    public Entity(List<Attribute> attributes, List<String> inclusions, ElementLocation elementLocation,
+                  boolean isAnonymous) {
+        super(elementLocation);
         this.attributes = attributes;
         this.inclusions = inclusions;
         this.isAnonymous = isAnonymous;
