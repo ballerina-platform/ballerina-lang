@@ -21,12 +21,12 @@ package org.ballerinalang.langserver.commons;
  * @since 2201.4.0
  */
 public class SnippetContext {
-    private int placeholderCount = 1;
+    private int placeholderCount = 0;
 
     public SnippetContext() {
     }
 
     public int incrementAndGetPlaceholderCount() {
-        return placeholderCount++;
+        return ++placeholderCount;
     }
 }
