@@ -69,7 +69,10 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithAllQueryClauses",
                 "testQueryActionOrExprWithNestedQueryActionOrExpr",
                 "testQueryActionOrExprWithQueryConstructingTable",
-                "testQueryActionOrExprWithQueryConstructingStream"
+                "testQueryActionOrExprWithQueryConstructingStream",
+                "testQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionOrExprWithGroupedClientResourceAccessAction",
+                "testNestedQueryActionOrExprWithClientResourceAccessAction"
         };
     }
 
