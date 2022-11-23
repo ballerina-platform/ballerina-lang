@@ -21,6 +21,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
@@ -89,9 +90,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
+
+    private LSClientCapabilities capabilities;
     private int shutdown = 1;
 
-    private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
     private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
 
     public BallerinaLanguageServer() {
@@ -112,8 +114,27 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
+        Map experimentalClientCapabilities = null;
+        if (params.getCapabilities().getExperimental() != null) {
+            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
+                    HashMap.class);
+        }
+
+        Map initializationOptions = null;
+        if (params.getInitializationOptions() != null) {
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+        }
+
+        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
+        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
+        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
+                workspaceClientCapabilities,
+                experimentalClientCapabilities,
+                initializationOptions);
+        this.serverContext.put(LSClientCapabilities.class, capabilities);
+
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        if (isLightWeightMode(params)) {
+        if (capabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return CompletableFuture.supplyAsync(() -> res);
         }
 
@@ -128,7 +149,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
-        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, 
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor,
                 CodeActionKind.QuickFix, CodeActionKind.Source));
         codeActionOptions.setResolveProvider(true);
         res.getCapabilities().setCodeActionProvider(codeActionOptions);
@@ -165,17 +186,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
 
-        Map initializationOptions = null;
-        if (params.getInitializationOptions() != null) {
-            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
-        }
-
-        Map experimentalClientCapabilities = null;
-        if (params.getCapabilities().getExperimental() != null) {
-            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    HashMap.class);
-        }
-
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put(AST_PROVIDER.getValue(), true);
@@ -183,13 +193,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
-        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
-        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
-        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                workspaceClientCapabilities,
-                experimentalClientCapabilities,
-                initializationOptions);
-        this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
@@ -419,8 +422,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private Boolean isLightWeightMode(InitializeParams params) {
         if (params.getInitializationOptions() != null) {
             JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
-                return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
+            if (initOptions.has(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE)) {
+                return initOptions.get(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE).getAsBoolean();
             }
         }
         return false;

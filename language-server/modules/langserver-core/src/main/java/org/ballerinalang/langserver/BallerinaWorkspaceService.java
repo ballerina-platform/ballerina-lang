@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
+
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -85,15 +86,18 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         try {
-            List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
-            DidChangeWatchedFilesContext context =
-                    ContextBuilder.buildDidChangeWatchedFilesContext(
-                            this.workspaceManagerProxy.get(),
-                            this.serverContext);
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
-            for (Path projectRoot : paths) {
-                diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
+            LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
+            if (!lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
+                List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
+                DidChangeWatchedFilesContext context =
+                        ContextBuilder.buildDidChangeWatchedFilesContext(
+                                this.workspaceManagerProxy.get(),
+                                this.serverContext);
+                DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
+                // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
+                for (Path projectRoot : paths) {
+                    diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
+                }
             }
         } catch (WorkspaceDocumentException e) {
             String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
@@ -108,10 +112,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     .map(CommandArgument::from)
                     .collect(Collectors.toList());
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManagerProxy.get(),
-                                                                                      this.serverContext,
-                                                                                      commandArguments,
-                                                                                      this.clientCapabilities,
-                                                                                      this.languageServer);
+                    this.serverContext,
+                    commandArguments,
+                    this.clientCapabilities,
+                    this.languageServer);
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
@@ -133,9 +137,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
             }
             this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, "Operation 'workspace/executeCommand' failed!",
-                                       new LSCommandExecutorException(
-                                               "No command executor found for '" + params.getCommand() + "'"),
-                                       null, (Position) null);
+                    new LSCommandExecutorException(
+                            "No command executor found for '" + params.getCommand() + "'"),
+                    null, (Position) null);
             return false;
         });
     }
