@@ -388,28 +388,66 @@ function testFieldAccessOnJsonTypedRecordFields() returns error? {
     assertEquals(val, "4");
 }
 
-function testFieldAccessOnJsonTypedRecordFieldsResultingInErrors() {
+function testFieldAccessOnJsonTypedRecordFieldsResultingInError() {
     FooRec1 rec1 = {j: "1"};
-    json|error val = rec1.j.k.l;
-    validateErrorMsg(val);
+    json|error val = rec1.j.k;
+    validateJSONOperationErrorMsg(val);
+
+    rec1 = {j: "1"};
+    val = rec1.j.k.l;
+    validateJSONOperationErrorMsg(val);
+
+    rec1 = {j: "1"};
+    val = rec1.j.k.l.m;
+    validateJSONOperationErrorMsg(val);
 
     rec1 = {j: {k: {l: "1", m: "3"}}};
     val = rec1.j.k.m.n;
-    validateErrorMsg(val);
+    validateJSONOperationErrorMsg(val);
 
     FooRec2 rec2 = {j: "1", fooRec: {j: "2"}};
     val = rec2.j.l;
-    validateErrorMsg(val);
+    validateJSONOperationErrorMsg(val);
 
     val = rec2.fooRec.j.m.n;
-    validateErrorMsg(val);
+    validateJSONOperationErrorMsg(val);
 
     rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
     val = rec2.fooRec.j.l.m.n.o;
-    validateErrorMsg(val);
+    validateJSONOperationErrorMsg(val);
 }
 
-function validateErrorMsg(json|error val) {
+function testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr() {
+    var getJsonField1 = function() returns string|error {
+        FooRec1 rec1 = {j: "1"};
+        string val = check rec1.j.k;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField1());
+
+    var getJsonField2 = function() returns json|error {
+        FooRec1 rec1 = {j: "1"};
+        json val = check rec1.j.k.l.m.n;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField2());
+
+    var getJsonField3 = function() returns json|error {
+        json rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+        string val = check rec2.fooRec.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField3());
+
+    var getJsonField4 = function() returns json|error {
+        FooRec2 rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+        json val = check rec2.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField4());
+}
+
+function validateJSONOperationErrorMsg(json|error val) {
     assertTrue(val is error);
     error err = <error>val;
     assertEquals(err.message(), "{ballerina}JSONOperationError");
