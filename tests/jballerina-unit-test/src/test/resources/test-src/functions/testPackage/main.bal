@@ -18,7 +18,7 @@ import testPackage.testModule;
 import ballerina/test;
 
 public function main() {
-    testFunctionDefaultParameterValues(0);
+    testFunctionDefaultParameterValues();
     testFunctionDefaultParameterValues(10);
 }
 

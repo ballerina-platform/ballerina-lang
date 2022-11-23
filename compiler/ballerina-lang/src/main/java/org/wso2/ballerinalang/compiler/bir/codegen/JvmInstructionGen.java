@@ -432,15 +432,11 @@ public class JvmInstructionGen {
                 return;
             case CONSTANT:
             case GLOBAL:
+                String varName = varDcl.name.value;
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-                String varName = varDcl.name.value;
                 String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
                 String typeSig = getTypeDesc(bType);
-                boolean samePackage = pkgName.equals(this.currentPackageName);
-                if (!samePackage) {
-                    varName = Utils.encodeNonFunctionIdentifier(varName);
-                }
                 mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
                 return;
             default:
@@ -516,10 +512,6 @@ public class JvmInstructionGen {
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
             String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
-            boolean samePackage = pkgName.equals(this.currentPackageName);
-            if (!samePackage) {
-                varName = Utils.encodeNonFunctionIdentifier(varName);
-            }
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
         }
