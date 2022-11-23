@@ -148,31 +148,26 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
             String fileUri = request.getDocumentIdentifier().getUri();
             String[] pathSegments = fileUri.split("/");
             String fileName = pathSegments[pathSegments.length - 1];
-            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
-            if (filePath.isEmpty()) {
-                return typesResponse;
-            }
             List<ResolvedTypeForExpression> types = new ArrayList<>();
             try {
+                Path filePath = PathUtil.getPathFromURI(fileUri).orElseThrow();
                 for (LineRange range: request.getExpressionRanges()) {
                     ResolvedTypeForExpression resolvedType = new ResolvedTypeForExpression(range);
-
-                        Optional<SemanticModel> semanticModel =
-                                this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                        if (semanticModel.isEmpty()) {
-                            return typesResponse;
-                        }
-                        LinePosition start = range.startLine();
-                        LinePosition end = range.endLine();
-                        LineRange lineRange = LineRange.from(fileName, start, end);
-                        Optional<TypeSymbol> typeSymbol;
-                        if (semanticModel.get().typeOf(lineRange).isPresent()) {
-                            typeSymbol = semanticModel.get().typeOf(lineRange);
-                            Type.clearParentSymbols();
-                            Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
-                            resolvedType.setType(type);
-                            types.add(resolvedType);
-                        }
+                    SemanticModel semanticModel = this.workspaceManagerProxy
+                            .get(fileUri)
+                            .semanticModel(filePath)
+                            .orElseThrow();
+                    LinePosition start = range.startLine();
+                    LinePosition end = range.endLine();
+                    LineRange lineRange = LineRange.from(fileName, start, end);
+                    Optional<TypeSymbol> typeSymbol;
+                    if (semanticModel.typeOf(lineRange).isPresent()) {
+                        typeSymbol = semanticModel.typeOf(lineRange);
+                        Type.clearParentSymbols();
+                        Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
+                        resolvedType.setType(type);
+                        types.add(resolvedType);
+                    }
                 }
                 typesResponse.setTypes(types);
                 return typesResponse;
@@ -190,22 +185,21 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             TypesFromSymbolResponse typeFromSymbolResponse = new TypesFromSymbolResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
-            if (filePath.isEmpty()) {
-                return typeFromSymbolResponse;
-            }
             List<ResolvedTypeForSymbol> types = new ArrayList<>();
             try {
+                Path filePath = PathUtil.getPathFromURI(fileUri).orElseThrow();
                 for (LinePosition position: request.getPositions()) {
                     ResolvedTypeForSymbol resolvedType = new ResolvedTypeForSymbol(position);
-                    Optional<SemanticModel> semanticModel =
-                            this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                    Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
-                    if (semanticModel.isEmpty() || document.isEmpty()) {
-                        return typeFromSymbolResponse;
-                    }
+                    SemanticModel semanticModel = this.workspaceManagerProxy
+                            .get(fileUri)
+                            .semanticModel(filePath)
+                            .orElseThrow();
+                    Document document = this.workspaceManagerProxy
+                            .get(fileUri)
+                            .document(filePath)
+                            .orElseThrow();
                     LinePosition linePosition = LinePosition.from(position.line(), position.offset());
-                    Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), linePosition);
+                    Optional<Symbol> symbol = semanticModel.symbol(document, linePosition);
                     Type.clearParentSymbols();
                     Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
                     resolvedType.setType(type);
@@ -227,33 +221,30 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             TypesFromSymbolResponse typeFromSymbolResponse = new TypesFromSymbolResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
-            if (filePath.isEmpty()) {
-                return typeFromSymbolResponse;
-            }
             List<ResolvedTypeForSymbol> types = new ArrayList<>();
             try {
-                Optional<SemanticModel> semanticModel =
-                        this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
-                Optional<Document> document = workspaceManagerProxy.get(fileUri).document(filePath.get());
-                if (semanticModel.isPresent() && document.isPresent()) {
-                    LinePosition fnPosition = request.getFnPosition();
-                    Optional<Symbol> symbol = semanticModel.get().symbol(document.get(), fnPosition);
-                    if (symbol.isPresent()) {
-                        Symbol fnSymbol = symbol.get();
-                        if (fnSymbol instanceof FunctionSymbol) {
-                            FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
+                Path filePath = PathUtil.getPathFromURI(fileUri).orElseThrow();
+                SemanticModel semanticModel = this.workspaceManagerProxy
+                        .get(fileUri)
+                        .semanticModel(filePath)
+                        .orElseThrow();
+                Document document = this.workspaceManagerProxy
+                        .get(fileUri)
+                        .document(filePath)
+                        .orElseThrow();
+                LinePosition fnPosition = request.getFnPosition();
+                Symbol fnSymbol = semanticModel.symbol(document, fnPosition).orElseThrow();
+                if (fnSymbol instanceof FunctionSymbol) {
+                    FunctionTypeSymbol fnTypeSymbol = ((FunctionSymbol) fnSymbol).typeDescriptor();
 
-                            Optional<ResolvedTypeForSymbol> returnType =
-                                    getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
-                            returnType.ifPresent(types::add);
+                    Optional<ResolvedTypeForSymbol> returnType =
+                            getTypeForReturnTypeDesc(fnTypeSymbol, request.getReturnTypeDescPosition());
+                    returnType.ifPresent(types::add);
 
-                            List<ResolvedTypeForSymbol> paramTypes = getTypesForFnParams(fnTypeSymbol);
-                            types.addAll(paramTypes);
-                        }
-                    }
-                    typeFromSymbolResponse.setTypes(types);
+                    List<ResolvedTypeForSymbol> paramTypes = getTypesForFnParams(fnTypeSymbol);
+                    types.addAll(paramTypes);
                 }
+                typeFromSymbolResponse.setTypes(types);
                 return typeFromSymbolResponse;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/getTypesFromFnDefinition' failed!";
