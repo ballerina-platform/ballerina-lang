@@ -106,6 +106,12 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test(enabled = false)
+    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+        // Todo
+    }
+
+    @Override
+    @Test(enabled = false)
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // Todo
     }
