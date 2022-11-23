@@ -51,6 +51,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.ballerina.projectdesign.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.projectdesign.ProjectDesignConstants.LISTENER;
@@ -85,7 +86,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
 
         StringBuilder serviceNameBuilder = new StringBuilder();
-        ServiceAnnotation serviceAnnotation = new ServiceAnnotation();
+        ServiceAnnotation serviceAnnotation;
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
             serviceNameBuilder.append(serviceNameNode.toString().replace("\"", ""));
@@ -95,6 +96,8 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
             serviceAnnotation = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath.toString());
+        } else {
+            serviceAnnotation = new ServiceAnnotation(UUID.randomUUID().toString(), "", null);
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
