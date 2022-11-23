@@ -24,9 +24,9 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.values.DecimalValue;
 
 import java.util.List;
 
@@ -116,7 +116,7 @@ public class CliUtil {
         }
     }
 
-    private static DecimalValue getDecimalValue(String argument, String parameterName) {
+    private static BDecimal getDecimalValue(String argument, String parameterName) {
         try {
             return TypeConverter.stringToDecimal(argument);
         } catch (NumberFormatException | BError e) {

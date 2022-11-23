@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
@@ -938,7 +939,7 @@ public class TypeConverter {
         throw new NumberFormatException();
     }
 
-    public static DecimalValue stringToDecimal(String value) throws NumberFormatException {
+    public static BDecimal stringToDecimal(String value) throws NumberFormatException {
         return new DecimalValue(value);
     }
 
