@@ -171,6 +171,7 @@ public class JvmDesugarPhase {
         HashMap<String, String> encodedVsInitialIds = new HashMap<>();
         encodePackageIdentifiers(module.packageID, encodedVsInitialIds);
         encodeGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        encodeGlobalVariableIdentifiers(module.importedGlobalVars, encodedVsInitialIds);
         encodeFunctionIdentifiers(module.functions, encodedVsInitialIds);
         encodeTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
         return encodedVsInitialIds;
@@ -268,6 +269,7 @@ public class JvmDesugarPhase {
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        replaceEncodedGlobalVariableIdentifiers(module.importedGlobalVars, encodedVsInitialIds);
         replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }

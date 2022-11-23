@@ -1855,19 +1855,23 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
         BSymbol symbol = astPackageVarRefExpr.symbol;
+        Location pos = astPackageVarRefExpr.pos;
 
         if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
-            Name encodedGlobalVarDclName = Names.fromString(Utils.encodeNonFunctionIdentifier(symbol.name.getValue()));
-            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                    encodedGlobalVarDclName, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
-                    symbol.name.getValue(), symbol.origin.toBIROrigin());
+            BIRGlobalVariableDcl newGlobalVarDcl = getNewGlobalVarDcl(pos, symbol);
+            this.env.enclPkg.importedGlobalVars.add(newGlobalVarDcl);
+            return newGlobalVarDcl;
         } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
-            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                                            symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
-                                            symbol.name.getValue(), symbol.origin.toBIROrigin());
+            return getNewGlobalVarDcl(pos, symbol);
         }
 
         return this.globalVarMap.get(symbol);
+    }
+
+    private BIRGlobalVariableDcl getNewGlobalVarDcl(Location pos, BSymbol symbol) {
+        return new BIRGlobalVariableDcl(pos, symbol.flags,
+                symbol.type, symbol.pkgID, symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
+                symbol.name.getValue(), symbol.origin.toBIROrigin());
     }
 
     @Override
