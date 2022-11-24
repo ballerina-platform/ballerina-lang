@@ -86,6 +86,7 @@ public class ConfigSchemaGenTaskTest {
         return new Object[][]{{"DefaultModuleProjects", "SimpleTypeConfigs", false},
                 {"DefaultModuleProjects", "ComplexTypeConfigs", false},
                 {"MultiModuleProjects", "SimpleTypeConfigs", false},
+                {"MultiModuleProjects", "UnusedConfigs", false},
                 {"SingleFileProject", "testconfig.bal", true}};
     }
 
