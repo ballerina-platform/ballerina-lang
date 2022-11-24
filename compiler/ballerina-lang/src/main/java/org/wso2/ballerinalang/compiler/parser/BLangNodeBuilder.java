@@ -3164,14 +3164,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(StartActionNode startActionNode) {
         BLangNode expression = createActionOrExpression(startActionNode.expression());
-
-        BLangInvocation invocation;
-        if (!(expression.getKind() == NodeKind.WORKER_ASYNC_SEND)) {
-            invocation = (BLangInvocation) expression;
-        } else {
-            invocation = (BLangInvocation) ((BLangWorkerAsyncSendExpr) expression).expr;
-            expression = ((BLangWorkerAsyncSendExpr) expression).expr;
-        }
+        BLangInvocation invocation = (BLangInvocation) expression;
 
         if (expression.getKind() == NodeKind.INVOCATION) {
             BLangActionInvocation actionInvocation = (BLangActionInvocation) TreeBuilder.createActionInvocation();
