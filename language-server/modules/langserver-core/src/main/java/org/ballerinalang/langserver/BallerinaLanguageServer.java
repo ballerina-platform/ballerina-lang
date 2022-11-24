@@ -160,13 +160,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         boolean prepareSupport = LSClientUtil.clientSupportsPrepareRename(params.getCapabilities());
         res.getCapabilities().setRenameProvider(new RenameOptions(prepareSupport));
 
-        // We are not registering commands here because they need to be registered/unregistered dynamically.
-        // Only if the client doesn't support dynamic command registration, we do registration here
-        if (!LSClientUtil.isDynamicCommandRegistrationSupported(params.getCapabilities())) {
-            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-            ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
-            res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
-        }
+        // Register commands
+        List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
+        ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
+        res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
 
         Map initializationOptions = null;
         if (params.getInitializationOptions() != null) {
@@ -241,7 +238,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         registerDynamicReferencesSupport(documentSelectors);
         registerDynamicCompletionSupport(List.of(fileFilter, exprFilter, fileFilterToml));
 
-        registerDynamicCommandsSupport();
         registerDynamicSemanticTokenSupport();
     }
 
@@ -325,14 +321,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             Registration referencesRegistration = new Registration(UUID.randomUUID().toString(),
                     "textDocument/references", referencesRegOptions);
             client.registerCapability(new RegistrationParams(List.of(referencesRegistration)));
-        }
-    }
-
-    private void registerDynamicCommandsSupport() {
-        // If the client support dynamic registration of commands, we register the capability here
-        if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
-            List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
-            LSClientUtil.registerCommands(serverContext, commandsList);
         }
     }
 

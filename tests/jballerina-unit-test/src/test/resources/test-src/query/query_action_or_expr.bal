@@ -717,6 +717,106 @@ function testQueryingEmptyTuple() {
     assertEquality(0, count);
 }
 
+type Book record {|
+    readonly int id;
+    string name;
+|};
+
+const PATH = "someLongPathSegment";
+
+client class MyClient {
+    resource function get .() returns string {
+        return "book1";
+    }
+
+    resource function get books/names() returns string[2] {
+        return ["book1", "book2"];
+    }
+
+    resource function get books/[int id]() returns string {
+        return "book" + id.toString();
+    }
+
+    resource function bookDetails .(int no, string bookName) returns Book {
+            Book b = {id: no, name: bookName};
+            return b;
+    }
+
+    resource function put books/[PATH](int a) returns string {
+        return "book1";
+    }
+
+    resource function someOtherMethod books/[PATH...](string a) returns string[] {
+        return [a, "book4"];
+    }
+}
+
+function testQueryActionOrExprWithClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    string[] res = from var i in myClient->/books/names
+            let string book = myClient->/.get
+            where i == book
+            select myClient->/books/[1];
+    assertEquality(["book1"], res);
+
+    table<Book> key(id) res2 = table key(id) from var b in myClient->/books/names
+            let string book = myClient->/.get
+            where b == book
+            select myClient->/.bookDetails(1, b);
+    table<Book> key(id) tbl = table [{id: 1, name: "book1"}];
+    assertEquality(tbl, res2);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in myClient->/books/names
+            let string book = myClient->/books/someLongPathSegment.put(1)
+            where b == book
+            select myClient->/.bookDetails(1, b);
+    assertEquality([{id: 1, name: "book1"}], res3);
+}
+
+function testQueryActionOrExprWithGroupedClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    string[] res = from var i in (myClient->/books/names)
+            let string book = (myClient->/.get)
+            where i == book
+            select (myClient->/books/[1]);
+    assertEquality(["book1"], res);
+
+    table<Book> key(id) res2 = table key(id) from var b in (myClient->/books/names)
+            let string book = myClient->/.get
+            where b == book
+            select (myClient->/.bookDetails(1, b));
+    table<Book> key(id) tbl = table [{id: 1, name: "book1"}];
+    assertEquality(tbl, res2);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in myClient->/books/names
+            let string book = (myClient->/books/someLongPathSegment.put(1))
+            where b == book
+            select (myClient->/.bookDetails(1, b));
+    assertEquality([{id: 1, name: "book1"}], res3);
+}
+
+function testNestedQueryActionOrExprWithClientResourceAccessAction() {
+    MyClient myClient = new;
+
+    Book[] res = from var i in (from string k in myClient->/books/names
+                         let string book = myClient->/.get
+                         where k == book
+                         select myClient->/books/[1])
+            select myClient->/.bookDetails(1, i);
+    assertEquality([{id: 1, name: "book1"}], res);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res2 = from var b in myClient->/books/names
+            from string c in myClient->/books/someLongPathSegment.someOtherMethod("book2")
+            where b == c
+            select myClient->/.bookDetails(1, b);
+    assertEquality([{id: 1, name: "book2"}], res2);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
