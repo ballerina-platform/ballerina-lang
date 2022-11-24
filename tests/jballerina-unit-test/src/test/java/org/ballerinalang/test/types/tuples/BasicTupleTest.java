@@ -334,14 +334,24 @@ public class BasicTupleTest {
         TupleValueImpl returnTuple = (TupleValueImpl) returns;
 
         Type t1 = TypeUtils.getType(returnTuple.get(0));
-        Type t2 = TypeUtils.getType(returnTuple.get(1));
-        Type t3 = TypeUtils.getType(returnTuple.get(2));
-        Type t4 = TypeUtils.getType(returnTuple.get(3));
-
         Assert.assertEquals(t1.getName(), "T");
+        Assert.assertEquals(t1.toString(), "[int,string...]");
+
+        Type t2 = TypeUtils.getType(returnTuple.get(1));
         Assert.assertEquals(t2.getName(), "");
+        Assert.assertEquals(t2.toString(), "[int,string...]");
+
+        Type t3 = TypeUtils.getType(returnTuple.get(2));
         Assert.assertEquals(t3.getName(), "T2");
+        Assert.assertEquals(t3.toString(), "[int,string,int]");
+
+        Type t4 = TypeUtils.getType(returnTuple.get(3));
         Assert.assertEquals(t4.getName(), "TC");
+        Assert.assertEquals(t4.toString(), "[int,string...]");
+
+        Type t5 = TypeUtils.getType(returnTuple.get(4));
+        Assert.assertEquals(t5.getName(), "");
+        Assert.assertEquals(t5.toString(), "[int,string,int]");
     }
 
     @AfterClass

@@ -494,11 +494,13 @@ type T [int, string...];
 
 type T2 [int, string, int];
 
-function testTupleName() returns [T, T, T2, TC] {
+[int, string, int] tx = [1, "w", 4];
+
+function testTupleName() returns [T, T, T2, TC, T2] {
     T x1 = [1, "a", "b"];
     [int, string...] x2 = [2, "b", "c"];
     T2 x3 = [1, "a", 2];
-    return [x1, x2, x3, tc];
+    return [x1, x2, x3, tc, tx];
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
