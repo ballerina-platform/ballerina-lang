@@ -34,31 +34,47 @@ import java.util.Optional;
 public interface PackageCache {
 
     /**
-     * Returns the package with the given {@code PackageId}.
-     *
+     * @deprecated 
+     * Use {@link #getPackage(PackageOrg, PackageName, PackageVersion)} instead.
+     * Returns the package with the given {@code PackageId}
+     * 
      * @param packageId the packageId
      * @return the package with the given {@code PackageId}.
      */
+    @Deprecated
     Optional<Package> getPackage(PackageId packageId);
 
     /**
+     * @deprecated
+     * Use {@link #getPackageOrThrow(PackageOrg, PackageName, PackageVersion)} instead.
      * Returns the package with the given {@code PackageId} or throw an {@code IllegalStateException}.
      *
      * @param packageId the packageId
      * @return the package with the given {@code PackageId} or throw an {@code IllegalStateException.
      */
+    @Deprecated
     Package getPackageOrThrow(PackageId packageId);
 
     /**
-     * Returns the package with the given organization, name and version.
+     * Returns the package with the given {@code PackageOrg}, {@code PackageName} and {@code PackageVersion}.
      *
      * @param packageOrg      organization name
      * @param packageName     package name
      * @param version package version
-     * @return the package with given organization, name and version
+     * @return the package with given {@code PackageOrg}, {@code PackageName} and {@code PackageVersion}
      */
     Optional<Package> getPackage(PackageOrg packageOrg, PackageName packageName, PackageVersion version);
 
+    /**
+     * Returns the package with the given {@code PackageOrg}, {@code PackageName} and {@code PackageVersion} or throw an {@code IllegalStateException}.
+     * 
+     * @param packageOrg
+     * @param packageName
+     * @param version
+     * @return the package with given {@code PackageOrg}, {@code PackageName} and {@code PackageVersion} or throw an {@code IllegalStateException}.
+     */
+    Package getPackageOrThrow(PackageOrg packageOrg, PackageName packageName, PackageVersion version);
+    
     /**
      * Returns all the package versions with the given org and name.
      *
@@ -69,10 +85,21 @@ public interface PackageCache {
     List<Package> getPackages(PackageOrg packageOrg, PackageName packageName);
 
     /**
+     * @deprecated
      * Removes a package with the given PackageId.
      *
      * @param packageId packageId
      */
+    @Deprecated
     void removePackage(PackageId packageId);
+
+    /**
+     * Removes a package with the given PackageOrg, PackageName and PackageVersion.
+     *
+     * @param packageOrg      organization name
+     * @param packageName     package name
+     * @param version package version
+     */
+    void removePackage(PackageOrg packageOrg, PackageName packageName, PackageVersion version);
 
 }
