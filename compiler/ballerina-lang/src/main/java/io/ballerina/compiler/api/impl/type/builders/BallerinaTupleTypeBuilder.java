@@ -72,7 +72,16 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
     public TupleTypeSymbol build() {
         List<BTupleMember> memberTypes = new ArrayList<>();
         for (TypeSymbol memberType : this.memberTypes) {
-            memberTypes.add(getMemberType(memberType));
+            BType type = getMemberType(memberType);
+            BVarSymbol varSymbol;
+            if (type == symTable.noType) {
+                varSymbol = new BVarSymbol(0, null, null, symTable.noType, null,
+                        symTable.builtinPos, SymbolOrigin.VIRTUAL);
+            } else {
+                varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID, type, type.tsymbol.owner,
+                        type.tsymbol.pos, type.tsymbol.origin);
+            }
+            memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
         BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
@@ -93,20 +102,15 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         return tupleTypeSymbol;
     }
 
-    private BTupleMember getMemberType(TypeSymbol memberType) {
+    private BType getMemberType(TypeSymbol memberType) {
         if (memberType == null) {
             throw new IllegalArgumentException("Member type provided to the Tuple type descriptor can not be null.");
         }
 
         if (memberType instanceof AbstractTypeSymbol) {
-            BType newType = ((AbstractTypeSymbol) memberType).getBType();
-            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
-                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
-            return new BTupleMember(newType, varSymbol);
+            return ((AbstractTypeSymbol) memberType).getBType();
         }
-        BVarSymbol varSymbol = new BVarSymbol(0, null, null,
-                symTable.noType, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
-        return new BTupleMember(symTable.noType, varSymbol);
+        return symTable.noType;
     }
 
     private BType getRestType(TypeSymbol restType) {
