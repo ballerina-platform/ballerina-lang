@@ -16,45 +16,48 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
 /**
- * Represents a Ballerina remote function.
+ * Represents resource funstion parameter information.
  *
  * @since 2201.2.2
  */
-public class RemoteFunction {
+public class ResourceParameter extends ModelElement {
 
+    private final List<String> type;
     private final String name;
-    private final List<FunctionParameter> parameters;
-    private final List<String> returns;
+    private final String in;
+    private final boolean isRequired;
 
-    private final List<Interaction> interactions;
-
-    public RemoteFunction(String name, List<FunctionParameter> parameters, List<String> returns,
-                          List<Interaction> interactions) {
-
+    public ResourceParameter(List<String> type, String name, String in, boolean isRequired,
+                             ElementLocation elementLocation) {
+        super(elementLocation);
+        this.type = type;
         this.name = name;
-        this.parameters = parameters;
-        this.returns = returns;
-        this.interactions = interactions;
+        this.in = in;
+        this.isRequired = isRequired;
+
+    }
+
+    public List<String> getType() {
+        return type;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<FunctionParameter> getParameters() {
-        return parameters;
+    public String getIn() {
+        return in;
     }
 
-    public List<String> getReturns() {
-        return returns;
-    }
-
-    public List<Interaction> getInteractions() {
-        return interactions;
+    public boolean isRequired() {
+        return isRequired;
     }
 }

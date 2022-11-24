@@ -16,43 +16,35 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
-
-import java.util.List;
+package io.ballerina.projectdesign.model.service;
 
 /**
- * Represents resource funstion parameter information.
+ * Provide resource information.
  *
  * @since 2201.2.2
  */
-public class ResourceParameter {
+public class ResourceId {
 
-    private final List<String> type;
-    private final String name;
-    private final String in;
-    private final boolean isRequired;
+    private final String serviceId;
+    private final String path;
+    private final String action;
 
-    public ResourceParameter(List<String> type, String name, String in, boolean isRequired) {
+    public ResourceId(String serviceId, String action, String path) {
 
-        this.type = type;
-        this.name = name;
-        this.in = in;
-        this.isRequired = isRequired;
+        this.serviceId = serviceId;
+        this.action = action;
+        this.path = path;
     }
 
-    public List<String> getType() {
-        return type;
+    public String getServiceId() {
+        return serviceId;
     }
 
-    public String getName() {
-        return name;
+    public String getPath() {
+        return path;
     }
 
-    public String getIn() {
-        return in;
-    }
-
-    public boolean isRequired() {
-        return isRequired;
+    public String getAction() {
+        return action;
     }
 }

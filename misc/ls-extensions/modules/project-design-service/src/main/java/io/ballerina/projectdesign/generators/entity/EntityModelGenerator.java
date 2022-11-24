@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.entitymodel;
+package io.ballerina.projectdesign.generators.entity;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
@@ -32,11 +32,14 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.projectdesign.ComponentModel;
 import io.ballerina.projectdesign.ComponentModel.PackageId;
 import io.ballerina.projectdesign.ProjectDesignConstants.CardinalityValue;
-import io.ballerina.projectdesign.entitymodel.components.Association;
-import io.ballerina.projectdesign.entitymodel.components.Attribute;
-import io.ballerina.projectdesign.entitymodel.components.Entity;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.entity.Association;
+import io.ballerina.projectdesign.model.entity.Attribute;
+import io.ballerina.projectdesign.model.entity.Entity;
 import io.ballerina.tools.text.LineRange;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +59,14 @@ public class EntityModelGenerator {
 
     private final SemanticModel semanticModel;
     private final ComponentModel.PackageId packageId;
+    private final Path moduleRootPath;
 
-    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId) {
+    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
+                                Path moduleRootPath) {
 
         this.semanticModel = semanticModel;
         this.packageId = packageId;
+        this.moduleRootPath = moduleRootPath;
     }
 
     public Map<String, Entity> generate() {
@@ -74,7 +80,6 @@ public class EntityModelGenerator {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
                     List<Attribute> attributeList = new ArrayList<>();
                     List<String> inclusionList = new ArrayList<>();
-                    LineRange recordLineRange = typeDefinitionSymbol.getLocation().get().lineRange();
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                             getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
@@ -90,10 +95,12 @@ public class EntityModelGenerator {
                         List<Association> associations =
                                 getAssociations(fieldEntryValue.typeDescriptor(), entityName, optional, nillable);
                         Attribute attribute =
-                                new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations);
+                                new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
+                                        getElementLocation(fieldEntryValue));
                         attributeList.add(attribute);
                     }
-                    Entity entity = new Entity(attributeList, inclusionList, recordLineRange);
+
+                    Entity entity = new Entity(attributeList, inclusionList, getElementLocation(typeDefinitionSymbol));
                     entities.put(entityName, entity);
                 }
             }
@@ -279,5 +286,15 @@ public class EntityModelGenerator {
             }
         }
         return associations;
+    }
+
+    private ElementLocation getElementLocation(Symbol symbol) {
+        ElementLocation elementLocation = null;
+        if (symbol.getLocation().isPresent()) {
+            LineRange typeLineRange = symbol.getLocation().get().lineRange();
+            String filePath = moduleRootPath.resolve(typeLineRange.filePath()).toAbsolutePath().toString();
+            elementLocation = GeneratorUtils.getElementLocation(filePath, typeLineRange);
+        }
+        return elementLocation;
     }
 }

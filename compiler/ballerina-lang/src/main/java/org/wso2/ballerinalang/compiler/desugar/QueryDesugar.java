@@ -2251,6 +2251,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        this.acceptNode(resourceAccessInvocation.expr);
+    }
+
+    @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         List<BLangExpression> interpolationsList =
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
