@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -375,7 +376,7 @@ public class AnnotationTests {
     }
 
     @Test
-    public void testAnnotsWithConstLists() {
+    public void testSourceAnnotsWithConstLists() {
         BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
         Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
         BClassSymbol classSymbol =
@@ -435,6 +436,39 @@ public class AnnotationTests {
         Assert.assertEquals(f2.get(1).value, "test");
     }
 
+    @Test
+    public void testNonSourceAnnotsWithConstLists() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+        BTypeDefinitionSymbol classSymbol =
+                (BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("TypeWithListInAnnots")).symbol;
+        List<? extends AnnotationAttachmentSymbol> attachments = classSymbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "AnnotWithList");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+
+        Object constValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
+                        .attachmentValueSymbol.value.value;
+        Assert.assertTrue(constValue instanceof Map);
+
+        Map<String, BLangConstantValue> annotMapValue = (Map<String, BLangConstantValue>) constValue;
+        Assert.assertEquals(annotMapValue.size(), 1);
+
+        Assert.assertTrue(annotMapValue.containsKey("arr"));
+        Object arr = annotMapValue.get("arr").value;
+        Assert.assertTrue(arr instanceof List);
+        List<BLangConstantValue> arrConst = (List<BLangConstantValue>) arr;
+        Assert.assertEquals(arrConst.get(0).value, 1L);
+        Assert.assertEquals(arrConst.get(1).value, 2L);
+        Assert.assertEquals(arrConst.get(2).value, 3L);
+    }
 
     @Test
     public void testFunctionAnnotAttachmentsViaBir() {
