@@ -71,13 +71,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
-    public TupleValueImpl(TypedescValue typedescValue) {
-        this((TupleType) typedescValue.getDescribingType());
-        if (!tupleType.isReadOnly()) {
-            this.typedesc = typedescValue;
-        }
-    }
-
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
         this.tupleType = type;
