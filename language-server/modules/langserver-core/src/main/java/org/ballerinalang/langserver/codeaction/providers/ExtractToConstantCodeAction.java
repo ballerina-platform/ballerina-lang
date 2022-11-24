@@ -110,7 +110,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
         addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart());
-
+        
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
@@ -128,7 +128,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         codeAction.setCommand(new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
                 textEditMap)));
 
-        return Collections.singletonList(codeAction);
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
+                        textEditMap)), CodeActionKind.RefactorExtract));
     }
 
     private List<Node> getPossibleExpressionNodes(Node node, BasicLiteralNodeValidator nodeValidator) {
