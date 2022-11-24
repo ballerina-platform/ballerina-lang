@@ -32,17 +32,17 @@ import java.util.Map;
 public class ComponentModel {
 
     private final PackageId packageId;
-    private final boolean hasDiagnosticErrors;
+    private final boolean hasCompilationErrors;
     private final Map<String, Service> services;
     private final Map<String, Entity> entities;
 
     public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Entity> entities,
-                          boolean hasDiagnosticErrors) {
+                          boolean hasCompilationErrors) {
 
         this.packageId = packageId;
         this.services = services;
         this.entities = entities;
-        this.hasDiagnosticErrors = hasDiagnosticErrors;
+        this.hasCompilationErrors = hasCompilationErrors;
     }
 
     public PackageId getPackageId() {
@@ -60,8 +60,8 @@ public class ComponentModel {
         return entities;
     }
 
-    public boolean isHasDiagnosticErrors() {
-        return hasDiagnosticErrors;
+    public boolean hasCompilationErrors() {
+        return hasCompilationErrors;
     }
 
     /**

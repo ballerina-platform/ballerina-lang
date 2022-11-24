@@ -96,8 +96,8 @@ public class EntityModelGenerator {
         List<String> inclusionList = new ArrayList<>();
         Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                 getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
-        for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
-            attributeList.add(getAttribute(fieldEntry.getValue(), entityName));
+        for (RecordFieldSymbol recordFieldSymbol : recordFieldSymbolMap.values()) {
+            attributeList.add(getAttribute(recordFieldSymbol, entityName));
         }
         return new Entity(attributeList, inclusionList, elementLocation, isAnonymous);
     }
