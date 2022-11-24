@@ -564,9 +564,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     // If inside a tests folder, get parent
                     parent = parent.getParent();
                 }
-                if (ProjectConstants.MODULES_ROOT.equals(parent.getParent().getFileName().toString())) {
-                    // If inside a module folder, get parent
+                if (ProjectConstants.MODULES_ROOT.equals(parent.getParent().getFileName().toString()) ||
+                        ProjectConstants.GENERATED_MODULES_ROOT.equals(parent.getParent().getFileName().toString())) {
+                    // If inside a modules or generated folder, get parent of parent
                     parent = parent.getParent().getParent();
+                }
+                if (ProjectConstants.GENERATED_MODULES_ROOT.equals(parent.getFileName().toString())) {
+                    // If a generated source for a non-default module, get parent of parent
+                    parent = parent.getParent();
                 }
                 return projectPair(parent);
             }
@@ -595,11 +600,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return projectPair(filePath.getParent());
         } else if (isModuleChange) {
             Path projectRoot;
-            if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString())) {
-                // If it is **/projectRoot/modules
+            if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString()) ||
+                    ProjectConstants.GENERATED_MODULES_ROOT.equals(filePath.getFileName().toString())) {
+                // If it is **/projectRoot/modules OR **/projectRoot/generated
                 projectRoot = filePath.getParent();
             } else {
-                // If it is **/projectRoot/modules/mod2
+                // If it is **/projectRoot/modules/mod2 OR **/projectRoot/generated/mod2
                 projectRoot = filePath.getParent().getParent();
             }
             return projectPair(projectRoot);
@@ -1282,6 +1288,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // fails when physical file is deleted from the disk
         boolean isModuleChange = filePath.toFile().isDirectory() &&
                 filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
+                filePath.getParent().endsWith(ProjectConstants.GENERATED_MODULES_ROOT) ||
                 (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
                         !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
 

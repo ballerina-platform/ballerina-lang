@@ -404,6 +404,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         watchers.add(new FileSystemWatcher("/**/*.bal", WatchKind.Create + WatchKind.Delete + WatchKind.Change));
         watchers.add(new FileSystemWatcher("/**/modules/*", WatchKind.Create + WatchKind.Delete));
         watchers.add(new FileSystemWatcher("/**/modules", WatchKind.Delete));
+        watchers.add(new FileSystemWatcher("/**/generated/*", WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher("/**/generated", WatchKind.Delete));
         watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.BALLERINA_TOML,
                 WatchKind.Create + WatchKind.Delete));
         watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.CLOUD_TOML,
