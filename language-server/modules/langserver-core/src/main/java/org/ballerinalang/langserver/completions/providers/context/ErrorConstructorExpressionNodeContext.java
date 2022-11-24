@@ -157,10 +157,9 @@ public class ErrorConstructorExpressionNodeContext extends
             Covers the following.
             error(<cursor>,)
             */
-            TypeSymbol stringTypeSymbol = types.STRING;
             for (LSCompletionItem completionItem : completionItems) {
                 completionItem.getCompletionItem()
-                        .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, stringTypeSymbol));
+                        .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, types.STRING));
             }
             return;
         }
