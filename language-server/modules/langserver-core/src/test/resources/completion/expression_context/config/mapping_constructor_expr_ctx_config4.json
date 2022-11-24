@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 5,
+    "character": 37
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source4.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "y",
+      "kind": "Field",
+      "detail": "(record {|int y; int x; anydata...;|}).y",
+      "sortText": "K",
+      "insertText": "y: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill record {|int y; int x; anydata...;|} Required Fields",
+      "kind": "Property",
+      "detail": "record {|int y; int x; anydata...;|}",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "y: ${1:0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

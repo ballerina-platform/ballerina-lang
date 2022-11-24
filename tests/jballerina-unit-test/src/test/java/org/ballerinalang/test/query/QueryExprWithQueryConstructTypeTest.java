@@ -196,7 +196,7 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
-                     "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
+                     "& readonly)> & readonly', found 'xml'",
                 263, 41);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
@@ -261,12 +261,16 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
                         "is not an iterable collection", 432, 100);
-        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'table<record {| |}>'",
-                438, 13);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 442, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int,FooError?>', " +
+                "found 'stream<int,BarError?>'", 445, 32);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', " +
+                        "found 'table<record {| |}>'", 460, 13);
         validateError(negativeResult, index++, "incompatible types: expected '(int|float)', " +
-                "found 'table<record {| |}>'", 439, 19);
+                        "found 'table<record {| |}>'", 461, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'string', " +
-                "found 'table<record {| int a; int b; |}>'", 440, 16);
+                        "found 'table<record {| int a; int b; |}>'", 462, 16);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -396,6 +400,11 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testMapConstructingQueryExprWithStringSubtypes() {
         BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
+    }
+
+    @Test
+    public void testDiffQueryConstructsUsedAsFuncArgs() {
+        BRunUtil.invoke(result, "testDiffQueryConstructsUsedAsFuncArgs");
     }
 
     @AfterClass
