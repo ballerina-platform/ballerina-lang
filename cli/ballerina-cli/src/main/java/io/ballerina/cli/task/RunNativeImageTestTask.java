@@ -19,7 +19,11 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.MethodCallReplaceVisitor;
+import io.ballerina.cli.utils.OrigMockFunctionReplaceVisitor;
 import io.ballerina.cli.utils.TestUtils;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -35,7 +39,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.apache.commons.compress.utils.IOUtils;
-import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -203,6 +206,93 @@ public class RunNativeImageTestTask implements Task {
         return classFile;
     }
 
+    public static byte[] getModifiedTestClassBytes(String className, List<String> functionNames, TestSuite suite,
+                                                   ClassLoader classLoader, Class<?> testDocumentClass) {
+        Class<?> functionToMockClass;
+        try {
+            functionToMockClass = classLoader.loadClass(className);
+        } catch (Throwable e) {
+            throw createLauncherException("failed to load class: " + className);
+        }
+
+        byte[] classFile = new byte[0];
+        boolean readFromBytes = false;
+        for (Method method1 : functionToMockClass.getDeclaredMethods()) {
+            if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
+                String desugaredMockFunctionName = MOCK_FUNC_NAME_PREFIX + method1.getName();
+                String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
+                        suite.getTestPackageID(), suite.getVersion(),
+                        suite.getPackageID().replace(DOT, FILE_NAME_PERIOD_SEPARATOR));
+                Class<?> testClass;
+                try {
+                    testClass = classLoader.loadClass(testClassName);
+                } catch (Throwable e) {
+                    throw createLauncherException("failed to load class :" + testClassName);
+                }
+                for (Method method2 : testClass.getDeclaredMethods()) {
+                    if (method2.getName().equals(desugaredMockFunctionName)) {
+                        if (!readFromBytes) {
+                            classFile = replaceTestClzMethodBody(testDocumentClass, method2, method1);
+                            readFromBytes = true;
+                        } else {
+                            classFile = replaceTestClzMethodBody(classFile, method2, method1);
+                        }
+                    }
+                }
+            } else if (functionNames.contains(MOCK_LEGACY_DELIMITER + method1.getName())) {
+                String key = className + MOCK_LEGACY_DELIMITER + method1.getName();
+                String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
+                if (mockFunctionName != null) {
+                    String mockFunctionClassName = suite.getTestUtilityFunctions().get(mockFunctionName);
+                    Class<?> mockFunctionClass;
+                    try {
+                        mockFunctionClass = classLoader.loadClass(mockFunctionClassName);
+                    } catch (ClassNotFoundException e) {
+                        throw createLauncherException("failed to load class: " + mockFunctionClassName);
+                    }
+                    for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
+                        if (method2.getName().equals(mockFunctionName)) {
+                            if (!readFromBytes) {
+                                classFile = replaceTestClzMethodBody(testDocumentClass, method1, method2);
+                                readFromBytes = true;
+                            } else {
+                                classFile = replaceTestClzMethodBody(classFile, method1, method2);
+                            }
+                        }
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+        return classFile;
+    }
+
+    private static byte[] replaceTestClzMethodBody(Class<?> testDocumentClass, Method toFunc, Method fromFunc) {
+        Class<?> clazz = testDocumentClass;
+        ClassReader cr;
+        try {
+            InputStream ins;
+            ins = clazz.getResourceAsStream(clazz.getSimpleName() + CLASS_EXTENSION);
+            cr = new ClassReader(requireNonNull(ins));
+        } catch (IOException e) {
+            throw createLauncherException("failed to get the class reader object for the class "
+                    + clazz.getSimpleName());
+        }
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassVisitor cv = new MethodCallReplaceVisitor(Opcodes.ASM7, cw, toFunc, fromFunc);
+        cr.accept(cv, ClassReader.EXPAND_FRAMES);
+        return cw.toByteArray();
+    }
+
+    private static byte[] replaceTestClzMethodBody(byte[] classFile, Method toFunc, Method fromFunc) {
+        ClassReader cr = new ClassReader(classFile);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassVisitor cv = new MethodCallReplaceVisitor(Opcodes.ASM7, cw, toFunc, fromFunc);
+        cr.accept(cv, ClassReader.EXPAND_FRAMES);
+        return cw.toByteArray();
+    }
+
     private static byte[] replaceMethodBody(Method method, Method mockMethod) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
@@ -215,7 +305,7 @@ public class RunNativeImageTestTask implements Task {
                     + clazz.getSimpleName());
         }
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
         return cw.toByteArray();
@@ -224,7 +314,7 @@ public class RunNativeImageTestTask implements Task {
     private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
         ClassReader cr = new ClassReader(classFile);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
         return cw.toByteArray();
@@ -339,7 +429,7 @@ public class RunNativeImageTestTask implements Task {
             }
             suite.setReportRequired(report || coverage);
             try {
-                modifyJarForFunctionMock(suite, target, moduleName.toString(),
+                modifyJarForFunctionMock(suite, target, module,
                        functionMockModuleMapping);
             } catch (IOException e) {
                 throw createLauncherException("error occurred while running tests", e);
@@ -588,8 +678,9 @@ public class RunNativeImageTestTask implements Task {
         return classPath.toString();
     }
 
-    private void modifyJarForFunctionMock(TestSuite testSuite, Target target, String moduleName,
-                                             Map<String, String> functionMockModuleMapping) throws IOException {
+    private void modifyJarForFunctionMock(TestSuite testSuite, Target target, Module module,
+                                          Map<String, String> functionMockModuleMapping) throws IOException {
+        String moduleName = module.moduleName().toString();
         String mainJarName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
                 testSuite.getVersion() + JAR_EXTENSION;
         String testJarName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
@@ -629,6 +720,38 @@ public class RunNativeImageTestTask implements Task {
                 (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_11_DIR)).toString()
                  + PATH_SEPARATOR + modifiedJar;
         dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);
+
+
+        //Modify testable jar for function mocking
+        Map<String, byte[]> modifiedTestClassDef = new HashMap<>();
+        for (DocumentId testDocId : module.testDocumentIds()) {
+            Document testDocument = module.document(testDocId);
+            String testDocumentName = testDocument.name().replace(".bal", "")
+                                                            .replace("/", ".");
+            String testDocumentClassName = TesterinaUtils.getQualifiedClassName(testSuite.getOrgName(),
+                    testSuite.getTestPackageID(), testSuite.getVersion(),testDocumentName);
+            Class<?> testDocumentClass;
+            try {
+                testDocumentClass = classLoader.loadClass(testDocumentClassName);
+            } catch (Throwable e) {
+                throw createLauncherException("failed to load class: " + testDocumentClassName);
+            }
+
+
+            for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
+                String className = entry.getKey();
+                List<String> functionNamesList = entry.getValue();
+                byte[] classFile = getModifiedTestClassBytes(className, functionNamesList, testSuite, classLoader,
+                        testDocumentClass);
+                modifiedTestClassDef.put(testDocumentClassName, classFile);
+            }
+        }
+        Map<String, byte[]> unmodifiedTestFiles = loadUnmodifiedFilesWithinJar(mockFunctionDependencies, testJarName);
+        String modifiedTestJarPath = (target.path().resolve(CACHE_DIR).resolve(testSuite.getOrgName()).resolve
+                (testSuite.getPackageName()).resolve(testSuite.getVersion()).resolve(JAVA_11_DIR)).toString()
+                + PATH_SEPARATOR + testJarName;
+        dumpJar(modifiedTestClassDef, unmodifiedTestFiles, modifiedTestJarPath);
+
     }
 
     private void dumpJar(Map<String, byte[]> modifiedClassDefs, Map<String, byte[]> unmodifiedFiles,
