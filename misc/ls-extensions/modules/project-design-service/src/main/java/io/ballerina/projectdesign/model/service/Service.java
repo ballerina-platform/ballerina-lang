@@ -16,9 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
 
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Service {
+public class Service extends ModelElement {
 
     private final String path;
     private final String serviceId;
@@ -35,19 +36,17 @@ public class Service {
     private final List<Resource> resources;
     private final ServiceAnnotation annotation;
     private final List<RemoteFunction> remoteFunctions;
-    private final LineRange lineRange;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
-                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation, LineRange lineRange) {
-
+                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation,
+                   ElementLocation elementLocation) {
+        super(elementLocation);
         this.annotation = annotation;
         this.path = path;
         this.serviceId = serviceId;
         this.serviceType = serviceType;
         this.resources = resources;
         this.remoteFunctions = remoteFunctions;
-        this.lineRange = lineRange;
-
     }
 
     public String getPath() {
@@ -74,7 +73,4 @@ public class Service {
         return annotation;
     }
 
-    public LineRange getLineRange() {
-        return lineRange;
-    }
 }

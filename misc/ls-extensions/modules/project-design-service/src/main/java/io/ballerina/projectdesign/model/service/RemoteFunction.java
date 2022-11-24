@@ -16,42 +16,40 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
 /**
- * Represents resource details.
+ * Represents a Ballerina remote function.
  *
  * @since 2201.2.2
  */
-public class Resource {
+public class RemoteFunction extends ModelElement {
 
-    private final String identifier;
-    private final ResourceId resourceId;
-    private final List<ResourceParameter> parameters;
+    private final String name;
+    private final List<FunctionParameter> parameters;
     private final List<String> returns;
+
     private final List<Interaction> interactions;
 
-    public Resource(String identifier, ResourceId resourceId, List<ResourceParameter> parameters, List<String> returns,
-                    List<Interaction> interactions) {
-
-        this.identifier = identifier;
-        this.resourceId = resourceId;
+    public RemoteFunction(String name, List<FunctionParameter> parameters, List<String> returns,
+                          List<Interaction> interactions, ElementLocation elementLocation) {
+        super(elementLocation);
+        this.name = name;
         this.parameters = parameters;
         this.returns = returns;
         this.interactions = interactions;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getName() {
+        return name;
     }
 
-    public ResourceId getResourceId() {
-        return resourceId;
-    }
-
-    public List<ResourceParameter> getParameters() {
+    public List<FunctionParameter> getParameters() {
         return parameters;
     }
 
