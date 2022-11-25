@@ -78,3 +78,47 @@ function getError() returns error {
     error err = error("Custom Error");
     return err;
 }
+
+function getErrorOrInt() returns int|error {
+    return getError();
+}
+
+public function testUnInitVars1() {
+    int resultInt;
+    do {
+        resultInt = check getErrorOrInt();
+    } on fail {
+    }
+    resultInt += 1;
+}
+
+public function testUnInitVars2() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    do {
+        resultInt1 = 1;
+        resultInt2 = check getErrorOrInt();
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+public function testUnInitVars3() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        check commit;
+        resultInt1 = 1;
+        resultInt2 = check getErrorOrInt();
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
