@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Ballerina toml completion context.
@@ -91,6 +92,17 @@ public class BallerinaTomlCompletionContext implements TomlCompletionContext {
                             position.getCharacter()));
         }
         return visibleSymbols;
+    }
+
+    @Override
+    public List<ImportDeclarationNode> currentDocImports() {
+        Optional<Document> document = this.workspace().document(this.filePath());
+        if (document.isEmpty()) {
+            throw new RuntimeException("Cannot find a valid document");
+        }
+
+        return ((ModulePartNode) document.get().syntaxTree().rootNode()).imports().stream()
+                .collect(Collectors.toList());
     }
 
     @Override
