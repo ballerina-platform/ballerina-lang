@@ -20,10 +20,23 @@ package io.ballerina.cli.utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ORIGINAL_FUNC_NAME_PREFIX;
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.DLOAD;
+import static org.objectweb.asm.Opcodes.DRETURN;
+import static org.objectweb.asm.Opcodes.FLOAD;
+import static org.objectweb.asm.Opcodes.FRETURN;
+import static org.objectweb.asm.Opcodes.ILOAD;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.LLOAD;
+import static org.objectweb.asm.Opcodes.LRETURN;
+import static org.objectweb.asm.Opcodes.RETURN;
 
 /**
  * Remove existing method body and replace it with a method call.
@@ -32,22 +45,20 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.ORIGINAL_FU
  */
 public class OrigMockFunctionReplaceVisitor extends ClassVisitor {
 
-    private final String methodName;
-    private final String methodDesc;
+    private final Method origMethod;
     private final Method mockFunc;
 
     public OrigMockFunctionReplaceVisitor
-            (int api, ClassWriter cw, String name, String methodDescriptor, Method mockFunc) {
+            (int api, ClassWriter cw, Method origMethod, Method mockFunc) {
         super(api, cw);
-        this.methodName = name;
-        this.methodDesc = methodDescriptor;
+        this.origMethod = origMethod;
         this.mockFunc = mockFunc;
     }
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor;
-        if (!name.equals(methodName) || !desc.equals(methodDesc)) {
+        if (!name.equals(origMethod.getName()) || !desc.equals(Type.getMethodDescriptor(origMethod))) {
             // reproduce the methods where no changes needed
             methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         } else {
@@ -55,9 +66,67 @@ public class OrigMockFunctionReplaceVisitor extends ClassVisitor {
             methodVisitor = super.visitMethod(access, ORIGINAL_FUNC_NAME_PREFIX + name,
                     desc, signature, exceptions);
 
+            generateMethodWithOrigFunctionCall(access, name, desc, signature, exceptions);
         }
 
         return methodVisitor;
     }
+    private void generateMethodWithOrigFunctionCall(int access, String name, String desc, String signature,
+                                                    String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 
+        mv.visitCode();
+        Class<?>[] parameterTypes = origMethod.getParameterTypes();
+        int paramOffset = 0;
+        for (Class<?> parameterType : parameterTypes) {
+            generateLoadInstruction(mv, parameterType, paramOffset);
+            if (parameterType == Long.TYPE || parameterType == Double.TYPE) {
+                paramOffset += 2;
+            } else {
+                paramOffset++;
+            }
+        }
+
+        String origFunctionClassName = origMethod.getDeclaringClass().getName().replace(".", "/");
+        mv.visitMethodInsn(INVOKESTATIC, origFunctionClassName, ORIGINAL_FUNC_NAME_PREFIX + origMethod.getName(),
+                Type.getMethodDescriptor(origMethod), false);
+
+        generateReturnInstruction(mv, origMethod.getReturnType());
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateLoadInstruction(MethodVisitor mv, Class<?> type, int index) {
+        if (type.isPrimitive()) {
+            if (type == Integer.TYPE || type == Boolean.TYPE) {
+                mv.visitVarInsn(ILOAD, index);
+            } else if (type == Long.TYPE) {
+                mv.visitVarInsn(LLOAD, index);
+            } else if (type == Float.TYPE) {
+                mv.visitVarInsn(FLOAD, index);
+            } else if (type == Double.TYPE) {
+                mv.visitVarInsn(DLOAD, index);
+            }
+        } else {
+            mv.visitVarInsn(ALOAD, index);
+        }
+    }
+
+    private void generateReturnInstruction(MethodVisitor mv, Class<?> returnType) {
+        if (returnType.isPrimitive()) {
+            if (returnType == Integer.TYPE || returnType == Boolean.TYPE || returnType == Byte.TYPE) {
+                mv.visitInsn(Opcodes.IRETURN);
+            } else if (returnType == Long.TYPE) {
+                mv.visitInsn(LRETURN);
+            } else if (returnType == Float.TYPE) {
+                mv.visitInsn(FRETURN);
+            } else if (returnType == Double.TYPE) {
+                mv.visitInsn(DRETURN);
+            } else if (returnType == Void.TYPE) {
+                mv.visitInsn(RETURN);
+            }
+        } else {
+            mv.visitInsn(ARETURN);
+        }
+    }
 }

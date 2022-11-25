@@ -158,18 +158,16 @@ public class NativeUtils {
                         String moduleName = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
                         String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
                         String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
-                        if (mockedFunctions.length > 0) {
-                            originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleName,
-                                    version, testFile));
-                            for (int i = 0; i < mockedFunctions.length; i++) {
-                                originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                        new ReflectConfigClassMethod(mockedFunctions[i]));
-                                originalTestFileRefConfClz.setUnsafeAllocated(true);
-                                originalTestFileRefConfClz.setAllDeclaredFields(true);
-                                originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
-                            }
-                            classList.add(originalTestFileRefConfClz);
+                        originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleName,
+                                version, testFile));
+                        for (int i = 0; i < mockedFunctions.length; i++) {
+                            originalTestFileRefConfClz.addReflectConfigClassMethod(
+                                    new ReflectConfigClassMethod(mockedFunctions[i]));
+                            originalTestFileRefConfClz.setUnsafeAllocated(true);
+                            originalTestFileRefConfClz.setAllDeclaredFields(true);
+                            originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
                         }
+                        classList.add(originalTestFileRefConfClz);
                     }
                 }
             }
