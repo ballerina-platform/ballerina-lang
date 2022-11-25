@@ -86,9 +86,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     @Override
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         try {
+            List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
             LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
+            // Don't publish diagnostics on lightweight mode
             if (!lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
-                List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
                 DidChangeWatchedFilesContext context =
                         ContextBuilder.buildDidChangeWatchedFilesContext(
                                 this.workspaceManagerProxy.get(),
