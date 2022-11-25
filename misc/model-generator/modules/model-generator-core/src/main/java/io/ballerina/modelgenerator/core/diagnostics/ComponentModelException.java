@@ -16,30 +16,20 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign;
-
-import io.ballerina.modelgenerator.core.ProjectDesignConstants;
-import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+package io.ballerina.modelgenerator.core.diagnostics;
 
 /**
- * Client capabilities for the solution architecture modeling service.
+ * Exception for component model generation.
  *
  * @since 2201.2.2
  */
-public class ProjectDesignClientCapabilities extends BallerinaClientCapability {
+public class ComponentModelException extends Exception {
 
-    private boolean getMultiServiceModel;
-
-    public ProjectDesignClientCapabilities() {
-
-        super(ProjectDesignConstants.CAPABILITY_NAME);
+    public ComponentModelException(String message, Throwable e) {
+        super(message, e);
     }
 
-    public boolean isGetMultiServiceModel() {
-        return getMultiServiceModel;
-    }
-
-    public void setGetMultiServiceModel(boolean getMultiServiceModel) {
-        this.getMultiServiceModel = getMultiServiceModel;
+    public ComponentModelException(String message) {
+        super(message);
     }
 }

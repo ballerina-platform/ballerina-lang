@@ -16,30 +16,25 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign;
+package io.ballerina.modelgenerator.core;
 
-import io.ballerina.modelgenerator.core.ProjectDesignConstants;
-import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Client capabilities for the solution architecture modeling service.
+ * Request for Solution Architecture model generation.
  *
  * @since 2201.2.2
  */
-public class ProjectDesignClientCapabilities extends BallerinaClientCapability {
+public class ProjectComponentRequest {
 
-    private boolean getMultiServiceModel;
+    private List<String> documentUris = new ArrayList<>();
 
-    public ProjectDesignClientCapabilities() {
-
-        super(ProjectDesignConstants.CAPABILITY_NAME);
+    public List<String> getDocumentUris() {
+        return documentUris;
     }
 
-    public boolean isGetMultiServiceModel() {
-        return getMultiServiceModel;
-    }
-
-    public void setGetMultiServiceModel(boolean getMultiServiceModel) {
-        this.getMultiServiceModel = getMultiServiceModel;
+    public void setDocumentUris(List<String> documentUris) {
+        this.documentUris = documentUris;
     }
 }
