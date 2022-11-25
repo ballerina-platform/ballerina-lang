@@ -16,13 +16,22 @@
  *  under the License.
  */
 
-module io.ballerina.LSExtensions.ProjectDesignService {
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.lang;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires org.eclipse.lsp4j;
-    requires com.google.gson;
-    requires io.ballerina.tools.api;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.modelgenerator.core;
+package io.ballerina.modelgenerator.core.model;
+
+/**
+ * Represents the abstract model for a component model item.
+ *
+ * @since 2201.3.1
+ */
+public abstract class ModelElement {
+
+    private final ElementLocation elementLocation;
+
+    public ModelElement(ElementLocation elementLocation) {
+        this.elementLocation = elementLocation;
+    }
+
+    public ElementLocation getElementLocation() {
+        return elementLocation;
+    }
 }
