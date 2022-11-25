@@ -16,30 +16,32 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign;
+package io.ballerina.modelgenerator.core.model.service;
 
-import io.ballerina.modelgenerator.core.ProjectDesignConstants;
-import org.ballerinalang.langserver.commons.registration.BallerinaClientCapability;
+import io.ballerina.modelgenerator.core.model.ElementLocation;
+import io.ballerina.modelgenerator.core.model.ModelElement;
 
 /**
- * Client capabilities for the solution architecture modeling service.
+ * Represent interaction with another service.
  *
  * @since 2201.2.2
  */
-public class ProjectDesignClientCapabilities extends BallerinaClientCapability {
+public class Interaction extends ModelElement {
 
-    private boolean getMultiServiceModel;
+    private final ResourceId resourceId;
+    private final String connectorType;
 
-    public ProjectDesignClientCapabilities() {
-
-        super(ProjectDesignConstants.CAPABILITY_NAME);
+    public Interaction(ResourceId resourceId, String connectorType, ElementLocation elementLocation) {
+        super(elementLocation);
+        this.resourceId = resourceId;
+        this.connectorType = connectorType;
     }
 
-    public boolean isGetMultiServiceModel() {
-        return getMultiServiceModel;
+    public ResourceId getResourceId() {
+        return resourceId;
     }
 
-    public void setGetMultiServiceModel(boolean getMultiServiceModel) {
-        this.getMultiServiceModel = getMultiServiceModel;
+    public String getConnectorType() {
+        return connectorType;
     }
 }
