@@ -21,7 +21,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
@@ -90,8 +89,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
-
-    private LSClientCapabilities capabilities;
     private int shutdown = 1;
 
     private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
@@ -417,16 +414,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         Registration registration = new Registration(UUID.randomUUID().toString(),
                 "workspace/didChangeWatchedFiles", opts);
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
-    }
-
-    private Boolean isLightWeightMode(InitializeParams params) {
-        if (params.getInitializationOptions() != null) {
-            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE)) {
-                return initOptions.get(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE).getAsBoolean();
-            }
-        }
-        return false;
     }
 
     private boolean enableBallerinaSemanticTokens(InitializeParams params) {
