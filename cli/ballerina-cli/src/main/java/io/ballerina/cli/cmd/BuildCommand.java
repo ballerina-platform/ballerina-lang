@@ -160,6 +160,10 @@ public class BuildCommand implements BLauncherCmd {
             " the services in the current package")
     private Boolean exportOpenAPI;
 
+    @CommandLine.Option(names = "--export-component-model", description = "generate component model for" +
+            " the services in the current package")
+    private Boolean exportComponentModel;
+
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
@@ -275,6 +279,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
+                .setEnableCache(enableCache)
+                .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache);
 
         if (targetDir != null) {
