@@ -16,13 +16,12 @@
  *  under the License.
  */
 
-module io.ballerina.LSExtensions.ProjectDesignService {
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.lang;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires org.eclipse.lsp4j;
+module io.ballerina.modelgenerator.core {
     requires com.google.gson;
+    requires io.ballerina.lang;
+    requires io.ballerina.parser;
     requires io.ballerina.tools.api;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.modelgenerator.core;
+
+    exports io.ballerina.modelgenerator.core;
+    exports io.ballerina.modelgenerator.core.diagnostics;
 }
