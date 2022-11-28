@@ -61,8 +61,6 @@ public class ExpressionContextTest extends CompletionTest {
                 "method_call_expression_ctx_config9.json",
 
                 // expectedType cases
-                "function_call_expression_ctx_config15.json", 
-                "function_call_expression_ctx_config19.json",
                 "mapping_constructor_expr_ctx_config3.json",
                 "new_expr_ctx_config15.json",
                 "new_expr_ctx_config11.json",

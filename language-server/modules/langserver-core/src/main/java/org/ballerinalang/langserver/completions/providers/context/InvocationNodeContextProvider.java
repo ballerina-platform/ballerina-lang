@@ -88,16 +88,14 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     LinePosition.from(context.getCursorPosition().getLine(),
                             context.getCursorPosition().getCharacter()));
         }
-
-        if (parameterSymbol.isEmpty()) {
-            super.sort(context, node, completionItems);
-            return;
-        }
+        
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 String sortText = SortingUtil.genSortText(1) +
                         SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
                 completionItem.getCompletionItem().setSortText(sortText);
+            } else if (parameterSymbol.isEmpty()) {
+                super.sort(context, node, completionItems);
             } else {
                 completionItem.getCompletionItem().setSortText(
                         SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
