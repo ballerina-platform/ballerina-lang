@@ -4,7 +4,6 @@
     "character": 14
   },
   "source": "statement_context/source/panic_stmt_ctx_source3.bal",
-  "description": "Checks for expression completions for the expression in panic statement with error sub typed completions sorted",
   "items": [
     {
       "label": "ballerina/module1",
@@ -703,6 +702,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
