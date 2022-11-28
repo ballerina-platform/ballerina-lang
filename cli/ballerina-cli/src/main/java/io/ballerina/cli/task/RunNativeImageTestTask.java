@@ -42,8 +42,10 @@ import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -180,6 +182,13 @@ public class RunNativeImageTestTask implements Task {
         }
 
         TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
+        try {
+            Path nativeConfigPath = target.getNativeConfigPath();
+            createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary graalvm reflection config", e);
+        }
+
 
         if (hasTests) {
             int testResult = 1;
@@ -291,25 +300,33 @@ public class RunNativeImageTestTask implements Task {
         }
 
         List<String> cmdArgs = new ArrayList<>();
+        List<String> nativeArgs = new ArrayList<>();
         cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
-        // Create Configs
-        createReflectConfig(nativeConfigPath, currentPackage);
-
         // Run native-image command with generated configs
-        cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
+        cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
+        nativeArgs.addAll(Lists.of("-cp", classPath));
+
 
         // set name and path
-        cmdArgs.add("-H:Name=" + packageName);
-        cmdArgs.add("-H:Path=" + nativeTargetPath);
+        nativeArgs.add("-H:Name=" + packageName);
+        nativeArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
-        cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
-        cmdArgs.add("--no-fallback");
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        nativeArgs.add("--no-fallback");
+
+        try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
+                .toString(), Charset.defaultCharset())) {
+            nativeArgumentWriter.write(String.join(" ", nativeArgs));
+            nativeArgumentWriter.flush();
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary graalvm argument file", e);
+        }
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(cmdArgs.toArray(new String[0]));
