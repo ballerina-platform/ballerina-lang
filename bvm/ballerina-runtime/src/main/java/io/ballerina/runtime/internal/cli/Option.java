@@ -92,7 +92,7 @@ public class Option {
     }
 
     private boolean isNumeric(String stringVal) {
-        if (stringVal == null || stringVal.length() == 0) {
+        if (stringVal.length() == 0) {
             return false;
         }
         String upperCaseValue = stringVal.toUpperCase();
