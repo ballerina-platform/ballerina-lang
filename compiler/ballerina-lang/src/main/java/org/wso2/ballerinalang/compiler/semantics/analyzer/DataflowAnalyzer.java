@@ -849,7 +849,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         analyzeNode(whileNode.expr, env);
         BranchResult whileResult = analyzeBranch(whileNode.body, env);
-        analyzeAndGetOnFailBranch(whileNode.onFailClause, whileResult);
+        analyzeOnFailBranch(whileNode.onFailClause, whileResult);
 
         BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
 
@@ -878,21 +878,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.visitingOnFailStmt = true;
         }
         BranchResult doResult = analyzeBranch(blockStmt, env);
-        BranchResult onFailResult = analyzeAndGetOnFailBranch(onFailClause, doResult);
-
-        // If the flow was terminated within 'if' block, then after the if-else block,
-        // only the results of the 'else' block matters.
-        if (doResult.flowTerminated) {
-            this.uninitializedVars = onFailResult.uninitializedVars;
-            return;
-        }
+        analyzeOnFailBranch(onFailClause, doResult);
+        this.uninitializedVars = doResult.uninitializedVars;
         this.visitingOnFailStmt = prevVisitingOnFailStmt;
     }
 
-    private BranchResult analyzeAndGetOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
-        BranchResult onFailResult = null;
+    private void analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
         if (this.visitingOnFailStmt) {
-            onFailResult = analyzeBranch(onFailClause, env);
+            // loop through the partial init variables from statement block
+            // and remove from `uninitializedVars` map if initialized in on-fail branch
+            BranchResult onFailResult = analyzeBranch(onFailClause, env);
             Set<BSymbol> symbols = new HashSet<>();
             for (BSymbol varRef: doResult.uninitializedVars.keySet()) {
                 InitStatus status = onFailResult.uninitializedVars.get(varRef);
@@ -904,8 +899,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 doResult.uninitializedVars.remove(symbol);
             }
         }
-        this.uninitializedVars = doResult.uninitializedVars;
-        return onFailResult;
     }
 
     public void visit(BLangFail failNode) {
@@ -2258,7 +2251,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.possibleFailureReached = false;
 
         analyzeNode(node, env);
-        BranchResult branchResult = new BranchResult(this.uninitializedVars, this.flowTerminated, this.possibleFailureReached);
+        BranchResult branchResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
@@ -2269,7 +2262,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private Map<BSymbol, InitStatus> copyUninitializedVars() {
-        return new HashMap<>(this.uninitializedVars);
+        return new LinkedHashMap<>(this.uninitializedVars);
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
@@ -2681,12 +2674,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         Map<BSymbol, InitStatus> uninitializedVars;
         boolean flowTerminated;
-        boolean possibleFailure;
 
-        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, boolean flowTerminated, boolean possibleFailure) {
+        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, boolean flowTerminated) {
             this.uninitializedVars = uninitializedVars;
             this.flowTerminated = flowTerminated;
-            this.possibleFailure = possibleFailure;
         }
     }
 }
