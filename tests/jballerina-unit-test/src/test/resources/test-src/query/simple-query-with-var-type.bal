@@ -195,6 +195,14 @@ function testFilteringNullElements() returns Person[] {
     return outputPersonList;
 }
 
+function testMapWithArity() returns boolean {
+    map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
+    var val = map from var v in m
+                   where <string> v == "1A"
+                   select ["a", v];
+    return val == {a: "1A"};
+}
+
 function testJSONArrayWithArity() returns boolean {
     json[] jdata = [{name: "bob", age: 10}, {name: "tom", age: 16}];
     var val = from var v in jdata
