@@ -126,7 +126,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
         debugTestRunner.assertExpression(context, NIL_VAR, "()", "nil");
         // boolean variable test
@@ -203,6 +203,10 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
         // qualified name references with import alias
         debugTestRunner.assertExpression(context, "langFloat:PI", "3.141592653589793", "float");
+
+        // named types
+        debugTestRunner.assertExpression(context, "Student", "evaluation_tests:Student", "typedesc");
+        debugTestRunner.assertExpression(context, "AnonPerson", "evaluation_tests:AnonPerson", "typedesc");
     }
 
     @Override
@@ -361,6 +365,10 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
         // with qualified literals (i.e. imported modules)
         debugTestRunner.assertExpression(context, "int:abs(-6)", "6", "int");
+
+        // with typedesc values as arguments
+        debugTestRunner.assertExpression(context, "processTypeDesc(int)", "int", "typedesc");
+        debugTestRunner.assertExpression(context, "processTypeDesc(Student)", "evaluation_tests:Student", "typedesc");
     }
 
     @Override
@@ -567,7 +575,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // string template concatenation
         String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
         debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
-                bStringTemplateExpr, bStringTemplateExpr),
+                        bStringTemplateExpr, bStringTemplateExpr),
                 "\"name: foo, age: 20name: foo, age: 20name: foo, age: 20\"", "string");
 
         // xml + xml

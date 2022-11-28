@@ -106,8 +106,8 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        super.variableReferenceEvaluationTest();
+    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
+        super.simpleNameReferenceEvaluationTest();
 
         // Todo - move to common evaluation test suite after fixing the value string
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03,

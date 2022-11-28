@@ -517,7 +517,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 .getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
-            Value jdiValue = VariableUtils.fetchVariableValue(context, name);
+            Value jdiValue = VariableUtils.fetchNameReferenceValue(evaluationContext, name);
             BVariable bVar = VariableFactory.getVariable(context, jdiValue);
             capturedTypes.add(getTypeNameString(bVar));
             externalVariableValues.add(getValueAsObject(context, jdiValue));

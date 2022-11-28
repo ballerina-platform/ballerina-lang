@@ -94,7 +94,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
         // undefined constant evaluation
         debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
                 .getString(), "int", "MAX"));
