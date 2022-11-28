@@ -342,6 +342,7 @@ public class Package {
         }
 
         if (compilerPluginManager.engagedCodeModifierCount() > 0) {
+            compilerPluginManager = pkg.getCompilation(compOptions).compilerPluginManager();
             CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
             CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(pkg);
             diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);

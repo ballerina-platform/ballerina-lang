@@ -88,7 +88,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
 
         String modulePrefix = qNameReferenceNode.get().modulePrefix().text();
 
-        List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
+        List<LSPackageLoader.ModuleInfo> moduleList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         // Check if we already have packages imported with the given module prefix but with different aliases
@@ -117,7 +117,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         }
 
         // Here we filter out the already imported packages
-        packagesList.stream()
+        moduleList.stream()
                 .filter(pkgEntry -> existingModules.stream()
                         .noneMatch(moduleSymbol -> moduleSymbol.id().orgName().equals(pkgEntry.packageOrg().value()) &&
                                 moduleSymbol.id().moduleName().equals(pkgEntry.packageName().value()))
@@ -131,9 +131,11 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
                     String pkgName = pkgEntry.packageName().value();
                     String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
-                    String importText = ItemResolverConstants.IMPORT + " " + orgName + "/"
-                            + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                    String importText = orgName.isEmpty() ?
+                            String.format("%s %s;%n", ItemResolverConstants.IMPORT, moduleName)
+                            : String.format("%s %s/%s;%n", ItemResolverConstants.IMPORT, orgName, moduleName);
+                    String commandTitle = orgName.isEmpty() ? String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                            moduleName) : String.format(CommandConstants.IMPORT_MODULE_TITLE,
                             orgName + "/" + moduleName);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
