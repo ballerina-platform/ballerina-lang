@@ -138,11 +138,6 @@ public class FieldAccessTest {
                 "expression", 375, 15);
         validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
                 "expression", 377, 15);
-        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|CompanyR)'", 394, 13);
-        validateError(negativeResult, i++, "undefined function 'func1'", 397, 9);
-        validateError(negativeResult, i++, "undefined function 'func2'", 400, 9);
-        validateError(negativeResult, i++, "undefined function 'func' in type '(ManagerR|EmployeeR)'", 403, 13);
-        validateError(negativeResult, i++, "undefined function 'func3'", 406, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -287,5 +282,10 @@ public class FieldAccessTest {
     @Test
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
+    }
+
+    @Test
+    public void testAccessingMethodOnUnionObjectType() {
+        BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
     }
 }

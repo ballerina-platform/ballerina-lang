@@ -376,32 +376,3 @@ function testInvalidBoundMethodAccessWithRemoteMethod(ServiceClass a,
 
     _ = e.ser.fn;
 }
-
-class ManagerR {
-    function func(int i) returns int => i;
-}
-
-class CompanyR {
-    function func(int i) returns string => (i+1).toString();
-}
-
-class EmployeeR {
-    function func(int i) returns int => i;
-}
-
-function testAccessingMethodOnUnionObjectTypeNegative() {
-    ManagerR|CompanyR ob1 = new CompanyR();
-    _ = ob1.func();
-
-    (function (int i) returns int)|function (int i) returns string func1 = ob1.func;
-    _ = func1(1);
-
-    var func2 = ob1.func;
-    _ = func2(1);
-
-    ManagerR|EmployeeR ob2 = new EmployeeR();
-    _ = ob2.func();
-
-    var func3 = ob1.func;
-    _ = func3(1);
-}
