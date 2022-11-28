@@ -224,6 +224,24 @@ function testWithLocalVar() {
             }
         }
     };
+
+    string a = "1";
+    var _ = client object {
+        resource function get name() {
+            worker A {
+                string _ = a;
+            }
+        }
+    };
+
+    int[] c = [10];
+    var d = client object {
+        resource function get name() {
+            worker A {
+                int[] e = c;
+            }
+        }
+    };
 }
 
 function assertEquality(any|error actual, any|error expected) {
