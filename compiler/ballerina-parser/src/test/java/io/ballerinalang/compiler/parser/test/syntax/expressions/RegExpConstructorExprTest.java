@@ -262,4 +262,28 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
         testFile("regexp-constructor-expr/regexp_constructor_source_39.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_39.json");
     }
+
+    @Test
+    public void testRegExpWithContextuallyExpectedType() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_40.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_40.json");
+    }
+
+    @Test
+    public void testRegExpWithComment() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_41.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_41.json");
+    }
+
+    @Test
+    public void testRegExpWithWhiteSpace() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_42.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_42.json");
+    }
+
+    @Test
+    public void testInvalidRegExpWithSlash() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_43.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_43.json");
+    }
 }

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 30,
+    "character": 63
+  },
+  "source": "positional_args_source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'xml' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 30,
+              "character": 62
+            },
+            "end": {
+              "line": 30,
+              "character": 74
+            }
+          },
+          "newText": "xml `sample xml`"
+        }
+      ]
+    }
+  ],
+  "description": "Test implicit positional argument context"
+}

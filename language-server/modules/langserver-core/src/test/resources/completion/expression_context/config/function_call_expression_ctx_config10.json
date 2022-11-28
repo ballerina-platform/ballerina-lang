@@ -478,7 +478,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "G",
+      "sortText": "ZD",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
@@ -790,6 +790,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

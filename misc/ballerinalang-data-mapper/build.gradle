@@ -14,10 +14,6 @@ configurations {
     libs
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-lang')

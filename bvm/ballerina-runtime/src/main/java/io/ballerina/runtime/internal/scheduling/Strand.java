@@ -78,6 +78,7 @@ public class Strand {
     public Set<ChannelDetails> channelDetails;
     public Set<SchedulerItem> dependants;
     public boolean cancel;
+    public int acquiredLockCount;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;

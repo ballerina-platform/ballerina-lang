@@ -352,7 +352,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "ACC",
+      "sortText": "ACZ",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
@@ -690,6 +690,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 1,
+    "character": 19
+  },
+  "source": "type_cast_in_assignment1.bal",
+  "description": "Tests the type cast code action when the expected type is an optional numeric type",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 18
+            },
+            "end": {
+              "line": 1,
+              "character": 18
+            }
+          },
+          "newText": "<float>"
+        }
+      ]
+    }
+  ]
+}

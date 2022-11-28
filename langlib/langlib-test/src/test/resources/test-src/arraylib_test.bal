@@ -528,6 +528,11 @@ function testPush() {
     testUnionArrayPush();
     testPushOnUnionOfSameBasicType();
     testInvalidPushOnUnionOfSameBasicType();
+    testPushWithObjectConstructorExpr();
+    testPushWithRawTemplateExpr();
+    testPushWithTableConstructorExpr();
+    testPushWithNewExpr();
+    testPushWithErrorConstructorExpr();
 }
 
 function testBooleanPush() {
@@ -1723,4 +1728,80 @@ function testArrSortWithNamedArgs3() {
         return e;
     });
     assertValueEquality([1, 10, 0, "AAD", "ABC", "ADS", "DES"], sortedArr);
+}
+
+function testPushWithObjectConstructorExpr() {
+    Obj[] arr = [];
+    arr.push(object {
+        int i = 123;
+        int j = 234;
+    });
+    assertValueEquality(1, arr.length());
+
+    Obj ob = arr[0];
+    assertValueEquality(123, ob.i);
+    assertValueEquality(234, ob.j);
+}
+
+type Template object {
+    *object:RawTemplate;
+
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+function testPushWithRawTemplateExpr() {
+    Template[] arr = [];
+    int i = 12345;
+    arr.push(`number ${i}`, `second number ${1 + 3} third ${i + 1}`);
+    assertValueEquality(2, arr.length());
+
+    Template temp = arr[0];
+    assertValueEquality(["number ", ""], temp.strings);
+    assertValueEquality([12345], temp.insertions);
+
+    temp = arr[1];
+    assertValueEquality(["second number ", " third ", ""], temp.strings);
+    assertValueEquality([4, 12346], temp.insertions);
+}
+
+type Department record {|
+    readonly string name;
+    int empCount;
+|};
+
+function testPushWithTableConstructorExpr() {
+    (table<Department> key(name))[] arr = [];
+    arr.push(table [{name: "finance", empCount: 10}, {name: "legal", empCount: 5}]);
+    assertValueEquality(1, arr.length());
+
+    table<Department> key(name) tb = arr[0];
+    assertValueEquality(5, tb.get("legal").empCount);
+    assertValueEquality(10, tb.get("finance").empCount);
+}
+
+function testPushWithNewExpr() {
+    Obj[] arr = [];
+    arr.push(new (1, 2));
+    assertValueEquality(1, arr.length());
+
+    Obj ob = arr[0];
+    assertValueEquality(1, ob.i);
+    assertValueEquality(2, ob.j);
+}
+
+type Error distinct error;
+
+function testPushWithErrorConstructorExpr() {
+    Error[] arr = [];
+    arr.push(error("e1"), error("e2"));
+    assertValueEquality(2, arr.length());
+
+    error e = arr[0];
+    assertTrue(e is Error);
+    assertValueEquality("e1", e.message());
+
+    e = arr[1];
+    assertTrue(e is Error);
+    assertValueEquality("e2", e.message());
 }
