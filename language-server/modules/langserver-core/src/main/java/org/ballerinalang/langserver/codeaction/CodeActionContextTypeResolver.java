@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -31,6 +32,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -49,6 +52,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -67,8 +71,9 @@ import java.util.Optional;
 
 /**
  * This visitor is used to resolve the type of given code action context.
- * 
+ * <p>
  * Todo: Use the ContextTypeResolver instead.
+ *
  * @since 2201.1.1
  */
 public class CodeActionContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
@@ -120,9 +125,9 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-        Optional<Symbol> symbol = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.symbol(builtinSimpleNameReferenceNode));
-        return SymbolUtil.getTypeDescriptor(symbol.orElse(null));
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(builtinSimpleNameReferenceNode))
+                .flatMap(SymbolUtil::getTypeDescriptor);
     }
 
     @Override
@@ -181,17 +186,13 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
         Optional<ReturnTypeDescriptorNode> returnTypeDesc = functionDefinitionNode.functionSignature().returnTypeDesc();
-        if (returnTypeDesc.isEmpty() || context.currentSemanticModel().isEmpty()) {
+        if (returnTypeDesc.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<Symbol> functionSymbol = context.currentSemanticModel().get().symbol(functionDefinitionNode);
-
-        if (functionSymbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(functionDefinitionNode))
+                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
     }
 
     @Override
@@ -305,16 +306,27 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode simpleNameReferenceNode) {
-        Optional<Symbol> symbol = this.getSymbolByName(simpleNameReferenceNode.name().text());
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
+        return this.getSymbolByName(simpleNameReferenceNode.name().text()).flatMap(SymbolUtil::getTypeDescriptor);
+    }
+    
+    @Override
+    public Optional<TypeSymbol> transform(DefaultableParameterNode defaultableParameterNode) {
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(defaultableParameterNode))
+                .map(symbol -> (ParameterSymbol) symbol)
+                .map(ParameterSymbol::typeDescriptor);
+    }
 
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+    @Override
+    public Optional<TypeSymbol> transform(ConstantDeclarationNode constantDeclarationNode) {
+        return context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(constantDeclarationNode))
+                .map(symbol -> ((ConstantSymbol) symbol).typeDescriptor());
     }
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+        // TODO: Add other cases like error constructors here
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
@@ -323,6 +335,10 @@ public class CodeActionContextTypeResolver extends NodeTransformer<Optional<Type
             case METHOD_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
                         ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent(), context, context.cursorPositionInTree());
+            case REMOTE_METHOD_CALL_ACTION:
+                return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                        ((RemoteMethodCallActionNode) positionalArgumentNode.parent()).arguments(),
                         positionalArgumentNode.parent(), context, context.cursorPositionInTree());
             case PARENTHESIZED_ARG_LIST:
                 ParenthesizedArgList parenthesizedArgList = (ParenthesizedArgList) positionalArgumentNode.parent();

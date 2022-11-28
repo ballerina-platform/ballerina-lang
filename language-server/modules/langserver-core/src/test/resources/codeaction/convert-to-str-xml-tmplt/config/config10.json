@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 28,
+    "character": 63
+  },
+  "source": "positional_args_source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'string' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 28,
+              "character": 62
+            },
+            "end": {
+              "line": 28,
+              "character": 77
+            }
+          },
+          "newText": "string `sample string`"
+        }
+      ]
+    }
+  ],
+  "description": "Test explicit new expr positional argument context"
+}

@@ -53,7 +53,8 @@ public class FillRecordFieldsCodeActionTest extends AbstractCodeActionTest {
                 {"fill_record_fields_config9.json"},
                 {"fill_record_fields_config10.json"},
                 {"fill_record_fields_config11.json"},
-                {"fill_record_fields_config12.json"}
+                {"fill_record_fields_config12.json"},
+                {"fill_record_fields_config13.json"}
         };
     }
 }

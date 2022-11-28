@@ -1698,7 +1698,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
         providers.add(provider);
 
-        // Store the dependencies of functions seperately for lock optimization in later stage.
+        // Store the dependencies of functions separately for lock optimization in later stage.
         addFunctionToGlobalVarDependency(dependent, provider);
     }
 
@@ -2418,7 +2418,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
-            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.symbol);
+            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD,
+                    fieldAccess.symbol.originalName);
         }
     }
 

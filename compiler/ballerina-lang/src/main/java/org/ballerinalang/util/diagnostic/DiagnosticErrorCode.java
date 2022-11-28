@@ -541,6 +541,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),
     CONSTANT_DECLARATION_NOT_YET_SUPPORTED("BCE3507", "constant.declaration.not.yet.supported.for.type"),
     SELF_REFERENCE_CONSTANT("BCE3508", "self.reference.constant"),
+    INT_RANGE_OVERFLOW_ERROR("BCE3509", "int.range.overflow"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("BCE3600", "arrow.expression.mismatched.parameter.length"),
@@ -798,7 +799,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
             "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
-            "cannot.infer.typedesc.argument.without.cet");
+            "cannot.infer.typedesc.argument.without.cet"),
+    OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
+            "BCE4047", "outer.join.must.be.declared.with.var")        
     ;
 
     private String diagnosticId;
