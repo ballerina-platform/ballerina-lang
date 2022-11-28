@@ -362,6 +362,11 @@ type FooRec2 record {
     FooRec1 fooRec;
 };
 
+type FooRec3 record {
+    json j?;
+    FooRec1 fooRec?;
+};
+
 function testFieldAccessOnJsonTypedRecordFields() returns error? {
     FooRec1 rec1 = {j: "1"};
     string val = check rec1.j;
@@ -386,6 +391,26 @@ function testFieldAccessOnJsonTypedRecordFields() returns error? {
     assertEquals(val, "3");
     val = check rec2.fooRec.j.l.m;
     assertEquals(val, "4");
+}
+
+function testFieldAccessOnOptionalJsonTypedRecordFields() returns error? {
+    FooRec3 rec1 = {j: "1"};
+    json val = check rec1?.j;
+    assertEquals(val, "1");
+
+    rec1 = {j: {k: "2"}};
+    val = check rec1?.j.k;
+    assertEquals(val, "2");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = check rec1?.j.k.m;
+    assertEquals(val, "3");
+
+    FooRec3 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = check rec2?.j;
+    assertEquals(val, "1");
+    val = check rec2?.fooRec?.j;
+    assertEquals(val, "2");
 }
 
 function testFieldAccessOnJsonTypedRecordFieldsResultingInError() {
@@ -418,9 +443,9 @@ function testFieldAccessOnJsonTypedRecordFieldsResultingInError() {
 }
 
 function testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr() {
-    var getJsonField1 = function() returns string|error {
+    var getJsonField1 = function() returns json|error {
         FooRec1 rec1 = {j: "1"};
-        string val = check rec1.j.k;
+        json val = check rec1.j.k;
         return val;
     };
     validateJSONOperationErrorMsg(getJsonField1());
@@ -445,6 +470,30 @@ function testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr() {
         return val;
     };
     validateJSONOperationErrorMsg(getJsonField4());
+}
+
+function testFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError() {
+    var getJsonField1 = function() returns json|error {
+        FooRec3 rec1 = {};
+        json val = check rec1?.j.k.l.m.n;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField1());
+
+    var getJsonField2 = function() returns json|error {
+        FooRec3 rec2 = {fooRec: {j: {k: "3", l: {m: "4"}}}};
+        json val = check rec2?.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField2());
+
+    FooRec3 rec1 = {};
+    json|error val = rec1?.j.k.l.m.n;
+    validateJSONOperationErrorMsg(val);
+
+    FooRec3 rec2 = {fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = rec2?.j.l.m.n.o;
+    validateJSONOperationErrorMsg(val);
 }
 
 function validateJSONOperationErrorMsg(json|error val) {
