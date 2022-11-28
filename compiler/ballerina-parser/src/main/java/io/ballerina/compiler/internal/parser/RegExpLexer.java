@@ -49,17 +49,11 @@ public class RegExpLexer extends AbstractLexer {
             case RE_DISJUNCTION:
                 token = readTokenInReDisjunction();
                 break;
-            case RE_ESCAPE:
-                token = readTokenInReEscape();
-                break;
             case RE_UNICODE_PROP_ESCAPE:
                 token = readTokenInReUnicodePropertyEscape();
                 break;
             case RE_UNICODE_PROPERTY_VALUE:
                 token = readTokenInReUnicodePropertyValue();
-                break;
-            case RE_FLAG_EXPRESSION:
-                token = readTokenInFlagExpression();
                 break;
             case INTERPOLATION:
                 token = readTokenInInterpolation();
@@ -77,6 +71,14 @@ public class RegExpLexer extends AbstractLexer {
      * <code>
      * ReDisjunction := ReSequence ("|" ReSequence)*
      * </code>
+     * <code>
+     * ReSequence := ReTerm*
+     * </code>
+     * <code>
+     * ReTerm :=
+     *    ReAtom [ReQuantifier]
+     *    | ReAssertion
+     * </code>
      *
      * @return Next token
      */
@@ -93,33 +95,11 @@ public class RegExpLexer extends AbstractLexer {
         }
 
         // ReSequence has zero or more ReTerm.
-        return readTokenInReTerm();
-    }
-
-    /**
-     * Read token from ReTerm.
-     * <p>
-     * <code>
-     * ReTerm :=
-     *    ReAtom [ReQuantifier]
-     *    | ReAssertion
-     * </code>
-     *
-     * @return Next token
-     */
-    private STToken readTokenInReTerm() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        int nextChar = peek();
+        this.reader.advance();
         switch (nextChar) {
             case LexerTerminals.BITWISE_XOR:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
             case LexerTerminals.DOLLAR:
-                this.reader.advance();
                 if (peek() == LexerTerminals.OPEN_BRACE) {
                     // Start interpolation mode.
                     startMode(ParserMode.INTERPOLATION);
@@ -128,61 +108,38 @@ public class RegExpLexer extends AbstractLexer {
                 }
                 return getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
             case LexerTerminals.DOT:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.DOT_TOKEN);
             case LexerTerminals.ASTERISK:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
             case LexerTerminals.PLUS:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.PLUS_TOKEN);
             case LexerTerminals.QUESTION_MARK:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
             case LexerTerminals.BACKSLASH:
                 // This is used to identify `\-` in ReCharSetAtomNoDash. It's an invalid node if it's in any other
                 // position.
-                if (this.reader.peek(1) == LexerTerminals.MINUS) {
-                    this.reader.advance(2);
+                if (peek() == LexerTerminals.MINUS) {
+                    this.reader.advance();
                     return getRegExpSyntaxToken(SyntaxKind.ESCAPED_MINUS_TOKEN);
                 }
                 return processReEscape();
-            // Start parsing character class [[^] [ReCharSet]].
+            // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
             case LexerTerminals.OPEN_BRACKET:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
             case LexerTerminals.CLOSE_BRACKET:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
             case LexerTerminals.OPEN_BRACE:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
             case LexerTerminals.CLOSE_BRACE:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
             // Start parsing capturing group ([? ReFlagsOnOff :] ReDisjunction).
             case LexerTerminals.OPEN_PARANTHESIS:
-                this.reader.advance();
-                if (peek() == LexerTerminals.QUESTION_MARK) {
-                    // Start a new parser mode to handle the flags.
-                    startMode(ParserMode.RE_FLAG_EXPRESSION);
-                } else {
-                    startMode(ParserMode.RE_DISJUNCTION);
-                }
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
             case LexerTerminals.CLOSE_PARANTHESIS:
-                this.reader.advance();
-                // modeStack.size() is > 1 if the close parenthesis is found in a capturing group.
-                // If not it's an invalid token.
-                if (this.modeStack.size() > 1) {
-                    endMode();
-                }
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
             case LexerTerminals.COMMA:
-                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.COMMA_TOKEN);
             default:
-                this.reader.advance();
                 if (isDigit(nextChar)) {
                     return getRegExpText(SyntaxKind.DIGIT);
                 }
@@ -191,14 +148,11 @@ public class RegExpLexer extends AbstractLexer {
     }
 
     private STToken processReEscape() {
-        if (reader.isEOF()) {
-            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-        int nextNextChar = this.reader.peek(1);
-        switch (nextNextChar) {
+        int nextChar = peek();
+        switch (nextChar) {
             // Handle NumericEscape.
             case 'u':
-                if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
+                if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     processNumericEscape();
                     return getRegExpText(SyntaxKind.RE_NUMERIC_ESCAPE);
                 }
@@ -207,65 +161,21 @@ public class RegExpLexer extends AbstractLexer {
             case 'n':
             case 't':
             case 'r':
-                this.reader.advance(2);
+                this.reader.advance();
                 return getRegExpText(SyntaxKind.RE_CONTROL_ESCAPE);
             // Handle ReUnicodePropertyEscape.
             case 'p':
             case 'P':
-                this.reader.advance();
                 if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     // Change the parser mode to handle ReUnicodePropertyEscape.
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
-                } else {
-                    // Change the parser mode to handle ReQuoteEscape.
-                    startMode(ParserMode.RE_ESCAPE);
                 }
                 break;
             default:
-                this.reader.advance();
-                // Change the parser mode to handle ReQuoteEscape and ReSimpleCharClassEscape.
-                startMode(ParserMode.RE_ESCAPE);
                 break;
         }
 
         return getRegExpText(SyntaxKind.BACK_SLASH_TOKEN);
-    }
-
-    /**
-     * Read tokens in ReQuoteEscape or ReSimpleCharClassEscape.
-     * <p>
-     * <code>
-     * ReQuoteEscape := "\" ReSyntaxChar
-     * </code>
-     * <code>
-     * ReSimpleCharClassEscape := "\" ReSimpleCharClassCode
-     * </code>
-     *
-     * @return Next token
-     */
-    private STToken readTokenInReEscape() {
-        this.reader.mark();
-
-        if (this.reader.isEOF()) {
-            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        int nextToken = peek();
-        boolean isReSyntaxChar = isReSyntaxChar(nextToken);
-        boolean isReSimpleCharClassCode = isReSimpleCharClassCode(nextToken);
-
-        this.reader.advance();
-        endMode();
-
-        if (isReSyntaxChar) {
-            return getRegExpText(SyntaxKind.RE_SYNTAX_CHAR);
-        }
-
-        if (isReSimpleCharClassCode) {
-            return getRegExpText(SyntaxKind.RE_SIMPLE_CHAR_CLASS_CODE);
-        }
-
-        return getRegExpText(SyntaxKind.RE_LITERAL_CHAR);
     }
 
     /**
@@ -502,39 +412,6 @@ public class RegExpLexer extends AbstractLexer {
     }
 
     /**
-     * Read token in flag expression.
-     * <p>
-     * <code>
-     * ? ReFlagsOnOff :
-     * </code>
-     */
-    private STToken readTokenInFlagExpression() {
-        this.reader.mark();
-
-        if (reader.isEOF()) {
-            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        int nextToken = peek();
-        this.reader.advance();
-        switch (nextToken) {
-            case LexerTerminals.QUESTION_MARK:
-                return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
-            case LexerTerminals.COLON:
-                // Colon marks the end of the flags. Start RE_DISJUNCTION mode to handle proceeding sequences.
-                switchMode(ParserMode.RE_DISJUNCTION);
-                return getRegExpSyntaxToken(SyntaxKind.COLON_TOKEN);
-            case LexerTerminals.MINUS:
-                return getRegExpSyntaxToken(SyntaxKind.MINUS_TOKEN);
-            default:
-                if (!isReFlag(nextToken)) {
-                    reportLexerError(DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
-                }
-                return getRegExpText(SyntaxKind.RE_FLAGS_VALUE);
-        }
-    }
-
-    /**
      * Read token in interpolation.
      *
      * @return Next token
@@ -593,40 +470,6 @@ public class RegExpLexer extends AbstractLexer {
      */
     private String getLexeme() {
         return reader.getMarkedChars();
-    }
-
-    /**
-     * Check whether a given char is ReSyntaxChar.
-     * <p>
-     * <code>
-     * ReSyntaxChar :=
-     *   "^" | "$" | "\" | "." | "*" | "+" | "?"
-     *   | "(" | ")" | "[" | "]" | "{" | "}" | "|"
-     * </code>
-     *
-     * @param c character to check
-     * @return <code>true</code>, if the character is ReSyntaxChar. <code>false</code> otherwise.
-     */
-    protected static boolean isReSyntaxChar(int c) {
-        switch (c) {
-            case '^':
-            case '$':
-            case '\\':
-            case '.':
-            case '*':
-            case '+':
-            case '?':
-            case '(':
-            case ')':
-            case '[':
-            case ']':
-            case '{':
-            case '}':
-            case '|':
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
