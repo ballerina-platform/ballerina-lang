@@ -690,6 +690,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
