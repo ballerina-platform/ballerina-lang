@@ -122,3 +122,39 @@ public function testUnInitVars3() {
     resultInt2 += 1;
     resultInt3 += 1;
 }
+
+public function testUnInitVars4() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        do {
+           resultInt1 = 1;
+           resultInt2 = check getErrorOrInt();
+           resultInt3 = 1;
+        }
+        check commit;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+public function testUnInitVars5() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        do {
+           resultInt1 = 1;
+           resultInt2 = 2;
+        }
+        check commit;
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
