@@ -122,20 +122,18 @@ public class CreateExecutableTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-        if (project.buildOptions().nativeImage()) {
-            return;
-        }
+        if (!project.buildOptions().nativeImage()) {
+            Path relativePathToExecutable = currentDir.relativize(executablePath);
 
-        Path relativePathToExecutable = currentDir.relativize(executablePath);
-
-        if (project.buildOptions().getTargetPath() != null) {
-            this.out.println("\t" + relativePathToExecutable);
-        } else {
-            if (relativePathToExecutable.toString().contains("..") ||
-                    relativePathToExecutable.toString().contains("." + File.separator)) {
-                this.out.println("\t" + executablePath);
-            } else {
+            if (project.buildOptions().getTargetPath() != null) {
                 this.out.println("\t" + relativePathToExecutable);
+            } else {
+                if (relativePathToExecutable.toString().contains("..") ||
+                        relativePathToExecutable.toString().contains("." + File.separator)) {
+                    this.out.println("\t" + executablePath);
+                } else {
+                    this.out.println("\t" + relativePathToExecutable);
+                }
             }
         }
 
