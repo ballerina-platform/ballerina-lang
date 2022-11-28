@@ -29,7 +29,6 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -40,7 +39,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -75,6 +73,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -312,8 +311,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
             if (compilation.diagnosticResult().diagnostics().stream()
-                    .anyMatch(diagnostic -> DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId()
-                            .equals(diagnostic.diagnosticInfo().code()))) {
+                    .anyMatch(diagnostic -> 
+                            Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
+                                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId())
+                            .contains(diagnostic.diagnosticInfo().code()))) {
                 projectPair.get().setCrashed(true);
                 projectPair.get().project().clearCaches();
             }
@@ -1029,24 +1030,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    @Override
-    public Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project) {
-        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (projectPair.isEmpty()) {
-            return Optional.empty();
-        }
-
-        // Lock Project Instance
-        Lock lock = projectPair.get().lockAndGet();
-        try {
-            return Optional.of(project.currentPackage()
-                    .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build()));
-        } finally {
-            // Unlock Project Instance
-            lock.unlock();
-        }
-    }
-    
     // ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {

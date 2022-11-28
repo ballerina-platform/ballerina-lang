@@ -178,7 +178,6 @@ public class SyntaxErrors {
             case MODULE_VAR_SECOND_QUAL:
             case MODULE_VAR_THIRD_QUAL:
             case OBJECT_MEMBER_VISIBILITY_QUAL:
-            case CLIENT_DECL_PREFIX:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case EXPRESSION:
             case TERMINAL_EXPRESSION:

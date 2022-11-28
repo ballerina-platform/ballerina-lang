@@ -22,10 +22,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.internal.IDLClients;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
-import io.ballerina.projects.internal.bala.IDLClientsJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
@@ -34,11 +32,8 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.tools.text.LineRange;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
@@ -56,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -65,7 +59,6 @@ import java.util.zip.ZipOutputStream;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
-import static io.ballerina.projects.util.ProjectConstants.IDL_CLIENTS_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
 
@@ -135,24 +128,6 @@ public abstract class BalaWriter {
 
         addCompilerPlugin(balaOutputStream);
         addDependenciesJson(balaOutputStream);
-        addIDLClientsJson(balaOutputStream);
-    }
-
-    private void addIDLClientsJson(ZipOutputStream balaOutputStream) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        IDLClients idlClients = IDLClients.getInstance(
-                packageContext.project().projectEnvironmentContext().getService(CompilerContext.class));
-        Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> idlClientMap = idlClients.idlClientMap();
-        if (idlClientMap.isEmpty()) {
-            return;
-        }
-        String idlClientsJson = gson.toJson(IDLClientsJson.from(idlClientMap));
-        try {
-            putZipEntry(balaOutputStream, Paths.get(IDL_CLIENTS_JSON),
-                    new ByteArrayInputStream(idlClientsJson.getBytes(Charset.defaultCharset())));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to write '" + IDL_CLIENTS_JSON + "' file: " + e.getMessage(), e);
-        }
     }
 
     private void addBalaJson(ZipOutputStream balaOutputStream) {

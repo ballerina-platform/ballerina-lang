@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -29,7 +28,6 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.util.DependencyUtils;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -46,7 +44,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.symbols.SymbolKind.CLIENT_DECLARATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
@@ -55,7 +52,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  * @since 2201.1.1
  */
 public class ModuleUtil {
-    
+
     /**
      * Filter a type in the module by the name.
      *
@@ -106,26 +103,6 @@ public class ModuleUtil {
     }
 
     /**
-     * Get the client declaration symbol associated with the given alias.
-     *
-     * @param context Language server operation context
-     * @param alias   alias value
-     * @return {@link Optional} scope entry for the client declaration symbol
-     */
-    public static Optional<ClientDeclSymbol> searchClientDeclarationForAlias(PositionedOperationContext context, 
-                                                                             String alias) {
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        for (Symbol symbol : visibleSymbols) {
-            if (symbol.kind() == CLIENT_DECLARATION && symbol.getModule().isPresent()
-                    && Objects.equals(symbol.getName().orElse(null), alias)) {
-                return Optional.of(((ClientDeclSymbol) symbol));
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    /**
      * Returns module prefix and process imports required.
      *
      * @param importsAcceptor import acceptor
@@ -146,19 +123,8 @@ public class ModuleUtil {
             String moduleName = moduleParts[1];
 
             pkgPrefix = moduleName.replaceAll(".*\\.", "");
-            pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" 
+            pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'"
                     + pkgPrefix : pkgPrefix;
-
-            //If the module is an auto-generated module in the current project,
-            // it is not necessary to check for imports and add import statement.
-            Optional<Project> project = context.workspace().project(context.filePath());
-            if (project.isPresent()) {
-                for (Module module : project.get().currentPackage().modules()) {
-                    if (isMatchingModule(moduleID, module) && DependencyUtils.isGeneratedModule(module)) {
-                        return pkgPrefix + ":";
-                    }
-                }
-            }
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
@@ -184,15 +150,10 @@ public class ModuleUtil {
         return pkgPrefix;
     }
 
-    private static Boolean isMatchingModule(ModuleID moduleID, Module module) {
-        return moduleID.orgName().equals(module.packageInstance().packageOrg().value())
-                && moduleID.moduleName().equals(module.moduleName().toString());
-    }
-
     /**
      * Returns module prefix.
      *
-     * @param context         {@link DocumentServiceContext}
+     * @param context {@link DocumentServiceContext}
      * @param orgName organization name component
      * @param modName module name component
      * @return module prefix
@@ -234,7 +195,7 @@ public class ModuleUtil {
             String orgName = moduleNameParts[0];
             String alias = moduleNameParts[1];
             String[] aliasParts = moduleNameParts[1].split("\\.");
-            boolean preDeclaredLangLib = CommonUtil.BALLERINA_ORG_NAME.equals(orgName) 
+            boolean preDeclaredLangLib = CommonUtil.BALLERINA_ORG_NAME.equals(orgName)
                     && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(alias);
             if (aliasParts.length > 1) {
                 String aliasLastPart = aliasParts[aliasParts.length - 1];
@@ -257,14 +218,14 @@ public class ModuleUtil {
     /**
      * Whether the package is already imported in the current document.
      *
-     * @param context completion context
-     * @param pkg     Package to be evaluated against
+     * @param context    completion context
+     * @param module     Module to be evaluated against
      * @return {@link Optional}
      */
     public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
-                                                                         LSPackageLoader.PackageInfo pkg) {
-        String name = pkg.packageName().value();
-        String orgName = pkg.packageOrg().value();
+                                                                         LSPackageLoader.ModuleInfo module) {
+        String name = module.packageName().value();
+        String orgName = module.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
         return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()

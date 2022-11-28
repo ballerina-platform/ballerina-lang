@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
@@ -106,6 +107,8 @@ public class CodeActionRouter {
                                 TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
                         codeActions.addAll(codeActionsOut);
                     }
+                } catch (CancellationException ignore) {
+                    // Ignore the cancellation exception
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
                     clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, (Position) null);
@@ -136,6 +139,8 @@ public class CodeActionRouter {
                                             TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,
                                                     provider));
                                     codeActions.addAll(codeActionsOut);
+                                } catch (CancellationException ignore) {
+                                    // Ignore the cancellation exception
                                 } catch (Exception e) {
                                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
                                     clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null,
