@@ -34,7 +34,6 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -123,7 +122,7 @@ public class DocCommand implements BLauncherCmd {
                 BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
                 try {
                     BallerinaDocGenerator.generateAPIDocs(balaProject, this.projectPath.toString(), false);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;

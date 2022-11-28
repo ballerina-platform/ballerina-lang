@@ -996,10 +996,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             }
 
             // Update file
-            Document updatedDoc = document.get().modify().withContent(content).apply();
-
-            // Update project instance
-            projectPair.setProject(updatedDoc.module().project());
+            if (document.isPresent()) {
+                Document updatedDoc = document.get().modify().withContent(content).apply();
+                // Update project instance
+                projectPair.setProject(updatedDoc.module().project());
+            }
         } finally {
             // Unlock Project Instance
             lock.unlock();
