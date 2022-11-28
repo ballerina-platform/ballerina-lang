@@ -20,9 +20,11 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -34,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,11 +44,15 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_TYPEDESC_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -58,22 +65,43 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 public class VariableUtils {
 
     /**
-     * Returns runtime value of the matching variable, for the given name. This method searches for a matching
-     * variable in both local and global variable scopes.
+     * Returns runtime value of the Balerina value reference for the given name. For that, this method searches for a
+     * match according to the below order.
+     *
+     * <ul>
+     * <li> variables defined both local and global scopes
+     * <li> types defined int both local and global scopes
+     * </ul>
      *
      * @param context suspended context
      * @param name    name of the variable to be retrieved
      * @return the JDI value instance of the Ballerina variable
      */
-    public static Value fetchVariableValue(SuspendedContext context, String name) throws EvaluationException {
-        Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context, name);
-        if (bExpressionValue.isEmpty()) {
-            bExpressionValue = searchGlobalVariables(context, name);
+    public static Value fetchNameReferenceValue(EvaluationContext context, String name) throws EvaluationException {
+        Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
+        if (bExpressionValue.isPresent()) {
+            return bExpressionValue.get().getJdiValue();
         }
-        if (bExpressionValue.isEmpty()) {
-            throw createEvaluationException(VARIABLE_NOT_FOUND, name);
+
+        bExpressionValue = searchGlobalVariables(context.getSuspendedContext(), name);
+        if (bExpressionValue.isPresent()) {
+            return bExpressionValue.get().getJdiValue();
         }
-        return bExpressionValue.get().getJdiValue();
+
+        NameBasedTypeResolver typeResolver = new NameBasedTypeResolver(context);
+        List<Value> resolvedTypes = typeResolver.resolve(name);
+        if (resolvedTypes.size() != 1) {
+            throw createEvaluationException(NAME_REF_RESOLVING_ERROR, name);
+        }
+        Value type = resolvedTypes.get(0);
+        List<String> argTypeNames = new LinkedList<>();
+        argTypeNames.add(B_TYPE_CLASS);
+        RuntimeStaticMethod createTypeDescMethod = getRuntimeMethod(context.getSuspendedContext(),
+                B_VALUE_CREATOR_CLASS, CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
+        List<Value> argValues = new LinkedList<>();
+        argValues.add(type);
+        createTypeDescMethod.setArgValues(argValues);
+        return createTypeDescMethod.invokeSafely();
     }
 
     /**

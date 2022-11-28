@@ -110,8 +110,8 @@ public class PackageEvaluationNegativeTest extends ExpressionEvaluationNegativeT
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        super.variableReferenceEvaluationTest();
+    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
+        super.simpleNameReferenceEvaluationTest();
 
         // package-private constant evaluation
         debugTestRunner.assertEvaluationError(context, "other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS

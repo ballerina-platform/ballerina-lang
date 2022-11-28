@@ -54,30 +54,8 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            Value value = null;
-            try {
-                value = VariableUtils.fetchVariableValue(context, nameReference);
-            } catch (EvaluationException ignored) {
-            }
-
-            if (value == null) {
-                NameBasedTypeResolver typeResolver = new NameBasedTypeResolver(evaluationContext);
-                List<Value> resolvedTypes = typeResolver.resolve(nameReference);
-                if (resolvedTypes.size() != 1) {
-                    throw createEvaluationException(NAME_REF_RESOLVING_ERROR, nameReference);
-                }
-                value = resolvedTypes.get(0);
-                List<String> argTypeNames = new LinkedList<>();
-                argTypeNames.add(B_TYPE_CLASS);
-                RuntimeStaticMethod createTypedescMethod = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
-                        CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
-                List<Value> argValues = new LinkedList<>();
-                argValues.add(value);
-                createTypedescMethod.setArgValues(argValues);
-                return new BExpressionValue(context, createTypedescMethod.invokeSafely());
-            }
-
-            return new BExpressionValue(context, value);
+            return new BExpressionValue(context, VariableUtils.fetchNameReferenceValue(evaluationContext,
+                    nameReference));
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
