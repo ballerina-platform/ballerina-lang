@@ -225,7 +225,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                     return typeDescriptor.isPresent() 
                             && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP 
                             && ((MapTypeSymbol) typeDescriptor.get()).typeParam().subtypeOf(resolvedType.get())
-                            || CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.RECORD);
+                            );
                 })).collect(Collectors.toList());
 
         return getSpreadFieldCompletionItemList(visibleSymbols, context);
