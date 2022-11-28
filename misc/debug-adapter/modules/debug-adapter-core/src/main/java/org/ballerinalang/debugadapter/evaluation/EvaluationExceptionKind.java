@@ -39,6 +39,7 @@ public enum EvaluationExceptionKind {
     INDEX_OUT_OF_RANGE_ERROR("%s index out of range: index=%d, size=%d"),
     INVALID_KEY_TYPE_ERROR("expected key type '%s'; found '%s' in '%s'"),
     TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
+    NAME_REF_RESOLVING_ERROR("Failed to resolve reference: '%s'"),
     IMPORT_RESOLVING_ERROR("Failed to resolve the import: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the strand instance for the current stack frame"),
     CLASS_LOADING_FAILED("Failed to load the required classes to execute method: '%s'"),

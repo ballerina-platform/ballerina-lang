@@ -16,15 +16,26 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
+import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_TYPEDESC_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
  * Simple name reference evaluator implementation.
@@ -43,7 +54,30 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            return new BExpressionValue(context, VariableUtils.fetchVariableValue(context, nameReference));
+            Value value = null;
+            try {
+                value = VariableUtils.fetchVariableValue(context, nameReference);
+            } catch (EvaluationException ignored) {
+            }
+
+            if (value == null) {
+                NameBasedTypeResolver typeResolver = new NameBasedTypeResolver(evaluationContext);
+                List<Value> resolvedTypes = typeResolver.resolve(nameReference);
+                if (resolvedTypes.size() != 1) {
+                    throw createEvaluationException(NAME_REF_RESOLVING_ERROR, nameReference);
+                }
+                value = resolvedTypes.get(0);
+                List<String> argTypeNames = new LinkedList<>();
+                argTypeNames.add(B_TYPE_CLASS);
+                RuntimeStaticMethod createTypedescMethod = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
+                        CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
+                List<Value> argValues = new LinkedList<>();
+                argValues.add(value);
+                createTypedescMethod.setArgValues(argValues);
+                return new BExpressionValue(context, createTypedescMethod.invokeSafely());
+            }
+
+            return new BExpressionValue(context, value);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
