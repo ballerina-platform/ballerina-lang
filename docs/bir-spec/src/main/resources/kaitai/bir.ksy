@@ -512,18 +512,12 @@ types:
         type: type_definition
         repeat: expr
         repeat-expr: type_definition_count
-      - id: global_var_count
+      - id: golbal_var_count
         type: s4
-      - id: global_vars
-        type: global_var
+      - id: golbal_vars
+        type: golbal_var
         repeat: expr
-        repeat-expr: global_var_count
-      - id: imported_global_var_count
-        type: s4
-      - id: imported_global_vars
-        type: global_var
-        repeat: expr
-        repeat-expr: global_var_count
+        repeat-expr: golbal_var_count
       - id: type_definition_bodies_count
         type: s4
       - id: type_definition_bodies
@@ -548,7 +542,7 @@ types:
         type: service_declaration
         repeat: expr
         repeat-expr: service_decls_size
-  global_var:
+  golbal_var:
     seq:
       - id: position
         type: position

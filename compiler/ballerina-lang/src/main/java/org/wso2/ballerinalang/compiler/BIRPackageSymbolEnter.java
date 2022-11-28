@@ -249,9 +249,6 @@ public class BIRPackageSymbolEnter {
         // Define package level variables.
         defineSymbols(dataInStream, rethrow(this::definePackageLevelVariables));
 
-        // define imported package variables
-        defineSymbols(dataInStream, rethrow(this::defineImportedPackageVariables));
-
         readTypeDefBodies(dataInStream);
 
         // Define functions.
@@ -896,10 +893,6 @@ public class BIRPackageSymbolEnter {
         defineAnnotAttachmentSymbols(dataInStream, varSymbol);
 
         enclScope.define(varSymbol.name, varSymbol);
-    }
-
-    private void defineImportedPackageVariables(DataInputStream dataInStream) throws IOException {
-        definePackageLevelVariables(dataInStream);
     }
 
     private void setParamSymbols(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)

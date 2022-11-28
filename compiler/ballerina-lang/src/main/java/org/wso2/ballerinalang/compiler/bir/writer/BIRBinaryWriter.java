@@ -46,7 +46,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -79,8 +78,6 @@ public class BIRBinaryWriter {
         writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
-        // Write dummy BIRGlobalVariableDcls for imported global vars
-        writeImportedGlobalVarIdentifiers(birbuf, typeWriter, birPackage.importedGlobalVarsDummyVarDcls);
         // Write type def bodies
         writeTypeDefBodies(birbuf, typeWriter, birPackage.typeDefs);
         // Write functions
@@ -157,33 +154,21 @@ public class BIRBinaryWriter {
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
         buf.writeInt(birGlobalVars.size());
         for (BIRGlobalVariableDcl birGlobalVar : birGlobalVars) {
-            writeGlobalVar(buf, typeWriter, birGlobalVar);
-        }
-    }
+            writePosition(buf, birGlobalVar.pos);
+            buf.writeByte(birGlobalVar.kind.getValue());
+            // Name
+            buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
+            // Flags
+            buf.writeLong(birGlobalVar.flags);
+            // Origin
+            buf.writeByte(birGlobalVar.origin.value());
 
-    private void writeGlobalVar(ByteBuf buf, BIRTypeWriter typeWriter, BIRGlobalVariableDcl birGlobalVar) {
-        writePosition(buf, birGlobalVar.pos);
-        buf.writeByte(birGlobalVar.kind.getValue());
-        // Name
-        buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
-        // Flags
-        buf.writeLong(birGlobalVar.flags);
-        // Origin
-        buf.writeByte(birGlobalVar.origin.value());
+            typeWriter.writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
 
-        typeWriter.writeMarkdownDocAttachment(buf, birGlobalVar.markdownDocAttachment);
+            // Function type as a CP Index
+            writeType(buf, birGlobalVar.type);
 
-        // Function type as a CP Index
-        writeType(buf, birGlobalVar.type);
-
-        writeAnnotAttachments(buf, birGlobalVar.annotAttachments);
-    }
-
-    private void writeImportedGlobalVarIdentifiers(ByteBuf buf, BIRTypeWriter typeWriter,
-                                                   Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls) {
-        buf.writeInt(importedGlobalVarsDummyVarDcls.size());
-        for (BIRGlobalVariableDcl birGlobalVar : importedGlobalVarsDummyVarDcls) {
-            writeGlobalVar(buf, typeWriter, birGlobalVar);
+            writeAnnotAttachments(buf, birGlobalVar.annotAttachments);
         }
     }
 
