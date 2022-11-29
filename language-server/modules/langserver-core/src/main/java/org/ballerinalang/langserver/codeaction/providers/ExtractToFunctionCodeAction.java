@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -27,7 +26,9 @@ import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -59,7 +60,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -460,37 +463,40 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private Optional<ArgListsHolder> getArgLists(CodeActionContext context, List<Symbol> symbolsList,
-                                                 NonTerminalNode node) {
+                                                 NonTerminalNode matchedCodeActionNode) {
         List<String> argsForExtractFunction = new ArrayList<>();
         List<String> argsForReplaceFunctionCall = new ArrayList<>();
+        List<String> symbolNamesList = new ArrayList<>();
 
         for (Symbol symbol : symbolsList) {
             if (symbol.getName().isEmpty()) {
                 return Optional.empty();
             }
-            argsForReplaceFunctionCall.add(symbol.getName().get());
+            symbolNamesList.add(symbol.getName().get());
+        }
 
-            Optional<String> possibleType = Optional.empty();
-            if (symbol.kind() == SymbolKind.VARIABLE) {
-                Optional<TypeSymbol> typeSymbol = getTypeSymbol(context, ((VariableSymbol) symbol).typeDescriptor(),
-                        node);
-                if (typeSymbol.isEmpty()) {
-                    return Optional.empty();
-                }
-                possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
+        ExtractToFunctionTypeFinder typeFinder = new ExtractToFunctionTypeFinder(symbolNamesList);
+        typeFinder.findType(matchedCodeActionNode);
+        Map<String, NonTerminalNode> symbolTypes = typeFinder.getSymbolTypes();
+        List<String> sortedSymbolNames = new ArrayList<>();
 
-            } else if (symbol.kind() == SymbolKind.PARAMETER) {
-                Optional<TypeSymbol> typeSymbol = getTypeSymbol(context, ((ParameterSymbol) symbol).typeDescriptor(),
-                        node);
-                if (typeSymbol.isEmpty()) {
-                    return Optional.empty();
-                }
-                possibleType = CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
+        for (Map.Entry<String, NonTerminalNode> entry : symbolTypes.entrySet()) {
+            sortedSymbolNames.add(entry.getKey());
+            sortedSymbolNames.sort(Comparator.comparing(symbolNamesList::indexOf));
+        }
+
+        for (String symbolName : sortedSymbolNames) {
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(symbolTypes.get(symbolName));
+            if (typeSymbol.isEmpty()) {
+                return Optional.empty();
             }
+            Optional<String> possibleType =
+                    CodeActionUtil.getPossibleType(typeSymbol.get(), new ArrayList<>(), context);
             if (possibleType.isEmpty()) {
                 return Optional.empty();
             }
-            argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbol.getName().get()));
+            argsForExtractFunction.add(String.format("%s %s", possibleType.get(), symbolName));
+            argsForReplaceFunctionCall.add(symbolName);
         }
 
         ArgListsHolder argListsHolder = new ArgListsHolder();
@@ -498,16 +504,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         argListsHolder.replaceFunctionCallArgs = argsForReplaceFunctionCall;
 
         return Optional.of(argListsHolder);
-    }
-
-    private Optional<TypeSymbol> getTypeSymbol(CodeActionContext context, TypeSymbol typeSymbol,
-                                               NonTerminalNode node) {
-        // If the type symbol kind is union, return the narrowed type using typeOf() for the particular node.
-        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
-            return context.currentSemanticModel().flatMap(semanticModel ->
-                    semanticModel.typeOf(node.children().get(0)).flatMap(SymbolUtil::getTypeDescriptor));
-        }
-        return Optional.of(typeSymbol);
     }
 
     private Node findEnclosingModulePartNode(NonTerminalNode node) {
@@ -629,5 +625,37 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private static class ArgListsHolder {
         private List<String> extractFunctionArgs;
         private List<String> replaceFunctionCallArgs;
+    }
+
+    static class ExtractToFunctionTypeFinder extends NodeVisitor {
+        List<String> symbolNamesList;
+        Map<String, NonTerminalNode> nodeList = new LinkedHashMap<>();
+
+        public ExtractToFunctionTypeFinder(List<String> symbolNamesList) {
+            this.symbolNamesList = symbolNamesList;
+        }
+
+        public Map<String, NonTerminalNode> getSymbolTypes() {
+            return nodeList;
+        }
+
+        public void findType(NonTerminalNode matchedCodeActionNode) {
+            if (matchedCodeActionNode.kind() == SyntaxKind.LIST) {
+                for (Node node : matchedCodeActionNode.children()) {
+                    node.accept(this);
+                }
+            } else {
+                matchedCodeActionNode.accept(this);
+            }
+        }
+
+        @Override
+        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+            for (String symbolName: symbolNamesList) {
+                if (!nodeList.containsKey(symbolName) && symbolName.equals(simpleNameReferenceNode.name().text())) {
+                    nodeList.put(symbolName, simpleNameReferenceNode);
+                }
+            }
+        }
     }
 }
