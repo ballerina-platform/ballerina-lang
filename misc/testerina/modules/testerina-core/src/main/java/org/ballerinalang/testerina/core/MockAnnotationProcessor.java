@@ -81,7 +81,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
     private SymbolResolver symbolResolver;
     private Types typeChecker;
-    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private final TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -133,7 +133,11 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
                         setAnnotationValues(fields, annotationValues, attachmentNode, parent);
                         PackageID functionToMockID = getPackageID(annotationValues[0]);
-                        validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
+                        boolean validFunctionName = validateFunctionName(
+                                annotationValues[1], annotationValues[0], functionToMockID, attachmentNode);
+                        if (!validFunctionName) {
+                            return;
+                        }
                         BLangTestablePackage bLangTestablePackage =
                                 (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
                         // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
@@ -216,7 +220,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find module specified");
+                                "could not find module specified '" + vals[0] + "'");
                         break;
                     }
 
@@ -227,13 +231,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
                             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, ((BLangFunction) functionNode).pos,
-                                    "incompatible types: expected " + functionToMockType.toString()
-                                            + " but found " + mockFunctionType.toString());
+                                    "incompatible types: expected " + functionToMockType
+                                            + " but found " + mockFunctionType);
                             break;
                         }
                     } else {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find functions in module");
+                                "could not find function " + vals[1] + " in module '" + vals[0] + "'");
                         break;
                     }
 
@@ -243,14 +247,12 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
                             functionName);
 
-                    if (functionToMockID != null) {
-                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
-                        String className = getQualifiedClassName(bLangTestablePackage,
-                                functionToMockID.toString(), vals[1]);
-                        vals[1] = vals[1].replaceAll("\\\\", "");
-                        registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
-                                        + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
-                    }
+                    // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                    String className = getQualifiedClassName(bLangTestablePackage,
+                            functionToMockID.toString(), vals[1]);
+                    vals[1] = vals[1].replaceAll("\\\\", "");
+                    registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                    + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
                 }
             }
         }
@@ -329,16 +331,17 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      *
      * @param functionName   Name of the function to mock
      * @param attachmentNode MockFunction object attachment node
+     * @return true if the provided function name valid
      */
-    private void validateFunctionName(String functionName, PackageID functionToMockID,
+    private boolean validateFunctionName(String functionName, String moduleName, PackageID functionToMockID,
                                       AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                    "could not find module specified ");
+                    "could not find module specified '" + moduleName + "'");
         } else {
             if (functionName == null) {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                        "Function name cannot be empty");
+                        "function name cannot be empty");
             } else {
                 // Iterate through package map entries
                 for (Map.Entry<BPackageSymbol, SymbolEnv> entry : this.packageEnvironmentMap.entrySet()) {
@@ -346,16 +349,16 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         // Check if the current package has the function name
                         if (entry.getValue().scope.entries.containsKey(new Name(functionName))) {
                             // Exit validate function if the function exists in the entry
-                            return;
+                            return true;
                         }
                     }
                 }
                 // If it reaches this part, then the function has'nt been found in both packages
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                        "Function \'" + functionName + "\' cannot be found in the package \'"
-                                + functionToMockID.toString());
+                        "could not find function '" + functionName + "' in module '" + moduleName + "'");
             }
         }
+        return false;
     }
 
     /**
