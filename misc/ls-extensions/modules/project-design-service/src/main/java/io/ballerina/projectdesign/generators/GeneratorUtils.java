@@ -18,6 +18,10 @@
 
 package io.ballerina.projectdesign.generators;
 
+import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
@@ -29,6 +33,8 @@ import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static io.ballerina.projectdesign.ProjectDesignConstants.DISPLAY_ANNOTATION;
@@ -84,6 +90,39 @@ public class GeneratorUtils {
                 }
             }
             break;
+        }
+
+        return new ServiceAnnotation(id, label, elementLocation);
+    }
+
+    public static ServiceAnnotation getServiceAnnotation(Annotatable annotableSymbol, String filePath) {
+
+        String id = UUID.randomUUID().toString();
+        String label = "";
+        ElementLocation elementLocation = null;
+
+        List<AnnotationSymbol> annotSymbols = annotableSymbol.annotations();
+        List<AnnotationAttachmentSymbol> annotAttachmentSymbols = annotableSymbol.annotAttachments();
+        if (annotSymbols.size() == annotAttachmentSymbols.size()) {
+            for (int i = 0; i < annotSymbols.size(); i++) {
+                AnnotationSymbol annotSymbol = annotSymbols.get(i);
+                AnnotationAttachmentSymbol annotAttachmentSymbol = annotAttachmentSymbols.get(i);
+                String annotName = annotSymbol.getName().orElse("");
+                elementLocation = annotSymbol.getLocation().isPresent() ?
+                        getElementLocation(filePath, annotSymbol.getLocation().get().lineRange()) : null;
+                if (!(annotName.equals(DISPLAY_ANNOTATION) || annotAttachmentSymbol.attachmentValue().isEmpty()) ||
+                        !(annotAttachmentSymbol.attachmentValue().get().value() instanceof LinkedHashMap)) {
+                    continue;
+                }
+                LinkedHashMap attachmentValue = (LinkedHashMap) annotAttachmentSymbol.attachmentValue().get().value();
+                if (attachmentValue.containsKey(ID)) {
+                    id = (String) ((ConstantValue) attachmentValue.get(ID)).value();
+                }
+                if (attachmentValue.containsKey(LABEL)) {
+                    label = (String) ((ConstantValue) attachmentValue.get(LABEL)).value();
+                }
+                break;
+            }
         }
 
         return new ServiceAnnotation(id, label, elementLocation);
