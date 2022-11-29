@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 
-
 package io.ballerina.modelgenerator.plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.ballerina.modelgenerator.core.ComponentModel;
 import io.ballerina.modelgenerator.core.ComponentModelBuilder;
+import io.ballerina.modelgenerator.plugin.diagnostic.DiagnosticMessage;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.CompilationAnalysisContext;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -55,21 +59,22 @@ public class CompilationAnalysisTask implements AnalysisTask<CompilationAnalysis
                             compilationAnalysisContext.compilation());
             Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
             String componentModelJson = gson.toJson(projectModel) + "\n";
-            writeComponentModelJson(outPath, componentModelJson);
+            writeComponentModelJson(outPath, componentModelJson, compilationAnalysisContext);
         }
     }
 
-    private void writeComponentModelJson(Path outPath, String componentModelJson) {
+    private void writeComponentModelJson(Path outPath, String componentModelJson, CompilationAnalysisContext context) {
         try {
             // Create ComponentModel directory if not exists in the path. If exists do not throw an error
             Files.createDirectories(Paths.get(outPath + PATH_SEPARATOR + COMPONENT_MODEL));
             Path writePath = outPath.resolve(COMPONENT_MODEL + PATH_SEPARATOR + "model.json");
             writeFile(writePath, componentModelJson);
-        } catch (IOException e) {
-//            DiagnosticMessages error = DiagnosticMessages.OAS_CONVERTOR_108;
-//            ExceptionDiagnostic diagnostic = new ExceptionDiagnostic(error.getCode(),
-//                    error.getDescription(), null, e.toString());
-//            diagnostics.add(BuildExtensionUtil.getDiagnostics(diagnostic));
+        } catch (InvalidPathException | SecurityException | IOException e) {
+            DiagnosticMessage diagnosticMessage = DiagnosticMessage.ERROR_100;
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo(diagnosticMessage.getCode(),
+                    diagnosticMessage.getMessageFormat(), diagnosticMessage.getSeverity());
+            Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, null, e.getMessage());
+            context.reportDiagnostic(diagnostic);
         }
     }
 

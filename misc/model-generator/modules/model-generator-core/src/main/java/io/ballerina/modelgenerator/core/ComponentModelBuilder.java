@@ -42,6 +42,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ComponentModelBuilder {
 
     public ComponentModel constructComponentModel(Package currentPackage) {
+        return constructComponentModel(currentPackage, null);
+    }
+
+    public ComponentModel constructComponentModel(Package currentPackage, PackageCompilation packageCompilation) {
 
         Map<String, Service> services = new HashMap<>();
         // todo: Change to TypeDefinition
@@ -55,7 +59,8 @@ public class ComponentModelBuilder {
                 moduleRootPath = moduleRootPath.resolve(module.moduleName().moduleNamePart());
             }
             Collection<DocumentId> documentIds = module.documentIds();
-            PackageCompilation currentPackageCompilation = currentPackage.getCompilation();
+            PackageCompilation currentPackageCompilation = packageCompilation == null ?
+                    currentPackage.getCompilation() : packageCompilation;
             SemanticModel currentSemanticModel = currentPackageCompilation.getSemanticModel(module.moduleId());
             if (currentPackageCompilation.diagnosticResult().hasErrors() && !hasDiagnosticErrors.get()) {
                 hasDiagnosticErrors.set(true);
@@ -71,34 +76,5 @@ public class ComponentModelBuilder {
         });
 
         return new ComponentModel(packageId, services, entities, hasDiagnosticErrors.get());
-    }
-
-    public ComponentModel constructComponentModel(Package currentPackage, PackageCompilation packageCompilation) {
-
-        Map<String, Service> services = new HashMap<>();
-        // todo: Change to TypeDefinition
-        Map<String, Entity> entities = new HashMap<>();
-
-        PackageId packageId = new PackageId(currentPackage);
-
-        currentPackage.modules().forEach(module -> {
-            Path moduleRootPath = module.project().sourceRoot().toAbsolutePath();
-            if (module.moduleName().moduleNamePart() != null) {
-                moduleRootPath = moduleRootPath.resolve(module.moduleName().moduleNamePart());
-            }
-            Collection<DocumentId> documentIds = module.documentIds();
-            SemanticModel currentSemanticModel =
-                    packageCompilation.getSemanticModel(module.moduleId());
-            // todo : Check project diagnostics
-            ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(
-                    currentSemanticModel, packageId, moduleRootPath);
-            services.putAll(serviceModelGenerator.generate(documentIds, module, currentPackage));
-
-            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(
-                    currentSemanticModel, packageId, moduleRootPath);
-            entities.putAll(entityModelGenerator.generate());
-        });
-
-        return new ComponentModel(packageId, services, entities);
     }
 }
