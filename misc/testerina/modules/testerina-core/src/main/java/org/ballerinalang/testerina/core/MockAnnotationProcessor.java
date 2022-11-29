@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.core;
 
 import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
 /**
@@ -109,6 +111,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         annotations = annotations.stream().distinct().collect(Collectors.toList());
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
+            // Check if the package belongs to a single file project
+            if (packageName.equals(DOT)) {
+                diagnosticLog.logDiagnostic(
+                        DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
+                        "Function mocking is not supported for single file projects");
+                return;
+            }
             String annotationName = attachmentNode.getAnnotationName().getValue();
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode).
