@@ -1451,7 +1451,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 memTypeNode.setBType(null);
                 symbolEnter.defineNode(memTypeNode, tupleEnv);
             }
-            if (bType == symTable.noType) {
+            if (memTypeNode.getBType() == symTable.noType) {
                 hasUndefinedMember = true;
             }
             memberTypes.add(memTypeNode);
