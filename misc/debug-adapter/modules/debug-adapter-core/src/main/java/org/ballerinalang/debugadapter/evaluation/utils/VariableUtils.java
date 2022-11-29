@@ -65,7 +65,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 public class VariableUtils {
 
     /**
-     * Returns runtime value of the Balerina value reference for the given name. For that, this method searches for a
+     * Returns runtime value of the Ballerina value reference for the given name. For that, this method searches for a
      * match according to the below order.
      *
      * <ul>
@@ -78,30 +78,47 @@ public class VariableUtils {
      * @return the JDI value instance of the Ballerina variable
      */
     public static Value fetchNameReferenceValue(EvaluationContext context, String name) throws EvaluationException {
-        Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
-        if (bExpressionValue.isPresent()) {
-            return bExpressionValue.get().getJdiValue();
-        }
-
-        bExpressionValue = searchGlobalVariables(context.getSuspendedContext(), name);
-        if (bExpressionValue.isPresent()) {
-            return bExpressionValue.get().getJdiValue();
+        Optional<BExpressionValue> variableReferenceValue = fetchVariableReferenceValue(context, name);
+        if (variableReferenceValue.isPresent()) {
+            return variableReferenceValue.get().getJdiValue();
         }
 
         NameBasedTypeResolver typeResolver = new NameBasedTypeResolver(context);
-        List<Value> resolvedTypes = typeResolver.resolve(name);
-        if (resolvedTypes.size() != 1) {
+        try {
+            List<Value> resolvedTypes = typeResolver.resolve(name);
+            if (resolvedTypes.size() != 1) {
+                throw createEvaluationException(NAME_REF_RESOLVING_ERROR, name);
+            }
+            Value type = resolvedTypes.get(0);
+            List<String> argTypeNames = new LinkedList<>();
+            argTypeNames.add(B_TYPE_CLASS);
+            RuntimeStaticMethod createTypeDescMethod = getRuntimeMethod(context.getSuspendedContext(),
+                    B_VALUE_CREATOR_CLASS, CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
+            List<Value> argValues = new LinkedList<>();
+            argValues.add(type);
+            createTypeDescMethod.setArgValues(argValues);
+            return createTypeDescMethod.invokeSafely();
+        } catch (EvaluationException e) {
             throw createEvaluationException(NAME_REF_RESOLVING_ERROR, name);
         }
-        Value type = resolvedTypes.get(0);
-        List<String> argTypeNames = new LinkedList<>();
-        argTypeNames.add(B_TYPE_CLASS);
-        RuntimeStaticMethod createTypeDescMethod = getRuntimeMethod(context.getSuspendedContext(),
-                B_VALUE_CREATOR_CLASS, CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
-        List<Value> argValues = new LinkedList<>();
-        argValues.add(type);
-        createTypeDescMethod.setArgValues(argValues);
-        return createTypeDescMethod.invokeSafely();
+    }
+
+    /**
+     * Returns runtime value of the Ballerina variable value reference for the given name.
+     *
+     * @param context suspended context
+     * @param name    name of the variable to be retrieved
+     * @return the JDI value instance of the Ballerina variable
+     */
+    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name)
+            throws EvaluationException {
+        Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
+        if (bExpressionValue.isPresent()) {
+            return bExpressionValue;
+        }
+
+        bExpressionValue = searchGlobalVariables(context.getSuspendedContext(), name);
+        return bExpressionValue;
     }
 
     /**
