@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_EXPRESSION;
@@ -95,6 +96,10 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
     @Override
     @Test
     public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
+        // undefined name reference evaluation
+        debugTestRunner.assertEvaluationError(context, "unknown", String.format(NAME_REF_RESOLVING_ERROR.getString(),
+                "unknown"));
+
         // undefined constant evaluation
         debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
                 .getString(), "int", "MAX"));

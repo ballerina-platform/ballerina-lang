@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeAndEscapeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
@@ -517,10 +518,15 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 .getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
-            Value jdiValue = VariableUtils.fetchNameReferenceValue(evaluationContext, name);
-            BVariable bVar = VariableFactory.getVariable(context, jdiValue);
+            Optional<BExpressionValue> variableValue = VariableUtils.fetchVariableReferenceValue(evaluationContext,
+                    name);
+            if (variableValue.isEmpty()) {
+                throw createEvaluationException(VARIABLE_NOT_FOUND, name);
+            }
+
+            BVariable bVar = VariableFactory.getVariable(context, variableValue.get().getJdiValue());
             capturedTypes.add(getTypeNameString(bVar));
-            externalVariableValues.add(getValueAsObject(context, jdiValue));
+            externalVariableValues.add(getValueAsObject(context, variableValue.get().getJdiValue()));
         }
 
         for (int index = 0; index < capturedVarNames.size(); index++) {
