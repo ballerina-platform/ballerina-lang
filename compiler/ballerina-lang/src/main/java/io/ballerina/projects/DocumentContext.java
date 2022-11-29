@@ -48,7 +48,6 @@ import java.util.StringJoiner;
  * @since 2.0.0
  */
 class DocumentContext {
-
     // TODO This constant should not be here
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
 
@@ -183,5 +182,4 @@ class DocumentContext {
     DocumentContext duplicate() {
         return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
     }
-
 }

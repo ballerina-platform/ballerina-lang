@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -91,7 +90,6 @@ class ModuleContext {
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
     private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
-    private List<Diagnostic> idlPluginDiagnostics;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -121,7 +119,6 @@ class ModuleContext {
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
         this.bootstrap = new Bootstrap(projectEnvironment.getService(PackageResolver.class));
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
-        this.idlPluginDiagnostics = new ArrayList<>();
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
@@ -270,10 +267,6 @@ class ModuleContext {
         }
 
         return Collections.emptyList();
-    }
-
-    List<Diagnostic> idlPluginDiagnostics() {
-        return idlPluginDiagnostics;
     }
 
     private void parseTestSources(BLangPackage pkgNode, PackageID pkgId, CompilerContext compilerContext) {
