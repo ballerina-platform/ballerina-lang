@@ -658,7 +658,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "",
+      "filterText": "module3",
       "insertText": "module3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -716,7 +716,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "filterText": "module11",
+      "filterText": "module1",
       "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

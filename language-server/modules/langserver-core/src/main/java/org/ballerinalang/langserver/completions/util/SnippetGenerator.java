@@ -1654,6 +1654,37 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Regular Expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRegularExpressionSnippet() {
+        String snippet = "re `${1}`";
+        return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, 
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Paranthesis Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getParanthesisSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PARANTHESIS, ItemResolverConstants.PARANTHESIS, "(${1})",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Square Bracket Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getSquareBracketSnippet() {
+        return new SnippetBlock(ItemResolverConstants.SQUARE_BRACKET, ItemResolverConstants.SQUARE_BRACKET, "[${1}]",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get table keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

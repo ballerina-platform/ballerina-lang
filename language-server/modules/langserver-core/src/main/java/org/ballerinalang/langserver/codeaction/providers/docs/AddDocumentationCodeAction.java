@@ -57,7 +57,9 @@ public class AddDocumentationCodeAction implements RangeBasedCodeActionProvider 
                 SyntaxKind.METHOD_DECLARATION,
                 SyntaxKind.OBJECT_METHOD_DEFINITION,
                 SyntaxKind.ANNOTATION_DECLARATION,
-                SyntaxKind.MODULE_VAR_DECL);
+                SyntaxKind.MODULE_VAR_DECL,
+                SyntaxKind.ENUM_DECLARATION,
+                SyntaxKind.CONST_DECLARATION);
     }
 
     @Override

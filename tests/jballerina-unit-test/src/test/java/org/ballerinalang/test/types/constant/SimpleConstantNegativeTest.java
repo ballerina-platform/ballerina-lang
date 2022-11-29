@@ -165,6 +165,31 @@ public class SimpleConstantNegativeTest {
                 322, 22);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Infinityf', found 'float'",
                 323, 27);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 332, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'", 333, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 335, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 336, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason '/ by zero'", 338, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 339, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 341, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 342, 18);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 344, 19);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 345, 19);
+        BAssertUtil.validateError(compileResult, index++, "invalid constant expression, reason 'Division by zero'",
+                347, 23);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'ANS7'", 349, 11);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'ANS7' is already initialized with 'null'", 349, 11);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 349, 18);
+        BAssertUtil.validateError(compileResult, index++, "'9.999999999999999999999999999999999E+6146' " +
+                "is out of range for 'decimal'", 351, 20);
+        BAssertUtil.validateError(compileResult, index++, "'-9.999999999999999999999999999999999E+6146' " +
+                "is out of range for 'decimal'", 352, 20);
+        BAssertUtil.validateError(compileResult, index++, "'1.010000000000000000000000000000000E+6145' " +
+                "is out of range for 'decimal'", 353, 20);
+        BAssertUtil.validateError(compileResult, index++, "'-1.100000000000000000000000000000000E+6145'" +
+                " is out of range for 'decimal'", 354, 20);
+        BAssertUtil.validateError(compileResult, index++, "'5E+6413' is out of range for 'decimal'", 355, 20);
+        BAssertUtil.validateError(compileResult, index++, "'int' range overflow", 357, 19);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

@@ -86,3 +86,11 @@ final int testModuleVar2 = 10;
 final int testModuleVar1 = 10;
 
 annotation varAnnotation;
+
+const string constString = "Hello";
+
+enum Color {
+    RED,
+    GREEN,
+    BLUE
+}

@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
@@ -66,10 +67,15 @@ public class CodeActionRouter {
                 = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
         // Get available range based code-actions
-        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
+        Optional<SyntaxTree> syntaxTree = ctx.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
+                    " Syntax tree is empty for file " + ctx.fileUri());
+            return Collections.emptyList();
+        }
         Range highlightedRange = ctx.range();
         // Run code action node analyzer
-        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree);
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree.get());
         Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
         SyntaxKind syntaxKind = analyzer.getSyntaxKind();
         if (codeActionNode.isPresent() && syntaxKind != SyntaxKind.NONE) {
@@ -115,7 +121,8 @@ public class CodeActionRouter {
                         .isRangeWithinRange(highlightedRange, PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
-                    DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
+                    DiagBasedPositionDetails positionDetails =
+                            computePositionDetails(syntaxTree.get(), diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
                             .forEach(provider -> {
                                 try {
