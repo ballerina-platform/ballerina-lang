@@ -258,7 +258,6 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException(e.getMessage());
         }
 
-
         if (coverage) {
             // Generate the exec in a separate process
             List<String> execArgs = new ArrayList<>();
