@@ -20,39 +20,20 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
-import org.ballerinalang.debugadapter.jdi.JdiProxyException;
-import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
-import org.ballerinalang.debugadapter.variable.BVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.DebugVariableException;
-import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
-import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_UTILS_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_TYPEDESC_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_BMAP_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR_REGEX;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.loadClass;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -63,121 +44,6 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  * @since 2.0.0
  */
 public class VariableUtils {
-
-    /**
-     * Returns runtime value of the Ballerina value reference for the given name. For that, this method searches for a
-     * match according to the below order.
-     *
-     * <ul>
-     * <li> variables defined both local and global scopes
-     * <li> types defined int both local and global scopes
-     * </ul>
-     *
-     * @param context suspended context
-     * @param name    name of the variable to be retrieved
-     * @return the JDI value instance of the Ballerina variable
-     */
-    public static Value fetchNameReferenceValue(EvaluationContext context, String name) throws EvaluationException {
-        Optional<BExpressionValue> variableReferenceValue = fetchVariableReferenceValue(context, name);
-        if (variableReferenceValue.isPresent()) {
-            return variableReferenceValue.get().getJdiValue();
-        }
-
-        NameBasedTypeResolver typeResolver = new NameBasedTypeResolver(context);
-        try {
-            List<Value> resolvedTypes = typeResolver.resolve(name);
-            if (resolvedTypes.size() != 1) {
-                throw createEvaluationException(NAME_REF_RESOLVING_ERROR, name);
-            }
-            Value type = resolvedTypes.get(0);
-            List<String> argTypeNames = new LinkedList<>();
-            argTypeNames.add(B_TYPE_CLASS);
-            RuntimeStaticMethod createTypeDescMethod = getRuntimeMethod(context.getSuspendedContext(),
-                    B_VALUE_CREATOR_CLASS, CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
-            List<Value> argValues = new LinkedList<>();
-            argValues.add(type);
-            createTypeDescMethod.setArgValues(argValues);
-            return createTypeDescMethod.invokeSafely();
-        } catch (EvaluationException e) {
-            throw createEvaluationException(NAME_REF_RESOLVING_ERROR, name);
-        }
-    }
-
-    /**
-     * Returns runtime value of the Ballerina variable value reference for the given name.
-     *
-     * @param context suspended context
-     * @param name    name of the variable to be retrieved
-     * @return the JDI value instance of the Ballerina variable
-     */
-    public static Optional<BExpressionValue> fetchVariableReferenceValue(EvaluationContext context, String name)
-            throws EvaluationException {
-        Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context.getSuspendedContext(), name);
-        if (bExpressionValue.isPresent()) {
-            return bExpressionValue;
-        }
-
-        bExpressionValue = searchGlobalVariables(context.getSuspendedContext(), name);
-        return bExpressionValue;
-    }
-
-    /**
-     * Returns runtime value of the matching local variable, for the given name.
-     *
-     * @param context       suspended context
-     * @param nameReference name of the variable to be retrieved
-     * @return the JDI value instance of the local variable
-     */
-    private static Optional<BExpressionValue> searchLocalVariables(SuspendedContext context, String nameReference) {
-        try {
-            LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameReference);
-            if (jvmVar != null) {
-                return Optional.of(new BExpressionValue(context, context.getFrame().getValue(jvmVar)));
-            }
-
-            // As all the ballerina variables which are being used inside lambda functions are converted into maps
-            // during the runtime code generation, such local variables should be accessed in a different manner.
-            List<LocalVariableProxyImpl> lambdaParamMaps = context.getFrame().visibleVariables().stream()
-                    .filter(org.ballerinalang.debugadapter.variable.VariableUtils::isLambdaParamMap)
-                    .collect(Collectors.toList());
-
-            Optional<Value> localVariableMatch = lambdaParamMaps.stream()
-                    .map(localVariableProxy -> {
-                        try {
-                            Value varValue = context.getFrame().getValue(localVariableProxy);
-                            BVariable mapVar = VariableFactory.getVariable(context, varValue);
-                            if (mapVar == null || mapVar.getBType() != BVariableType.MAP
-                                    || !(mapVar instanceof IndexedCompoundVariable)) {
-                                return null;
-                            }
-                            return ((IndexedCompoundVariable) mapVar).getChildByName(nameReference);
-                        } catch (JdiProxyException | DebugVariableException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .findAny();
-
-            if (localVariableMatch.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.of(new BExpressionValue(context, localVariableMatch.get()));
-        } catch (JdiProxyException e) {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Returns runtime value of the matching global variable, for the given name.
-     *
-     * @param context       suspended context
-     * @param nameReference name of the variable to be retrieved
-     * @return the JDI value instance of the global variable
-     */
-    private static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
-        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
-        return getFieldValue(context, classQName, nameReference);
-    }
 
     /**
      * Returns runtime value of the matching constant variable, for the given name.

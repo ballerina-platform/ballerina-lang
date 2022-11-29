@@ -126,7 +126,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
     @Override
     @Test
-    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
         debugTestRunner.assertExpression(context, NIL_VAR, "()", "nil");
         // boolean variable test

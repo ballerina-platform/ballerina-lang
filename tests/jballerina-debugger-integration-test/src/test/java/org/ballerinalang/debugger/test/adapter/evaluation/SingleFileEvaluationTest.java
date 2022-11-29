@@ -48,8 +48,8 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
 
     @Override
     @Test
-    public void simpleNameReferenceEvaluationTest() throws BallerinaTestException {
-        super.simpleNameReferenceEvaluationTest();
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
+        super.nameReferenceEvaluationTest();
 
         // Todo - move to common evaluation test suite after fixing the value string
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly \"John\" name; |} & readonly",

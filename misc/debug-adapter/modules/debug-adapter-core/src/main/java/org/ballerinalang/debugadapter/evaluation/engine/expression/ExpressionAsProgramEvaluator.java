@@ -52,6 +52,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.ExternalVariableReferenceFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.FileUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -518,7 +519,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
                 .getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
-            Optional<BExpressionValue> variableValue = VariableUtils.fetchVariableReferenceValue(evaluationContext,
+            Optional<BExpressionValue> variableValue = EvaluationUtils.fetchVariableReferenceValue(evaluationContext,
                     name);
             if (variableValue.isEmpty()) {
                 throw createEvaluationException(VARIABLE_NOT_FOUND, name);

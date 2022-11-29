@@ -34,6 +34,7 @@ public enum EvaluationExceptionKind {
     FIELD_NOT_FOUND("Undefined field '%s' in `%s`"),
     VARIABLE_NOT_FOUND("Undefined variable '%s'"),
     QUALIFIED_VARIABLE_RESOLVING_FAILED("Failed to resolve qualified variable: '%s:%s'"),
+    QUALIFIED_REFERENCE_NOT_FOUND("Failed to resolve qualified name reference: '%s:%s'"),
     HELPER_UTIL_NOT_FOUND("Failed to load the evaluation helper util method: '%s'"),
     FUNCTION_EXECUTION_ERROR("Error occurred when executing method: '%s'"),
     INDEX_OUT_OF_RANGE_ERROR("%s index out of range: index=%d, size=%d"),

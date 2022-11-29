@@ -129,7 +129,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     public abstract void newConstructorEvaluationTest() throws BallerinaTestException;
 
-    public abstract void simpleNameReferenceEvaluationTest() throws BallerinaTestException;
+    public abstract void nameReferenceEvaluationTest() throws BallerinaTestException;
 
     public abstract void builtInNameReferenceEvaluationTest() throws BallerinaTestException;
 
