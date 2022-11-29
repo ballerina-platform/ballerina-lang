@@ -43,6 +43,11 @@ public interface InitializationOptions {
     String KEY_QUICKPICK_SUPPORT = "supportQuickPick";
 
     /**
+     * Whether the LS should run in lightweight mode.
+     */
+    String KEY_ENABLE_LIGHTWEIGHT_MODE = "enableLightWeightMode";
+
+    /**
      * Return if the client support bala URI scheme.
      *
      * @return True if bala URi scheme is supported.
@@ -69,4 +74,11 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isQuickPickSupported();
+
+    /**
+     * Returns if the LS enable lightweight mode.
+     *
+     * @return True if enabled, false otherwise
+     */
+    boolean isEnableLightWeightMode();
 }
