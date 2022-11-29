@@ -47,9 +47,9 @@ under the License.
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.PackageEvaluationNegativeTest"/>
-            <!--            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationTest"/>-->
-            <!--            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>-->
-            <!--            <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>-->
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
 
             <!--Other tests-->
             <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
