@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -28,6 +29,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
@@ -40,6 +42,7 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -346,6 +349,20 @@ public class VariableReturnType {
 
     public static BMap<BString, Object> getAnnotationValue(BTypedesc y) {
         return ((BTypeReferenceType) y.getDescribingType()).getAnnotations();
+    }
+
+    public static Object getAnnotationValue2(Object value, BTypedesc y, BString annotationName, int min, int max) {
+        Type describingType = y.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        if (annotations.containsKey(annotationName)) {
+            Object annotValue = annotations.get(annotationName);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            Long maxValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxValue"));
+            if (minValue == min && maxValue == max) {
+                return value;
+            }
+        }
+        return ErrorCreator.createError(StringUtils.fromString("Validation failed for " + annotationName + "."));
     }
 
     public static Object clientGetWithUnion(BObject client, Object x, BTypedesc y) {
