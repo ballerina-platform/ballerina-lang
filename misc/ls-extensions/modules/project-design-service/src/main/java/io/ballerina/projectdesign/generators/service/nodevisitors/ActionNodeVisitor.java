@@ -20,6 +20,8 @@ package io.ballerina.projectdesign.generators.service.nodevisitors;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
@@ -45,6 +47,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projectdesign.generators.GeneratorUtils;
 import io.ballerina.projectdesign.model.service.Interaction;
 import io.ballerina.projectdesign.model.service.ResourceId;
+import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
@@ -57,6 +60,7 @@ import java.util.Optional;
 
 import static io.ballerina.projectdesign.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.projectdesign.ProjectDesignConstants.TYPE_MAP;
+import static io.ballerina.projectdesign.generators.GeneratorUtils.getServiceAnnotation;
 
 /**
  * Visitor class for RemoteMethodCallAction nodes.
@@ -83,68 +87,59 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
-
-        String clientName = String.valueOf(clientResourceAccessActionNode.expression()).trim();
+        ExpressionNode clientNode = clientResourceAccessActionNode.expression();
         String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
-        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel, filePath);
-        NonTerminalNode parent = clientResourceAccessActionNode.parent().parent();
+        StatementNodeVisitor statementVisitor =
+                new StatementNodeVisitor(String.valueOf(clientNode).trim(), semanticModel, filePath);
 
-        // todo: get the connector type using semantic model
-        //todo : implement using semantic model. Need to wait till bug fix
-        while (statementVisitor.getServiceId() == null || statementVisitor.getServiceId().isEmpty()) { //isEmpty
-            parent = parent.parent();
-            if (parent != null) {
-                parent.accept(statementVisitor);
-            } else {
-                break;
-            }
+        String serviceId = null;
+        Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
+        if (clientSymbol.isPresent()) {
+            Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
+            serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
         }
 
         Interaction interaction = new Interaction(
-                new ResourceId(statementVisitor.getServiceId(), resourceMethod, resourcePath),
+                new ResourceId(serviceId, resourceMethod, resourcePath),
                 statementVisitor.getConnectorType(), GeneratorUtils.getElementLocation(filePath,
                 clientResourceAccessActionNode.lineRange()));
         interactionList.add(interaction);
-
     }
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-
-        String clientName = String.valueOf(remoteMethodCallActionNode.expression()).trim();
+        SimpleNameReferenceNode clientNode = null;
         if (remoteMethodCallActionNode.expression() instanceof FieldAccessExpressionNode) {
             NameReferenceNode fieldName = ((FieldAccessExpressionNode)
                     remoteMethodCallActionNode.expression()).fieldName();
             if (fieldName instanceof SimpleNameReferenceNode) {
-                clientName = ((SimpleNameReferenceNode) fieldName).name().text();
+                clientNode = (SimpleNameReferenceNode) fieldName;
             }
             // todo : Other combinations
         } else if (remoteMethodCallActionNode.expression() instanceof SimpleNameReferenceNode) {
-            clientName = ((SimpleNameReferenceNode) remoteMethodCallActionNode.expression()).name().text();
+            clientNode = (SimpleNameReferenceNode) remoteMethodCallActionNode.expression();
         }
         // todo : Other combinations
-        String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
-        NonTerminalNode parent = remoteMethodCallActionNode.parent().parent();
-        StatementNodeVisitor statementVisitor = new StatementNodeVisitor(clientName, semanticModel, filePath);
 
-        //todo : implement using semantic model. Need to wait till bug fix
-        // semanticModel.symbol(remoteMethodCallActionNode.expression()); -> returns null
+        if (clientNode != null) {
+            String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
+            StatementNodeVisitor statementVisitor =
+                    new StatementNodeVisitor(clientNode.name().text(), semanticModel, filePath);
 
-        while (statementVisitor.getServiceId() == null || statementVisitor.getServiceId().isEmpty()) {
-            parent = parent.parent();
-            if (parent != null) {
-                parent.accept(statementVisitor);
-            } else {
-                break;
+            String serviceId = null;
+            Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
+            if (clientSymbol.isPresent()) {
+                Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
+                serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
             }
-        }
-        Interaction interaction = new Interaction(new ResourceId(statementVisitor.getServiceId(),
-                resourceMethod, null), statementVisitor.getConnectorType(),
-                GeneratorUtils.getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
-        interactionList.add(interaction);
 
+            Interaction interaction = new Interaction(new ResourceId(serviceId,
+                    resourceMethod, null), statementVisitor.getConnectorType(),
+                    GeneratorUtils.getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
+            interactionList.add(interaction);
+        }
     }
 
     @Override
