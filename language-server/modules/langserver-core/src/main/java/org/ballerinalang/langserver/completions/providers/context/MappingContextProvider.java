@@ -215,7 +215,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         LinePosition linePosition = node.location().lineRange().endLine();
         Optional<TypeSymbol> resolvedType = context.currentSemanticModel().get()
                 .expectedType(context.currentDocument().get(), linePosition);
-        if (resolvedType.isEmpty() ) {
+        if (resolvedType.isEmpty()) {
             return Collections.emptyList();
         }
         Predicate<Symbol> symbolFilter = this.getVariableFilter();
