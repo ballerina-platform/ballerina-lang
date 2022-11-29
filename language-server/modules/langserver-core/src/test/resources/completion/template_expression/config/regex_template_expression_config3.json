@@ -1,0 +1,81 @@
+{
+  "position": {
+    "line": 1,
+    "character": 32
+  },
+  "source": "template_expression/source/regex_template_expression_source3.bal",
+  "items": [
+    {
+      "label": "d",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "d",
+      "insertText": "d",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "D",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "D",
+      "insertText": "D",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "s",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "S",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "S",
+      "insertText": "S",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "w",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "w",
+      "insertText": "w",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "W",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "W",
+      "insertText": "W",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "r",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "r",
+      "insertText": "r",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "n",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "n",
+      "insertText": "n",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "t",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "t",
+      "insertText": "t",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

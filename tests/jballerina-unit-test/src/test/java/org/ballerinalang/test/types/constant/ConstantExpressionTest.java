@@ -150,6 +150,16 @@ public class ConstantExpressionTest {
         BRunUtil.invoke(compileResult, "testConstUnaryExpressions");
     }
 
+    @Test
+    public void testConstRemainderOperation() {
+        BRunUtil.invoke(compileResult, "testConstRemainderOperation");
+    }
+
+    @Test
+    public void testConstDecimalSubnormals() {
+        BRunUtil.invoke(compileResult, "testConstDecimalSubnormals");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
