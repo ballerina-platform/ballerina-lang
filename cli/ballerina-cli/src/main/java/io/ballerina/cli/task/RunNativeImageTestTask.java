@@ -52,11 +52,13 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -111,7 +113,6 @@ public class RunNativeImageTestTask implements Task {
 
     private final PrintStream out;
     private final String includesInCoverage;
-    TestReport testReport;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -122,9 +123,11 @@ public class RunNativeImageTestTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
 
+    TestReport testReport;
+
     public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
-                                  String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups) {
+                        String disableGroupList, String testList, String includes, String coverageFormat,
+                        Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
 
@@ -518,32 +521,6 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
-//    private void mapClassWithMethodForCallOrigFuncMock(TestSuite suite, Map<String, List<String>>
-//            balFileClassOrigMockFuncMapping, ClassLoader classLoader) {
-//        Map<String, String> mockFunctionNamesMap = suite.getMockFunctionNamesMap();
-//        for (Map.Entry<String, String> mockFunctionNameEntry : mockFunctionNamesMap.entrySet()) {
-//            String classWithFunctionMock = ((mockFunctionNameEntry.getKey()).split("#"))[0];
-//            balFileClassOrigMockFuncMapping.put(classWithFunctionMock, new ArrayList<String>());
-//        }
-//
-//        for (Map.Entry<String, List<String>> balFileClassOrigMockFuncEntry :
-//                balFileClassOrigMockFuncMapping.entrySet()) {
-//            Class<?> loadClass;
-//            String className = balFileClassOrigMockFuncEntry.getKey();
-//            try {
-//                 loadClass = classLoader.loadClass(className);
-//            } catch (Throwable e) {
-//                throw createLauncherException("failed to load class: " + className);
-//            }
-//            for (Method method : loadClass.getDeclaredMethods()) {
-//                String methodName = method.getName();
-//                if (methodName.startsWith("$ORIG")) {
-//                    balFileClassOrigMockFuncMapping.get(className).add(methodName);
-//                }
-//            }
-//        }
-//    }
-
     private int runTestSuiteWithNativeImage(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target,
                                             Map<String, String> originalVsModifiedJarMap)
             throws IOException, InterruptedException {
@@ -620,23 +597,33 @@ public class RunNativeImageTestTask implements Task {
         }
 
         List<String> cmdArgs = new ArrayList<>();
+        List<String> nativeArgs = new ArrayList<>();
         cmdArgs.add(nativeImageCommand);
 
         Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
-
         // Run native-image command with generated configs
-        cmdArgs.addAll(Lists.of("-cp", classPath));
         cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
+        cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
+        nativeArgs.addAll(Lists.of("-cp", classPath));
+
 
         // set name and path
-        cmdArgs.add("-H:Name=" + packageName);
-        cmdArgs.add("-H:Path=" + nativeTargetPath);
+        nativeArgs.add("-H:Name=" + packageName);
+        nativeArgs.add("-H:Path=" + nativeTargetPath);
 
         // native-image configs
-        cmdArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
-        cmdArgs.add("--no-fallback");
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        nativeArgs.add("--no-fallback");
+
+        try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
+                .toString(), Charset.defaultCharset())) {
+            nativeArgumentWriter.write(String.join(" ", nativeArgs));
+            nativeArgumentWriter.flush();
+        } catch (IOException e) {
+            throw createLauncherException("error while generating the necessary graalvm argument file", e);
+        }
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(cmdArgs.toArray(new String[0]));

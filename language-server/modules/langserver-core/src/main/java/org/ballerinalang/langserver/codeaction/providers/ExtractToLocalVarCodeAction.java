@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
@@ -150,7 +149,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)
                 && !(statementNode instanceof ModuleMemberDeclarationNode) 
-                && !(statementNode instanceof ObjectFieldNode)) {
+                && statementNode.kind() != SyntaxKind.OBJECT_FIELD) {
             statementNode = statementNode.parent();
         }
         return statementNode;
