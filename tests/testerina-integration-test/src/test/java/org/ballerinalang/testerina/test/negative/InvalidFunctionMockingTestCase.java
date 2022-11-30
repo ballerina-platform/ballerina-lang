@@ -45,27 +45,57 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,5:2)] could not find functions in module\n" +
-                "error: compilation contains errors");
-    }
-
-    @Test
-    public void testMockingAFunctionInNonExistingModule() throws BallerinaTestException {
-        String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
-        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] could not find module specified\n" +
+                "ERROR [tests/test.bal:(3:1,5:2)] could not find function createJdbcClient in module " +
+                        "'intg_tests/non_existent_function_mock:0.1.0'\n" +
                         "error: compilation contains errors");
     }
 
     @Test
-    public void testMockingAFunctionWithIncompatibleTypes() throws BallerinaTestException {
+    public void testMockingNonExistingFunction2() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock2").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,3:38)] could not find function 'intAdd' in module " +
+                        "'intg_tests/non_existent_function_mock:0.1.0'\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingFunctionInNonExistingModule() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,6:2)] could not find module specified 'intg_tests/module1:0.1.0'\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingFunctionInNonExistingModule2() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock2").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,6:2)] could not find module specified 'intg_tests/module1:0.1.0'\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingFunctionWithIncompatibleTypes() throws BallerinaTestException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
                 "ERROR [tests" + File.separator + "test.bal:(6:1,8:2)] incompatible types: " +
                         "expected isolated function () returns (string) " +
                         "but found isolated function () returns (int)\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingFunctionInSingleFileProject() throws BallerinaTestException {
+        String projectPath = singleFileTestsPath.resolve("mocking").toString();
+        String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [function-mock.bal:(12:1,12:38)] Function mocking is not supported for single file projects\n" +
                         "error: compilation contains errors");
     }
 }
