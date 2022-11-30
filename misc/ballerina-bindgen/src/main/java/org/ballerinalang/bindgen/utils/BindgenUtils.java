@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
@@ -98,7 +100,7 @@ public class BindgenUtils {
             Context context = Context.newBuilder(object).resolver(
                     MapValueResolver.INSTANCE,
                     JavaBeanValueResolver.INSTANCE,
-                    FieldValueResolver.INSTANCE).build();
+                    new CustomFieldValueResolver()).build();
             fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
             writer = new PrintWriter(fileWriter);
             writer.println(template.apply(context));
@@ -116,6 +118,26 @@ public class BindgenUtils {
 
                 }
             }
+        }
+    }
+
+    static class CustomFieldValueResolver extends FieldValueResolver {
+        @Override
+        protected Set<FieldWrapper> members(Class<?> clazz) {
+            Set members = super.members(clazz);
+            return (Set<FieldWrapper>) members.stream()
+                    .filter(fw -> isValidField((FieldWrapper) fw))
+                    .collect(Collectors.toSet());
+        }
+
+        boolean isValidField(FieldWrapper fw) {
+            if (fw instanceof AccessibleObject) {
+                if (isUseSetAccessible(fw)) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
         }
     }
 

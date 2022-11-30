@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -73,6 +74,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
 import static org.ballerinalang.openapi.utils.TypeExtractorUtil.extractOpenApiOperations;
@@ -276,9 +279,29 @@ public class CreateOpenApiServiceResourceMethodExecutor implements LSCommandExec
     private String getContent(BallerinaOpenApiPath object) throws IOException {
         Template template = compileTemplate("/openAPITemplates");
         Context context = Context.newBuilder(object)
-                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, FieldValueResolver.INSTANCE)
+                .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE, new CustomFieldValueResolver())
                 .build();
         return template.apply(context);
+    }
+
+    static class CustomFieldValueResolver extends FieldValueResolver {
+        @Override
+        protected Set<FieldWrapper> members(Class<?> clazz) {
+            Set members = super.members(clazz);
+            return (Set<FieldWrapper>) members.stream()
+                    .filter(fw -> isValidField((FieldWrapper) fw))
+                    .collect(Collectors.toSet());
+        }
+
+        boolean isValidField(FieldWrapper fw) {
+            if (fw instanceof AccessibleObject) {
+                if (isUseSetAccessible(fw)) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
     }
 
     private Template compileTemplate(String defaultTemplateDir) throws IOException {
