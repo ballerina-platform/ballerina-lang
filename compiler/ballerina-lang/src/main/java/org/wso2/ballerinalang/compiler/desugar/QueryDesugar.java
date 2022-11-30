@@ -2252,6 +2252,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
         resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        resourceAccessInvocation.restArgs.forEach(this::acceptNode);
+        resourceAccessInvocation.resourceAccessPathSegments.exprs.forEach(this::acceptNode);
         this.acceptNode(resourceAccessInvocation.expr);
     }
 
