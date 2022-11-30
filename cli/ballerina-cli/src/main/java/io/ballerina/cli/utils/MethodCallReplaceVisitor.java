@@ -9,6 +9,11 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 import java.lang.reflect.Method;
 
+/**
+ * Remove existing method call and replace it with a mock call.
+ *
+ * @since 2201.4.0
+ */
 public class MethodCallReplaceVisitor extends ClassVisitor {
     private final Method toFunc;
     public final Method fromFunc;
@@ -32,7 +37,7 @@ public class MethodCallReplaceVisitor extends ClassVisitor {
 
         public MethodReplaceMethodVisitor(
                 MethodVisitor mv, int access, String name, String desc) {
-            super(MethodCallReplaceVisitor.this.api ,mv, access, name, desc);
+            super(MethodCallReplaceVisitor.this.api , mv, access, name, desc);
         }
 
         @Override
@@ -49,12 +54,11 @@ public class MethodCallReplaceVisitor extends ClassVisitor {
             String toFuncName = MethodCallReplaceVisitor.this.toFunc.getName();
             String toFunDesc = Type.getMethodDescriptor(MethodCallReplaceVisitor.this.toFunc);
 
-            if(opcode== Opcodes.INVOKESTATIC && owner.equals(fromFuncOwner)
+            if (opcode == Opcodes.INVOKESTATIC && owner.equals(fromFuncOwner)
                     && name.equals(fromFuncName) && desc.equals(fromFunDesc)) {
                 super.visitMethodInsn(Opcodes.INVOKESTATIC, toFuncOwner,
                         toFuncName, toFunDesc, false);
-            }
-            else {
+            } else {
                 super.visitMethodInsn(opcode, owner, name, desc, itf);
             }
         }

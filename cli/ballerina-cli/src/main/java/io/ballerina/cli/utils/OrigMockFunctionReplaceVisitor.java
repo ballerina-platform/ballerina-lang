@@ -46,13 +46,11 @@ import static org.objectweb.asm.Opcodes.RETURN;
 public class OrigMockFunctionReplaceVisitor extends ClassVisitor {
 
     private final Method origMethod;
-    private final Method mockFunc;
 
     public OrigMockFunctionReplaceVisitor
-            (int api, ClassWriter cw, Method origMethod, Method mockFunc) {
+            (int api, ClassWriter cw, Method origMethod) {
         super(api, cw);
         this.origMethod = origMethod;
-        this.mockFunc = mockFunc;
     }
 
     @Override

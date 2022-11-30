@@ -178,27 +178,29 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 String documentName = moduleName + "-" + document.name().replace(".bal", "")
                         .replace("/", ".");
                 List<String> mockedFunctionList = new ArrayList<>();
-                Node node = document.syntaxTree().rootNode();
+                Node rootNode = document.syntaxTree().rootNode();
                 TestFunctionVisitor testFunctionVisitor = new TestFunctionVisitor();
-                node.accept(testFunctionVisitor);
+                rootNode.accept(testFunctionVisitor);
                 for (FunctionDefinitionNode func : testFunctionVisitor.getTestStaticFunctions()) {
                     FunctionBodyNode functionBodyNode = func.functionBody();
                     NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
                     for (int i = 0; i < statements.size(); i++) {
-                        StatementNode functionBodyContent = (StatementNode) statements.get(i);
-                        if (functionBodyContent instanceof ExpressionStatementNode) {
-                            ExpressionNode methodCallNode = ((ExpressionStatementNode) functionBodyContent)
-                                    .expression();
-                            if (methodCallNode instanceof MethodCallExpressionNode) {
-                                ExpressionNode expression = ((MethodCallExpressionNode) methodCallNode).expression();
-                                if (expression instanceof FunctionCallExpressionNode) {
-                                    gatherMockedFunctions(mockedFunctionList, (MethodCallExpressionNode)
-                                            methodCallNode, (FunctionCallExpressionNode) expression);
-                                } else if (expression instanceof MethodCallExpressionNode) {
-                                    expression = ((MethodCallExpressionNode) expression).expression();
-                                    if (expression instanceof FunctionCallExpressionNode) {
-                                        gatherMockedFunctions(mockedFunctionList, (MethodCallExpressionNode)
-                                                methodCallNode, (FunctionCallExpressionNode) expression);
+                        StatementNode statementNode = (StatementNode) statements.get(i);
+                        if (statementNode instanceof ExpressionStatementNode) {
+                            ExpressionNode expressionStatement = ((ExpressionStatementNode) statementNode).expression();
+                            if (expressionStatement instanceof MethodCallExpressionNode) {
+                                ExpressionNode methodCallExpression = ((MethodCallExpressionNode)
+                                        expressionStatement).expression();
+                                if (methodCallExpression instanceof FunctionCallExpressionNode) {
+                                    gatherMockedFunctions(mockedFunctionList, expressionStatement,
+                                            methodCallExpression);
+
+                                } else if (methodCallExpression instanceof MethodCallExpressionNode) {
+                                    methodCallExpression = ((MethodCallExpressionNode)
+                                            methodCallExpression).expression();
+                                    if (methodCallExpression instanceof FunctionCallExpressionNode) {
+                                        gatherMockedFunctions(mockedFunctionList, expressionStatement,
+                                                methodCallExpression);
                                     }
                                 }
                             }
@@ -214,19 +216,22 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 "mocked-func-class-map.json");
     }
 
-    private static void gatherMockedFunctions(List<String> mockedFunctionList,  MethodCallExpressionNode methodCallNode,
-                                              FunctionCallExpressionNode expression) {
-        NameReferenceNode functionName = expression.functionName();
+    private static void gatherMockedFunctions(List<String> mockedFunctionList, ExpressionNode expressionStatement,
+                                              ExpressionNode methodCallExpression) {
+        MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) expressionStatement;
+        FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) methodCallExpression;
+        NameReferenceNode functionName = functionCallExpressionNode.functionName();
         if (functionName instanceof QualifiedNameReferenceNode) {
             String modulePrefix = ((QualifiedNameReferenceNode) functionName).
                     modulePrefix().text();
             String identifier = ((QualifiedNameReferenceNode) functionName).
                     identifier().text();
-            String methodName = methodCallNode.methodName()
+            String methodName = methodCallExpressionNode.methodName()
                     .toString().strip();
+
             if ("test".equals(modulePrefix) && "call".equals(methodName)
                     && "when".equals(identifier)) {
-                String mockedFunction = methodCallNode.arguments()
+                String mockedFunction = methodCallExpressionNode.arguments()
                         .get(0).toString().replaceAll("\"", "");
                 mockedFunctionList.add(mockedFunction);
             }

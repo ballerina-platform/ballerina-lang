@@ -174,10 +174,10 @@ public class RunNativeImageTestTask implements Task {
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {
                         if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1, method2);
+                            classFile = replaceMethodBody(method1);
                             readFromBytes = true;
                         } else {
-                            classFile = replaceMethodBody(classFile, method1, method2);
+                            classFile = replaceMethodBody(classFile, method1);
                         }
                     }
                 }
@@ -200,10 +200,10 @@ public class RunNativeImageTestTask implements Task {
                     for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
                         if (method2.getName().equals(mockFunctionName)) {
                             if (!readFromBytes) {
-                                classFile = replaceMethodBody(method1, method2);
+                                classFile = replaceMethodBody(method1);
                                 readFromBytes = true;
                             } else {
-                                classFile = replaceMethodBody(classFile, method1, method2);
+                                classFile = replaceMethodBody(classFile, method1);
                             }
                         }
                     }
@@ -226,7 +226,7 @@ public class RunNativeImageTestTask implements Task {
         }
 
         boolean readFromBytes;
-        if(classFile.length == 0) {
+        if (classFile.length == 0) {
             readFromBytes = false;
         } else {
             readFromBytes = true;
@@ -308,7 +308,7 @@ public class RunNativeImageTestTask implements Task {
         return cw.toByteArray();
     }
 
-    private static byte[] replaceMethodBody(Method method, Method mockMethod) {
+    private static byte[] replaceMethodBody(Method method) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
         try {
@@ -320,15 +320,15 @@ public class RunNativeImageTestTask implements Task {
                     + clazz.getSimpleName());
         }
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method, mockMethod);
+        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method);
         cr.accept(cv, 0);
         return cw.toByteArray();
     }
 
-    private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
+    private static byte[] replaceMethodBody(byte[] classFile, Method method) {
         ClassReader cr = new ClassReader(classFile);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method, mockMethod);
+        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method);
         cr.accept(cv, 0);
         return cw.toByteArray();
     }
@@ -723,11 +723,11 @@ public class RunNativeImageTestTask implements Task {
         Map<String, String> mockFunctionMap = testSuite.getMockFunctionNamesMap();
         populateClassNameVsFunctionToMockMap(classVsMockFunctionsMap, mockFunctionMap);
 
-        Map <String, List<String>> mainJarVsClassMapping = new HashMap<>();
+        Map<String, List<String>> mainJarVsClassMapping = new HashMap<>();
         for (Map.Entry<String, List<String>> classVsMockFunctionsEntry : classVsMockFunctionsMap.entrySet()) {
             String className = classVsMockFunctionsEntry.getKey();
             String[] classMetaData = className.split("\\.");
-            mainJarName = classMetaData[0] + HYPHEN + classMetaData[1].replace("$0046",".") +
+            mainJarName = classMetaData[0] + HYPHEN + classMetaData[1].replace("$0046", ".") +
                     HYPHEN + classMetaData[2];
 
             if (mainJarVsClassMapping.containsKey(mainJarName)) {
@@ -735,7 +735,7 @@ public class RunNativeImageTestTask implements Task {
             } else {
                 List<String> classList = new ArrayList<>();
                 classList.add(className);
-                mainJarVsClassMapping.put(mainJarName,classList);
+                mainJarVsClassMapping.put(mainJarName, classList);
             }
         }
 
@@ -749,7 +749,7 @@ public class RunNativeImageTestTask implements Task {
                 if (testExecutionDependency.contains(mainJarName) && !testExecutionDependency.contains(TESTABLE)) {
                     mainJarPath = testExecutionDependency;
                     if (originalVsModifiedJarMap.containsKey(mainJarPath)) {
-                        mainJarPath= originalVsModifiedJarMap.get(mainJarPath);
+                        mainJarPath = originalVsModifiedJarMap.get(mainJarPath);
                     }
                 }
             }
@@ -826,7 +826,7 @@ public class RunNativeImageTestTask implements Task {
             String testDocumentName = testDocument.name().replace(".bal", "")
                                                             .replace("/", ".");
             String testDocumentClassName = TesterinaUtils.getQualifiedClassName(testSuite.getOrgName(),
-                    testSuite.getTestPackageID(), testSuite.getVersion(),testDocumentName);
+                    testSuite.getTestPackageID(), testSuite.getVersion(), testDocumentName);
             Class<?> testDocumentClass;
             try {
                 testDocumentClass = classLoader.loadClass(testDocumentClassName);

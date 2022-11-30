@@ -146,33 +146,32 @@ public class NativeUtils {
         Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
         File mockedFunctionClassFile = new File(mockedFunctionClassPath.toString());
         if (mockedFunctionClassFile.isFile()) {
-            try (BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8)) {
-                Gson gsonRead = new Gson();
-                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                        new TypeToken<Map<String, String[]>>() {
-                        }.getType());
-                if (!testFileMockedFunctionMapping.isEmpty()) {
-                    ReflectConfigClass originalTestFileRefConfClz;
-                    for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
-                            testFileMockedFunctionMapping.entrySet()) {
-                        String moduleName = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
-                        String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
-                        String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
-                        originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleName,
-                                version, testFile));
-                        for (int i = 0; i < mockedFunctions.length; i++) {
-                            originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                    new ReflectConfigClassMethod(mockedFunctions[i]));
-                            originalTestFileRefConfClz.setUnsafeAllocated(true);
-                            originalTestFileRefConfClz.setAllDeclaredFields(true);
-                            originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
-                        }
-                        classList.add(originalTestFileRefConfClz);
+            BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
+            Gson gsonRead = new Gson();
+            Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
+                    new TypeToken<Map<String, String[]>>() {
+                    }.getType());
+            if (!testFileMockedFunctionMapping.isEmpty()) {
+                ReflectConfigClass originalTestFileRefConfClz;
+                for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
+                        testFileMockedFunctionMapping.entrySet()) {
+                    String moduleName = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
+                    String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
+                    String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
+                    originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleName,
+                            version, testFile));
+                    for (int i = 0; i < mockedFunctions.length; i++) {
+                        originalTestFileRefConfClz.addReflectConfigClassMethod(
+                                new ReflectConfigClassMethod(mockedFunctions[i]));
+                        originalTestFileRefConfClz.setUnsafeAllocated(true);
+                        originalTestFileRefConfClz.setAllDeclaredFields(true);
+                        originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
                     }
+                    classList.add(originalTestFileRefConfClz);
                 }
             }
         }
-        ReflectConfigClass originalBalFileRefConfClz = new ReflectConfigClass("");
+        ReflectConfigClass originalBalFileRefConfClz;
         Map<String, List<String>> mockFunctionClassMapping = new HashMap<>();
         extractMockFunctionClassMapping(testSuiteMap, mockFunctionClassMapping);
         for (Map.Entry<String, List<String>> mockFunctionClassMapEntry : mockFunctionClassMapping.entrySet()) {
@@ -230,7 +229,8 @@ public class NativeUtils {
         }
     }
 
-    private static void extractMockFunctionClassMapping(Map<String, TestSuite> testSuiteMap, Map<String, List<String>> mockFunctionClassMapping) {
+    private static void extractMockFunctionClassMapping(Map<String, TestSuite> testSuiteMap,
+                                                        Map<String, List<String>> mockFunctionClassMapping) {
         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
             TestSuite suite = testSuiteEntry.getValue();
             for (Map.Entry<String, String> mockFunctionEntry : suite.getMockFunctionNamesMap().entrySet()) {
