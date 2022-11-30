@@ -115,16 +115,17 @@ public class GeneratorUtils {
                 String annotName = annotSymbol.getName().orElse("");
                 elementLocation = annotSymbol.getLocation().isPresent() ?
                         getElementLocation(filePath, annotSymbol.getLocation().get().lineRange()) : null;
-                if (!(annotName.equals(DISPLAY_ANNOTATION) || annotAttachmentSymbol.attachmentValue().isEmpty()) ||
-                        !(annotAttachmentSymbol.attachmentValue().get().value() instanceof LinkedHashMap)) {
+                if (!annotName.equals(DISPLAY_ANNOTATION) || annotAttachmentSymbol.attachmentValue().isEmpty() ||
+                        !(annotAttachmentSymbol.attachmentValue().get().value() instanceof LinkedHashMap) ||
+                        !annotAttachmentSymbol.isConstAnnotation()) {
                     continue;
                 }
                 LinkedHashMap attachmentValue = (LinkedHashMap) annotAttachmentSymbol.attachmentValue().get().value();
                 if (attachmentValue.containsKey(ID)) {
-                    id = (String) ((ConstantValue) attachmentValue.get(ID)).value();
+                    id = ((ConstantValue) attachmentValue.get(ID)).value().toString();
                 }
                 if (attachmentValue.containsKey(LABEL)) {
-                    label = (String) ((ConstantValue) attachmentValue.get(LABEL)).value();
+                    label = ((ConstantValue) attachmentValue.get(LABEL)).value().toString();
                 }
                 break;
             }
