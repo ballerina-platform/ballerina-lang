@@ -56,6 +56,7 @@ public class NativeUtils {
     private static final String MODULE_CONFIGURATION_MAPPER = "$configurationMapper";
     private static final String MODULE_EXECUTE_GENERATED = "tests.test_execute-generated_";
 
+   //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
                                            Map<String, TestSuite> testSuiteMap) throws IOException {
         String org = currentPackage.packageOrg().toString();
@@ -71,6 +72,7 @@ public class NativeUtils {
                 String name = module.moduleName().toString();
                 String moduleName = ProjectUtils.getJarFileName(module);
 
+                //Add init class
                 ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
                         MODULE_INIT_CLASS_NAME));
 
@@ -94,7 +96,7 @@ public class NativeUtils {
                                 new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
                         )
                 );
-
+                //Add configuration mapper
                 ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
                         getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
 
@@ -124,7 +126,7 @@ public class NativeUtils {
                                 }
                         )
                 );
-
+                //Add classes with $MOCK_function methods (mock function case)
                 if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
                     ReflectConfigClass testNameZeroNameRefConfClz = new ReflectConfigClass(getQualifiedClassName(
                             org, name, version, name.replace(DOT, FILE_NAME_PERIOD_SEPARATOR)));
@@ -134,7 +136,7 @@ public class NativeUtils {
                     classList.add(testNameZeroNameRefConfClz);
                 }
 
-                // Add all class values to the array
+                //Add all class values to the array
                 classList.add(testInitRefConfClz);
                 classList.add(testConfigurationMapperRefConfClz);
                 classList.add(testTestExecuteGeneratedRefConfClz);
@@ -142,7 +144,7 @@ public class NativeUtils {
             }
 
         }
-
+        //Add classes corresponding to test documents
         Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
         File mockedFunctionClassFile = new File(mockedFunctionClassPath.toString());
         if (mockedFunctionClassFile.isFile()) {
@@ -171,6 +173,8 @@ public class NativeUtils {
                 }
             }
         }
+
+        //Add classes corresponding to ballerina source files
         ReflectConfigClass originalBalFileRefConfClz;
         Map<String, List<String>> mockFunctionClassMapping = new HashMap<>();
         extractMockFunctionClassMapping(testSuiteMap, mockFunctionClassMapping);
@@ -187,6 +191,7 @@ public class NativeUtils {
             classList.add(originalBalFileRefConfClz);
         }
 
+        //Add test suite class
         ReflectConfigClass runtimeEntityTestSuiteRefConfClz = new ReflectConfigClass(
                 "org.ballerinalang.test.runtime.entity" + ".TestSuite");
         runtimeEntityTestSuiteRefConfClz.setAllDeclaredFields(true);
@@ -203,6 +208,7 @@ public class NativeUtils {
         }
     }
 
+    //Create $ORIG_function methods class mapping
     private static void extractMockFunctionClassMapping(Map<String, TestSuite> testSuiteMap,
                                                         Map<String, List<String>> mockFunctionClassMapping) {
         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {

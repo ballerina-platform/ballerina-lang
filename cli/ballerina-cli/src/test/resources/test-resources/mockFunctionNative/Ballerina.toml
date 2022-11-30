@@ -1,6 +1,6 @@
 [package]
-org = "foo"
-name = "winery"
+org = "bar"
+name = "winner"
 version = "0.1.0"
 
 

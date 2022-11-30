@@ -58,7 +58,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         new CommandLine(testCommand).parse();
         testCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertTrue(buildLog.contains("1 passed"));
+        Assert.assertTrue(buildLog.contains("1 passing"));
     }
 
     @Test(description = "Test function mocking")

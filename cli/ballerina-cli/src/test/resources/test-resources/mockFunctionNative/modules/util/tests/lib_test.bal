@@ -1,6 +1,6 @@
 import ballerina/test;
 
-import winery.util2 as util3;
+import winner.util2 as util3;
 
 import ballerina/os;
 
@@ -8,7 +8,7 @@ import ballerina/os;
 test:MockFunction intAddMockFn = new ();
 
 @test:Mock {
-    moduleName: "winery.util2",
+    moduleName: "winner.util2",
     functionName: "intDiv"
 }
 test:MockFunction mockFunc1 = new ();
