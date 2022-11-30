@@ -29,6 +29,8 @@ import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.UUID;
+
 import static io.ballerina.projectdesign.ProjectDesignConstants.DISPLAY_ANNOTATION;
 import static io.ballerina.projectdesign.ProjectDesignConstants.ID;
 import static io.ballerina.projectdesign.ProjectDesignConstants.LABEL;
@@ -53,7 +55,7 @@ public class GeneratorUtils {
 
     public static ServiceAnnotation getServiceAnnotation(NodeList<AnnotationNode> annotationNodes, String filePath) {
 
-        String id = "";
+        String id = UUID.randomUUID().toString();
         String label = "";
         ElementLocation elementLocation = null;
         for (AnnotationNode annotationNode : annotationNodes) {
