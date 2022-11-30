@@ -133,7 +133,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
                         setAnnotationValues(fields, annotationValues, attachmentNode, parent);
                         PackageID functionToMockID = getPackageID(annotationValues[0]);
-                        boolean validFunctionName = validateFunctionName(
+                        boolean validFunctionName = isValidFunctionName(
                                 annotationValues[1], annotationValues[0], functionToMockID, attachmentNode);
                         if (!validFunctionName) {
                             return;
@@ -333,7 +333,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      * @param attachmentNode MockFunction object attachment node
      * @return true if the provided function name valid
      */
-    private boolean validateFunctionName(String functionName, String moduleName, PackageID functionToMockID,
+    private boolean isValidFunctionName(String functionName, String moduleName, PackageID functionToMockID,
                                       AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
