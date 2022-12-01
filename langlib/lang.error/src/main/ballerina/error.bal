@@ -33,6 +33,11 @@ type DetailType Detail;
 
 # Returns the error's message.
 #
+# ```ballerina
+# error memberAccessError = error("invalid list member access");
+# string message = memberAccessError.message();
+# ```
+#
 # + e - the error value
 # + return - error message
 public isolated function message(error e) returns string = @java:Method {
@@ -42,6 +47,13 @@ public isolated function message(error e) returns string = @java:Method {
 
 # Returns the error's cause.
 #
+# ```ballerina
+# int index = 35;
+# error indexOutOfRangeError = error("index out of range", index = index);
+# error memberAccessError = error("invalid list member access", indexOutOfRangeError);
+# error? cause = memberAccessError.cause();
+# ```
+#
 # + e - the error value
 # + return - error cause
 public isolated function cause(error e) returns error? = @java:Method {
@@ -50,6 +62,26 @@ public isolated function cause(error e) returns error? = @java:Method {
 } external;
 
 # Returns the error's detail record.
+#
+# ```ballerina
+# int index = 20;
+#
+# error err = error("index out of range", index = index);
+# // Using `error:detail()` with the `error` type returns an immutable `error:Detail` value.
+# error:Detail & readonly errDetail = err.detail();
+#
+# IndexOutOfRange indexOutOfRangeErr = error("index out of range", index = index, length = 10);
+# // Using `error:detail()` with a user-defined error type returns a value that belongs to the intersection
+# // of `readonly` and the detail type used in the error type-descriptor (i.e., `IndexOutOfRangeDetail`).
+# IndexOutOfRangeDetail & readonly indexOutOfRangeErrDetail = indexOutOfRangeErr.detail();
+#
+# type IndexOutOfRange error<IndexOutOfRangeDetail>;
+#
+# type IndexOutOfRangeDetail record {|
+#     int index;
+#     int length;
+# |};
+# ```
 #
 # The returned value will be immutable.
 # + e - the error value
@@ -71,6 +103,11 @@ public type StackFrame readonly & object {
 
 # Returns an object representing the stack trace of the error.
 #
+# ```ballerina
+# error memberAccessError = error("invalid list member access");
+#  error:StackFrame[] stackTrace = memberAccessError.stackTrace();
+# ```
+#
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
 # The first member of the array represents the top of the call stack.
@@ -91,6 +128,12 @@ public isolated function stackTrace(error e) returns StackFrame[] {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
 #
+# ```ballerina
+# int index = 35;
+# error indexOutOfRangeError = error("index out of range", index = index);
+# string stringRepr = indexOutOfRangeError.toString();
+# ```
+#
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion
 public isolated function toString(error e) returns string = @java:Method {
@@ -103,6 +146,12 @@ public isolated function toString(error e) returns string = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
+#
+# ```ballerina
+# int index = 35;
+# error indexOutOfRangeError = error("index out of range", index = index);
+# string balStringRepr = indexOutOfRangeError.toBalString();
+# ```
 #
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion
