@@ -19,7 +19,7 @@
 package io.ballerina.projectdesign;
 
 import com.google.gson.JsonObject;
-import io.ballerina.modelgenerator.core.ComponentModel;
+import io.ballerina.architecturemodelgenerator.ComponentModel;
 import io.ballerina.projects.Package;
 
 import java.util.Map;
