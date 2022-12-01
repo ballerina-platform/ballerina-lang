@@ -668,7 +668,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getInBuildTypes(BallerinaCompletionContext context) {
+    protected List<LSCompletionItem> getBuiltInTypes(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.stream()
