@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -57,82 +58,80 @@ public class NativeUtils {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         List<ReflectConfigClass> classList = new ArrayList<>();
 
-        int tally = 1;
+
 
         for (Module module : currentPackage.modules()) {
-            String name = module.moduleName().toString();
-            String moduleName = ProjectUtils.getJarFileName(module);
+            if (module.testDocumentIds().size() != 0) {
+                String name = module.moduleName().toString();
+                String moduleName = ProjectUtils.getJarFileName(module);
 
-            ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
-                    MODULE_INIT_CLASS_NAME));
+                ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
+                        MODULE_INIT_CLASS_NAME));
 
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$moduleInit",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
-                    )
-            );
-
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$moduleStart",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
-                    )
-            );
-
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$moduleStop",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
-                    )
-            );
-
-            ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
-                    getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
-
-            testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$configureInit",
-                            new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
-                    )
-            );
-            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass("");
-            if (testSuiteMap.containsKey(moduleName)) {
-                testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(testSuiteMap.get(moduleName)
-                        .getTestUtilityFunctions().get("__execute__"));
-                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
+                testInitRefConfClz.addReflectConfigClassMethod(
                         new ReflectConfigClassMethod(
-                                "__execute__",
-                                new String[]{
-                                        "io.ballerina.runtime.internal.scheduling.Strand",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString"
-                                }
+                                "$moduleInit",
+                                new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
                         )
                 );
+
+                testInitRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                "$moduleStart",
+                                new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
+                        )
+                );
+
+                testInitRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                "$moduleStop",
+                                new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
+                        )
+                );
+
+                ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
+                        getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
+
+                testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                "$configureInit",
+                                new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
+                        )
+                );
+                ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
+                        testSuiteMap.get(moduleName).getTestUtilityFunctions().get("__execute__"));
+                    testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
+                            new ReflectConfigClassMethod(
+                                    "__execute__",
+                                    new String[]{
+                                            "io.ballerina.runtime.internal.scheduling.Strand",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString",
+                                            "io.ballerina.runtime.api.values.BString"
+                                    }
+                            )
+                    );
+                if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
+                    ReflectConfigClass testNameZeroNameRefConfClz = new ReflectConfigClass(getQualifiedClassName(
+                            org, name, version, name.replace(DOT, FILE_NAME_PERIOD_SEPARATOR)));
+                    testNameZeroNameRefConfClz.setQueryAllDeclaredMethods(true);
+                    classList.add(testNameZeroNameRefConfClz);
+                }
+
+                // Add all class values to the array
+                classList.add(testInitRefConfClz);
+                classList.add(testConfigurationMapperRefConfClz);
+                classList.add(testTestExecuteGeneratedRefConfClz);
+
             }
 
-            ReflectConfigClass testNameZeroNameRefConfClz =
-                    new ReflectConfigClass(getQualifiedClassName(org, name, version, name));
-            testNameZeroNameRefConfClz.setQueryAllDeclaredMethods(true);
-
-            // Add all class values to the array
-            classList.add(testInitRefConfClz);
-            classList.add(testConfigurationMapperRefConfClz);
-            classList.add(testTestExecuteGeneratedRefConfClz);
-
-            classList.add(testNameZeroNameRefConfClz);
-
-            // Increment tally to cover executable_<tally> class
-            tally += 1;
         }
 
         ReflectConfigClass runtimeEntityTestSuiteRefConfClz = new ReflectConfigClass(
