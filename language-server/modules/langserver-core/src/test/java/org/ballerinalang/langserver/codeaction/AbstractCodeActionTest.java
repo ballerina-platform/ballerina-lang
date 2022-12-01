@@ -170,13 +170,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     }
                 }
 
-                // Match args
-                JsonObject actualCommand = right.get("command").getAsJsonObject();
-                if (actualCommand != null &&
-                        !("Report usage statistics".equals(actualCommand.get("title").getAsString()))) {
-                    if (expected.command == null) {
+                // Match command
+                if (expected.command != null) {
+                    if (!right.has("command") || right.get("command").isJsonNull()) {
+                        misMatched = true;
+                    } else if (isReportUsageStatsCommand(right.getAsJsonObject("command"))) {
                         misMatched = true;
                     } else {
+                        JsonObject actualCommand = right.get("command").getAsJsonObject();
                         JsonObject expectedCommand = expected.command;
                         if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
                             misMatched = true;
@@ -188,12 +189,18 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                         JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                         JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
-                        if (expArgs == null 
+                        if (expArgs == null
                                 || !validateAndModifyArguments(
-                                        actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
+                                actualCommand, actualArgs, expArgs, sourceRoot, sourcePath)) {
                             misMatched = true;
                         }
                         actual.command = actualCommand;
+                    }
+                } else {
+                    if (right.has("command") && !right.get("command").isJsonNull() &&
+                            !isReportUsageStatsCommand(right.getAsJsonObject("command"))) {
+                        actual.command = right.getAsJsonObject("command");
+                        misMatched = true;
                     }
                 }
 
@@ -335,6 +342,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         }
         String fileUri = actual.data.getFileUri().replace(root.toUri().toString(), "");
         actual.data.setFileUri(fileUri);
+    }
+    
+    private boolean isReportUsageStatsCommand(JsonObject command) {
+        return command.get("title").getAsString().equals("Report usage statistics");
     }
 
     @DataProvider(name = "codeaction-data-provider")
