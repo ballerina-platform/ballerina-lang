@@ -34,8 +34,8 @@ type DetailType Detail;
 # Returns the error's message.
 #
 # ```ballerina
-# error memberAccessError = error("invalid list member access");
-# string message = memberAccessError.message();
+# error ioError = error("IO error");
+# string message = ioError.message();
 # ```
 #
 # + e - the error value
@@ -48,10 +48,10 @@ public isolated function message(error e) returns string = @java:Method {
 # Returns the error's cause.
 #
 # ```ballerina
-# int index = 35;
-# error indexOutOfRangeError = error("index out of range", index = index);
-# error memberAccessError = error("invalid list member access", indexOutOfRangeError);
-# error? cause = memberAccessError.cause();
+# string file = "test.bal";
+# error fileNotFoundError = error("file not found", file = file);
+# error ioError = error("IO error", fileNotFoundError);
+# error? cause = ioError.cause();
 # ```
 #
 # + e - the error value
@@ -64,22 +64,22 @@ public isolated function cause(error e) returns error? = @java:Method {
 # Returns the error's detail record.
 #
 # ```ballerina
-# int index = 20;
+# string file = "test.bal";
 #
-# error err = error("index out of range", index = index);
+# error err = error("file not found", file = file);
 # // Using `error:detail()` with the `error` type returns an immutable `error:Detail` value.
 # error:Detail & readonly errDetail = err.detail();
 #
-# IndexOutOfRange indexOutOfRangeErr = error("index out of range", index = index, length = 10);
+# FileNotFoundError fileNotFoundErr = error("file not found", file = file, code = 100);
 # // Using `error:detail()` with a user-defined error type returns a value that belongs to the intersection
-# // of `readonly` and the detail type used in the error type-descriptor (i.e., `IndexOutOfRangeDetail`).
-# IndexOutOfRangeDetail & readonly indexOutOfRangeErrDetail = indexOutOfRangeErr.detail();
+# // of `readonly` and the detail type used in the error type-descriptor (i.e., `FileNotFoundDetail`).
+# FileNotFoundDetail & readonly fileNotFoundErrDetail = fileNotFoundErr.detail();
 #
-# type IndexOutOfRange error<IndexOutOfRangeDetail>;
+# type FileNotFoundError error<FileNotFoundDetail>;
 #
-# type IndexOutOfRangeDetail record {|
-#     int index;
-#     int length;
+# type FileNotFoundDetail record {|
+#     string file;
+#     int code;
 # |};
 # ```
 #
@@ -104,8 +104,8 @@ public type StackFrame readonly & object {
 # Returns an object representing the stack trace of the error.
 #
 # ```ballerina
-# error memberAccessError = error("invalid list member access");
-#  error:StackFrame[] stackTrace = memberAccessError.stackTrace();
+# error ioError = error("IO error");
+# error:StackFrame[] stackTrace = ioError.stackTrace();
 # ```
 #
 # + e - the error value
@@ -129,9 +129,9 @@ public isolated function stackTrace(error e) returns StackFrame[] {
 # defined in the Ballerina Language Specification, using the direct style.
 #
 # ```ballerina
-# int index = 35;
-# error indexOutOfRangeError = error("index out of range", index = index);
-# string stringRepr = indexOutOfRangeError.toString();
+# string file = "test.bal";
+# error fileNotFoundError = error("file not found", file = file);
+# string stringRepr = fileNotFoundError.toString();
 # ```
 #
 # + e - the error to be converted to a string
@@ -148,9 +148,9 @@ public isolated function toString(error e) returns string = @java:Method {
 # defined in the Ballerina Language Specification, using the expression style.
 #
 # ```ballerina
-# int index = 35;
-# error indexOutOfRangeError = error("index out of range", index = index);
-# string balStringRepr = indexOutOfRangeError.toBalString();
+# string file = "test.bal";
+# error fileNotFoundError = error("file not found", file = file);
+# string balStringRepr = fileNotFoundError.toBalString();
 # ```
 #
 # + e - the error to be converted to a string
