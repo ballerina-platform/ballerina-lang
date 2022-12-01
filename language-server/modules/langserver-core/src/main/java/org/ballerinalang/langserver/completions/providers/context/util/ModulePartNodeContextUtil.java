@@ -21,10 +21,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -48,7 +46,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
-import static org.ballerinalang.langserver.completions.util.SortingUtil.isLangLibModuleCompletionItem;
 
 /**
  * Utilities for the module part node context.
@@ -90,29 +87,16 @@ public class ModulePartNodeContextUtil {
     }
 
     private static boolean isMainFunctionAvailable(BallerinaCompletionContext context) {
-        Optional<ModulePartNode> modulePartNode = getModulePartNode(context);
-        if (modulePartNode.isEmpty()) {
-            return false;
-        }
-        return modulePartNode.get().members().stream().anyMatch(moduleMemberDeclarationNode ->
-                moduleMemberDeclarationNode.kind() == SyntaxKind.FUNCTION_DEFINITION
-                        && "main".equals(((FunctionDefinitionNode) moduleMemberDeclarationNode).functionName().text()));
-    }
-
-    private static Optional<ModulePartNode> getModulePartNode(BallerinaCompletionContext context) {
-        NonTerminalNode node = context.getNodeAtCursor();
-        while (node != null && node.kind() != SyntaxKind.MODULE_PART) {
-            node = node.parent();
-        }
-        if (node == null) {
-            return Optional.empty();
-        }
-        return Optional.of((ModulePartNode) node);
+        Optional<ModulePartNode> modulePartNode = context.currentSyntaxTree().map(SyntaxTree::rootNode);
+        return modulePartNode.filter(partNode ->
+                context.visibleSymbols(PositionUtil.toPosition(partNode.lineRange().startLine()))
+                .stream().anyMatch(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                                && symbol.nameEquals("main"))).isPresent();
     }
 
     private static boolean isInImportStatementsContext(BallerinaCompletionContext context) {
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        Optional<ModulePartNode> modulePartNode = getModulePartNode(context);
+        Optional<ModulePartNode> modulePartNode = syntaxTree.map(SyntaxTree::rootNode);
         if (syntaxTree.isEmpty() || modulePartNode.isEmpty()) {
             return false;
         }
@@ -163,7 +147,7 @@ public class ModulePartNodeContextUtil {
                 continue;
             }
             if (SortingUtil.isTypeCompletionItem(item)) {
-                if (isLangLibModuleCompletionItem(item)) {
+                if (SortingUtil.isLangLibModuleCompletionItem(item)) {
                     cItem.setSortText(genSortText(3) + genSortText(2));
                     continue;
                 }
@@ -171,7 +155,9 @@ public class ModulePartNodeContextUtil {
                 continue;
             }
             if (isKeyword(item)) {
-                if (((SnippetCompletionItem) item).id().equals(Snippet.KW_SERVICE.name())) {
+                SnippetCompletionItem snippet = (SnippetCompletionItem) item;
+                if (Snippet.KW_SERVICE.name().equals(snippet.id())
+                        || Snippet.KW_FUNCTION.name().equals(snippet.id())) {
                     cItem.setSortText(genSortText(1) + genSortText(4));
                     continue;
                 }
