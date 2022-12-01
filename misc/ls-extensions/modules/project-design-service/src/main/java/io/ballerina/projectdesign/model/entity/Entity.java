@@ -32,13 +32,16 @@ public class Entity extends ModelElement {
 
     private List<Attribute> attributes;
     private final List<String> inclusions;
+    private final boolean isAnonymous;
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions, ElementLocation elementLocation) {
+    public Entity(List<Attribute> attributes, List<String> inclusions, ElementLocation elementLocation,
+                  boolean isAnonymous) {
         super(elementLocation);
         this.attributes = attributes;
         this.inclusions = inclusions;
+        this.isAnonymous = isAnonymous;
     }
 
     public List<Attribute> getAttributes() {
@@ -51,6 +54,10 @@ public class Entity extends ModelElement {
 
     public List<String> getInclusions() {
         return inclusions;
+    }
+
+    public boolean isAnonymous() {
+        return isAnonymous;
     }
 }
 

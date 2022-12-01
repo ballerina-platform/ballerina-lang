@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -42,7 +43,9 @@ import io.ballerina.tools.text.LineRange;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -61,6 +64,8 @@ public class EntityModelGenerator {
     private final ComponentModel.PackageId packageId;
     private final Path moduleRootPath;
 
+    private final Map<String, Entity> types = new HashMap<>();
+
     public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
                                 Path moduleRootPath) {
 
@@ -70,42 +75,79 @@ public class EntityModelGenerator {
     }
 
     public Map<String, Entity> generate() {
-
-        Map<String, Entity> entities = new HashMap<>();
         List<Symbol> symbols = semanticModel.moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
                 TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
                 if (typeDefinitionSymbol.typeDescriptor() instanceof RecordTypeSymbol) {
                     String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
-                    List<Attribute> attributeList = new ArrayList<>();
-                    List<String> inclusionList = new ArrayList<>();
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                    Map<String, RecordFieldSymbol> recordFieldSymbolMap =
-                            getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
-                    for (Map.Entry<String, RecordFieldSymbol> fieldEntry : recordFieldSymbolMap.entrySet()) {
-
-                        RecordFieldSymbol fieldEntryValue = fieldEntry.getValue();
-                        // when is the field name is optional? Tested with record inclusion and res types
-                        String fieldName = fieldEntryValue.getName().get(); // need to handle
-                        String fieldType = fieldEntryValue.typeDescriptor().signature();
-                        boolean optional = fieldEntryValue.isOptional();
-                        String defaultValue = ""; //need to address
-                        boolean nillable = isNillable(fieldEntryValue.typeDescriptor());
-                        List<Association> associations =
-                                getAssociations(fieldEntryValue.typeDescriptor(), entityName, optional, nillable);
-                        Attribute attribute =
-                                new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
-                                        getElementLocation(fieldEntryValue));
-                        attributeList.add(attribute);
-                    }
-
-                    Entity entity = new Entity(attributeList, inclusionList, getElementLocation(typeDefinitionSymbol));
-                    entities.put(entityName, entity);
+                    this.types.put(entityName, getType(recordTypeSymbol, entityName,
+                            getElementLocation(typeDefinitionSymbol), false));
                 }
             }
         }
-        return entities;
+        return types;
+    }
+
+    private Entity getType(RecordTypeSymbol recordTypeSymbol, String entityName, ElementLocation elementLocation,
+                           boolean isAnonymous) {
+        List<Attribute> attributeList = new ArrayList<>();
+        List<String> inclusionList = new ArrayList<>();
+        Map<String, RecordFieldSymbol> recordFieldSymbolMap =
+                getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
+        for (RecordFieldSymbol recordFieldSymbol : recordFieldSymbolMap.values()) {
+            attributeList.add(getAttribute(recordFieldSymbol, entityName));
+        }
+        return new Entity(attributeList, inclusionList, elementLocation, isAnonymous);
+    }
+
+    private Attribute getAttribute(RecordFieldSymbol recordFieldSymbol, String entityName) {
+        TypeDescKind fieldTypeDescKind = recordFieldSymbol.typeDescriptor().typeKind();
+        TypeSymbol fieldTypeSymbol = recordFieldSymbol.typeDescriptor();
+
+        String fieldName = recordFieldSymbol.getName().get(); // need to handle
+        String fieldType = recordFieldSymbol.typeDescriptor().signature();
+        List<Association> associations;
+        boolean optional = recordFieldSymbol.isOptional();
+        String defaultValue = ""; //need to address
+        boolean nillable = isNillable(recordFieldSymbol.typeDescriptor());
+
+        if (fieldTypeDescKind.equals(TypeDescKind.RECORD)) {
+            RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) fieldTypeSymbol;
+            fieldType = TypeDescKind.RECORD.getName();
+            String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                    fieldName.substring(1);
+            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
+                    getElementLocation(recordFieldSymbol), true));
+            String associateCardinality = optional ? CardinalityValue.ZERO_OR_ONE.getValue() :
+                    CardinalityValue.ONE_AND_ONLY_ONE.getValue();
+            Association association = new Association(inlineRecordName, new Association.Cardinality(
+                    CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
+            associations = new LinkedList<>(List.of(association));
+        } else if (fieldTypeDescKind.equals(TypeDescKind.ARRAY) &&
+                ((ArrayTypeSymbol) fieldTypeSymbol).memberTypeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
+            RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) ((ArrayTypeSymbol)
+                    fieldTypeSymbol).memberTypeDescriptor();
+            String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                    fieldName.substring(1);
+            fieldType = TypeDescKind.RECORD.getName() + ARRAY;
+            String associateCardinality = optional ? CardinalityValue.ZERO_OR_MANY.getValue() :
+                    CardinalityValue.ONE_OR_MANY.getValue();
+            Association association = new Association(inlineRecordName, new Association.Cardinality(
+                    CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
+            associations = new LinkedList<>(List.of(association));
+            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
+                    getElementLocation(recordFieldSymbol), true));
+
+        } else {
+            associations =
+                    getAssociations(recordFieldSymbol.typeDescriptor(), entityName, optional, nillable);
+
+        }
+        // todo: address when union types has anonymous records
+        return new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
+                getElementLocation(recordFieldSymbol));
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
