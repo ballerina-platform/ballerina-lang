@@ -81,6 +81,11 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 
 # Returns the absolute value of an int value.
 #
+# ```ballerina
+# int distance = -25;
+# int distance = vectorDisplacement.abs();
+# ```
+#
 # + n - int value to be operated on
 # + return - absolute value of parameter `n`
 public isolated function abs(int n) returns int = @java:Method {
@@ -90,6 +95,14 @@ public isolated function abs(int n) returns int = @java:Method {
 
 # Returns sum of zero or more int values.
 #
+# ```ballerina
+# // Retrieving the total out of the list of integers
+# int totalValue = int:sum(10, 20, 30, 40);
+#
+# int initialScore = 4;
+# // Retrieving the total by adding the list of integers with the initial value passed
+# int totalScore = initialScore.sum(5, 6, 7);
+# ```
 # + ns - int values to sum
 # + return - sum of all of parameter `ns`; 0 if parameter `ns` is empty
 public isolated function sum(int... ns) returns int = @java:Method {
@@ -99,6 +112,14 @@ public isolated function sum(int... ns) returns int = @java:Method {
 
 # Returns the maximum of one or more int values.
 #
+# ```ballerina
+# // Retrieving the highest value out of the list of integers
+# int highestMark = int:max(50, 20, 30, 70, 65);
+#
+# int initialScore = 5;
+# // Retrieving the maximum integer out of the list of integers including `initialScore`
+# int highestScore = initialScore.max(4, 8, 9);
+# ```
 # + n - first int value
 # + ns - other int values
 # + return - maximum value of value of parameter `n` and all of parameter `ns`
@@ -108,6 +129,15 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 } external;
 
 # Returns the minimum of one or more int values.
+#
+# ```ballerina
+# // Retrieving the lowest value out of the list of integers
+# int lowerstMark = int:min(45, 25, 30, 75, 50);
+#
+# // Retrieving the minimum value out of the list of integers
+# int startingScore = 10;
+# int lowerstScore = startingScore.min(10, 25, 2, 8, 17);
+# ```
 #
 # + n - first int value
 # + ns - other int values
@@ -123,6 +153,10 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # The first character may be `+` or `-`.
 # This is the inverse of function ``value:toString`` applied to an `int`.
 #
+# ```ballerina
+# int number = check int:fromString("56");
+# ```
+#
 # + s - string representation of a integer value
 # + return - int representation of the argument or error
 public isolated function fromString(string s) returns int|error = @java:Method {
@@ -135,6 +169,11 @@ public isolated function fromString(string s) returns int|error = @java:Method {
 # There is no `0x` prefix. Lowercase letters a-f are used.
 # Negative numbers will have a `-` prefix. No sign for
 # non-negative numbers.
+#
+# ```ballerina
+# int number = 25;
+# string hexNumber = number.toHexString();
+# ```
 #
 # + n - int value
 # + return - hexadecimal string representation of int value
@@ -149,6 +188,11 @@ public isolated function toHexString(int n) returns string = @java:Method {
 # It may start with an optional `+` or `-` sign.
 # No `0x` or `0X` prefix is allowed.
 # Returns an error if the parameter `s` is not in an allowed format.
+#
+# ```ballerina
+# string hexStr = "1A6F";
+# int number = check int:fromHexString(hexStr);
+# ```
 #
 # + s - hexadecimal string representation of int value
 # + return - int value or error
