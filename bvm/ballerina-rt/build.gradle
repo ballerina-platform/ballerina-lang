@@ -98,8 +98,6 @@ dependencies {
     dist "org.apache.ws.commons.axiom:axiom-api:${project.apacheCommonsAxiomApiVersion}"
     dist "org.apache.ws.commons.axiom:axiom-dom:${project.apacheCommonsAxiomDomVersion}"
     dist "commons-logging:commons-logging:${project.commonsLoggingVersion}"
-    dist "io.opentelemetry:opentelemetry-api:${project.openTelemetryApiVersion}"
-    dist "io.opentelemetry:opentelemetry-context:${project.openTelemetryContextVersion}"
     dist "org.awaitility:awaitility:${project.awaitilityVersion}"
     dist "org.hdrhistogram:HdrHistogram:${project.hdrHistogramVersion}"
 
