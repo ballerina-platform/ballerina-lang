@@ -35,10 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import static io.ballerina.architecturemodelgeneratorplugin.PluginConstants.COMPONENT_MODEL;
-import static io.ballerina.architecturemodelgeneratorplugin.PluginConstants.PATH_SEPARATOR;
+import static io.ballerina.architecturemodelgeneratorplugin.PluginConstants.MODEL_DIR_NAME;
+import static io.ballerina.architecturemodelgeneratorplugin.PluginConstants.MODEL_JSON_NAME;
 
 /**
  * Compilation analyzer to generate component model.
@@ -49,6 +48,7 @@ public class CompilationAnalysisTask implements AnalysisTask<CompilationAnalysis
     @Override
     public void perform(CompilationAnalysisContext compilationAnalysisContext) {
         Project project = compilationAnalysisContext.currentPackage().project();
+
         //Used build option exportComponentModel() to enable plugin at the build time.
         BuildOptions buildOptions = project.buildOptions();
         if (buildOptions.exportComponentModel()) {
@@ -66,8 +66,9 @@ public class CompilationAnalysisTask implements AnalysisTask<CompilationAnalysis
     private void writeComponentModelJson(Path outPath, String componentModelJson, CompilationAnalysisContext context) {
         try {
             // Create ComponentModel directory if not exists in the path. If exists do not throw an error
-            Files.createDirectories(Paths.get(outPath + PATH_SEPARATOR + COMPONENT_MODEL));
-            Path writePath = outPath.resolve(COMPONENT_MODEL + PATH_SEPARATOR + "model.json");
+            Path componentModelExportDir = outPath.resolve(MODEL_DIR_NAME);
+            Files.createDirectories(componentModelExportDir);
+            Path writePath = componentModelExportDir.resolve(MODEL_JSON_NAME);
             writeFile(writePath, componentModelJson);
         } catch (InvalidPathException | SecurityException | IOException e) {
             DiagnosticMessage diagnosticMessage = DiagnosticMessage.ERROR_100;

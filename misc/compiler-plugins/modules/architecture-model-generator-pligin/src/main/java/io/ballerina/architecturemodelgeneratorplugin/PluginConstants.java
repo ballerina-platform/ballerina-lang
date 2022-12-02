@@ -22,6 +22,6 @@ package io.ballerina.architecturemodelgeneratorplugin;
  * @since 2201.4.0
  */
 public class PluginConstants {
-    public static final String COMPONENT_MODEL = "componentmodel";
-    public static final String PATH_SEPARATOR = "/";
+    public static final String MODEL_DIR_NAME = "component-model";
+    public static final String MODEL_JSON_NAME = "component-model.json";
 }
