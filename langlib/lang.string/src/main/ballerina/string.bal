@@ -298,7 +298,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 
 # Constructs a string from its UTF-8 representation in bytes.
 #
-# ```ballerin
+# ```ballerina
 # byte[] bytes = [72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33];
 # string stringValue = check string:fromBytes(bytes);
 # ```
