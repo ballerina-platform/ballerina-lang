@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,29 +16,28 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.component;
 
 /**
- * Represent interaction with another service.
+ * models if statement nodes.
  *
- * @since 2201.2.2
+ * @since 2201.2.3
  */
-public class Interaction {
+public class ReturningIfStatementNode extends IfStatementNode {
 
-    private final ResourceId resourceId;
-    private final String connectorType;
+    private boolean hasReturn;
 
-    public Interaction(ResourceId resourceId, String connectorType) {
-
-        this.resourceId = resourceId;
-        this.connectorType = connectorType;
+    public ReturningIfStatementNode(Node ifBody, Node elseBody, boolean hasReturn) {
+        this.setIfBody(ifBody);
+        this.setElseBody(elseBody);
+        this.hasReturn = hasReturn;
     }
 
-    public ResourceId getResourceId() {
-        return resourceId;
+    public boolean isHasReturn() {
+        return hasReturn;
     }
 
-    public String getConnectorType() {
-        return connectorType;
+    public void setHasReturn(boolean hasReturn) {
+        this.hasReturn = hasReturn;
     }
 }

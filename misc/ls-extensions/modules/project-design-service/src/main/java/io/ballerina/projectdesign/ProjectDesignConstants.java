@@ -99,5 +99,4 @@ public class ProjectDesignConstants {
         typeMap.put(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN, "float");
         TYPE_MAP = Collections.unmodifiableMap(typeMap);
     }
-
 }

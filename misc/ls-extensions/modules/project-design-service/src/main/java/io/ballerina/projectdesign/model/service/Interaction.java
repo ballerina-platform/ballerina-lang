@@ -16,35 +16,32 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model.service;
+
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 /**
- * Provide resource information.
+ * Represent interaction with another service.
  *
  * @since 2201.2.2
  */
-public class ResourceId {
+public class Interaction extends ModelElement {
 
-    private final String serviceId;
-    private final String path;
-    private final String action;
+    private final ResourceId resourceId;
+    private final String connectorType;
 
-    public ResourceId(String serviceId, String action, String path) {
-
-        this.serviceId = serviceId;
-        this.action = action;
-        this.path = path;
+    public Interaction(ResourceId resourceId, String connectorType, ElementLocation elementLocation) {
+        super(elementLocation);
+        this.resourceId = resourceId;
+        this.connectorType = connectorType;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public ResourceId getResourceId() {
+        return resourceId;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public String getAction() {
-        return action;
+    public String getConnectorType() {
+        return connectorType;
     }
 }
