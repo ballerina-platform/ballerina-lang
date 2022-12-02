@@ -25,6 +25,11 @@ public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
 #
+# ```ballerina
+# string hello = "Hello, World!";
+# int length = hello.length();
+# ```
+#
 # + str - the string
 # + return - the number of characters (code points) in parameter `str`
 public isolated function length(string str) returns int = @java:Method {
@@ -35,6 +40,13 @@ public isolated function length(string str) returns int = @java:Method {
 # Returns an iterator over the string.
 #
 # The iterator will yield the substrings of length 1 in order.
+#
+# ```ballerina
+# string greeting = "Hello, World. This is from Ballerina!";
+# object {
+#   public isolated function next() returns record {|string:Char value;|}?;
+# } iterator = greeting.iterator();
+# ```
 #
 # + str - the string to be iterated over
 # + return - a new iterator object
@@ -47,6 +59,13 @@ public isolated function iterator(string str) returns object {
 
 # Concatenates zero or more strings.
 #
+# ```ballerina
+# string hostname = "http://worldtimeapi.org";
+# string continent = "Asia";
+# string city = "Colombo";
+# string worldTimeAPIUrl = hostname.concat("/api/timezone/", continent, "/", city);
+#
+# ```
 # + strs - strings to be concatenated
 # + return - concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty
 public isolated function concat(string... strs) returns string = @java:Method {
@@ -54,7 +73,12 @@ public isolated function concat(string... strs) returns string = @java:Method {
     name: "concat"
 } external;
 
-# Returns the code point of a character in a string.
+# Returns the unicode code point of a character in a string.
+#
+# ```ballerina
+# string hello = "Hello, World!";
+# int codePoint = hello.getCodePoint(3);
+# ```
 #
 # + str - the string
 # + index - an index in parameter `str`
@@ -65,6 +89,11 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 } external;
 
 # Returns a substring of a string.
+#
+# ```ballerina
+# string intro = "Hello, my name is John";
+# string name = intro.substring(18, 22);
+# ```
 #
 # + str - source string.
 # + startIndex - the starting index, inclusive
@@ -82,6 +111,10 @@ public isolated function substring(string str, int startIndex, int endIndex = st
 # but the ordering will often not be consistent with cultural expectations
 # for sorted order.
 #
+# ```ballerina
+# int codePointCompare = "Austria".codePointCompare("Australia");
+# ```
+#
 # + str1 - the first string to be compared
 # + str2 - the second string to be compared
 # + return - an int that is less than, equal to or greater than zero,
@@ -93,6 +126,12 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 
 # Joins zero or more strings together with a separator.
 #
+# ```ballerina
+# string introString = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
+#
+# string student = string:'join(",", "John", "23", "USA", "Computer Science", "Swimmer");
+# ```
+#
 # + separator - separator string
 # + strs - strings to be joined
 # + return - a string consisting of all of parameter `strs` concatenated in order
@@ -103,6 +142,9 @@ public isolated function 'join(string separator, string... strs) returns string 
 } external;
 
 # Finds the first occurrence of one string in another string.
+# ```ballerina
+# int? firstIndex = "Newzeland".indexOf("land");
+# ```
 #
 # + str - the string in which to search
 # + substr - the string to search for
@@ -115,6 +157,10 @@ public isolated function indexOf(string str, string substr, int startIndex = 0) 
 } external;
 
 # Finds the last occurrence of one string in another string.
+#
+# ```ballerina
+# int? lastIndex = "There are multiple programming languages. Ballerinalang is unique among them".lastIndexOf("lang");
+# ```
 #
 # + str - the string in which to search
 # + substr - the string to search for
@@ -129,6 +175,10 @@ returns int? = @java:Method {
 
 # Tests whether a string includes another string.
 #
+# ```ballerina
+# boolean stringIncludes = "Hello World! from Ballerina".includes("Bal");
+# ```
+#
 # + str - the string in which to search
 # + substr - the string to search for
 # + startIndex - index to start searching from
@@ -141,6 +191,10 @@ public isolated function includes(string str, string substr, int startIndex = 0)
 
 # Tests whether a string starts with another string.
 #
+# ```ballerina
+# boolean starts = "Welcome to Ballerina programming language".includes("Welcome");
+# ```
+#
 # + str - the string to be tested
 # + substr - the starting string
 # + return - true if parameter `str` starts with parameter `substr`; false otherwise
@@ -150,6 +204,10 @@ public isolated function startsWith(string str, string substr) returns boolean =
 } external;
 
 # Tests whether a string ends with another string.
+#
+# ```ballerina
+# boolean ends = "Welcome to Ballerina programming language".includes("language");
+# ```
 #
 # + str - the string to be tested
 # + substr - the ending string
@@ -167,6 +225,10 @@ public isolated function endsWith(string str, string substr) returns boolean = @
 #
 # Other characters are left unchanged.
 #
+# ```ballerina
+# string lowerCaseString = "HELLO, World!".toLowerAscii();
+# ```
+#
 # + str - the string to be converted
 # + return - parameter `str` with any occurrences of A-Z converted to a-z
 public isolated function toLowerAscii(string str) returns string = @java:Method {
@@ -178,6 +240,10 @@ public isolated function toLowerAscii(string str) returns string = @java:Method 
 #
 # Other characters are left unchanged.
 #
+# ```ballerina
+# string lowerCaseString = "hello, World!".toUpperAscii();
+# ```
+#
 # + str - the string to be converted
 # + return - parameter `str` with any occurrences of a-z converted to A-Z
 public isolated function toUpperAscii(string str) returns string = @java:Method {
@@ -188,6 +254,10 @@ public isolated function toUpperAscii(string str) returns string = @java:Method 
 # Tests whether two strings are the same, ignoring the case of ASCII characters.
 #
 # A character in the range a-z is treated the same as the corresponding character in the range A-Z.
+#
+# ```ballerina
+# boolean equals = "BALLERINA".equalsIgnoreCaseAscii("ballerina");
+# ```
 #
 # + str1 - the first string to be compared
 # + str2 - the second string to be compared
@@ -202,6 +272,10 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 #
 # The ASCII white space characters are 0x9...0xD, 0x20.
 #
+# ```ballerina
+# string trimedString = " BALLERINA  ".trim();
+# ```
+#
 # + str - the string
 # + return - parameter `str` with leading or trailing ASCII white space characters removed
 public isolated function trim(string str) returns string = @java:Method {
@@ -210,6 +284,10 @@ public isolated function trim(string str) returns string = @java:Method {
 } external;
 
 # Represents a string as an array of bytes using UTF-8.
+#
+# ```ballerina
+# byte[] stringAsBytes = "Hello, World!".toBytes();
+# ```
 #
 # + str - the string
 # + return - UTF-8 byte array
@@ -220,6 +298,11 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 
 # Constructs a string from its UTF-8 representation in bytes.
 #
+# ```ballerina
+# byte[] bytes = [72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33];
+# string stringValue = check string:fromBytes(bytes);
+# ```
+#
 # + bytes - UTF-8 byte array
 # + return - parameter `bytes` converted to string or error
 public isolated function fromBytes(byte[] bytes) returns string|error = @java:Method {
@@ -229,6 +312,11 @@ public isolated function fromBytes(byte[] bytes) returns string|error = @java:Me
 
 # Converts a string to an array of code points.
 #
+# ```ballerina
+# string hello = "Hello, world 🌎 from Ballerina. Tryout Ballerina";
+# int[] charCodePoints = hello.toCodePointInts();
+# ```
+#
 # + str - the string
 # + return - an array with a code point for each character of parameter `str`
 public isolated function toCodePointInts(string str) returns int[] = @java:Method {
@@ -237,6 +325,10 @@ public isolated function toCodePointInts(string str) returns int[] = @java:Metho
 } external;
 
 # Converts a single character string to a code point.
+#
+# ```ballerina
+# int charCodePoint = string:toCodePointInt("a");
+# ```
 #
 # + ch - a single character string
 # + return - the code point of parameter `ch`
@@ -249,6 +341,11 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
 #
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
+#
+# ```ballerina
+# int[] codePoints = [66,97,108,108,101,114,105,110,97];
+# string stringValue = check string:fromCodePointInts(codePoints);
+# ```
 #
 # + codePoints - an array of ints, each specifying a code point
 # + return - a string with a character for each code point in parameter `codePoints`; or an error
@@ -263,6 +360,10 @@ public isolated function fromCodePointInts(int[] codePoints) returns string|erro
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
 #
+# ```ballerina
+# string:Char charValue = check string:fromCodePointInt(97);
+# ```
+#
 # + codePoint - an int specifying a code point
 # + return - a single character string whose code point is parameter `codePoint`; or an error
 # if parameter `codePoint` is not a valid code point
@@ -274,6 +375,11 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # Adds padding to the start of a string.
 # Adds sufficient `padChar` characters at the start of `str` to make its length be `len`.
 # If the length of `str` is >= `len`, returns `str`.
+#
+# ```ballerina
+# // Providing "0" as the custom padding char
+# string distanceAsFixedLengthString = "100Km".padStart(10, "0");
+# ```
 #
 # + str - the string to pad
 # + len - the length of the string to be returned
@@ -287,6 +393,11 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # Adds padding to the end of a string.
 # Adds sufficient `padChar` characters to the end of `str` to make its length be `len`.
 # If the length of `str` is >= `len`, returns `str`.
+#
+# ```ballerina
+# // Providing "!" as the custom padding char
+# string quote = "Ballerina for developers".padEnd(30, "!");
+# ```
 #
 # + str - the string to pad
 # + len - the length of the string to be returned
@@ -302,6 +413,10 @@ public isolated function padEnd(string str, int len, Char padChar = " ") returns
 # Sufficient zero characters are added to `str` to make its length be `len`.
 # If the length of `str` is >= `len`, returns `str`.
 #
+# ```ballerina
+# string paddedString = "-256".padZero(9);
+# ```
+#
 # + str - the string to pad
 # + len - the length of the string to be returned
 # + zeroChar - the character to use for the zero; defaults to ASCII zero `0`
@@ -313,11 +428,11 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
 
 # True if there is a match of `re` against all of `str`.
 # Use `includesMatch` to test whether `re` matches somewhere in `str`.
-public function matches(string str, RegExp 're) returns boolean {
+public isolated function matches(string str, RegExp 're) returns boolean {
    return 're.isFullMatch(str);
 }
 
 # True if there is a match for `re` anywhere in `str`
-public function includesMatch(string str, RegExp 're, int startIndex = 0) returns boolean {
+public isolated function includesMatch(string str, RegExp 're, int startIndex = 0) returns boolean {
    return 're.find(str, startIndex) != ();
 }
