@@ -96,6 +96,10 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean exportComponentModel() {
+        return this.compilationOptions.exportComponentModel();
+    }
+
     public boolean enableCache() {
         return this.compilationOptions.enableCache();
     }
@@ -151,6 +155,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
@@ -306,6 +311,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
             compilationOptionsBuilder.setExportOpenAPI(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+            compilationOptionsBuilder.setExportComponentModel(value);
             return this;
         }
 
