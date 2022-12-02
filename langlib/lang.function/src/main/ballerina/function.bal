@@ -21,6 +21,23 @@ import ballerina/jballerina.java;
 # If the arguments specified in `args` are not of the type required by `func`,
 # then this will panic.
 #
+# ```ballerina
+# function fn = getGreeting;
+# // Call `getGreeting` without arguments.
+# any|error greeting = function:call(fn);
+#
+# // Call `getGreeting` with an argument.
+# any|error greetingWithName = function:call(fn, "David");
+#
+# function getGreeting(string? name = ()) returns string {
+#     if name is () {
+#         return "Hello!";
+#     }
+#
+#     return string `Hello ${name}!`;
+# }
+# ```
+#
 # + func - the function to be called
 # + args - the arguments to be passed to the function
 # + return - the return value of the call to the function
