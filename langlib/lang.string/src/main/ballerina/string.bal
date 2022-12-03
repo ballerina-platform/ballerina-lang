@@ -31,7 +31,7 @@ public type RegExp regexp:RegExp;
 # ```
 #
 # + str - the string
-# + return - the number of characters (code points) in parameter `str`
+# + return - the number of characters (Unicode code points) in parameter `str`
 public isolated function length(string str) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.string.Length",
     name: "length"
@@ -64,8 +64,8 @@ public isolated function iterator(string str) returns object {
 # string continent = "Asia";
 # string city = "Colombo";
 # string worldTimeAPIUrl = hostname.concat("/api/timezone/", continent, "/", city);
-#
 # ```
+
 # + strs - strings to be concatenated
 # + return - concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty
 public isolated function concat(string... strs) returns string = @java:Method {
@@ -73,7 +73,7 @@ public isolated function concat(string... strs) returns string = @java:Method {
     name: "concat"
 } external;
 
-# Returns the unicode code point of a character in a string.
+# Returns the Unicode code point of a character in a string.
 #
 # ```ballerina
 # string hello = "Hello, World!";
@@ -310,7 +310,7 @@ public isolated function fromBytes(byte[] bytes) returns string|error = @java:Me
     name: "fromBytes"
 } external;
 
-# Converts a string to an array of code points.
+# Converts a string to an array of Unicode code points.
 #
 # ```ballerina
 # string hello = "Hello, world 🌎 from Ballerina. Tryout Ballerina";
@@ -337,7 +337,7 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
     name: "toCodePointInt"
 } external;
 
-# Constructs a string from an array of code points.
+# Constructs a string from an array of Unicode code points.
 #
 # An int is a valid code point if it is in the range 0 to 0x10FFFF inclusive,
 # but not in the range 0xD800 or 0xDFFF inclusive.
