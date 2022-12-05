@@ -207,8 +207,8 @@ public class SymbolDocumentationTest {
                 "Returns the length of the string.\n" +
                 "\n" +
                 "```ballerina\n" +
-                "string hello = \"Hello, World!\";\n" +
-                "int length = hello.length();\n" +
+                "string greeting = \"Hello, World!\";\n" +
+                "int length = greeting.length();\n" +
                 "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (Unicode code points) in parameter `str`");
@@ -232,8 +232,8 @@ public class SymbolDocumentationTest {
                 "Returns the length of the string.\n" +
                         "\n" +
                         "```ballerina\n" +
-                        "string hello = \"Hello, World!\";\n" +
-                        "int length = hello.length();\n" +
+                        "string greeting = \"Hello, World!\";\n" +
+                        "int length = greeting.length();\n" +
                         "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (Unicode code points) in parameter `str`");
