@@ -79,8 +79,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return  context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
                 && parentKind != SyntaxKind.CONST_DECLARATION 
                 && parentKind != SyntaxKind.INVALID_EXPRESSION_STATEMENT
-                && parentKind != SyntaxKind.CLIENT_DECLARATION 
-                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 

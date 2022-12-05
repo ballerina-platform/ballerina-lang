@@ -75,7 +75,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.diagnosticInfo().code().equals("BCE4046")
+        return diagnostic.diagnosticInfo().code().equals("BCE4038")
                 && context.currentSemanticModel().isPresent()
                 && isInRemoteMethodCallOrResourceAccess(context)
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
