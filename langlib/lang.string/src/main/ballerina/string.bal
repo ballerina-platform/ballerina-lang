@@ -26,8 +26,8 @@ public type RegExp regexp:RegExp;
 # Returns the length of the string.
 #
 # ```ballerina
-# string hello = "Hello, World!";
-# int length = hello.length();
+# string greeting = "Hello, World!";
+# int length = greeting.length();
 # ```
 #
 # + str - the string
@@ -76,8 +76,8 @@ public isolated function concat(string... strs) returns string = @java:Method {
 # Returns the Unicode code point of a character in a string.
 #
 # ```ballerina
-# string hello = "Hello, World!";
-# int codePoint = hello.getCodePoint(3);
+# string greeting = "Hello, World!";
+# int codePoint = greeting.getCodePoint(3);
 # ```
 #
 # + str - the string
@@ -182,8 +182,8 @@ returns int? = @java:Method {
 # Tests whether a string includes another string.
 #
 # ```ballerina
-# string hello = "Hello World! from Ballerina";
-# boolean stringIncludes = hello.includes("Bal");
+# string greeting = "Hello World! from Ballerina";
+# boolean stringIncludes = greeting.includes("Bal");
 # ```
 #
 # + str - the string in which to search
@@ -199,8 +199,8 @@ public isolated function includes(string str, string substr, int startIndex = 0)
 # Tests whether a string starts with another string.
 #
 # ```ballerina
-# string hello = "Welcome to Ballerina programming language";
-# boolean starts = hello.startsWith("Welcome");
+# string greeting = "Welcome to Ballerina programming language";
+# boolean starts = greeting.startsWith("Welcome");
 # ```
 #
 # + str - the string to be tested
@@ -214,8 +214,8 @@ public isolated function startsWith(string str, string substr) returns boolean =
 # Tests whether a string ends with another string.
 #
 # ```ballerina
-# string hello = "Welcome to Ballerina programming language";
-# boolean ends = hello.endsWith("language");
+# string greeting = "Welcome to Ballerina programming language";
+# boolean ends = greeting.endsWith("language");
 # ```
 #
 # + str - the string to be tested
@@ -235,8 +235,8 @@ public isolated function endsWith(string str, string substr) returns boolean = @
 # Other characters are left unchanged.
 #
 # ```ballerina
-# string hello = "HELLO, World!";
-# string lowerCaseString = hello.toLowerAscii();
+# string greeting = "HELLO, World!";
+# string lowerCaseString = greeting.toLowerAscii();
 # ```
 #
 # + str - the string to be converted
@@ -251,8 +251,8 @@ public isolated function toLowerAscii(string str) returns string = @java:Method 
 # Other characters are left unchanged.
 #
 # ```ballerina
-# string hello = "hello, World!";
-# string lowerCaseString = hello.toUpperAscii();
+# string greeting = "hello, World!";
+# string lowerCaseString = greeting.toUpperAscii();
 # ```
 #
 # + str - the string to be converted
@@ -299,8 +299,8 @@ public isolated function trim(string str) returns string = @java:Method {
 # Represents a string as an array of bytes using UTF-8.
 #
 # ```ballerina
-# string hello = "Hello, World!";
-# byte[] stringAsBytes = hello.toBytes();
+# string greeting = "Hello, World!";
+# byte[] stringAsBytes = greeting.toBytes();
 # ```
 #
 # + str - the string
@@ -327,8 +327,8 @@ public isolated function fromBytes(byte[] bytes) returns string|error = @java:Me
 # Converts a string to an array of Unicode code points.
 #
 # ```ballerina
-# string hello = "Hello, world 🌎 from Ballerina. Try out Ballerina";
-# int[] charCodePoints = hello.toCodePointInts();
+# string greeting = "Hello, world 🌎 from Ballerina. Try out Ballerina";
+# int[] charCodePoints = greeting.toCodePointInts();
 # ```
 #
 # + str - the string
