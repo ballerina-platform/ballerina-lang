@@ -150,6 +150,10 @@ public isolated function 'join(string separator, string... strs) returns string 
 # ```ballerina
 # string country = "New Zealand";
 # int? firstIndex = country.indexOf("land");
+#
+# // Search for the first occurrence of a string from a specific index onwards.
+# string languageIntro = "Ballerinalang is a unique programming language";
+# int? firstStringIndex = country.indexOf("lang", 15);
 # ```
 #
 # + str - the string in which to search
