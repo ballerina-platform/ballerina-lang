@@ -327,7 +327,7 @@ public isolated function fromBytes(byte[] bytes) returns string|error = @java:Me
 # Converts a string to an array of Unicode code points.
 #
 # ```ballerina
-# string hello = "Hello, world 🌎 from Ballerina. Tryout Ballerina";
+# string hello = "Hello, world 🌎 from Ballerina. Try out Ballerina";
 # int[] charCodePoints = hello.toCodePointInts();
 # ```
 #
