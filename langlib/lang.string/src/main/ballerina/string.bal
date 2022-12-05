@@ -132,7 +132,8 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 # string introString = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
 #
 # // Join multiple strings with comma as the separator.
-# string student = string:'join(",", "John", "23", "USA", "Computer Science", "Swimmer");
+# string[] input = ["John", "23", "USA", "Computer Science", "Swimmer"];
+# string student = string:'join(",", ...input);
 # ```
 #
 # + separator - separator string
