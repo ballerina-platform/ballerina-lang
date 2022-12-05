@@ -36,13 +36,14 @@ public class CompilationOptions {
     Boolean withCodeModifiers;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
+    Boolean exportComponentModel;
     Boolean enableCache;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean enableCache) {
+                       Boolean exportComponentModel, Boolean enableCache) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -56,6 +57,7 @@ public class CompilationOptions {
         this.withCodeModifiers = withCodeModifiers;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
+        this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
     }
 
@@ -109,6 +111,10 @@ public class CompilationOptions {
 
     public boolean exportOpenAPI() {
         return toBooleanDefaultIfNull(this.exportOpenAPI);
+    }
+
+    public boolean exportComponentModel() {
+        return toBooleanDefaultIfNull(this.exportComponentModel);
     }
 
     public boolean enableCache() {
@@ -188,6 +194,11 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
         }
+        if (theirOptions.exportComponentModel != null) {
+            compilationOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            compilationOptionsBuilder.setExportComponentModel(this.exportComponentModel);
+        }
         if (theirOptions.enableCache != null) {
             compilationOptionsBuilder.setEnableCache(theirOptions.enableCache);
         } else {
@@ -240,6 +251,7 @@ public class CompilationOptions {
         private Boolean withCodeModifiers;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
+        private Boolean exportComponentModel;
         private Boolean enableCache;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
@@ -307,6 +319,11 @@ public class CompilationOptions {
             return this;
         }
 
+        CompilationOptionsBuilder setExportComponentModel(Boolean value) {
+            exportComponentModel = value;
+            return this;
+        }
+
         public CompilationOptionsBuilder setEnableCache(Boolean value) {
             enableCache = value;
             return this;
@@ -315,7 +332,8 @@ public class CompilationOptions {
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI, enableCache);
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
+                    exportComponentModel, enableCache);
         }
     }
 }

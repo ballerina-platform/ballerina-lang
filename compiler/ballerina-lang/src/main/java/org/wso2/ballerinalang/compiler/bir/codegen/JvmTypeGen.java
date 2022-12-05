@@ -694,10 +694,14 @@ public class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
             return;
         }
-        String typeOwner =
-                JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(toNameString(errorType));
-        mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
+
+        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS)) {
+            jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
+        } else {
+            String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
+            String fieldName = getTypeFieldName(toNameString(errorType));
+            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPE);
+        }
     }
 
     public boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {

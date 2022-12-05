@@ -44,6 +44,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -257,6 +258,7 @@ public class JvmSignatures {
     public static final String GET_TYPEDESC = "L" + TYPEDESC_VALUE + ";";
     public static final String GET_TYPEDESC_OF_OBJECT = "(L" + OBJECT + ";)L" + TYPEDESC_VALUE + ";";
     public static final String GET_UNION_TYPE_IMPL = "L" + UNION_TYPE_IMPL + ";";
+    public static final String GET_ERROR_TYPE_IMPL = "L" + ERROR_TYPE_IMPL + ";";
     public static final String GET_TYPE_REF_TYPE_IMPL = "L" + TYPE_REF_TYPE_IMPL + ";";
     public static final String GET_WD_CHANNELS = "L" + WD_CHANNELS + ";";
     public static final String GET_WORKER_DATA_CHANNEL = "(L" + STRING_VALUE + ";)L" + WORKER_DATA_CHANNEL + ";";
