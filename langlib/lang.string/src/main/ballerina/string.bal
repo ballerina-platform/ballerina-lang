@@ -356,7 +356,7 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
 # but not in the range 0xD800 or 0xDFFF inclusive.
 #
 # ```ballerina
-# int[] codePoints = [66,97,108,108,101,114,105,110,97];
+# int[] codePoints = [66, 97, 108, 108, 101, 114, 105, 110, 97];
 # string stringValue = check string:fromCodePointInts(codePoints);
 # ```
 #
