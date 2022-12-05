@@ -82,8 +82,8 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 # Returns the absolute value of an int value.
 #
 # ```ballerina
-# int distance = -25;
-# int distance = vectorDisplacement.abs();
+# int velocity = -25;
+# int speed = velocity.abs();
 # ```
 #
 # + n - int value to be operated on
@@ -96,11 +96,15 @@ public isolated function abs(int n) returns int = @java:Method {
 # Returns sum of zero or more int values.
 #
 # ```ballerina
-# // Retrieving the total out of the list of integers
+# // Compute the sum of multiple integers.
 # int totalValue = int:sum(10, 20, 30, 40);
 #
+# // Compute the sum of the members in an array of integers.
+# int[] marks = [50, 65, 78, 95];
+# int total = int:sum(...marks);
+#
+# // Compute the sum using the method call expression with an int variable.
 # int initialScore = 4;
-# // Retrieving the total by adding the list of integers with the initial value passed
 # int totalScore = initialScore.sum(5, 6, 7);
 # ```
 # + ns - int values to sum
@@ -113,11 +117,15 @@ public isolated function sum(int... ns) returns int = @java:Method {
 # Returns the maximum of one or more int values.
 #
 # ```ballerina
-# // Retrieving the highest value out of the list of integers
+# // Get the maximum value out of the list of integers.
 # int highestMark = int:max(50, 20, 30, 70, 65);
 #
+# // Get the maximum value out of the members in an array of integers.
+# int[] marks = [25, 50, 70, 80, 94];
+# int highestMark = int:max(...marks);
+#
+# // Get the maximum value using the method call expression with an int variable.
 # int initialScore = 5;
-# // Retrieving the maximum integer out of the list of integers including `initialScore`
 # int highestScore = initialScore.max(4, 8, 9);
 # ```
 # + n - first int value
@@ -131,10 +139,14 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 # Returns the minimum of one or more int values.
 #
 # ```ballerina
-# // Retrieving the lowest value out of the list of integers
+# // Get the minimum value out of the list of integers.
 # int lowerstMark = int:min(45, 25, 30, 75, 50);
 #
-# // Retrieving the minimum value out of the list of integers
+# // Get the minimum value out of the members in an array of integers.
+# int[] marks = [23, 48, 59, 28, 47, 86];
+# int lowerstMark = int:min(...marks);
+#
+# // Get the minimum value out of the list of integers using method call expression.
 # int startingScore = 10;
 # int lowerstScore = startingScore.min(10, 25, 2, 8, 17);
 # ```
@@ -154,7 +166,8 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # This is the inverse of function ``value:toString`` applied to an `int`.
 #
 # ```ballerina
-# int number = check int:fromString("56");
+# string numericStr = "56";
+# int number = check int:fromString(numericStr);
 # ```
 #
 # + s - string representation of a integer value
@@ -172,7 +185,7 @@ public isolated function fromString(string s) returns int|error = @java:Method {
 #
 # ```ballerina
 # int number = 25;
-# string hexNumber = number.toHexString();
+# string hexStringRepr = number.toHexString();
 # ```
 #
 # + n - int value
