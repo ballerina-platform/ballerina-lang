@@ -128,7 +128,7 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 # Joins zero or more strings together with a separator.
 #
 # ```ballerina
-# // Space as a string separator
+# // Join multiple strings with space as the separator.
 # string introString = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
 #
 # // Comma as a string separator
