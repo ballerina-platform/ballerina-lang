@@ -335,6 +335,7 @@ public class JvmConstants {
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
     public static final String VALUE_CLASS_PREFIX = "$value$";
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
+    public static final String FRAME_CLASS_PREFIX = "$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
