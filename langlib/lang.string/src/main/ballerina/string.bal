@@ -145,6 +145,7 @@ public isolated function 'join(string separator, string... strs) returns string 
 } external;
 
 # Finds the first occurrence of one string in another string.
+#
 # ```ballerina
 # string country = "New Zealand";
 # int? firstIndex = country.indexOf("land");
