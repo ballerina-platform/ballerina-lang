@@ -923,11 +923,24 @@ public class TypeConverter {
     }
 
     public static Double stringToFloat(String value) throws NumberFormatException {
-        String upperCaseValue = value.toUpperCase();
-        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
+        if (hasFloatOrDecimalLiteralSuffix(value)) {
             throw new NumberFormatException();
         }
         return Double.parseDouble(value);
+    }
+
+    public static boolean hasFloatOrDecimalLiteralSuffix(String value) {
+        int length = value.length();
+        if (length != 0) {
+            switch (value.substring(value.length() - 1)) {
+                case "F":
+                case "f":
+                case "D":
+                case "d":
+                    return true;
+            }
+        }
+        return false;
     }
 
     public static Boolean stringToBoolean(String value) throws NumberFormatException {

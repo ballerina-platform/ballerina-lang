@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -92,12 +93,8 @@ public class Option {
     }
 
     private boolean isNumeric(String stringVal) {
-        if (stringVal.length() == 0) {
-            return false;
-        }
-        String upperCaseValue = stringVal.toUpperCase();
-        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
-            stringVal = upperCaseValue.substring(0, stringVal.length() - 1);
+        if (TypeConverter.hasFloatOrDecimalLiteralSuffix(stringVal)) {
+            stringVal = stringVal.substring(0, stringVal.length() - 1);
         }
         return NUMBER_PATTERN.matcher(stringVal).matches() || HEX_LITERAL.matcher(stringVal).matches();
     }
