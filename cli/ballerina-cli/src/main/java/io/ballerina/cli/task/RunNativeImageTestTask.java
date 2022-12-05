@@ -241,17 +241,21 @@ public class RunNativeImageTestTask implements Task {
         String jacocoAgentJarPath = "";
         String nativeImageCommand = System.getenv("GRAALVM_HOME");
 
-        if (nativeImageCommand == null) {
-            throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                    "environment variable");
-        }
-        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
-                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+        try {
+            if (nativeImageCommand == null) {
+                throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
+                        "environment variable");
+            }
+            nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                    + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
-        File commandExecutable = Paths.get(nativeImageCommand).toFile();
-        if (!commandExecutable.exists()) {
-            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
-                    "Install it using: gu install native-image");
+            File commandExecutable = Paths.get(nativeImageCommand).toFile();
+            if (!commandExecutable.exists()) {
+                throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                        "Install it using: gu install native-image");
+            }
+        } catch (ProjectException e) {
+            throw createLauncherException(e.getMessage());
         }
 
         if (coverage) {
