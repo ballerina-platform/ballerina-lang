@@ -53,7 +53,7 @@ type Type1 any|error;
 # stream<Employee> employeeStream = employeeList.toStream();
 #
 # stream<Employee> higherPayEmployeeStream = employeeStream.filter(isolated function(Employee employee) returns boolean {
-#     return employee.salaryInUsd > <decimal>4000;
+#     return employee.salaryInUsd > <decimal> 4000;
 # });
 #
 # type Employee record {|
