@@ -42,7 +42,7 @@ public class CompilationOptions {
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean configSchemaGen, Boolean exportOpenAPI,
+                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean exportComponentModel, Boolean enableCache) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
@@ -316,11 +316,6 @@ public class CompilationOptions {
 
         CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
             exportOpenAPI = value;
-            return this;
-        }
-
-        CompilationOptionsBuilder setExportComponentModel(Boolean value) {
-            exportComponentModel = value;
             return this;
         }
 
