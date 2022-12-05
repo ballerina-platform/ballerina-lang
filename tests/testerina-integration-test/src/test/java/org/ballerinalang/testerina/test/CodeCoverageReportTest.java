@@ -271,6 +271,9 @@ public class CodeCoverageReportTest extends BaseTestCase {
                         if ("class".equals(actualClassList.item(j).getNodeName())) {
                             String className = actualClassList.item(j).getAttributes().
                                     getNamedItem("name").getNodeValue();
+                            if (className.contains("$frame$")) {
+                                continue;
+                            }
                             if (expectedClassMap.get(packageName).contains(className)) {
                                 Assert.assertTrue(true);
                             } else {
