@@ -1,0 +1,7 @@
+[package]
+org = "aneesha"
+name = "single_service_sample"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

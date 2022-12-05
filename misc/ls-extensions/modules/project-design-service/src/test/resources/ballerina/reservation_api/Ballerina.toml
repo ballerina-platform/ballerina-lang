@@ -1,0 +1,8 @@
+[package]
+org = "test"
+name = "reservation_api"
+version = "0.1.0"
+distribution = "2201.1.1"
+
+[build-options]
+observabilityIncluded = true

@@ -1,0 +1,207 @@
+{
+  "packageId": {
+    "name": "single_service_sample",
+    "org": "aneesha",
+    "version": "0.1.0"
+  },
+  "hasCompilationErrors": true,
+  "services": {
+    "001": {
+      "path": "greeting",
+      "serviceId": "001",
+      "serviceType": "ballerina/http:2.5.1",
+      "resources": [
+        {
+          "identifier": ".",
+          "resourceId": {
+            "serviceId": "001",
+            "path": ".",
+            "action": "get"
+          },
+          "parameters": [
+            {
+              "type": [
+                "string"
+              ],
+              "name": "name",
+              "in": "query",
+              "isRequired": true,
+              "elementLocation": {
+                "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+                "startPosition": {
+                  "line": 13,
+                  "offset": 29
+                },
+                "endPosition": {
+                  "line": 13,
+                  "offset": 40
+                }
+              }
+            },
+            {
+              "type": [
+                "string"
+              ],
+              "name": "time",
+              "in": "query",
+              "isRequired": true,
+              "elementLocation": {
+                "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+                "startPosition": {
+                  "line": 13,
+                  "offset": 42
+                },
+                "endPosition": {
+                  "line": 13,
+                  "offset": 53
+                }
+              }
+            }
+          ],
+          "returns": [
+            "string",
+            "error"
+          ],
+          "interactions": [
+            {
+              "resourceId": {
+                "serviceId": "002",
+                "path": "[string]",
+                "action": "get"
+              },
+              "connectorType": "ballerina/http:2.5.1",
+              "elementLocation": {
+                "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+                "startPosition": {
+                  "line": 19,
+                  "offset": 32
+                },
+                "endPosition": {
+                  "line": 19,
+                  "offset": 76
+                }
+              }
+            }
+          ],
+          "elementLocation": {
+            "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+            "startPosition": {
+              "line": 13,
+              "offset": 4
+            },
+            "endPosition": {
+              "line": 21,
+              "offset": 5
+            }
+          }
+        }
+      ],
+      "annotation": {
+        "id": "001",
+        "label": "greeting-service",
+        "elementLocation": {
+          "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+          "startPosition": {
+            "line": 8,
+            "offset": 0
+          },
+          "endPosition": {
+            "line": 11,
+            "offset": 1
+          }
+        }
+      },
+      "remoteFunctions": [],
+      "elementLocation": {
+        "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+        "startPosition": {
+          "line": 8,
+          "offset": 0
+        },
+        "endPosition": {
+          "line": 22,
+          "offset": 1
+        }
+      }
+    },
+    "002": {
+      "path": "time",
+      "serviceId": "002",
+      "serviceType": "ballerina/http:2.5.1",
+      "resources": [
+        {
+          "identifier": "greeting",
+          "resourceId": {
+            "serviceId": "002",
+            "path": "greeting",
+            "action": "get"
+          },
+          "parameters": [
+            {
+              "type": [
+                "string"
+              ],
+              "name": "time",
+              "in": "query",
+              "isRequired": true,
+              "elementLocation": {
+                "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+                "startPosition": {
+                  "line": 29,
+                  "offset": 35
+                },
+                "endPosition": {
+                  "line": 29,
+                  "offset": 46
+                }
+              }
+            }
+          ],
+          "returns": [
+            "string"
+          ],
+          "interactions": [],
+          "elementLocation": {
+            "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+            "startPosition": {
+              "line": 29,
+              "offset": 4
+            },
+            "endPosition": {
+              "line": 45,
+              "offset": 5
+            }
+          }
+        }
+      ],
+      "annotation": {
+        "id": "002",
+        "label": "time-service",
+        "elementLocation": {
+          "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+          "startPosition": {
+            "line": 24,
+            "offset": 0
+          },
+          "endPosition": {
+            "line": 27,
+            "offset": 1
+          }
+        }
+      },
+      "remoteFunctions": [],
+      "elementLocation": {
+        "filePath": "{srcPath}/ballerina/single_service_sample/main.bal",
+        "startPosition": {
+          "line": 24,
+          "offset": 0
+        },
+        "endPosition": {
+          "line": 46,
+          "offset": 1
+        }
+      }
+    }
+  },
+  "entities": {}
+}
