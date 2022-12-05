@@ -18,6 +18,7 @@
 
 package io.ballerina.projectdesign;
 
+import io.ballerina.architecturemodelgenerator.ProjectDesignConstants;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter;
 

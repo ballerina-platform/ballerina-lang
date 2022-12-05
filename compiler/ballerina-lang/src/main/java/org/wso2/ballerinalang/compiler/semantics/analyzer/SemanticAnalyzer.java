@@ -37,6 +37,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -737,7 +738,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, currentEnv);
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition,
+                createClassScopeWithoutFields(classDefinition.symbol.scope), currentEnv);
         for (BLangSimpleVariable field : classDefinition.fields) {
             data.env = classEnv;
             analyzeNode(field, data);
@@ -768,6 +770,19 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         analyzerClassInitMethod(classDefinition, data);
+    }
+
+    private Scope createClassScopeWithoutFields(Scope classScope) {
+        Scope scope = new Scope(classScope.owner);
+        Map<Name, Scope.ScopeEntry> classScopeEntries = classScope.entries;
+        Map<Name, Scope.ScopeEntry> scopeEntries = scope.entries;
+        for (Name key : classScopeEntries.keySet()) {
+            Scope.ScopeEntry entry = classScopeEntries.get(key);
+            if (!Symbols.isFlagOn(entry.symbol.flags, Flags.FIELD)) {
+                scopeEntries.put(key, entry);
+            }
+        }
+        return scope;
     }
 
     private void analyzerClassInitMethod(BLangClassDefinition classDefinition, AnalyzerData data) {
