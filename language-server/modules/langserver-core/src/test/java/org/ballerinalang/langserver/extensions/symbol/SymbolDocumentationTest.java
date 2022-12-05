@@ -204,9 +204,14 @@ public class SymbolDocumentationTest {
 
         Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
-                "Returns the length of the string.\n");
+                "Returns the length of the string.\n" +
+                "\n" +
+                "```ballerina\n" +
+                "string hello = \"Hello, World!\";\n" +
+                "int length = hello.length();\n" +
+                "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
-                "the number of characters (code points) in parameter `str`");
+                "the number of characters (Unicode code points) in parameter `str`");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters(), null);
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -224,9 +229,14 @@ public class SymbolDocumentationTest {
 
         Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
-                "Returns the length of the string.\n");
+                "Returns the length of the string.\n" +
+                        "\n" +
+                        "```ballerina\n" +
+                        "string hello = \"Hello, World!\";\n" +
+                        "int length = hello.length();\n" +
+                        "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
-                "the number of characters (code points) in parameter `str`");
+                "the number of characters (Unicode code points) in parameter `str`");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "str");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
                 "the string");

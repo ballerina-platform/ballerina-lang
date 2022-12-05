@@ -131,7 +131,7 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 # // Join multiple strings with space as the separator.
 # string introString = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
 #
-# // Comma as a string separator
+# // Join multiple strings with comma as the separator.
 # string student = string:'join(",", "John", "23", "USA", "Computer Science", "Swimmer");
 # ```
 #
@@ -200,7 +200,7 @@ public isolated function includes(string str, string substr, int startIndex = 0)
 #
 # ```ballerina
 # string hello = "Welcome to Ballerina programming language";
-# boolean starts = hello.includes("Welcome");
+# boolean starts = hello.startsWith("Welcome");
 # ```
 #
 # + str - the string to be tested
@@ -215,7 +215,7 @@ public isolated function startsWith(string str, string substr) returns boolean =
 #
 # ```ballerina
 # string hello = "Welcome to Ballerina programming language";
-# boolean ends = hello.includes("language");
+# boolean ends = hello.endsWith("language");
 # ```
 #
 # + str - the string to be tested
@@ -391,8 +391,8 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# // Providing "0" as the custom padding char
 # string kms = "100Km";
+# // Provide "0" as the custom padding char.
 # string distanceAsFixedLengthString = kms.padStart(10, "0");
 # ```
 #
@@ -410,8 +410,8 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# // Providing "!" as the custom padding char
 # string input = "Ballerina for developers";
+# // Provide "!" as the custom padding char.
 # string quote = input.padEnd(30, "!");
 # ```
 #
