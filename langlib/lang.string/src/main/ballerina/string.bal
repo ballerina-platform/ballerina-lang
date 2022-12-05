@@ -93,6 +93,10 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 # ```ballerina
 # string intro = "Hello, my name is John";
 # string name = intro.substring(18, 22);
+#
+# // Consider only the start index. In this situation,
+# // input string length would be considered as end index.
+# string nameSentence = intro.substring(7);
 # ```
 #
 # + str - source string.
@@ -171,6 +175,9 @@ public isolated function indexOf(string str, string substr, int startIndex = 0) 
 # ```ballerina
 # string languageIntro = "Ballerinalang is a unique programming language";
 # int? lastIndex = languageIntro.lastIndexOf("lang");
+#
+# // Search for the last occurrence of a string from a specific index onwards.
+# int? lastStringIndex = languageIntro.lastIndexOf("Ballerina");
 # ```
 #
 # + str - the string in which to search
@@ -188,7 +195,10 @@ returns int? = @java:Method {
 #
 # ```ballerina
 # string greeting = "Hello World! from Ballerina";
-# boolean stringIncludes = greeting.includes("Bal");
+# boolean includes = greeting.includes("Bal");
+#
+# // Check for the occurrence of a string from a specific index onwards.
+# boolean stringIncludes = greeting.includes("Hello", 10);
 # ```
 #
 # + str - the string in which to search
