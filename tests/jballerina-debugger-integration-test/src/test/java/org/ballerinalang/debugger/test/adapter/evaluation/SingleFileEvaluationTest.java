@@ -51,8 +51,20 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
     public void nameReferenceEvaluationTest() throws BallerinaTestException {
         super.nameReferenceEvaluationTest();
 
+        // other simple name references (i.e. types)
+        debugTestRunner.assertExpression(context, "Student", "Student", "typedesc");
+        debugTestRunner.assertExpression(context, "AnonPerson", "AnonPerson", "typedesc");
+
         // Todo - move to common evaluation test suite after fixing the value string
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly \"John\" name; |} & readonly",
                 "record");
+    }
+
+    @Override
+    public void functionCallEvaluationTest() throws BallerinaTestException {
+        super.functionCallEvaluationTest();
+
+        // with typedesc values as arguments
+        debugTestRunner.assertExpression(context, "processTypeDesc(Student)", "Student", "typedesc");
     }
 }
