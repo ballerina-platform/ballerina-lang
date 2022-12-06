@@ -109,7 +109,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
                 getServiceType(serviceDeclarationNode), serviceMemberFunctionNodeVisitor.getResources(),
-                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation,
+                serviceAnnotation, serviceMemberFunctionNodeVisitor.getRemoteFunctions(),
                 serviceMemberFunctionNodeVisitor.getInteractionList(),
                 GeneratorUtils.getElementLocation(filePath.toString(), serviceDeclarationNode.lineRange())));
     }
