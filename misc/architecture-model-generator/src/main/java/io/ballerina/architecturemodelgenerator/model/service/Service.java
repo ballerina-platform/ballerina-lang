@@ -36,9 +36,10 @@ public class Service extends ModelElement {
     private final List<Resource> resources;
     private final ServiceAnnotation annotation;
     private final List<RemoteFunction> remoteFunctions;
+    private final List<Interaction> interactions;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
-                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation,
+                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation, List<Interaction> interactions,
                    ElementLocation elementLocation) {
         super(elementLocation);
         this.annotation = annotation;
@@ -47,6 +48,7 @@ public class Service extends ModelElement {
         this.serviceType = serviceType;
         this.resources = resources;
         this.remoteFunctions = remoteFunctions;
+        this.interactions = interactions;
     }
 
     public String getPath() {
