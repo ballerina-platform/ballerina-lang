@@ -53,6 +53,11 @@ public type Text xml;
 
 # Returns number of xml items in an xml value.
 #
+# ```ballerina
+# xml books = xml `<book><title>Ballerina</title></book><book><title>Java</title></book>`;
+# int length = books.length();
+# ```
+# 
 # + x - xml item
 # + return - number of xml items in parameter `x`
 public isolated function length(xml x) returns int = @java:Method {
@@ -75,6 +80,14 @@ type XmlType xml;
 # Returns an iterator over the xml items of an xml sequence.
 #
 # # Each item is represented by an xml singleton.
+# 
+# ```ballerina
+# xml books = xml `<book><title>Ballerina</title></book><book><title>Java</title></book>`;
+# object {
+#   public isolated function next() returns record {|xml value;|}?;
+# } iterator = books.iterator();
+# record {|xml value;|}? next = iterator.next();
+# ```
 #
 # + x - xml sequence to iterate over
 # + return - iterator object
@@ -89,6 +102,11 @@ public isolated function iterator(xml<ItemType> x) returns object {
 #
 # This differs from `x[i]` in that it panics if
 # parameter `x` does not have an item with index parameter `i`.
+# 
+# ```ballerina
+# xml books = xml `<book><title>Ballerina</title></book><book><title>Java</title></book>`;
+# xml secondBook = books.get(1);
+# ```
 #
 # + x - the xml sequence
 # + i - the index
@@ -99,6 +117,18 @@ public isolated function get(xml<ItemType> x, int i) returns ItemType = @java:Me
 } external;
 
 # Concatenates xml and string values.
+# 
+# ```
+# // Concatanate a set of xml variables
+# xml firstBook = xml `<book>Ballerina</book>`;
+# xml secondBook = xml `<book>Java</book>`;
+# xml thirdBook = xml `<book>Python</book>`;
+# xml bookSet = xml:concat(firstBook, secondBook, thirdBook);
+# 
+# // Concatanate an array of xml values
+# xml[] subjectList = [xml `<subject>English</subject>`, xml `<subject>Math</subject>`, xml `<subject>ICT</subject>`];
+# xml subjects = xml:concat(...subjectList);
+# ```
 #
 # + xs - xml or string items to concatenate
 # + return - an xml sequence that is the concatenation of all the parameter `xs`;
@@ -110,6 +140,11 @@ public isolated function concat((xml|string)... xs) returns xml = @java:Method {
 
 # Returns a string giving the expanded name of an xml element.
 #
+# ```ballerina
+# xml:Element person = xml `<person age="30">John</person>`;
+# string xmlElementName = person.getName();
+# ```
+# 
 # + elem - xml element
 # + return - element name
 public isolated function getName(Element elem) returns string = @java:Method {
@@ -119,6 +154,10 @@ public isolated function getName(Element elem) returns string = @java:Method {
 
 # Changes the name of an XML element.
 #
+# ```ballerina
+# xml:Element person = xml `<person>John</person>`;
+# person.setName("student");
+# ```
 # + elem - xml element
 # + xName - new expanded name
 public isolated function setName(Element elem, string xName) = @java:Method {
@@ -131,6 +170,11 @@ public isolated function setName(Element elem, string xName) = @java:Method {
 # This includes namespace attributes.
 # The keys in the map are the expanded names of the attributes.
 #
+# ```ballerina
+# xml:Element person = xml `<person name="John" age="30"></person>`;
+# map<string> attributes = person.getAttributes();
+# ```
+# 
 # + x - xml element
 # + return - attributes of parameter `x`
 public isolated function getAttributes(Element x) returns map<string> = @java:Method {
@@ -140,6 +184,11 @@ public isolated function getAttributes(Element x) returns map<string> = @java:Me
 
 # Returns the children of an xml element.
 #
+# ```ballerina
+# xml:Element bookSet = xml `<books><book>Ballerina</book><book>Java</book></books>`;
+# xml books = bookSet.getChildren();
+# ```
+# 
 # + elem - xml element
 # + return - children of parameter `elem`
 public isolated function getChildren(Element elem) returns xml = @java:Method {
@@ -151,6 +200,12 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 #
 # This panics if it would result in the element structure
 # becoming cyclic.
+# 
+# ```ballerina
+# xml:Element bookSet = xml `<books><book>Ballerina</book><book>Java</book></books>`;
+# xml webDevBooks = xml `<book>HTML</book><book>Javascript</book>`;
+# bookSet.setChildren(webDevBooks);
+# ```
 #
 # + elem - xml element
 # + children - xml or string to set as children
@@ -169,6 +224,11 @@ public isolated function setChildren(Element elem, xml|string children) = @java:
 # to the order in which the first character of the representation
 # of the item would occur in the representation of the element in XML syntax.
 #
+# ```ballerina
+# xml:Element person = xml `<person><name>John Doe</name><age>30</age></person>`;
+# xml details = person.getDescendants();
+# ```
+# 
 # + elem - xml element
 # + return - descendants of parameter `elem`
 public isolated function getDescendants(Element elem) returns xml = @java:Method {
@@ -188,6 +248,10 @@ public isolated function getDescendants(Element elem) returns xml = @java:Method
 # * the character data of the concatenation of two xml sequences x1 and x2 is the
 #    concatenation of the character data of x1 and the character data of x2.
 #
+# ```ballerina
+# xml book = xml `<book>Ballerina</book>`;
+# string bookName = book.data();
+# ```
 # + x - the xml value
 # + return - a string consisting of all the character data of parameter `x`
 public isolated function data(xml x) returns string = @java:Method {
@@ -197,6 +261,11 @@ public isolated function data(xml x) returns string = @java:Method {
 
 # Returns the target part of the processing instruction.
 #
+# ```ballerina
+# xml:ProcessingInstruction person = xml `<?person name?>`;
+# string target = person.getTarget();
+# ```
+# 
 # + x - xml processing instruction item
 # + return - target part of parameter `x`
 public isolated function getTarget(ProcessingInstruction x) returns string = @java:Method {
@@ -206,6 +275,16 @@ public isolated function getTarget(ProcessingInstruction x) returns string = @ja
 
 # Returns the content of a processing instruction or comment item.
 #
+# ```ballerina
+# // Get the content of an XML Processing Instruction
+# xml:ProcessingInstruction person = xml `<?person name?>`;
+# string content = person.getContent();
+# 
+# // Get the content of an XML comment
+# xml:Comment comment = xml `<!--Example comment-->`;
+# string commentDetail = comment.getContent();
+# ```
+# 
 # + x - xml item
 # + return - the content of parameter `x`
 public isolated function getContent(ProcessingInstruction|Comment x) returns string = @java:Method {
