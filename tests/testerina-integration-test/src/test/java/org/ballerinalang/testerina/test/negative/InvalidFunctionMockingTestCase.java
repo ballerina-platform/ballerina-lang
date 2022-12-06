@@ -44,7 +44,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,5:2)] could not find function createJdbcClient in module " +
+                "ERROR [tests/test.bal:(3:1,5:2)] could not find function 'createJdbcClient' in module " +
                         "'intg_tests/non_existent_function_mock:0.1.0'\n" +
                         "error: compilation contains errors");
     }
@@ -64,7 +64,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,6:2)] could not find module specified 'intg_tests/module1:0.1.0'\n" +
+                "ERROR [tests/test.bal:(3:1,6:2)] could not find specified module 'intg_tests/module1:0.1.0'\n" +
                         "error: compilation contains errors");
     }
 
@@ -73,7 +73,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,6:2)] could not find module specified 'intg_tests/module1:0.1.0'\n" +
+                "ERROR [tests/test.bal:(3:1,6:2)] could not find specified module 'intg_tests/module1:0.1.0'\n" +
                         "error: compilation contains errors");
     }
 
@@ -93,7 +93,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [function-mock.bal:(12:1,12:38)] Function mocking is not supported for single file projects\n" +
+                "ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported for single file projects\n" +
                         "error: compilation contains errors");
     }
 }

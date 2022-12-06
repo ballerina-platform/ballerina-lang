@@ -115,7 +115,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
             if (packageName.equals(DOT)) {
                 diagnosticLog.logDiagnostic(
                         DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
-                        "Function mocking is not supported for single file projects");
+                        "function mocking is not supported for single file projects");
                 return;
             }
             String annotationName = attachmentNode.getAnnotationName().getValue();
@@ -220,7 +220,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find module specified '" + vals[0] + "'");
+                                "could not find specified module '" + vals[0] + "'");
                         break;
                     }
 
@@ -237,7 +237,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         }
                     } else {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find function " + vals[1] + " in module '" + vals[0] + "'");
+                                "could not find function '" + vals[1] + "' in module '" + vals[0] + "'");
                         break;
                     }
 
@@ -337,7 +337,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                       AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                    "could not find module specified '" + moduleName + "'");
+                    "could not find specified module '" + moduleName + "'");
         } else {
             if (functionName == null) {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
