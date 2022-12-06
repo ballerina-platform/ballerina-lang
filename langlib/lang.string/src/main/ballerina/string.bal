@@ -63,7 +63,10 @@ public isolated function iterator(string str) returns object {
 # string hostname = "http://worldtimeapi.org";
 # string continent = "Asia";
 # string city = "Colombo";
-# string worldTimeAPIUrl = hostname.concat("/api/timezone/", continent, "/", city);
+# string url = hostname.concat("/api/timezone/", continent, "/", city);
+#
+# // Alternative approach to achieve the same as above.
+#  string worldTimeAPIUrl = string:concat(hostname, "/api/timezone/", continent, "/", city);
 # ```
 
 # + strs - strings to be concatenated
