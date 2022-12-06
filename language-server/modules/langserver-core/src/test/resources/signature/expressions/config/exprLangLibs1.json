@@ -12,7 +12,7 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "**Description**  \nReturns a substring of a string.\n\n```ballerina\nstring intro = \"Hello, my name is John\";\nstring name = intro.substring(18, 22);\n```"
+              "value": "**Description**  \nReturns a substring of a string.\n\n```ballerina\nstring intro = \"Hello, my name is John\";\nstring name = intro.substring(18, 22);\n// Consider only the start index. In this situation,\n// input string length would be considered as end index.\nstring nameSentence = intro.substring(7);\n```"
             }
           },
           "parameters": [
