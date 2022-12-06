@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
@@ -109,8 +108,7 @@ public class JvmArrayTypeConstantsGen {
     }
 
     private void createBArrayType(MethodVisitor mv, BArrayType arrayType, String varName) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                GET_ARRAY_TYPE_IMPL, null, null);
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName, GET_ARRAY_TYPE_IMPL, null, null);
         fv.visitEnd();
         jvmArrayTypeGen.createArrayType(mv, arrayType, types);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, arrayConstantsClass, varName, GET_ARRAY_TYPE_IMPL);
