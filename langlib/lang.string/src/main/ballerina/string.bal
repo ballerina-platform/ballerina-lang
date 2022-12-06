@@ -68,7 +68,7 @@ public isolated function iterator(string str) returns object {
 # // Alternative approach to achieve the same as above.
 #  string worldTimeAPIUrl = string:concat(hostname, "/api/timezone/", continent, "/", city);
 # ```
-
+#
 # + strs - strings to be concatenated
 # + return - concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty
 public isolated function concat(string... strs) returns string = @java:Method {
