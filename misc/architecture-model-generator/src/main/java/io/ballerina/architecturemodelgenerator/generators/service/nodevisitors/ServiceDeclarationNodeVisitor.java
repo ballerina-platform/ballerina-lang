@@ -46,6 +46,8 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Package;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -68,6 +70,8 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     private final Package currentPackage;
     private final List<Service> services = new LinkedList<>();
     private final Path filePath;
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceDeclarationNodeVisitor.class);
 
     public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, Package currentPackage,
                                          ComponentModel.PackageId packageId, Path filePath) {
@@ -122,19 +126,24 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
                 ExplicitNewExpressionNode explicitNewExpressionNode = (ExplicitNewExpressionNode) expressionNode;
                 //todo: Implement using semantic model - returns null
                 TypeDescriptorNode typeDescriptorNode = explicitNewExpressionNode.typeDescriptor();
+                logger.debug("1 : ExplicitNewExpressionNode typedesc : " + typeDescriptorNode.toSourceCode());
                 if (typeDescriptorNode instanceof QualifiedNameReferenceNode) {
                     QualifiedNameReferenceNode listenerNode = (QualifiedNameReferenceNode) typeDescriptorNode;
                     Optional<Symbol> listenerSymbol = semanticModel.symbol(listenerNode);
+
                     if (listenerSymbol.isPresent() && (listenerSymbol.get() instanceof TypeReferenceTypeSymbol)) {
                         serviceType = ((TypeReferenceTypeSymbol)
                                 listenerSymbol.get()).signature().replace(LISTENER, "");
+                        logger.debug("2 : serviceType : " + serviceType);
                     } else {
+                        logger.debug("3 : serviceType : " + serviceType);
                         serviceType = listenerNode.modulePrefix().text().trim();
                     }
                 }
             } else if (expressionNode instanceof SimpleNameReferenceNode) { // support when use listener from a var
                 Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
                 if (typeSymbol.isPresent() && typeSymbol.get().typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
+                    logger.debug("4 : serviceType : " + typeSymbol.get().signature());
                     serviceType = typeSymbol.get().signature().replace(LISTENER, "");
                 }
             }

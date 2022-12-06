@@ -39,6 +39,7 @@ public class ServiceGeneratorTests {
     private static final String RESULTS = "results";
     Gson gson = new GsonBuilder().serializeNulls().create();
 
+    // "connectorType":"$CompilationError$"
     @Test(description = "model generation for single module projects")
     public void testSingleModuleModelGeneration() throws IOException {
         Path projectPath = RES_DIR.resolve(BALLERINA).resolve(
@@ -51,12 +52,11 @@ public class ServiceGeneratorTests {
         ComponentModel expectedModel = TestUtils.getComponentFromGivenJsonFile(expectedJsonPath);
 
         generatedModel.getServices().forEach((id, service) -> {
-            String serviceType = service.getServiceType();
             String generatedService = gson.toJson(service).replaceAll("\\s+", "");
             String expectedService = gson.toJson(expectedModel.getServices().get(id))
                     .replaceAll("\\s+", "")
-                    .replaceAll("\\{srcPath\\}", RES_DIR.toAbsolutePath().toString())
-                    .replaceAll("\"serviceType\":\".*?\"", "\"serviceType\":\"" + serviceType + "\"");
+                    .replaceAll("\\{srcPath\\}", RES_DIR.toAbsolutePath().toString());
+//                    .replaceAll("\"serviceType\":\".*?\"", "\"serviceType\":\"" + serviceType + "\"");
             Assert.assertEquals(generatedService, expectedService);
         });
     }

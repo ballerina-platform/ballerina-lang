@@ -21,6 +21,7 @@ module io.ballerina.architecturemodelgenerator {
     requires io.ballerina.lang;
     requires io.ballerina.parser;
     requires io.ballerina.tools.api;
+    requires slf4j.api;
 
     exports io.ballerina.architecturemodelgenerator;
     exports io.ballerina.architecturemodelgenerator.diagnostics;
