@@ -88,6 +88,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_lock_stmt.json"},
 
                 {"extract_to_function_stmts_foreach_stmt.json"},
+                {"extract_to_function_stmts_foreach_stmt2.json"},
                 {"extract_to_function_stmts_foreach_stmt_with_range_expr.json"},
                 {"extract_to_function_stmts_foreach_stmt_without_iterable_declared_inside.json"},
 

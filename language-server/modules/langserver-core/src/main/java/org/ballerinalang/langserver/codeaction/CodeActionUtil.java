@@ -298,7 +298,7 @@ public class CodeActionUtil {
                                 signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
                                 break;
                             default:
-                                signature = newArrType.signature();
+                                signature = entry.getValue() + "[]";
                         }
                         typesMap.put(newArrType, signature);
                     });
