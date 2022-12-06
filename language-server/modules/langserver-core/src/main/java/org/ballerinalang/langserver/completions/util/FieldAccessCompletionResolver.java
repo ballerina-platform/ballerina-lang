@@ -80,27 +80,17 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
-
-        if (node.parent().kind() == SyntaxKind.FIELD_ACCESS) {
-            Optional<SemanticModel> semanticModel = this.context.currentSemanticModel();
-            if (semanticModel.isEmpty()) {
-                return Optional.empty();
-            }
-
-            Optional<TypeSymbol> typeSymbol = semanticModel.get()
-                    .typeOf(((FieldAccessExpressionNode) node.parent()).expression());
-            if (typeSymbol.isPresent()) {
-                return SymbolUtil.getTypeDescriptor(typeSymbol.get());
-            }
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        Optional<TypeSymbol> tSymbol = this.getSymbolByName(visibleSymbols, node.name().text())
+                .flatMap(SymbolUtil::getTypeDescriptor);
+        if (tSymbol.isPresent()) {
+            return tSymbol;
         }
-
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+        
+        // TODO We need to use typeOf() to work with type narrowing. But typeOf() gives incorrect result for
+        //      xml attribute accesses. Therefore need to give visible symbols approach the priority for now.
+        return this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
