@@ -144,4 +144,8 @@ public class GeneratorUtils {
 
         return clientModuleName;
     }
+
+    public static String getClientModuleName(TypeSymbol typeSymbol) {
+        return typeSymbol.signature().trim().replace(CLIENT, "");
+    }
 }

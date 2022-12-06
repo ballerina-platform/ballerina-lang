@@ -23,15 +23,19 @@ import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterI
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.FunctionParameter;
+import io.ballerina.architecturemodelgenerator.model.service.Interaction;
 import io.ballerina.architecturemodelgenerator.model.service.RemoteFunction;
 import io.ballerina.architecturemodelgenerator.model.service.Resource;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceParameter;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -41,17 +45,23 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Package;
 
@@ -59,6 +69,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getClientModuleName;
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getElementLocation;
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getServiceAnnotation;
 
 /**
  * Visitor class for FunctionDefinition node.
@@ -72,6 +86,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     private final Package currentPackage;
     private List<Resource> resources = new LinkedList<>();
     private List<RemoteFunction> remoteFunctions = new LinkedList<>();
+    private final List<Interaction> interactionList = new LinkedList<>();
     private final ComponentModel.PackageId packageId;
     private final String filePath;
 
@@ -93,9 +108,13 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         return remoteFunctions;
     }
 
+    public List<Interaction> getInteractionList() {
+        return interactionList;
+    }
+
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-        ElementLocation elementLocation = GeneratorUtils.getElementLocation(filePath,
+        ElementLocation elementLocation = getElementLocation(filePath,
                 functionDefinitionNode.lineRange());
         SyntaxKind kind = functionDefinitionNode.kind();
         switch (kind) {
@@ -159,7 +178,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     }
 
     private ResourceParameter getPathParameter(ResourcePathParameterNode resourcePathParameterNode) {
-        ElementLocation elementLocation = GeneratorUtils.getElementLocation(this.filePath,
+        ElementLocation elementLocation = getElementLocation(this.filePath,
                 resourcePathParameterNode.lineRange());
         String name = resourcePathParameterNode.paramName().get().text();
         List<String> paramTypes = new LinkedList<>();
@@ -176,7 +195,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
 
         SeparatedNodeList<ParameterNode> parameterNodes = functionSignatureNode.parameters();
         for (ParameterNode parameterNode : parameterNodes) {
-            ElementLocation elementLocation = GeneratorUtils.getElementLocation(this.filePath,
+            ElementLocation elementLocation = getElementLocation(this.filePath,
                     parameterNode.lineRange());
             Optional<Symbol> symbol = semanticModel.symbol(parameterNode);
             if (symbol.isPresent() && symbol.get().kind().equals(SymbolKind.PARAMETER)) {
@@ -304,8 +323,36 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     }
 
     @Override
-    public void visit(VariableDeclarationNode variableDeclarationNode) {
+    public void visit(ObjectFieldNode objectFieldNode) {
+        Node fieldTypeName = objectFieldNode.typeName();
+        Optional<Symbol> fieldTypeNameSymbol =  semanticModel.symbol(fieldTypeName);
+        if (fieldTypeNameSymbol.isPresent()) {
+            TypeDescKind fieldTypeNameTypeDescKind = ((TypeSymbol) fieldTypeNameSymbol.get()).typeKind();
+            if (fieldTypeNameTypeDescKind.equals(TypeDescKind.TYPE_REFERENCE)) {
+                TypeReferenceTypeSymbol fieldTypeNameTypeRefSymbol =
+                        (TypeReferenceTypeSymbol) fieldTypeNameSymbol.get();
+                SymbolKind fieldTypeNameSymbolKind = fieldTypeNameTypeRefSymbol.definition().kind();
+                if (fieldTypeNameSymbolKind.equals(SymbolKind.CLASS)) {
+                    ClassSymbol fieldRefClassSymbol =  (ClassSymbol) fieldTypeNameTypeRefSymbol.typeDescriptor();
+                    boolean isClientClass = fieldRefClassSymbol.qualifiers().stream()
+                            .anyMatch(qualifier -> qualifier.equals(Qualifier.CLIENT));
+                    if (isClientClass && objectFieldNode.metadata().isPresent()) {
+                        String serviceId =
+                                getServiceAnnotation(objectFieldNode.metadata().get().annotations(), filePath).getId();
+                        Interaction interaction = new Interaction(new ResourceId(serviceId,
+                                null, null), getClientModuleName((TypeSymbol) fieldTypeNameSymbol.get()),
+                                getElementLocation(filePath, objectFieldNode.lineRange()));
+                        interactionList.add(interaction);
+                    }
+                }
+            }
+        }
+    }
 
+    @Override
+    public void visit(VariableDeclarationNode variableDeclarationNode) {
+        TypedBindingPatternNode typedBindingPatternNode = variableDeclarationNode.typedBindingPattern();
+        typedBindingPatternNode.modify();
     }
 
     @Override
