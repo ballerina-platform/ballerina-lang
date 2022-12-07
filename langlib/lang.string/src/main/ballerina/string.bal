@@ -270,7 +270,7 @@ public isolated function toLowerAscii(string str) returns string = @java:Method 
 #
 # ```ballerina
 # string greeting = "hello, World!";
-# string lowerCaseString = greeting.toUpperAscii();
+# string upperCaseString = greeting.toUpperAscii();
 # ```
 #
 # + str - the string to be converted
@@ -304,7 +304,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 #
 # ```ballerina
 # string lang = " BALLERINA  ";
-# string trimedString = lang.trim();
+# string trimmedString = lang.trim();
 # ```
 #
 # + str - the string
