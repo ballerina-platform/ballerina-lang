@@ -136,11 +136,11 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 #
 # ```ballerina
 # // Join multiple strings with space as the separator.
-# string introString = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
+# string intro = string:'join(" ", "Ballerina", "is", "a", "statically", "typed,", "concurrent", "programming", "language");
 #
 # // Join multiple strings with comma as the separator.
-# string[] input = ["John", "23", "USA", "Computer Science", "Swimmer"];
-# string student = string:'join(",", ...input);
+# string[] array = ["John", "23", "USA", "Computer Science", "Swimmer"];
+# string studentInfo = string:'join(",", ...array);
 # ```
 #
 # + separator - separator string
@@ -159,8 +159,8 @@ public isolated function 'join(string separator, string... strs) returns string 
 # int? firstIndex = country.indexOf("land");
 #
 # // Search for the first occurrence of a string from a specific index onwards.
-# string languageIntro = "Ballerinalang is a unique programming language";
-# int? firstStringIndex = country.indexOf("lang", 15);
+# string intro = "Ballerinalang is a unique programming language";
+# int? firstStringIndex = intro.indexOf("lang", 15);
 # ```
 #
 # + str - the string in which to search
@@ -176,11 +176,11 @@ public isolated function indexOf(string str, string substr, int startIndex = 0) 
 # Finds the last occurrence of one string in another string.
 #
 # ```ballerina
-# string languageIntro = "Ballerinalang is a unique programming language";
-# int? lastIndex = languageIntro.lastIndexOf("lang");
+# string intro = "Ballerinalang is a unique programming language";
+# int? lastIndex = intro.lastIndexOf("lang");
 #
 # // Search for the last occurrence of a string from a specific index onwards.
-# int? lastStringIndex = languageIntro.lastIndexOf("Ballerina");
+# int? lastStringIndex = intro.lastIndexOf("lang", 15);
 # ```
 #
 # + str - the string in which to search
