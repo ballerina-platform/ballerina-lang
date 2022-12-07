@@ -304,7 +304,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 #
 # ```ballerina
 # string lang = " BALLERINA  ";
-# string trimedString = lang.trim();
+# string trimmedString = lang.trim();
 # ```
 #
 # + str - the string
