@@ -31,8 +31,8 @@ type Type1 any|error;
 # Returns number of members of a map.
 #
 # ```ballerina
-# map<string> vowels = {a: "A", e: "E", i: "I", o: "O", u: "U"};
-# int length = vowels.length();
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# int length = marksMap.length();
 # ```
 #
 # + m - the map
@@ -45,17 +45,11 @@ public isolated function length(map<any|error> m) returns int =@java:Method {
 # Returns an iterator over a map.
 #
 # ```ballerina
-# map<string> vowels = {a: "A", e: "E", i: "I", o: "O", u: "U"};
-#
-# // iterator() returns an iterator object with the `next()` method.
-# var vowelsIter = vowels.iterator();
-#
-# // `next()` can be used to get the next element of the map.
-# record {|string value;|}? nextVal = vowelsIter.next();
-#
-# while nextVal != null {
-#     nextVal = vowelsIter.next();
-# }
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# object {
+#     public isolated function next() returns record {|int value;|}?;
+# } iterator = marksMap.iterator();
+# record {|int value;|}? next = iterator.next();
 # ```
 #
 # The iterator will iterate over the members of the map not the keys.
@@ -76,8 +70,20 @@ public isolated function iterator(map<Type> m) returns object {
 # Returns the member of a map with given key.
 #
 # ```ballerina
-# map<int> indices = {a: 1, b: 2, c: 3, d: 4};
-# int indexOfA = indices.get("a");
+# map<Employee> employees = {
+#    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
+#    "Emma": {firstName: "Jo", lastName: "David", id: 2121},
+#    "John": {firstName: "John", lastName: "Doe", id: 2123}
+# };
+#
+# string key = "Jo";
+# Employee employee = employees.get(key);
+#
+# type Employee record {
+#     string firstName;
+#     string lastName?;
+#     int id;
+# };
 # ```
 #
 # This for use in a case where it is known that the map has a specific key,
@@ -94,8 +100,8 @@ public isolated function get(map<Type> m, string k) returns Type = @java:Method 
 # Returns a map containing [key, member] pair as the value for each key.
 #
 # ```ballerina
-# map<int> indices = {a: 1, b: 2, c: 3, d: 4};
-# map<[string, int]> indexEntries = indices.entries();
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# map<[string, int]> entries = marksMap.entries();
 # ```
 #
 # + m - the map
@@ -110,10 +116,31 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 # Applies a function each member of a map and returns a map of the result.
 #
 # ```ballerina
-# map<float> heights = {"Carl": 1.7, "Bob": 1.778, "Max": 1.81};
-# map<float> heightsCm = heights.map(function(float h) returns float {
-#     return h * 10;
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# map<boolean> results = marksMap.'map((marks) => marks > 50);
+#
+# map<Employee> employees = {
+#    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
+#    "Emma": {firstName: "Jo", lastName: "David", id: 2121},
+#    "John": {firstName: "John", lastName: "Doe", id: 2123}
+# };
+#
+# map<string> fullNames =
+#    employees.'map(isolated function(Employee employee) returns string {
+#    string? lastName = employee.lastName;
+#
+#    if lastName is () {
+#        return employee.firstName;
+#    }
+#
+#    return string `${employee.firstName} ${lastName}`;
 # });
+#
+# type Employee record {
+#     string firstName;
+#     string lastName?;
+#     int id;
+# };
 # ```
 #
 # The resulting map will have the same keys as the argument map.
@@ -129,11 +156,23 @@ public isolated function 'map(map<Type> m, @isolatedParam function(Type val) ret
 # Applies a function to each member of a map.
 #
 # ```ballerina
-# map<float> heights = {"Carl": 1.7, "Bob": 1.778, "Max": 1.81};
-# float totalHeight = 0;
-# heights.forEach(function (float height) {
-#     totalHeight += height;
+# map<Employee> employees = {
+#    "Jo": {name: "Jo", id: 2121, salary: 1200},
+#    "Emma": {name: "Emma", id: 2122, salary: ()},
+#    "John": {name: "John", id: 2123, salary: 1500}
+# };
+#
+# employees.forEach(isolated function (Employee employee) {
+#     if employee.salary == () {
+#         employee.salary = 1000;
+#     }
 # });
+#
+# type Employee record {|
+#     string name;
+#     int id;
+#     decimal? salary;
+# |};
 # ```
 #
 # The parameter `func` is applied to each member of parameter `m`.
@@ -148,10 +187,25 @@ public isolated function forEach(map<Type> m, @isolatedParam function(Type val) 
 # Selects the members from a map for which a function returns true.
 #
 # ```ballerina
-# map<float> heights = {"Carl": 1.7, "Bob": 1.778, "Max": 1.81};
-# map<float> selected = heights.filter(function (float height) returns boolean {
-#     return height > 1.75;
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# map<int> filteredMarks = marksMap.filter((marks) => marks >= 50);
+#
+# map<Employee> employees = {
+#    "Jo": {name: "Jo", id: 2121, salary: 1200},
+#    "Emma": {name: "Emma", id: 2122, salary: 900},
+#    "John": {name: "John", id: 2123, salary: 1500}
+# };
+#
+# map<Employee> filteredBySalary = employees.filter(isolated function (Employee employee) returns boolean {
+#     decimal salary = employee.salary;
+#     return salary > 1000d && salary < 1500d;
 # });
+#
+# type Employee record {|
+#     string name;
+#     int id;
+#     decimal salary;
+# |};
 # ```
 #
 # + m - the map
@@ -165,10 +219,25 @@ public isolated function filter(map<Type> m, @isolatedParam function(Type val) r
 # Combines the members of a map using a combining function.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# int totalMarks = marks.reduce(function (int accumulator, int value) returns int {
-#     return accumulator + value;
-# }, 0);
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# int totalMarks = marksMap.reduce(isolated function (int accumulatedTotal, int marks) returns int => accumulatedTotal + marks, 0);
+#
+# map<Employee> employees = {
+#    "Jo": {name: "Jo", id: 2121, salary: 1200},
+#    "Emma": {name: "Emma", id: 2122, salary: 900},
+#    "John": {name: "John", id: 2123, salary: 1500}
+# };
+#
+# decimal currentTotal = 10500;
+# decimal totalSalary = employees.reduce(isolated function (decimal accumulatedTotal, Employee employee) returns decimal {
+#     return accumulatedTotal + employee.salary;
+# }, currentTotal);
+#
+# type Employee record {|
+#     string name;
+#     int id;
+#     decimal salary;
+# |};
 # ```
 #
 # The combining function takes the combined value so far and a member of the map,
@@ -187,8 +256,9 @@ public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum
 # Removes a member of a map.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# _ = marks.remove("Carl");
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# string key = "Carl";
+# int removedMarks = marksMap.remove(key);
 # ```
 #
 # This removes the member of parameter `m` with key parameter `k` and returns it.
@@ -205,8 +275,9 @@ public isolated function remove(map<Type> m, string k) returns Type = @java:Meth
 # Removes a member of a map with a given key, if the map has member with the key.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# int? removed = marks.removeIfHasKey("Carl");
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# string key = "John";
+# int? removedMarks = marksMap.removeIfHasKey(key);
 # ```
 #
 # If parameter `m` has a member with key parameter `k`, it removes and returns it;
@@ -223,8 +294,8 @@ public isolated function removeIfHasKey(map<Type> m, string k) returns Type? = @
 # Removes all members of a map.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# marks.removeAll();
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# marksMap.removeAll();
 # ```
 #
 # This panics if any member cannot be removed.
@@ -238,8 +309,9 @@ public isolated function removeAll(map<any|error> m) returns () = @java:Method {
 # Tests whether a map value has a member with a given key.
 #
 # ```ballerina
-# map<string> vowels = {a: "A", e: "E", i: "I", o: "O", u: "U"};
-# boolean hasKey = vowels.hasKey("e");
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# string key = "Carl";
+# boolean hasMarks = marksMap.hasKey(key);
 # ```
 #
 # + m - the map
@@ -253,8 +325,8 @@ public isolated function hasKey(map<Type> m, string k) returns boolean = @java:M
 # Returns a list of all the keys of a map.
 #
 # ```ballerina
-# map<string> vowels = {a: "A", e: "E", i: "I", o: "O", u: "U"};
-# string[] voWelKeys = vowels.keys();
+# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# string[] keys = marksMap.keys();
 # ```
 #
 # + m - the map
