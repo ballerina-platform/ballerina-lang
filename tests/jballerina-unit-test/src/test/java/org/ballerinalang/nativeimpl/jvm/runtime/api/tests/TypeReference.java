@@ -84,17 +84,11 @@ public class TypeReference {
                 throw error;
             }
         }
-
-        if (functionType.getReturnType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-
-        if (functionType.getReturnParameterType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-
         Type restType = functionType.getRestType();
-        if (((BArrayType) restType).getElementType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+
+        if (functionType.getReturnType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                functionType.getReturnParameterType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                (((BArrayType) restType).getElementType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG)) {
             throw error;
         }
         return true;
@@ -105,13 +99,10 @@ public class TypeReference {
                 intersectionType = (BIntersectionType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
         BError error = ErrorCreator.createError(
                 StringUtils.fromString("intersection type API provided a non type reference type."));
-
-        if (intersectionType.getEffectiveType().getTag() != TypeTags.RECORD_TYPE_TAG) {
-            throw error;
-        }
-
         List<Type> constituentTypes = intersectionType.getConstituentTypes();
-        if (constituentTypes.get(0).getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+
+        if (intersectionType.getEffectiveType().getTag() != TypeTags.RECORD_TYPE_TAG ||
+                (constituentTypes.get(0).getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG)) {
             throw error;
         }
         return true;
@@ -119,11 +110,10 @@ public class TypeReference {
 
     public static Boolean validateMapType(BTypedesc typedesc) {
         BMapType mapType = (BMapType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("map type API provided a non type reference " +
-                "type."));
 
         if (mapType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("map type API provided a non type reference " +
+                    "type."));
         }
         return true;
     }
@@ -131,45 +121,32 @@ public class TypeReference {
     public static Boolean validateRecordType(BTypedesc typedesc) {
         BRecordType recordType =
                 (BRecordType) (TypeUtils.getReferredType(typedesc.getDescribingType()));
-        BError error = ErrorCreator.createError(StringUtils.fromString("record type API provided a non type reference" +
-                " type."));
         if (recordType.getRestFieldType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("record type API provided a non type reference" +
+                    " type."));
         }
         return true;
     }
 
     public static Boolean validateStreamType(BTypedesc value1, BStream value2) {
         BStreamType streamType = (BStreamType) ((ReferenceType) value1.getDescribingType()).getReferredType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("stream API provided a non type reference" +
-                " type."));
-        if (streamType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (streamType.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (value2.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (value2.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+        if (streamType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                streamType.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                value2.getConstraintType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                value2.getCompletionType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw ErrorCreator.createError(StringUtils.fromString("stream API provided a non type reference" +
+                    " type."));
         }
         return true;
     }
 
     public static Boolean validateTableType(BTypedesc typedesc, TableValue tableValue) {
         BTableType tableType = (BTableType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("table type API provided a non type reference" +
-                " type."));
-        if (tableType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+        if (tableType.getConstrainedType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                tableValue.getKeyType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                tableValue.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw ErrorCreator.createError(StringUtils.fromString("table type API provided a non type reference" +
+                    " type."));
         }
         return true;
     }
@@ -193,10 +170,9 @@ public class TypeReference {
 
     public static Boolean validateTypedescType(BTypedesc typedesc) {
         BTypedescType typedescType = (BTypedescType) ((ReferenceType) typedesc.getDescribingType()).getReferredType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("typdesc type API provided a non type " +
-                "reference type."));
         if (typedescType.getConstraint().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("typdesc type API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
@@ -241,10 +217,9 @@ public class TypeReference {
 
     public static Boolean validateTypeUtilsAPI(BTypedesc typedesc) {
         Type type = typedesc.getDescribingType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("TypeUtils API provided a non type " +
-                "reference type."));
         if (!TypeUtils.isValueType(type)) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("TypeUtils API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
@@ -254,80 +229,64 @@ public class TypeReference {
     }
 
     public static Boolean validateBArray(BArray value1, BArray value2) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("BArray getType API provided a non type " +
-                "reference type."));
         if (value1.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
-                value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (value1.getElementType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+                value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                value1.getElementType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            throw ErrorCreator.createError(StringUtils.fromString("BArray getType API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
 
     public static Boolean validateBMap(BMap value1, BMap value2) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("BMap getType API provided a non type " +
-                "reference type."));
         if (value1.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
                 value2.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("BMap getType API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
 
     public static Boolean validateBError(BError value) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("BError getType API provided a non type " +
-                "reference type."));
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("BError getType API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
 
     public static Boolean validateBFunctionPointer(BFunctionPointer value) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
-                "type reference type."));
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw  ErrorCreator.createError(StringUtils.fromString("Function Pointer getType API provided a non " +
+                    "type reference type."));
         }
         return true;
     }
 
     public static Boolean validateBObject(BObject value) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("BObject getType API provided a non type " +
-                "reference type."));
         if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
+            throw ErrorCreator.createError(StringUtils.fromString("BObject getType API provided a non type " +
+                    "reference type."));
         }
         return true;
     }
 
     public static boolean validateUnionTypeNarrowing(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
-        BError error = ErrorCreator.createError(StringUtils.fromString("RefValue getType API provided a wrong type " +
-                "reference type."));
         Type type = TypeChecker.getType(value);
-        if (type.getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (type.getTag() != describingType.getTag() || !type.toString().equals(describingType.toString())) {
-            throw error;
+        if (type.getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG ||
+                type.getTag() != describingType.getTag() || !type.toString().equals(describingType.toString())) {
+            throw ErrorCreator.createError(StringUtils.fromString("RefValue getType API provided a wrong type " +
+                    "reference type."));
         }
         return true;
     }
 
     public static boolean validateTableKeys(BTable table) {
-        BError error = ErrorCreator.createError(StringUtils.fromString("Table keys does not provide type-reference " +
-                "type."));
-        if (table.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            throw error;
-        }
-        if (table.size() != 1) {
-            throw error;
-        }
-        if (table.getKeyType().getTag() !=  TypeTags.TUPLE_TAG) {
-            throw error;
+        if (table.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG || table.size() != 1 ||
+                table.getKeyType().getTag() != TypeTags.TUPLE_TAG) {
+            throw ErrorCreator.createError(StringUtils.fromString("Table keys does not provide type-reference " +
+                    "type."));
         }
         return true;
     }
