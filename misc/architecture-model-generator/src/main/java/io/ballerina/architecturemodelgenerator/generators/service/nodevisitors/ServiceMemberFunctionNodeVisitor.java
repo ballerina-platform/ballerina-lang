@@ -21,8 +21,8 @@ package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 import io.ballerina.architecturemodelgenerator.ComponentModel;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterIn;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
+import io.ballerina.architecturemodelgenerator.model.service.Dependency;
 import io.ballerina.architecturemodelgenerator.model.service.FunctionParameter;
-import io.ballerina.architecturemodelgenerator.model.service.Interaction;
 import io.ballerina.architecturemodelgenerator.model.service.RemoteFunction;
 import io.ballerina.architecturemodelgenerator.model.service.Resource;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
@@ -50,12 +50,14 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Package;
 
@@ -80,7 +82,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     private final Package currentPackage;
     private List<Resource> resources = new LinkedList<>();
     private List<RemoteFunction> remoteFunctions = new LinkedList<>();
-    private final List<Interaction> interactionList = new LinkedList<>();
+    private final List<Dependency> dependencyList = new LinkedList<>();
     private final ComponentModel.PackageId packageId;
     private final String filePath;
 
@@ -102,8 +104,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         return remoteFunctions;
     }
 
-    public List<Interaction> getInteractionList() {
-        return interactionList;
+    public List<Dependency> getDependencyList() {
+        return dependencyList;
     }
 
     @Override
@@ -318,25 +320,22 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ObjectFieldNode objectFieldNode) {
-        Node fieldTypeName = objectFieldNode.typeName();
-        Optional<Symbol> fieldTypeNameSymbol =  semanticModel.symbol(fieldTypeName);
-        if (fieldTypeNameSymbol.isPresent()) {
-            TypeDescKind fieldTypeNameTypeDescKind = ((TypeSymbol) fieldTypeNameSymbol.get()).typeKind();
-            if (fieldTypeNameTypeDescKind.equals(TypeDescKind.TYPE_REFERENCE)) {
-                TypeReferenceTypeSymbol fieldTypeNameTypeRefSymbol =
-                        (TypeReferenceTypeSymbol) fieldTypeNameSymbol.get();
-                SymbolKind fieldTypeNameSymbolKind = fieldTypeNameTypeRefSymbol.definition().kind();
-                if (fieldTypeNameSymbolKind.equals(SymbolKind.CLASS)) {
-                    ClassSymbol fieldRefClassSymbol =  (ClassSymbol) fieldTypeNameTypeRefSymbol.typeDescriptor();
-                    boolean isClientClass = fieldRefClassSymbol.qualifiers().stream()
+        Node fieldTypeName = getReferredNode(objectFieldNode.typeName());
+        if (fieldTypeName != null) {
+            Optional<Symbol> fieldTypeNameSymbol = semanticModel.symbol(fieldTypeName);
+            if (fieldTypeNameSymbol.isPresent()) {
+                ClassSymbol referredClassSymbol = getReferredClassSymbol((TypeSymbol) fieldTypeNameSymbol.get());
+                if (referredClassSymbol != null) {
+                    boolean isClientClass = referredClassSymbol.qualifiers().stream()
                             .anyMatch(qualifier -> qualifier.equals(Qualifier.CLIENT));
-                    if (isClientClass && objectFieldNode.metadata().isPresent()) {
-                        String serviceId =
-                                getServiceAnnotation(objectFieldNode.metadata().get().annotations(), filePath).getId();
-                        Interaction interaction = new Interaction(new ResourceId(serviceId,
-                                null, null), getClientModuleName((TypeSymbol) fieldTypeNameSymbol.get()),
+                    if (isClientClass) {
+                        String serviceId = objectFieldNode.metadata().isPresent() ?
+                                getServiceAnnotation(objectFieldNode.metadata().get().annotations(), filePath).getId() :
+                                null;
+                        Dependency dependency = new Dependency(serviceId,
+                                getClientModuleName((TypeSymbol) fieldTypeNameSymbol.get()),
                                 getElementLocation(filePath, objectFieldNode.lineRange()));
-                        interactionList.add(interaction);
+                        dependencyList.add(dependency);
                     }
                 }
             }
@@ -352,5 +351,43 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     @Override
     public void visit(ConstantDeclarationNode constantDeclarationNode) {
 
+    }
+
+    private Node getReferredNode(Node typeName) {
+        Node qualifiedNameRefNode = null;
+        if (typeName.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE) ||
+                typeName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+            qualifiedNameRefNode = typeName;
+        } else if (typeName.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
+            Node leftTypeDescNode = getReferredNode(((UnionTypeDescriptorNode) typeName).leftTypeDesc());
+            Node rightTypeDescNode = getReferredNode(((UnionTypeDescriptorNode) typeName).rightTypeDesc());
+            if (leftTypeDescNode != null && (leftTypeDescNode.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE) ||
+                    leftTypeDescNode.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE))) {
+                qualifiedNameRefNode = leftTypeDescNode;
+            }
+            if (rightTypeDescNode != null && (rightTypeDescNode.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE) ||
+                    rightTypeDescNode.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE))) {
+                qualifiedNameRefNode = rightTypeDescNode;
+            }
+        } else if (typeName.kind().equals(SyntaxKind.PARENTHESISED_TYPE_DESC)) {
+            Node typeDescNode = getReferredNode(((ParenthesisedTypeDescriptorNode) typeName).typedesc());
+            if (typeDescNode != null && (typeDescNode.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE) ||
+                    typeDescNode.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE))) {
+                qualifiedNameRefNode = typeDescNode;
+            }
+        }
+        return qualifiedNameRefNode;
+    }
+
+    private ClassSymbol getReferredClassSymbol(TypeSymbol symbol) {
+        ClassSymbol classSymbol = null;
+        if (symbol.kind().equals(SymbolKind.CLASS)) {
+            classSymbol = (ClassSymbol) symbol;
+        } else if (symbol.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
+            TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
+            TypeSymbol typeDescTypeSymbol = typeRefTypeSymbol.typeDescriptor();
+            classSymbol = getReferredClassSymbol(typeDescTypeSymbol);
+        }
+        return classSymbol;
     }
 }
