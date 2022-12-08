@@ -37,7 +37,6 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -123,7 +122,6 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
-import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -3622,46 +3620,6 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public Token transform(Token token) {
         return formatToken(token, env.trailingWS, env.trailingNL);
-    }
-
-
-    @Override
-    public ModuleClientDeclarationNode transform(
-            ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
-                                           env.trailingNL);
-        return moduleClientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(clientPrefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
-    }
-
-    @Override
-    public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(clientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken prefix = formatNode(clientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
-
-        return clientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(prefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
     }
 
     // ------------------------------------- Set of private helper methods -------------------------------------

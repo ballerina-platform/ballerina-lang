@@ -61,7 +61,6 @@ class PackageContext {
     private DependencyGraph<ModuleDescriptor> moduleDependencyGraph;
     private PackageResolution packageResolution;
     private PackageCompilation packageCompilation;
-    private final IDLPluginManager idlPluginManager;
 
     // TODO Try to reuse the unaffected compilations if possible
     private final Map<ModuleId, ModuleCompilation> moduleCompilationMap;
@@ -77,8 +76,7 @@ class PackageContext {
                    MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
-                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph,
-                   IDLPluginManager idlPluginManager) {
+                   DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
@@ -91,7 +89,6 @@ class PackageContext {
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
-        this.idlPluginManager = idlPluginManager;
         // TODO Try to reuse previous unaffected compilations
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
@@ -104,12 +101,7 @@ class PackageContext {
         for (ModuleConfig moduleConfig : packageConfig.otherModules()) {
             moduleContextMap.put(moduleConfig.moduleId(), ModuleContext.from(project, moduleConfig));
         }
-        IDLPluginManager idlPluginManager;
-        if (project.kind() == ProjectKind.BALA_PROJECT) {
-            idlPluginManager = null;
-        } else {
-            idlPluginManager = IDLPluginManager.from(project.sourceRoot);
-        }
+
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
                           packageConfig.dependencyManifest(),
                           packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
@@ -117,8 +109,7 @@ class PackageContext {
                           packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.compilerPluginToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.packageMd().map(c -> MdDocumentContext.from(c)).orElse(null),
-                          compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph(),
-                          idlPluginManager);
+                          compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
     PackageId packageId() {
@@ -248,35 +239,15 @@ class PackageContext {
 
     PackageResolution getResolution() {
         if (packageResolution == null) {
-            packageResolution = PackageResolution.from(this, this.compilationOptions, this.idlPluginManager);
-            if (packageResolution.generatedModules().size() == 0) {
-                return packageResolution;
-            }
-            Package.Modifier modifier = project.currentPackage().modify();
-            for (ModuleConfig generatedModule : packageResolution.generatedModules()) {
-                modifier.addModule(generatedModule);
-            }
-            Package newPackage = modifier.apply();
-            packageResolution = newPackage.packageContext().getResolution();
+            packageResolution = PackageResolution.from(this, this.compilationOptions);
         }
         return packageResolution;
     }
 
     PackageResolution getResolution(CompilationOptions compilationOptions) {
-        packageResolution = PackageResolution.from(this, compilationOptions, this.idlPluginManager);
-        if (packageResolution.generatedModules().size() == 0) {
-            return packageResolution;
-        }
-
-        Package.Modifier modifier = project.currentPackage().modify();
-        for (ModuleConfig generatedModule : packageResolution.generatedModules()) {
-            modifier.addModule(generatedModule);
-        }
-        Package newPackage = modifier.apply();
-        packageResolution = newPackage.packageContext().getResolution(compilationOptions);
+        packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
-
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
@@ -287,10 +258,6 @@ class PackageContext {
 
     DependencyGraph<PackageDescriptor> dependencyGraph() {
         return pkgDescDependencyGraph;
-    }
-
-    IDLPluginManager idlPluginManager() {
-        return idlPluginManager;
     }
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
@@ -337,7 +304,6 @@ class PackageContext {
         return new PackageContext(project, this.packageId, this.packageManifest,
                 this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
                 this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
-                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph,
-                this.idlPluginManager);
+                this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
     }
 }

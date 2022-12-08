@@ -14,16 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-one.yaml" as foo;
-foo:MyClientClass a = new;
+function testFieldInitializationUsingAnotherField() {
+    int a = 10;
 
-client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-two.yaml" as bar;
-bar:'client b = new;
+    var _ = object {
+        int x = a;
+        int y = x; // error
 
-function fn() {
-    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-three.yaml" as baz;
-    baz:'client? _ = ();
-
-    client "https://postman-echo.com/get?name=simpleclienttest-invalidgeneratedcode-four.yaml" as qux;
-    qux:client _ = new;
+        function init() {
+        }
+    };
 }
+
+int b = 11;
+
+var _ = object {
+    int x = b;
+    int y = x; // error
+
+    function init() {
+    }
+};
