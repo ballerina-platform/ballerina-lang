@@ -130,18 +130,10 @@ public class CodeCoverageUtils {
 
     private static boolean isRequiredFile(String path, String orgName, boolean enableIncludesFilter,
                                           String includesInCoverage) {
-        if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
-            return false;
-        } else if (path.contains("Frame") && path.contains("module")) {
-            return false;
-        } else if (path.contains("Frame") && path.contains(orgName)) {
-            return false;
-        } else if (path.contains("module-info.class")) {
-            return false;
-        } else if (enableIncludesFilter && !isIncluded(path, includesInCoverage)) {
-            return false;
-        }
-        return true;
+        return !(path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")
+                || (path.contains("$frame$") && path.contains("module"))
+                || (path.contains("$frame$") && path.contains(orgName)) || path.contains("module-info.class")
+                || (enableIncludesFilter && !isIncluded(path, includesInCoverage)));
     }
 
     private static String normalizeRegexPattern(String pattern) {
