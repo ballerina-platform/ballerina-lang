@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -52,7 +51,7 @@ public class Option {
     private final int location;
 
     public Option(Type recordType, int location) {
-        this((RecordType) ((ReferenceType) recordType).getReferredType(),
+        this((RecordType) TypeUtils.getReferredType(recordType),
                 ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
     }
 

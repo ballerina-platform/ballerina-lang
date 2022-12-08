@@ -86,6 +86,7 @@ public function validateTypeRef() {
     validateFunctionParameters();
     validateRuntimeAPIs();
     validateValueWithUnion();
+    validateTableMultipleKey();
 }
 
 function validateFunctionParameters() {
