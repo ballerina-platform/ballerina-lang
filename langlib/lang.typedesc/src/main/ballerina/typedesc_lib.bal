@@ -40,6 +40,12 @@ public type TypeId readonly & record {|
 |};
 
 # Returns the type-ids induced by a typedesc value.
+# 
+# ```ballerina
+# type MyError distinct error;
+# typedesc:TypeId[]? & readonly typeIds = MyError.typeIds();
+# ```
+# 
 # + t - the typedesc
 # + primaryOnly - if true, only the primary type-ids will be returned; otherwise, all type-ids will be returned
 # + return - an array containing the type-ids induced by `t` or nil if `t` is not definite
