@@ -51,6 +51,16 @@ public type Timestamp readonly & object {
 
 # Returns information about the current transaction.
 #
+# ```ballerina
+# transaction {
+#     transaction:Info info = transaction:info();
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:Info? info = transaction:info();
+# }
+# ```
 # + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.Info",
@@ -58,6 +68,19 @@ public transactional isolated function info() returns Info = @java:Method {
 } external;
 
 # Returns information about the transaction with the specified xid.
+#
+# ```ballerina
+# byte[] xid = [48,53,101,102,101,55];
+#
+# transaction {
+#     transaction:Info? info = transaction:getInfo(xid);
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:Info? info = transaction:getInfo(xid);
+# }
+# ```
 #
 # + xid - transaction id
 # + return - information about the transaction
@@ -67,6 +90,19 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 } external;
 
 # Prevents the global transaction from committing successfully.
+#
+#  ```ballerina
+# transaction {
+#     transaction:setRollbackOnly(notFoundError);
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:setRollbackOnly(notFoundError);
+# }
+#
+# error notFoundError = error("not found");
+# ```
 #
 # This ask the transaction manager that when it makes the decision
 # whether to commit or rollback, it should decide to rollback.
@@ -81,6 +117,17 @@ public transactional isolated function setRollbackOnly(error? e) {
 
 # Tells whether it is known that the transaction will be rolled back.
 #
+#   ```ballerina
+# transaction {
+#     boolean willRollBack = transaction:getRollbackOnly();
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    boolean willRollBack = transaction:getRollbackOnly();
+# }
+# ```
+#
 # + return - true if it is known that the transaction manager will,
 # when it makes the decision whether to commit or rollback, decide
 # to rollback
@@ -91,6 +138,19 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 
 # Associates some data with the current transaction branch.
 #
+# ```ballerina
+# readonly & any|error data = {"author": "John", "fruits": ["Apple", "Orange"]};
+#
+# transaction {
+#     transaction:setData(data);
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:setData(data);
+# }
+# ```
+#
 # + data - Data to be set
 public transactional isolated function setData(readonly data) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.SetData",
@@ -98,6 +158,17 @@ public transactional isolated function setData(readonly data) = @java:Method {
 } external;
 
 # Retrieves data associated with the current transaction branch.
+#
+# ```ballerina
+# transaction {
+#     readonly data = transaction:getData();
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    readonly data = transaction:getData();
+# }
+# ```
 #
 # The data is set using `setData`.
 #
@@ -121,6 +192,22 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 
 # Adds a handler to be called if and when the global transaction commits.
 #
+# ```ballerina
+# transaction {
+#     transaction:onCommit(handleCommit);
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:onCommit(handleCommit);
+# }
+#
+# isolated function handleCommit(transaction:Info info) {
+#     // This funtion will be called on commit
+# }
+#
+# ```
+#
 # + handler - the function to be called on commit
 public transactional isolated function onCommit(CommitHandler handler) = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.OnCommit",
@@ -128,6 +215,21 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 } external;
 
 # Adds a handler to be called if and when the global transaction rolls back.
+#
+# ```ballerina
+# transaction {
+#     transaction:onRollback(handleRollBack);
+#     check commit;
+# }
+#
+# transactional function transFunc() returns error? {
+#    transaction:onCommit(handleRollBack);
+# }
+#
+# isolated function handleRollBack(transaction:Info info, error? cause, boolean willRetry) {
+#     // This funtion will be called on roll-back
+# }
+# ```
 #
 # + handler - the function to be called on rollback
 public transactional isolated function onRollback(RollbackHandler handler) = @java:Method {
