@@ -49,6 +49,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -72,6 +74,8 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final Package currentPackage;
     private final List<Interaction> interactionList = new LinkedList<>();
     private final String filePath;
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceDeclarationNodeVisitor.class);
 
     public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage, String filePath) {
 

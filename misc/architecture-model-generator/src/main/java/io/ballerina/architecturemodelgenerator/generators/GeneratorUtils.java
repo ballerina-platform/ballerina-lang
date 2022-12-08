@@ -18,6 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.generators;
 
+import io.ballerina.architecturemodelgenerator.generators.service.nodevisitors.ServiceDeclarationNodeVisitor;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.ServiceAnnotation;
 import io.ballerina.compiler.api.SemanticModel;
@@ -35,6 +36,8 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +55,8 @@ import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.LAB
  * @since 2201.3.1
  */
 public class GeneratorUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(ServiceDeclarationNodeVisitor.class);
 
     public static ElementLocation getElementLocation(String filePath, LineRange lineRange) {
 
@@ -139,8 +144,13 @@ public class GeneratorUtils {
         String clientModuleName = null;
         Optional<TypeSymbol> clientTypeSymbol = semanticModel.typeOf(clientNode);
         if (clientTypeSymbol.isPresent()) {
+            logger.info("Client symbol is present : signature " + clientTypeSymbol.get().signature());
             clientModuleName = clientTypeSymbol.get().signature().trim().replace(CLIENT, "");
+        } else {
+            logger.info("Client symbol is not present");
         }
+
+        logger.info("clientModuleName : " + clientModuleName);
 
         return clientModuleName;
     }

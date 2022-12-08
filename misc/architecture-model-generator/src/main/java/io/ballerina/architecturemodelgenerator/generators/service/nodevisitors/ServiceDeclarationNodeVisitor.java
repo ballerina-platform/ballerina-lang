@@ -126,24 +126,31 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
                 ExplicitNewExpressionNode explicitNewExpressionNode = (ExplicitNewExpressionNode) expressionNode;
                 //todo: Implement using semantic model - returns null
                 TypeDescriptorNode typeDescriptorNode = explicitNewExpressionNode.typeDescriptor();
-                logger.info("1 : ExplicitNewExpressionNode typedesc : " + typeDescriptorNode.toSourceCode());
+                logger.info("SA - 1 : ExplicitNewExpressionNode typedesc : " + typeDescriptorNode.toSourceCode());
                 if (typeDescriptorNode instanceof QualifiedNameReferenceNode) {
+                    logger.info("SA - QualifiedNameReferenceNode : Qualified symbol");
                     QualifiedNameReferenceNode listenerNode = (QualifiedNameReferenceNode) typeDescriptorNode;
                     Optional<Symbol> listenerSymbol = semanticModel.symbol(listenerNode);
+
+                    if (listenerSymbol.isPresent()) {
+                        logger.info("SA - Listener symbol is present");
+                    } else {
+                        logger.info("SA - Listener symbol is not present");
+                    }
 
                     if (listenerSymbol.isPresent() && (listenerSymbol.get() instanceof TypeReferenceTypeSymbol)) {
                         serviceType = ((TypeReferenceTypeSymbol)
                                 listenerSymbol.get()).signature().replace(LISTENER, "");
-                        logger.info("2 : serviceType : " + serviceType);
+                        logger.info("SA - 2 : serviceType : " + serviceType);
                     } else {
-                        logger.info("3 : serviceType : " + serviceType);
                         serviceType = listenerNode.modulePrefix().text().trim();
+                        logger.info("SA - 3 : serviceType : " + serviceType);
                     }
                 }
             } else if (expressionNode instanceof SimpleNameReferenceNode) { // support when use listener from a var
                 Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expressionNode);
                 if (typeSymbol.isPresent() && typeSymbol.get().typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
-                    logger.info("4 : serviceType : " + typeSymbol.get().signature());
+                    logger.info("SA - 4 : serviceType : " + typeSymbol.get().signature());
                     serviceType = typeSymbol.get().signature().replace(LISTENER, "");
                 }
             }
