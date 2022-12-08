@@ -117,6 +117,7 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 public class ProjectUtils {
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
+    private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
@@ -714,7 +715,9 @@ public class ProjectUtils {
 
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
-        return m.matches();
+        Matcher mm = onlyDotsPattern.matcher(identifiers);
+
+        return m.matches() && !mm.matches();
     }
 
     /**
