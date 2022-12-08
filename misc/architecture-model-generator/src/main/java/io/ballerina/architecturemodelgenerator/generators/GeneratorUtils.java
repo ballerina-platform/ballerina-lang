@@ -146,6 +146,10 @@ public class GeneratorUtils {
     }
 
     public static String getClientModuleName(TypeSymbol typeSymbol) {
-        return typeSymbol.signature().trim().replace(CLIENT, "");
+        String clientModuleName = typeSymbol.signature().trim().replace(CLIENT, "");
+        if (typeSymbol.getModule().isPresent()) {
+            clientModuleName = typeSymbol.getModule().get().id().toString();;
+        }
+        return clientModuleName;
     }
 }

@@ -333,7 +333,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                                 getServiceAnnotation(objectFieldNode.metadata().get().annotations(), filePath).getId() :
                                 null;
                         Dependency dependency = new Dependency(serviceId,
-                                getClientModuleName((TypeSymbol) fieldTypeNameSymbol.get()),
+                                getClientModuleName(referredClassSymbol),
                                 getElementLocation(filePath, objectFieldNode.lineRange()));
                         dependencyList.add(dependency);
                     }
