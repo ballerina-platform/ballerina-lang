@@ -218,7 +218,7 @@ public isolated function includes(string str, string substr, int startIndex = 0)
 #
 # ```ballerina
 # string greeting = "Welcome to Ballerina programming language";
-# boolean starts = greeting.startsWith("Welcome");
+# boolean startsWith = greeting.startsWith("Welcome");
 # ```
 #
 # + str - the string to be tested
@@ -233,7 +233,7 @@ public isolated function startsWith(string str, string substr) returns boolean =
 #
 # ```ballerina
 # string greeting = "Welcome to Ballerina programming language";
-# boolean ends = greeting.endsWith("language");
+# boolean endsWith = greeting.endsWith("language");
 # ```
 #
 # + str - the string to be tested
