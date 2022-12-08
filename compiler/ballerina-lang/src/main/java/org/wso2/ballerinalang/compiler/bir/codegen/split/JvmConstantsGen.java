@@ -80,8 +80,8 @@ public class JvmConstantsGen {
         this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module.packageID, bTypeHashComparator);
     }
 
-    public String getBStringConstantVar(String value) {
-        return stringConstantsGen.addBString(value);
+    public int getBStringConstantVarIndex(String value) {
+        return stringConstantsGen.addBStringConstantVarIndex(value);
     }
 
     public String getModuleConstantVar(PackageID packageID) {
