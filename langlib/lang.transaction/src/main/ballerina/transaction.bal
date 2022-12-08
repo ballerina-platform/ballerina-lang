@@ -57,10 +57,11 @@ public type Timestamp readonly & object {
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
-#    transaction:Info? info = transaction:info();
+# transactional function updateDB() returns error? {
+#    transaction:Info info = transaction:info();
 # }
 # ```
+#
 # + return - information about the current transaction
 public transactional isolated function info() returns Info = @java:Method {
     'class: "org.ballerinalang.langlib.transaction.Info",
@@ -70,16 +71,8 @@ public transactional isolated function info() returns Info = @java:Method {
 # Returns information about the transaction with the specified xid.
 #
 # ```ballerina
-# byte[] xid = [48,53,101,102,101,55];
-#
-# transaction {
-#     transaction:Info? info = transaction:getInfo(xid);
-#     check commit;
-# }
-#
-# transactional function transFunc() returns error? {
-#    transaction:Info? info = transaction:getInfo(xid);
-# }
+# byte[] xid = [48, 53, 101, 102, 101, 55];
+# transaction:Info? info = transaction:getInfo(xid);
 # ```
 #
 # + xid - transaction id
@@ -91,21 +84,21 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 
 # Prevents the global transaction from committing successfully.
 #
-#  ```ballerina
+# This ask the transaction manager that when it makes the decision
+# whether to commit or rollback, it should decide to rollback.
+#
+# ```ballerina
 # transaction {
 #     transaction:setRollbackOnly(notFoundError);
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    transaction:setRollbackOnly(notFoundError);
 # }
 #
 # error notFoundError = error("not found");
 # ```
-#
-# This ask the transaction manager that when it makes the decision
-# whether to commit or rollback, it should decide to rollback.
 #
 # + e - the error that caused the rollback or `()`, if there is none
 public transactional isolated function setRollbackOnly(error? e) {
@@ -117,13 +110,13 @@ public transactional isolated function setRollbackOnly(error? e) {
 
 # Tells whether it is known that the transaction will be rolled back.
 #
-#   ```ballerina
+# ```ballerina
 # transaction {
 #     boolean willRollBack = transaction:getRollbackOnly();
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    boolean willRollBack = transaction:getRollbackOnly();
 # }
 # ```
@@ -146,7 +139,7 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    transaction:setData(data);
 # }
 # ```
@@ -159,18 +152,18 @@ public transactional isolated function setData(readonly data) = @java:Method {
 
 # Retrieves data associated with the current transaction branch.
 #
+# The data is set using `setData`.
+#
 # ```ballerina
 # transaction {
 #     readonly data = transaction:getData();
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    readonly data = transaction:getData();
 # }
 # ```
-#
-# The data is set using `setData`.
 #
 # + return - the data, or `()` if no data has been set.
 public transactional isolated function getData() returns readonly = @java:Method {
@@ -198,14 +191,13 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    transaction:onCommit(handleCommit);
 # }
 #
 # isolated function handleCommit(transaction:Info info) {
-#     // This funtion will be called on commit
+#     // This function will be called on commit.
 # }
-#
 # ```
 #
 # + handler - the function to be called on commit
@@ -222,12 +214,12 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 #     check commit;
 # }
 #
-# transactional function transFunc() returns error? {
+# transactional function updateDB() returns error? {
 #    transaction:onCommit(handleRollBack);
 # }
 #
 # isolated function handleRollBack(transaction:Info info, error? cause, boolean willRetry) {
-#     // This funtion will be called on roll-back
+#     // This function will be called on roll-back.
 # }
 # ```
 #

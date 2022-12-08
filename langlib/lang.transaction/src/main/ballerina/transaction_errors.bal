@@ -19,19 +19,6 @@ public type Error distinct error;
 
 # Log and prepare `error` as a `Error`.
 #
-# ```ballerina
-# transaction {
-#     transaction:Error err = transaction:prepareError("Error!");
-#     check commit;
-# }
-#
-# transactional function transFunc() returns error? {
-#     transaction:Error err = transaction:prepareError("Error!", notFoundError);
-# }
-#
-# error notFoundError = error("not found");
-# ```
-#
 # + message - Error message
 # + err - `error` instance
 # + return - Prepared `Error` instance
