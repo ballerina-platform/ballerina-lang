@@ -294,6 +294,13 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 
 # Creates a new xml element item.
 #
+# ```ballerina
+# string name = "book";
+# map<string> attributes = {title: "Learning Ballerina", author: "Anjana"};
+# xml bookChildren = xml `<publishedYear>2022</publishedYear>`;
+# xml:Element bookElement = xml:createElement(name, attributes, bookChildren);
+# ```
+# 
 # + name - the name of the new element
 # + attributes - the attributes of the new element
 # + children - the children of the new element
@@ -310,6 +317,12 @@ public isolated function createElement(string name, map<string> attributes = {},
 
 # Creates a new xml processing instruction item.
 #
+# ```ballerina
+# string target = "url";
+# string content = "example.com";
+# xml:ProcessingInstruction xmlPI = xml:createProcessingInstruction(target, content);
+# ```
+# 
 # + target - the target part of the processing instruction to be constructed
 # + content - the content part of the processing instruction to be constructed
 # + return - an xml sequence consisting of a processing instruction with parameter `target` as the target 
@@ -322,6 +335,11 @@ public isolated function createProcessingInstruction(string target, string conte
 
 # Creates a new xml comment item.
 #
+# ```ballerina
+# string commentContent = "Example comment details";
+# xml:Comment comment = xml:createComment(commentContent);
+# ```
+# 
 # + content - the content of the comment to be constructed.
 # + return - an xml sequence consisting of a comment with parameter  `content` as the content
 public isolated function createComment(string content) returns Comment = @java:Method {
@@ -333,6 +351,11 @@ public isolated function createComment(string content) returns Comment = @java:M
 #
 # The constructed sequence will be empty when the length of parameter `data` is zero.
 #
+# ```ballerina
+# string textData = "Hello world!";
+# xml:Text xmlText = xml:createText(textData);
+# ```
+# 
 # + data - the character data of the Text item
 # + return - an xml sequence that is either empty or consists of one text item
 public isolated function createText(string data) returns Text = @java:Method {
@@ -342,6 +365,11 @@ public isolated function createText(string data) returns Text = @java:Method {
 
 # Returns a subsequence of an xml value.
 #
+# ```ballerina
+# xml books = xml `<book>HTML</book><book>Ballerina</book><book>Python</book><book>CSS</book>`;
+# xml programmingBooks = books.slice(1, 3);
+# ```
+# 
 # + x - the xml value
 # + startIndex - start index, inclusive
 # + endIndex - end index, exclusive
@@ -359,6 +387,12 @@ public isolated function slice(xml<ItemType> x, int startIndex, int endIndex = x
 # the biggest possible chunks (i.e., only elements cause division into multiple chunks)
 # and a chunk is considered insignificant if the entire chunk is whitespace.
 #
+# ```ballerina
+# xml bookDetails = xml `<?publication year="2022"?><!--This is a programming book-->
+#                   <book author="Anjana"><title>Learning Ballerina</title></book>`;
+# xml essentialBookData = bookDetails.strip();
+# ```
+# 
 # + x - the xml value
 # + return - `x` with insignificant parts removed
 public isolated function strip(xml x) returns xml = @java:Method {
@@ -371,6 +405,16 @@ public isolated function strip(xml x) returns xml = @java:Method {
 # If parameter `nm` is `()`, selects all elements;
 # otherwise, selects only elements whose expanded name is parameter `nm`.
 #
+# ```ballerina
+# // Get all the elements present in the given XML dataset.
+# xml codingBooks = xml `<!--Web dev--><scripting>JS</scripting><!--API development--><programming>Ballerina</programming>
+#                   <programming>Python</programming><scripting>Perl</scripting>`;
+# xml<xml:Element> allCodingBooks = codingBooks.elements();
+# 
+# // Get only the elements which has the given naame.
+# xml<xml:Element> programmingBooks = codingBooks.elements("programming");
+# ```
+# 
 # + x - the xml value
 # + nm - the expanded name of the elements to be selected, or `()` for all elements
 # + return - an xml sequence consisting of all the element items in parameter `x` whose expanded name is parameter `nm`,
@@ -385,6 +429,11 @@ public isolated function elements(xml x, string? nm = ()) returns xml<Element> =
 # When parameter `x` is of type `Element`, it is equivalent to function `getChildren`.
 # This is equivalent to `elements(x).map(getChildren)`.
 #
+# ```ballerina
+# xml bookSet = xml `<books><book><title>Java</title></book><book><title>Ballerina</title></book></books>`;
+# xml books = bookSet.children();
+# ```
+# 
 # + x - xml value
 # + return - xml sequence containing the children of each element x concatenated in order
 public isolated function children(xml x) returns xml = @java:Method {
@@ -396,6 +445,11 @@ public isolated function children(xml x) returns xml = @java:Method {
 #
 # This is equivalent to `children(x).elements(nm)`.
 #
+# ```ballerina
+# xml bookSet = xml `<book><title>Java</title></book><book><title>Ballerina</title></book>`;
+# xml<xml:Element> bookTitles = bookSet.elementChildren("title");
+# ```
+# 
 # + x - the xml value
 # + nm - the expanded name of the elements to be selected, or `()` for all elements
 # + return - an xml sequence consisting of child elements of elements in parameter `x`; if parameter `nm`
@@ -412,6 +466,16 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 #
 # Each item is represented as a singleton value.
 #
+# ```ballerina
+# xml bookSet = xml `<book><title>Java</title></book><book><title>Ballerina</title></book>`;
+# 
+# xml booksWithAuthors = bookSet.'map(function (xml xmlContent) returns xml {
+#           xml author = xml `<author>Anjana</author>`;
+#           return xml `<book>${xmlContent.children() + author}</book>`;
+# });
+# 
+# ```
+# 
 # + x - the xml value
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying parameter `func` to each child or `item`
@@ -425,6 +489,15 @@ public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType 
 #
 # Each item is represented as a singleton value.
 #
+# ```ballerina
+# xml bookSet = xml `<book><title>Java</title></book><book><title>Ballerina</title></book>`;
+# xml bookTitles = xml ``;
+# 
+# bookSet.forEach(function (xml xmlItem) {
+#   bookTitles += xmlItem.children();
+# });
+# ```
+# 
 # + x - the xml value
 # + func - a function to apply to each item in parameter `x`
 public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemType item) returns () func) = @java:Method {
@@ -436,6 +509,19 @@ public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemTy
 #
 # Each item is represented as a singleton value.
 #
+# ```ballerina
+# xml codingBooks = xml `<scripting>JS</scripting><programming>Ballerina</programming>
+#                   <programming>Python</programming><scripting>Perl</scripting>`;
+# 
+# xml programmingBooks = codingBooks.filter(function (xml xmlItem) returns boolean {
+#       if (xmlItem is xml:Element) {
+#           return (<xml:Element> xmlItem).getName() == "programming";
+#       }
+# 
+#       return false;
+# });
+# ```
+# 
 # + x - xml value
 # + func - a predicate to apply to each item to test whether it should be selected
 # + return - new xml sequence containing items in parameter `x` for which function `func` evaluates to true
@@ -450,6 +536,11 @@ public isolated function filter(xml<ItemType> x, @isolatedParam function(ItemTyp
 # This parses the string using the `content` production of the
 # XML 1.0 Recommendation.
 #
+# ```ballerina
+# string bookStr = "<book>Ballerina</book><book>Java</book>";
+# xml bookXml = check xml:fromString(bookStr);
+# ```
+# 
 # + s - a string in XML format
 # + return - xml value resulting from parsing parameter `s`, or an error
 public isolated function fromString(string s) returns xml|error = @java:Method {
@@ -459,6 +550,11 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
 
 # Selects all the items in a sequence that are of type `xml:Text`.
 #
+# ```ballerina
+# xml books = xml `<book title="Learning Ballerina"></book> Ballerina <book title="Java Guide"></book> Java`;
+# xml:Text textContent = books.text();
+# ```
+# 
 # + x - the xml value
 # + return - an xml sequence consisting of selected text items
 public isolated function text(xml x) returns Text = @java:Method {
