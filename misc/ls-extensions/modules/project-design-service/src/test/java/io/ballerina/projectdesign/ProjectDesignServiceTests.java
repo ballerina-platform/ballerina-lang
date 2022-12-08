@@ -77,9 +77,48 @@ public class ProjectDesignServiceTests {
             String generatedService = gson.toJson(service).replaceAll("\\s+", "");
             String expectedService = gson.toJson(expectedModel.getServices().get(id))
                     .replaceAll("\\s+", "")
-                    .replaceAll("\\{srcPath\\}", RES_DIR.toAbsolutePath().toString());
+                    .replaceAll("\\{srcPath}", RES_DIR.toAbsolutePath().toString());
 //                    .replaceAll("\"serviceType\":\".*?\"", "\"serviceType\":\"" + serviceType + "\"");
             Assert.assertEquals(generatedService, expectedService);
+        });
+    }
+
+    @Test(description = "test model generation for multiple projects with grpc and http services")
+    public void testGRPCWorkspaceTest() throws IOException, ExecutionException, InterruptedException {
+
+        Path project1 = RES_DIR.resolve(BALLERINA).resolve(
+                Path.of("microservice_grpc/cart", "cart_service.bal").toString());
+
+        Path project2 = RES_DIR.resolve(BALLERINA).resolve(
+                Path.of("microservice_grpc/checkout", "checkout_service.bal").toString());
+
+        Path project3 = RES_DIR.resolve(BALLERINA).resolve(
+                Path.of("microservice_grpc/frontend", "service.bal").toString());
+
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+
+        ProjectComponentRequest request = new ProjectComponentRequest();
+        request.setDocumentUris(List.of(project1.toString(), project2.toString(), project3.toString()));
+
+        CompletableFuture<?> result = serviceEndpoint.request(PROJECT_DESIGN_SERVICE, request);
+        ProjectComponentResponse response = (ProjectComponentResponse) result.get();
+
+        response.getComponentModels().forEach((key, value) -> {
+            String jsonFileName = key.split("/")[1].split(":")[0] + ".json";
+            Path expectedJsonPath = RES_DIR.resolve(RESULTS).resolve(Path.of(jsonFileName));
+            ComponentModel generatedModel = gson.fromJson(value, ComponentModel.class);
+            try {
+                ComponentModel expectedModel = getComponentFromGivenJsonFile(expectedJsonPath.toAbsolutePath());
+                generatedModel.getServices().forEach((id, service) -> {
+                    String generatedService = gson.toJson(service).replaceAll("\\s+", "");
+                    String expectedService = gson.toJson(expectedModel.getServices().get(id))
+                            .replaceAll("\\s+", "")
+                            .replaceAll("\\{srcPath}", RES_DIR.toAbsolutePath().toString());
+                    Assert.assertEquals(generatedService, expectedService);
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

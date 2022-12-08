@@ -1,0 +1,8 @@
+[package]
+org = "test"
+name = "checkout_service"
+version = "0.1.0"
+distribution = "2201.2.0"
+
+[build-options]
+observabilityIncluded = true

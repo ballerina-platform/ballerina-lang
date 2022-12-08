@@ -1,0 +1,9 @@
+[package]
+org = "test"
+name = "frontend_service"
+version = "0.1.0"
+distribution = "2201.0.0"
+
+[build-options]
+observabilityIncluded = true
+cloud = "k8s"
