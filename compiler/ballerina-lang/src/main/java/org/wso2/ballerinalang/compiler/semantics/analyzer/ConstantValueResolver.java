@@ -134,6 +134,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
         constantMap.clear();
+        this.createdTypeDefinitions.clear();
     }
 
     @Override
