@@ -1645,11 +1645,16 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
+        BType bType = astArrayLiteralExpr.getBType();
+        if (bType.tag == TypeTags.TUPLE) {
+            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList());
+        }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
+        visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList());
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -1660,6 +1665,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
+        BType bType = jsonArrayLiteralExpr.getBType();
+        if (bType.tag == TypeTags.TUPLE) {
+            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList());
+        }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
 
@@ -2642,12 +2651,14 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         long size = -1L;
+        BIROperand typedescOp = null;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
         BType listConstructorExprType = Types.getReferredType(listConstructorExpr.getBType());
         if (listConstructorExprType.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExprType).size;
         } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
+            typedescOp = this.env.targetOperand;
             size = exprs.size();
         }
 
@@ -2671,9 +2682,15 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        setScopeAndEmit(
-                new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                        initialValues));
+        if (listConstructorExprType.tag == TypeTags.TUPLE) {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
+                            typedescOp, sizeOp, initialValues));
+        } else {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
+                            initialValues));
+        }
         this.env.targetOperand = toVarRef;
     }
 
