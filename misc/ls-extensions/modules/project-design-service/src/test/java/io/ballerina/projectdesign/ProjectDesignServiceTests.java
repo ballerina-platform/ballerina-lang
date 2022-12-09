@@ -73,12 +73,10 @@ public class ProjectDesignServiceTests {
         ComponentModel expectedModel = getComponentFromGivenJsonFile(expectedJsonPath);
 
         generatedModel.getServices().forEach((id, service) -> {
-//            String serviceType = service.getServiceType();
             String generatedService = gson.toJson(service).replaceAll("\\s+", "");
             String expectedService = gson.toJson(expectedModel.getServices().get(id))
                     .replaceAll("\\s+", "")
                     .replaceAll("\\{srcPath}", RES_DIR.toAbsolutePath().toString());
-//                    .replaceAll("\"serviceType\":\".*?\"", "\"serviceType\":\"" + serviceType + "\"");
             Assert.assertEquals(generatedService, expectedService);
         });
     }

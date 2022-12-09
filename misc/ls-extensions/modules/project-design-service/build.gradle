@@ -28,15 +28,13 @@ dependencies {
     compileOnly project(':ballerina-lang')
     compileOnly project(':ballerina-tools-api')
     compileOnly project(':language-server:language-server-commons')
-    implementation project(':language-server:language-server-core')
-
     compileOnly(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
+    implementation project(':language-server:language-server-core')
     implementation project(":architecture-model-generator")
 
     testCompile 'org.testng:testng'
     testCompile(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
-
 }
 
 test {

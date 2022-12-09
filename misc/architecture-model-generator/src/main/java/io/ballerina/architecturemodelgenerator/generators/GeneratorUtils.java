@@ -18,7 +18,6 @@
 
 package io.ballerina.architecturemodelgenerator.generators;
 
-import io.ballerina.architecturemodelgenerator.generators.service.nodevisitors.ServiceDeclarationNodeVisitor;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.ServiceAnnotation;
 import io.ballerina.compiler.api.SemanticModel;
@@ -56,7 +55,7 @@ import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.LAB
  */
 public class GeneratorUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceDeclarationNodeVisitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeneratorUtils.class);
 
     public static ElementLocation getElementLocation(String filePath, LineRange lineRange) {
 
