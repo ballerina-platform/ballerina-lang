@@ -179,7 +179,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
         }
         ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
-        return new Position(lastImport.lineRange().endLine().line() + 2, 0);
+        return new Position(lastImport.lineRange().endLine().line() + 1, 0);
     }
 
     /**
