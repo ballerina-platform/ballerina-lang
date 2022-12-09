@@ -670,7 +670,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `TestRec` rec"
         }
       },
-      "sortText": "C",
+      "sortText": "Z",
       "filterText": "main",
       "insertText": "main(${1})",
       "insertTextFormat": "Snippet",

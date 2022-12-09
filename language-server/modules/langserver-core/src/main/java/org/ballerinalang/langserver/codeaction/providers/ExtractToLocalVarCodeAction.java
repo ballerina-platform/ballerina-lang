@@ -171,12 +171,10 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER) 
                         && context.currentSemanticModel().get().references(symbol).stream()
-                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
-                                        .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(matchedNode.lineRange()))))
-                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                        .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                                PositionUtil.toRange(getStatementNode(matchedNode).lineRange())))
+                        .anyMatch(location -> 
+                                PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
+                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
+                        symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
                 .collect(Collectors.toList());
         
         if (symbolsWithinRange.size() == 0) {
@@ -184,8 +182,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         }
 
         return symbolsWithinRange.stream().noneMatch(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                        PositionUtil.toRange(matchedNode.lineRange())));
+                .isWithinLineRange(symbol.getLocation().get().lineRange(), matchedNode.lineRange()));
     }
 
     /**
