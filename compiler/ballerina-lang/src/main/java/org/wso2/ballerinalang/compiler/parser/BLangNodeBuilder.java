@@ -1051,6 +1051,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
 
+    private void setOriginalNameForAnonTypeGenName(IdentifierNode anonTypeGenName) {
+        if (!this.anonTypeNameSuffixes.isEmpty()) {
+            StringBuilder originalName = new StringBuilder(
+                    this.anonTypeNameSuffixes.elementAt(this.anonTypeNameSuffixes.size() - 1));
+            for (int i = this.anonTypeNameSuffixes.size() - 2; i >= 0; i--) {
+                originalName.append(DOLLAR).append(this.anonTypeNameSuffixes.elementAt(i));
+            }
+            anonTypeGenName.setOriginalValue(originalName.toString());
+        }
+    }
+
     private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect) {
         Location pos = toIndirect.pos;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -1058,6 +1069,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, this.anonTypeNameSuffixes);
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        setOriginalNameForAnonTypeGenName(anonTypeGenName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
         bLTypeDef.flagSet.add(Flag.ANONYMOUS);

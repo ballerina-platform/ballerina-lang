@@ -190,6 +190,17 @@ public class Symbols {
         return new BTypeDefinitionSymbol(flags, name, pkgID, type, owner, pos, origin);
     }
 
+    public static BTypeDefinitionSymbol createTypeDefinitionSymbol(long flags,
+                                                                   Name name,
+                                                                   Name originalName,
+                                                                   PackageID pkgID,
+                                                                   BType type,
+                                                                   BSymbol owner,
+                                                                   Location pos,
+                                                                   SymbolOrigin origin) {
+        return new BTypeDefinitionSymbol(flags, name, originalName, pkgID, type, owner, pos, origin);
+    }
+
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
                                                                  long flags,

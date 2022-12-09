@@ -1635,11 +1635,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.setPrecedence(this.typePrecedence++);
 
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
-                names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, definedType, env.scope.owner,
-                typeDefinition.name.pos, getOrigin(typeDefinition.name.value));
+                names.fromIdNode(typeDefinition.name), names.originalNameFromIdNode(typeDefinition.name),
+                env.enclPkg.packageID, definedType, env.scope.owner, typeDefinition.name.pos,
+                getOrigin(typeDefinition.name.value));
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, typeDefSymbol.flags, typeDefSymbol.name,
-                typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
+                typeDefSymbol.originalName, typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner,
+                typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(definedType, typeSymbol,
                 typeDefSymbol.type.flags);
@@ -1649,7 +1651,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (definedType.tsymbol.name == Names.EMPTY) {
             isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
-            definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
+            definedType.tsymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
 
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
@@ -1908,16 +1910,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BEnumSymbol enumSymbol = new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet),
-                names.fromIdNode(typeDefinition.name), names.fromIdNode(typeDefinition.name),
-                env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
+                names.fromIdNode(typeDefinition.name), names.originalNameFromIdNode(typeDefinition.name),
+                env.enclPkg.packageID, definedType, env.scope.owner,
                 typeDefinition.pos, SOURCE);
 
-        enumSymbol.name = names.fromIdNode(typeDefinition.name);
-        enumSymbol.originalName = names.fromIdNode(typeDefinition.name);
-        enumSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
-
         enumSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
-        enumSymbol.pkgID = env.enclPkg.packageID;
         return enumSymbol;
     }
 

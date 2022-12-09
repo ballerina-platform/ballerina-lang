@@ -41,7 +41,12 @@ public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
-        super(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
+        this(flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public BTypeDefinitionSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+                                 Location pos, SymbolOrigin origin) {
+        super(SymTag.TYPE_DEF, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.TYPE_DEF;
         this.annAttachments = new ArrayList<>();
     }
