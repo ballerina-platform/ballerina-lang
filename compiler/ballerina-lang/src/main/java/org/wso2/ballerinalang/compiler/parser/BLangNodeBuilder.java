@@ -883,8 +883,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         this.anonTypeNameSuffixes.push(constantNode.name.value);
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
-        this.anonTypeNameSuffixes.pop();
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        setOriginalNameForAnonTypeGenName(anonTypeGenName);
+        this.anonTypeNameSuffixes.pop();
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
