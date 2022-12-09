@@ -23,9 +23,7 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-
 import io.ballerina.projects.directory.BuildProject;
-
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.SkipException;

@@ -161,7 +161,9 @@ public class ProjectFiles {
                         resolve(Optional.of(moduleDirPath.toFile()).get().getName());
             }
             if (Files.isDirectory(generatedSourcesRoot)) {
-                srcDocs.addAll(loadDocuments(generatedSourcesRoot));
+                List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
+                verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath);
+                srcDocs.addAll(generatedDocs);
             }
         }
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
@@ -170,6 +172,19 @@ public class ProjectFiles {
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
                 resources, testResources);
+    }
+
+    private static void verifyDuplicateNames(List<DocumentData> srcDocs, List<DocumentData> generatedDocs,
+                                             String moduleName, Path modulesDirPath) {
+        for (DocumentData doc : srcDocs) {
+            generatedDocs.forEach(generatedDoc -> {
+                if (doc.name().equals(generatedDoc.name())) {
+                    throw new ProjectException("Source file with a duplicate name '" + doc.name() + "' detected in " +
+                            "both generated and module sources for the module '" + moduleName + "'. Please provide a " +
+                            "unique name for '" + modulesDirPath.resolve(doc.name()) + "'");
+                }
+            });
+        }
     }
 
     public static List<Path> loadResources(Path modulePath) {
