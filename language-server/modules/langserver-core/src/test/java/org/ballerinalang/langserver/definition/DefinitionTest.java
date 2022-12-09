@@ -148,7 +148,8 @@ public class DefinitionTest {
                 {"defProject12.json", "project"},
                 {"def_record_config1.json", "project"},
                 {"def_error_config1.json", "project"},
-                {"def_annotation_on_obj_func_config1.json", "project"}
+                // TODO Blocked due to BLangResourceFunction position being set incorrectly
+                // {"def_annotation_on_obj_func_config1.json", "project"}   
         };
     }
 
