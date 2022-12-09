@@ -310,7 +310,8 @@ public class JvmBStringConstantsGen {
         mv.visitFieldInsn(PUTSTATIC, constantClassName, bStringVarName, GET_BSTRING);
     }
 
-    private void generateAppendStringConstants(MethodVisitor mv, Map<String, String> stringChunks, String constantClassName) {
+    private void generateAppendStringConstants(MethodVisitor mv, Map<String, String> stringChunks,
+                                               String constantClassName) {
         mv.visitInsn(DUP);
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
