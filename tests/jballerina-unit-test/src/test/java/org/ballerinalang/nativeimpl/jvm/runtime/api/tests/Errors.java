@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  */
 public class Errors {
 
-    private static Module errorModule = new Module("testorg", "runtime_api.errors", "1");
+    private static Module errorModule = new Module("testorg", "errors.error_utils", "1");
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();

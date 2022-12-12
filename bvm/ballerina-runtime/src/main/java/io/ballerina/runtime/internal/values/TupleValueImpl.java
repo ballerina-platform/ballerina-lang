@@ -71,23 +71,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TupleValueImpl that = (TupleValueImpl) o;
-        return minSize == that.minSize &&
-                hasRestElement == that.hasRestElement &&
-                tupleType.equals(that.tupleType) &&
-                Arrays.equals(refValues, that.refValues);
-    }
-
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
         this.tupleType = type;
@@ -389,6 +372,23 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     // -------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TupleValueImpl that = (TupleValueImpl) o;
+        return minSize == that.minSize &&
+                hasRestElement == that.hasRestElement &&
+                tupleType.equals(that.tupleType) &&
+                Arrays.equals(refValues, that.refValues);
+    }
 
     /**
      * Append value to the existing array.

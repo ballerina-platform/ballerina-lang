@@ -80,7 +80,7 @@ public function validateAPI() {
     if (studentRec2 is error) {
         test:assertEquals("{ballerina/lang.map}KeyNotFound", studentRec2.message());
         test:assertEquals("invalid field access: field 'postalCode' not found in record type " +
-        "'runtime_api.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
+        "'values.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
     }
 }
 
