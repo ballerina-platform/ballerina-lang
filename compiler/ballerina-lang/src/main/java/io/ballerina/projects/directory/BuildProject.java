@@ -142,13 +142,16 @@ public class BuildProject extends Project {
         if (currentPackage().moduleIds().contains(moduleId)) {
             Optional<Path> generatedModulePath = Optional.of(sourceRoot.
                     resolve(ProjectConstants.GENERATED_MODULES_ROOT));
-            if (currentPackage().getDefaultModule().moduleId() == moduleId &&
+            if (currentPackage().getDefaultModule().moduleId() == moduleId && generatedModulePath.isPresent() &&
                     Files.isDirectory(generatedModulePath.get())) {
                 return generatedModulePath;
             }
             String moduleName = currentPackage().module(moduleId).moduleName().moduleNamePart();
-            if (Files.isDirectory(Optional.of(generatedModulePath.get().resolve(moduleName)).get())) {
-                return Optional.of(generatedModulePath.get().resolve(moduleName));
+            if (generatedModulePath.isPresent() && Files.isDirectory(generatedModulePath.get())) {
+                Optional<Path> generatedModuleDirPath = Optional.of(generatedModulePath.get().resolve(moduleName));
+                if (generatedModuleDirPath.isPresent() && Files.isDirectory(generatedModuleDirPath.get())) {
+                    return Optional.of(generatedModulePath.get().resolve(moduleName));
+                }
             }
         }
         return Optional.empty();
@@ -161,10 +164,9 @@ public class BuildProject extends Project {
             Optional<Path> modulePath = modulePath(moduleId);
             if (module.documentIds().contains(documentId)) {
                 Optional<Path> generatedModulePath = generatedModulePath(moduleId);
-                if (generatedModulePath.isPresent()) {
-                    if (Files.exists(generatedModulePath.get().resolve(module.document(documentId).name()))) {
-                        return Optional.of(generatedModulePath.get().resolve(module.document(documentId).name()));
-                    }
+                if (generatedModulePath.isPresent() && Files.exists(
+                        generatedModulePath.get().resolve(module.document(documentId).name()))) {
+                    return Optional.of(generatedModulePath.get().resolve(module.document(documentId).name()));
                 }
                 if (modulePath.isPresent()) {
                     return Optional.of(modulePath.get().resolve(module.document(documentId).name()));

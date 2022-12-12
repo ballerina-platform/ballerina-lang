@@ -150,15 +150,15 @@ public class ProjectFiles {
 
         // If the module is not a newly generated module, explicitly load generated sources
         if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
-                moduleDirPath.getParent()).get().toFile().getName())) {
+                moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
             // Generated sources root for default module
             Path generatedSourcesRoot = moduleDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(moduleDirPath.getParent()).get().toFile().getName())) {
+            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(
+                    moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
                 // generated sources root for non-default modules
-                generatedSourcesRoot = Optional.of(Optional.of(Optional.of(moduleDirPath.getParent()).
-                                        get().getParent()).get().
-                                resolve(ProjectConstants.GENERATED_MODULES_ROOT)).get().
-                        resolve(Optional.of(moduleDirPath.toFile()).get().getName());
+                generatedSourcesRoot = Optional.of(Optional.of(Optional.of(moduleDirPath.toAbsolutePath().getParent()).
+                                        get().getParent()).get().resolve(ProjectConstants.GENERATED_MODULES_ROOT))
+                        .get().resolve(Optional.of(moduleDirPath.toFile()).get().getName());
             }
             if (Files.isDirectory(generatedSourcesRoot)) {
                 List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
