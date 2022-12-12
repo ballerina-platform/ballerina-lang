@@ -268,7 +268,7 @@ public isolated function setLength((any|error)[] arr, int length) returns () = @
 # string[] greetings = ["Hello", "Hola", "Bonjour", "Hola", "Ciao"];
 #
 # // First index of "guten tag" if it exists in the list.
-# greetings.indexOf("guten tag") => ()
+# greetings.indexOf("guten tag") is () => true
 #
 # // First index of "Hola" if it exists in the list, after the second member of the list.
 # greetings.indexOf("Hola", 2) => 3
@@ -291,7 +291,7 @@ public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIn
 # string[] greetings = ["Hello", "Hola", "Bonjour", "Hola", "Ciao", "Hola"];
 #
 # // Last index of "guten tag" if it exists in the list.
-# greetings.lastIndexOf("guten tag") => ()
+# greetings.lastIndexOf("guten tag") is () => true
 #
 # // Last index of "Hola" if it exists in the list, searching backward starting from the
 # // second to last member of the list.
