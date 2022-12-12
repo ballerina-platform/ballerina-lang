@@ -320,6 +320,9 @@ public class RunNativeImageTestTask implements Task {
         cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
+        if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            packageName = currentPackage.project().sourceRoot().toString().replace(".bal","");
+        }
 
         // set name and path
         nativeArgs.add("-H:Name=" + packageName);

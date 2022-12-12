@@ -54,10 +54,35 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true);
-        // non existing bal file
         new CommandLine(testCommand).parse();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("1 passing"));
     }
+
+// TODO: Fix test cases that are failing due to "Caused by: java.util.zip.ZipException: ZIP file can't be opened as a
+//  file system because entry "/resources/$anon/./0/openapi-spec.yaml" has a '.' or '..' element in its name" error.
+
+//    @Test(description = "Test a valid ballerina file")
+//    public void testTestBalFile() throws IOException {
+//        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+//        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+//        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+//        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+//        testCommand.execute();
+//        String buildLog = readOutput(true);
+//        Assert.assertTrue(buildLog.contains("1 passing"));
+//    }
+//
+//    @Test(description = "Test a valid ballerina file with periods in the file name")
+//    public void testTestBalFileWithPeriods() throws IOException {
+//        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+//
+//        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+//        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+//        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+//        testCommand.execute();
+//        String buildLog = readOutput(true);
+//        Assert.assertTrue(buildLog.contains("1 passing"));
+//    }
 }
