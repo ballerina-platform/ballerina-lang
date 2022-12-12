@@ -29,12 +29,17 @@ import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -143,5 +148,24 @@ public class GeneratorUtils {
         }
 
         return clientModuleName;
+    }
+
+    public static String getClientModuleName(TypeSymbol typeSymbol) {
+        String clientModuleName = typeSymbol.signature().trim().replace(CLIENT, "");
+        if (typeSymbol.getModule().isPresent()) {
+            clientModuleName = typeSymbol.getModule().get().id().toString();;
+        }
+        return clientModuleName;
+    }
+
+    public static NonTerminalNode findNode(SyntaxTree syntaxTree, LineRange lineRange) {
+        if (lineRange == null) {
+            return null;
+        }
+
+        TextDocument textDocument = syntaxTree.textDocument();
+        int start = textDocument.textPositionFrom(lineRange.startLine());
+        int end = textDocument.textPositionFrom(lineRange.endLine());
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
     }
 }
