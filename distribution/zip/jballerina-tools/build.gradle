@@ -96,6 +96,7 @@ dependencies {
     dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
     dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
 
+    dist project(':architecture-model-generator')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
