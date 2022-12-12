@@ -18,10 +18,10 @@
 
 package io.ballerina.architecturemodelgenerator.generators.entity;
 
-import io.ballerina.architecturemodelgenerator.ComponentModel;
 import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.CardinalityValue;
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
+import io.ballerina.architecturemodelgenerator.generators.ModelGenerator;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.entity.Association;
 import io.ballerina.architecturemodelgenerator.model.entity.Attribute;
@@ -38,9 +38,9 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LineRange;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -58,28 +58,21 @@ import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.FOR
  *
  * @since 2201.2.2
  */
-public class EntityModelGenerator {
+public class EntityModelGenerator extends ModelGenerator {
 
-    private final SemanticModel semanticModel;
-    private final ComponentModel.PackageId packageId;
-    private final Path moduleRootPath;
     private final Map<String, Entity> types = new HashMap<>();
 
-    public EntityModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
-                                Path moduleRootPath) {
-
-        this.semanticModel = semanticModel;
-        this.packageId = packageId;
-        this.moduleRootPath = moduleRootPath;
+    public EntityModelGenerator(SemanticModel semanticModel, Module module) {
+        super(semanticModel, module);
     }
 
     public Map<String, Entity> generate() {
-        List<Symbol> symbols = semanticModel.moduleSymbols();
+        List<Symbol> symbols = getSemanticModel().moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
                 TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
                 if (typeDefinitionSymbol.typeDescriptor() instanceof RecordTypeSymbol) {
-                    String entityName = getEntityName(packageId, typeDefinitionSymbol.moduleQualifiedName());
+                    String entityName = getEntityName(typeDefinitionSymbol.moduleQualifiedName());
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
                     this.types.put(entityName, getType(recordTypeSymbol, entityName,
                             getElementLocation(typeDefinitionSymbol), false));
@@ -111,12 +104,12 @@ public class EntityModelGenerator {
         boolean optional = recordFieldSymbol.isOptional();
         String defaultValue = ""; //need to address
         boolean nillable = isNillable(recordFieldSymbol.typeDescriptor());
+        String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                fieldName.substring(1);
 
         if (fieldTypeDescKind.equals(TypeDescKind.RECORD)) {
             RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) fieldTypeSymbol;
             fieldType = TypeDescKind.RECORD.getName();
-            String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
-                    fieldName.substring(1);
             this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
                     getElementLocation(recordFieldSymbol), true));
             String associateCardinality = optional ? CardinalityValue.ZERO_OR_ONE.getValue() :
@@ -128,8 +121,6 @@ public class EntityModelGenerator {
                 ((ArrayTypeSymbol) fieldTypeSymbol).memberTypeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
             RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) ((ArrayTypeSymbol)
                     fieldTypeSymbol).memberTypeDescriptor();
-            String inlineRecordName = entityName + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
-                    fieldName.substring(1);
             fieldType = TypeDescKind.RECORD.getName() + ARRAY;
             String associateCardinality = optional ? CardinalityValue.ZERO_OR_MANY.getValue() :
                     CardinalityValue.ONE_OR_MANY.getValue();
@@ -245,12 +236,12 @@ public class EntityModelGenerator {
     /**
      * Build the FQN of the entity Ex: ballerina/reservation_api:0.1.0:Flight.
      *
-     * @param packageId
      * @param moduleQualifiedName
      * @return
      */
-    private String getEntityName(PackageId packageId, String moduleQualifiedName) {
+    private String getEntityName(String moduleQualifiedName) {
         // moduleQualifiedName is not correct when there is a dot in package name
+        PackageId packageId = new PackageId(getModule().packageInstance());
         String entityName;
         String[] nameSpits = moduleQualifiedName.split(COLON);
         if (packageId.getName().equals(nameSpits[0])) { // check whether the referenced type is from the same module
@@ -333,7 +324,7 @@ public class EntityModelGenerator {
         ElementLocation elementLocation = null;
         if (symbol.getLocation().isPresent()) {
             LineRange typeLineRange = symbol.getLocation().get().lineRange();
-            String filePath = moduleRootPath.resolve(typeLineRange.filePath()).toAbsolutePath().toString();
+            String filePath = getModuleRootPath().resolve(typeLineRange.filePath()).toAbsolutePath().toString();
             elementLocation = GeneratorUtils.getElementLocation(filePath, typeLineRange);
         }
         return elementLocation;

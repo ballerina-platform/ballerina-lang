@@ -18,7 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service;
 
-import io.ballerina.architecturemodelgenerator.ComponentModel;
+import io.ballerina.architecturemodelgenerator.generators.ModelGenerator;
 import io.ballerina.architecturemodelgenerator.generators.service.nodevisitors.ServiceDeclarationNodeVisitor;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.compiler.api.SemanticModel;
@@ -35,25 +35,19 @@ import java.util.Map;
  *
  * @since 2201.2.2
  */
-public class ServiceModelGenerator {
+public class ServiceModelGenerator extends ModelGenerator {
 
-    private final SemanticModel semanticModel;
-    private final ComponentModel.PackageId packageId;
-    private final Path moduleRootPath;
-
-    public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId, Path moduleRootPath) {
-        this.semanticModel = semanticModel;
-        this.packageId = packageId;
-        this.moduleRootPath = moduleRootPath;
+    public ServiceModelGenerator(SemanticModel semanticModel, Module module) {
+        super(semanticModel, module);
     }
 
-    public Map<String, Service> generate(Module module) {
+    public Map<String, Service> generate() {
         Map<String, Service> services = new HashMap<>();
-        for (DocumentId documentId : module.documentIds()) {
-            SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
-            Path filePath = moduleRootPath.resolve(syntaxTree.filePath());
-            ServiceDeclarationNodeVisitor serviceNodeVisitor = new ServiceDeclarationNodeVisitor(semanticModel,
-                    syntaxTree, module.packageInstance(), packageId, filePath);
+        for (DocumentId documentId :getModule().documentIds()) {
+            SyntaxTree syntaxTree = getModule().document(documentId).syntaxTree();
+            Path filePath = getModuleRootPath().resolve(syntaxTree.filePath());
+            ServiceDeclarationNodeVisitor serviceNodeVisitor = new ServiceDeclarationNodeVisitor(getSemanticModel(),
+                    syntaxTree, getModule().packageInstance(), filePath);
             syntaxTree.rootNode().accept(serviceNodeVisitor);
             serviceNodeVisitor.getServices().forEach(service -> {
                 services.put(service.getServiceId(), service);
