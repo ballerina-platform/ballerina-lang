@@ -25,10 +25,8 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,25 +41,22 @@ public class ServiceModelGenerator {
     private final ComponentModel.PackageId packageId;
     private final Path moduleRootPath;
 
-    public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId,
-                                 Path moduleRootPath) {
-
+    public ServiceModelGenerator(SemanticModel semanticModel, ComponentModel.PackageId packageId, Path moduleRootPath) {
         this.semanticModel = semanticModel;
         this.packageId = packageId;
         this.moduleRootPath = moduleRootPath;
     }
 
-    public Map<String, Service> generate(Collection<DocumentId> documentIds, Module module, Package currentPackage) {
+    public Map<String, Service> generate(Module module) {
         Map<String, Service> services = new HashMap<>();
-        for (DocumentId documentId : documentIds) {
+        for (DocumentId documentId : module.documentIds()) {
             SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
             Path filePath = moduleRootPath.resolve(syntaxTree.filePath());
-            ServiceDeclarationNodeVisitor serviceNodeVisitor = new
-                    ServiceDeclarationNodeVisitor(semanticModel, currentPackage, packageId, filePath);
+            ServiceDeclarationNodeVisitor serviceNodeVisitor = new ServiceDeclarationNodeVisitor(semanticModel,
+                    syntaxTree, module.packageInstance(), packageId, filePath);
             syntaxTree.rootNode().accept(serviceNodeVisitor);
             serviceNodeVisitor.getServices().forEach(service -> {
                 services.put(service.getServiceId(), service);
-
             });
         }
         return services;

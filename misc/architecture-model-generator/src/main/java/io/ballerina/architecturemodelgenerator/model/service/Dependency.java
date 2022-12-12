@@ -24,7 +24,7 @@ import io.ballerina.architecturemodelgenerator.model.ModelElement;
 /**
  * Represent the dependency of another service.
  *
- * @since 2201.2.2
+ * @since 2201.4.0
  */
 public class Dependency extends ModelElement {
     private final String serviceId;
