@@ -71,6 +71,8 @@ public class CodeCoverageUtils {
 
     private static final PrintStream errStream = System.err;
 
+    private CodeCoverageUtils() {}
+
     /**
      * Checks if a given code coverage report format was requested by user.
      *
@@ -131,8 +133,8 @@ public class CodeCoverageUtils {
     private static boolean isRequiredFile(String path, String orgName, boolean enableIncludesFilter,
                                           String includesInCoverage) {
         return !(path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")
-                || (path.contains("$frame$") && path.contains("module"))
-                || (path.contains("$frame$") && path.contains(orgName)) || path.contains("module-info.class")
+                || (path.contains("$frame$") && (path.contains("module") || path.contains(orgName)))
+                || path.contains("module-info.class")
                 || (enableIncludesFilter && !isIncluded(path, includesInCoverage)));
     }
 
