@@ -37,6 +37,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FUTURE;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NEVER;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STREAM;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
@@ -110,6 +111,8 @@ public class TypeUtils {
                 return TYPE_ERROR;
             case TypeConstants.ANYDATA_TNAME:
                 return TYPE_ANYDATA;
+            case TypeConstants.NEVER_TNAME:
+                return TYPE_NEVER;
             default:
                 throw new IllegalStateException("Unknown type name");
         }
