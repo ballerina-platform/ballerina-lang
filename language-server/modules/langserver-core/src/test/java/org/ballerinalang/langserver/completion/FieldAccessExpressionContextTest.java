@@ -22,7 +22,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Field Access Expression Context tests.
@@ -35,14 +34,6 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
-    }
-
-    @Override
-    public List<String> skipList() {
-        return List.of(
-                // TODO Need to fix FieldAccessCompletionResolver simple name ref node transform method
-                "foreach_stmt_ctx_config26.json"
-        );
     }
 
     @DataProvider(name = "completion-data-provider")
