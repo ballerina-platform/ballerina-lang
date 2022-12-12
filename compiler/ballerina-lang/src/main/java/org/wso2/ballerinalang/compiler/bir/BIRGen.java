@@ -90,7 +90,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -177,7 +176,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
@@ -1691,11 +1689,16 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
+        BType bType = astArrayLiteralExpr.getBType();
+        if (bType.tag == TypeTags.TUPLE) {
+            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList());
+        }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
+        visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList());
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -1706,6 +1709,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
+        BType bType = jsonArrayLiteralExpr.getBType();
+        if (bType.tag == TypeTags.TUPLE) {
+            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList());
+        }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
 
@@ -1898,14 +1905,18 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BIRGlobalVariableDcl getVarRef(BLangPackageVarRef astPackageVarRefExpr) {
         BSymbol symbol = astPackageVarRefExpr.symbol;
-        if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
-                !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
-            return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                                            symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
-                                            symbol.name.value, symbol.origin.toBIROrigin());
+        BIRGlobalVariableDcl globalVarDcl = this.globalVarMap.get(symbol);
+        if (globalVarDcl == null) {
+            globalVarDcl = new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
+                    symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.getValue(),
+                    symbol.origin.toBIROrigin());
+            this.globalVarMap.put(symbol, globalVarDcl);
         }
 
-        return this.globalVarMap.get(symbol);
+        if (!isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
+            this.env.enclPkg.importedGlobalVarsDummyVarDcls.add(globalVarDcl);
+        }
+        return globalVarDcl;
     }
 
     @Override
@@ -2179,14 +2190,6 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         // do nothing
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
     }
 
     @Override
@@ -2696,12 +2699,14 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         long size = -1L;
+        BIROperand typedescOp = null;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
         BType listConstructorExprType = Types.getReferredType(listConstructorExpr.getBType());
         if (listConstructorExprType.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExprType).size;
         } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
+            typedescOp = this.env.targetOperand;
             size = exprs.size();
         }
 
@@ -2725,9 +2730,15 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        setScopeAndEmit(
-                new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                        initialValues));
+        if (listConstructorExprType.tag == TypeTags.TUPLE) {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
+                            typedescOp, sizeOp, initialValues));
+        } else {
+            setScopeAndEmit(
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
+                            initialValues));
+        }
         this.env.targetOperand = toVarRef;
     }
 

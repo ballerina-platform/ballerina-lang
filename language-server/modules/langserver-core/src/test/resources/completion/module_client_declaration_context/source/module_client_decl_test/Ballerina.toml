@@ -1,8 +1,0 @@
-[package]
-org = "gayal"
-name = "module_client_decl_test"
-version = "0.1.0"
-distribution = "2201.2.0-rc1.2"
-
-[build-options]
-observabilityIncluded = true

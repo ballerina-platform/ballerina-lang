@@ -74,10 +74,10 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
-    private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module objectModule = new Module("testorg", "values.objects", "1");
+    private static final Module recordModule = new Module("testorg", "values.records", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
-    private static final BString intAnnotation = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+    private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
 
@@ -358,7 +358,7 @@ public class Values {
     public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Array");
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
             Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
