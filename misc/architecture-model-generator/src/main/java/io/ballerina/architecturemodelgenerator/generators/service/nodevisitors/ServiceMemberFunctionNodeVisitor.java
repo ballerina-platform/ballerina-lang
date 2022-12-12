@@ -18,7 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
-import io.ballerina.architecturemodelgenerator.ComponentModel;
+import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterIn;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.Dependency;
@@ -45,11 +45,9 @@ import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -63,8 +61,6 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -73,6 +69,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.findNode;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getClientModuleName;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getElementLocation;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getServiceAnnotation;
@@ -91,17 +88,14 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     private List<Resource> resources = new LinkedList<>();
     private List<RemoteFunction> remoteFunctions = new LinkedList<>();
     private final List<Dependency> dependencies = new LinkedList<>();
-    private final ComponentModel.PackageId packageId;
     private final String filePath;
 
     public ServiceMemberFunctionNodeVisitor(String serviceId, SemanticModel semanticModel, SyntaxTree syntaxTree,
-                                            Package currentPackage, ComponentModel.PackageId packageId,
-                                            String filePath) {
+                                            Package currentPackage, String filePath) {
         this.serviceId = serviceId;
         this.semanticModel = semanticModel;
         this.syntaxTree = syntaxTree;
         this.currentPackage = currentPackage;
-        this.packageId = packageId;
         this.filePath = filePath;
     }
 
@@ -241,7 +235,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     }
 
     private String getReferenceEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
-
+        PackageId packageId = new PackageId(currentPackage);
         String currentPackageName = String.format
                 ("%s/%s:%s", packageId.getOrg(), packageId.getName(), packageId.getVersion());
         String referenceType = typeReferenceTypeSymbol.signature();
@@ -329,7 +323,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ObjectFieldNode objectFieldNode) {
-        if (isAnyReferredActionNode(objectFieldNode)) {
+        if (hasInvocationReferences(objectFieldNode)) {
             return;
         }
         Node fieldTypeName = getReferredNode(objectFieldNode.typeName());
@@ -397,38 +391,24 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         return classSymbol;
     }
 
-    private boolean isAnyReferredActionNode(ObjectFieldNode objectFieldNode) {
-        Optional<Symbol> objFieldNodeSymbol = semanticModel.symbol(objectFieldNode);
+    private boolean hasInvocationReferences(ObjectFieldNode clientDeclarationNode) {
+        Optional<Symbol> objFieldNodeSymbol = semanticModel.symbol(clientDeclarationNode);
         if (objFieldNodeSymbol.isEmpty()) {
             return false;
         }
-        boolean isAnyReferredActionNode = false;
         List<LineRange> objFieldNodeRefs = semanticModel.references(objFieldNodeSymbol.get())
                 .stream().map(Location::lineRange).collect(Collectors.toList());
-        objFieldNodeRefsLoop:
         for (LineRange lineRange : objFieldNodeRefs) {
             Node referredNode = findNode(syntaxTree, lineRange);
             while (!referredNode.kind().equals(SyntaxKind.SERVICE_DECLARATION) &&
                     !referredNode.kind().equals(SyntaxKind.MODULE_PART)) {
                 if (referredNode.kind().equals(SyntaxKind.REMOTE_METHOD_CALL_ACTION) ||
                         referredNode.kind().equals(SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION)) {
-                    isAnyReferredActionNode = true;
-                    break objFieldNodeRefsLoop;
+                    return true;
                 }
                 referredNode = referredNode.parent();
             }
         }
-        return isAnyReferredActionNode;
-    }
-
-    private NonTerminalNode findNode(SyntaxTree syntaxTree, LineRange lineRange) {
-        if (lineRange == null) {
-            return null;
-        }
-
-        TextDocument textDocument = syntaxTree.textDocument();
-        int start = textDocument.textPositionFrom(lineRange.startLine());
-        int end = textDocument.textPositionFrom(lineRange.endLine());
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        return false;
     }
 }
