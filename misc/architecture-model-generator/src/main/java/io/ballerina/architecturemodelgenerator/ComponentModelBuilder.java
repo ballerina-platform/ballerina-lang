@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,10 +50,6 @@ public class ComponentModelBuilder {
         AtomicBoolean hasDiagnosticErrors = new AtomicBoolean(false);
 
         currentPackage.modules().forEach(module -> {
-            Path moduleRootPath = module.project().sourceRoot().toAbsolutePath();
-            if (module.moduleName().moduleNamePart() != null) {
-                moduleRootPath = moduleRootPath.resolve(module.moduleName().moduleNamePart());
-            }
             PackageCompilation currentPackageCompilation = packageCompilation == null ?
                     currentPackage.getCompilation() : packageCompilation;
             SemanticModel currentSemanticModel = currentPackageCompilation.getSemanticModel(module.moduleId());
@@ -62,12 +57,10 @@ public class ComponentModelBuilder {
                 hasDiagnosticErrors.set(true);
             }
             // todo : Check project diagnostics
-            ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(
-                    currentSemanticModel, packageId, moduleRootPath);
-            services.putAll(serviceModelGenerator.generate(module));
+            ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentSemanticModel, module);
+            services.putAll(serviceModelGenerator.generate());
 
-            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(
-                    currentSemanticModel, packageId, moduleRootPath);
+            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentSemanticModel, module);
             entities.putAll(entityModelGenerator.generate());
         });
 

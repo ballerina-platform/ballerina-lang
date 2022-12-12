@@ -18,7 +18,6 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
-import io.ballerina.architecturemodelgenerator.ComponentModel;
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.architecturemodelgenerator.model.service.ServiceAnnotation;
@@ -66,14 +65,12 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
     private final SemanticModel semanticModel;
     private final SyntaxTree syntaxTree;
-    private final ComponentModel.PackageId packageId;
     private final Package currentPackage;
     private final List<Service> services = new LinkedList<>();
     private final Path filePath;
 
     public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, SyntaxTree syntaxTree, Package currentPackage,
-                                         ComponentModel.PackageId packageId, Path filePath) {
-        this.packageId = packageId;
+                                         Path filePath) {
         this.semanticModel = semanticModel;
         this.syntaxTree = syntaxTree;
         this.currentPackage = currentPackage;
@@ -107,7 +104,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
         ServiceMemberFunctionNodeVisitor serviceMemberFunctionNodeVisitor =
                 new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
-                        semanticModel, syntaxTree, currentPackage, packageId, filePath.toString());
+                        semanticModel, syntaxTree, currentPackage, filePath.toString());
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
                 getServiceType(serviceDeclarationNode), serviceMemberFunctionNodeVisitor.getResources(),
