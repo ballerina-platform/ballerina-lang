@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2022, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,9 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/utils.jsons;
+import testPackage.testModule;
+import ballerina/test;
 
 public function main() {
-    jsons:validateAPI();
-    jsons:validateStringAPI();
+    testFunctionDefaultParameterValues();
+    testFunctionDefaultParameterValues(10);
+}
+
+function testFunctionDefaultParameterValues(int x = 20) {
+    testModule:Client salesClient = new ();
+    int y = salesClient->/(x);
+    test:assertEquals(y, x + 1);
+    y = salesClient->/(x, "val");
+    test:assertEquals(y, x + 2);
 }
