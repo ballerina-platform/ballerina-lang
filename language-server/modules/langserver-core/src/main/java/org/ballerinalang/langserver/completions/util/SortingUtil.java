@@ -112,7 +112,7 @@ public class SortingUtil {
             Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
             if (symbol.isPresent() && (symbol.get().kind() == SymbolKind.TYPE
                     || symbol.get().kind() == SymbolKind.TYPE_DEFINITION ||
-                    symbol.get().kind() == SymbolKind.CLASS)) {
+                    symbol.get().kind() == SymbolKind.CLASS || symbol.get().kind() == SymbolKind.CONSTANT)) {
                 return true;
             }
             return false;
