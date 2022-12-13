@@ -38,7 +38,7 @@ type AnydataType anydata;
 # Returns the number of members of an array.
 #
 # ```
-# [1, 2, 3, 4].length() => 4
+# ["a", "b", "c", "d"].length() ⇒ 4
 # ```
 #
 # + arr - the array
@@ -54,7 +54,7 @@ public isolated function length((any|error)[] arr) returns int = @java:Method {
 # object {
 #     public isolated function next() returns record {|int value;|}?;
 # } iterator = [2, 4, 6, 8].iterator();
-# iterator.next() => {"value":2}
+# iterator.next() ⇒ {"value":2}
 # ```
 #
 # + arr - the array
@@ -71,7 +71,7 @@ public isolated function iterator(Type[] arr) returns object {
 # Returns a new array consisting of index and member pairs.
 #
 # ```
-# [1, 2, 3, 4].enumerate() => [[0,1],[1,2],[2,3],[3,4]]
+# [1, 2, 3, 4].enumerate() ⇒ [[0,1],[1,2],[2,3],[3,4]]
 # ```
 #
 # + arr - the array
@@ -86,7 +86,8 @@ public isolated function enumerate(Type[] arr) returns [int, Type][] = @java:Met
 # Applies a function to each member of an array and returns an array of the results.
 #
 # ```
-# [0, 1, 2].map(n => n * 2) => [0,2,4]
+# int[] numbers = [0, 1, 2];
+# numbers.map(n => n * 2) ⇒ [0,2,4]
 # ```
 #
 # + arr - the array
@@ -102,11 +103,11 @@ public isolated function 'map(Type[] arr, @isolatedParam function(Type val) retu
 # The parameter `func` is applied to each member of parameter `arr` in order.
 #
 # ```
-# string str = "";
-# [0, 1, 2].forEach(function (int i) {
-#     str += i.toString();
+# int total = 0;
+# [1, 2, 3].forEach(function (int i) {
+#     total += i * 2;
 # });
-# str => 012
+# total ⇒ 12
 # ```
 #
 # + arr - the array
@@ -119,7 +120,8 @@ public isolated function forEach(Type[] arr, @isolatedParam function(Type val) r
 # Selects the members from an array for which a function returns true.
 #
 # ```
-# [12, 43, 60, 75, 10].filter(n => n > 50) => [60,75]
+# int[] numbers = [12, 43, 60, 75, 10];
+# numbers.filter(n => n > 50) ⇒ [60,75]
 # ```
 #
 # + arr - the array
@@ -136,7 +138,7 @@ public isolated function filter(Type[] arr, @isolatedParam function(Type val) re
 # and returns a new combined value.
 #
 # ```
-# [1, 2, 3].reduce(isolated function (int total, int next) returns int => total + next, 0) => 6
+# [1, 2, 3].reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 6
 # ```
 #
 # + arr - the array
@@ -154,7 +156,8 @@ public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum,
 # When the array is empty, returns false.
 #
 # ```
-# [1, 2, 3, 5].some(number => number % 2 == 0) => true
+# int[] numbers = [1, 2, 3, 5];
+# numbers.some(n => n % 2 == 0) ⇒ true
 # ```
 #
 # + arr - the array
@@ -172,11 +175,11 @@ public isolated function some(Type[] arr, @isolatedParam function(Type val) retu
 # Returns a subarray using a start index (inclusive) and an end index (exclusive).
 #
 # ```
-# // Slice containing numbers starting from the fourth member to the end of the list.
-# [2, 4, 6, 8, 10, 12].slice(3) => [8,10,12]
+# int[] numbers = [2, 4, 6, 8, 10, 12];
 #
-# // Slice containing the first four members in the list.
-# [2, 4, 6, 8, 10, 12].slice(0, 4) => [2,4,6,8]
+# numbers.slice(3) ⇒ [8,10,12]
+#
+# numbers.slice(0, 4) ⇒ [2,4,6,8]
 # ```
 #
 # + arr - the array
@@ -194,7 +197,8 @@ public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.le
 # When the array is empty, returns true.
 #
 # ```
-# [1, 2, 3, 5].every(number => number % 2 == 0) => false
+# int[] numbers = [1, 2, 3, 5];
+# numbers.every(n => n % 2 == 0) ⇒ false
 # ```
 #
 # + arr - the array
@@ -215,8 +219,8 @@ public isolated function every(Type[] arr, @isolatedParam function(Type val) ret
 # It panics if there is no such member.
 #
 # ```
-# int[] evenNumbers = [2, 4, 6, 8];
-# evenNumbers.remove(1) => 4
+# int[] numbers = [2, 4, 6, 8];
+# numbers.remove(1) ⇒ 4
 # ```
 #
 # + arr - the array
@@ -232,9 +236,9 @@ public isolated function remove(Type[] arr, int index) returns Type = @java:Meth
 # Panics if any member cannot be removed.
 #
 # ```
-# int[] evenNumbers = [2, 4, 6, 8];
-# evenNumbers.removeAll();
-# evenNumbers => []
+# int[] numbers = [2, 4, 6, 8];
+# numbers.removeAll();
+# numbers ⇒ []
 # ```
 #
 # + arr - the array
@@ -248,9 +252,13 @@ public isolated function removeAll((any|error)[] arr) returns () = @java:Method 
 # `setLength(arr, 0)` is equivalent to `removeAll(arr)`.
 #
 # ```
-# int[] evenNumbers = [2, 4, 6, 8];
-# evenNumbers.setLength(2);
-# evenNumbers => [2,4]
+# int[] numbers = [2, 4, 6, 8];
+#
+# numbers.setLength(2);
+# numbers ⇒ [2,4]
+#
+# numbers.setLength(0);
+# numbers ⇒ []
 # ```
 #
 # + arr - the array of which to change the length
@@ -265,13 +273,11 @@ public isolated function setLength((any|error)[] arr, int length) returns () = @
 # Equality is tested using `==`.
 #
 # ```
-# string[] greetings = ["Hello", "Hola", "Bonjour", "Hola", "Ciao"];
+# string[] strings = ["a", "b", "d", "b", "d"];
 #
-# // First index of "guten tag" if it exists in the list.
-# greetings.indexOf("guten tag") is () => true
+# strings.indexOf("e") is () ⇒ true
 #
-# // First index of "Hola" if it exists in the list, after the second member of the list.
-# greetings.indexOf("Hola", 2) => 3
+# strings.indexOf("b", 2) ⇒ 3
 # ```
 #
 # + arr - the array
@@ -288,14 +294,11 @@ public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIn
 # Equality is tested using `==`.
 #
 # ```
-# string[] greetings = ["Hello", "Hola", "Bonjour", "Hola", "Ciao", "Hola"];
+# string[] strings = ["a", "b", "d", "b", "d", "b"];
 #
-# // Last index of "guten tag" if it exists in the list.
-# greetings.lastIndexOf("guten tag") is () => true
+# strings.lastIndexOf("e") is () ⇒ true
 #
-# // Last index of "Hola" if it exists in the list, searching backward starting from the
-# // second to last member of the list.
-# greetings.lastIndexOf("Hola", greetings.length() - 2) => 3
+# strings.lastIndexOf("b", strings.length() - 2) ⇒ 3
 # ```
 #
 # + arr - the array
@@ -310,7 +313,7 @@ public isolated function lastIndexOf(AnydataType[] arr, AnydataType val, int sta
 # Reverses the order of the members of an array.
 #
 # ```
-# [2, 4, 6, 8, 10].reverse() => [10,8,6,4,2]
+# [2, 4, 6, 8, 10].reverse() ⇒ [10,8,6,4,2]
 # ```
 #
 # + arr - the array to be reversed
@@ -336,25 +339,15 @@ public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
 # Sorting works the same as with the parameter `sort` clause of query expressions.
 #
 # ```
-# string[] greetings = ["Hello", "Bonjour", "", "Hola", "Ciao"];
+# string[] strings = ["c", "a", "B"];
 #
-# // Sort the list based on Unicode code point order.
-# greetings.sort() => ["","Bonjour","Ciao","Hello","Hola"]
+# strings.sort() ⇒ ["B","a","c"]
 #
-# // Sort the list based on Unicode code point descending order.
-# greetings.sort(array:DESCENDING) => ["Hola","Hello","Ciao","Bonjour",""]
+# strings.sort("descending") ⇒ ["c","a","B"]
 #
-# // Sort the list in ascending order based on a specified ordering function: order by length of string.
-# greetings.sort(key = isolated function (string str) returns int {
-#                         int length = str.length();
-#                         if length == 0 {
-#                             return int:MAX_VALUE;
-#                         }
-#                         return length;
-#                     }) => ["Hola","Ciao","Hello","Bonjour",""]
+# strings.sort(key = string:toLowerAscii) ⇒ ["a","B","c"]
 #
-# // Sort the list in descending order based on a specified ordering function: order by length of string.
-# greetings.sort(array:DESCENDING, (str) => str.length()) => ["Bonjour","Hello","Hola","Ciao",""]
+# strings.sort("descending", string:toLowerAscii) ⇒ ["c","B","a"]
 # ```
 #
 # + arr - the array to be sorted;
@@ -376,8 +369,8 @@ public isolated function sort(Type[] arr, SortDirection direction = ASCENDING,
 # The array must not be empty.
 #
 # ```
-# int[] evenNumbers = [2, 4, 6, 8, 10];
-# evenNumbers.pop() => 10
+# int[] numbers = [2, 4, 6, 8, 10];
+# numbers.pop() ⇒ 10
 # ```
 #
 # + arr - the array
@@ -390,16 +383,14 @@ public isolated function pop(Type[] arr) returns Type = @java:Method {
 # Adds values to the end of an array.
 #
 # ```
-# int[] evenNumbers = [2];
+# int[] numbers = [2];
 #
-# // Push multiple members to the end of the list.
-# evenNumbers.push(4, 6);
-# evenNumbers => [2,4,6]
+# numbers.push(4, 6);
+# numbers ⇒ [2,4,6]
 #
-# int[] moreEvenNumbers = [8, 10, 12, 14];
-# // Push multiple members to the end of the list using an existing list in a rest argument.
-# evenNumbers.push(...moreEvenNumbers);
-# evenNumbers => [2,4,6,8,10,12,14]
+# int[] moreNumbers = [8, 10, 12, 14];
+# numbers.push(...moreNumbers);
+# numbers ⇒ [2,4,6,8,10,12,14]
 # ```
 #
 # + arr - the array
@@ -418,8 +409,8 @@ public isolated function push(Type[] arr, Type... vals) returns () = @java:Metho
 # The array must not be empty.
 #
 # ```
-# int[] evenNumbers = [2, 4, 6, 8, 10];
-# evenNumbers.shift() => 2
+# int[] numbers = [2, 4, 6, 8, 10];
+# numbers.shift() ⇒ 2
 # ```
 #
 # + arr - the array
@@ -435,16 +426,14 @@ public isolated function shift(Type[] arr) returns Type = @java:Method {
 # as they are in parameter `vals`.
 #
 # ```
-# int[] evenNumbers = [14];
+# int[] numbers = [14];
 #
-# // Add multiple members to the start of the list.
-# evenNumbers.unshift(10, 12);
-# evenNumbers => [10,12,14]
+# numbers.unshift(10, 12);
+# numbers ⇒ [10,12,14]
 #
-# int[] moreEvenNumbers = [2, 4, 6, 8];
-# // Add multiple members to the start of the list using an existing list in a rest argument.
-# evenNumbers.unshift(...moreEvenNumbers);
-# evenNumbers => [2,4,6,8,10,12,14]
+# int[] moreNumbers = [2, 4, 6, 8];
+# numbers.unshift(...moreNumbers);
+# numbers ⇒ [2,4,6,8,10,12,14]
 # ```
 # 
 # + arr - the array
@@ -464,7 +453,7 @@ public isolated function unshift(Type[] arr, Type... vals) returns () = @java:Me
 #
 # ```
 # byte[] byteArray = [104, 101, 108, 108, 111, 32, 98, 97, 108, 108, 101, 114, 105, 110, 97, 32, 33, 33, 33];
-# byteArray.toBase64() => aGVsbG8gYmFsbGVyaW5hICEhIQ==
+# byteArray.toBase64() ⇒ aGVsbG8gYmFsbGVyaW5hICEhIQ==
 # ```
 #
 # + arr - the array
@@ -480,7 +469,9 @@ public isolated function toBase64(byte[] arr) returns string = @java:Method {
 # and whitespace as allowed by a Ballerina Base64Literal.
 #
 # ```
-# check array:fromBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==") => [104,101,108,108,111,32,98,97,108,108,101,114,105,110,97,32,33,33,33]
+# check array:fromBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==") ⇒ [104,101,108,108,111,32,98,97,108,108,101,114,105,110,97,32,33,33,33]
+#
+# array:fromBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ--") ⇒ error
 # ```
 #
 # + str - Base64 string representation
@@ -498,7 +489,7 @@ public isolated function fromBase64(string str) returns byte[]|error = @java:Met
 #
 # ```
 # byte[] byteArray = [170, 171, 207, 204, 173, 175, 205, 52, 26, 75, 223, 171, 205, 137, 18, 223];
-# byteArray.toBase16() => aaabcfccadafcd341a4bdfabcd8912df
+# byteArray.toBase16() ⇒ aaabcfccadafcd341a4bdfabcd8912df
 # ```
 #
 # + arr - the array
@@ -514,7 +505,9 @@ public isolated function toBase16(byte[] arr) returns string = @java:Method {
 # and whitespace as allowed by a Ballerina Base16Literal.
 #
 # ```
-# check array:fromBase16("aaabcfccadafcd341a4bdfabcd8912df") => [170,171,207,204,173,175,205,52,26,75,223,171,205,137,18,223]
+# check array:fromBase16("aaabcfccadafcd341a4bdfabcd8912df") ⇒ [170,171,207,204,173,175,205,52,26,75,223,171,205,137,18,223]
+#
+# array:fromBase16("aGVsbG8gYmFsbGVyaW5hICEhIQ==") ⇒ error
 # ```
 #
 # + str - Base16 string representation
@@ -527,8 +520,8 @@ public isolated function fromBase16(string str) returns byte[]|error = @java:Met
 # Returns a stream from the given array.
 #
 # ```
-# stream<string> greetingsStream = ["Hello", "Bonjour", "Hola", "Ciao"].toStream();
-# greetingsStream.next() => {"value":"Hello"}
+# stream<string> strm = ["a", "b", "c", "d"].toStream();
+# strm.next() ⇒ {"value":"a"}
 # ```
 #
 # + arr - The array from which the stream is created
