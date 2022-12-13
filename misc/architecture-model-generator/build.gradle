@@ -25,14 +25,11 @@ configurations {
 }
 
 dependencies {
+    compileOnly project(':ballerina-parser')
     compileOnly project(':ballerina-lang')
-    compileOnly project(':ballerina-tools-api')
-    compileOnly project(':language-server:language-server-commons')
-    compileOnly project(':language-server:language-server-core')
 
-    compileOnly(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
-
-    implementation project(":architecture-model-generator")
+    implementation project(':ballerina-tools-api')
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
 
     testCompile 'org.testng:testng'
 
@@ -44,9 +41,9 @@ test {
     }
 }
 
-description = 'LS extension for project design diagram generation'
+description = 'Model generator core for project design diagram generation'
 
-ext.moduleName = 'project-design-service'
+ext.moduleName = 'io.ballerina.architecturemodelgenerator'
 
 compileJava {
     inputs.property("moduleName", moduleName)
@@ -55,14 +52,5 @@ compileJava {
                 '--module-path', classpath.asPath,
         ]
         classpath = files()
-    }
-}
-
-jar {
-    manifest {
-        attributes "Main-Class": "io.ballerina.componentmodel.ProjectDesignService"
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
