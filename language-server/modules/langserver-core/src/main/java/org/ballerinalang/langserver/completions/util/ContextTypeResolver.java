@@ -366,13 +366,13 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (!TypeResolverUtil.isInFunctionCallParameterContext(context, node)
+        if (!TypeResolverUtil.isInFunctionCallParameterContext(node, context.getCursorPositionInTree())
                 || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
         return TypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(),
-                context.getCursorPositionInTree(), node.arguments());
+                node.arguments(), context.getCursorPositionInTree());
     }
 
     @Override
@@ -384,7 +384,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!TypeResolverUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)) {
+        if (!TypeResolverUtil.isInNewExpressionParameterContext(implicitNewExpressionNode,
+                context.getCursorPositionInTree())) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
         if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
@@ -409,7 +410,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
         return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
-                context.getCursorPositionInTree(), implicitNewExpressionNode.parenthesizedArgList().get().arguments());
+                implicitNewExpressionNode.parenthesizedArgList().get().arguments(), context.getCursorPositionInTree());
     }
 
     @Override
@@ -420,7 +421,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!TypeResolverUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)) {
+        if (!TypeResolverUtil.isInNewExpressionParameterContext(explicitNewExpressionNode,
+                context.getCursorPositionInTree())) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
         if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
@@ -440,7 +442,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
         return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
-                context.getCursorPositionInTree(), explicitNewExpressionNode.parenthesizedArgList().arguments());
+                explicitNewExpressionNode.parenthesizedArgList().arguments(), context.getCursorPositionInTree());
     }
 
     @Override
@@ -460,12 +462,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 && methodSymbol.get().kind() != SymbolKind.FUNCTION)) {
             return Optional.empty();
         }
-        if (!TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
+        if (!TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             return SymbolUtil.getTypeDescriptor(methodSymbol.get());
         }
-
-        return TypeResolverUtil.getPositionalArgumentTypeForFunction(node.arguments(), node, context,
-                context.getCursorPositionInTree());
+        return TypeResolverUtil.getPositionalArgumentTypeForFunction(
+                node.arguments(), node, context, context.getCursorPositionInTree());
     }
 
     @Override
@@ -475,19 +476,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
             return Optional.empty();
         }
-        if (!TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
+        if (!TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             // Here, we want the type of the context, not the type of the method itself
             return node.parent().apply(this);
         }
 
         return TypeResolverUtil.resolveParameterTypeSymbol(
-                ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context.getCursorPositionInTree(),
-                node.arguments());
+                ((MethodSymbol) methodSymbol.get()).typeDescriptor(), node.arguments(),
+                context.getCursorPositionInTree());
     }
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
-        // TODO: Add other cases like error constructors here
+        // TODO: Add other cases like error constructors here (when adding, update @CodeActionContextTypeResolver.java 
+        //  as well)
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
@@ -767,7 +769,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
                 return Optional.empty();
             }
-            
+
             return Optional.of(buildUnionOfIterables(typeSymbol.get(), context.currentSemanticModel().get()));
         }
 
@@ -795,7 +797,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                     return Optional.of(((MapTypeSymbol) typeSymbol.get()).typeParam());
             }
         }
-        
+
         return Optional.empty();
     }
 
@@ -822,7 +824,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return builder.UNION_TYPE
                 .withMemberTypes(unionTypeMembers.toArray(TypeSymbol[]::new)).build();
     }
-    
+
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return this.visit(node.parent());

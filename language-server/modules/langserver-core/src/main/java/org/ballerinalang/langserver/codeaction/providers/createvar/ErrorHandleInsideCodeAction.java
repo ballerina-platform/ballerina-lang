@@ -52,6 +52,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
      */
     @Override
     public int priority() {
+
         return 997;
     }
 
@@ -69,7 +70,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
                                            CodeActionContext context) {
 
         Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
-        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION
+                || isUnionCompErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
             return Collections.emptyList();
         }
 
@@ -97,6 +99,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
     @Override
     public String getName() {
+
         return NAME;
     }
 }
