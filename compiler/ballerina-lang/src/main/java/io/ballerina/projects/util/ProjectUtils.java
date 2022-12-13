@@ -118,6 +118,7 @@ public class ProjectUtils {
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
+    private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
@@ -306,6 +307,10 @@ public class ProjectUtils {
      * @return package name
      */
     public static String guessPkgName(String packageName, String template) {
+        if (!validateOnlyNonAlphanumeric(packageName)) {
+            packageName = "my_package";
+        }
+
         if (!validatePackageName(packageName)) {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
@@ -718,6 +723,12 @@ public class ProjectUtils {
         Matcher mm = onlyDotsPattern.matcher(identifiers);
 
         return m.matches() && !mm.matches();
+    }
+
+    private static boolean validateOnlyNonAlphanumeric(String identifiers) {
+        Matcher m = onlyNonAlphanumericPattern.matcher(identifiers);
+
+        return !m.matches();
     }
 
     /**
