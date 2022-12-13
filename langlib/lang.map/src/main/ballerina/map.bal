@@ -72,7 +72,7 @@ public isolated function iterator(map<Type> m) returns object {
 # ```ballerina
 # map<Employee> employees = {
 #    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
-#    "Emma": {firstName: "Jo", lastName: "David", id: 2121},
+#    "Emma": {firstName: "Emma", lastName: "White", id: 2122},
 #    "John": {firstName: "John", lastName: "Doe", id: 2123}
 # };
 #
@@ -121,7 +121,7 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 #
 # map<Employee> employees = {
 #    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
-#    "Emma": {firstName: "Jo", lastName: "David", id: 2121},
+#    "Emma": {firstName: "Emma", lastName: "White", id: 2122},
 #    "John": {firstName: "John", lastName: "Doe", id: 2123}
 # };
 #
