@@ -18,7 +18,6 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
-import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
 import io.ballerina.architecturemodelgenerator.model.service.Interaction;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
 import io.ballerina.compiler.api.ModuleID;
@@ -59,6 +58,7 @@ import java.util.Optional;
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.TYPE_MAP;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getClientModuleName;
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getElementLocation;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getServiceAnnotation;
 
 /**
@@ -99,7 +99,7 @@ public class ActionNodeVisitor extends NodeVisitor {
 
         Interaction interaction = new Interaction(
                 new ResourceId(serviceId, resourceMethod, resourcePath),
-                getClientModuleName(clientNode, semanticModel), GeneratorUtils.getElementLocation(filePath,
+                getClientModuleName(clientNode, semanticModel), getElementLocation(filePath,
                 clientResourceAccessActionNode.lineRange()));
         interactionList.add(interaction);
     }
@@ -131,7 +131,7 @@ public class ActionNodeVisitor extends NodeVisitor {
 
             Interaction interaction = new Interaction(new ResourceId(serviceId,
                     resourceMethod, null), getClientModuleName(clientNode, semanticModel),
-                    GeneratorUtils.getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
+                    getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
             interactionList.add(interaction);
         }
     }
