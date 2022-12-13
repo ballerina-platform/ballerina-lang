@@ -127,32 +127,36 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     String mockFnObjectName = simpleVariableNode.getName().getValue();
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
-                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                        // Get list of attributes in the Mock annotation
-                        List<RecordLiteralNode.RecordField> fields =
-                                ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
-                        setAnnotationValues(fields, annotationValues, attachmentNode, parent);
-                        PackageID functionToMockID = getPackageID(annotationValues[0]);
-                        boolean validFunctionName = isValidFunctionName(
-                                annotationValues[1], annotationValues[0], functionToMockID, attachmentNode);
-                        if (!validFunctionName) {
-                            return;
-                        }
-                        BLangTestablePackage bLangTestablePackage =
-                                (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
-                        // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
-                        bLangTestablePackage.addMockFunction(
-                                functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
-                                mockFnObjectName);
+                    if (null == attachmentNode.getExpression()
+                            || attachmentNode.getExpression().getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                                "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
+                        continue;
+                    }
+                    // Get list of attributes in the Mock annotation
+                    List<RecordLiteralNode.RecordField> fields =
+                            ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
+                    setAnnotationValues(fields, annotationValues, attachmentNode, parent);
+                    PackageID functionToMockID = getPackageID(annotationValues[0]);
+                    boolean validFunctionName = isValidFunctionName(
+                            annotationValues[1], annotationValues[0], functionToMockID, attachmentNode);
+                    if (!validFunctionName) {
+                        return;
+                    }
+                    BLangTestablePackage bLangTestablePackage =
+                            (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
+                    // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
+                    bLangTestablePackage.addMockFunction(
+                            functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
+                            mockFnObjectName);
 
-                        if (functionToMockID != null) {
-                            // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
-                            String className = getQualifiedClassName(bLangTestablePackage,
-                                    functionToMockID.toString(), annotationValues[1]);
-                            registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
-                                    + MODULE_DELIMITER + className + MOCK_FN_DELIMITER + annotationValues[1],
-                                    mockFnObjectName);
-                        }
+                    if (functionToMockID != null) {
+                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                        String className = getQualifiedClassName(bLangTestablePackage,
+                                functionToMockID.toString(), annotationValues[1]);
+                        registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                + MODULE_DELIMITER + className + MOCK_FN_DELIMITER + annotationValues[1],
+                                mockFnObjectName);
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
@@ -253,6 +257,9 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     vals[1] = vals[1].replaceAll("\\\\", "");
                     registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
                                     + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
+                } else {
+                    diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                            "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
                 }
             }
         }

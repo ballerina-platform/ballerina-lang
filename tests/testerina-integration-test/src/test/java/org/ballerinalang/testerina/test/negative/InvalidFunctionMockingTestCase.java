@@ -60,6 +60,44 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     }
 
     @Test
+    public void testMockingWithoutAnnotationRecord() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,3:11)] annotation should be a record with " +
+                        "'functionName' and 'moduleName'(optional) fields\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingWithoutAnnotationRecord2() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock2").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,3:11)] annotation should be a record with " +
+                        "'functionName' and 'moduleName'(optional) fields\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingWithEmptyAnnotationRecord() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,3:14)] function name cannot be empty\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
+    public void testMockingWithEmptyAnnotationRecord2() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock2").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [tests/test.bal:(3:1,3:14)] function name cannot be empty\n" +
+                        "error: compilation contains errors");
+    }
+
+    @Test
     public void testMockingFunctionInNonExistingModule() throws BallerinaTestException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
