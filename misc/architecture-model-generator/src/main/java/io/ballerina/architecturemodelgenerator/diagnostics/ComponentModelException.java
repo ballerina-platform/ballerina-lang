@@ -16,13 +16,20 @@
  *  under the License.
  */
 
-module io.ballerina.LSExtensions.ProjectDesignService {
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.lang;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires org.eclipse.lsp4j;
-    requires com.google.gson;
-    requires io.ballerina.tools.api;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.architecturemodelgenerator;
+package io.ballerina.architecturemodelgenerator.diagnostics;
+
+/**
+ * Exception for component model generation.
+ *
+ * @since 2201.2.2
+ */
+public class ComponentModelException extends Exception {
+
+    public ComponentModelException(String message, Throwable e) {
+        super(message, e);
+    }
+
+    public ComponentModelException(String message) {
+        super(message);
+    }
 }

@@ -16,13 +16,25 @@
  *  under the License.
  */
 
-module io.ballerina.LSExtensions.ProjectDesignService {
-    requires io.ballerina.language.server.commons;
-    requires io.ballerina.lang;
-    requires org.eclipse.lsp4j.jsonrpc;
-    requires org.eclipse.lsp4j;
-    requires com.google.gson;
-    requires io.ballerina.tools.api;
-    requires io.ballerina.language.server.core;
-    requires io.ballerina.architecturemodelgenerator;
+package io.ballerina.architecturemodelgenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Request for Solution Architecture model generation.
+ *
+ * @since 2201.2.2
+ */
+public class ProjectComponentRequest {
+
+    private List<String> documentUris = new ArrayList<>();
+
+    public List<String> getDocumentUris() {
+        return documentUris;
+    }
+
+    public void setDocumentUris(List<String> documentUris) {
+        this.documentUris = documentUris;
+    }
 }
