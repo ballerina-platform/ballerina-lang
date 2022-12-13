@@ -45,6 +45,11 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
     }
 
     @Override
+    public List<String> skipList() {
+        return Collections.singletonList("field_access_on_method_call_expression_config2.json");
+    }
+
+    @Override
     public String getTestResourceDir() {
         return "field_access_expression_context";
     }
