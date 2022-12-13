@@ -11,43 +11,46 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
     %28(SYNTHETIC) int;
     %29(SYNTHETIC) int;
     %30(SYNTHETIC) int|error;
-    %39(SYNTHETIC) ();
-    %40(SYNTHETIC) error|();
-    %41(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %39(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %41(SYNTHETIC) int;
     %43(SYNTHETIC) int;
-    %45(SYNTHETIC) int;
-    %49(TEMP) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
-    %50(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %51(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %47(TEMP) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %48(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %49(SYNTHETIC) ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0;
+    %51(SYNTHETIC) typeDesc<error|()>;
     %53(SYNTHETIC) typeDesc<error|()>;
-    %55(SYNTHETIC) typeDesc<error|()>;
-    %61(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %62(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> ballerina/lang.query:0.0.0:_Frame|error|();
-    %66(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %68(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %72(TEMP) ();
-    %73(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %74(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> any|error;
-    %78(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %80(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
-    %84(TEMP) ();
-    %85(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
-    %86(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
-    %90(SYNTHETIC) error|();
+    %55(SYNTHETIC) boolean;
+    %62(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %63(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> ballerina/lang.query:0.0.0:_Frame|error|();
+    %67(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %69(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %73(TEMP) ();
+    %74(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %75(SYNTHETIC) function(ballerina/lang.query:0.0.0:_Frame) -> any|error;
+    %79(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %81(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamFunction;
+    %85(TEMP) ();
+    %86(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
+    %87(SYNTHETIC) ballerina/lang.query:0.0.0:_StreamPipeline;
+    %91(SYNTHETIC) any|error{map<ballerina/lang.value:0.0.0:Cloneable>};
     %92(SYNTHETIC) stream<typeRefDesc<>, typeRefDesc<>>;
-    %95(TEMP) any|error{map<ballerina/lang.value:0.0.0:Cloneable>};
-    %98(TEMP) boolean;
-    %109(SYNTHETIC) ();
-    %110(SYNTHETIC) typeRefDesc<>|();
-    %119(SYNTHETIC) ();
-    %120(SYNTHETIC) error{map<ballerina/lang.value:0.0.0:Cloneable>}|();
-    %128(LOCAL) string;
-    %130(SYNTHETIC) ();
-    %131(SYNTHETIC) error|();
-    %140(SYNTHETIC) ();
-    %141(SYNTHETIC) Error|();
-    %151(SYNTHETIC) ();
-    %152(SYNTHETIC) Error|();
+    %99(SYNTHETIC) error{map<ballerina/lang.value:0.0.0:Cloneable>};
+    %103(TEMP) error{map<ballerina/lang.value:0.0.0:Cloneable>};
+    %104(SYNTHETIC) boolean;
+    %117(TEMP) error{map<ballerina/lang.value:0.0.0:Cloneable>};
+    %118(SYNTHETIC) error;
+    %131(TEMP) error|();
+    %133(SYNTHETIC) ();
+    %134(SYNTHETIC) typeRefDesc<>|();
+    %143(SYNTHETIC) ();
+    %144(SYNTHETIC) error|();
+    %152(LOCAL) string;
+    %154(SYNTHETIC) ();
+    %155(SYNTHETIC) error|();
+    %164(SYNTHETIC) ();
+    %165(SYNTHETIC) Error|();
+    %175(SYNTHETIC) ();
+    %176(SYNTHETIC) Error|();
 
     bb0 {
         %2 = foo() -> bb1;
@@ -80,11 +83,11 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
     bb7 {
         %8 = <error> %16;
         %0 = %8;
-        GOTO bb47;
+        GOTO bb56;
     }
     bb8 {
         %0 = %11;
-        GOTO bb47;
+        GOTO bb56;
     }
     bb9 {
         %30 = bar() -> bb10;
@@ -103,147 +106,184 @@ safeErrorAssignmentWithQueryAction function() -> error|() {
     }
     bb13 {
         %28 = %29;
-        %43 = ConstLoad 1;
-        %45 = ConstLoad 2;
-        %49 = createIntRange(%43, %45) -> bb14;
+        %41 = ConstLoad 1;
+        %43 = ConstLoad 2;
+        %47 = createIntRange(%41, %43) -> bb14;
     }
     bb14 {
-        %41 = <ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0> %49;
-        %51 = %41;
+        %39 = <ballerina/lang.__internal:0.0.0:$anonType$return$createIntRange$_0> %47;
+        %49 = %39;
+        %51 = newType error|();
         %53 = newType error|();
-        %55 = newType error|();
-        %50 = createPipeline(%51, %53, %55) -> bb15;
+        %55 = ConstLoad false;
+        %48 = createPipeline(%49, %51, %53, %55) -> bb15;
     }
     bb15 {
-        %62 = fp $anon/.:0.0.0::$streamLambda$_0;
-        %61 = createInputFunction(%62) -> bb16;
+        %63 = fp $anon/.:0.0.0::$streamLambda$_0;
+        %62 = createInputFunction(%63) -> bb16;
     }
     bb16 {
-        %66 = %50;
-        %68 = %61;
-        %72 = addStreamFunction(%66, %68) -> bb17;
+        %67 = %48;
+        %69 = %62;
+        %73 = addStreamFunction(%67, %69) -> bb17;
     }
     bb17 {
-        %74 = fp $anon/.:0.0.0::$streamLambda$_1;
-        %73 = createDoFunction(%74) -> bb18;
+        %75 = fp $anon/.:0.0.0::$streamLambda$_1;
+        %74 = createDoFunction(%75) -> bb18;
     }
     bb18 {
-        %78 = %50;
-        %80 = %73;
-        %84 = addStreamFunction(%78, %80) -> bb19;
+        %79 = %48;
+        %81 = %74;
+        %85 = addStreamFunction(%79, %81) -> bb19;
     }
     bb19 {
-        %86 = %50;
-        %85 = getStreamFromPipeline(%86) -> bb20;
+        %87 = %48;
+        %86 = getStreamFromPipeline(%87) -> bb20;
     }
     bb20 {
-        %92 = %85;
-        %95 = consumeStream(%92) -> bb21;
+        %92 = %86;
+        %91 = consumeStream(%92) -> bb21;
     }
     bb21 {
-        %90 = <error|()> %95;
-        %4 = %90 is ();
-        %98 = not %4;
-        %98? bb22 : bb23;
+        %4 = %91 is error{map<ballerina/lang.value:0.0.0:Cloneable>};
+        %4? bb22 : bb24;
     }
     bb22 {
-        %0 = %90;
-        GOTO bb47;
+        %99 = <error> %91;
+        %103 = getQueryErrorRootCause(%99) -> bb23;
     }
     bb23 {
-        %40 = <error|()> %90;
-        %4 = %40 is ();
-        %4? bb24 : bb25;
+        %0 = <error> %103;
+        GOTO bb56;
     }
     bb24 {
-        %39 = <()> %40;
-        GOTO bb26;
+        %4 = %91 is ();
+        %4? bb25 : bb26;
     }
     bb25 {
-        %8 = <error> %40;
-        GOTO bb4;
+        %104 = ConstLoad true;
+        GOTO bb27;
     }
     bb26 {
-        %110 = baz() -> bb27;
+        %104 = %91 is error{map<ballerina/lang.value:0.0.0:Cloneable>};
+        GOTO bb27;
     }
     bb27 {
-        %98 = %110 is ();
-        %98? bb28 : bb29;
+        %4 = not %104;
+        %4? bb28 : bb29;
     }
     bb28 {
-        %109 = <()> %110;
-        GOTO bb30;
+        %0 = <error|()> %91;
+        GOTO bb56;
     }
     bb29 {
-        %8 = <error> %110;
-        GOTO bb4;
+        %4 = %91 is ballerina/lang.query:0.0.0:CompleteEarlyError|ballerina/lang.query:0.0.0:Error;
+        %4? bb30 : bb32;
     }
     bb30 {
-        %120 = foo() -> bb31;
+        %118 = <error> %91;
+        %103 = getQueryErrorRootCause(%118) -> bb31;
     }
     bb31 {
-        %4 = %120 is ();
-        %4? bb32 : bb33;
+        %117 = <error> %103;
+        %91 = <any|error{map<ballerina/lang.value:0.0.0:Cloneable>}> %117;
+        GOTO bb32;
     }
     bb32 {
-        %119 = <()> %120;
-        GOTO bb42;
+        %4 = %91 is ballerina/lang.query:0.0.0:CompleteEarlyError|ballerina/lang.query:0.0.0:Error;
+        %4? bb33 : bb35;
     }
     bb33 {
-        %8 = <error> %120;
-        GOTO bb34;
+        %118 = <error{map<ballerina/lang.value:0.0.0:Cloneable>}> %91;
+        %103 = getQueryErrorRootCause(%118) -> bb34;
     }
     bb34 {
-        %128 = ConstLoad abc;
-        %131 = foo() -> bb35;
+        %117 = <error> %103;
+        %91 = <any|error{map<ballerina/lang.value:0.0.0:Cloneable>}> %117;
+        GOTO bb35;
     }
     bb35 {
-        %98 = %131 is ();
-        %98? bb36 : bb37;
+        %131 = <error{map<ballerina/lang.value:0.0.0:Cloneable>}|()> %91;
+        %134 = baz() -> bb36;
     }
     bb36 {
-        %130 = <()> %131;
-        GOTO bb38;
+        %4 = %134 is ();
+        %4? bb37 : bb38;
     }
     bb37 {
-        %8 = <error> %131;
-        GOTO bb4;
+        %133 = <()> %134;
+        GOTO bb39;
     }
     bb38 {
-        %141 = baz() -> bb39;
-    }
-    bb39 {
-        %4 = %141 is ();
-        %4? bb40 : bb41;
-    }
-    bb40 {
-        %140 = <()> %141;
-        GOTO bb46;
-    }
-    bb41 {
-        %8 = <error> %141;
+        %8 = <error> %134;
         GOTO bb4;
     }
+    bb39 {
+        %144 = foo() -> bb40;
+    }
+    bb40 {
+        %4 = %144 is ();
+        %4? bb41 : bb42;
+    }
+    bb41 {
+        %143 = <()> %144;
+        GOTO bb51;
+    }
     bb42 {
-        %152 = baz() -> bb43;
+        %8 = <error> %144;
+        GOTO bb43;
     }
     bb43 {
-        %98 = %152 is ();
-        %98? bb44 : bb45;
+        %152 = ConstLoad abc;
+        %155 = foo() -> bb44;
     }
     bb44 {
-        %151 = <()> %152;
-        GOTO bb46;
+        %4 = %155 is ();
+        %4? bb45 : bb46;
     }
     bb45 {
-        %8 = <error> %152;
-        GOTO bb34;
-    }
-    bb46 {
-        %0 = ConstLoad 0;
+        %154 = <()> %155;
         GOTO bb47;
     }
+    bb46 {
+        %8 = <error> %155;
+        GOTO bb4;
+    }
     bb47 {
+        %165 = baz() -> bb48;
+    }
+    bb48 {
+        %4 = %165 is ();
+        %4? bb49 : bb50;
+    }
+    bb49 {
+        %164 = <()> %165;
+        GOTO bb55;
+    }
+    bb50 {
+        %8 = <error> %165;
+        GOTO bb4;
+    }
+    bb51 {
+        %176 = baz() -> bb52;
+    }
+    bb52 {
+        %4 = %176 is ();
+        %4? bb53 : bb54;
+    }
+    bb53 {
+        %175 = <()> %176;
+        GOTO bb55;
+    }
+    bb54 {
+        %8 = <error> %176;
+        GOTO bb43;
+    }
+    bb55 {
+        %0 = ConstLoad 0;
+        GOTO bb56;
+    }
+    bb56 {
         return;
     }
 
