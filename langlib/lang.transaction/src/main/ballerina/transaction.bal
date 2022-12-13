@@ -52,9 +52,11 @@ public type Timestamp readonly & object {
 # Returns information about the current transaction.
 #
 # ```ballerina
-# transaction {
-#     transaction:Info info = transaction:info();
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         transaction:Info info = transaction:info();
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
@@ -88,9 +90,11 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # whether to commit or rollback, it should decide to rollback.
 #
 # ```ballerina
-# transaction {
-#     transaction:setRollbackOnly(notFoundError);
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         transaction:setRollbackOnly(notFoundError);
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
@@ -111,9 +115,11 @@ public transactional isolated function setRollbackOnly(error? e) {
 # Tells whether it is known that the transaction will be rolled back.
 #
 # ```ballerina
-# transaction {
-#     boolean willRollBack = transaction:getRollbackOnly();
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         boolean willRollBack = transaction:getRollbackOnly();
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
@@ -134,9 +140,11 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 # ```ballerina
 # readonly & any|error data = {"author": "John", "fruits": ["Apple", "Orange"]};
 #
-# transaction {
-#     transaction:setData(data);
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         transaction:setData(data);
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
@@ -155,11 +163,12 @@ public transactional isolated function setData(readonly data) = @java:Method {
 # The data is set using `setData`.
 #
 # ```ballerina
-# transaction {
-#     readonly data = transaction:getData();
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         readonly data = transaction:getData();
+#         check commit;
+#     }
 # }
-#
 # transactional function updateDB() returns error? {
 #    readonly data = transaction:getData();
 # }
@@ -186,9 +195,11 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 # Adds a handler to be called if and when the global transaction commits.
 #
 # ```ballerina
-# transaction {
-#     transaction:onCommit(handleCommit);
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         transaction:onCommit(handleCommit);
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
@@ -209,9 +220,11 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 # Adds a handler to be called if and when the global transaction rolls back.
 #
 # ```ballerina
-# transaction {
-#     transaction:onRollback(handleRollBack);
-#     check commit;
+# function createEntity() {
+#     transaction {
+#         transaction:onRollback(handleRollBack);
+#         check commit;
+#     }
 # }
 #
 # transactional function updateDB() returns error? {
