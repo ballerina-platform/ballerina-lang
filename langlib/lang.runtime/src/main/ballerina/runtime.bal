@@ -42,13 +42,13 @@ type CallStackElement record {|
 # function is called.
 #
 # ```ballerina
-# var 'listener = object {
+# runtime:DynamicListener ln = object {
 #   public function 'start() returns error? {}
-#   public function gracefulStop() returns error?{}
+#   public function gracefulStop() returns error? {}
 #   public function immediateStop() returns error? {}
 # };
 # 
-# runtime:registerListener('listener);
+# runtime:registerListener(ln);
 # ```
 # 
 # + listener - the listener object to be registered
@@ -62,13 +62,13 @@ public isolated function registerListener(DynamicListener 'listener) = @java:Met
 # which this function is called.
 # 
 # ```ballerina
-# var 'listener = object {
+# runtime:DynamicListener ln = object {
 #   public function 'start() returns error? {}
-#   public function gracefulStop() returns error?{}
+#   public function gracefulStop() returns error? {}
 #   public function immediateStop() returns error? {}
 # };
 # 
-# runtime:registerListener('listener);
+# runtime:deregisterListener(ln);
 # ```
 # 
 # + listener - the listener object to be unregistered
@@ -133,8 +133,8 @@ public type StopHandler function() returns error?;
 # in reverse order of the corresponding calls to `onGracefulStop`.
 # 
 # ```ballerina
-# runtime:StopHandler handler = function() returns error? {};
-# runtime:onGracefulStop(handler);
+# runtime:StopHandler stopHandler = function() returns error? {};
+# runtime:onGracefulStop(stopHandler);
 # ```
 # 
 # + handler - function to be called
