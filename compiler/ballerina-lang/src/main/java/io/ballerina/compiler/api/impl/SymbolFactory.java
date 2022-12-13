@@ -275,7 +275,7 @@ public class SymbolFactory {
         }
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
-                        .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
+                .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
                 .build();
     }
 
@@ -371,7 +371,7 @@ public class SymbolFactory {
             return true;
         }
 
-        if (type.tsymbol != null && type.tag == TypeTags.ARRAY) {
+        if (type.tag == TypeTags.ARRAY) {
             return isReadonlyIntersectionArrayType(((BArrayType) type).getElementType());
         }
 
@@ -435,7 +435,7 @@ public class SymbolFactory {
         }
 
         return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, annotAttachments,
-                kind, symbol, this.context);
+                                            kind, symbol, this.context);
     }
 
     public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
@@ -455,7 +455,7 @@ public class SymbolFactory {
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
-                        this.context);
+                                                                       this.context);
 
         if (Symbols.isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
@@ -567,9 +567,9 @@ public class SymbolFactory {
     public BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol, String name) {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol,
-                        this.context);
+                                                                  this.context);
         symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.type))
-                .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
+                      .withBroaderTypeDescriptor(typesFactory.getTypeDescriptor(constantSymbol.literalType));
 
         // Check whether the constant-symbol has a missing constant expression
         if (constantSymbol.getConstValue() != null) {
@@ -696,7 +696,7 @@ public class SymbolFactory {
     /**
      * Create an annotation attachment symbol.
      *
-     * @param annotAttachment  annotation attachment
+     * @param annotAttachment annotation attachment
      * @param annotationSymbol annotation symbol
      * @return {@link BallerinaAnnotationAttachmentSymbol} symbol generated
      */
@@ -714,7 +714,7 @@ public class SymbolFactory {
                 annotAttachment).attachmentValueSymbol;
         return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(),
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment,
-                annotationSymbol, createConstantValue(attachmentValue.value), context);
+                annotationSymbol, createConstantValue(attachmentValue.value),  context);
 
     }
 
