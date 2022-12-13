@@ -18,9 +18,16 @@
 
 package io.ballerina.projectdesign.generators;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -29,8 +36,12 @@ import io.ballerina.projectdesign.model.ElementLocation;
 import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.tools.text.LineRange;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static io.ballerina.projectdesign.ProjectDesignConstants.CLIENT;
 import static io.ballerina.projectdesign.ProjectDesignConstants.DISPLAY_ANNOTATION;
 import static io.ballerina.projectdesign.ProjectDesignConstants.ID;
 import static io.ballerina.projectdesign.ProjectDesignConstants.LABEL;
@@ -87,5 +98,50 @@ public class GeneratorUtils {
         }
 
         return new ServiceAnnotation(id, label, elementLocation);
+    }
+
+    public static ServiceAnnotation getServiceAnnotation(Annotatable annotableSymbol, String filePath) {
+
+        String id = null;
+        String label = "";
+        ElementLocation elementLocation = null;
+
+        List<AnnotationSymbol> annotSymbols = annotableSymbol.annotations();
+        List<AnnotationAttachmentSymbol> annotAttachmentSymbols = annotableSymbol.annotAttachments();
+        if (annotSymbols.size() == annotAttachmentSymbols.size()) {
+            for (int i = 0; i < annotSymbols.size(); i++) {
+                AnnotationSymbol annotSymbol = annotSymbols.get(i);
+                AnnotationAttachmentSymbol annotAttachmentSymbol = annotAttachmentSymbols.get(i);
+                String annotName = annotSymbol.getName().orElse("");
+                elementLocation = annotSymbol.getLocation().isPresent() ?
+                        getElementLocation(filePath, annotSymbol.getLocation().get().lineRange()) : null;
+                if (!annotName.equals(DISPLAY_ANNOTATION) || annotAttachmentSymbol.attachmentValue().isEmpty() ||
+                        !(annotAttachmentSymbol.attachmentValue().get().value() instanceof LinkedHashMap) ||
+                        !annotAttachmentSymbol.isConstAnnotation()) {
+                    continue;
+                }
+                LinkedHashMap attachmentValue = (LinkedHashMap) annotAttachmentSymbol.attachmentValue().get().value();
+                if (attachmentValue.containsKey(ID)) {
+                    id = ((ConstantValue) attachmentValue.get(ID)).value().toString();
+                }
+                if (attachmentValue.containsKey(LABEL)) {
+                    label = ((ConstantValue) attachmentValue.get(LABEL)).value().toString();
+                }
+                break;
+            }
+        }
+
+        return new ServiceAnnotation(id, label, elementLocation);
+    }
+
+    public static String getClientModuleName(Node clientNode, SemanticModel semanticModel) {
+
+        String clientModuleName = null;
+        Optional<TypeSymbol> clientTypeSymbol = semanticModel.typeOf(clientNode);
+        if (clientTypeSymbol.isPresent()) {
+            clientModuleName = clientTypeSymbol.get().signature().trim().replace(CLIENT, "");
+        }
+
+        return clientModuleName;
     }
 }
