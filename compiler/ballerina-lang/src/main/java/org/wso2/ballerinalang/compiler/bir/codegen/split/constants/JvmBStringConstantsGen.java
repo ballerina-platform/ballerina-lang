@@ -90,7 +90,7 @@ public class JvmBStringConstantsGen {
     private final Map<String, int[]> highSurrogatesMap = new HashMap<>();
 
     public JvmBStringConstantsGen(PackageID module) {
-        this.bStringVarIndexMap = new HashMap<>();
+        this.bStringVarIndexMap = new LinkedHashMap<>();
         this.stringConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
         this.surrogatesMethodsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_SURROGATES_CLASS_NAME);
     }
@@ -235,27 +235,22 @@ public class JvmBStringConstantsGen {
 
     private void generateBStringInitMethodClasses(Map<String, Map<String, String>> stringVarMap,
                                                   Map<String, byte[]> jarEntries) {
-
-        Map<Integer, ClassWriter> classBytesMap = new HashMap<>();
-        Map<ClassWriter, MethodVisitor> classWriterMethodVisitorMap = new HashMap<>();
-
+        ClassWriter cw = null;
+        MethodVisitor mv = null;
+        String constantClassName = null;
+        int bStringCount = 0;
         for (Map.Entry<String, Integer> entry : bStringVarIndexMap.entrySet()) {
-            ClassWriter cw;
-            MethodVisitor mv;
             String bString = entry.getKey();
             int varIndex = entry.getValue();
             String bStringVarName = B_STRING_VAR_PREFIX + varIndex;
 
             int classIndex = (varIndex / MAX_STRINGS_PER_METHOD);
-            String constantClassName = stringConstantsClass + UNDERSCORE + classIndex;
-            cw = classBytesMap.get(classIndex);
-            if (cw == null) {
+            constantClassName = stringConstantsClass + UNDERSCORE + classIndex;
+
+            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
                 cw = new BallerinaClassWriter(COMPUTE_FRAMES);
                 generateConstantsClassInit(cw, constantClassName);
                 mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_STRING_INIT_METHOD_PREFIX, "()V", null, null);
-
-                classBytesMap.put(classIndex, cw);
-                classWriterMethodVisitorMap.put(cw, mv);
             }
 
             visitBStringField(cw, bStringVarName);
@@ -263,23 +258,26 @@ public class JvmBStringConstantsGen {
             if (highSurrogates.length > 0) {
                 highSurrogatesMap.put(bStringVarName, highSurrogates);
             }
-
-            mv = classWriterMethodVisitorMap.get(cw);
             if (stringVarMap.containsKey(bStringVarName)) {
                 visitStringField(cw, stringVarMap.get(bStringVarName));
                 Map<String, String> stringChunkMap = stringVarMap.get(bStringVarName);
                 createConcatenatedBString(mv, highSurrogates, bStringVarName, stringChunkMap, constantClassName);
+                bStringCount += stringChunkMap.size() + 1;
             } else {
                 createDirectBString(mv, bString, bStringVarName, highSurrogates, constantClassName);
+                bStringCount++;
+            }
+
+            if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
+                genMethodReturn(mv);
+                generateStaticClassInitializer(cw, constantClassName);
+                cw.visitEnd();
+                jarEntries.put(constantClassName + ".class", cw.toByteArray());
             }
         }
 
-        for (Map.Entry<Integer, ClassWriter> entry : classBytesMap.entrySet()) {
-            int index = entry.getKey();
-            ClassWriter cw = entry.getValue();
-            genMethodReturn(classWriterMethodVisitorMap.get(cw));
-
-            String constantClassName = stringConstantsClass + UNDERSCORE + index;
+        if (bStringCount % MAX_STRINGS_PER_METHOD != 0) {
+            genMethodReturn(mv);
             generateStaticClassInitializer(cw, constantClassName);
             cw.visitEnd();
             jarEntries.put(constantClassName + ".class", cw.toByteArray());
