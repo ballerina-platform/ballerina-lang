@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.nodevisitors;
+package io.ballerina.projectdesign.generators.service.nodevisitors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -42,14 +42,16 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projectdesign.ComponentModel;
-import io.ballerina.projectdesign.Utils;
-import io.ballerina.projectdesign.servicemodel.components.Service;
-import io.ballerina.projectdesign.servicemodel.components.ServiceAnnotation;
+import io.ballerina.projectdesign.generators.GeneratorUtils;
+import io.ballerina.projectdesign.model.service.Service;
+import io.ballerina.projectdesign.model.service.ServiceAnnotation;
 import io.ballerina.projects.Package;
 
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.ballerina.projectdesign.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.projectdesign.ProjectDesignConstants.LISTENER;
@@ -65,13 +67,15 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     private final ComponentModel.PackageId packageId;
     private final Package currentPackage;
     private final List<Service> services = new LinkedList<>();
+    private final Path filePath;
 
     public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, Package currentPackage,
-                                         ComponentModel.PackageId packageId) {
+                                         ComponentModel.PackageId packageId, Path filePath) {
 
         this.packageId = packageId;
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
+        this.filePath = filePath;
     }
 
     public List<Service> getServices() {
@@ -82,7 +86,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
 
         StringBuilder serviceNameBuilder = new StringBuilder();
-        ServiceAnnotation serviceAnnotation = new ServiceAnnotation("", "");
+        ServiceAnnotation serviceAnnotation;
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
             serviceNameBuilder.append(serviceNameNode.toString().replace("\"", ""));
@@ -91,7 +95,9 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         Optional<MetadataNode> metadataNode = serviceDeclarationNode.metadata();
         if (metadataNode.isPresent()) {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
-            serviceAnnotation = Utils.getServiceAnnotation(annotationNodes);
+            serviceAnnotation = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath.toString());
+        } else {
+            serviceAnnotation = new ServiceAnnotation(UUID.randomUUID().toString(), "", null);
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
@@ -99,12 +105,12 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
 
         ServiceMemberFunctionNodeVisitor serviceMemberFunctionNodeVisitor =
                 new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
-                        semanticModel, currentPackage, packageId);
+                        semanticModel, currentPackage, packageId, filePath.toString());
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
                 getServiceType(serviceDeclarationNode), serviceMemberFunctionNodeVisitor.getResources(),
-                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation,
-                serviceDeclarationNode.lineRange()));
+                serviceMemberFunctionNodeVisitor.getRemoteFunctions(), serviceAnnotation, GeneratorUtils.
+                getElementLocation(filePath.toString(), serviceDeclarationNode.lineRange())));
     }
 
     private String getServiceType(ServiceDeclarationNode serviceDeclarationNode) {

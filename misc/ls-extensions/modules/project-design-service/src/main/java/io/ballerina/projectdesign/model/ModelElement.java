@@ -16,29 +16,22 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.servicemodel.components;
+package io.ballerina.projectdesign.model;
 
 /**
- * Represents display annotation.
+ * Represents the abstract model for a component model item.
  *
- * @since 2201.2.2
+ * @since 2201.3.1
  */
-public class ServiceAnnotation {
+public abstract class ModelElement {
 
-    private final String id;
-    private final String label;
+    private final ElementLocation elementLocation;
 
-    public ServiceAnnotation(String id, String label) {
-
-        this.id = id;
-        this.label = label;
+    public ModelElement(ElementLocation elementLocation) {
+        this.elementLocation = elementLocation;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getLabel() {
-        return label;
+    public ElementLocation getElementLocation() {
+        return elementLocation;
     }
 }

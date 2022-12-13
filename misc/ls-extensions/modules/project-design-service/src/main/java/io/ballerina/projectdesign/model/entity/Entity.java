@@ -16,9 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.projectdesign.entitymodel.components;
+package io.ballerina.projectdesign.model.entity;
 
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.projectdesign.model.ElementLocation;
+import io.ballerina.projectdesign.model.ModelElement;
 
 import java.util.List;
 
@@ -27,19 +28,20 @@ import java.util.List;
  *
  * @since 2201.2.2
  */
-public class Entity {
+public class Entity extends ModelElement {
 
     private List<Attribute> attributes;
     private final List<String> inclusions;
-    private final LineRange lineRange;
+    private final boolean isAnonymous;
 
     // todo : send the location
 
-    public Entity(List<Attribute> attributes, List<String> inclusions, LineRange lineRange) {
-
+    public Entity(List<Attribute> attributes, List<String> inclusions, ElementLocation elementLocation,
+                  boolean isAnonymous) {
+        super(elementLocation);
         this.attributes = attributes;
         this.inclusions = inclusions;
-        this.lineRange = lineRange;
+        this.isAnonymous = isAnonymous;
     }
 
     public List<Attribute> getAttributes() {
@@ -54,8 +56,7 @@ public class Entity {
         return inclusions;
     }
 
-    public LineRange getLineRange() {
-        return lineRange;
+    public boolean isAnonymous() {
+        return isAnonymous;
     }
 }
-
