@@ -364,11 +364,12 @@ public class SymbolFactory {
     }
 
     private boolean isReadonlyIntersectionArrayType(BType type) {
-        if (type.tag == TypeTags.INTERSECTION && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+        if (type.tsymbol != null && type.tag == TypeTags.INTERSECTION 
+                && type.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
             return true;
         }
 
-        if (type.tag == TypeTags.ARRAY) {
+        if (type.tsymbol != null && type.tag == TypeTags.ARRAY) {
             return isReadonlyIntersectionArrayType(((BArrayType) type).getElementType());
         }
 
@@ -711,7 +712,7 @@ public class SymbolFactory {
                 annotAttachment).attachmentValueSymbol;
         return new BallerinaAnnotationAttachmentSymbol(annotAttachment.getOriginalName().getValue(),
                 (BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachment,
-                annotationSymbol, createConstantValue(attachmentValue.value),  context);
+                annotationSymbol, createConstantValue(attachmentValue.value), context);
 
     }
 
