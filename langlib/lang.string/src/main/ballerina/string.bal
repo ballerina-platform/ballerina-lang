@@ -388,7 +388,6 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# // Provide "0" as the custom padding char.
 # "100Km".padStart(10, "0") ⇒ "00000100Km"
 # ```
 #
@@ -406,7 +405,6 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# // Provide "!" as the custom padding char.
 # "Ballerina for developers".padEnd(30, "!") ⇒ "Ballerina for developers!!!!!!"
 # ```
 #
@@ -455,6 +453,7 @@ public isolated function matches(string str, RegExp 're) returns boolean {
 
 # Tests whether there is a match of a regular expression somewhere within a string.
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
+#
 # ```ballerina
 # "New Zealand".includesMatch(re `lan?`) ⇒ true
 # ```
