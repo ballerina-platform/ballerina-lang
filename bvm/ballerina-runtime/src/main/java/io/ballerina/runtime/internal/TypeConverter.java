@@ -931,16 +931,19 @@ public class TypeConverter {
 
     public static boolean hasFloatOrDecimalLiteralSuffix(String value) {
         int length = value.length();
-        if (length != 0) {
-            switch (value.substring(value.length() - 1)) {
-                case "F":
-                case "f":
-                case "D":
-                case "d":
-                    return true;
-            }
+        if (length == 0) {
+            return false;
         }
-        return false;
+
+        switch (value.charAt(length - 1)) {
+            case 'F':
+            case 'f':
+            case 'D':
+            case 'd':
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static Boolean stringToBoolean(String value) throws NumberFormatException {
