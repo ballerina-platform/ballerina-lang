@@ -24,7 +24,7 @@
     {
       "label": "mapVar2",
       "kind": "Variable",
-      "detail": "map\u003cstring\u003e",
+      "detail": "map<string>",
       "sortText": "AB",
       "insertText": "mapVar2",
       "insertTextFormat": "Snippet"
@@ -32,7 +32,7 @@
     {
       "label": "mapVar1",
       "kind": "Variable",
-      "detail": "map\u003cstring\u003e",
+      "detail": "map<string>",
       "sortText": "AB",
       "insertText": "mapVar1",
       "insertTextFormat": "Snippet"
@@ -605,11 +605,11 @@
     {
       "label": "getMapValue()",
       "kind": "Function",
-      "detail": "map\u003cstring\u003e",
+      "detail": "map<string>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `map\u003cstring\u003e`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `map<string>`   \n  \n"
         }
       },
       "sortText": "AC",
@@ -767,6 +767,15 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "CP",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

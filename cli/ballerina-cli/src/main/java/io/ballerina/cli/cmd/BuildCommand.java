@@ -22,7 +22,6 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.CreateNativeImageTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
@@ -172,6 +171,11 @@ public class BuildCommand implements BLauncherCmd {
             " the services in the current package")
     private Boolean exportOpenAPI;
 
+    @CommandLine.Option(names = "--export-component-model", description = "generate a model to represent " +
+            "interactions between the package components (i.e. service/type definitions) and, export it in JSON format",
+            hidden = true)
+    private Boolean exportComponentModel;
+
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
@@ -270,8 +274,6 @@ public class BuildCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
-                .addTask(new CreateNativeImageTask(outStream, this.output),
-                        !(project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -297,6 +299,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
+                .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage);
 

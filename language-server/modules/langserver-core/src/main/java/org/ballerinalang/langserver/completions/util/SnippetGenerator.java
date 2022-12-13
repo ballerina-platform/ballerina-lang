@@ -460,6 +460,17 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get expression bodied function snippet block.
+     *
+     * @return {@link SnippetBlock} Generated snippet
+     */
+    public static SnippetBlock getExpressionBodiedFunctionDefSnippet() {
+        String snippet = "function ${1:name}(${2})${3} => (${4});";
+        return new SnippetBlock(ItemResolverConstants.EXPRESSION_BODIED_FUNCTION, ItemResolverConstants.FUNCTION,
+                snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Resource Function Definition Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -573,18 +584,6 @@ public class SnippetGenerator {
         String snippet = "xmlns \"${1}\" as ${2:ns};";
 
         return new SnippetBlock(ItemResolverConstants.XMLNS, ItemResolverConstants.XMLNS, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.STATEMENT);
-    }
-
-    /**
-     * Get Namespace Declaration Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getClientDeclarationSnippet() {
-        String snippet = "client \"${1}\" as ${2:clientName};";
-
-        return new SnippetBlock(ItemResolverConstants.CLIENT, ItemResolverConstants.CLIENT, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.STATEMENT);
     }
 
@@ -1652,6 +1651,37 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.DETACH_FUNCTION_TYPE,
                 generateFilterText(Arrays.asList("detach", ItemResolverConstants.PUBLIC_KEYWORD,
                         ItemResolverConstants.FUNCTION)), snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Regular Expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRegularExpressionSnippet() {
+        String snippet = "re `${1}`";
+        return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, 
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Paranthesis Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getParanthesisSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PARANTHESIS, ItemResolverConstants.PARANTHESIS, "(${1})",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Square Bracket Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getSquareBracketSnippet() {
+        return new SnippetBlock(ItemResolverConstants.SQUARE_BRACKET, ItemResolverConstants.SQUARE_BRACKET, "[${1}]",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**

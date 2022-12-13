@@ -173,34 +173,43 @@ function testQueryActionWithParenthesizedClientRemoteMethodCall() {
 }
 
 function testQueryActionWithQueryAction() {
+    assertTrue(checkNestedQueryAction() is ());
+}
+
+function checkNestedQueryAction() returns error? {
     int sum = 0;
-    error? a = from int i in 1...5
-               let error? val = from var j in ["1", "2", "3"]
-                                do {
-                                    sum += check int:fromString(j);
-                                }
-               where val is ()
-               do {
-                   sum += i;
-               };
+    error? a = from int i in 1 ... 5
+        let error? val = from var j in ["1", "2", "3"]
+            do {
+                sum += check int:fromString(j);
+            }
+        where val is ()
+        do {
+            sum += i;
+        };
     assertEquality(true, a is ());
     assertEquality(45, sum);
 }
 
 function testQueryActionWithParenthesizedQueryAction() {
+    assertTrue(checkQueryActionWithParenthesizedQueryAction() is ());
+}
+
+function checkQueryActionWithParenthesizedQueryAction() returns error? {
     int sum = 0;
-    error? a = from int i in 1...5
-               let error? val = (from var j in ["1", "2", "3"]
-                                do {
-                                    sum += check int:fromString(j);
-                                })
-               where val is ()
-               do {
-                   sum += i;
-               };
+    error? a = from int i in 1 ... 5
+        let error? val = (from var j in ["1", "2", "3"]
+            do {
+                sum += check int:fromString(j);
+            })
+        where val is ()
+        do {
+            sum += i;
+        };
     assertEquality(true, a is ());
     assertEquality(45, sum);
 }
+
 
 function testQueryActionWithTypeCastActionOrExpr() returns error? {
     int sum = 0;
@@ -315,7 +324,7 @@ function testQueryActionWithCheckingActionOrExpr() returns error? {
 
     sum = 0;
     error? b = from var i in check obj->foo()
-               let () val = check from var j in 1...5
+               let () val = from var j in 1...5
                             do {
                                 sum = sum + j;
                             }
@@ -354,7 +363,7 @@ function testQueryActionWithParenthesizedCheckingActionOrExpr() returns error? {
 
     sum = 0;
     error? b = from var i in (check obj->foo())
-               let () val = (check from var j in 1...5
+               let () val = (from var j in 1...5
                             do {
                                 sum = sum + j;
                             })
@@ -629,6 +638,133 @@ function testQueryActionWithNestedQueryActionOrExpr() {
     assertEquality(152, sum);
 }
 
+type Book record {|
+    int id;
+    string name;
+|};
+
+const PATH = "someLongPathSegment";
+
+client class MyClient {
+    resource function get .() returns string {
+        return "book1";
+    }
+
+    resource function get books/names() returns string[2] {
+        return ["book1", "book2"];
+    }
+
+    resource function get books/[int id]() returns string {
+        return "book" + id.toString();
+    }
+
+    resource function bookDetails .(int no, string bookName) returns Book {
+            Book b = {id: no, name: bookName};
+            return b;
+    }
+
+    resource function put books/[PATH](int a) returns string {
+        return "book1";
+    }
+
+    resource function someOtherMethod books/[PATH...](string a) returns string[] {
+        return [a, "book4"];
+    }
+}
+
+function testQueryActionWithClientResourceAccessAction() {
+    MyClient myClient = new;
+    string[] arr = [];
+    error? res = from var i in myClient->/books/names
+            let string book = myClient->/.get
+            where i == book
+            do {
+                string s = myClient->/books/[1];
+                arr.push(s);
+            };
+    assertEquality(true, res is ());
+    assertEquality(["book1"], arr);
+
+    error? res2 = from var b in myClient->/books/names
+            let Book book = myClient->/.bookDetails(1, b)
+            where b == book.name
+            do {
+                arr.push(book.name);
+            };
+    assertEquality(true, res2 is ());
+    assertEquality(["book1", "book1", "book2"], arr);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in myClient->/books/names
+            let string book = myClient->/books/someLongPathSegment.put(1)
+            where b == book
+            do {
+                arr.push(book);
+            };
+    assertEquality(true, res3 is ());
+    assertEquality(["book1", "book1", "book2", "book1"], arr);
+}
+
+function testQueryActionWithGroupedClientResourceAccessAction() {
+    MyClient myClient = new;
+    string[] arr = [];
+    error? res = from var i in (myClient->/books/names)
+            let string book = (myClient->/.get)
+            where i == book
+            do {
+                string s = myClient->/books/[1];
+                arr.push(s);
+            };
+    assertEquality(true, res is ());
+    assertEquality(["book1"], arr);
+
+    error? res2 = from var b in (myClient->/books/names)
+            let Book book = (myClient->/.bookDetails(1, b))
+            where b == book.name
+            do {
+                arr.push(book.name);
+            };
+    assertEquality(true, res2 is ());
+    assertEquality(["book1", "book1", "book2"], arr);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res3 = from var b in (myClient->/books/names)
+            let string book = (myClient->/books/someLongPathSegment.put(1))
+            where b == book
+            do {
+                arr.push(book);
+            };
+    assertEquality(true, res3 is ());
+    assertEquality(["book1", "book1", "book2", "book1"], arr);
+}
+
+function testNestedQueryActionWithClientResourceAccessAction() {
+    MyClient myClient = new;
+    anydata[] arr = [];
+
+    error? res = from var i in (from string k in myClient->/books/names
+                         let string book = myClient->/.get
+                         where k == book
+                         select myClient->/books/[1])
+            do {
+                Book bk = myClient->/.bookDetails(1, i);
+                arr.push(bk);
+            };
+    assertEquality(true, res is ());
+    assertEquality([{id: 1, name: "book1"}], arr);
+
+    "someLongPathSegment" path = "someLongPathSegment";
+    var res2 = from var b in myClient->/books/names
+            from string c in myClient->/books/someLongPathSegment.someOtherMethod("book2")
+            where b == c
+            do {
+                Book bk = myClient->/.bookDetails(1, b);
+                arr.push(bk);
+            };
+    assertEquality(true, res2 is ());
+    assertEquality([{id: 1, name: "book1"}, {id: 1, name: "book2"}], arr);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
@@ -638,4 +774,8 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+function assertTrue(anydata actual) {
+    return assertEquality(true, actual);
 }

@@ -25,6 +25,7 @@ import io.ballerina.projects.plugins.CodeGeneratorContext;
 import io.ballerina.projects.plugins.GeneratorTask;
 import io.ballerina.projects.plugins.SourceGeneratorContext;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -314,6 +315,9 @@ class CodeGeneratorManager {
                         DiagnosticSeverity.WARNING);
                 reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, new NullLocation()));
                 return;
+            }
+            if (!filenamePrefix.startsWith(ProjectConstants.TEST_DIR_NAME + "/")) {
+                filenamePrefix = ProjectConstants.TEST_DIR_NAME + "/" + filenamePrefix;
             }
             if (currentPackage.moduleIds().contains(moduleId)) {
                 testSourceFiles.add(new GeneratedTestFile(textDocument, filenamePrefix, moduleId));

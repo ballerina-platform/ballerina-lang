@@ -304,16 +304,16 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package info to evaluate
+     * @param module {@link Package} module info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
+    public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = pkg.packageOrg().value() + "/";
+        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg().value() + "/";
         }
 
-        return orgName + pkg.packageName().value();
+        return orgName + module.packageName().value();
     }
 
     /**
@@ -633,5 +633,22 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
+    /**
+     * Returns the matching node for a given node.
+     *
+     * @param nodeAtCursor node
+     * @return node
+     */
+    public static Optional<Node> getMappingContextEvalNode(Node nodeAtCursor) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
     }
 }
