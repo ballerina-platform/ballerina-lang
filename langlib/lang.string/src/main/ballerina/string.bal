@@ -187,7 +187,7 @@ returns int? = @java:Method {
 # Tests whether a string includes another string.
 #
 # ```ballerina
-# "Hello World! from Ballerina".includes("Bal") ⇒ true
+# "Hello World, from Ballerina".includes("Bal") ⇒ true
 #
 # // Check for the occurrence of a string from a specific index onwards.
 # "Hello World! from Ballerina".includes("Hello", 10) ⇒ false
