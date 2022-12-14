@@ -33,9 +33,8 @@ type DetailType Detail;
 
 # Returns the error's message.
 #
-# ```ballerina
-# error ioError = error("IO error");
-# string message = ioError.message();
+# ```
+# error("IO error").message() ⇒ IO error
 # ```
 #
 # + e - the error value
@@ -47,11 +46,12 @@ public isolated function message(error e) returns string = @java:Method {
 
 # Returns the error's cause.
 #
-# ```ballerina
-# string file = "test.bal";
-# error fileNotFoundError = error("file not found", file = file);
+# ```
+# error fileNotFoundError = error("file not found", file = "test.bal");
+# fileNotFoundError.cause() is () ⇒ true
+#
 # error ioError = error("IO error", fileNotFoundError);
-# error? cause = ioError.cause();
+# ioError.cause() ⇒ error("file not found",file="test.bal")
 # ```
 #
 # + e - the error value
@@ -63,24 +63,8 @@ public isolated function cause(error e) returns error? = @java:Method {
 
 # Returns the error's detail record.
 #
-# ```ballerina
-# string file = "test.bal";
-#
-# error err = error("file not found", file = file);
-# // Using `error:detail()` with the `error` type returns an immutable `error:Detail` value.
-# error:Detail & readonly errDetail = err.detail();
-#
-# FileNotFoundError fileNotFoundErr = error("file not found", file = file, code = 100);
-# // Using `error:detail()` with a user-defined error type returns a value that belongs to the intersection
-# // of `readonly` and the detail type used in the error type-descriptor (i.e., `FileNotFoundDetail`).
-# FileNotFoundDetail & readonly fileNotFoundErrDetail = fileNotFoundErr.detail();
-#
-# type FileNotFoundError error<FileNotFoundDetail>;
-#
-# type FileNotFoundDetail record {|
-#     string file;
-#     int code;
-# |};
+# ```
+# error("file not found", file = "test.bal").detail() ⇒ {"file":"test.bal"}
 # ```
 #
 # The returned value will be immutable.
@@ -103,9 +87,8 @@ public type StackFrame readonly & object {
 
 # Returns an object representing the stack trace of the error.
 #
-# ```ballerina
-# error ioError = error("IO error");
-# error:StackFrame[] stackTrace = ioError.stackTrace();
+# ```
+# error("IO error").stackTrace() ⇒ [callableName: main  fileName: test.bal lineNumber: 5]
 # ```
 #
 # + e - the error value
@@ -128,10 +111,8 @@ public isolated function stackTrace(error e) returns StackFrame[] {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
 #
-# ```ballerina
-# string file = "test.bal";
-# error fileNotFoundError = error("file not found", file = file);
-# string stringRepr = fileNotFoundError.toString();
+# ```
+# error("invalid salary", value = 0d).toString() ⇒ error("invalid salary",value=0)
 # ```
 #
 # + e - the error to be converted to a string
@@ -147,10 +128,8 @@ public isolated function toString(error e) returns string = @java:Method {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
 #
-# ```ballerina
-# string file = "test.bal";
-# error fileNotFoundError = error("file not found", file = file);
-# string balStringRepr = fileNotFoundError.toBalString();
+# ```
+# error("invalid salary", value = 0d).toBalString() ⇒ error("invalid salary",value=0d)
 # ```
 #
 # + e - the error to be converted to a string
