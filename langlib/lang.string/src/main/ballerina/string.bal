@@ -25,7 +25,7 @@ public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
 #
-# ```
+# ```ballerina
 # string greeting = "Hello, World!";
 # greeting.length() ⇒ 13;
 # ```
