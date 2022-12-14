@@ -91,7 +91,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 #
 # ```ballerina
 # "Hello, my name is John".substring(7) ⇒ "my name is John"
-# "Hello, my name is John".substring(18, 22) ⇒ "John"
+# "Hello, my name is John Anderson".substring(18, 22) ⇒ "John"
 # ```
 #
 # + str - source string.
@@ -310,6 +310,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 #
 # ```ballerina
 # string:fromBytes([72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33]) ⇒ Hello, World!
+# string:fromBytes([12, 45, 45]) ⇒ error
 # ```
 #
 # + bytes - UTF-8 byte array
