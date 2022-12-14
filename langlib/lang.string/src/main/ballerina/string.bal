@@ -206,7 +206,7 @@ public isolated function includes(string str, string substr, int startIndex = 0)
 # Tests whether a string starts with another string.
 #
 # ```ballerina
-# "Welcome to Ballerina programming language".startsWith("Welcome") ⇒ true
+# "Welcome to the Ballerina programming language".startsWith("Welcome") ⇒ true
 # ```
 #
 # + str - the string to be tested
