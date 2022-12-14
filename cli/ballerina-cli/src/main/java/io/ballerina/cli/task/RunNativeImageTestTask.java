@@ -80,7 +80,6 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
-import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
@@ -97,9 +96,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODIFIED;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 
 /**
  * Task for executing tests.
@@ -381,7 +377,11 @@ public class RunNativeImageTestTask implements Task {
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
-        if (report || coverage) {
+        if (coverage) {
+            this.out.println("WARNING: Code coverage generation is not supported currently by Ballerina native test");
+        }
+
+        if (report) {
             testReport = new TestReport();
         }
 
@@ -439,7 +439,7 @@ public class RunNativeImageTestTask implements Task {
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
             }
-            suite.setReportRequired(report || coverage);
+            suite.setReportRequired(report);
             if (!isMockFunctionExist) {
                 isMockFunctionExist = !suite.getMockFunctionNamesMap().isEmpty();
             }
@@ -499,7 +499,7 @@ public class RunNativeImageTestTask implements Task {
                 try {
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
 
-                    if (report || coverage) {
+                    if (report) {
                         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
                             String moduleName = testSuiteEntry.getKey();
                             ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
@@ -524,10 +524,8 @@ public class RunNativeImageTestTask implements Task {
                 }
             }
         }
-        if ((report || coverage) && hasTests) {
+        if (report && hasTests) {
             try {
-                generateCoverage(project, testReport, jBallerinaBackend,
-                        this.includesInCoverage, this.coverageReportFormat, this.coverageModules);
                 generateTesterinaReports(project, testReport, this.out, target);
             } catch (IOException e) {
                 TestUtils.cleanTempCache(project, cachesRoot);
@@ -563,51 +561,6 @@ public class RunNativeImageTestTask implements Task {
         if (!commandExecutable.exists()) {
             throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
                     "Install it using: gu install native-image");
-        }
-
-        if (coverage) {
-            // Generate the exec in a separate process
-            List<String> execArgs = new ArrayList<>();
-            execArgs.add(System.getProperty("java.command"));
-
-            String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-
-            jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                    .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-
-            String agentCommand = "-javaagent:" +
-                    jacocoAgentJarPath + "=destfile="
-                    + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
-                    .resolve(TesterinaConstants.EXEC_FILE_NAME);
-
-            if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
-                // add user defined classes for generating the jacoco exec file
-                agentCommand += ",includes=" + currentPackage.packageOrg().toString() + ".*";
-            } else {
-                agentCommand += ",includes=" + this.includesInCoverage;
-            }
-
-            execArgs.add(agentCommand);
-            execArgs.addAll(Lists.of("-cp", classPath));
-            execArgs.add(mainClassName);
-
-            // Adds arguments to be read at the Test Runner
-            execArgs.add(target.path().toString());
-            execArgs.add(jacocoAgentJarPath);
-            execArgs.add(Boolean.toString(report));
-            execArgs.add(Boolean.toString(coverage));
-            execArgs.add(this.groupList != null ? this.groupList : "");
-            execArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
-            execArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
-            execArgs.add(Boolean.toString(isRerunTestExecution));
-            execArgs.add(Boolean.toString(listGroups));
-
-            ProcessBuilder processBuilder = new ProcessBuilder(execArgs).inheritIO();
-            Process proc = processBuilder.start();
-
-            if (proc.waitFor() != 0) {
-                out.println("Jacoco exec generation failed");
-            }
         }
 
         List<String> cmdArgs = new ArrayList<>();
