@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -85,9 +84,11 @@ public class JvmBStringConstantsGen {
 
     private final String surrogatesMethodsClass;
 
-    private final AtomicInteger constantIndex = new AtomicInteger();
-
     private final Map<String, int[]> highSurrogatesMap = new HashMap<>();
+
+    private final Map<String, Map<String, String>> largeStringVarMap = new HashMap<>();
+
+    private int bStringConstantIndex = 0;
 
     public JvmBStringConstantsGen(PackageID module) {
         this.bStringVarIndexMap = new LinkedHashMap<>();
@@ -96,17 +97,22 @@ public class JvmBStringConstantsGen {
     }
 
     public int addBStringConstantVarIndex(String val) {
-        return bStringVarIndexMap.computeIfAbsent(val, s -> constantIndex.getAndIncrement());
+        Integer index = bStringVarIndexMap.get(val);
+        if (index == null) {
+            index = bStringConstantIndex;
+            bStringVarIndexMap.put(val, index);
+            bStringConstantIndex++;
+            splitLargeStrings(val, index);
+        }
+        return index;
     }
 
     public void generateConstantInit(Map<String, byte[]> jarEntries) {
         if (bStringVarIndexMap.isEmpty()) {
             return;
         }
-        Map<String, Map<String, String>> stringVarMap = splitLargeStrings();
 
-        generateBStringInitMethodClasses(stringVarMap, jarEntries);
-
+        generateBStringInitMethodClasses(largeStringVarMap, jarEntries);
         if (!highSurrogatesMap.isEmpty()) {
             generateSurrogatesClass(jarEntries);
         }
@@ -185,18 +191,12 @@ public class JvmBStringConstantsGen {
         return bStringVar + LARGE_STRING_VAR_PREFIX + index;
     }
 
-    private Map<String, Map<String, String>> splitLargeStrings() {
-        Map<String, Map<String, String>> stringChunkMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : bStringVarIndexMap.entrySet()) {
-            String str = entry.getKey();
-            String varName = B_STRING_VAR_PREFIX + entry.getValue();
-
-            Map<String, String> splitStrings = splitStringByByteLength(str, varName);
-            if (!splitStrings.isEmpty()) {
-                stringChunkMap.put(varName, splitStrings);
-            }
+    private void splitLargeStrings(String str, int index) {
+        String varName = B_STRING_VAR_PREFIX + index;
+        Map<String, String> splitStrings = splitStringByByteLength(str, varName);
+        if (!splitStrings.isEmpty()) {
+            largeStringVarMap.put(varName, splitStrings);
         }
-        return stringChunkMap;
     }
 
     private Map<String, String> splitStringByByteLength(String str, String varName) {
@@ -218,11 +218,13 @@ public class JvmBStringConstantsGen {
                 splitStrings.put(getStringVarName(varName, chunkCount++), str.substring(beginIndex, i + 1));
                 beginIndex = i + 1;
                 byteLength = 0;
+                bStringConstantIndex++;
             }
         }
         // Add the last part of the already split string
         if (!splitStrings.isEmpty()) {
             splitStrings.put(getStringVarName(varName, chunkCount), str.substring(beginIndex));
+            bStringConstantIndex++;
         }
         return splitStrings;
     }
