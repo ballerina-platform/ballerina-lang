@@ -980,23 +980,4 @@ function foo4() {
     string s4978 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4978";
     string s4979 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4979";
     string s4980 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4980";
-    string s4981 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4981";
-    string s4982 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4982";
-    string s4983 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4983";
-    string s4984 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4984";
-    string s4985 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4985";
-    string s4986 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4986";
-    string s4987 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4987";
-    string s4988 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4988";
-    string s4989 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4989";
-    string s4990 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4990";
-    string s4991 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4991";
-    string s4992 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4992";
-    string s4993 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4993";
-    string s4994 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4994";
-    string s4995 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4995";
-    string s4996 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4996";
-    string s4997 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4997";
-    string s4998 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4998";
-    string s4999 = "String value aabbccddeeffgghhiijjkkllmmnnooppqqrrsssttuuvvvwwxxyyzz 4999";
 }
