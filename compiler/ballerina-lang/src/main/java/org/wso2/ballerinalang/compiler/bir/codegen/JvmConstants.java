@@ -319,6 +319,7 @@ public class JvmConstants {
     public static final String B_TUPLE_TYPE_POPULATE_METHOD = "$populate_tuple_types";
     public static final String B_ARRAY_TYPE_POPULATE_METHOD = "$populate_array_types";
     public static final String B_TYPEREF_TYPE_POPULATE_METHOD = "$populate_typeref_types";
+    public static final String B_ERROR_TYPE_POPULATE_METHOD = "$populate_error_typeS";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";

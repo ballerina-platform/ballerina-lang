@@ -162,6 +162,10 @@ public class JvmConstantsGen {
         return unionTypeConstantsGen.getUnionTypeConstantClass();
     }
 
+    public String getErrorTypeConstantClass() {
+        return errorTypeConstantsGen.getErrorTypeConstantClass();
+    }
+
     public String getConstantClass() {
         return jvmBallerinaConstantsGen.getConstantClass();
     }
