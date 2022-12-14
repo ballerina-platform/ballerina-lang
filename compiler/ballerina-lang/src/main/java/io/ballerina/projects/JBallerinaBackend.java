@@ -224,7 +224,6 @@ public class JBallerinaBackend extends CompilerBackend {
         if (!pluginDiagnostics.isEmpty()) {
             ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
             diagnostics.addAll(pluginDiagnostics);
-
             diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         }
 

@@ -27,6 +27,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -35,6 +37,8 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -91,7 +95,7 @@ public class CreateExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
-
+        List<Diagnostic> jarResolverDiagnostics = null;
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
@@ -99,13 +103,13 @@ public class CreateExecutableTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-
             if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
                 jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
             } else {
                 jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
             }
 
+            jarResolverDiagnostics = new ArrayList<>(jBallerinaBackend.jarResolver().diagnosticResult().diagnostics());
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -133,6 +137,14 @@ public class CreateExecutableTask implements Task {
                     this.out.println("\t" + executablePath);
                 } else {
                     this.out.println("\t" + relativePathToExecutable);
+                }
+            }
+        }
+
+        if (jarResolverDiagnostics != null) {
+            for (Diagnostic d : jarResolverDiagnostics) {
+                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.WARNING)) {
+                    out.println(d.toString());
                 }
             }
         }

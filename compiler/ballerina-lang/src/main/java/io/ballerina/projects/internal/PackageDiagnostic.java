@@ -56,6 +56,10 @@ public class PackageDiagnostic extends Diagnostic {
         this.location = location;
     }
 
+    public PackageDiagnostic(DiagnosticInfo diagnosticInfo, String filePath) {
+        this(diagnosticInfo, new NullLocation(filePath));
+    }
+
     public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;
         ModuleName moduleName = moduleDescriptor.name();
@@ -113,6 +117,12 @@ public class PackageDiagnostic extends Diagnostic {
     @Override
     public String toString() {
         String filePath = this.diagnostic.location().lineRange().filePath();
+        // Handle null location based diagnostics
+        if (this.diagnostic.location().lineRange().startLine().line() == 0 &&
+                this.diagnostic.location().lineRange().startLine().offset() == 0) {
+            return diagnosticInfo().severity().toString() + " ["
+                    + filePath + "] " + this.diagnosticInfo().messageFormat();
+        }
         // add package info if it is a dependency
         if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             filePath = moduleDescriptor.org() + "/" +
@@ -166,6 +176,25 @@ public class PackageDiagnostic extends Diagnostic {
         @Override
         public String toString() {
             return lineRange.toString() + textRange.toString();
+        }
+    }
+
+    private static class NullLocation implements Location {
+        private final String filepath;
+
+        NullLocation(String filePath) {
+            this.filepath = filePath;
+        }
+
+        @Override
+        public LineRange lineRange() {
+            LinePosition from = LinePosition.from(0, 0);
+            return LineRange.from(filepath, from, from);
+        }
+
+        @Override
+        public TextRange textRange() {
+            return TextRange.from(0, 0);
         }
     }
 }

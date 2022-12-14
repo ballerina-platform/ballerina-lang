@@ -2261,6 +2261,86 @@ public class TestBuildProject extends BaseTest {
                 PlatformLibraryScope.DEFAULT)));
     }
 
+    @Test (description = "tests jar resolution with non ballerina packages for Build Project")
+    public void testConflictingJarsInNonBalPackages() {
+        Path dep1Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg1").toAbsolutePath();
+        Path dep2Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg2").toAbsolutePath();
+        Path customUserHome = Paths.get("build", "userHome");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg1:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg2:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+
+        Path projectPath = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg3");
+        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+        }
+        Collection<JarLibrary> jarLibraries =
+                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
+
+        Assert.assertFalse(jBallerinaBackend.jarResolver().diagnosticResult().hasErrors());
+        Assert.assertTrue(jBallerinaBackend.jarResolver().diagnosticResult().hasWarnings());
+        Assert.assertEquals(jBallerinaBackend.jarResolver().diagnosticResult().warningCount(), 2);
+
+        ArrayList<Diagnostic> diagnostics =
+                new ArrayList<>(jBallerinaBackend.jarResolver().diagnosticResult().diagnostics());
+        Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [src/test/resources/conflicting_jars_test/platformLibNonBalPkg3] " +
+                "conflicting platform library jars with groupId: 'org.ballerina' and artifactId: 'native1'. " +
+                "Picking version: '1.0.1' over '1.0.0'.");
+        Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [src/test/resources/conflicting_jars_test/platformLibNonBalPkg3] " +
+                "conflicting platform library jars with groupId: 'org.apache' and artifactId: 'lib3'. " +
+                "Picking version: '2.0.1' over '2.0.0'.");
+
+        Assert.assertEquals(jarLibraries.size(), 9);
+
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg2/0.1.0/java11/platform/java11/native1.txt"),
+                PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1", "platformlib/pkg2")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg1/0.1.0/java11/platform/java11/lib1.txt"),
+                PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0", "platformlib/pkg1")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg1/0.1.0/java11/platform/java11/lib2.txt"),
+                PlatformLibraryScope.DEFAULT))
+                || jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg2/0.1.0/java11/platform/java11/lib2.txt"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg2/0.1.0/java11/platform/java11/lib3.txt"),
+                PlatformLibraryScope.DEFAULT,
+                "lib3", "org.apache", "2.0.1", "platformlib/pkg2")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/platformlib/pkg2/0.1.0/java11/platform/java11/lib4.txt"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                Paths.get("src/test/resources/conflicting_jars_test/platformLibNonBalPkg3/" +
+                        "target/cache/user/platformLibNonBalPkg3/0.1.0/java11/user-platformLibNonBalPkg3-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
+                        "/platformlib/pkg1/0.1.0/java11/platformlib-pkg1-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
+                        "/platformlib/pkg2/0.1.0/java11/platformlib-pkg2-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("ballerina.home") +
+                        "bre/lib/ballerina-rt-" + System.getProperty("project.version") + ".jar"),
+                PlatformLibraryScope.DEFAULT)));
+    }
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
