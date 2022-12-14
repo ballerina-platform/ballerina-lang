@@ -105,9 +105,9 @@ public isolated function 'map(Type[] arr, @isolatedParam function(Type val) retu
 # ```
 # int total = 0;
 # [1, 2, 3].forEach(function (int i) {
-#     total += i * 2;
+#     total += i;
 # });
-# total ⇒ 12
+# total ⇒ 6
 # ```
 #
 # + arr - the array
@@ -180,6 +180,8 @@ public isolated function some(Type[] arr, @isolatedParam function(Type val) retu
 # numbers.slice(3) ⇒ [8,10,12]
 #
 # numbers.slice(0, 4) ⇒ [2,4,6,8]
+#
+# numbers.slice(0, 10) ⇒ panic
 # ```
 #
 # + arr - the array
@@ -220,7 +222,10 @@ public isolated function every(Type[] arr, @isolatedParam function(Type val) ret
 #
 # ```
 # int[] numbers = [2, 4, 6, 8];
+#
 # numbers.remove(1) ⇒ 4
+#
+# numbers.remove(7) ⇒ panic
 # ```
 #
 # + arr - the array
@@ -239,6 +244,9 @@ public isolated function remove(Type[] arr, int index) returns Type = @java:Meth
 # int[] numbers = [2, 4, 6, 8];
 # numbers.removeAll();
 # numbers ⇒ []
+#
+# int[2] values = [1, 2];
+# values.removeAll() ⇒ panic
 # ```
 #
 # + arr - the array
@@ -277,6 +285,8 @@ public isolated function setLength((any|error)[] arr, int length) returns () = @
 #
 # strings.indexOf("e") is () ⇒ true
 #
+# strings.indexOf("b") ⇒ 1
+#
 # strings.indexOf("b", 2) ⇒ 3
 # ```
 #
@@ -297,6 +307,8 @@ public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIn
 # string[] strings = ["a", "b", "d", "b", "d", "b"];
 #
 # strings.lastIndexOf("e") is () ⇒ true
+#
+# strings.lastIndexOf("b") ⇒ 5
 #
 # strings.lastIndexOf("b", strings.length() - 2) ⇒ 3
 # ```
@@ -371,6 +383,9 @@ public isolated function sort(Type[] arr, SortDirection direction = ASCENDING,
 # ```
 # int[] numbers = [2, 4, 6, 8, 10];
 # numbers.pop() ⇒ 10
+#
+# int[] values = [];
+# values.pop() ⇒ panic
 # ```
 #
 # + arr - the array
@@ -411,6 +426,9 @@ public isolated function push(Type[] arr, Type... vals) returns () = @java:Metho
 # ```
 # int[] numbers = [2, 4, 6, 8, 10];
 # numbers.shift() ⇒ 2
+#
+# int[] values = [];
+# values.shift() ⇒ panic
 # ```
 #
 # + arr - the array
@@ -452,8 +470,8 @@ public isolated function unshift(Type[] arr, Type... vals) returns () = @java:Me
 # There will be no whitespace in the returned string.
 #
 # ```
-# byte[] byteArray = [104, 101, 108, 108, 111, 32, 98, 97, 108, 108, 101, 114, 105, 110, 97, 32, 33, 33, 33];
-# byteArray.toBase64() ⇒ aGVsbG8gYmFsbGVyaW5hICEhIQ==
+# byte[] byteArray = [104, 101, 108, 108, 111, 32, 98, 97];
+# byteArray.toBase64() ⇒ aGVsbG8gYmE=
 # ```
 #
 # + arr - the array
@@ -469,9 +487,9 @@ public isolated function toBase64(byte[] arr) returns string = @java:Method {
 # and whitespace as allowed by a Ballerina Base64Literal.
 #
 # ```
-# check array:fromBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==") ⇒ [104,101,108,108,111,32,98,97,108,108,101,114,105,110,97,32,33,33,33]
+# check array:fromBase64("aGVsbG8gYmE=") ⇒ [104,101,108,108,111,32,98,97]
 #
-# array:fromBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ--") ⇒ error
+# array:fromBase64("aGVsbG8gYmE--") ⇒ error
 # ```
 #
 # + str - Base64 string representation
@@ -488,8 +506,8 @@ public isolated function fromBase64(string str) returns byte[]|error = @java:Met
 # There will be no whitespace in the returned string.
 #
 # ```
-# byte[] byteArray = [170, 171, 207, 204, 173, 175, 205, 52, 26, 75, 223, 171, 205, 137, 18, 223];
-# byteArray.toBase16() ⇒ aaabcfccadafcd341a4bdfabcd8912df
+# byte[] byteArray = [170, 171, 207, 204, 173, 175, 205];
+# byteArray.toBase16() ⇒ aaabcfccadafcd
 # ```
 #
 # + arr - the array
@@ -505,9 +523,9 @@ public isolated function toBase16(byte[] arr) returns string = @java:Method {
 # and whitespace as allowed by a Ballerina Base16Literal.
 #
 # ```
-# check array:fromBase16("aaabcfccadafcd341a4bdfabcd8912df") ⇒ [170,171,207,204,173,175,205,52,26,75,223,171,205,137,18,223]
+# check array:fromBase16("aaabcfccadafcd") ⇒ [170,171,207,204,173,175,205]
 #
-# array:fromBase16("aGVsbG8gYmFsbGVyaW5hICEhIQ==") ⇒ error
+# array:fromBase16("aaabcfccadafcd==") ⇒ error
 # ```
 #
 # + str - Base16 string representation
