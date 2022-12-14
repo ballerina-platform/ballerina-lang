@@ -53,6 +53,14 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (onSuggestClients(node, context)) {
+            // Covers following:
+            // 1. cl<cursor>->func()
+            completionItems.addAll(this.expressionCompletions(context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        }
+        
         ContextTypeResolver resolver = new ContextTypeResolver(context);
         Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
 
@@ -108,6 +116,11 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
         int cursor = context.getCursorPositionInTree();
         return node.rightArrowToken().textRange().endOffset() <= cursor &&
                 (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
+    }
+
+    private boolean onSuggestClients(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return cursor <= node.rightArrowToken().textRange().startOffset();
     }
 
     @Override
