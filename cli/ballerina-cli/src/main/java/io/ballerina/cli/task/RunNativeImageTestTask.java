@@ -34,6 +34,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -76,6 +77,8 @@ public class RunNativeImageTestTask implements Task {
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private final PrintStream out;
+
+    private final PrintStream err;
     private final String includesInCoverage;
     private String groupList;
     private String disableGroupList;
@@ -89,11 +92,12 @@ public class RunNativeImageTestTask implements Task {
 
     TestReport testReport;
 
-    public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
-                        String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups) {
+    public RunNativeImageTestTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
+                                  String disableGroupList, String testList, String includes, String coverageFormat,
+                                  Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
+        this.err = err;
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -244,7 +248,8 @@ public class RunNativeImageTestTask implements Task {
         try {
             if (nativeImageCommand == null) {
                 throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                        "environment variable");
+                        "environment variable\nHINT: to install GraalVM follow the below link\n" +
+                        "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
             }
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                     + (OS.contains("win") ? "native-image.cmd" : "native-image");
@@ -334,8 +339,9 @@ public class RunNativeImageTestTask implements Task {
 
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(cmdArgs.toArray(new String[0]));
-        builder.inheritIO();
         Process process = builder.start();
+        IOUtils.copy(process.getInputStream(), out);
+        IOUtils.copy(process.getErrorStream(), err);
 
         if (process.waitFor() == 0) {
             cmdArgs = new ArrayList<>();
@@ -355,8 +361,9 @@ public class RunNativeImageTestTask implements Task {
             cmdArgs.add(Boolean.toString(listGroups));                              // 8
 
             builder.command(cmdArgs.toArray(new String[0]));
-            builder.inheritIO();
             process = builder.start();
+            IOUtils.copy(process.getInputStream(), out);
+            IOUtils.copy(process.getErrorStream(), err);
             return process.waitFor();
         } else {
             return 1;
