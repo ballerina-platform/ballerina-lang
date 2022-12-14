@@ -25,8 +25,9 @@ public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
 #
-# ```ballerina
-# "Hello, World!".length() ⇒ 13;
+# ```
+# string greeting = "Hello, World!";
+# greeting.length() ⇒ 13;
 # ```
 #
 # + str - the string
@@ -89,11 +90,8 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 # Returns a substring of a string.
 #
 # ```ballerina
-# "Hello, my name is John".substring(18, 22) ⇒ "John"
-#
-# // Consider only the start index. In this situation,
-# // input string length would be considered as end index.
 # "Hello, my name is John".substring(7) ⇒ "my name is John"
+# "Hello, my name is John".substring(18, 22) ⇒ "John"
 # ```
 #
 # + str - source string.
@@ -128,10 +126,8 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 # Joins zero or more strings together with a separator.
 #
 # ```ballerina
-# // Join multiple strings with space as the separator.
 # string:'join(" ", "Ballerina", "is", "a", "programming", "language") ⇒ "Ballerina is a programming language"
 #
-# // Join multiple strings with comma as the separator.
 # string[] array = ["John", "23", "USA", "Computer Science", "Swimmer"];
 # string:'join(",", ...array) ⇒ "John,23,USA,Computer Science,Swimmer"
 # ```
