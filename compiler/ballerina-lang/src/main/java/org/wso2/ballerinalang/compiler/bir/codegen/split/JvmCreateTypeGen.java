@@ -707,6 +707,10 @@ public class JvmCreateTypeGen {
         return jvmUnionTypeGen;
     }
 
+    public JvmErrorTypeGen getJvmErrorTypeGen() {
+        return jvmErrorTypeGen;
+    }
+
     public JvmTupleTypeGen getJvmTupleTypeGen() {
         return jvmTupleTypeGen;
     }

@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -155,7 +154,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -298,17 +296,8 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
-        lookupNode(clientDeclStmt.getClientDeclaration());
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        lookupNode((BLangNode) clientDeclNode.getUri());
-    }
-
-    @Override
     public void visit(BLangFunction funcNode) {
+        lookupNodes(funcNode.annAttachments);
         // Compare the target lookup pos with the function symbol pos to ensure that we are not looking for the
         // container of the function.
         if (!this.range.equals(funcNode.symbol.pos.lineRange())) {
@@ -704,6 +693,7 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
         lookupNodes(awaitExpr.exprList);
+        setEnclosingNode(awaitExpr, awaitExpr.pos);
     }
 
     @Override

@@ -529,7 +529,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module4",
       "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -553,7 +553,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "module2",
       "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -577,7 +577,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "module11",
+      "filterText": "module1",
       "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -962,15 +962,6 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "function",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "client",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "client",
-      "insertText": "client \"${1}\" as ${2:clientName};",
       "insertTextFormat": "Snippet"
     },
     {

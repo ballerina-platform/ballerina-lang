@@ -106,8 +106,6 @@ public enum Snippet {
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
-    DEF_CLIENT_DECLARATION(SnippetGenerator.getClientDeclarationSnippet()),
-
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
     DEF_ENUM(SnippetGenerator.getEnumDefSnippet()),
@@ -129,6 +127,12 @@ public enum Snippet {
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
+
+    DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
+    
+    DEF_PARANTHESIS(SnippetGenerator.getParanthesisSnippet()),
+    
+    DEF_SQUARE_BRACKET(SnippetGenerator.getSquareBracketSnippet()),
     
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),

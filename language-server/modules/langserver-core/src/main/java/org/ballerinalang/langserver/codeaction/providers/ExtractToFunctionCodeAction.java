@@ -77,8 +77,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     private static final String EXTRACTED_PREFIX = "extracted";
 
     private static final Set<SyntaxKind> unSupportedModuleLevelSyntaxKinds = Set.of(SyntaxKind.CONST_DECLARATION,
-            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION, 
-            SyntaxKind.MODULE_CLIENT_DECLARATION);
+            SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION, SyntaxKind.ENUM_DECLARATION, SyntaxKind.TYPE_DEFINITION);
 
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
@@ -547,7 +546,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          *   5.1. with self keyword inside its expression
          *   5.2. as varRef() in assignment statement
          *   5.3. as lhsExpression() in compound assignment statement
-         * 6. a client declaration (module client declaration is covered inside unSupportedModuleLevelSyntaxKinds)
          **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)
@@ -558,8 +556,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 && (parentKind != SyntaxKind.ASSIGNMENT_STATEMENT
                 || !((AssignmentStatementNode) node.parent()).varRef().equals(node))
                 && (parentKind != SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT
-                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node))))
-                && parentKind != SyntaxKind.CLIENT_DECLARATION;
+                || !((CompoundAssignmentStatementNode) node.parent()).lhsExpression().equals(node))));
     }
 
     public static List<SyntaxKind> getSupportedExpressionSyntaxKindsList() {

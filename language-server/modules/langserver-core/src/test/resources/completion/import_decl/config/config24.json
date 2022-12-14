@@ -6,14 +6,6 @@
   "source": "import_decl/source/lsproject2/modules/module3/main.bal",
   "items": [
     {
-      "label": "'service",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "A",
-      "insertText": "'service.",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "'service.'transaction.'join",
       "kind": "Module",
       "detail": "Module",
