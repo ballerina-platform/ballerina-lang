@@ -20,10 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.MethodCallReplaceVisitor;
-import io.ballerina.cli.utils.OrigMockFunctionReplaceVisitor;
 import io.ballerina.cli.utils.TestUtils;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -39,6 +36,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import org.apache.commons.compress.utils.IOUtils;
+import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -49,6 +47,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
@@ -148,9 +147,9 @@ public class RunNativeImageTestTask implements Task {
         this.listGroups = listGroups;
     }
 
-    //Get modified class bytes for function mock
+
     public static byte[] getModifiedClassBytes(String className, List<String> functionNames, TestSuite suite,
-                                               ClassLoader classLoader, List<String> modifiedMethods) {
+                                               ClassLoader classLoader) {
         Class<?> functionToMockClass;
         try {
             functionToMockClass = classLoader.loadClass(className);
@@ -162,11 +161,6 @@ public class RunNativeImageTestTask implements Task {
         boolean readFromBytes = false;
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
             if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
-                if (modifiedMethods.contains(className + "-" + method1.getName())) {
-                    continue;
-                } else {
-                    modifiedMethods.add(className + "-" + method1.getName());
-                }
                 String desugaredMockFunctionName = MOCK_FUNC_NAME_PREFIX + method1.getName();
                 String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                         suite.getTestPackageID(), suite.getVersion(),
@@ -180,19 +174,14 @@ public class RunNativeImageTestTask implements Task {
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {
                         if (!readFromBytes) {
-                            classFile = replaceMethodBody(method1);
+                            classFile = replaceMethodBody(method1, method2);
                             readFromBytes = true;
                         } else {
-                            classFile = replaceMethodBody(classFile, method1);
+                            classFile = replaceMethodBody(classFile, method1, method2);
                         }
                     }
                 }
             } else if (functionNames.contains(MOCK_LEGACY_DELIMITER + method1.getName())) {
-                if (modifiedMethods.contains(className + "-" + method1.getName())) {
-                    continue;
-                } else {
-                    modifiedMethods.add(className + "-" + method1.getName());
-                }
                 String key = className + MOCK_LEGACY_DELIMITER + method1.getName();
                 String mockFunctionName = suite.getMockFunctionNamesMap().get(key);
                 if (mockFunctionName != null) {
@@ -206,10 +195,10 @@ public class RunNativeImageTestTask implements Task {
                     for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
                         if (method2.getName().equals(mockFunctionName)) {
                             if (!readFromBytes) {
-                                classFile = replaceMethodBody(method1);
+                                classFile = replaceMethodBody(method1, method2);
                                 readFromBytes = true;
                             } else {
-                                classFile = replaceMethodBody(classFile, method1);
+                                classFile = replaceMethodBody(classFile, method1, method2);
                             }
                         }
                     }
@@ -252,10 +241,10 @@ public class RunNativeImageTestTask implements Task {
                 for (Method method2 : testClass.getDeclaredMethods()) {
                     if (method2.getName().equals(desugaredMockFunctionName)) {
                         if (!readFromBytes) {
-                            classFile = replaceTestClzMethodBody(testDocumentClass, method2, method1);
+                            classFile = replaceTestClzMethodCall(testDocumentClass, method2, method1);
                             readFromBytes = true;
                         } else {
-                            classFile = replaceTestClzMethodBody(classFile, method2, method1);
+                            classFile = replaceTestClzMethodCall(classFile, method2, method1);
                         }
                     }
                 }
@@ -273,10 +262,10 @@ public class RunNativeImageTestTask implements Task {
                     for (Method method2 : mockFunctionClass.getDeclaredMethods()) {
                         if (method2.getName().equals(mockFunctionName)) {
                             if (!readFromBytes) {
-                                classFile = replaceTestClzMethodBody(testDocumentClass, method1, method2);
+                                classFile = replaceTestClzMethodCall(testDocumentClass, method1, method2);
                                 readFromBytes = true;
                             } else {
-                                classFile = replaceTestClzMethodBody(classFile, method1, method2);
+                                classFile = replaceTestClzMethodCall(classFile, method1, method2);
                             }
                         }
                     }
@@ -288,7 +277,7 @@ public class RunNativeImageTestTask implements Task {
         return classFile;
     }
 
-    private static byte[] replaceTestClzMethodBody(Class<?> testDocumentClass, Method toFunc, Method fromFunc) {
+    private static byte[] replaceTestClzMethodCall(Class<?> testDocumentClass, Method toFunc, Method fromFunc) {
         Class<?> clazz = testDocumentClass;
         ClassReader cr;
         try {
@@ -305,7 +294,7 @@ public class RunNativeImageTestTask implements Task {
         return cw.toByteArray();
     }
 
-    private static byte[] replaceTestClzMethodBody(byte[] classFile, Method toFunc, Method fromFunc) {
+    private static byte[] replaceTestClzMethodCall(byte[] classFile, Method toFunc, Method fromFunc) {
         ClassReader cr = new ClassReader(classFile);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MethodCallReplaceVisitor(Opcodes.ASM7, cw, toFunc, fromFunc);
@@ -313,7 +302,7 @@ public class RunNativeImageTestTask implements Task {
         return cw.toByteArray();
     }
 
-    private static byte[] replaceMethodBody(Method method) {
+    private static byte[] replaceMethodBody(Method method, Method mockMethod) {
         Class<?> clazz = method.getDeclaringClass();
         ClassReader cr;
         try {
@@ -325,16 +314,17 @@ public class RunNativeImageTestTask implements Task {
                     + clazz.getSimpleName());
         }
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method);
+        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+                Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
         return cw.toByteArray();
     }
 
-    //Move mocked function as $ORIG_function
-    private static byte[] replaceMethodBody(byte[] classFile, Method method) {
+    private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
         ClassReader cr = new ClassReader(classFile);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = new OrigMockFunctionReplaceVisitor(Opcodes.ASM7, cw, method);
+        ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
+                Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
         return cw.toByteArray();
     }
@@ -419,17 +409,17 @@ public class RunNativeImageTestTask implements Task {
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
-        Map<String, TestSuite> testSuiteMap = new HashMap<>();
         List<String> updatedSingleExecTests;
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
-        //Track modified functions in a module jar and Have a mpping between modified jar and original jar
-        Map<String, String> originalVsModifiedJarMap = new HashMap<>();
-        List<String> modifiedMethods = new ArrayList<>();
+        // Create seperate test suite map for each module.
+        List<HashMap<String, TestSuite>> testSuiteMapEntries = new ArrayList<>();
+        boolean isMockFunctionExist = false;
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            HashMap<String, TestSuite> testSuiteMap = new HashMap<>();
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
@@ -450,75 +440,101 @@ public class RunNativeImageTestTask implements Task {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
             }
             suite.setReportRequired(report || coverage);
-            try {
-                modifyJarForFunctionMock(suite, target, module,
-                       originalVsModifiedJarMap, modifiedMethods);
-            } catch (IOException e) {
-                throw createLauncherException("error occurred while running tests", e);
+            if (!isMockFunctionExist) {
+                isMockFunctionExist = !suite.getMockFunctionNamesMap().isEmpty();
             }
 
             String resolvedModuleName =
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
             testSuiteMap.put(resolvedModuleName, suite);
+            testSuiteMapEntries.add(testSuiteMap);
             moduleNamesList.add(resolvedModuleName);
         }
 
-        try {
-            Path nativeConfigPath = target.getNativeConfigPath();
-            createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
-        } catch (IOException e) {
-            throw createLauncherException("error while generating the necessary graalvm reflection config ", e);
+        // If the function mocking does not exist, combine all test suite map entries
+        if (!isMockFunctionExist){
+            HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
+            while (testSuiteMapEntries.size() > 0) {
+                testSuiteMap.putAll(testSuiteMapEntries.remove(0));
+            }
+            testSuiteMapEntries.add(testSuiteMap);
         }
 
-        //Remove all mock function entries from test suites
-        for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
-            TestSuite testSuite = testSuiteEntry.getValue();
-            if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
-                testSuite.removeAllMockFunctions();
+        //Execute each testsuite within list one by one
+        for (Map<String, TestSuite> testSuiteMap : testSuiteMapEntries ) {
+            try {
+                Path nativeConfigPath = target.getNativeConfigPath();
+                createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
+            } catch (IOException e) {
+                throw createLauncherException("error while generating the necessary graalvm reflection config ", e);
+            }
+
+            // Try to modify jar if the testsuite map contains only one entry
+            if (testSuiteMap.size() == 1) {
+                TestSuite testSuite = testSuiteMap.values().toArray(new TestSuite[0])[0];
+                String moduleName = testSuite.getPackageID();
+                try {
+                    modifyJarForFunctionMock(testSuite, target, moduleName);
+                } catch (IOException e) {
+                    throw createLauncherException("error occurred while running tests", e);
+                }
+            }
+
+
+
+            //Remove all mock function entries from test suites
+            for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
+                TestSuite testSuite = testSuiteEntry.getValue();
+                if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
+                    testSuite.removeAllMockFunctions();
+                }
+            }
+
+            //Write the testsuite to the disk
+            TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
+
+
+            if (hasTests) {
+                int testResult = 1;
+                try {
+                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
+
+                    if (report || coverage) {
+                        for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
+                            String moduleName = testSuiteEntry.getKey();
+                            ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
+                                    testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+
+                            if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                                moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                            }
+                            testReport.addModuleStatus(moduleName, moduleStatus);
+                        }
+                    }
+                } catch (IOException e) {
+                    TestUtils.cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("error occurred while running tests", e);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+
+                if (testResult != 0) {
+                    TestUtils.cleanTempCache(project, cachesRoot);
+                    throw createLauncherException("there are test failures");
+                }
             }
         }
-
-        TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
-
-
-
-        if (hasTests) {
-            int testResult = 1;
+        if ((report || coverage) && hasTests) {
             try {
-                testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target,
-                        originalVsModifiedJarMap);
-
-                if (report || coverage) {
-                    for (String moduleName : moduleNamesList) {
-                        ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
-                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
-
-                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
-                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
-                        }
-                        testReport.addModuleStatus(moduleName, moduleStatus);
-                    }
-                    try {
-                        generateCoverage(project, testReport, jBallerinaBackend,
-                                this.includesInCoverage, this.coverageReportFormat, this.coverageModules);
-                        generateTesterinaReports(project, testReport, this.out, target);
-                    } catch (IOException e) {
-                        TestUtils.cleanTempCache(project, cachesRoot);
-                        throw createLauncherException("error occurred while generating test report :", e);
-                    }
-                }
+                generateCoverage(project, testReport, jBallerinaBackend,
+                        this.includesInCoverage, this.coverageReportFormat, this.coverageModules);
+                generateTesterinaReports(project, testReport, this.out, target);
             } catch (IOException e) {
                 TestUtils.cleanTempCache(project, cachesRoot);
-                throw createLauncherException("error occurred while running tests", e);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            if (testResult != 0) {
-                TestUtils.cleanTempCache(project, cachesRoot);
-                throw createLauncherException("there are test failures");
+                throw createLauncherException("error occurred while generating test report :", e);
             }
         }
+
 
         // Cleanup temp cache for SingleFileProject
         TestUtils.cleanTempCache(project, cachesRoot);
@@ -527,19 +543,11 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
-    private int runTestSuiteWithNativeImage(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target,
-                                            Map<String, String> originalVsModifiedJarMap)
+    private int runTestSuiteWithNativeImage(Package currentPackage, Target target,
+                                            Map<String, TestSuite> testSuiteMap)
             throws IOException, InterruptedException {
         String packageName = currentPackage.packageName().toString();
-        String classPath = getClassPath(jBallerinaBackend, currentPackage);
-        String modClassPath;
-        for (Map.Entry<String, String> functionMockModuleMapping : originalVsModifiedJarMap.entrySet()) {
-            String moduleJar = functionMockModuleMapping.getKey();
-            String replacedJar = originalVsModifiedJarMap.get(moduleJar);
-            modClassPath = classPath.replace(moduleJar, replacedJar);
-            classPath = modClassPath;
-
-        }
+        String classPath = getClassPath(testSuiteMap);
 
         String jacocoAgentJarPath = "";
         String nativeImageCommand = System.getenv("GRAALVM_HOME");
@@ -614,6 +622,9 @@ public class RunNativeImageTestTask implements Task {
         cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
+        if (testSuiteMap.size() == 1) {
+            packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();
+        }
 
         // set name and path
         nativeArgs.add("-H:Name=" + packageName);
@@ -664,6 +675,20 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
+    private String getClassPath(Map<String, TestSuite> testSuiteMap) {
+        List<String> dependencies = new ArrayList<>();
+        for ( Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
+            dependencies.addAll(testSuiteEntry.getValue().getTestExecutionDependencies());
+
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().forEach(classPath::add);
+        return classPath.toString();
+    }
+
+
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> dependencies = new ArrayList<>();
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
@@ -687,10 +712,7 @@ public class RunNativeImageTestTask implements Task {
         return classPath.toString();
     }
 
-    private void modifyJarForFunctionMock(TestSuite testSuite, Target target, Module module,
-                                          Map<String, String> originalVsModifiedJarMap,
-                                          List<String> modifiedMethods) throws IOException {
-        String moduleName = module.moduleName().toString();
+    private void modifyJarForFunctionMock(TestSuite testSuite, Target target, String moduleName) throws IOException {
         String testJarName = testSuite.getOrgName() + HYPHEN + moduleName + HYPHEN +
                 testSuite.getVersion() + HYPHEN + TESTABLE + JAR_EXTENSION;
         String testJarPath = "";
@@ -743,13 +765,9 @@ public class RunNativeImageTestTask implements Task {
             mainJarName = mainJarVsClassEntry.getKey();
             modifiedJarName = mainJarName + HYPHEN + MODIFIED + JAR_EXTENSION;
 
-            //If module jar is modified already, use modified one
             for (String testExecutionDependency : testExecutionDependencies) {
                 if (testExecutionDependency.contains(mainJarName) && !testExecutionDependency.contains(TESTABLE)) {
                     mainJarPath = testExecutionDependency;
-                    if (originalVsModifiedJarMap.containsKey(mainJarPath)) {
-                        mainJarPath = originalVsModifiedJarMap.get(mainJarPath);
-                    }
                 }
             }
             //Add module jar path to classloader URLs
@@ -762,8 +780,7 @@ public class RunNativeImageTestTask implements Task {
             Map<String, byte[]> modifiedClassDef = new HashMap<>();
             for (String className : mainJarVsClassEntry.getValue()) {
                 List<String> functionNamesList = classVsMockFunctionsMap.get(className);
-                byte[] classFile = getModifiedClassBytes(className, functionNamesList, testSuite, classLoader,
-                                    modifiedMethods);
+                byte[] classFile = getModifiedClassBytes(className, functionNamesList, testSuite, classLoader);
                 modifiedClassDef.put(className, classFile);
             }
 
@@ -775,46 +792,8 @@ public class RunNativeImageTestTask implements Task {
             //Dump modified jar
             dumpJar(modifiedClassDef, unmodifiedFiles, modifiedJarPath);
 
-            //Have a modified jar mapping to modify graal vm classpath
-            if (!originalVsModifiedJarMap.containsKey(mainJarPath)) {
-                originalVsModifiedJarMap.put(mainJarPath, modifiedJarPath);
-            }
-        }
-
-        //Modify testable jar for function mocking
-        Map<String, byte[]> modifiedTestClassDef = new HashMap<>();
-        for (DocumentId testDocId : module.testDocumentIds()) {
-            //Get the class for test document
-            Document testDocument = module.document(testDocId);
-            String testDocumentName = testDocument.name().replace(".bal", "")
-                                                            .replace("/", ".");
-            String testDocumentClassName = TesterinaUtils.getQualifiedClassName(testSuite.getOrgName(),
-                    testSuite.getTestPackageID(), testSuite.getVersion(), testDocumentName);
-            Class<?> testDocumentClass;
-            try {
-                testDocumentClass = classLoader.loadClass(testDocumentClassName);
-            } catch (Throwable e) {
-                throw createLauncherException("failed to load class: " + testDocumentClassName);
-            }
-
-            //Replace the original functions(mocked) in test document with the corresponding $MOCK_ function
-            byte[] classFile = new byte[0];
-            for (Map.Entry<String, List<String>> entry : classVsMockFunctionsMap.entrySet()) {
-                String className = entry.getKey();
-                List<String> functionNamesList = entry.getValue();
-                classFile = getModifiedTestClassBytes(className, functionNamesList, testSuite, classLoader,
-                        testDocumentClass, classFile);
-            }
-            modifiedTestClassDef.put(testDocumentClassName, classFile);
-        }
-        //Get all unmodified classes within testable jar and dump modified version
-        Map<String, byte[]> unmodifiedTestFiles = loadUnmodifiedFilesWithinJar(testJarPath);
-        String modifiedTestJarPath = testJarPath.replace(JAR_EXTENSION, HYPHEN + MODIFIED + JAR_EXTENSION);
-        dumpJar(modifiedTestClassDef, unmodifiedTestFiles, modifiedTestJarPath);
-
-        //Have a modified jar mapping to modify graal vm classpath
-        if (!originalVsModifiedJarMap.containsKey(testJarPath)) {
-            originalVsModifiedJarMap.put(testJarPath, modifiedTestJarPath);
+            testExecutionDependencies.remove(mainJarPath);
+            testExecutionDependencies.add(modifiedJarPath);
         }
     }
 

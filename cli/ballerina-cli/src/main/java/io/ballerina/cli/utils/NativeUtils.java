@@ -21,9 +21,7 @@ package io.ballerina.cli.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
@@ -45,6 +43,8 @@ import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 
 /**
  * Utility functions and classes for test native-image generation.
@@ -67,109 +67,110 @@ public class NativeUtils {
 
 
 
-        for (Module module : currentPackage.modules()) {
-            if (module.testDocumentIds().size() != 0) {
-                String name = module.moduleName().toString();
-                String moduleName = ProjectUtils.getJarFileName(module);
+        for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+            String moduleName = entry.getKey();
+            TestSuite testSuite = entry.getValue();
+            String name = testSuite.getPackageID();
 
-                //Add init class
-                ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
-                        MODULE_INIT_CLASS_NAME));
+            //Add init class
+            ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
+                    MODULE_INIT_CLASS_NAME));
 
-                testInitRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                "$moduleInit",
-                                new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
-                        )
-                );
+            testInitRefConfClz.addReflectConfigClassMethod(
+                    new ReflectConfigClassMethod(
+                            "$moduleInit",
+                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
+                    )
+            );
 
-                testInitRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                "$moduleStart",
-                                new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
-                        )
-                );
+            testInitRefConfClz.addReflectConfigClassMethod(
+                    new ReflectConfigClassMethod(
+                            "$moduleStart",
+                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
+                    )
+            );
 
-                testInitRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                "$moduleStop",
-                                new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
-                        )
-                );
-                //Add configuration mapper
-                ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
-                        getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
+            testInitRefConfClz.addReflectConfigClassMethod(
+                    new ReflectConfigClassMethod(
+                            "$moduleStop",
+                            new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
+                    )
+            );
+            //Add configuration mapper
+            ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
+                    getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
 
-                testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                "$configureInit",
-                                new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
-                        )
-                );
-                ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                        testSuiteMap.get(moduleName).getTestUtilityFunctions().get("__execute__"));
-                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                "__execute__",
-                                new String[]{
-                                        "io.ballerina.runtime.internal.scheduling.Strand",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString"
-                                }
-                        )
-                );
-                //Add classes with $MOCK_function methods (mock function case)
-                if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
-                    ReflectConfigClass testNameZeroNameRefConfClz = new ReflectConfigClass(getQualifiedClassName(
-                            org, name, version, name.replace(DOT, FILE_NAME_PERIOD_SEPARATOR)));
-                    testNameZeroNameRefConfClz.setQueryAllDeclaredMethods(true);
-                    testNameZeroNameRefConfClz.setAllDeclaredFields(true);
-                    testNameZeroNameRefConfClz.setUnsafeAllocated(true);
-                    classList.add(testNameZeroNameRefConfClz);
-                }
-
-                //Add all class values to the array
-                classList.add(testInitRefConfClz);
-                classList.add(testConfigurationMapperRefConfClz);
-                classList.add(testTestExecuteGeneratedRefConfClz);
-
+            testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
+                    new ReflectConfigClassMethod(
+                            "$configureInit",
+                            new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
+                    )
+            );
+            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
+                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get("__execute__"));
+            testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
+                    new ReflectConfigClassMethod(
+                            "__execute__",
+                            new String[]{
+                                    "io.ballerina.runtime.internal.scheduling.Strand",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString",
+                                    "io.ballerina.runtime.api.values.BString"
+                            }
+                    )
+            );
+            //Add classes with $MOCK_function methods (mock function case)
+            if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
+                ReflectConfigClass functionMockingEntryClz = new ReflectConfigClass(getQualifiedClassName(
+                        org, name, version, name.replace(DOT, FILE_NAME_PERIOD_SEPARATOR)));
+                functionMockingEntryClz.setQueryAllDeclaredMethods(true);
+                functionMockingEntryClz.setAllDeclaredFields(true);
+                functionMockingEntryClz.setUnsafeAllocated(true);
+                classList.add(functionMockingEntryClz);
             }
 
-        }
-        //Add classes corresponding to test documents
-        Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
-        File mockedFunctionClassFile = new File(mockedFunctionClassPath.toString());
-        if (mockedFunctionClassFile.isFile()) {
-            BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
-            Gson gsonRead = new Gson();
-            Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
-                    new TypeToken<Map<String, String[]>>() {
-                    }.getType());
-            if (!testFileMockedFunctionMapping.isEmpty()) {
-                ReflectConfigClass originalTestFileRefConfClz;
-                for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
-                        testFileMockedFunctionMapping.entrySet()) {
-                    String moduleName = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
-                    String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
-                    String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
-                    originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleName,
-                            version, testFile));
-                    for (int i = 0; i < mockedFunctions.length; i++) {
-                        originalTestFileRefConfClz.addReflectConfigClassMethod(
-                                new ReflectConfigClassMethod(mockedFunctions[i]));
-                        originalTestFileRefConfClz.setUnsafeAllocated(true);
-                        originalTestFileRefConfClz.setAllDeclaredFields(true);
-                        originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
+            //Add all class values to the array
+            classList.add(testInitRefConfClz);
+            classList.add(testConfigurationMapperRefConfClz);
+            classList.add(testTestExecuteGeneratedRefConfClz);
+
+            //Add classes corresponding to test documents
+            Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
+            File mockedFunctionClassFile = new File(mockedFunctionClassPath.toString());
+            if (mockedFunctionClassFile.isFile()) {
+                BufferedReader br = Files.newBufferedReader(mockedFunctionClassPath, StandardCharsets.UTF_8);
+                Gson gsonRead = new Gson();
+                Map<String, String[]> testFileMockedFunctionMapping = gsonRead.fromJson(br,
+                        new TypeToken<Map<String, String[]>>() {
+                        }.getType());
+                if (!testFileMockedFunctionMapping.isEmpty()) {
+                    ReflectConfigClass originalTestFileRefConfClz;
+                    for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
+                            testFileMockedFunctionMapping.entrySet()) {
+                        String moduleNameForTestClz = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
+                        if (!moduleNameForTestClz.equals(name)) {
+                            continue;
+                        }
+                        String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
+                        String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
+                        originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleNameForTestClz,
+                                version, testFile));
+                        for (int i = 0; i < mockedFunctions.length; i++) {
+                            originalTestFileRefConfClz.addReflectConfigClassMethod(
+                                    new ReflectConfigClassMethod(mockedFunctions[i]));
+                            originalTestFileRefConfClz.setUnsafeAllocated(true);
+                            originalTestFileRefConfClz.setAllDeclaredFields(true);
+                            originalTestFileRefConfClz.setQueryAllDeclaredMethods(true);
+                        }
+                        classList.add(originalTestFileRefConfClz);
                     }
-                    classList.add(originalTestFileRefConfClz);
                 }
             }
         }
@@ -214,16 +215,27 @@ public class NativeUtils {
         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
             TestSuite suite = testSuiteEntry.getValue();
             for (Map.Entry<String, String> mockFunctionEntry : suite.getMockFunctionNamesMap().entrySet()) {
-                String mockFunctionId = mockFunctionEntry.getKey();
-                String mockFunctionClass = mockFunctionId.split("#")[0];
-                String mockFunction = mockFunctionId.split("#")[1];
-                if (mockFunctionClassMapping.containsKey(mockFunctionClass)) {
-                    mockFunctionClassMapping.get(mockFunctionClass).add("$ORIG_" + mockFunction);
+                String key = mockFunctionEntry.getKey();
+                String functionToMockClassName;
+                String functionToMock;
+                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER)+1);
+                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                    functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                    functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER)+1);
                 } else {
-                    List<String> mockFunctionList = new ArrayList<>();
-                    mockFunctionList.add("$ORIG_" + mockFunction);
-                    mockFunctionClassMapping.put(mockFunctionClass, mockFunctionList);
+                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                        functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER)+1);
+                    } else {
+                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                        functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER)+1);
+                    }
                 }
+                functionToMock = functionToMock.replaceAll("\\\\", "");
+                mockFunctionClassMapping.computeIfAbsent(functionToMockClassName,
+                        k -> new ArrayList<>()).add("$ORIG_" + functionToMock);
             }
         }
     }
