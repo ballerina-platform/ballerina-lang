@@ -866,7 +866,7 @@ public class BuildCommandTest extends BaseCommandTest {
         buildCommand.execute();
         long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
 
-        Assert.assertTrue(firstCodeGenDuration > secondCodeGenDuration,
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
                 "second code gen duration is greater than the expected value");
     }
 
