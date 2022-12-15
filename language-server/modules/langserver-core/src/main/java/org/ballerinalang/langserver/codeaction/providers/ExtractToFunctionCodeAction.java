@@ -298,7 +298,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
      * This method finds the visible variable and parameter symbols which are referred inside the selected range for
      * getCodeActionsForStatements scenario.
      */
-    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context, 
+    private Optional<List<Symbol>> getVarAndParamSymbolsWithinRangeForStmts(CodeActionContext context,
                                                                             Node enclosingNode) {
         List<Symbol> argsSymbolsForExtractFunction = new ArrayList<>();
         List<Symbol> visibleSymbols = getVisibleSymbols(context, context.range().getStart());
@@ -418,9 +418,9 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
-    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd, 
+    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd,
                                TypeSymbol typeSymbol, String functionName, List<String> args) {
-        String returnsClause = 
+        String returnsClause =
                 String.format("returns %s", FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature()));
         String returnStatement;
 
@@ -644,18 +644,16 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 for (Node node : matchedCodeActionNode.children()) {
                     node.accept(this);
                 }
-            } else {
-                matchedCodeActionNode.accept(this);
+                return;
             }
+            matchedCodeActionNode.accept(this);
         }
 
         @Override
         public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-            for (String symbolName: symbolNamesList) {
-                if (!nodeList.containsKey(symbolName) && symbolName.equals(simpleNameReferenceNode.name().text())) {
-                    nodeList.put(symbolName, simpleNameReferenceNode);
-                }
-            }
+            symbolNamesList.stream().filter(symbolName -> !nodeList.containsKey(symbolName)
+                    && symbolName.equals(simpleNameReferenceNode.name().text())).findFirst().ifPresent(symbolName ->
+                    nodeList.put(symbolName, simpleNameReferenceNode));
         }
     }
 }
