@@ -21,6 +21,7 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
+# Refers to the `RegExp` type defined by lang.regexp module.
 public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
