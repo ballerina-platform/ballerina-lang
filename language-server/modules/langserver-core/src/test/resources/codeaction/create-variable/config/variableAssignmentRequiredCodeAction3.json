@@ -20,9 +20,18 @@
               "character": 3
             }
           },
-          "newText": "Apple appleResult \u003d "
+          "newText": "Apple appleResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable.bal",
+          444
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

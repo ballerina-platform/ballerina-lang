@@ -42,5 +42,6 @@ public enum SymbolKind {
     ENUM,
     ENUM_MEMBER,
     PARAMETER,
-    PATH_PARAMETER
+    PATH_PARAMETER,
+    ANNOTATION_ATTACHMENT
 }

@@ -44,7 +44,7 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
  */
 public class Errors {
 
-    private static Module errorModule = new Module("testorg", "runtime_api.errors", "1");
+    private static Module errorModule = new Module("testorg", "errors.error_utils", "1");
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
@@ -58,7 +58,7 @@ public class Errors {
         List<TypeId> typeIds = ((ErrorType) error.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
-                size), size);
+                size));
         int index = 0;
         for (TypeId typeId : typeIds) {
             arrayValue.add(index, StringUtils.fromString(typeId.getName()));

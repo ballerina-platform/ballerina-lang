@@ -481,6 +481,7 @@ public enum ParserRuleContext {
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
     NOT_IS_KEYWORD("!is"),
+    RE_KEYWORD("re"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -728,6 +729,7 @@ public enum ParserRuleContext {
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ANNOTATION_DECL_START("annotation-declaration-start"),
+    OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     ;
 
     private String value;

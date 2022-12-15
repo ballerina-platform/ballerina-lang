@@ -42,10 +42,11 @@ public class RuntimeAPITest {
                 "values",
                 "errors",
                 "types",
-                "async",
                 "invalid_values",
+                "async",
                 "utils",
-                "stop_handler"
+                "stop_handler",
+                "identifier_utils"
         };
     }
 }

@@ -35,4 +35,3 @@ modules = [
 	{org = "adv_res", packageName = "package_c", moduleName = "package_c"}
 ]
 
-

@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 //========== MODULE-LEVEL CONST DECL ========================
 
@@ -93,6 +93,17 @@ public type Bank record {|
     CountryCode countryCode;
 |};
 
+# Employee record
+#
+# + age - age Parameter Description
+public type Employee record {|
+    # This is the description of the `Employee`'s `name` field.
+    # # Deprecated
+    @deprecated
+    string name;
+    int age;
+|};
+
 //========= 5.errors ========================================
 
 const INVALID_ACC_TYPE = "InvalidAccountType";
@@ -164,7 +175,7 @@ public function createPerson(string fname, string lname, string street,
 #
 # + name - name person want to say hello
 public function sayHello(string name) {
-    io:println("Hello " + name);
+    println("Hello " + name);
 }
 
 //========= REQUIRED AND DEFAULTABLE FUNCTION PARAMS ======
@@ -202,5 +213,11 @@ public class Player {
 
 public function main() {
     Person p = createPerson("Jane", "Doe", "Castro Street", "Mountain View", USA);
-    io:println(p.getFullName());
+    println(p.getFullName());
 }
+
+// helper functions
+
+function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

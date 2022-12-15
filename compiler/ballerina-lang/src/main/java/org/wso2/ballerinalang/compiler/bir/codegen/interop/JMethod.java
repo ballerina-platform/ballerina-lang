@@ -144,8 +144,7 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        BArray arrayValue = ValueCreator
-                .createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING), checkedExceptions.size());
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

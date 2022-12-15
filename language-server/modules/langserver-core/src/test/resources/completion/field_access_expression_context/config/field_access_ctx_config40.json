@@ -363,13 +363,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "forEach(function () func)",
+      "label": "forEach(function (xml:ItemType item) returns () func)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each item in parameter `x`"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns ()` func: a function to apply to each item in parameter `x`"
         }
       },
       "sortText": "CD",
@@ -397,13 +397,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filter(function () func)",
+      "label": "filter(function (xml:ItemType item) returns boolean func)",
       "kind": "Function",
       "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -616,13 +616,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'map(function () func)",
+      "label": "'map(function (xml:ItemType item) returns xml:XmlType func)",
       "kind": "Function",
       "detail": "xml<xml:XmlType>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns xml:XmlType` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -737,6 +737,30 @@
       "sortText": "CR",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

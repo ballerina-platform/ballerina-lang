@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -1499,7 +1500,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
-        BInvokableSymbol initInvocationSymbol = (BInvokableSymbol) typeInitExpr.initInvocation.symbol;
+        BInvokableSymbol initInvocationSymbol =
+                                        (BInvokableSymbol) ((BLangInvocation) typeInitExpr.initInvocation).symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
             analyzeFunctionForInference(initInvocationSymbol);
 
@@ -2006,6 +2008,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (childIndex != null) {
             analyzeNode(childIndex, env);
         }
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(interpolation -> analyzeNode(interpolation, env));
     }
 
     private void analyzeInvocation(BLangInvocation invocationExpr) {
@@ -2891,6 +2900,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                                           List<BLangClassDefinition> classDefinitions,
                                                                           boolean inferring, BType type,
                                                                           Set<BSymbol> unresolvedSymbols) {
+        type = Types.getReferredType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3140,7 +3150,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        BType ownerType = enclInvokable.symbol.owner.type;
+        BType ownerType = Types.getReferredType(enclInvokable.symbol.owner.type);
 
         return ownerType.tag == TypeTags.OBJECT && isIsolated(ownerType.flags);
     }
@@ -3519,6 +3529,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type,
                                                                          Set<BSymbol> inferableClasses) {
+        type = Types.getReferredType(type);
         if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
             return true;
         }
@@ -3851,7 +3862,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (symbol.kind == SymbolKind.FUNCTION) {
             BVarSymbol receiverSymbol = ((BInvokableSymbol) symbol).receiverSymbol;
-            if (receiverSymbol != null && receiverSymbol.type.tag == TypeTags.OBJECT &&
+            if (receiverSymbol != null && Types.getReferredType(receiverSymbol.type).tag == TypeTags.OBJECT &&
                     publiclyExposedObjectTypes.contains(receiverSymbol.type)) {
                 return false;
             }

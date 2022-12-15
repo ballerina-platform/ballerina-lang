@@ -1,0 +1,48 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 21
+    },
+    "end": {
+      "line": 1,
+      "character": 39
+    }
+  },
+  "source": "extract_to_function_exprs_error_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns error {\n    return error(\"New Error\");\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 21
+            },
+            "end": {
+              "line": 1,
+              "character": 39
+            }
+          },
+          "newText": "extracted()"
+        }
+      ]
+    }
+  ],
+  "description": "Extract to function for expressions, error constructor"
+}

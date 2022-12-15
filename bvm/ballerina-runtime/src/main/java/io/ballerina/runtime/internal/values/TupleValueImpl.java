@@ -42,7 +42,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -71,30 +70,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     private boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TupleValueImpl that = (TupleValueImpl) o;
-        return minSize == that.minSize &&
-                hasRestElement == that.hasRestElement &&
-                tupleType.equals(that.tupleType) &&
-                Arrays.equals(refValues, that.refValues);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(tupleType, minSize, hasRestElement);
-        result = 31 * result + Arrays.hashCode(refValues);
-        return result;
-    }
 
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
@@ -142,6 +117,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
+        this(type, initialValues);
+    }
+
+    public TupleValueImpl(TupleType type, BListInitialValueEntry[] initialValues) {
         this.tupleType = type;
 
         List<Type> memTypes = this.tupleType.getTupleTypes();
@@ -393,6 +372,23 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     // -------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TupleValueImpl that = (TupleValueImpl) o;
+        return minSize == that.minSize &&
+                hasRestElement == that.hasRestElement &&
+                tupleType.equals(that.tupleType) &&
+                Arrays.equals(refValues, that.refValues);
+    }
 
     /**
      * Append value to the existing array.

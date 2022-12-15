@@ -76,6 +76,10 @@ public class ModuleData {
         return srcDocs;
     }
 
+    public void addSourceDocs(List<DocumentData> docs) {
+        srcDocs.addAll(docs);
+    }
+
     public List<DocumentData> testSourceDocs() {
         return testSrcDocs;
     }

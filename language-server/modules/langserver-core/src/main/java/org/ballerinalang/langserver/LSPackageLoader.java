@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -28,6 +29,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -51,9 +53,11 @@ public class LSPackageLoader {
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private final List<PackageInfo> distRepoPackages;
-    private List<PackageInfo> remoteRepoPackages = new ArrayList<>();
-    private List<PackageInfo> localRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> distRepoPackages;
+    private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
+
+    private final LSClientLogger clientLogger;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -65,6 +69,7 @@ public class LSPackageLoader {
     }
 
     private LSPackageLoader(LanguageServerContext context) {
+        this.clientLogger = LSClientLogger.getInstance(context);
         distRepoPackages = this.getDistributionRepoPackages();
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
@@ -74,12 +79,12 @@ public class LSPackageLoader {
      *
      * @return {@link List} of local repo packages
      */
-    public List<PackageInfo> getLocalRepoPackages(PackageRepository repository) {
+    public List<ModuleInfo> getLocalRepoPackages(PackageRepository repository) {
         if (!this.localRepoPackages.isEmpty()) {
             return this.localRepoPackages;
         }
         this.localRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                this.distRepoPackages.stream().map(PackageInfo::packageIdentifier).collect(Collectors.toSet())));
+                this.distRepoPackages.stream().map(ModuleInfo::packageIdentifier).collect(Collectors.toSet())));
         return localRepoPackages;
     }
 
@@ -88,12 +93,12 @@ public class LSPackageLoader {
      *
      * @return {@link List} of remote repo packages
      */
-    public List<PackageInfo> getRemoteRepoPackages(PackageRepository repository) {
+    public List<ModuleInfo> getRemoteRepoPackages(PackageRepository repository) {
         if (!this.remoteRepoPackages.isEmpty()) {
             return this.remoteRepoPackages;
         }
         this.remoteRepoPackages.addAll(checkAndResolvePackagesFromRepository(repository, Collections.emptyList(),
-                this.remoteRepoPackages.stream().map(PackageInfo::packageIdentifier).collect(Collectors.toSet())));
+                Collections.emptySet()));
         return this.remoteRepoPackages;
     }
 
@@ -103,7 +108,7 @@ public class LSPackageLoader {
      *
      * @return {@link List} of distribution repo packages
      */
-    public List<PackageInfo> getDistributionRepoPackages() {
+    public List<ModuleInfo> getDistributionRepoPackages() {
         if (this.distRepoPackages != null) {
             return this.distRepoPackages;
         }
@@ -121,13 +126,31 @@ public class LSPackageLoader {
      *
      * @return {@link List} packages
      */
-    public List<PackageInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
-        Map<String, PackageInfo> packagesList = new HashMap<>();
+    public List<ModuleInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
+        Map<String, ModuleInfo> packagesList = new HashMap<>();
         this.getDistributionRepoPackages().forEach(packageInfo ->
                 packagesList.put(packageInfo.packageIdentifier(), packageInfo));
-        List<PackageInfo> repoPackages = this.getPackagesFromBallerinaUserHome(ctx);
+        List<ModuleInfo> repoPackages = this.getPackagesFromBallerinaUserHome(ctx);
         repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
                 .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        Package currentPackage = ctx.workspace().project(ctx.filePath()).get().currentPackage();
+        currentPackage.modules().forEach(module -> {
+            Package packageInstance = module.packageInstance();
+            ModuleInfo moduleInfo = new ModuleInfo(PackageOrg.from(""), packageInstance.packageName(),
+                    packageInstance.packageVersion(), packageInstance.project().sourceRoot());
+
+            Optional<Module> currentModule = ctx.currentModule();
+            String packageName = moduleInfo.packageName().value();
+            String moduleName = module.descriptor().name().moduleNamePart();
+            String qualifiedModName = packageName + Names.DOT + moduleName;
+            if (currentModule.isEmpty() || module.isDefaultModule() || module.equals(currentModule.get()) ||
+                    ModuleUtil.matchingImportedModule(ctx, "", qualifiedModName).isPresent()) {
+                return;
+            } else {
+                moduleInfo.packageName = PackageName.from(packageName + "." + moduleName);
+            }
+            packagesList.put(moduleInfo.packageName.value(), moduleInfo);
+        });
         return new ArrayList<>(packagesList.values());
     }
 
@@ -135,10 +158,10 @@ public class LSPackageLoader {
      * Returns the list of packages that reside in the BallerinaUserHome (.ballerina) directory.
      *
      * @param ctx Document service context.
-     * @return {@link List<PackageInfo>} List of package info.
+     * @return {@link List<ModuleInfo>} List of package info.
      */
-    public List<PackageInfo> getPackagesFromBallerinaUserHome(DocumentServiceContext ctx) {
-        List<PackageInfo> packagesList = new ArrayList<>();
+    public List<ModuleInfo> getPackagesFromBallerinaUserHome(DocumentServiceContext ctx) {
+        List<ModuleInfo> packagesList = new ArrayList<>();
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -152,11 +175,12 @@ public class LSPackageLoader {
         return packagesList;
     }
 
-    private List<PackageInfo> checkAndResolvePackagesFromRepository(PackageRepository repository, List<String> skipList,
-                                                                    Set<String> loadedPackages) {
+    private List<ModuleInfo> checkAndResolvePackagesFromRepository(PackageRepository repository, List<String> skipList,
+                                                                   Set<String> loadedPackages) {
         Map<String, List<String>> packageMap = repository.getPackages();
-        List<PackageInfo> packages = new ArrayList<>();
+        List<ModuleInfo> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
+
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
@@ -174,19 +198,26 @@ public class LSPackageLoader {
                     return;
                 }
                 PackageVersion pkgVersion = PackageVersion.from(version);
-                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-                Optional<Package> repoPackage = repository.getPackage(request,
-                        ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
+                try {
+                    PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                    ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+
+                    Optional<Package> repoPackage = repository.getPackage(request,
+                            ResolutionOptions.builder().setOffline(true).build());
+                    repoPackage.ifPresent(pkg -> packages.add(new ModuleInfo(pkg)));
+                } catch (Throwable e) {
+                    clientLogger.logTrace("Failed to resolve package "
+                            + packageOrg + (!packageOrg.value().isEmpty() ? "/" : "" 
+                            + packageName + ":" + pkgVersion));
+                }
             });
-        });
 
+        });
         return packages;
     }
 
-    public List<PackageInfo> updatePackageMap(DocumentServiceContext context) {
+    public List<ModuleInfo> updatePackageMap(DocumentServiceContext context) {
         Optional<Project> project = context.workspace().project(context.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -194,32 +225,41 @@ public class LSPackageLoader {
         BallerinaUserHome ballerinaUserHome = BallerinaUserHome
                 .from(project.get().projectEnvironmentContext().environment());
         PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        List<PackageInfo> packageInfos =
+        List<ModuleInfo> moduleInfos =
                 checkAndResolvePackagesFromRepository(remoteRepository, Collections.emptyList(),
-                        this.remoteRepoPackages.stream().map(PackageInfo::packageIdentifier)
+                        this.remoteRepoPackages.stream().map(ModuleInfo::packageIdentifier)
                                 .collect(Collectors.toSet()));
-        this.remoteRepoPackages.addAll(packageInfos);
-        return packageInfos;
+        this.remoteRepoPackages.addAll(moduleInfos);
+        return moduleInfos;
     }
 
     /**
      * A light-weight package information holder.
      */
-    public static class PackageInfo {
+    public static class ModuleInfo {
 
         private PackageOrg packageOrg;
         private PackageName packageName;
         private PackageVersion packageVersion;
         private Path sourceRoot;
 
-        private String packageIdentifier;
+        private String moduleIdentifier;
 
-        public PackageInfo(Package pkg) {
+        public ModuleInfo(PackageOrg packageOrg, PackageName packageName, PackageVersion version, Path path) {
+            this.packageOrg = packageOrg;
+            this.packageName = packageName;
+            this.packageVersion = version;
+            this.sourceRoot = path;
+            this.moduleIdentifier = packageOrg.toString().isEmpty() ? packageName.toString() :
+                    packageOrg + "/" + packageName.toString();
+        }
+
+        public ModuleInfo(Package pkg) {
             this.packageOrg = pkg.packageOrg();
             this.packageName = pkg.packageName();
             this.packageVersion = pkg.packageVersion();
             this.sourceRoot = pkg.project().sourceRoot();
-            this.packageIdentifier = packageOrg.toString() + "/" + packageName.toString();
+            this.moduleIdentifier = packageOrg.toString() + "/" + packageName.toString();
         }
 
         public PackageName packageName() {
@@ -239,7 +279,7 @@ public class LSPackageLoader {
         }
 
         public String packageIdentifier() {
-            return packageIdentifier;
+            return moduleIdentifier;
         }
     }
 }

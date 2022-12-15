@@ -34,12 +34,10 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaDefinitionContextImpl
-        extends AbstractDocumentServiceContext implements BallerinaDefinitionContext {
+public class BallerinaDefinitionContextImpl 
+        extends PositionedOperationContextImpl implements BallerinaDefinitionContext {
     private boolean capturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
-    private int cursorPosInTree = -1;
-    private final Position cursorPosition;
 
     BallerinaDefinitionContextImpl(LSOperation operation,
                                    String fileUri,
@@ -47,8 +45,7 @@ public class BallerinaDefinitionContextImpl
                                    Position position,
                                    LanguageServerContext serverContext,
                                    CancelChecker cancelChecker) {
-        super(operation, fileUri, wsManager, serverContext, cancelChecker);
-        this.cursorPosition = position;
+        super(operation, fileUri, position, wsManager, serverContext, cancelChecker);
     }
 
     @Override
@@ -65,25 +62,7 @@ public class BallerinaDefinitionContextImpl
 
         return Optional.ofNullable(this.enclosingNode);
     }
-
-    @Override
-    public void setCursorPositionInTree(int offset) {
-        if (this.cursorPosInTree > -1) {
-            throw new RuntimeException("Setting the cursor offset more than once is not allowed");
-        }
-        this.cursorPosInTree = offset;
-    }
-
-    @Override
-    public int getCursorPositionInTree() {
-        return this.cursorPosInTree;
-    }
-
-    @Override
-    public Position getCursorPosition() {
-        return this.cursorPosition;
-    }
-
+    
     /**
      * Represents Language server completion context Builder.
      *

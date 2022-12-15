@@ -520,7 +520,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "'join",
       "insertText": "'join",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -544,7 +544,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "'client",
       "insertText": "'client",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -939,6 +939,30 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
     }
   ]
 }

@@ -107,7 +107,26 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+        // basic, simple types
+        debugTestRunner.assertExpression(context, INT_TYPE_DESC, "int", "typedesc");
+        debugTestRunner.assertExpression(context, FLOAT_TYPE_DESC, "float", "typedesc");
+        debugTestRunner.assertExpression(context, DECIMAL_TYPE_DESC, "decimal", "typedesc");
+        debugTestRunner.assertExpression(context, BOOLEAN_TYPE_DESC, "boolean", "typedesc");
+        // basic, sequence types
+        debugTestRunner.assertExpression(context, STRING_TYPE_DESC, "string", "typedesc");
+        // other types
+        debugTestRunner.assertExpression(context, BYTE_TYPE_DESC, "byte", "typedesc");
+        debugTestRunner.assertExpression(context, JSON_TYPE_DESC, "json", "typedesc");
+        debugTestRunner.assertExpression(context, ANY_TYPE_DESC, "any", "typedesc");
+        debugTestRunner.assertExpression(context, ANYDATA_TYPE_DESC, "anydata", "typedesc");
+        debugTestRunner.assertExpression(context, NEVER_TYPE_DESC, "never", "typedesc");
+        debugTestRunner.assertExpression(context, PARENTHESISED_TYPE_DESC, "int", "typedesc");
+    }
+
+    @Override
+    @Test
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
         // var variable test
         debugTestRunner.assertExpression(context, NIL_VAR, "()", "nil");
         // boolean variable test
@@ -261,25 +280,34 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
         // ---------------------- Defaultable Parameters + named arguments  ---------------------------------
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing a value only for the `baseSalary` parameter.
         // The `annualIncrement` and `bonusRate` parameters default to 20 and 0.02 respectively.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "\"[2500, 20, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "\"[2500, 20, 0.02]\"", "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing values only for the `baseSalary` and `annualIncrement`
         // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
         // The `bonusRate` parameter defaults to 0.02.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
-                "\"[2500, 100, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
+        //        "\"[2500, 100, 0.02]\"", "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
         // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
         // The `bonusRate` parameter defaults to 0.02.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "\"[2500, 100, 0.02]\"", "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "\"[2500, 100, 0.02]\"",
+        // "string");
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
         // The `annualIncrement` parameter defaults to 20.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "\"[2500, 20, 0.1]\"",
-                "string");
+        // debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "\"[2500, 20,
+        // 0.1]\"", "string");
 
         // In order to pass the value for `bonusRate` as a positional argument, a value would
         // have to be specified for the `annualIncrement` parameter too.
@@ -295,15 +323,16 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // Call the function by passing all three arguments as named arguments.
         // Any and all arguments after the first named argument need to be specified
         // as named arguments but could be specified in any order.
-        debugTestRunner.assertExpression(context,
-                "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
-                "\"[2500, 100, 0.1]\"", "string");
+        debugTestRunner.assertExpression(context, "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, " +
+                "bonusRate = 0.1);", "\"[2500, 100, 0.1]\"", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
 
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
         // Call the function by passing only the required parameter.
-        debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
-                "string");
+        // debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
+        //        "string");
 
         // Call the function by passing the required parameter and the defaultable parameter.Named arguments can
         // also be used since values are not passed for the rest parameter.
@@ -332,6 +361,9 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
 
         // with qualified literals (i.e. imported modules)
         debugTestRunner.assertExpression(context, "int:abs(-6)", "6", "int");
+
+        // with typedesc values as arguments
+        debugTestRunner.assertExpression(context, "processTypeDesc(int)", "int", "typedesc");
     }
 
     @Override
@@ -538,7 +570,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // string template concatenation
         String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
         debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
-                bStringTemplateExpr, bStringTemplateExpr),
+                        bStringTemplateExpr, bStringTemplateExpr),
                 "\"name: foo, age: 20name: foo, age: 20name: foo, age: 20\"", "string");
 
         // xml + xml
@@ -872,8 +904,12 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
     @Override
     @Test
     public void remoteCallActionEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR),
-                "\"John\"", "string");
+        // Todo - Enable once the semantic API blocker is fixed
+        //  https://github.com/ballerina-platform/ballerina-lang/issues/32176
+        // debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR),
+        //        "\"John\"", "string");
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\",\" Doe\")", CLIENT_OBJECT_VAR),
+                "\"John Doe\"", "string");
         debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
                 "168", "int");
     }

@@ -14,10 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/runtime_api.records;
-import testorg/runtime_api.objects;
-import testorg/runtime_api.maps;
-import testorg/runtime_api.enums;
+import values.records;
+import values.objects;
+import values.maps;
+import values.arrays;
+import values.enums;
 import ballerina/lang.test as test;
 
 public function main() {
@@ -65,4 +66,5 @@ public function main() {
     maps:validateAPI();
     records:validateAPI();
     enums:validateAPI();
+    arrays:validateAPI();
 }

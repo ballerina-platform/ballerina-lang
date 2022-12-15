@@ -682,6 +682,39 @@
       "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

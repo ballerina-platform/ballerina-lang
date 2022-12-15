@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 6,
+    "character": 18
+  },
+  "source": "source1.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'module1:Response|module1:ClientError'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 4
+            }
+          },
+          "newText": "module1:Response|module1:ClientError get = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'anydata|module1:ClientError'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 4
+            }
+          },
+          "newText": "anydata|module1:ClientError get = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

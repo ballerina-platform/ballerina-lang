@@ -6,7 +6,7 @@
   "source": "createVariable3.bal",
   "expected": [
     {
-      "title": "Create variable with \u0027map\u003cany\u003e\u0027",
+      "title": "Create variable with 'map<any>'",
       "kind": "quickfix",
       "edits": [
         {
@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "map\u003cany\u003e mappingResult \u003d "
+          "newText": "map<any> mappingResult = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable3.bal",
+          101
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

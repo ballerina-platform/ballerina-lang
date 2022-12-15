@@ -20,9 +20,18 @@
               "character": 4
             }
           },
-          "newText": "record {|int a;|} rec \u003d "
+          "newText": "record {|int a;|} rec = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          172
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable with 'json'",
@@ -39,12 +48,21 @@
               "character": 4
             }
           },
-          "newText": "json rec \u003d "
+          "newText": "json rec = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          159
+        ]
+      },
+      "resolvable": false
     },
     {
-      "title": "Create variable with \u0027map\u003cint\u003e\u0027",
+      "title": "Create variable with 'map<int>'",
       "kind": "quickfix",
       "edits": [
         {
@@ -58,9 +76,18 @@
               "character": 4
             }
           },
-          "newText": "map\u003cint\u003e rec \u003d "
+          "newText": "map<int> rec = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename Variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          163
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

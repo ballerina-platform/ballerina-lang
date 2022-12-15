@@ -37,7 +37,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +48,7 @@ public class DeprecatedAnnotationTest {
     private Module testModule;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "deprecated_annotation_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
@@ -293,21 +292,41 @@ public class DeprecatedAnnotationTest {
         BClass playerClass = null;
 
         for (BClass cls : bClasses) {
-            String clsName = cls.name;
-            if ("Player".equals(clsName)) {
+            if ("Player".equals(cls.name)) {
                 playerClass = cls;
+                break;
             }
         }
 
         Assert.assertNotNull(playerClass);
-        for (DefaultableVariable field : playerClass.fields) {
-            String fieldName = field.name;
-            if ("name".equals(fieldName)) {
-                testDeprecated(field);
-            } else if ("age".equals(fieldName)) {
-                testNonDeprecated(field);
+        testDeprecated(getField(playerClass.fields, "name"));
+        testNonDeprecated(getField(playerClass.fields, "age"));
+    }
+
+    @Test(description = "Test @deprecated annotation for record field")
+    public void testDeprecatedRecordField() {
+        List<Record> records = testModule.records;
+        Record employeeRecord = null;
+
+        for (Record record : records) {
+            if ("Employee".equals(record.name)) {
+                employeeRecord = record;
+                break;
             }
         }
+
+        Assert.assertNotNull(employeeRecord);
+        testDeprecated(getField(employeeRecord.fields, "name"));
+        testNonDeprecated(getField(employeeRecord.fields, "age"));
+    }
+
+    private DefaultableVariable getField(List<DefaultableVariable> fields, String fieldName) {
+        for (DefaultableVariable field : fields) {
+            if (fieldName.equals(field.name)) {
+                return field;
+            }
+        }
+        return null;
     }
 
     private void testDeprecated(Construct element) {

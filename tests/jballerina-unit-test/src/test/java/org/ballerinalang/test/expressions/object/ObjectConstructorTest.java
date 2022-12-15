@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.expressions.object;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -57,7 +58,9 @@ public class ObjectConstructorTest {
                 {"testObjectConstructorWithDistinctTypeReferenceVar"},
                 {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
                 {"testObjectConstructorExprWithReadOnlyCET"},
-                {"testMultipleVarAssignments"}
+                {"testMultipleVarAssignments"},
+                {"testLocalVariablesAsFieldDefaults"},
+                {"testModuleLevelObjectCtrWithModuleLevelVariableAsFieldDefaults"}
         };
     }
 
@@ -214,10 +217,13 @@ public class ObjectConstructorTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_redeclared_symbols_negative.bal");
         int index = 0;
-        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 32);
-        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 42);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 36);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 46);
         validateError(negativeResult, index++, "redeclared symbol 'age'", 12, 17);
         validateError(negativeResult, index++, "redeclared symbol 'age'", 17, 17);
+        validateError(negativeResult, index++, "incompatible types: expected 'object { public function getSum " +
+             "(int) returns (int); }', found 'isolated object { public function getSum (other) returns (int); public " +
+             "function getAge (int,other) returns (int); public function getAgeOf () returns (int); }'", 23, 12);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -231,6 +237,16 @@ public class ObjectConstructorTest {
     @Test(dataProvider = "MultiLevelClosureTestFunctionList")
     public void testMultiLevelClosures(String funcName) {
         BRunUtil.invoke(multiLevelClosures, funcName);
+    }
+
+    @Test
+    public void testInvalidFieldsInObjectCtr() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/object/object_constructor_fields_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined symbol 'x'", 22, 17);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'x'", 33, 13);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass

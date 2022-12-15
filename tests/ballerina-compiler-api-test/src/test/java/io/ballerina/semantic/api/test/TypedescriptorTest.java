@@ -89,6 +89,7 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -791,15 +792,23 @@ public class TypedescriptorTest {
         assertEquals(members.get(1).typeKind(), READONLY);
     }
 
-    @Test
-    public void testDistinctObjects() {
-        Symbol symbol = getSymbol(174, 12);
-        TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+    @Test(dataProvider = "DistinctObjectTypeProvider")
+    public void testDistinctObjects(int line, int column, List<Qualifier> typeDefQuals, List<Qualifier> objectQuals) {
+        Symbol symbol = getSymbol(line, column);
+        assertEquals(symbol.kind(), TYPE_DEFINITION);
+        TypeDefinitionSymbol typeDefinitionSymbol = (TypeDefinitionSymbol) symbol;
+        TypeSymbol typeSymbol = (typeDefinitionSymbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), OBJECT);
+        assertQualifiers(typeDefinitionSymbol.qualifiers(), typeDefQuals);
+        assertQualifiers(((ObjectTypeSymbol) typeSymbol).qualifiers(), objectQuals);
+    }
 
-        assertTrue(((TypeDefinitionSymbol) symbol).qualifiers().contains(Qualifier.PUBLIC));
-        assertEquals(type.typeKind(), OBJECT);
-        // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27279
-//        assertTrue(((ObjectTypeSymbol) type).qualifiers().contains(Qualifier.DISTINCT));
+    @DataProvider(name = "DistinctObjectTypeProvider")
+    private Object[][] getDistinctObjectTypes() {
+        return new Object[][] {
+                {174, 12, List.of(Qualifier.PUBLIC), List.of(Qualifier.DISTINCT)},
+                {375, 12, List.of(Qualifier.PUBLIC), List.of(Qualifier.DISTINCT, Qualifier.SERVICE)},
+        };
     }
 
     @Test
@@ -1130,6 +1139,24 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test(dataProvider = "ClassAndObjectTypePosProvider")
+    public void testClassAndObjectType(int line, int column, String expectedSignature, TypeDescKind expTypeKind) {
+        Symbol varSymbol = getSymbol(line, column);
+        assertEquals(varSymbol.kind(), VARIABLE);
+        TypeSymbol typeSymbol = ((VariableSymbol) varSymbol).typeDescriptor();
+        assertEquals(typeSymbol.signature(), expectedSignature);
+        assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor().typeKind(), expTypeKind);
+    }
+
+    @DataProvider(name = "ClassAndObjectTypePosProvider")
+    private Object[][] getClassAndObjectTypePos() {
+        return new Object[][] {
+                {371, 12, "'client", OBJECT},
+                {372, 11, "'class", OBJECT},
+        };
+    }
+
     private List<SymbolInfo> createSymbolInfoList(Object[][] infoArr) {
         List<SymbolInfo> symInfo = new ArrayList<>();
         for (Object[] objects : infoArr) {
@@ -1240,8 +1267,17 @@ public class TypedescriptorTest {
         }
     }
 
+    private void assertQualifiers(List<Qualifier> qualifiers, List<Qualifier> expectedQualifiers) {
+        assertEquals(qualifiers.size(), expectedQualifiers.size());
+        for (Qualifier expectedQualifier : expectedQualifiers) {
+            assertTrue(qualifiers.contains(expectedQualifier));
+        }
+    }
+
     private Symbol getSymbol(int line, int column) {
-        return model.symbol(srcFile, from(line, column)).get();
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, column));
+        assertTrue(symbol.isPresent());
+        return symbol.get();
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {

@@ -20,7 +20,6 @@ OPTIONS
            Push the BALA of the current package to a custom repository.
            Only 'local' is allowed.
 
-
 EXAMPLES
        Push the BALA of the current package to Ballerina Central.
        The 'bal pack' command should be run before executing this.

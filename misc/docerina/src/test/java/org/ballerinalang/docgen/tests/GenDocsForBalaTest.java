@@ -48,7 +48,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaTest() throws IOException {
+    public void generatingDocsForBalaTest() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.5.bala");
 
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -76,6 +76,22 @@ public class GenDocsForBalaTest {
     }
 
     @Test
+    public void generatingDocsForBalaWithCompileErrors() {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.6.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        try {
+            BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), "API documentation generation failed due to compilation " +
+                    "errors: [ERROR [foo/fb.errors/1.3.6::world.bal:(24:16,24:24)] incompatible types: expected " +
+                    "'string', found 'int']");
+        }
+    }
+
+    @Test
     public void testDocutilsGetSummary() {
         String description = "Connects the fb communication services!@#$%^&*()-=+_';/?><|\"";
         String summary = BallerinaDocUtils.getSummary(description);
@@ -91,7 +107,7 @@ public class GenDocsForBalaTest {
     }
 
     @Test
-    public void generatingDocsForBalaWithAnnotationTest() throws IOException {
+    public void generatingDocsForBalaWithAnnotationTest() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("bar-testannotation-any-1.0.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -103,6 +119,20 @@ public class GenDocsForBalaTest {
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
         Assert.assertTrue(moduleApiDocsJsonAsString.contains("Expose"), "Variable annotation attachments missing");
         Assert.assertTrue(moduleApiDocsJsonAsString.contains("Task"), "Function annotation attachments missing");
+    }
+
+    @Test
+    public void generatingDocsForBalaWithAnnotationTest2() throws Exception {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        String moduleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("ballerina").resolve("http").resolve("2.4.0")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(moduleApiDocsJsonAsString.contains("QueryParamType"), "QueryParamType missing in docs");
     }
 
     @AfterMethod

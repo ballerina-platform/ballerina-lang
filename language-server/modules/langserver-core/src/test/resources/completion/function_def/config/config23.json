@@ -302,7 +302,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "mod1",
       "insertText": "mod1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -326,7 +326,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "filterText": "",
+      "filterText": "mod2",
       "insertText": "mod2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -555,7 +555,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _lstest/projectls:0.1.0_  \n  \n  \n**Params**  \n- `string` a  \n- `int` b(Defaultable)  \n  \n**Return** `string`   \n  \n"
         }
       },
       "sortText": "G",
@@ -585,7 +585,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _chiran/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _lstest/projectls:0.1.0_  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
       "sortText": "AC",
@@ -768,6 +768,39 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "regexp",
+      "insertText": "regexp",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.regexp;\n"
+        }
+      ]
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
       "insertTextFormat": "Snippet"
     }
   ]

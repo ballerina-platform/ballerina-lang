@@ -1,0 +1,49 @@
+{
+  "range": {
+    "start": {
+      "line": 13,
+      "character": 22
+    },
+    "end": {
+      "line": 13,
+      "character": 43
+    }
+  },
+  "source": "extract_to_function_exprs_mapping_constructor.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 16,
+              "character": 1
+            },
+            "end": {
+              "line": 16,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns Record {\n    return { name: \"ballerina\" };\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 22
+            },
+            "end": {
+              "line": 13,
+              "character": 43
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "resolvable": false
+    }
+  ],
+  "description": "Extract to function for expressions, mapping constructor inside function block"
+}

@@ -826,6 +826,27 @@ class IsolatedClassWithRawTemplateTransfer {
     }
 }
 
+class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+    private int z = 1;
+
+    function init() {
+    }
+}
+
+final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr f = new;
+
+function f3() returns IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
+    lock {
+        return f;
+    }
+}
+
+function f4() {
+    lock {
+        _ = f;
+    }
+}
+
 type Obj object {
     int i;
     int[] j;

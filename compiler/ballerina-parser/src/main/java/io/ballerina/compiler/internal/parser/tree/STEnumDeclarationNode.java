@@ -38,6 +38,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode openBraceToken;
     public final STNode enumMemberList;
     public final STNode closeBraceToken;
+    public final STNode semicolonToken;
 
     STEnumDeclarationNode(
             STNode metadata,
@@ -46,7 +47,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode identifier,
             STNode openBraceToken,
             STNode enumMemberList,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         this(
                 metadata,
                 qualifier,
@@ -55,6 +57,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 enumMemberList,
                 closeBraceToken,
+                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -66,6 +69,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode openBraceToken,
             STNode enumMemberList,
             STNode closeBraceToken,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ENUM_DECLARATION, diagnostics);
         this.metadata = metadata;
@@ -75,6 +79,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
         this.openBraceToken = openBraceToken;
         this.enumMemberList = enumMemberList;
         this.closeBraceToken = closeBraceToken;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
@@ -83,7 +88,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -95,6 +101,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 this.openBraceToken,
                 this.enumMemberList,
                 this.closeBraceToken,
+                this.semicolonToken,
                 diagnostics);
     }
 
@@ -105,7 +112,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
             STNode identifier,
             STNode openBraceToken,
             STNode enumMemberList,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 qualifier,
@@ -113,7 +121,8 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 identifier,
                 openBraceToken,
                 enumMemberList,
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -125,6 +134,7 @@ public class STEnumDeclarationNode extends STModuleMemberDeclarationNode {
                 openBraceToken,
                 enumMemberList,
                 closeBraceToken,
+                semicolonToken,
                 diagnostics);
     }
 

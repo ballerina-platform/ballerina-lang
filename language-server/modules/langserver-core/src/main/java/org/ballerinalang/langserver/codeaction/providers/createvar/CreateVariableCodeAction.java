@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -64,12 +65,14 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
      */
     @Override
     public int priority() {
+
         return 999;
     }
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
+
         return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange());
     }
@@ -81,8 +84,10 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
+
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE
+                || isCompilationErrorTyped(typeSymbol.get())) {
             return Collections.emptyList();
         }
 
@@ -113,14 +118,31 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         return actions;
     }
 
+    private boolean isCompilationErrorTyped(TypeSymbol typeSymbol) {
+
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol);
+        }
+
+        return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR;
+    }
+
+    protected boolean isUnionCompErrorTyped(UnionTypeSymbol unionTypeSymbol) {
+
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(tSymbol -> tSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR);
+    }
+
     @Override
     public String getName() {
+
         return NAME;
     }
 
     protected CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,
                                                            TypeSymbol typeDescriptor, CodeActionContext context,
                                                            ImportsAcceptor importsAcceptor) {
+
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
         Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
@@ -152,6 +174,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
      * @return Optional expected type symbol
      */
     protected Optional<TypeSymbol> getExpectedTypeSymbol(DiagBasedPositionDetails positionDetails) {
+
         Optional<Symbol> symbol = positionDetails.diagnosticProperty(
                 CodeActionUtil.getDiagPropertyFilterFunction(
                         DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
@@ -182,6 +205,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 
         public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports,
                                  List<Integer> renamePositions) {
+
             this.name = name;
             this.types = types;
             this.edits = edits;
@@ -192,6 +216,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
 
     public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, TextEdit variableEdit,
                                CodeAction codeAction, int renameOffset) {
+
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         if (syntaxTree.isEmpty()) {
             return;
@@ -206,15 +231,21 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         2. If any text edits are applied before the variable creation edit, the length of those edits is added to the
            "sum". In the above example, the length of "error?" will be added.
         3. renameOffset gives the length of the variable type and the white space between the variable type and the
-           variable. In the example the renameOffset will be the length of "int ".
+           variable. In the example, the renameOffset will be the length of "int ".
         */
 
         int startPos = CommonUtil.getTextEdit(syntaxTree.get(), variableEdit).range().startOffset();
         int sum = 0;
         for (TextEdit textEdit : textEdits) {
             io.ballerina.tools.text.TextEdit edits = CommonUtil.getTextEdit(syntaxTree.get(), textEdit);
-            if (edits.range().startOffset() < startPos) {
+            int startOffset = edits.range().startOffset();
+            int endOffset = edits.range().endOffset();
+            if (startOffset < startPos) {
                 sum = sum + edits.text().length();
+                if (startOffset < endOffset) {
+                    int returnTypeLength = endOffset - startOffset;
+                    sum = sum - returnTypeLength;
+                }
             }
         }
 

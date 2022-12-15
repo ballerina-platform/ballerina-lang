@@ -327,7 +327,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
+                        this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params,
                         cancelChecker);
@@ -353,10 +353,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                if (resolvableCodeAction.getData() == null || resolvableCodeAction.getData().getFileUri() == null) {
+                   // Probably not a resolvable code action. Can be the client sending resolve request for a
+                   // scenario where code action's text edit is empty
+                    this.clientLogger.logWarning("Invalid resolvable code action received: " + codeAction.getTitle());
+                    return codeAction;
+                }
                 String fileUri = resolvableCodeAction.getData().getFileUri();
                 CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
                         fileUri,
-                        workspaceManagerProxy.get(),
+                        workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         cancelChecker);
                 return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
@@ -370,7 +376,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         (Position) null);
             }
 
-            return null;
+            return codeAction;
         });
     }
 

@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 1,
+    "character": 32
+  },
+  "source": "extractToVariableInStartAction.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

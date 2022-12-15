@@ -39,8 +39,10 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.PackageCompone
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeActionResolveSupportCapabilities;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionContext;
@@ -324,7 +326,12 @@ public class TestUtil {
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
-        CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
+        return getCodeActionResponse(serviceEndpoint, identifier, range, context);
+    }
+
+    public static String getCodeActionResponse(Endpoint serviceEndpoint, TextDocumentIdentifier textDocument,
+                                               Range range, CodeActionContext context) {
+        CodeActionParams codeActionParams = new CodeActionParams(textDocument, range, context);
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
     }
@@ -868,9 +875,17 @@ public class TestUtil {
 
                 textDocumentClientCapabilities.setCompletion(completionCapabilities);
                 textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+                // Code action capabilities
+                CodeActionResolveSupportCapabilities resolveSupportCapabilities = 
+                        new CodeActionResolveSupportCapabilities(List.of("edit"));
+                CodeActionCapabilities codeActionCapabilities = new CodeActionCapabilities();
+                codeActionCapabilities.setResolveSupport(resolveSupportCapabilities);
+                textDocumentClientCapabilities.setCodeAction(codeActionCapabilities);
+                // Folding range capabilities
                 FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
                 foldingRangeCapabilities.setLineFoldingOnly(true);
                 textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+                // Rename capabilities
                 RenameCapabilities renameCapabilities = new RenameCapabilities();
                 renameCapabilities.setPrepareSupport(true);
                 renameCapabilities.setHonorsChangeAnnotations(true);

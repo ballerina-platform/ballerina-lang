@@ -203,6 +203,16 @@ public class QueryActionTest {
         };
     }
 
+    @Test
+    public void testQueryWithOptionalFieldRecord() {
+        BRunUtil.invoke(result, "testQueryWithOptionalFieldRecord");
+    }
+
+    @Test
+    public void testQueryWithStream() {
+        BRunUtil.invoke(result, "testQueryStreamWithDiffTargetTypes");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

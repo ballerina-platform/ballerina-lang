@@ -40,11 +40,14 @@ import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
+import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
@@ -79,11 +82,11 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(VariableDeclarationNode node) {
-        return isVisited(node) || node.equalsToken().isPresent()
-                && !node.equalsToken().get().isMissing()
-                && node.typedBindingPattern().apply(this)
+        return isVisited(node) || node.typedBindingPattern().apply(this)
+                // checks for both variables with & without the initializer
+                && (node.equalsToken().isEmpty() || !node.equalsToken().get().isMissing()
                 && node.initializer().isPresent()
-                && node.initializer().get().apply(this);
+                && node.initializer().get().apply(this));
     }
 
     @Override
@@ -127,8 +130,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
     public Boolean transform(TableTypeDescriptorNode node) {
         return isVisited(node) || !node.tableKeywordToken().isMissing()
                 && node.rowTypeParameterNode().apply(this)
-                && node.keyConstraintNode().isPresent()
-                && node.keyConstraintNode().get().apply(this);
+                // checks both when the key constraint is available and not
+                && (node.keyConstraintNode().isEmpty() || node.keyConstraintNode().get().apply(this));
     }
 
     @Override
@@ -235,7 +238,8 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
 
     @Override
     public Boolean transform(ListConstructorExpressionNode node) {
-        return isVisited(node) || !node.openBracket().isMissing() && !node.closeBracket().isMissing()
+        return isVisited(node) || !node.openBracket().isMissing()
+                && !node.closeBracket().isMissing()
                 && node.expressions().stream().allMatch(arg -> arg.apply(this))
                 && node.parent().apply(this);
     }
@@ -291,6 +295,7 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.closeParenToken().isMissing()
                 && node.leadingInvalidTokens().isEmpty()
                 && node.trailingInvalidTokens().isEmpty()
+                && (node.returnTypeDesc().isEmpty() || node.returnTypeDesc().get().apply(this))
                 && node.parameters().stream().allMatch(parameterNode -> parameterNode.apply(this));
     }
 
@@ -300,7 +305,14 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.openBraceToken().isMissing()
                 && !node.closeBraceToken().isMissing()
                 && node.leadingInvalidTokens().isEmpty()
-                && node.trailingInvalidTokens().isEmpty();
+                && node.trailingInvalidTokens().isEmpty()
+                && node.parent().apply(this);
+    }
+
+    @Override
+    public Boolean transform(ReturnTypeDescriptorNode node) {
+        return isVisited(node) || !node.returnsKeyword().isMissing()
+                && node.type().apply(this);
     }
 
     @Override
@@ -320,6 +332,22 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && node.members().stream().allMatch(member -> member.apply(this));
     }
 
+    @Override
+    public Boolean transform(TableConstructorExpressionNode node) {
+        return isVisited(node) || !node.tableKeyword().isMissing()
+                && !node.openBracket().isMissing()
+                && !node.closeBracket().isMissing()
+                && (node.keySpecifier().isEmpty() || node.keySpecifier().get().apply(this))
+                && node.rows().stream().allMatch(row -> row.apply(this))
+                && node.parent().apply(this);
+    }
+
+    @Override
+    public Boolean transform(TemplateExpressionNode node) {
+        return isVisited(node) || !node.startBacktick().isMissing()
+                && !node.endBacktick().isMissing();
+    }
+    
     @Override
     public Boolean transform(QualifiedNameReferenceNode node) {
         /*

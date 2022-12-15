@@ -86,7 +86,6 @@ public class PackageResolution {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);

@@ -248,7 +248,6 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
-
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }

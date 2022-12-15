@@ -49,6 +49,9 @@ public class ProjectConstants {
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
 
+    public static final String NATIVE_DIR_NAME = "native";
+    public static final String NATIVE_CONFIG_DIR_NAME = "native-config";
+
     public static final String CACHES_DIR_NAME = "cache";
 
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
@@ -60,6 +63,7 @@ public class ProjectConstants {
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
+    public static final String GENERATED_MODULES_ROOT = "generated";
     public static final String LIB_DIR = "lib";
     public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
 

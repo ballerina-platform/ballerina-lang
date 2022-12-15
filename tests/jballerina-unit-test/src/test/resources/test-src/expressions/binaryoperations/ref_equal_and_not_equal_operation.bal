@@ -72,6 +72,17 @@ function testFloatRefEquality(float a, float b) returns boolean {
     return a === b && !(a !== b);
 }
 
+function checkDecimalRefEquality() {
+    decimal d1 = 0d;
+    decimal d2 = 0.0d;
+    decimal d3 = 1.0001;
+    decimal d4 = 1.000100;
+    test:assertTrue((d1 === d1) && !(d1 !== d1));
+    test:assertTrue((d3 === d3) && !(d4 !== d4));
+    test:assertFalse((d1 === d2) && !(d1 !== d2));
+    test:assertFalse((d3 === d4) && !(d4 !== d3));
+}
+
 function testStringRefEquality(string a, string b) returns boolean {
     return a === b && !(a !== b);
 }
@@ -619,6 +630,27 @@ function func1 = func;
 function func2 = funcClone;
 function func3 = function() => ();
 
+function func_with_param(string param) {
+}
+
+function func_with_return() returns error? {
+}
+
+function func_with_rest_param(string... params) {
+}
+
+function func_with_default_param(string param = "test") {
+}
+
+function func_with_all(string param1, string param2 = "test", string... param3) returns error? {
+}
+
+function funcParam = func_with_param;
+function funcDefaultParam = func_with_default_param;
+function funcRestParam = func_with_rest_param;
+function funcReturn = func_with_return;
+function funcWithAll = func_with_all;
+
 function testFPValueEquality() {
     function func4 = function() => ();
 
@@ -629,9 +661,21 @@ function testFPValueEquality() {
     test:assertTrue(func4 === func4);
     test:assertTrue(func3 === func3);
 
+    test:assertTrue(funcParam === funcParam);
+    test:assertTrue(funcDefaultParam === funcDefaultParam);
+    test:assertTrue(funcRestParam === funcRestParam);
+    test:assertTrue(funcReturn === funcReturn);
+    test:assertTrue(funcWithAll === funcWithAll);
+
     test:assertFalse(func === funcClone);
     test:assertFalse(func1 === func2);
     test:assertFalse(func3 === func4);
+
+    test:assertFalse(funcParam === funcDefaultParam);
+    test:assertFalse(funcDefaultParam === funcRestParam);
+    test:assertFalse(funcRestParam === funcReturn);
+    test:assertFalse(funcReturn === funcWithAll);
+    test:assertFalse(funcWithAll === funcParam);
 }
 
 function assert(anydata actual, anydata expected) {

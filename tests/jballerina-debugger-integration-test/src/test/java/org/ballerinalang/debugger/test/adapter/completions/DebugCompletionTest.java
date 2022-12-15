@@ -129,7 +129,7 @@ public class DebugCompletionTest extends BaseTestCase {
         debugTestRunner.assertCompletions(completions, "carName");
 
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "person.getCar().getCarName().");
-        Assert.assertEquals(completions.size(), 37);
+        Assert.assertEquals(completions.size(), 39);
         debugTestRunner.assertCompletions(completions, "toBalString()");
 
         // Debug completions test for object remote functions
