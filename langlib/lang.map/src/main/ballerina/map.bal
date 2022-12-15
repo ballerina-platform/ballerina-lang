@@ -30,9 +30,8 @@ type Type1 any|error;
 
 # Returns number of members of a map.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# int length = marksMap.length();
+# ```
+# {"Carl": 85, "Bob": 50, "Max": 60}.length() ⇒ 3
 # ```
 #
 # + m - the map
@@ -44,11 +43,11 @@ public isolated function length(map<any|error> m) returns int =@java:Method {
 
 # Returns an iterator over a map.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
 # object {
 #     public isolated function next() returns record {|int value;|}?;
-# } iterator = marksMap.iterator();
+# } iterator = marks.iterator();
 # record {|int value;|}? next = iterator.next();
 # ```
 #
@@ -69,21 +68,8 @@ public isolated function iterator(map<Type> m) returns object {
 
 # Returns the member of a map with given key.
 #
-# ```ballerina
-# map<Employee> employees = {
-#    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
-#    "Emma": {firstName: "Emma", lastName: "White", id: 2122},
-#    "John": {firstName: "John", lastName: "Doe", id: 2123}
-# };
-#
-# string key = "Jo";
-# Employee employee = employees.get(key);
-#
-# type Employee record {
-#     string firstName;
-#     string lastName?;
-#     int id;
-# };
+# ```
+# {"Carl": 85, "Bob": 50, "Max": 60}.get("Carl") ⇒ 85
 # ```
 #
 # This for use in a case where it is known that the map has a specific key,
@@ -99,9 +85,9 @@ public isolated function get(map<Type> m, string k) returns Type = @java:Method 
 
 # Returns a map containing [key, member] pair as the value for each key.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# map<[string, int]> entries = marksMap.entries();
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50};
+# marks.entries() ⇒ {"Carl": ["Carl", 85], "Bob": ["Bob", 50]}
 # ```
 #
 # + m - the map
@@ -115,32 +101,9 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 
 # Applies a function each member of a map and returns a map of the result.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# map<boolean> results = marksMap.'map((marks) => marks > 50);
-#
-# map<Employee> employees = {
-#    "Jo": {firstName: "Jo", lastName: "David", id: 2121},
-#    "Emma": {firstName: "Emma", lastName: "White", id: 2122},
-#    "John": {firstName: "John", lastName: "Doe", id: 2123}
-# };
-#
-# map<string> fullNames =
-#    employees.'map(isolated function(Employee employee) returns string {
-#    string? lastName = employee.lastName;
-#
-#    if lastName is () {
-#        return employee.firstName;
-#    }
-#
-#    return string `${employee.firstName} ${lastName}`;
-# });
-#
-# type Employee record {
-#     string firstName;
-#     string lastName?;
-#     int id;
-# };
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.'map((marks) => marks > 50) ⇒ {"Carl": true, "Bob": false};
 # ```
 #
 # The resulting map will have the same keys as the argument map.
@@ -155,24 +118,12 @@ public isolated function 'map(map<Type> m, @isolatedParam function(Type val) ret
 
 # Applies a function to each member of a map.
 #
-# ```ballerina
-# map<Employee> employees = {
-#    "Jo": {name: "Jo", id: 2121, salary: 1200},
-#    "Emma": {name: "Emma", id: 2122, salary: ()},
-#    "John": {name: "John", id: 2123, salary: 1500}
-# };
-#
-# employees.forEach(isolated function (Employee employee) {
-#     if employee.salary == () {
-#         employee.salary = 1000;
-#     }
+# ```
+# int total = 0;
+# {"Carl": 85, "Bob": 50, "Max": 60}.forEach(function (int m) {
+#     total += m;
 # });
-#
-# type Employee record {|
-#     string name;
-#     int id;
-#     decimal? salary;
-# |};
+# total ⇒ 195
 # ```
 #
 # The parameter `func` is applied to each member of parameter `m`.
@@ -186,26 +137,9 @@ public isolated function forEach(map<Type> m, @isolatedParam function(Type val) 
 
 # Selects the members from a map for which a function returns true.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# map<int> filteredMarks = marksMap.filter((marks) => marks >= 50);
-#
-# map<Employee> employees = {
-#    "Jo": {name: "Jo", id: 2121, salary: 1200},
-#    "Emma": {name: "Emma", id: 2122, salary: 900},
-#    "John": {name: "John", id: 2123, salary: 1500}
-# };
-#
-# map<Employee> filteredBySalary = employees.filter(isolated function (Employee employee) returns boolean {
-#     decimal salary = employee.salary;
-#     return salary > 1000d && salary < 1500d;
-# });
-#
-# type Employee record {|
-#     string name;
-#     int id;
-#     decimal salary;
-# |};
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.filter((m) => m >= 60) ⇒ {"Carl": 85, "Max": 60}
 # ```
 #
 # + m - the map
@@ -218,26 +152,9 @@ public isolated function filter(map<Type> m, @isolatedParam function(Type val) r
 
 # Combines the members of a map using a combining function.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# int totalMarks = marksMap.reduce(isolated function (int accumulatedTotal, int marks) returns int => accumulatedTotal + marks, 0);
-#
-# map<Employee> employees = {
-#    "Jo": {name: "Jo", id: 2121, salary: 1200},
-#    "Emma": {name: "Emma", id: 2122, salary: 900},
-#    "John": {name: "John", id: 2123, salary: 1500}
-# };
-#
-# decimal currentTotal = 10500;
-# decimal totalSalary = employees.reduce(isolated function (decimal accumulatedTotal, Employee employee) returns decimal {
-#     return accumulatedTotal + employee.salary;
-# }, currentTotal);
-#
-# type Employee record {|
-#     string name;
-#     int id;
-#     decimal salary;
-# |};
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.reduce(isolated function (int accTot, int next) returns int => accTot + next, 0) ⇒ 195;
 # ```
 #
 # The combining function takes the combined value so far and a member of the map,
@@ -255,10 +172,10 @@ public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum
 
 # Removes a member of a map.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# string key = "Carl";
-# int removedMarks = marksMap.remove(key);
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.remove("Carl") ⇒ 85
+# marks ⇒ {"Bob": 50, "Max": 60}
 # ```
 #
 # This removes the member of parameter `m` with key parameter `k` and returns it.
@@ -274,14 +191,14 @@ public isolated function remove(map<Type> m, string k) returns Type = @java:Meth
 
 # Removes a member of a map with a given key, if the map has member with the key.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# string key = "John";
-# int? removedMarks = marksMap.removeIfHasKey(key);
-# ```
-#
 # If parameter `m` has a member with key parameter `k`, it removes and returns it;
 # otherwise it returns `()`.
+#
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.removeIfHasKey("Carl") ⇒ 85
+# marks ⇒ {"Bob": 50, "Max": 60}
+# ```
 #
 # + m - the map
 # + k - the key
@@ -293,9 +210,10 @@ public isolated function removeIfHasKey(map<Type> m, string k) returns Type? = @
 
 # Removes all members of a map.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# marksMap.removeAll();
+# ```
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
+# marks.removeAll();
+# marks ⇒ {}
 # ```
 #
 # This panics if any member cannot be removed.
@@ -308,10 +226,8 @@ public isolated function removeAll(map<any|error> m) returns () = @java:Method {
 
 # Tests whether a map value has a member with a given key.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# string key = "Carl";
-# boolean hasMarks = marksMap.hasKey(key);
+# ```
+# {"Carl": 85, "Bob": 50, "Max": 60}.hasKey("Carl") ⇒ true
 # ```
 #
 # + m - the map
@@ -324,9 +240,8 @@ public isolated function hasKey(map<Type> m, string k) returns boolean = @java:M
 
 # Returns a list of all the keys of a map.
 #
-# ```ballerina
-# map<int> marksMap = {"Carl": 85, "Bob": 50, "Max": 60};
-# string[] keys = marksMap.keys();
+# ```
+# {"Carl": 85, "Bob": 50, "Max": 60}.keys() ⇒ ["Carl", "Bob", "Max"]
 # ```
 #
 # + m - the map
@@ -338,9 +253,8 @@ public isolated function keys(map<any|error> m) returns string[] = @java:Method 
 
 # Returns a list of all the members of a map.
 #
-# ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# int[] marksArray = marks.toArray();
+# ```
+# {"Carl": 85, "Bob": 50, "Max": 60}.toArray() ⇒ [85, 50, 60]
 # ```
 #
 # + m - the map
