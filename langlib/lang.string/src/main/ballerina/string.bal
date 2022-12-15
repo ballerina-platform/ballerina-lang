@@ -317,6 +317,11 @@ public type RegExp regexp:RegExp;
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 # This is equivalent to `regex:isFullMatch(re, str)`.
 #
+# ```ballerina
+#string sampleString = "This is a Match";
+#sampleString.matches(re `A|Th.*ch|^`) ⇒ true
+# ```
+#
 # + str - the string
 # + re - the regular expression
 # + return - true if there is full match of `re` with `str`, and false otherwise
@@ -326,6 +331,11 @@ public function matches(string str, RegExp re) returns boolean {
 
 # Tests whether there is a match of a regular expression somewhere within a string.
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
+#
+# ```ballerina
+#string sampleString = "Will Match Somewhere";
+#sampleString.includesMatch(re `A|Th.*ch|^`) ⇒ true
+# ```
 #
 # + str - the string to be matched
 # + re - the regular expression
