@@ -82,8 +82,8 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 # Returns the absolute value of an int value.
 #
 # ```ballerina
-# int velocity = -25;
-# int speed = velocity.abs();
+# (-25).abs() ⇒ 25
+# int:abs(-30) ⇒ 30
 # ```
 #
 # + n - int value to be operated on
@@ -96,13 +96,12 @@ public isolated function abs(int n) returns int = @java:Method {
 # Returns sum of zero or more int values.
 #
 # ```ballerina
-# // Retrieve the sum of multiple integers.
-# int totalValue = int:sum(10, 20, 30, 40);
-#
-# // Retrieve the sum using the method call expression.
-# int initialScore = 4;
-# int totalScore = initialScore.sum(5, 6, 7);
+# int:sum(10, 20, 30, 40) ⇒ 100
+# 
+# int[] marks = [50, 65, 78, 95];
+# int total = int:sum(...marks) ⇒ 288
 # ```
+# 
 # + ns - int values to sum
 # + return - sum of all of parameter `ns`; 0 if parameter `ns` is empty
 public isolated function sum(int... ns) returns int = @java:Method {
@@ -113,12 +112,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
 # Returns the maximum of one or more int values.
 #
 # ```ballerina
-# // Retrieve the maximum value out of the list of integers.
-# int highestMark = int:max(50, 20, 30, 70, 65);
-#
-# // Retrieve the maximum value out of the list of integers using method call expression.
-# int initialScore = 5;
-# int highestScore = initialScore.max(4, 8, 9);
+# int:max(50, 20, 30, 70, 65) ⇒ 70
 # ```
 # + n - first int value
 # + ns - other int values
@@ -131,12 +125,7 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 # Returns the minimum of one or more int values.
 #
 # ```ballerina
-# // Retrieve the minimum value out of the list of integers.
-# int lowerstMark = int:min(45, 25, 30, 75, 50);
-#
-# // Retrieve the minimum value out of the list of integers using method call expression.
-# int startingScore = 10;
-# int lowerstScore = startingScore.min(10, 25, 2, 8, 17);
+# int:min(45, 25, 30, 75, 50) ⇒ 25
 # ```
 #
 # + n - first int value
@@ -154,8 +143,7 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # This is the inverse of function ``value:toString`` applied to an `int`.
 #
 # ```ballerina
-# string numericStr = "56";
-# int number = check int:fromString(numericStr);
+# check int:fromString("76") ⇒ 76
 # ```
 #
 # + s - string representation of a integer value
@@ -172,8 +160,7 @@ public isolated function fromString(string s) returns int|error = @java:Method {
 # non-negative numbers.
 #
 # ```ballerina
-# int number = 25;
-# string hexNumber = number.toHexString();
+# 26.toHexString() ⇒ 1a
 # ```
 #
 # + n - int value
@@ -191,8 +178,7 @@ public isolated function toHexString(int n) returns string = @java:Method {
 # Returns an error if the parameter `s` is not in an allowed format.
 #
 # ```ballerina
-# string hexStr = "1A6F";
-# int number = check int:fromHexString(hexStr);
+# check int:fromHexString("1A6F") ⇒ 6767
 # ```
 #
 # + s - hexadecimal string representation of int value
