@@ -207,8 +207,7 @@ public class SymbolDocumentationTest {
                 "Returns the length of the string.\n" +
                         "\n" +
                         "```ballerina\n" +
-                        "string greeting = \"Hello, World!\";\n" +
-                        "greeting.length() ⇒ 13;\n" +
+                        "\"Hello, World!\".length() ⇒ 13;\n" +
                         "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (code points) in parameter `str`");
@@ -232,8 +231,7 @@ public class SymbolDocumentationTest {
                 "Returns the length of the string.\n" +
                         "\n" +
                         "```ballerina\n" +
-                        "string greeting = \"Hello, World!\";\n" +
-                        "greeting.length() ⇒ 13;\n" +
+                        "\"Hello, World!\".length() ⇒ 13;\n" +
                         "```\n");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the number of characters (code points) in parameter `str`");
