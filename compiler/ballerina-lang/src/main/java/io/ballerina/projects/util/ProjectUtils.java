@@ -734,15 +734,15 @@ public class ProjectUtils {
         content.append("[ballerina]\n");
         content.append("version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
 
         // write dependencies from package dependency graph
         pkgGraphDependencies.forEach(graphDependency -> {
+            content.append("\n");
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
                                  descriptor.version().value().toString(), null, Collections.emptyList(),
                                  Collections.emptyList());
-            content.append("\n");
         });
         return String.valueOf(content);
     }
@@ -760,14 +760,14 @@ public class ProjectUtils {
         StringBuilder content = new StringBuilder(comment);
         content.append("[ballerina]\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
+            content.append("\n");
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
                                  getDependencyScope(dependency.getScope()), dependency.getDependencies(),
                                  dependency.getModules());
-            content.append("\n");
         });
         return String.valueOf(content);
     }

@@ -25,4 +25,3 @@ modules = [
 	{org = "adv_res", packageName = "package_q_pre_release_only", moduleName = "package_q_pre_release_only"}
 ]
 
-
