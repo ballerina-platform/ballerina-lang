@@ -45,8 +45,7 @@ type Type1 any|error;
 #
 # ```ballerina
 # stream<int> scoreStream = [45, 60, 75, 30, 90].toStream();
-# stream<int> filtered = scoreStream.filter(score => score > 50);
-# filtered.next() ⇒ {"value":60}
+# scoreStream.filter(score => score > 50).next() ⇒ {"value":60}
 # ```
 #
 # + stm - the stream
