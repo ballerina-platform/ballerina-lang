@@ -74,6 +74,7 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("[pass] intAddTest2"));
         Assert.assertTrue(buildLog.contains("[pass] intAddTest3"));
         Assert.assertTrue(buildLog.contains("[pass] intAddTest4"));
-
+        Assert.assertTrue(buildLog.contains("[pass] intAddInsideTest"));
+        Assert.assertTrue(buildLog.contains("[pass] intDivInsideTest"));
     }
 }

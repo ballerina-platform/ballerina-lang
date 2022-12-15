@@ -37,6 +37,12 @@ function intAddTest4() {
 
 }
 
+@test:Config {}
+function intAddInsideTest() {
+    test:when(intAddMockFn).thenReturn(210);
+    test:assertEquals(intAddInside(33, 35), 310);
+}
+
 function intSub(int a, int b) returns int {
     return (a - b);
 }

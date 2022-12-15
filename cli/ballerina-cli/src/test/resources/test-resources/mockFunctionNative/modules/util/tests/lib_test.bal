@@ -48,6 +48,12 @@ function intAddTest() {
 
 }
 
+@test:Config {}
+function intDivInsideTest() {
+    test:when(mockFunc1).thenReturn(100);
+    test:assertEquals(util3:intDivInside(10, 10), 200);
+}
+
 function intSub(int a, int b) returns int {
     return (a - b);
 }
