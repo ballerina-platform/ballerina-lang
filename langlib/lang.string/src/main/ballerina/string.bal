@@ -26,8 +26,7 @@ public type RegExp regexp:RegExp;
 # Returns the length of the string.
 #
 # ```ballerina
-# string greeting = "Hello, World!";
-# greeting.length() ⇒ 13;
+# "Hello, World!".length() ⇒ 13;
 # ```
 #
 # + str - the string
@@ -90,8 +89,8 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 # Returns a substring of a string.
 #
 # ```ballerina
-# "Hello, my name is John".substring(7) ⇒ "my name is John"
-# "Hello, my name is John Anderson".substring(18, 22) ⇒ "John"
+# "Hello, my name is John".substring(7) ⇒ my name is John
+# "Hello, my name is John Anderson".substring(18, 22) ⇒ John
 # ```
 #
 # + str - source string.
@@ -126,10 +125,10 @@ public isolated function codePointCompare(string str1, string str2) returns int 
 # Joins zero or more strings together with a separator.
 #
 # ```ballerina
-# string:'join(" ", "Ballerina", "is", "a", "programming", "language") ⇒ "Ballerina is a programming language"
+# string:'join(" ", "Ballerina", "is", "a", "programming", "language") ⇒ Ballerina is a programming language
 #
 # string[] array = ["John", "23", "USA", "Computer Science", "Swimmer"];
-# string:'join(",", ...array) ⇒ "John,23,USA,Computer Science,Swimmer"
+# string:'join(",", ...array) ⇒ John,23,USA,Computer Science,Swimmer
 # ```
 #
 # + separator - separator string
@@ -236,7 +235,7 @@ public isolated function endsWith(string str, string substr) returns boolean = @
 # Other characters are left unchanged.
 #
 # ```ballerina
-# "HELLO, World!".toLowerAscii() ⇒ "hello, world!"
+# "HELLO, World!".toLowerAscii() ⇒ hello, world!
 # ```
 #
 # + str - the string to be converted
@@ -251,7 +250,7 @@ public isolated function toLowerAscii(string str) returns string = @java:Method 
 # Other characters are left unchanged.
 #
 # ```ballerina
-# "hello, World!".toUpperAscii() ⇒ "HELLO, WORLD!"
+# "hello, World!".toUpperAscii() ⇒ HELLO, WORLD!
 # ```
 #
 # + str - the string to be converted
@@ -283,7 +282,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 # The ASCII white space characters are 0x9...0xD, 0x20.
 #
 # ```ballerina
-# " BALLERINA  ".trim() ⇒ "BALLERINA"
+# " BALLERINA  ".trim() ⇒ BALLERINA
 # ```
 #
 # + str - the string
@@ -352,7 +351,7 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
 # but not in the range 0xD800 or 0xDFFF inclusive.
 #
 # ```ballerina
-# string:fromCodePointInts([66, 97, 108, 108, 101, 114, 105, 110, 97]) ⇒ "Ballerina"
+# string:fromCodePointInts([66, 97, 108, 108, 101, 114, 105, 110, 97]) ⇒ Ballerina
 # ```
 #
 # + codePoints - an array of ints, each specifying a code point
@@ -369,7 +368,7 @@ public isolated function fromCodePointInts(int[] codePoints) returns string|erro
 # but not in the range 0xD800 or 0xDFFF inclusive.
 #
 # ```ballerina
-# string:fromCodePointInt(97) ⇒ "a"
+# string:fromCodePointInt(97) ⇒ a
 # ```
 #
 # + codePoint - an int specifying a code point
@@ -385,7 +384,7 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "100Km".padStart(10, "0") ⇒ "00000100Km"
+# "100Km".padStart(10, "0") ⇒ 00000100Km
 # ```
 #
 # + str - the string to pad
@@ -402,7 +401,7 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "Ballerina for developers".padEnd(30, "!") ⇒ "Ballerina for developers!!!!!!"
+# "Ballerina for developers".padEnd(30, "!") ⇒ Ballerina for developers!!!!!!
 # ```
 #
 # + str - the string to pad
@@ -420,7 +419,7 @@ public isolated function padEnd(string str, int len, Char padChar = " ") returns
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "-256".padZero(9) ⇒ "-00000256"
+# "-256".padZero(9) ⇒ -00000256
 # ```
 #
 # + str - the string to pad
