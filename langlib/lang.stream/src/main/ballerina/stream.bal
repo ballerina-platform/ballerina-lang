@@ -61,8 +61,8 @@ public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
 #
 # ```ballerina
-# stream<string> greetingStream = ["Hello", "Bonjour", "Hola", "Ciao"].toStream();
-# greetingStream.next() ⇒ {"value":"Hello"}
+# stream<int> scoreStream = [45, 60, 75, 30, 90].toStream();
+# scoreStream.next() ⇒ {"value":45}
 # ```
 #
 # + stm - The stream
@@ -189,7 +189,6 @@ public isolated function iterator(stream<Type,CompletionType> stm) returns objec
 # ```ballerina
 # stream<int> scoreStream = [45, 60, 75, 30, 90].toStream();
 # _ = scoreStream.close();
-# scoreStream.next() ⇒ {"value":45}
 # ```
 #
 # This releases any system resources being used by the stream.
