@@ -85,7 +85,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         // 6. the qualified name reference of a function call expression
         // 7. a record field with default value
         // 8. a function call expression used in a start action
-        // 9. a client declaration or a module client declaration
         return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
                 && !(nodeKind == SyntaxKind.MAPPING_CONSTRUCTOR && parentKind == SyntaxKind.TABLE_CONSTRUCTOR)
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.LOCAL_VAR_DECL) 
@@ -98,8 +97,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
                 && parentKind != SyntaxKind.ENUM_MEMBER
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.START_ACTION)
-                && parentKind != SyntaxKind.CLIENT_DECLARATION
-                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
