@@ -2296,21 +2296,23 @@ public class TestBuildProject extends BaseTest {
 
         ArrayList<Diagnostic> diagnostics =
                 new ArrayList<>(jBallerinaBackend.jarResolver().diagnosticResult().diagnostics());
-        Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [src/test/resources/conflicting_jars_test/platformLibNonBalPkg3] " +
-                "conflicting platform library jars with groupId: 'org.ballerina' and artifactId: 'native1'. " +
-                "Picking version: '1.0.1' over '1.0.0'.");
-        Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [src/test/resources/conflicting_jars_test/platformLibNonBalPkg3] " +
-                "conflicting platform library jars with groupId: 'org.apache' and artifactId: 'lib3'. " +
-                "Picking version: '2.0.1' over '2.0.0'.");
+        Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
+                " files. 'native1.txt' dependency of 'platformlib/pkg2' conflicts with 'native1.txt' dependency of " +
+                "'platformlib/pkg1'. Picking 'native1.txt' over 'native1.txt'.");
+        Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar " +
+                "files. 'lib3.txt' dependency of 'platformlib/pkg2' conflicts with 'lib3.txt' dependency of " +
+                "'platformlib/pkg1'. Picking 'lib3.txt' over 'lib3.txt'.");
 
         Assert.assertEquals(jarLibraries.size(), 9);
 
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve("bala/platformlib/pkg2/0.1.0/java11/platform/java11/native1.txt"),
-                PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1", "platformlib/pkg2")));
+                PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1",
+                "platformlib/pkg2")));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve("bala/platformlib/pkg1/0.1.0/java11/platform/java11/lib1.txt"),
-                PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0", "platformlib/pkg1")));
+                PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0",
+                "platformlib/pkg1")));
         Assert.assertTrue(jarLibraries.contains(new JarLibrary(
                 CENTRAL_CACHE.resolve("bala/platformlib/pkg1/0.1.0/java11/platform/java11/lib2.txt"),
                 PlatformLibraryScope.DEFAULT))

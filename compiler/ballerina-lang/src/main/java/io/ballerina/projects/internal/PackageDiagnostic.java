@@ -117,19 +117,17 @@ public class PackageDiagnostic extends Diagnostic {
     @Override
     public String toString() {
         String filePath = this.diagnostic.location().lineRange().filePath();
-        // Handle null location based diagnostics
-        if (this.diagnostic.location().lineRange().startLine().line() == 0 &&
-                this.diagnostic.location().lineRange().startLine().offset() == 0) {
-            return diagnosticInfo().severity().toString() + " ["
-                    + filePath + "] " + this.diagnosticInfo().messageFormat();
-        }
         // add package info if it is a dependency
-        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+        if (this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) {
             filePath = moduleDescriptor.org() + "/" +
                     moduleDescriptor.name().toString() + "/" +
                     moduleDescriptor.version() + "::" + filePath;
         }
-
+        // Handle null location based diagnostics
+        if (this.diagnostic.location() instanceof NullLocation) {
+            return diagnosticInfo().severity().toString() + " ["
+                    + filePath + "] " + this.diagnosticInfo().messageFormat();
+        }
         LineRange lineRange = diagnostic.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 filePath,

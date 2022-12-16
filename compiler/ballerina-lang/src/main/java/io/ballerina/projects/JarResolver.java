@@ -212,11 +212,11 @@ public class JarResolver {
     private void reportDiagnostic(JarLibrary existingEntry, JarLibrary newEntry) {
         var diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.CONFLICTING_PLATFORM_JAR_FILES.diagnosticId(),
-                "conflicting jar libraries detected with the same groupId: '" +
-                        newEntry.groupId().get() + "' and artifactId: '" + newEntry.artifactId().get() +
-                        "'. Picking version: '" + newEntry.version().get() + "' dependency of '" +
-                        newEntry.packageName().get() + "' over version:'" + existingEntry.version().get() +
-                        "' dependency of '" + existingEntry.packageName().get() + "'.", DiagnosticSeverity.WARNING);
+                "detected conflicting jar files. '" + newEntry.path().getFileName() + "' dependency of '" +
+                        newEntry.packageName().get() + "' conflicts with '" + existingEntry.path().getFileName() +
+                        "' dependency of '" + existingEntry.packageName().get() + "'. Picking '" +
+                        newEntry.path().getFileName() + "' over '" + existingEntry.path().getFileName() + "'.",
+                DiagnosticSeverity.WARNING);
         diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
                 this.jBalBackend.packageContext().descriptor().name().toString()));
     }

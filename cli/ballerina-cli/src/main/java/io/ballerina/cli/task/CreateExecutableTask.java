@@ -95,7 +95,7 @@ public class CreateExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
-        List<Diagnostic> jarResolverDiagnostics = null;
+        List<Diagnostic> jarResolverDiagnostics;
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
@@ -141,11 +141,9 @@ public class CreateExecutableTask implements Task {
             }
         }
 
-        if (jarResolverDiagnostics != null) {
-            for (Diagnostic d : jarResolverDiagnostics) {
-                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.WARNING)) {
-                    out.println(d.toString());
-                }
+        for (Diagnostic d : jarResolverDiagnostics) {
+            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.WARNING)) {
+                out.println("\n" + d.toString());
             }
         }
 
