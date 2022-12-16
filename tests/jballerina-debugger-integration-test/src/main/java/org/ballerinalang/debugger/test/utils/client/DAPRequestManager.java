@@ -195,7 +195,7 @@ public class DAPRequestManager {
             VariablesResponse variablesResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
             Instant end = Instant.now();
             // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
-            //  variable response times or, due to sudden spikes (potential concurrency issues?)
+            //  response times or, due to sudden spikes (potential concurrency issues?)
             LOGGER.info(String.format("debug variables request took %s ms", Duration.between(start, end).toMillis()));
             return variablesResponse;
         } else {
@@ -209,8 +209,14 @@ public class DAPRequestManager {
 
     public EvaluateResponse evaluate(EvaluateArguments args, long timeoutMillis) throws Exception {
         if (checkStatus()) {
+            Instant start = Instant.now();
             CompletableFuture<EvaluateResponse> resp = server.evaluate(args);
-            return resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            EvaluateResponse evaluateResponse = resp.get(timeoutMillis, TimeUnit.MILLISECONDS);
+            Instant end = Instant.now();
+            // Todo - remove after monitoring if the debugger integration tests are failing due to averagely high
+            //  response times or, due to sudden spikes (potential concurrency issues?)
+            LOGGER.info(String.format("evaluation request took %s ms", Duration.between(start, end).toMillis()));
+            return evaluateResponse;
         } else {
             throw new IllegalStateException("DAP request manager is not active");
         }
@@ -382,7 +388,7 @@ public class DAPRequestManager {
         STACK_TRACE(7000),
         SCOPES(2000),
         VARIABLES(30000),
-        EVALUATE(15000),
+        EVALUATE(20000),
         COMPLETIONS(10000),
         STEP_OVER(5000),
         STEP_IN(10000),
