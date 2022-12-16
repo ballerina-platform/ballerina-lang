@@ -21,6 +21,7 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
+# Refers to the `RegExp` type defined by lang.regexp module.
 public type RegExp regexp:RegExp;
 
 # Returns the length of the string.
@@ -164,7 +165,7 @@ public isolated function indexOf(string str, string substr, int startIndex = 0) 
 # ```ballerina
 # "Ballerinalang is a unique programming language".lastIndexOf("lang") ⇒ 38
 #
-# // Search for the last occurrence of a string from a specific index onwards.
+# // Search backwards for the last occurrence of a string from a specific index.
 # "Ballerinalang is a unique programming language".lastIndexOf("lang", 15) ⇒ 9
 # ```
 #
@@ -443,8 +444,8 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
 # + str - the string
 # + re - the regular expression
 # + return - true if there is full match of `re` with `str`, and false otherwise
-public isolated function matches(string str, RegExp 're) returns boolean {
-   return 're.isFullMatch(str);
+public function matches(string str, RegExp re) returns boolean {
+   return re.isFullMatch(str);
 }
 
 # Tests whether there is a match of a regular expression somewhere within a string.
@@ -457,6 +458,6 @@ public isolated function matches(string str, RegExp 're) returns boolean {
 # + str - the string to be matched
 # + re - the regular expression
 # + return - true if the is a match of `re` somewhere within `str`, otherwise false
-public isolated function includesMatch(string str, RegExp 're, int startIndex = 0) returns boolean {
-   return 're.find(str, startIndex) != ();
+public function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
+   return re.find(str, startIndex) != ();
 }
