@@ -24,6 +24,14 @@ import ballerina/jballerina.java;
 # and also `1` for true and `0` for `false`.
 # This is the inverse of function ``value:toString`` applied to a `boolean`.
 #
+# ```ballerina
+# boolean:fromString("true") ⇒ true
+# 
+# boolean:fromString("0") ⇒ false
+# 
+# boolean:fromString("hello") ⇒ error
+# ```
+#
 # + s - string representing a boolean value
 # + return - boolean that parameter `s` represents, or an error if there is no such boolean
 public isolated function fromString(string s) returns boolean|error = @java:Method {
