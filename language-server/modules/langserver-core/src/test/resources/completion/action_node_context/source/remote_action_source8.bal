@@ -1,3 +1,5 @@
+import ballerina/module1;
+
 public type Product record {
     string id?;
     string name;
@@ -32,7 +34,9 @@ client class ProductClient {
     }
 }
 
-public function main() returns error? { 
+public function getData(string firstName, string lastName, int page, int pageSize) returns error? {
+    module1:Client modClient = new("http://example2.com");
+    string name = firstName.concat(lastName);
     ProductClient prodClient = check new("http://example,com");
-    string v = pr->listAll();
+    int count = pr->countByName(name);
 }

@@ -132,6 +132,22 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             return;
         }
 
+        // At expression of the remote method call action, suggest clients first
+        if (onSuggestClients(node, context)) {
+            completionItems.forEach(completionItem -> {
+                Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(completionItem);
+                String sortText;
+                if (typeSymbol.isPresent() && SymbolUtil.isClient(typeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(2);
+                }
+                sortText += SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+
         for (LSCompletionItem item : completionItems) {
             sortByAssignability(context, item, SortingUtil.toRank(context, item));
         }
