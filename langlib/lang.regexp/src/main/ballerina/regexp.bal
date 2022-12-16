@@ -413,7 +413,11 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
 # `[str]` will be returned.
 #
 # ```ballerina
-
+#var sampleRegex = re `,`;
+#
+#sampleRegex.split("Not Valid").length() ⇒ 0
+#
+#sampleRegex.split("abc,cde,efg") ⇒ ["abc", "cde", "efg"]
 # ```
 #
 # + re - the regular expression that specifies the separator
