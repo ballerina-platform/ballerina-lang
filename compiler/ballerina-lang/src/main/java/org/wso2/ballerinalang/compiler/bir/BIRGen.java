@@ -2682,7 +2682,7 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        if (listConstructorExprType.tag == TypeTags.TUPLE) {
+        if (referredType.tag == TypeTags.TUPLE) {
             setScopeAndEmit(
                     new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
                             typedescOp, sizeOp, initialValues));
