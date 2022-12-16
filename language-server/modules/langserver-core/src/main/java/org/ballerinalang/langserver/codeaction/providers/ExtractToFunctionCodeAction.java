@@ -482,8 +482,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         for (Map.Entry<String, NonTerminalNode> entry : symbolTypes.entrySet()) {
             sortedSymbolNames.add(entry.getKey());
-            sortedSymbolNames.sort(Comparator.comparing(symbolNamesList::indexOf));
         }
+        sortedSymbolNames.sort(Comparator.comparing(symbolNamesList::indexOf));
 
         for (String symbolName : sortedSymbolNames) {
             Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(symbolTypes.get(symbolName));
