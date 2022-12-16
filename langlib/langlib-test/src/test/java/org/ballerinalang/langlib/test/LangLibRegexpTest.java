@@ -65,7 +65,8 @@ public class LangLibRegexpTest {
                 "testFindAllGroups",
                 "testFromString",
                 "testFromStringNegative",
-                "testLangLibFuncWithNamedArgExpr"
+                "testLangLibFuncWithNamedArgExpr",
+                "testSplit"
         };
     }
 }

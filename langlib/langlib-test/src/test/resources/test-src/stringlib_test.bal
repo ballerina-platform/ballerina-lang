@@ -632,6 +632,61 @@ function testPadZero() {
     assertEquals("000", y38);
 }
 
+function testMatches() {
+    string stringToMatch1 = "This Should Match";
+    string:RegExp regex1 = re `Th.*ch`;
+    boolean result1 = stringToMatch1.matches(regex1);
+    assertTrue(result1);
+
+    string:RegExp regex2 = re `Should`;
+    boolean result2 = stringToMatch1.matches(regex2);
+    assertFalse(result2);
+
+    string stringToMatch3 = "abc1";
+    string:RegExp regex3 = re `([a-z0-9]{5,})`;
+    boolean result3 = stringToMatch3.matches(regex3);
+    assertFalse(result3);
+
+    string stringToMatch4 = "abc12";
+    boolean result4 = stringToMatch4.matches(regex3);
+    assertTrue(result4);
+
+    string stringToMatch5 = "abc123";
+    boolean result5 = stringToMatch5.matches(regex3);
+    assertTrue(result5);
+}
+
+function testIncludesMatch() {
+    string stringToMatch1 = "This Should Match";
+    string:RegExp regex1 = re `Th.*ch`;
+    boolean result1 = stringToMatch1.includesMatch(regex1);
+    assertTrue(result1);
+
+    string:RegExp regex2 = re `Should`;
+    boolean result2 = stringToMatch1.includesMatch(regex2);
+    assertTrue(result2);
+
+    string stringToMatch3 = "abc1";
+    string:RegExp regex3 = re `([a-z0-9]{5,})`;
+    boolean result3 = stringToMatch3.includesMatch(regex3);
+    assertFalse(result3);
+
+    string stringToMatch4 = "Betty Botter bought some butter but she said the butter’s bitter.";
+    string:RegExp regex4 = re `[bB].tt[a-z]*`;
+    boolean result4 = stringToMatch4.includesMatch(regex4);
+    assertTrue(result4);
+
+    string stringToMatch5 = "HelloWorld";
+    string:RegExp regex5 = re `[0-9]`;
+    boolean result5 = stringToMatch5.includesMatch(regex5);
+    assertFalse(result5);
+
+    string stringToMatch6 = "An apple is nice";
+    string:RegExp regex6 = re `apple|orange|pear|banana|kiwi`;
+    boolean result6 = stringToMatch6.includesMatch(regex6);
+    assertTrue(result6);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
@@ -644,4 +699,12 @@ function assertEquals(anydata expected, anydata actual) {
     string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(ASSERTION_ERROR_REASON, message = msg);
+}
+
+function assertTrue(anydata actual) {
+    assertEquals(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquals(false, actual);
 }

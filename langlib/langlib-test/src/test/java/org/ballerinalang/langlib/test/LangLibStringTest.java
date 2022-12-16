@@ -350,6 +350,17 @@ public class LangLibStringTest {
     }
 
     @Test
+    public void testMatches() {
+        BRunUtil.invoke(compileResult, "testMatches");
+    }
+
+    @Test
+    public void testIncludesMatch() {
+        BRunUtil.invoke(compileResult, "testIncludesMatch");
+    }
+
+
+    @Test
     public void stringlibNegativeTest() {
         int err = 0;
         BAssertUtil.validateError(negativeResult, err++, "missing required parameter 'len' in call to 'padStart()'",
