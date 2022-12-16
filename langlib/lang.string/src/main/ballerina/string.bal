@@ -165,7 +165,7 @@ public isolated function indexOf(string str, string substr, int startIndex = 0) 
 # ```ballerina
 # "Ballerinalang is a unique programming language".lastIndexOf("lang") ⇒ 38
 #
-# // Search for the last occurrence of a string from a specific index backwards.
+# // Search backwards for the last occurrence of a string from a specific index.
 # "Ballerinalang is a unique programming language".lastIndexOf("lang", 15) ⇒ 9
 # ```
 #
