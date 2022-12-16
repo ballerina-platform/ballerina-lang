@@ -488,7 +488,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
-        // TODO: Add other cases like error constructors here
+        // TODO: Add other cases like error constructors here (when adding, update @CodeActionContextTypeResolver.java 
+        //  as well)
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
                 return TypeResolverUtil.getPositionalArgumentTypeForFunction(
@@ -545,9 +546,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
-                    if (parameterSymbol.getName()
-                            .filter(name -> name.equals(namedArgumentNode.argumentName().name().text()))
-                            .isPresent()) {
+                    if (parameterSymbol.getName().map(name -> 
+                            name.equals(namedArgumentNode.argumentName().name().text())).orElse(false)) {
                         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
                         return Optional.of(typeDescriptor);
                     }

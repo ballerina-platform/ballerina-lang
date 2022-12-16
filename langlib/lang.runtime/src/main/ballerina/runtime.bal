@@ -94,7 +94,7 @@ isolated function externGetStackTrace() returns CallStackElement[] = @java:Metho
     'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
 } external;
 
-# Type of the function passed to `onGracefulStop.
+# Type of the function passed to `onGracefulStop`.
 public type StopHandler function() returns error?;
 
 # Registers a function that will be called during graceful shutdown.

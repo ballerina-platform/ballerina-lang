@@ -94,6 +94,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createD
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_INIT_METHOD;
@@ -188,16 +190,19 @@ public class JvmCreateTypeGen {
         String arrayTypeConstantClass = jvmConstantsGen.getArrayTypeConstantClass();
         String tupleTypeConstantsClass = jvmConstantsGen.getTupleTypeConstantsClass();
         String unionTypeConstantClass = jvmConstantsGen.getUnionTypeConstantClass();
+        String errorTypeConstantClass = jvmConstantsGen.getErrorTypeConstantClass();
 
         mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_INIT_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_INIT_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_INIT_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_INIT_METHOD, "()V", false);
 
         mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_POPULATE_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_POPULATE_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_POPULATE_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_POPULATE_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_POPULATE_METHOD, "()V", false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -705,6 +710,10 @@ public class JvmCreateTypeGen {
 
     public JvmUnionTypeGen getJvmUnionTypeGen() {
         return jvmUnionTypeGen;
+    }
+
+    public JvmErrorTypeGen getJvmErrorTypeGen() {
+        return jvmErrorTypeGen;
     }
 
     public JvmTupleTypeGen getJvmTupleTypeGen() {

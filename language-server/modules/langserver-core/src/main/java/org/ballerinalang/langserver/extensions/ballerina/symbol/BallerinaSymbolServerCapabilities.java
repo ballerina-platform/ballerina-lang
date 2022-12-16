@@ -34,6 +34,8 @@ public class BallerinaSymbolServerCapabilities extends BallerinaServerCapability
 
     private boolean getTypeFromSymbol;
 
+    private boolean getTypesFromFnDefinition;
+
     public boolean isGetSymbol() {
         return getSymbol;
     }
@@ -72,6 +74,14 @@ public class BallerinaSymbolServerCapabilities extends BallerinaServerCapability
 
     public void setGetTypeFromSymbol(boolean getTypeFromSymbol) {
         this.getTypeFromSymbol = getTypeFromSymbol;
+    }
+
+    public boolean isGetTypesFromFnDefinition() {
+        return getTypesFromFnDefinition;
+    }
+
+    public void setGetTypesFromFnDefinition(boolean getTypesFromFnDefinition) {
+        this.getTypesFromFnDefinition = getTypesFromFnDefinition;
     }
 
     public BallerinaSymbolServerCapabilities() {

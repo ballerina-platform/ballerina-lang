@@ -34,16 +34,16 @@ public class CompilationOptions {
     Boolean dumpRawGraphs;
     Boolean withCodeGenerators;
     Boolean withCodeModifiers;
-    Boolean withIDLGenerators;
     Boolean configSchemaGen;
     Boolean exportOpenAPI;
+    Boolean exportComponentModel;
     Boolean enableCache;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
-                       Boolean withCodeModifiers, Boolean withIDLGenerators, Boolean configSchemaGen,
-                       Boolean exportOpenAPI, Boolean enableCache) {
+                       Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
+                       Boolean exportComponentModel, Boolean enableCache) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -55,9 +55,9 @@ public class CompilationOptions {
         this.dumpRawGraphs = dumpRawGraphs;
         this.withCodeGenerators = withCodeGenerators;
         this.withCodeModifiers = withCodeModifiers;
-        this.withIDLGenerators = withIDLGenerators;
         this.configSchemaGen = configSchemaGen;
         this.exportOpenAPI = exportOpenAPI;
+        this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
     }
 
@@ -105,16 +105,16 @@ public class CompilationOptions {
         return toBooleanDefaultIfNull(this.withCodeModifiers);
     }
 
-    public boolean withIDLGenerators() {
-        return toBooleanDefaultIfNull(this.withIDLGenerators);
-    }
-
     public Boolean configSchemaGen() {
         return toBooleanDefaultIfNull(this.configSchemaGen);
     }
 
     public boolean exportOpenAPI() {
         return toBooleanDefaultIfNull(this.exportOpenAPI);
+    }
+
+    public boolean exportComponentModel() {
+        return toBooleanDefaultIfNull(this.exportComponentModel);
     }
 
     public boolean enableCache() {
@@ -184,11 +184,6 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.withCodeModifiers(this.withCodeModifiers);
         }
-        if (theirOptions.withIDLGenerators != null) {
-            compilationOptionsBuilder.withIDLGenerators(theirOptions.withIDLGenerators);
-        } else {
-            compilationOptionsBuilder.withIDLGenerators(this.withIDLGenerators);
-        }
         if (theirOptions.configSchemaGen != null) {
             compilationOptionsBuilder.setConfigSchemaGen(theirOptions.configSchemaGen);
         } else {
@@ -198,6 +193,11 @@ public class CompilationOptions {
             compilationOptionsBuilder.setExportOpenAPI(theirOptions.exportOpenAPI);
         } else {
             compilationOptionsBuilder.setExportOpenAPI(this.exportOpenAPI);
+        }
+        if (theirOptions.exportComponentModel != null) {
+            compilationOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            compilationOptionsBuilder.setExportComponentModel(this.exportComponentModel);
         }
         if (theirOptions.enableCache != null) {
             compilationOptionsBuilder.setEnableCache(theirOptions.enableCache);
@@ -249,9 +249,9 @@ public class CompilationOptions {
         private Boolean dumpRawGraph;
         private Boolean withCodeGenerators;
         private Boolean withCodeModifiers;
-        private Boolean withIDLGenerators;
         private Boolean configSchemaGen;
         private Boolean exportOpenAPI;
+        private Boolean exportComponentModel;
         private Boolean enableCache;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
@@ -314,13 +314,13 @@ public class CompilationOptions {
             return this;
         }
 
-        CompilationOptionsBuilder withIDLGenerators(Boolean value) {
-            withIDLGenerators = value;
+        CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
+            exportOpenAPI = value;
             return this;
         }
 
-        CompilationOptionsBuilder setExportOpenAPI(Boolean value) {
-            exportOpenAPI = value;
+        CompilationOptionsBuilder setExportComponentModel(Boolean value) {
+            exportComponentModel = value;
             return this;
         }
 
@@ -332,8 +332,8 @@ public class CompilationOptions {
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, withIDLGenerators, configSchemaGen, exportOpenAPI,
-                    enableCache);
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
+                    exportComponentModel, enableCache);
         }
     }
 }

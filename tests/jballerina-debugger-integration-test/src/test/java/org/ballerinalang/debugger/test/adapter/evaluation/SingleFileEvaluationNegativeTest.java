@@ -91,8 +91,8 @@ public class SingleFileEvaluationNegativeTest extends ExpressionEvaluationNegati
     }
 
     @Override
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        super.variableReferenceEvaluationTest();
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
+        super.nameReferenceEvaluationTest();
 
         // access constants in undefined modules
         debugTestRunner.assertEvaluationError(context, "other:constant",

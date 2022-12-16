@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 3,
+    "character": 39
+  },
+  "source": "extractExprToConstantWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to constant"
+    }
+  ]
+}

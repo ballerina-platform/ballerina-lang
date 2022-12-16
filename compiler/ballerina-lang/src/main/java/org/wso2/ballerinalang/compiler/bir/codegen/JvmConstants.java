@@ -172,6 +172,7 @@ public class JvmConstants {
     public static final String LARGE_STRING_VAR_PREFIX = "$stringChunk";
     public static final String GET_SURROGATE_ARRAY_METHOD_PREFIX = "getSurrogateArray";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+    public static final String ERROR_TYPE_VAR_PREFIX = "$errorType";
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
@@ -287,7 +288,8 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String UNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_union_type_constants";
+    public static final String ERROR_TYPE_CONSTANT_CLASS_NAME = "constants/$_error_type_constants";
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
@@ -309,6 +311,7 @@ public class JvmConstants {
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
+    public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD = "$typeref_type_init";
@@ -316,6 +319,7 @@ public class JvmConstants {
     public static final String B_TUPLE_TYPE_POPULATE_METHOD = "$populate_tuple_types";
     public static final String B_ARRAY_TYPE_POPULATE_METHOD = "$populate_array_types";
     public static final String B_TYPEREF_TYPE_POPULATE_METHOD = "$populate_typeref_types";
+    public static final String B_ERROR_TYPE_POPULATE_METHOD = "$populate_error_typeS";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
@@ -330,6 +334,7 @@ public class JvmConstants {
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
     public static final String VALUE_CLASS_PREFIX = "$value$";
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
+    public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
