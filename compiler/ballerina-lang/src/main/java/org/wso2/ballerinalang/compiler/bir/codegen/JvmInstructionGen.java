@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -47,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -1321,8 +1321,14 @@ public class JvmInstructionGen {
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
-
-        this.loadVar(mapNewIns.rhsOp.variableDcl);
+        if (isNonReferredRecord(mapNewIns.type)) {
+            PackageID packageID = mapNewIns.lhsOp.variableDcl.type.tsymbol.pkgID;
+            String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(mapNewIns.type));
+            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
+        } else {
+            this.loadVar(mapNewIns.rhsOp.variableDcl);
+        }
         this.mv.visitVarInsn(ALOAD, localVarOffset);
 
         List<BIRNode.BIRMappingConstructorEntry> initialValues = mapNewIns.initialValues;
@@ -2088,7 +2094,7 @@ public class JvmInstructionGen {
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         if (isNonReferredRecord(newTypeDesc.type)) {
-            BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
+            BType type = Types.getReferredType(newTypeDesc.type);
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
@@ -2100,12 +2106,9 @@ public class JvmInstructionGen {
     }
 
     private boolean isNonReferredRecord(BType type) {
-        if (type.tag != TypeTags.TYPEREFDESC) {
-            return false;
-        }
-        BType referredType = ((BTypeReferenceType) type).referredType;
-        return referredType.tag == TypeTags.RECORD &&
-                type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
+        type = Types.getReferredType(type);
+        return type.tsymbol != null && type.tag == TypeTags.RECORD &&
+                type.tsymbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
