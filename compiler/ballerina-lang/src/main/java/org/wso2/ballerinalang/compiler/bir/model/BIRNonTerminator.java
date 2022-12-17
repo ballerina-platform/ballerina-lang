@@ -202,7 +202,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.type = type;
         }
 
-        public NewStructure(Location pos, BIROperand lhsOp, BIROperand rhsOp, List<BIRMappingConstructorEntry> initialValues, BType type) {
+        public NewStructure(Location pos, BIROperand lhsOp, BIROperand rhsOp,
+                            List<BIRMappingConstructorEntry> initialValues, BType type) {
             super(pos, InstructionKind.NEW_STRUCTURE);
             this.lhsOp = lhsOp;
             this.rhsOp = rhsOp;

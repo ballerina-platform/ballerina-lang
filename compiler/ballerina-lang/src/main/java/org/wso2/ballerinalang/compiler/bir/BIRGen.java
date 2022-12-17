@@ -22,16 +22,6 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import javax.xml.XMLConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -229,6 +219,18 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import javax.xml.XMLConstants;
+
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
@@ -375,7 +377,6 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition astTypeDefinition) {
-//        astTypeDefinition.typeNode.accept(this);
         BType type = getDefinedType(astTypeDefinition);
         BSymbol symbol = astTypeDefinition.symbol;
         Name displayName = symbol.name;
@@ -1132,12 +1133,14 @@ public class BIRGen extends BLangNodeVisitor {
         env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
     }
 
+    @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (Types.getReferredType(userDefinedType.getBType()).getKind() == TypeKind.RECORD) {
             visitTypedesc(userDefinedType.pos, userDefinedType.getBType(), Collections.emptyList());
         }
     }
 
+    @Override
     public void visit(BLangValueType valueType) {
     }
 
@@ -1207,7 +1210,6 @@ public class BIRGen extends BLangNodeVisitor {
             streamType.error.accept(this);
         }
     }
-
 
     @Override
     public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
@@ -1696,7 +1698,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         setScopeAndEmit(new BIRNonTerminator.NewStructure(astMapLiteralExpr.pos, toVarRef, this.env.targetOperand,
-                                               generateMappingConstructorEntries(astMapLiteralExpr.fields), astMapLiteralExpr.getBType()));
+                                               generateMappingConstructorEntries(astMapLiteralExpr.fields),
+                                               astMapLiteralExpr.getBType()));
         this.env.targetOperand = toVarRef;
     }
 
@@ -1740,7 +1743,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                 generateMappingConstructorEntries(astStructLiteralExpr.fields), type);
         } else {
             if (type.getKind() == TypeKind.RECORD) {
-                visitTypedesc(astStructLiteralExpr.pos, type, mapToVarDcls(((BRecordType)type).enclMapSymbols));
+                visitTypedesc(astStructLiteralExpr.pos, type, mapToVarDcls(((BRecordType) type).enclMapSymbols));
             } else {
                 visitTypedesc(astStructLiteralExpr.pos, type, Collections.emptyList());
             }
