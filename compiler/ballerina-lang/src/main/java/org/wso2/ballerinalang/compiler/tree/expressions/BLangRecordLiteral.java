@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_KEY_VALUE;
@@ -293,7 +292,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     public static class BLangStructLiteral extends BLangRecordLiteral {
 
         public BAttachedFunction initializer;
-        public TreeMap<Integer, BVarSymbol> enclMapSymbols;
 
         public BLangStructLiteral(Location pos, BType structType, BTypeSymbol typeSymbol, List<RecordField> fields) {
             super(pos);
