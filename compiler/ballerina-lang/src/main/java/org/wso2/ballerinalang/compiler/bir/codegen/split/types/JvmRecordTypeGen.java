@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -170,7 +171,9 @@ public class JvmRecordTypeGen {
 
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD, RECORD_TYPE_IMPL_INIT, false);
-
+        if (recordType.tsymbol.owner != null && recordType.tsymbol.owner.getKind() != SymbolKind.PACKAGE) {
+            return;
+        }
         mv.visitInsn(DUP);
         String packageName = JvmCodeGenUtil.getPackageName(recordType.tsymbol.pkgID);
         String className = getTypeDescClassName(packageName, toNameString(recordType));
