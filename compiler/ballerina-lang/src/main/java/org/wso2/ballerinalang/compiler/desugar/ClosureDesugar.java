@@ -24,6 +24,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -40,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -1963,8 +1965,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         SymbolEnv symbolEnv = env.createClone();
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-        structLiteral.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, false);
-
+        if (structLiteral.getBType().getKind() == TypeKind.RECORD) {
+            ((BRecordType) structLiteral.getBType()).enclMapSymbols =
+                                                     collectClosureMapSymbols(symbolEnv, enclInvokable, false);
+        }
         for (RecordLiteralNode.RecordField field : structLiteral.fields) {
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValueField =

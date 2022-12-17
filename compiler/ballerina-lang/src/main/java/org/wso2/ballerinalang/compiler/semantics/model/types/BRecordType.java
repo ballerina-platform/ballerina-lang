@@ -21,9 +21,12 @@ import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.TreeMap;
 
 import java.util.Optional;
 
@@ -50,6 +53,8 @@ public class BRecordType extends BStructureType implements RecordType {
     public BRecordType mutableType;
 
     private BIntersectionType intersectionType = null;
+    public TreeMap<Integer, BVarSymbol> enclMapSymbols;
+
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
