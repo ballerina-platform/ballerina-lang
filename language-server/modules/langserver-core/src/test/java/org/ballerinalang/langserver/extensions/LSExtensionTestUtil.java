@@ -23,6 +23,7 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
+import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaRecordRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByNameRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
@@ -42,6 +43,7 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
 import java.io.IOException;
@@ -52,6 +54,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static org.ballerinalang.langserver.util.TestUtil.getTextDocumentPositionParams;
 
 /**
  * Provides util methods for testing lang-server extension apis.
@@ -70,6 +74,8 @@ public class LSExtensionTestUtil {
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
     private static final String GET_TYPE_FROM_FN_DEFINITION = "ballerinaSymbol/getTypesFromFnDefinition";
+    private static final String GET_NODE_DEFINITION_BY_POSITION = "ballerinaDocument/syntaxTreeNodeByPosition";
+
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -186,6 +192,12 @@ public class LSExtensionTestUtil {
     public static JsonObject getConnectorById(String id, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(id);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
+        return getResult(result);
+    }
+
+    public static JsonObject getSTNodeDefinitionByPosition(String filePath, Position position, Endpoint serviceEndpoint) {
+        TextDocumentPositionParams request = getTextDocumentPositionParams(filePath, position);
+        CompletableFuture result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
         return getResult(result);
     }
 

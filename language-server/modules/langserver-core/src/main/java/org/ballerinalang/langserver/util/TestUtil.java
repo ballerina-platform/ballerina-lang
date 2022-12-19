@@ -678,7 +678,7 @@ public class TestUtil {
         return identifier;
     }
 
-    private static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
+    public static TextDocumentPositionParams getTextDocumentPositionParams(String filePath, Position position) {
         TextDocumentPositionParams positionParams = new TextDocumentPositionParams();
         positionParams.setTextDocument(getTextDocumentIdentifier(filePath));
         positionParams.setPosition(new Position(position.getLine(), position.getCharacter()));
