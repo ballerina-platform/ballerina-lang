@@ -21,6 +21,12 @@ import ballerina/jballerina.java;
 # This sets the cancellation flag in the strand corresponding to `f`.
 # Each time that a strand yields, it will check the cancellation flag
 # and terminate abnormally if the flag is set.
+#
+# ```ballerina
+# future<int> sumFuture = start int:sum(10, 13, 54, 245, 24, 29, 343, 34);
+# sumFuture.cancel();
+# ```
+#
 # + f - the future to be cancelled
 public isolated function cancel(future<any|error> f) returns () = @java:Method {
     'class: "org.ballerinalang.langlib.future.Cancel",
