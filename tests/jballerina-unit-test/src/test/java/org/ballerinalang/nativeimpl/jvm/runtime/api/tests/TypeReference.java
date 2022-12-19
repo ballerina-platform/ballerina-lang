@@ -55,7 +55,7 @@ import java.util.List;
 /**
  * Utility methods used for runtime api @{@link io.ballerina.runtime.internal.types.BTypeReferenceType} testing.
  *
- * @since 2201.3.0
+ * @since 2201.4.0
  */
 public class TypeReference {
 
