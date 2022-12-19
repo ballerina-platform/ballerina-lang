@@ -169,9 +169,9 @@ public class JsonToRecordMapper {
                             (recordName == null || recordName.equals("")) ?
                                     getAndUpdateFieldNames(NEW_RECORD_NAME, false,
                                             existingFieldNames, updatedFieldNames)
-                                    : recordName : entry.getKey();
+                                    : escapeIdentifier(StringUtils.capitalize(recordName)) : entry.getKey();
                     IdentifierToken typeName = AbstractNodeFactory
-                            .createIdentifierToken(escapeIdentifier(recordTypeName));
+                            .createIdentifierToken(recordTypeName);
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
@@ -231,7 +231,7 @@ public class JsonToRecordMapper {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                 if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
                     generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
-                            recordName, jsonNodes, diagnosticMessages, false);
+                            recordName, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, false);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
             }
@@ -254,7 +254,7 @@ public class JsonToRecordMapper {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                 if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
                     generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
-                            null, jsonNodes, diagnosticMessages, false);
+                            null, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages, false);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
                 Node recordField = getRecordField(entry, existingFieldNames, updatedFieldNames, false);
@@ -290,7 +290,7 @@ public class JsonToRecordMapper {
                                                      boolean arraySuffixAdded) {
         if (jsonElement.isJsonObject()) {
             String type = escapeIdentifier(StringUtils.capitalize(elementKey));
-            String updatedType = getAndUpdateFieldNames(type, false, existingFieldNames, updatedFieldNames);
+            String updatedType = getAndUpdateFieldNames(type, arraySuffixAdded, existingFieldNames, updatedFieldNames);
             generateRecords(jsonElement.getAsJsonObject(), updatedType, isClosed, recordToTypeDescNodes,
                     moveBefore, jsonNodes, existingFieldNames, updatedFieldNames, diagnosticMessages);
         } else if (jsonElement.isJsonArray()) {

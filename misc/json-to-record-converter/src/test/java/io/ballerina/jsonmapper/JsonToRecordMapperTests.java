@@ -393,7 +393,8 @@ public class JsonToRecordMapperTests {
     @Test(description = "Test for JSON with user defined record name with special chars")
     public void testForUserDefinedRecordNameWithSpecialChars() throws IOException {
         String jsonFileContent = Files.readString(sample3Json);
-        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Special Person", false, false, false)
+        String generatedCodeBlock =
+                JsonToRecordMapper.convert(jsonFileContent, "Special Person", false, false, false, null, null)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3SpecialCharBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
