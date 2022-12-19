@@ -11,8 +11,3 @@ public function main() {
     Foo cena;
     foodle:Foodle world;
 }
-
-
-
-public function hello() {
-}
