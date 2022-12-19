@@ -82,7 +82,9 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 # Returns the absolute value of an int value.
 #
 # ```ballerina
-# (-25).abs() ⇒ 25
+# int n = -25;
+# n.abs() ⇒ 25
+# 
 # int:abs(-30) ⇒ 30
 # ```
 #
@@ -113,7 +115,11 @@ public isolated function sum(int... ns) returns int = @java:Method {
 #
 # ```ballerina
 # int:max(50, 20, 30, 70, 65) ⇒ 70
+# 
+# int n = 18;
+# n.max(25, 30, 4, 15) ⇒ 30
 # ```
+# 
 # + n - first int value
 # + ns - other int values
 # + return - maximum value of value of parameter `n` and all of parameter `ns`
@@ -126,6 +132,9 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 #
 # ```ballerina
 # int:min(45, 25, 30, 75, 50) ⇒ 25
+# 
+# int m = 23;
+# m.min(12, 43, 7, 19) ⇒ 7
 # ```
 #
 # + n - first int value
@@ -143,7 +152,9 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # This is the inverse of function ``value:toString`` applied to an `int`.
 #
 # ```ballerina
-# check int:fromString("76") ⇒ 76
+# int:fromString("76") ⇒ 76
+# 
+# int:fromString("abc") ⇒ error
 # ```
 #
 # + s - string representation of a integer value
@@ -178,7 +189,9 @@ public isolated function toHexString(int n) returns string = @java:Method {
 # Returns an error if the parameter `s` is not in an allowed format.
 #
 # ```ballerina
-# check int:fromHexString("1A6F") ⇒ 6767
+# int:fromHexString("1A5F") ⇒ 6751
+# 
+# int:fromHexString("1Y4K") ⇒ error
 # ```
 #
 # + s - hexadecimal string representation of int value
