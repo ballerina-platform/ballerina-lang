@@ -24,6 +24,7 @@ import org.ballerinalang.testerina.test.BaseTestCase;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
@@ -44,7 +45,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,5:2)] could not find functions in module\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,5:2)] could not find functions in module\n" +
                 "error: compilation contains errors");
     }
 
@@ -53,7 +54,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,6:2)] could not find module specified\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] could not find module specified\n" +
                         "error: compilation contains errors");
     }
 
@@ -62,7 +63,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(6:1,8:2)] incompatible types: expected isolated function () returns (string) " +
+                "ERROR [tests" + File.separator + "test.bal:(6:1,8:2)] incompatible types: " +
+                        "expected isolated function () returns (string) " +
                         "but found isolated function () returns (int)\n" +
                         "error: compilation contains errors");
     }

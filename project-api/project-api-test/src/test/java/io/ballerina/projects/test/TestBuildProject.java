@@ -61,11 +61,12 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -112,9 +113,16 @@ import static org.testng.Assert.assertTrue;
  */
 public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static Path tempResourceDir;
     static final PrintStream OUT = System.out;
     private final String dummyContent = "function foo() {\n}";
 
+    @BeforeClass
+    public void setup() throws IOException {
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.resolve("project_no_permission").toFile(),
+                tempResourceDir.resolve("project_no_permission").toFile());
+    }
     @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -188,7 +196,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove read permission
         boolean readable = projectPath.toFile().setReadable(false, true);
@@ -216,7 +224,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove write permission
         boolean writable = projectPath.toFile().setWritable(false, true);
@@ -294,6 +302,13 @@ public class TestBuildProject extends BaseTest {
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
+        }
+        String diagnoticsStr = compilation.diagnosticResult().diagnostics().stream().map(Diagnostic::toString)
+                .distinct().collect(Collectors.joining());
+
+        // Verify the Diagnostic.toString method
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnoticsStr.contains(path), diagnoticsStr);
         }
 
         // Verify paths in jBallerina backend diagnostics
@@ -2259,12 +2274,6 @@ public class TestBuildProject extends BaseTest {
                 CENTRAL_CACHE.resolve(System.getProperty("ballerina.home") +
                         "bre/lib/ballerina-rt-" + System.getProperty("project.version") + ".jar"),
                 PlatformLibraryScope.DEFAULT)));
-    }
-
-    @AfterClass (alwaysRun = true)
-    public void reset() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
-        TestUtils.resetPermissions(projectPath);
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {
