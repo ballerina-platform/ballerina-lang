@@ -307,7 +307,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 #
 # ```ballerina
 # string:fromBytes([72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33]) ⇒ Hello, World!
-# string:fromBytes(base64 `lang`) ⇒ error
+# string:fromBytes([149, 169, 224]) ⇒ error
 # ```
 #
 # + bytes - UTF-8 byte array
