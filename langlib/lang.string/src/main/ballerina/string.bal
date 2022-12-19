@@ -88,7 +88,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 #
 # ```ballerina
 # "Hello, my name is John".substring(7) ⇒ my name is John
-
+#
 # "Hello, my name is John Anderson".substring(18, 22) ⇒ John
 # ```
 #
@@ -144,7 +144,6 @@ public isolated function 'join(string separator, string... strs) returns string 
 # ```ballerina
 # "New Zealand".indexOf("land") ⇒ 7
 #
-# // Search for the first occurrence of a string from a specific index onwards.
 # "Ballerinalang is a unique programming language".indexOf("lang", 15) ⇒ 38
 # ```
 #
