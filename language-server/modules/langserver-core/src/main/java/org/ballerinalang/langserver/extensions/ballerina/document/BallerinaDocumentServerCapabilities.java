@@ -45,6 +45,7 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
     private boolean executorPositions;
 
     private boolean resolveMissingDependencies;
+    private boolean syntaxTreeNodeByPosition;
 
     public boolean isSyntaxApiCalls() {
         return syntaxApiCalls;
@@ -137,4 +138,11 @@ public class BallerinaDocumentServerCapabilities extends BallerinaServerCapabili
     public void setResolveMissingDependencies(boolean resolveMissingDependencies) {
         this.resolveMissingDependencies = resolveMissingDependencies;
     }
+    public boolean getSyntaxTreeNodeByPosition() {
+        return syntaxTreeNodeByPosition;
+    }
+    public void setSyntaxTreeNodeByPosition(boolean syntaxTreeNodeByPosition) {
+        this.syntaxTreeNodeByPosition = syntaxTreeNodeByPosition;
+    }
+
 }
