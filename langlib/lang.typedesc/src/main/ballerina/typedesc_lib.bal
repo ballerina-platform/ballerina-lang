@@ -42,8 +42,18 @@ public type TypeId readonly & record {|
 # Returns the type-ids induced by a typedesc value.
 # 
 # ```ballerina
-# type MyError distinct error;
-# typedesc:TypeId[]? & readonly typeIds = MyError.typeIds();
+# type Error distinct error;
+# type SampleError distinct (Error & error<record {string msg;}>);
+# 
+# typedesc:TypeId[]? & readonly typeIds = SampleError.typeIds();
+# if (typeIds is typedesc:TypeId[]) {
+#   io:println(typeIds[typeIds.length() - 1]["localId"]) ⇒ Error
+# }
+# 
+# typedesc:TypeId[]? & readonly primaryTypeIds = SampleError.typeIds(true);
+# if (primaryTypeIds is typedesc:TypeId[]) {
+#   io:println(primaryTypeIds[primaryTypeIds.length() - 1]["localId"]) ⇒ SampleError
+# }
 # ```
 # 
 # + t - the typedesc
