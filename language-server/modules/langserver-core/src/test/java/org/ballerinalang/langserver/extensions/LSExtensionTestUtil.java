@@ -23,7 +23,6 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListRequest;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorListResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorRequest;
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaRecordRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByNameRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
@@ -195,10 +194,10 @@ public class LSExtensionTestUtil {
         return getResult(result);
     }
 
-    public static JsonObject getSTNodeDefinitionByPosition(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static BallerinaSyntaxTreeResponse getSTNodeDefinitionByPosition(String filePath, Position position, Endpoint serviceEndpoint) {
         TextDocumentPositionParams request = getTextDocumentPositionParams(filePath, position);
-        CompletableFuture result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
-        return getResult(result);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
     public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,

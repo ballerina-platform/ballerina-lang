@@ -51,7 +51,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -518,9 +517,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
 
     @JsonRequest
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeNodeByPosition(TextDocumentPositionParams params) {
-
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
-
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
@@ -566,12 +563,10 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 return reply;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/syntaxTreeNodeByPosition' failed!";
-                this.clientLogger.logError(LSContextOperation.TXT_DEFINITION, msg, e, params.getTextDocument(),
+                this.clientLogger.logError(DocumentContext.DC_NODE_DEFINITION_BY_POSITION, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-
             return reply;
-
         });
 
 
