@@ -325,7 +325,7 @@ public isolated function lastIndexOf(AnydataType[] arr, AnydataType val, int sta
 # Reverses the order of the members of an array.
 #
 # ```ballerina
-# [2, 4, 6, 8, 10].reverse() ⇒ [10,8,6,4,2]
+# [2, 4, 12, 8, 10].reverse() ⇒ [10,8,12,4,2]
 # ```
 #
 # + arr - the array to be reversed
