@@ -1,5 +1,6 @@
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -60,29 +61,35 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.contains("1 passing"));
     }
 
-// TODO: Fix test cases that are failing due to "Caused by: java.util.zip.ZipException: ZIP file can't be opened as a
-//  file system because entry "/resources/$anon/./0/openapi-spec.yaml" has a '.' or '..' element in its name" error.
 
-//    @Test(description = "Test a valid ballerina file")
-//    public void testTestBalFile() throws IOException {
-//        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
-//        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
-//        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
-//        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
-//        testCommand.execute();
-//        String buildLog = readOutput(true);
-//        Assert.assertTrue(buildLog.contains("1 passing"));
-//    }
-//
-//    @Test(description = "Test a valid ballerina file with periods in the file name")
-//    public void testTestBalFileWithPeriods() throws IOException {
-//        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
-//
-//        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
-//        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
-//        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
-//        testCommand.execute();
-//        String buildLog = readOutput(true);
-//        Assert.assertTrue(buildLog.contains("1 passing"));
-//    }
+    //TODO: Change the output once the resource generation plugin is disabled
+    @Test(description = "Test a valid ballerina file")
+    public void testTestBalFile() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample_tests.bal");
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("unable to generate native image. this " +
+                    "single file project has resource folder inside"));
+        }
+    }
+
+    //TODO: Change the output once the resource generation plugin is disabled
+    @Test(description = "Test a valid ballerina file with periods in the file name")
+    public void testTestBalFileWithPeriods() throws IOException {
+        Path validBalFilePath = this.testResources.resolve("valid-test-bal-file").resolve("sample.tests.bal");
+
+        System.setProperty(ProjectConstants.USER_DIR, this.testResources.resolve("valid-test-bal-file").toString());
+        TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("unable to generate native image. this " +
+                    "single file project has resource folder inside"));
+        }
+    }
 }

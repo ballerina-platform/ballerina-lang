@@ -34,6 +34,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
@@ -43,6 +44,7 @@ import org.ballerinalang.testerina.core.TestProcessor;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -57,6 +59,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
@@ -197,7 +201,8 @@ public class RunNativeImageTestTask implements Task {
         if (hasTests) {
             int testResult = 1;
             try {
-                testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target);
+                testResult = runTestSuiteWithNativeImage(project.currentPackage(), jBallerinaBackend, target,
+                        testSuiteMap);
 
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
@@ -238,7 +243,8 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
-    private int runTestSuiteWithNativeImage(Package currentPackage, JBallerinaBackend jBallerinaBackend, Target target)
+    private int runTestSuiteWithNativeImage(Package currentPackage, JBallerinaBackend jBallerinaBackend,
+                                            Target target, Map<String, TestSuite> testSuiteMap)
             throws IOException, InterruptedException {
         String packageName = currentPackage.packageName().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
@@ -321,7 +327,10 @@ public class RunNativeImageTestTask implements Task {
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
         if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            packageName = currentPackage.project().sourceRoot().toString().replace(".bal","");
+            String[] splittedArray = currentPackage.project().sourceRoot().toString().
+                    replace(ProjectConstants.BLANG_SOURCE_EXT, "").split("/");
+            packageName = splittedArray[splittedArray.length - 1];
+            validateResourcesWithinJar(testSuiteMap, packageName);
         }
 
         // set name and path
@@ -372,6 +381,35 @@ public class RunNativeImageTestTask implements Task {
             return 1;
         }
     }
+
+    private void validateResourcesWithinJar(Map<String, TestSuite> testSuiteMap, String packageName)
+                                            throws IOException {
+        TestSuite testSuite = testSuiteMap.values().toArray(new TestSuite[0])[0];
+        List<String> dependencies = testSuite.getTestExecutionDependencies();
+        String jarPath = "";
+        for (String dependency : dependencies) {
+            if (dependency.contains(packageName + ".jar")) {
+                jarPath = dependency;
+            }
+        }
+        try (ZipInputStream jarInputStream = new ZipInputStream(new FileInputStream(jarPath))) {
+            ZipEntry entry;
+            boolean isResourceExist = false;
+            while ((entry = jarInputStream.getNextEntry()) != null) {
+                String path = entry.getName();
+                if (path.startsWith("resources/")) {
+                    isResourceExist = true;
+                }
+                jarInputStream.closeEntry();
+            }
+            jarInputStream.close();
+            if (isResourceExist) {
+                throw createLauncherException("unable to generate native image. this single file project has " +
+                        "resource folder inside");
+            }
+        }
+    }
+
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> dependencies = new ArrayList<>();

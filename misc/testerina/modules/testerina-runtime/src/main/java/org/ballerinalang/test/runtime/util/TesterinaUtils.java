@@ -133,7 +133,7 @@ public class TesterinaUtils {
             throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
         String suiteExecuteFilePath = suite.getExecuteFilePath();
-        if(suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
+        if (suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
             suiteExecuteFilePath = suiteExecuteFilePath.replace(DOT, FILE_NAME_PERIOD_SEPARATOR);
         }
         String testExecuteClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
