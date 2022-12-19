@@ -21,9 +21,6 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
-# Refers to the `RegExp` type defined by lang.regexp module.
-public type RegExp regexp:RegExp;
-
 # Returns the length of the string.
 #
 # ```ballerina
@@ -432,14 +429,13 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
     name: "padZero"
 } external;
 
+# Refers to the `RegExp` type defined by lang.regexp module.
+public type RegExp regexp:RegExp;
+
 # Tests whether there is a full match of a regular expression with a string.
 # A match of a regular expression in a string is a full match if it
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 # This is equivalent to `regex:isFullMatch(re, str)`.
-#
-# ```ballerina
-# "Ballerina".matches(re `Bal.*`) ⇒ true
-# ```
 #
 # + str - the string
 # + re - the regular expression
@@ -450,10 +446,6 @@ public function matches(string str, RegExp re) returns boolean {
 
 # Tests whether there is a match of a regular expression somewhere within a string.
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
-#
-# ```ballerina
-# "New Zealand".includesMatch(re `lan?`) ⇒ true
-# ```
 #
 # + str - the string to be matched
 # + re - the regular expression
