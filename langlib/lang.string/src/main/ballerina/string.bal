@@ -280,7 +280,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 # The ASCII white space characters are 0x9...0xD, 0x20.
 #
 # ```ballerina
-# " BALLERINA  ".trim() ⇒ BALLERINA
+# " BALLERINA  ".trim() ⇒ "BALLERINA"
 # ```
 #
 # + str - the string
