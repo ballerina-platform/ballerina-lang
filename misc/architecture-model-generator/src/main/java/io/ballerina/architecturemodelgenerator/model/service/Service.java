@@ -36,17 +36,19 @@ public class Service extends ModelElement {
     private final List<Resource> resources;
     private final ServiceAnnotation annotation;
     private final List<RemoteFunction> remoteFunctions;
+    private final List<Dependency> dependencies;
 
     public Service(String path, String serviceId, String serviceType, List<Resource> resources,
-                   List<RemoteFunction> remoteFunctions, ServiceAnnotation annotation,
+                   ServiceAnnotation annotation, List<RemoteFunction> remoteFunctions, List<Dependency> dependencies,
                    ElementLocation elementLocation) {
         super(elementLocation);
-        this.annotation = annotation;
         this.path = path;
         this.serviceId = serviceId;
         this.serviceType = serviceType;
         this.resources = resources;
+        this.annotation = annotation;
         this.remoteFunctions = remoteFunctions;
+        this.dependencies = dependencies;
     }
 
     public String getPath() {
@@ -57,20 +59,23 @@ public class Service extends ModelElement {
         return serviceId;
     }
 
-    public List<Resource> getResources() {
-        return resources;
-    }
-
     public String getServiceType() {
         return serviceType;
     }
 
-    public List<RemoteFunction> getRemoteFunctions() {
-        return remoteFunctions;
+    public List<Resource> getResources() {
+        return resources;
     }
 
     public ServiceAnnotation getAnnotation() {
         return annotation;
     }
 
+    public List<RemoteFunction> getRemoteFunctions() {
+        return remoteFunctions;
+    }
+
+    public List<Dependency> getDependencies() {
+        return dependencies;
+    }
 }
