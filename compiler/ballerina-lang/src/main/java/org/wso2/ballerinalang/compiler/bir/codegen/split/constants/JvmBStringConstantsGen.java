@@ -246,7 +246,7 @@ public class JvmBStringConstantsGen {
             int varIndex = entry.getValue();
             String bStringVarName = B_STRING_VAR_PREFIX + varIndex;
 
-            int classIndex = (varIndex / MAX_STRINGS_PER_METHOD);
+            int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
             constantClassName = stringConstantsClass + UNDERSCORE + classIndex;
 
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
