@@ -102,6 +102,9 @@ public isolated function abs(int n) returns int = @java:Method {
 # 
 # int[] marks = [50, 65, 78, 95];
 # int total = int:sum(...marks) ⇒ 288
+# 
+# int num = 24;
+# num.sum(38, 15, 97, 27) ⇒ 201
 # ```
 # 
 # + ns - int values to sum
@@ -197,7 +200,7 @@ public isolated function toHexString(int n) returns string = @java:Method {
 # ```ballerina
 # int:fromHexString("1A5F") ⇒ 6751
 # 
-# int:fromHexString("1Y4K") ⇒ error
+# int:fromHexString("0xFFFF") ⇒ error
 # ```
 #
 # + s - hexadecimal string representation of int value
