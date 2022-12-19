@@ -88,6 +88,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 #
 # ```ballerina
 # "Hello, my name is John".substring(7) ⇒ my name is John
+
 # "Hello, my name is John Anderson".substring(18, 22) ⇒ John
 # ```
 #
