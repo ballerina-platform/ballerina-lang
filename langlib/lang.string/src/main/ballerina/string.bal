@@ -214,7 +214,7 @@ public isolated function startsWith(string str, string substr) returns boolean =
 # Tests whether a string ends with another string.
 #
 # ```ballerina
-# "Welcome to Ballerina programming language".endsWith("language") ⇒ true
+# "Welcome to the Ballerina programming language".endsWith("language") ⇒ true
 # ```
 #
 # + str - the string to be tested
