@@ -117,7 +117,7 @@ public final class DiagnosticMessage {
                     Arrays.copyOfRange(args, 2, args.length));
         }
         return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_106",
-                "Few of the record names are renamed. " +
+                "Few of the records are renamed. " +
                         "Consider rename it back to a meaningful name.", DiagnosticSeverity.INFO, null);
     }
 }

@@ -118,35 +118,33 @@ public final class ConverterUtils {
             return existingTypeNames;
         }
 
-        Project project;
-        // Check if the provided file is a SingleFileProject
         try {
-            project = SingleFileProject.load(filePathResolved);
-            List<Symbol> moduleSymbols =
-                    project.currentPackage().getDefaultModule().getCompilation().getSemanticModel().moduleSymbols();
-            moduleSymbols.forEach(symbol -> {
-                if (symbol.getName().isPresent()) {
-                    existingTypeNames.add(symbol.getName().get());
-                }
-            });
-        } catch (ProjectException pe) {
-            // Check if the provided file is a part of BuildProject
+            Project project;
+            List<Symbol> moduleSymbols;
             Path projectRoot = ProjectUtils.findProjectRoot(filePathResolved);
-            if (projectRoot != null) {
-                try {
-                    project = BuildProject.load(projectRoot);
-                    List<Symbol> moduleSymbols = project.currentPackage()
-                            .module(project.documentId(filePathResolved).moduleId())
-                            .getCompilation().getSemanticModel().moduleSymbols();
-                    moduleSymbols.forEach(symbol -> {
-                        if (symbol.getName().isPresent()) {
-                            existingTypeNames.add(symbol.getName().get());
-                        }
-                    });
-                } catch (ProjectException pe1) {
-                    return existingTypeNames;
-                }
+            if (projectRoot == null) {
+                // Since the project-root cannot be found, the provided file is considered as SingleFileProject.
+                project = SingleFileProject.load(filePathResolved);
+                moduleSymbols =
+                        project.currentPackage().getDefaultModule().getCompilation().getSemanticModel().moduleSymbols();
+                moduleSymbols.forEach(symbol -> {
+                    if (symbol.getName().isPresent()) {
+                        existingTypeNames.add(symbol.getName().get());
+                    }
+                });
+            } else {
+                project = BuildProject.load(projectRoot);
+                moduleSymbols = project.currentPackage()
+                        .module(project.documentId(filePathResolved).moduleId())
+                        .getCompilation().getSemanticModel().moduleSymbols();
+                moduleSymbols.forEach(symbol -> {
+                    if (symbol.getName().isPresent()) {
+                        existingTypeNames.add(symbol.getName().get());
+                    }
+                });
             }
+        } catch (ProjectException pe) {
+            return existingTypeNames;
         }
         return existingTypeNames;
     }
