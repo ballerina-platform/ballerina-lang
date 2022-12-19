@@ -54,7 +54,8 @@ public class SyntaxTreeNodeByPositionTest {
     public void getRecordDefinitionByPosition() throws Exception {
         TestUtil.openDocument(serviceEndpoint, projectFile);
         Position cursor = new Position(9, 4);
-        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil
+                .getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
                 cursor, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
@@ -67,7 +68,8 @@ public class SyntaxTreeNodeByPositionTest {
     public void getProjectRecordDefinitionByPosition() throws Exception {
         TestUtil.openDocument(serviceEndpoint, projectFile);
         Position cursor = new Position(10, 4);
-        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil
+                .getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
                 cursor, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
@@ -80,7 +82,8 @@ public class SyntaxTreeNodeByPositionTest {
     public void getModuleRecordDefinitionByPosition() throws Exception {
         TestUtil.openDocument(serviceEndpoint, projectFile);
         Position cursor = new Position(11, 11);
-        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil
+                .getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
                 cursor, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNotNull(syntaxTreeByNameResponse.getSyntaxTree());
@@ -93,7 +96,8 @@ public class SyntaxTreeNodeByPositionTest {
     public void getRecordDefinitionByIncorrectPosition() throws Exception {
         TestUtil.openDocument(serviceEndpoint, projectFile);
         Position cursor = new Position(22, 22);
-        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil.getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
+        BallerinaSyntaxTreeResponse syntaxTreeByNameResponse = LSExtensionTestUtil
+                .getSTNodeDefinitionByPosition(projectFile.toAbsolutePath().toString(),
                 cursor, this.serviceEndpoint);
         Assert.assertFalse(syntaxTreeByNameResponse.isParseSuccess());
         Assert.assertNull(syntaxTreeByNameResponse.getSyntaxTree());

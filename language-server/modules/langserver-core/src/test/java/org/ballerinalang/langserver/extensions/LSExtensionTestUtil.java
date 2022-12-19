@@ -194,14 +194,15 @@ public class LSExtensionTestUtil {
         return getResult(result);
     }
 
-    public static BallerinaSyntaxTreeResponse getSTNodeDefinitionByPosition(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static BallerinaSyntaxTreeResponse getSTNodeDefinitionByPosition(String filePath, Position position,
+                                                                            Endpoint serviceEndpoint) {
         TextDocumentPositionParams request = getTextDocumentPositionParams(filePath, position);
         CompletableFuture<?> result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
     public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,
-                                          String name, Endpoint serviceEndpoint) {
+                                               String name, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
                 version, name);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
