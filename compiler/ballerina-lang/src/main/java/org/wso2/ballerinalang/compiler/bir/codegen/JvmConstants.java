@@ -317,9 +317,11 @@ public class JvmConstants {
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
     public static final String B_ERROR_TYPE_INIT_METHOD_PREFIX = "$error_type_init";
+    public static final String B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX = "$error_type_init";
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
+    public static final String B_TYPEREF_TYPE_POPULATE_INIT_METHOD_PREFIX = "$populate_typeref_type";
     public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
