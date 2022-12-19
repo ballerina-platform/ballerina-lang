@@ -48,11 +48,11 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -537,7 +537,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                         this.serverContext,
                         params.getPosition(),
                         cancelChecker);
-                Either<List<Location>, Object> getLocationPositionList = Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
+                Either<List<Location>, Object> getLocationPositionList = Either.forLeft(DefinitionUtil.getDefinition(
+                        defContext, params.getPosition()));
                 List<Location> leftLocations = getLocationPositionList.getLeft();
                 if (leftLocations.size() == 0) {
                     return reply;
@@ -574,7 +575,8 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 return reply;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/syntaxTreeNodeByPosition' failed!";
-                this.clientLogger.logError(DocumentContext.DC_NODE_DEFINITION_BY_POSITION, msg, e, params.getTextDocument(),
+                this.clientLogger.logError(DocumentContext.DC_NODE_DEFINITION_BY_POSITION,
+                        msg, e, params.getTextDocument(),
                         params.getPosition());
             }
             return reply;
