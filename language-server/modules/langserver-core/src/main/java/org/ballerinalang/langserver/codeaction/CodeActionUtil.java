@@ -295,10 +295,13 @@ public class CodeActionUtil {
                         switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
                             case UNION:
-                                signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
+                                String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.memberTypeDescriptor().signature(), context);
+                                signature = "(" + typeName + ")[]";
                                 break;
                             default:
-                                signature = newArrType.signature();
+                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.signature(), context);
                         }
                         typesMap.put(newArrType, signature);
                     });

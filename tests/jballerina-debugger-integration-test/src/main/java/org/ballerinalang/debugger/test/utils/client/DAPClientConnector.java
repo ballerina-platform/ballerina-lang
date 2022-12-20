@@ -142,7 +142,7 @@ public class DAPClientConnector {
             debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
                 LOGGER.info("initialize response received from the debug server.");
-                requestManager = new DAPRequestManager(this, debugClient, debugServer, initializeResult);
+                requestManager = new DAPRequestManager(this, debugServer);
                 debugClient.connect(requestManager);
                 myConnectionState = ConnectionState.CONNECTED;
                 return res;

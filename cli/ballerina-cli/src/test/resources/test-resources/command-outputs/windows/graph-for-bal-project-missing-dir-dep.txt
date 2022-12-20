@@ -1,7 +1,8 @@
 digraph "foo/package_y:0.1.0" {
 	node [shape=record]
 	"foo/package_y" [label="<0.1.0> foo/package_y:0.1.0"];
+	"foo/package_z" [unresolved="true",color="grey",label="foo/package_z"];
 
 	// Edges
-
+	"foo/package_y":"0.1.0" -> "foo/package_z";
 }
