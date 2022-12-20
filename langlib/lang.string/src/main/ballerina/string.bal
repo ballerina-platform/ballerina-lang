@@ -386,7 +386,7 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "100Km".padStart(10, "0") ⇒      100Km
+# "100Km".padStart(10) ⇒      100Km
 #
 # "100Km".padStart(10, "0") ⇒ 00000100Km
 # ```
