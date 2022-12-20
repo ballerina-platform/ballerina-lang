@@ -43,6 +43,7 @@ public type TypeId readonly & record {|
 # 
 # ```ballerina
 # type Error distinct error;
+# 
 # type SampleError distinct (Error & error<record {string msg;}>);
 # 
 # typedesc:TypeId[] typeIds = <typedesc:TypeId[]>SampleError.typeIds();
