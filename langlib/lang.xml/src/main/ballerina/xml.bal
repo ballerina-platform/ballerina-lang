@@ -359,8 +359,7 @@ public isolated function createComment(string content) returns Comment = @java:M
 # The constructed sequence will be empty when the length of parameter `data` is zero.
 #
 # ```ballerina
-# string textData = "Hello!";
-# xml:createText(textData) ⇒ Hello!
+# xml:createText("Hello!") ⇒ Hello!
 # ```
 # 
 # + data - the character data of the Text item
