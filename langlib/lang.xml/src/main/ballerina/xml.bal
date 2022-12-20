@@ -106,6 +106,8 @@ public isolated function iterator(xml<ItemType> x) returns object {
 # ```ballerina
 # xml books = xml `<book><title>Ballerina</title></book><book><title>Java</title></book>`;
 # books.get(1) ⇒ <book><title>Java</title></book>
+# 
+# books.get(15) ⇒ panic
 # ```
 #
 # + x - the xml sequence
