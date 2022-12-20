@@ -124,6 +124,12 @@ public isolated function get(xml<ItemType> x, int i) returns ItemType = @java:Me
 # xml bookC = xml `<book>Python</book>`;
 # xml:concat(bookA, bookB, bookC) ⇒ <book>Ballerina</book><book>Java</book><book>Python</book>
 # 
+# bookA.concat(bookB) ⇒ <book>Ballerina</book><book>Java</book>
+# 
+# bookC.concat("Coding") ⇒ <book>Python</book>Coding
+# 
+# xml:concat("Hello", "World") ⇒ HelloWorld
+# 
 # xml[] subjectList = [xml `<subject>English</subject>`, xml `<subject>Math</subject>`, xml `<subject>ICT</subject>`];
 # xml:concat(...subjectList) ⇒ <subject>English</subject><subject>Math</subject><subject>ICT</subject>
 # ```
@@ -203,6 +209,9 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # xml:Element bookSet = xml `<books><book>Ballerina</book><book>Java</book></books>`;
 # xml webDevBooks = xml `<book>HTML</book><book>Javascript</book>`;
 # bookSet.setChildren(webDevBooks);
+# 
+# xml:Element x = xml `<student age="25">John</student>`;
+# x.setChildren("Jane");
 # ```
 #
 # + elem - xml element
@@ -482,11 +491,11 @@ public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType 
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml bookSet = xml `<book><title>Java</title></book><book><title>Ballerina</title></book>`;
+# xml bookSet = xml `<book>Java</book><book>Ballerina</book>`;
 # xml bookTitles = xml ``;
 # 
 # bookSet.forEach(function (xml xmlItem) {
-#   bookTitles += xmlItem.children();
+#     bookTitles += xml `<code>${xmlItem.data()}</code>`;
 # });
 # ```
 # 
@@ -502,11 +511,10 @@ public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemTy
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml codingBooks = xml `<scripting>JS</scripting><programming>Ballerina</programming>
-#                   <programming>Python</programming><scripting>Perl</scripting>`;
+# xml codingBooks = xml `<script>JS</script><code>Ballerina</code><script>Perl</script><code>Python</code>`;
 # 
 # codingBooks.filter(function(xml xmlItem) returns boolean {
-#     if (xmlItem is xml:Element) {
+#     if xmlItem is xml:Element {
 #         return (<xml:Element>xmlItem).getName() == "code";
 #     }
 # 
@@ -529,7 +537,7 @@ public isolated function filter(xml<ItemType> x, @isolatedParam function(ItemTyp
 # XML 1.0 Recommendation.
 #
 # ```ballerina
-# xml:fromString(bookStr) ⇒ <book>Ballerina</book><book>Java</book>
+# xml:fromString("<book>Ballerina</book><book>Java</book>") ⇒ <book>Ballerina</book><book>Java</book>
 # 
 # xml:fromString("<a>b") ⇒ error
 # ```
