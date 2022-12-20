@@ -118,7 +118,7 @@ public isolated function get(xml<ItemType> x, int i) returns ItemType = @java:Me
 
 # Concatenates xml and string values.
 # 
-# ```
+# ```ballerina
 # xml bookA = xml `<book>Ballerina</book>`;
 # xml bookB = xml `<book>Java</book>`;
 # xml bookC = xml `<book>Python</book>`;
