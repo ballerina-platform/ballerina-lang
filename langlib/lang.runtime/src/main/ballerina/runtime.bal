@@ -43,9 +43,14 @@ type CallStackElement record {|
 #
 # ```ballerina
 # runtime:DynamicListener ln = object {
-#   public function 'start() returns error? {}
-#   public function gracefulStop() returns error? {}
-#   public function immediateStop() returns error? {}
+#   public function 'start() returns error? {
+#   }
+# 
+#   public function gracefulStop() returns error? {
+#   }
+# 
+#   public function immediateStop() returns error? {
+#   }
 # };
 # 
 # runtime:registerListener(ln);
@@ -63,9 +68,14 @@ public isolated function registerListener(DynamicListener 'listener) = @java:Met
 # 
 # ```ballerina
 # runtime:DynamicListener ln = object {
-#   public function 'start() returns error? {}
-#   public function gracefulStop() returns error? {}
-#   public function immediateStop() returns error? {}
+#   public function 'start() returns error? {
+#   }
+# 
+#   public function gracefulStop() returns error? {
+#   }
+# 
+#   public function immediateStop() returns error? {
+#   }
 # };
 # 
 # runtime:deregisterListener(ln);
@@ -133,7 +143,7 @@ public type StopHandler function() returns error?;
 # in reverse order of the corresponding calls to `onGracefulStop`.
 # 
 # ```ballerina
-# runtime:StopHandler stopHandler = function() returns error? {};
+# runtime:StopHandler stopHandler = function() returns error? => ();
 # runtime:onGracefulStop(stopHandler);
 # ```
 # 
