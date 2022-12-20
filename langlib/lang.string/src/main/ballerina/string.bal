@@ -279,7 +279,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 # The ASCII white space characters are 0x9...0xD, 0x20.
 #
 # ```ballerina
-# " BALLERINA  ".trim() ⇒ "BALLERINA"
+# " Hello World   ".trim() + "!" ⇒ Hello World!
 # ```
 #
 # + str - the string
@@ -386,7 +386,7 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "100Km".padStart(10, "0") ⇒ "     100Km"
+# "100Km".padStart(10, "0") ⇒      100Km
 #
 # "100Km".padStart(10, "0") ⇒ 00000100Km
 # ```
@@ -405,7 +405,7 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
-# "Ballerina for developers".padEnd(30) ⇒ "Ballerina for developers      "
+# "Ballerina for developers".padEnd(30) ⇒ Ballerina for developers
 #
 # "Ballerina for developers".padEnd(30, "!") ⇒ Ballerina for developers!!!!!!
 # ```
