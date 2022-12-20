@@ -21,9 +21,6 @@ import ballerina/lang.regexp;
 @builtinSubtype
 type Char string;
 
-# Refers to the `RegExp` type defined by lang.regexp module.
-public type RegExp regexp:RegExp;
-
 # Returns the length of the string.
 #
 # ```ballerina
@@ -91,6 +88,7 @@ public isolated function getCodePoint(string str, int index) returns int = @java
 #
 # ```ballerina
 # "Hello, my name is John".substring(7) ⇒ my name is John
+#
 # "Hello, my name is John Anderson".substring(18, 22) ⇒ John
 # ```
 #
@@ -146,7 +144,6 @@ public isolated function 'join(string separator, string... strs) returns string 
 # ```ballerina
 # "New Zealand".indexOf("land") ⇒ 7
 #
-# // Search for the first occurrence of a string from a specific index onwards.
 # "Ballerinalang is a unique programming language".indexOf("lang", 15) ⇒ 38
 # ```
 #
@@ -185,7 +182,6 @@ returns int? = @java:Method {
 # ```ballerina
 # "Hello World, from Ballerina".includes("Bal") ⇒ true
 #
-# // Check for the occurrence of a string from a specific index onwards.
 # "Hello World! from Ballerina".includes("Hello", 10) ⇒ false
 # ```
 #
@@ -216,7 +212,7 @@ public isolated function startsWith(string str, string substr) returns boolean =
 # Tests whether a string ends with another string.
 #
 # ```ballerina
-# "Welcome to Ballerina programming language".endsWith("language") ⇒ true
+# "Welcome to the Ballerina programming language".endsWith("language") ⇒ true
 # ```
 #
 # + str - the string to be tested
@@ -283,7 +279,7 @@ public isolated function equalsIgnoreCaseAscii(string str1, string str2) returns
 # The ASCII white space characters are 0x9...0xD, 0x20.
 #
 # ```ballerina
-# " BALLERINA  ".trim() ⇒ BALLERINA
+# " Hello World   ".trim() + "!" ⇒ Hello World!
 # ```
 #
 # + str - the string
@@ -310,7 +306,8 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 #
 # ```ballerina
 # string:fromBytes([72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33]) ⇒ Hello, World!
-# string:fromBytes(base64 `lang`) ⇒ error
+#
+# string:fromBytes([149, 169, 224]) ⇒ error
 # ```
 #
 # + bytes - UTF-8 byte array
@@ -353,6 +350,8 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
 #
 # ```ballerina
 # string:fromCodePointInts([66, 97, 108, 108, 101, 114, 105, 110, 97]) ⇒ Ballerina
+#
+# string:fromCodePointInts([1114113, 1114114, 1114115]) ⇒ error
 # ```
 #
 # + codePoints - an array of ints, each specifying a code point
@@ -370,6 +369,8 @@ public isolated function fromCodePointInts(int[] codePoints) returns string|erro
 #
 # ```ballerina
 # string:fromCodePointInt(97) ⇒ a
+#
+# string:fromCodePointInt(1114113) ⇒ error
 # ```
 #
 # + codePoint - an int specifying a code point
@@ -385,6 +386,8 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
+# "100Km".padStart(10, "0") ⇒      100Km
+#
 # "100Km".padStart(10, "0") ⇒ 00000100Km
 # ```
 #
@@ -402,6 +405,8 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
+# "Ballerina for developers".padEnd(30) ⇒ Ballerina for developers
+#
 # "Ballerina for developers".padEnd(30, "!") ⇒ Ballerina for developers!!!!!!
 # ```
 #
@@ -421,6 +426,8 @@ public isolated function padEnd(string str, int len, Char padChar = " ") returns
 #
 # ```ballerina
 # "-256".padZero(9) ⇒ -00000256
+#
+# "-880".padZero(8, "#") ⇒ -####880
 # ```
 #
 # + str - the string to pad
@@ -432,14 +439,13 @@ public isolated function padZero(string str, int len, Char zeroChar = "0") retur
     name: "padZero"
 } external;
 
+# Refers to the `RegExp` type defined by lang.regexp module.
+public type RegExp regexp:RegExp;
+
 # Tests whether there is a full match of a regular expression with a string.
 # A match of a regular expression in a string is a full match if it
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 # This is equivalent to `regex:isFullMatch(re, str)`.
-#
-# ```ballerina
-# "Ballerina".matches(re `Bal.*`) ⇒ true
-# ```
 #
 # + str - the string
 # + re - the regular expression
@@ -450,10 +456,6 @@ public function matches(string str, RegExp re) returns boolean {
 
 # Tests whether there is a match of a regular expression somewhere within a string.
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
-#
-# ```ballerina
-# "New Zealand".includesMatch(re `lan?`) ⇒ true
-# ```
 #
 # + str - the string to be matched
 # + re - the regular expression
