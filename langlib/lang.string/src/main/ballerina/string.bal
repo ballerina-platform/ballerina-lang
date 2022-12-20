@@ -307,6 +307,7 @@ public isolated function toBytes(string str) returns byte[] = @java:Method {
 #
 # ```ballerina
 # string:fromBytes([72, 101, 108, 108, 111, 32, 66, 97, 108, 108, 101, 114, 105, 110, 97, 33]) ⇒ Hello, World!
+#
 # string:fromBytes([149, 169, 224]) ⇒ error
 # ```
 #
@@ -350,6 +351,8 @@ public isolated function toCodePointInt(Char ch) returns int = @java:Method {
 #
 # ```ballerina
 # string:fromCodePointInts([66, 97, 108, 108, 101, 114, 105, 110, 97]) ⇒ Ballerina
+#
+# string:fromCodePointInts([1114113, 1114114, 1114115]) ⇒ error
 # ```
 #
 # + codePoints - an array of ints, each specifying a code point
@@ -367,6 +370,8 @@ public isolated function fromCodePointInts(int[] codePoints) returns string|erro
 #
 # ```ballerina
 # string:fromCodePointInt(97) ⇒ a
+#
+# string:fromCodePointInt(1114113) ⇒ error
 # ```
 #
 # + codePoint - an int specifying a code point
@@ -382,6 +387,8 @@ public isolated function fromCodePointInt(int codePoint) returns Char|error = @j
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
+# "100Km".padStart(10, "0") ⇒ "     100Km"
+#
 # "100Km".padStart(10, "0") ⇒ 00000100Km
 # ```
 #
@@ -399,6 +406,8 @@ public isolated function padStart(string str, int len, Char padChar = " ") retur
 # If the length of `str` is >= `len`, returns `str`.
 #
 # ```ballerina
+# "Ballerina for developers".padEnd(30) ⇒ "Ballerina for developers      "
+#
 # "Ballerina for developers".padEnd(30, "!") ⇒ Ballerina for developers!!!!!!
 # ```
 #
@@ -418,6 +427,8 @@ public isolated function padEnd(string str, int len, Char padChar = " ") returns
 #
 # ```ballerina
 # "-256".padZero(9) ⇒ -00000256
+#
+# "-880".padZero(8, "#") ⇒ -####880
 # ```
 #
 # + str - the string to pad
