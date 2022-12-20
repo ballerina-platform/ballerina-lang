@@ -529,6 +529,12 @@ function bam() returns int {
     return 5;
 }
 
+function testNullableIntAdd() {
+    int[] result = [1, 2];
+    int? val = bar() + result[0];
+    assertEquality(val, ());
+}
+
 function assertEquality(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
