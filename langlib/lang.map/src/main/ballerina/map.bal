@@ -48,10 +48,9 @@ public isolated function length(map<any|error> m) returns int =@java:Method {
 # The function `keys` can be used to iterator over just the keys.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
 # object {
 #     public isolated function next() returns record {|int value;|}?;
-# } iterator = marks.iterator();
+# } iterator = {"Carl": 85, "Bob": 50, "Max": 60}.iterator();
 # iterator.next() ⇒ {"value":85}
 # ```
 #
@@ -72,9 +71,11 @@ public isolated function iterator(map<Type> m) returns object {
 # and accordingly panics if parameter `m` does not have a member with parameter `k` key.
 #
 # ```ballerina
-# {"Carl": 85, "Bob": 50, "Max": 60}.get("Carl") ⇒ 85
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
 #
-# {"Carl": 85, "Bob": 50, "Max": 60}.get("John") ⇒ panic
+# marks.get("Carl") ⇒ 85
+#
+# marks.get("John") ⇒ panic
 # ```
 #
 # + m - the map
@@ -88,8 +89,7 @@ public isolated function get(map<Type> m, string k) returns Type = @java:Method 
 # Returns a map containing [key, member] pair as the value for each key.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50};
-# marks.entries() ⇒ {"Carl":["Carl",85],"Bob":["Bob",50]}
+# {"Carl": 85, "Bob": 50}.entries() ⇒ {"Carl":["Carl",85],"Bob":["Bob",50]}
 # ```
 #
 # + m - the map
@@ -107,7 +107,7 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 #
 # ```ballerina
 # map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# marks.map((marks) => marks > 50) ⇒ {"Carl":true,"Bob":false};
+# marks.map(m => m > 50) ⇒ {"Carl":true,"Bob":false,"Max":true}
 # ```
 #
 # + m - the map
@@ -159,7 +159,7 @@ public isolated function filter(map<Type> m, @isolatedParam function(Type val) r
 #
 # ```ballerina
 # map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
-# marks.reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 195;
+# marks.reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 195
 # ```
 #
 # + m - the map
@@ -225,7 +225,7 @@ public isolated function removeIfHasKey(map<Type> m, string k) returns Type? = @
 # marks.removeAll();
 # marks ⇒ {}
 #
-# map<int> values = <record {|int x; int y;|}> {"x": 10, "y": 20};
+# map<int> values = <record {|int x; int y;|}> {x: 10, y: 20};
 # values.removeAll() ⇒ panic;
 # ```
 #
@@ -238,9 +238,11 @@ public isolated function removeAll(map<any|error> m) returns () = @java:Method {
 # Tests whether a map value has a member with a given key.
 #
 # ```ballerina
-# {"Carl": 85, "Bob": 50, "Max": 60}.hasKey("Carl") ⇒ true
+# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
 #
-# {"Carl": 85, "Bob": 50, "Max": 60}.hasKey("John") ⇒ false
+# marks.hasKey("Carl") ⇒ true
+#
+# marks.hasKey("John") ⇒ false
 # ```
 #
 # + m - the map
