@@ -682,15 +682,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "re ``",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "T",
-      "filterText": "re ``",
-      "insertText": "re `${1}`",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "readonly",
       "kind": "TypeParameter",
       "detail": "Readonly",
