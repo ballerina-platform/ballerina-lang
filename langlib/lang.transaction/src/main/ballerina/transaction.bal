@@ -51,8 +51,8 @@ public type Timestamp readonly & object {
 
 # Returns information about the current transaction.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
 #         transaction:Info info = transaction:info();
 #         check commit;
@@ -61,6 +61,7 @@ public type Timestamp readonly & object {
 #
 # transactional function updateDB() returns error? {
 #    transaction:Info info = transaction:info();
+#    info.xid ⇒ [100,102,53,51,97,57,57,51,45]
 # }
 # ```
 #
@@ -72,9 +73,9 @@ public transactional isolated function info() returns Info = @java:Method {
 
 # Returns information about the transaction with the specified xid.
 #
-# ```
+# ```ballerina
 # byte[] xid = [48, 53, 101, 102, 101, 55];
-# transaction:Info? info = transaction:getInfo(xid);
+# transaction:getInfo(xid) ⇒ {"xid":[48, 53, 101, 102, 101, 55],"retryNumber":0,"prevAttempt":null,"startTime":2022-12-20 16:03:37,228}
 # ```
 #
 # + xid - transaction id
@@ -89,8 +90,8 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # This ask the transaction manager that when it makes the decision
 # whether to commit or rollback, it should decide to rollback.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
 #         transaction:setRollbackOnly(error("not found"));
 #         check commit;
@@ -112,16 +113,17 @@ public transactional isolated function setRollbackOnly(error? e) {
 
 # Tells whether it is known that the transaction will be rolled back.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
-#         boolean willRollBack = transaction:getRollbackOnly();
+#         transaction:setRollbackOnly(error("not found"));
+#         transaction:getRollbackOnly() ⇒ true
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#    boolean willRollBack = transaction:getRollbackOnly();
+#    transaction:getRollbackOnly() ⇒ false
 # }
 # ```
 #
@@ -135,18 +137,16 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 
 # Associates some data with the current transaction branch.
 #
-# ```
-# readonly & any|error data = {"author": "John", "fruits": ["Apple", "Orange"]};
-#
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
-#         transaction:setData(data);
+#         transaction:setData({"accessType": "RO"});
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:setData(data);
+#    transaction:setData({"accessType": "RO"});
 # }
 # ```
 #
@@ -160,15 +160,17 @@ public transactional isolated function setData(readonly data) = @java:Method {
 #
 # The data is set using `setData`.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
-#         readonly data = transaction:getData();
+#         transaction:setData({"author": "John"});
+#         transaction:getData() ⇒ {"author":"John"}
 #         check commit;
 #     }
 # }
 # transactional function updateDB() returns error? {
-#    readonly data = transaction:getData();
+#    transaction:setData({"accessType": "RO"});
+#    transaction:getData() ⇒ {"accessType":"RO"}
 # }
 # ```
 #
@@ -192,20 +194,20 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 
 # Adds a handler to be called if and when the global transaction commits.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
-#         transaction:onCommit(handleCommit);
+#         transaction:onCommit(onCommitHandle);
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:onCommit(handleCommit);
+#    transaction:onCommit(onCommitHandle);
 # }
 #
-# isolated function handleCommit(transaction:Info info) {
-#     // This function will be called on commit.
+# isolated function onCommitHandle(transaction:Info info) {
+#     // Include the code to be executed when the transaction commits.
 # }
 # ```
 #
@@ -217,20 +219,20 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 
 # Adds a handler to be called if and when the global transaction rolls back.
 #
-# ```
-# function createEntity() {
+# ```ballerina
+# function createEntity() returns error? {
 #     transaction {
-#         transaction:onRollback(handleRollBack);
+#         transaction:onRollback(onRollBackHandle);
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:onCommit(handleRollBack);
+#    transaction:onRollback(onRollBackHandle);
 # }
 #
-# isolated function handleRollBack(transaction:Info info, error? cause, boolean willRetry) {
-#     // This function will be called on roll-back.
+# isolated function onRollBackHandle(transaction:Info info, error? cause, boolean willRetry) {
+#     // Include the code to be executed when the transaction rollback.
 # }
 # ```
 #
