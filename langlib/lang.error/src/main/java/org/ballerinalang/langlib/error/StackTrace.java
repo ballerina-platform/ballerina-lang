@@ -140,7 +140,7 @@ public class StackTrace {
         }
 
         @Override
-        public ObjectType getType() {
+        public Type getType() {
             return type;
         }
 
