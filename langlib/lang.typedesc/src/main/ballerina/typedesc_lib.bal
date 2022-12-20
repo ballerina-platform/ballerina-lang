@@ -45,15 +45,11 @@ public type TypeId readonly & record {|
 # type Error distinct error;
 # type SampleError distinct (Error & error<record {string msg;}>);
 # 
-# typedesc:TypeId[]? & readonly typeIds = SampleError.typeIds();
-# if (typeIds is typedesc:TypeId[]) {
-#   io:println(typeIds[typeIds.length() - 1]["localId"]) ⇒ Error
-# }
+# typedesc:TypeId[] typeIds = <typedesc:TypeId[]>SampleError.typeIds();
+# typeIds[typeIds.length() - 1]["localId"] ⇒ Error
 # 
-# typedesc:TypeId[]? & readonly primaryTypeIds = SampleError.typeIds(true);
-# if (primaryTypeIds is typedesc:TypeId[]) {
-#   io:println(primaryTypeIds[primaryTypeIds.length() - 1]["localId"]) ⇒ SampleError
-# }
+# typedesc:TypeId[] primaryTypeIds = <typedesc:TypeId[]>SampleError.typeIds(true);
+# primaryTypeIds[primaryTypeIds.length() - 1]["localId"] ⇒ SampleError
 # ```
 # 
 # + t - the typedesc
