@@ -163,6 +163,8 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # ```ballerina
 # int:fromString("76") ⇒ 76
 # 
+# int:fromString("-120") ⇒ -120
+# 
 # int:fromString("0xFFFF") ⇒ error
 # ```
 #
@@ -181,6 +183,8 @@ public isolated function fromString(string s) returns int|error = @java:Method {
 #
 # ```ballerina
 # 26.toHexString() ⇒ 1a
+# 
+# int:toHexString(-158) ⇒ -9e
 # ```
 #
 # + n - int value
@@ -199,6 +203,8 @@ public isolated function toHexString(int n) returns string = @java:Method {
 #
 # ```ballerina
 # int:fromHexString("1A5F") ⇒ 6751
+# 
+# int:fromHexString("-2b4a") ⇒ -11082
 # 
 # int:fromHexString("1Y4K") ⇒ error
 # ```
