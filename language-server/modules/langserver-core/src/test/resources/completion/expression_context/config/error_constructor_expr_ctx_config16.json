@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 8,
-    "character": 58
+    "character": 57
   },
-  "source": "expression_context/source/error_constructor_expr_ctx_source9.bal",
+  "source": "expression_context/source/error_constructor_expr_ctx_source16.bal",
   "items": [
     {
       "label": "ballerina/lang.runtime",
@@ -289,6 +289,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -361,17 +370,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "Q",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -380,96 +378,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "err1",
-      "kind": "Variable",
-      "detail": "Error1",
-      "sortText": "AB",
-      "insertText": "err1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "func1()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "func1",
-      "insertText": "func1()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorDesc",
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "Q",
-      "insertText": "ErrorDesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Error1",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "AL",
-      "insertText": "Error1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stack = ...",
-      "kind": "Snippet",
-      "detail": "stack = \"\"",
-      "sortText": "A",
-      "filterText": "stack",
-      "insertText": "stack = ${1:\"\"}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "null",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "null",
-      "insertText": "null",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "start",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "wait",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "wait",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "U",
-      "filterText": "flush",
-      "insertText": "flush ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from clause",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "T",
-      "filterText": "from",
-      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -593,6 +509,65 @@
       ]
     },
     {
+      "label": "newErr",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "F",
+      "insertText": "newErr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorData",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "ErrorData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testError",
+      "kind": "Variable",
+      "detail": "ERR",
+      "sortText": "F",
+      "insertText": "testError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "z",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "z",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ERR",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "P",
+      "insertText": "ERR",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name(int z, error newErr)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` z  \n- `error` newErr"
+        }
+      },
+      "sortText": "G",
+      "filterText": "name",
+      "insertText": "name(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
@@ -604,7 +579,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "AL",
+      "sortText": "P",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -670,6 +645,15 @@
       "detail": "Typedesc",
       "sortText": "R",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
       "insertTextFormat": "Snippet"
     },
     {
