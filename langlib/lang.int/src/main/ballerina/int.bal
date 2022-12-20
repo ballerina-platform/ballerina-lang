@@ -119,8 +119,8 @@ public isolated function sum(int... ns) returns int = @java:Method {
 # ```ballerina
 # int:max(50, 20, 30, 70, 65) ⇒ 70
 # 
-# int[] scores = [52, 45, 95, 76];
-# int:max(37, ...scores) ⇒ 95
+# [int, int, int] scores = [52, 95, 76];
+# int:max(int:max(...scores)) ⇒ 95
 # 
 # int n = 18;
 # n.max(25, 30, 4, 15) ⇒ 30
@@ -139,8 +139,8 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 # ```ballerina
 # int:min(45, 25, 30, 75, 50) ⇒ 25
 # 
-# int[] points = [21, 12, 48, 14];
-# int:min(50, ...points) ⇒ 12
+# [int, int, int, int] points = [21, 12, 48, 14];
+# int:min(...points) ⇒ 12
 # 
 # int m = 23;
 # m.min(12, 43, 7, 19) ⇒ 7
