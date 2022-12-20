@@ -101,7 +101,7 @@ public type StackFrame readonly & object {
 # Returns a stack trace for the current call stack.
 #
 # ```ballerina
-# runtime:getStackTrace();
+# runtime:StackFrame[] stackTrace = runtime:getStackTrace();
 # ```
 # 
 # The first member of the array represents the top of the call stack.
