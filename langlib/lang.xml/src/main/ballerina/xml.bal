@@ -162,6 +162,7 @@ public isolated function getName(Element elem) returns string = @java:Method {
 # xml:Element s = xml `<person>John</person>`;
 # s.setName("student");
 # ```
+# 
 # + elem - xml element
 # + xName - new expanded name
 public isolated function setName(Element elem, string xName) = @java:Method {
@@ -259,6 +260,7 @@ public isolated function getDescendants(Element elem) returns xml = @java:Method
 # xml book = xml `<book>Ballerina</book>`;
 # book.data() ⇒ Ballerina
 # ```
+# 
 # + x - the xml value
 # + return - a string consisting of all the character data of parameter `x`
 public isolated function data(xml x) returns string = @java:Method {
