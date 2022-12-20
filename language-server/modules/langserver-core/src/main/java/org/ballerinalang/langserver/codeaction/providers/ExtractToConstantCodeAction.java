@@ -154,12 +154,12 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                                         boolean newLineAtStart) {
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
-        String constDeclStr;
+        String constDeclStr = "";
         if (newLineAtStart) {
-            constDeclStr = String.format("%n" + "const %s %s = %s;%n", typeSymbol.signature(), constName, value);
-        } else {
-            constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.signature(), constName, value);
+            constDeclStr += String.format("%n");
         }
+        constDeclStr = String.format(constDeclStr + "const %s %s = %s;%n", typeSymbol.signature(), constName, value);
+
         TextEdit constDeclEdit = new TextEdit(new Range(constDeclPos, constDeclPos), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())), constName);
@@ -202,7 +202,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                     new Position(lastImport.lineRange().endLine().line() + 1, 0), true);
         } else {
             return new ConstantData(new Position(declarationNode.lineRange().startLine().line(), 0),
-                    !declarationNode.toString().startsWith("\n"));
+                    !declarationNode.toString().startsWith(System.lineSeparator()));
         }
     }
 
