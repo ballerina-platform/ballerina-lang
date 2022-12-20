@@ -29,7 +29,7 @@ import ballerina/jballerina.java;
 # 
 # boolean:fromString("0") ⇒ false
 # 
-# boolean:fromString("hello") ⇒ error
+# boolean:fromString("01") ⇒ error
 # ```
 #
 # + s - string representing a boolean value
