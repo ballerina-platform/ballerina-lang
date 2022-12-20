@@ -359,8 +359,7 @@ public isolated function createComment(string content) returns Comment = @java:M
 # The constructed sequence will be empty when the length of parameter `data` is zero.
 #
 # ```ballerina
-# string textData = "Hello!";
-# xml:createText(textData) ⇒ Hello!
+# xml:createText("Hello!") ⇒ Hello!
 # ```
 # 
 # + data - the character data of the Text item
@@ -417,8 +416,7 @@ public isolated function strip(xml x) returns xml = @java:Method {
 #                       <code>Python</code><script>Perl</script>`;
 # codingBooks.elements() ⇒ <script>JS</script><code>Ballerina</code><code>Python</code><script>Perl</script>
 # 
-# // Get only the elements which has the given naame.
-# xml<xml:Element> programmingBooks = codingBooks.elements("programming");
+# codingBooks.elements("code") ⇒ <code>Ballerina</code><code>Python</code>
 # ```
 # 
 # + x - the xml value
