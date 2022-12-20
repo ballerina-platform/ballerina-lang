@@ -531,8 +531,12 @@ function bam() returns int {
 
 function testNullableIntAdd() {
     int[] result = [1, 2];
-    int? val = bar() + result[0];
+    int? val = baz() + result[0];
     assertEquality(val, ());
+}
+
+function baz() returns int? {
+    return ();
 }
 
 function assertEquality(any actual, any expected) {
