@@ -417,8 +417,7 @@ public isolated function strip(xml x) returns xml = @java:Method {
 #                       <code>Python</code><script>Perl</script>`;
 # codingBooks.elements() ⇒ <script>JS</script><code>Ballerina</code><code>Python</code><script>Perl</script>
 # 
-# // Get only the elements which has the given naame.
-# xml<xml:Element> programmingBooks = codingBooks.elements("programming");
+# codingBooks.elements("code") ⇒ <code>Ballerina</code><code>Python</code>
 # ```
 # 
 # + x - the xml value
