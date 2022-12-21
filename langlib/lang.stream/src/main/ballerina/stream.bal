@@ -191,7 +191,7 @@ public isolated function iterator(stream<Type,CompletionType> stm) returns objec
 #
 # ```ballerina
 # stream<int, error?> strm = new;
-# _ = check strm.close();
+# check strm.close();
 # ```
 #
 # + stm - the stream to close
