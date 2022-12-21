@@ -47,7 +47,7 @@ public isolated function sum(decimal... xs) returns decimal = @java:Method {
 # decimal:max(30.5, ...marks) ⇒ 98.1
 # 
 # [decimal, decimal, decimal] scores = [7.21, 10.32, 9.2];
-# decimal:max(2.34, ...scores) ⇒ 10.32
+# decimal:max(...scores) ⇒ 10.32
 #
 # decimal d = 21.2;
 # d.max(40.5, 21, 32.4) ⇒ 40.5
@@ -70,7 +70,7 @@ public isolated function max(decimal x, decimal... xs) returns decimal = @java:M
 # decimal:min(82.1, ...marks) ⇒ 80.5
 # 
 # [decimal, decimal, decimal] scores = [7.21, 10.32, 9.2];
-# decimal:min(12.34, ...scores) ⇒ 7.21
+# decimal:min(...scores) ⇒ 7.21
 # 
 # decimal d = 1.2;
 # d.min(10.5, 21, 32.4) ⇒ 1.2
@@ -122,6 +122,9 @@ public isolated function abs(decimal x) returns decimal = @java:Method {
 # 
 # decimal h = 3.5;
 # h.round(0) ⇒ 4
+#
+# decimal e = 4345.55;
+# e.round(-3) ⇒ 4E+3
 # ```
 #
 # + x - decimal value to operate on
@@ -142,8 +145,6 @@ public isolated function round(decimal x, int fractionDigits = 0) returns decima
 # d.quantize(3.512) ⇒ 4.163
 # 
 # decimal:quantize(4.1626, 3.512) ⇒ 4.163
-# 
-# decimal:quantize(4.1624, 3.512) ⇒ 4.162
 # 
 # decimal:quantize(4.1624, 3.51) ⇒ 4.16
 # ```
