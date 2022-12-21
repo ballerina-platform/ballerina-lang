@@ -223,7 +223,7 @@ public class RunNativeImageTestTask implements Task {
 
             if (testResult != 0) {
                 TestUtils.cleanTempCache(project, cachesRoot);
-                throw createLauncherException("there are test failures");
+                throw createLauncherException("there are test failures. test result code:" + testResult);
             }
         }
 
