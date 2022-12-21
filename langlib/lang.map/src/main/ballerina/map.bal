@@ -76,7 +76,7 @@ public isolated function iterator(map<Type> m) returns object {
 #
 # marks.get("Carl") ⇒ 85
 #
-# makrs.get("John") ⇒ panic
+# marks.get("John") ⇒ panic
 # ```
 #
 # + m - the map
