@@ -60,8 +60,8 @@ public type Timestamp readonly & object {
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:Info info = transaction:info();
-#    info.xid ⇒ [100,102,53,51,97,57,57,51,45]
+#     transaction:Info info = transaction:info();
+#     info.xid ⇒ [100,102,53,51,97,57,57,51,45]
 # }
 # ```
 #
@@ -99,7 +99,7 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:setRollbackOnly(error("not found"));
+#     transaction:setRollbackOnly(error("not found"));
 # }
 # ```
 #
@@ -123,7 +123,7 @@ public transactional isolated function setRollbackOnly(error? e) {
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:getRollbackOnly() ⇒ false
+#     transaction:getRollbackOnly() ⇒ false
 # }
 # ```
 #
@@ -146,7 +146,7 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:setData({"accessType": "RO"});
+#     transaction:setData({"accessType": "RO"});
 # }
 # ```
 #
@@ -169,8 +169,8 @@ public transactional isolated function setData(readonly data) = @java:Method {
 #     }
 # }
 # transactional function updateDB() returns error? {
-#    transaction:setData({"accessType": "RO"});
-#    transaction:getData() ⇒ {"accessType":"RO"}
+#     transaction:setData({"accessType": "RO"});
+#     transaction:getData() ⇒ {"accessType":"RO"}
 # }
 # ```
 #
@@ -203,7 +203,7 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:onCommit(onCommitHandle);
+#     transaction:onCommit(onCommitHandle);
 # }
 #
 # isolated function onCommitHandle(transaction:Info info) {
@@ -228,7 +228,7 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 # }
 #
 # transactional function updateDB() returns error? {
-#    transaction:onRollback(onRollBackHandle);
+#     transaction:onRollback(onRollBackHandle);
 # }
 #
 # isolated function onRollBackHandle(transaction:Info info, error? cause, boolean willRetry) {
