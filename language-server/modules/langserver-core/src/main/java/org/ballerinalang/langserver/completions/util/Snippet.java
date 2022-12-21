@@ -355,9 +355,7 @@ public enum Snippet {
 
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
 
-    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-
-    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
+    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet());
 
     private final SnippetBlock snippetBlock;
 
