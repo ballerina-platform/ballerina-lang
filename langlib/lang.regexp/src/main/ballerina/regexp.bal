@@ -51,37 +51,12 @@ type GroupsAsSpanArrayType SpanAsTupleType[];
 
 type GroupsArrayType GroupsAsSpanArrayType[];
 
-# Splits a string into substrings separated by matches of a regular expression.
-# This finds the the non-overlapping matches of a regular expression and
-# returns a list of substrings of `str` that occur before the first match,
-# between matches, or after the last match.  If there are no matches, then
-# `[str]` will be returned.
-#
-# ```ballerina
-# regexp:RegExp r = re `,`;
-#
-# r.split("Not Valid") ⇒ ["Not Valid"]
-#
-# r.split("abc,cde,efg") ⇒ ["abc", "cde", "efg"]
-# ```
-#
-# + re - the regular expression that specifies the separator
-# + str - the string to be split
-# + return - a list of substrings of `str` separated by matches of `re`
-public isolated function split(RegExp re, string str) returns string[] = @java:Method {
-    'class: "org.ballerinalang.langlib.regexp.Split",
-    name: "split"
-} external;
-
 # Returns the first match of a regular expression within a string.
 #
 # ```ballerina
-# regexp:RegExp r = re `World`;
-#
+# string:RegExp r = re `World`;
 # r.find("Not A Match") is () ⇒ true
-#
 # r.find("Hello World") is regexp:Span ⇒ true
-#
 # r.find("Hello World", 7) is regexp:Span ⇒ true
 # ```
 #
@@ -110,12 +85,9 @@ isolated function findAllImpl(RegExp reExp, string str, int startIndex = 0) retu
 # Returns the `Groups` for the first match of a regular expression within a string.
 #
 # ```ballerina
-# regexp:RegExp r = re `([bB].tt[a-z]*)`;
-#
+# string:RegExp r = re `([bB].tt[a-z]*)`;
 # r.findGroups("Not A Match") is () ⇒ true
-#
 # r.findGroups("Butter was bought by Betty but the butter was bitter.") is regexp:Groups ⇒ true
-#
 # r.findGroups("Butter was bought by Betty but the butter was bitter.", 7) is regexp:Groups ⇒ true
 # ```
 #
@@ -140,12 +112,9 @@ isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) r
 # match ended, so the list of matches will be non-overlapping.
 #
 # ```ballerina
-# regexp:RegExp r = re `[bB].tt[a-z]*`;
-#
+# string:RegExp r = re `[bB].tt[a-z]*`;
 # r.findAll("Not A Match").length() ⇒ 0
-#
 # r.findAll("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
-#
 # r.findAll("Butter was bought by Betty but the butter was bitter.", 7).length() ⇒ 3
 # ```
 #
@@ -169,12 +138,9 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 # match ended, so the list of matches will be non-overlapping.
 #
 # ```ballerina
-# regexp:RegExp r = re `([bB].tt[a-z]*)`;
-#
+# string:RegExp r = re `([bB].tt[a-z]*)`;
 # r.findAllGroups("Not A Match").length() ⇒ 0
-#
 # r.findAllGroups("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
-#
 # r.findAllGroups("Butter was bought by Betty but the butter was bitter.", 7) ⇒ 3
 # ```
 #
@@ -217,10 +183,8 @@ isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0
 # Tests whether there is a match of a regular expression at a specific index in the string.
 #
 # ```ballerina
-# regexp:RegExp r = re `World`;
-#
+# string:RegExp r = re `World`;
 # r.matchAt("Hello World") is () ⇒ true
-#
 # r.matchAt("Hello World", 6) is regexp:Span ⇒ true
 # ```
 #
@@ -245,10 +209,8 @@ isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) retu
 # Returns the `Groups` of the match of a regular expression at a specific index in the string.
 #
 # ```ballerina
-# regexp:RegExp r = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])?`;
-#
+# string:RegExp r = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])?`;
 # r.matchGroupsAt("time: 14:35:59") is () ⇒ true
-#
 # r.matchGroupsAt("time: 14:35:59", 6) is regexp:Groups ⇒ true
 # ```
 #
@@ -282,10 +244,8 @@ isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 #
 # ```ballerina
-# regexp:RegExp r = re `A|Th.*ch|^`;
-#
+# string:RegExp r = re `A|Th.*ch|^`;
 # r.isFullMatch("This is a Match") ⇒ true
-#
 # r.isFullMatch("Not a complete Match") ⇒ false
 # ```
 #
@@ -306,10 +266,8 @@ isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @j
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 #
 # ```ballerina
-# regexp:RegExp r = re `([0-9]+)×([0-9]+)`;
-#
+# string:RegExp r = re `([0-9]+)×([0-9]+)`;
 # r.fullMatchGroups("test: 1440×900") is () ⇒ true
-#
 # r.fullMatchGroups("1440×900") is regexp:Groups ⇒ true
 # ```
 #
@@ -333,12 +291,9 @@ public type Replacement ReplacerFunction|string;
 # Replaces the first match of a regular expression.
 #
 # ```ballerina
-# regexp:RegExp r = re `0+`;
-#
+# string:RegExp r = re `0+`;
 # r.replace("10010011", "*") ⇒ 1*10011
-#
 # r.replace("10010011", "*", 4) ⇒ 1001*11
-#
 # r.replace("122111", "*") ⇒ 122111
 # ```
 #
@@ -369,12 +324,9 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 # match ended, so the matches will be non-overlapping.
 #
 # ```ballerina
-# regexp:RegExp r = re `0+`;
-#
+# string:RegExp r = re `0+`;
 # r.replaceAll("10010011", "*") ⇒ 1*1*11
-#
 # r.replaceAll("10010011", "*", 4) ⇒ 1001*11
-#
 # r.replaceAll("122111", "*") ⇒ 122111
 # ```
 #
@@ -428,12 +380,31 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
     return replacement(groups);
 }
 
+# Splits a string into substrings separated by matches of a regular expression.
+# This finds the the non-overlapping matches of a regular expression and
+# returns a list of substrings of `str` that occur before the first match,
+# between matches, or after the last match.  If there are no matches, then
+# `[str]` will be returned.
+#
+# ```ballerina
+# string:RegExp r = re `,`;
+# r.split("abc,cde,efg") ⇒ ["abc", "cde", "efg"]
+# r.split("Not Valid") ⇒ ["Not Valid"]
+# ```
+#
+# + re - the regular expression that specifies the separator
+# + str - the string to be split
+# + return - a list of substrings of `str` separated by matches of `re`
+public isolated function split(RegExp re, string str) returns string[] = @java:Method {
+    'class: "org.ballerinalang.langlib.regexp.Split",
+    name: "split"
+} external;
+
 # Constructs a regular expression from a string.
 # The syntax of the regular expression is the same as accepted by the `re` tagged data template expression.
 #
 # ```ballerina
 # regexp:fromString("AB+C*D{1,4}") ⇒ re `AB+C*D{1,4}`
-#
 # regexp:fromString("AB+^*") ⇒ error
 # ```
 #
