@@ -59,7 +59,7 @@ public isolated function iterator(string str) returns object {
 # ```ballerina
 # "http://worldtimeapi.org".concat("/api/timezone/", "Asia", "/", "Colombo") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo
 #
-# // Alternative approach to achieve the same as above.
+# // Alternative approach to achieve the same.
 # string:concat("http://worldtimeapi.org", "/api/timezone/", "Asia", "/", "Colombo") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo
 # ```
 #
