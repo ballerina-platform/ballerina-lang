@@ -318,8 +318,7 @@ public type RegExp regexp:RegExp;
 # This is equivalent to `regex:isFullMatch(re, str)`.
 #
 # ```ballerina
-# string s = "This is a Match";
-# s.matches(re `A|Th.*ch|^`) ⇒ true
+# "This is a Match".matches(re `A|Th.*ch|^`) ⇒ true
 # ```
 #
 # + str - the string
@@ -333,8 +332,7 @@ public function matches(string str, RegExp re) returns boolean {
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
 #
 # ```ballerina
-# string s = "Will Match Somewhere";
-# s.includesMatch(re `A|Th.*ch|^`) ⇒ true
+# "Will Match Somewhere".includesMatch(re `A|Th.*ch|^`) ⇒ true
 # ```
 #
 # + str - the string to be matched
