@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
@@ -33,7 +34,7 @@ import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
 public class RemoveAll {
 
     public static void removeAll(BMap<?, ?> m) {
-        checkIsMapOnlyOperation(m.getType(), "removeAll()");
+        checkIsMapOnlyOperation(TypeUtils.getReferredType(m.getType()), "removeAll()");
         validateRecord(m);
         try {
             m.clear();

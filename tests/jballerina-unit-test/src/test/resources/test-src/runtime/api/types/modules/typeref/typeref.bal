@@ -84,6 +84,9 @@ public function validateTypeRef() {
     testRuntimeTypeRef();
     validateArray();
     validateFunctionParameters();
+    validateRuntimeAPIs();
+    validateValueWithUnion();
+    validateTableMultipleKey();
 }
 
 function validateFunctionParameters() {
