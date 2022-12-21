@@ -48,10 +48,9 @@ public isolated function length(map<any|error> m) returns int =@java:Method {
 # The function `keys` can be used to iterator over just the keys.
 #
 # ```ballerina
-# map<int> marks = {"Carl": 85, "Bob": 50, "Max": 60};
 # object {
 #     public isolated function next() returns record {|int value;|}?;
-# } iterator = marks.iterator();
+# } iterator = {"Carl": 85, "Bob": 50, "Max": 60}.iterator();
 # iterator.next() ⇒ {"value":85}
 # ```
 #
