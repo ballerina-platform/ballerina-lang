@@ -190,8 +190,8 @@ public isolated function iterator(stream<Type,CompletionType> stm) returns objec
 # Closing a stream that has already been closed has no effect and returns `()`.
 #
 # ```ballerina
-# stream<int> scores = [45, 60, 75, 30, 90].toStream();
-# _ = scores.close();
+# stream<int, error?> strm = new;
+# _ = check strm.close();
 # ```
 #
 # + stm - the stream to close
