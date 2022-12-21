@@ -402,10 +402,9 @@ public class RunNativeImageTestTask implements Task {
                 }
                 jarInputStream.closeEntry();
             }
-            jarInputStream.close();
             if (isResourceExist) {
-                throw createLauncherException("unable to generate native image. this single file project has " +
-                        "resource folder inside");
+                throw createLauncherException("native image testing is not supported for standalone " +
+                        "Ballerina files containing resources");
             }
         }
     }

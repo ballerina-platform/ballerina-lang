@@ -72,8 +72,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0).contains("unable to generate native image. this " +
-                    "single file project has resource folder inside"));
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
+                    "standalone Ballerina files containing resources"));
         }
     }
 
@@ -88,8 +88,8 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
-            Assert.assertTrue(e.getDetailedMessages().get(0).contains("unable to generate native image. this " +
-                    "single file project has resource folder inside"));
+            Assert.assertTrue(e.getDetailedMessages().get(0).contains("native image testing is not supported for " +
+                    "standalone Ballerina files containing resources"));
         }
     }
 }
