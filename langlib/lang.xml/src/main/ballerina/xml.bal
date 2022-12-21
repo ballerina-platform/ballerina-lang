@@ -57,7 +57,7 @@ public type Text xml;
 # xml `<book><title>Ballerina</title></book><book><title>Java</title></book>`.length() ⇒ 2
 # 
 # xml `<name>John</name><age>20</age>
-#       <roles><role>admin</role><role>teacher</role></roles>`.length() ⇒ 3
+#       <roles><role>admin</role><role>teacher</role></roles>`.length() ⇒ 4
 # ```
 # 
 # + x - xml item
@@ -475,7 +475,7 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 #
 # ```ballerina
 # xml books = xml `<book>Java</book><book>Ballerina</book>`;
-# books.'map(function (xml xmlContent) returns xml {
+# books.map(function (xml xmlContent) returns xml {
 #     return xml `<book author="Anjana">${xmlContent.children()}</book>`;
 # }) ⇒ <book author="Anjana">Java</book><book author="Anjana">Ballerina</book>
 # ```
