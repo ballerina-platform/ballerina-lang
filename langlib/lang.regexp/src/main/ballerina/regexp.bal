@@ -147,13 +147,13 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 # match ended, so the list of matches will be non-overlapping.
 #
 # ```ballerina
-# string:RegExp r = re `([bB].tt[a-z]*)`;
+# string:RegExp r = re `(([a-z]u)(bble))`;
 #
 # r.findAllGroups("Not A Match").length() ⇒ 0
 #
-# r.findAllGroups("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
+# r.findAllGroups("rubble, trouble, bubble, hubble").length() ⇒ 3
 #
-# r.findAllGroups("Butter was bought by Betty but the butter was bitter.", 7) ⇒ 3
+# r.findAllGroups("rubble, trouble, bubble, hubble", 7) ⇒ 2
 # ```
 #
 # + re - the regular expression
@@ -318,6 +318,14 @@ public type Replacement ReplacerFunction|string;
 # r.replace("10010011", "*", 4) ⇒ 1001*11
 #
 # r.replace("122111", "*") ⇒ 122111
+#
+# r.replace("10010011", replaceFunction) ⇒ 1*10011
+#
+# r.replace("10010011", replaceFunction, 4) ⇒ 1001*11
+#
+# isolated function replaceFunction(regexp:Groups groups) returns string {
+#    return "*";
+# }
 # ```
 #
 # + re - the regular expression
@@ -354,6 +362,14 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 # r.replaceAll("10010011", "*", 4) ⇒ 1001*11
 #
 # r.replaceAll("122111", "*") ⇒ 122111
+#
+# r.replaceAll("10010011", replaceFunction) ⇒ 1*1*11
+#
+# r.replaceAll("10010011", replaceFunction, 4) ⇒ 1001*11
+#
+# isolated function replaceFunction(regexp:Groups groups) returns string {
+#    return "*";
+# }
 # ```
 #
 # + re - the regular expression
@@ -415,7 +431,7 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
 # ```ballerina
 # string:RegExp r = re `,`;
 #
-# r.split("abc,cde,efg") ⇒ ["abc", "cde", "efg"]
+# r.split("abc,cde,efg") ⇒ ["abc","cde","efg"]
 #
 # r.split("Not Valid") ⇒ ["Not Valid"]
 # ```
