@@ -500,6 +500,8 @@ public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType 
 # books.forEach(function (xml xmlItem) {
 #     titles += xml `<code>${xmlItem.data()}</code>`;
 # });
+# 
+# titles ⇒ <code>Java</code><code>Ballerina</code>
 # ```
 # 
 # + x - the xml value
