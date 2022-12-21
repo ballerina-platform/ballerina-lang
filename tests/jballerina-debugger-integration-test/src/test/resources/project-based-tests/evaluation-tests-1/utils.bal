@@ -48,7 +48,7 @@ public type T1 record {
     string name;
 };
 
-T1 a = { name: "John" };
+T1 a = {name: "John"};
 
 function sum(int a, int b) returns int {
     return a + b;
@@ -66,4 +66,8 @@ public function getSum(int a, int b) returns int {
     } else {
         return -1;
     }
+}
+
+function processTypeDesc(typedesc t) returns typedesc {
+    return t;
 }

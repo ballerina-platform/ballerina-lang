@@ -174,9 +174,9 @@ public class CodeCoverageReportTest extends BaseTestCase {
     }
 
     /**
-     * Get the expected class elements per each package element in covergae XML.
+     * Get the expected class elements per each package element in coverage XML.
      *
-     * @return HashMap<String, List < String>>
+     * @return HashMap<String, List<String>>
      */
     private HashMap<String, List<String>> getExpectedCoverageClasses() {
         HashMap<String, List<String>> coverageClassMap = new HashMap<>();

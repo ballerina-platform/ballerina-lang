@@ -106,8 +106,6 @@ public enum Snippet {
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
-    DEF_CLIENT_DECLARATION(SnippetGenerator.getClientDeclarationSnippet()),
-
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
     DEF_ENUM(SnippetGenerator.getEnumDefSnippet()),
@@ -363,9 +361,7 @@ public enum Snippet {
 
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
 
-    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-
-    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
+    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet());
 
     private final SnippetBlock snippetBlock;
 

@@ -19,12 +19,13 @@
 package org.ballerinalang.langlib.regexp;
 
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 
 import java.util.regex.Matcher;
+
+import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
 
 /**
  * Native implementation of lang.regexp:find(string).
@@ -36,29 +37,36 @@ public class Find {
     public static BArray find(BRegexpValue regExp, BString str, int startIndex) {
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         if (matcher.find(startIndex)) {
-            BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
-            resultTuple.add(0, matcher.start());
-            resultTuple.add(1, matcher.end());
-            resultTuple.add(2, StringUtils.fromString(matcher.group()));
-            return resultTuple;
+            return RegexUtil.getGroupZeroAsSpan(matcher);
         }
         return null;
     }
 
     public static BArray findGroups(BRegexpValue regExp, BString str, int startIndex) {
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        BArray resultArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
-        while (matcher.find()) {
-            int matcherStart = matcher.start();
-            if (matcherStart >= startIndex) {
-                int matcherEnd = matcher.end();
-                String matcherStr = matcher.group();
-                BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
-                resultTuple.add(0, matcherStart);
-                resultTuple.add(1, matcherEnd);
-                resultTuple.add(2, StringUtils.fromString(matcherStr));
-                resultArray.append(resultTuple);
+        BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        matcher.region(startIndex, str.length());
+        if (matcher.find()) {
+            resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
+            if (matcher.groupCount() != 0) {
+                BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
+                for (int i = 0; i < spanArr.getLength(); i++) {
+                    resultArray.append(spanArr.get(i));
+                }
             }
+        }
+        if (resultArray.getLength() == 0) {
+            return null;
+        }
+        return resultArray;
+    }
+
+    public static BArray findAll(BRegexpValue regExp, BString str, int startIndex) {
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        matcher.region(startIndex, str.length());
+        while (matcher.find()) {
+            resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
         }
         if (resultArray.getLength() == 0) {
             return null;
@@ -71,14 +79,7 @@ public class Find {
         matcher.region(startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
-            BArray group = ValueCreator.createArrayValue(RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE);
-            for (int i = 1; i <= matcher.groupCount(); i++) {
-                BArray resultTuple = ValueCreator.createTupleValue(RegexUtil.SPAN_AS_TUPLE_TYPE);
-                resultTuple.add(0, matcher.start(i));
-                resultTuple.add(1, matcher.end(i));
-                resultTuple.add(2, StringUtils.fromString(matcher.group(i)));
-                group.append(resultTuple);
-            }
+            BArray group = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
             if (group.getLength() != 0) {
                 groupArray.append(group);
             }

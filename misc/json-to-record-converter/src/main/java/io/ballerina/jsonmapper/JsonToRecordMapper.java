@@ -151,10 +151,10 @@ public class JsonToRecordMapper {
                 .map(entry -> {
                     Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
                     String recordTypeName = entry.getKey() == null ?
-                            (recordName == null || recordName.equals("")) ? NEW_RECORD_NAME : recordName :
+                            (recordName == null || recordName.equals("")) ?
+                                    NEW_RECORD_NAME : escapeIdentifier(StringUtils.capitalize(recordName)) :
                             entry.getKey();
-                    IdentifierToken typeName = AbstractNodeFactory
-                            .createIdentifierToken(escapeIdentifier(recordTypeName));
+                    IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(recordTypeName);
                     Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
                     return NodeFactory.createTypeDefinitionNode(null, null, typeKeyWord, typeName,
                             entry.getValue(), semicolon);
@@ -201,20 +201,9 @@ public class JsonToRecordMapper {
         List<Node> recordFields = new ArrayList<>();
         if (recordToTypeDescNodes.containsKey(recordName)) {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                if (entry.getValue().isJsonObject()) {
-                    String elementKey = entry.getKey();
-                    String type = StringUtils.capitalize(elementKey);
-                    generateRecords(entry.getValue().getAsJsonObject(), type, isClosed,
-                            recordToTypeDescNodes, recordName, jsonNodes, diagnosticMessages);
-                } else if (entry.getValue().isJsonArray()) {
-                    for (JsonElement element : entry.getValue().getAsJsonArray()) {
-                        if (element.isJsonObject()) {
-                            String elementKey = entry.getKey();
-                            String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
-                            generateRecords(element.getAsJsonObject(), type, isClosed,
-                                    recordToTypeDescNodes, recordName, jsonNodes, diagnosticMessages);
-                        }
-                    }
+                if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
+                    generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
+                            recordName, jsonNodes, diagnosticMessages, false);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
             }
@@ -234,20 +223,9 @@ public class JsonToRecordMapper {
                     recordFields, previousRecordFieldToNodes, newRecordFieldToNodes);
         } else {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-                if (entry.getValue().isJsonObject()) {
-                    String elementKey = entry.getKey();
-                    String type = StringUtils.capitalize(elementKey);
-                    generateRecords(entry.getValue().getAsJsonObject(), type, isClosed,
-                            recordToTypeDescNodes, null, jsonNodes, diagnosticMessages);
-                } else if (entry.getValue().isJsonArray()) {
-                    for (JsonElement element : entry.getValue().getAsJsonArray()) {
-                        if (element.isJsonObject()) {
-                            String elementKey = entry.getKey();
-                            String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
-                            generateRecords(element.getAsJsonObject(), type, isClosed,
-                                    recordToTypeDescNodes, null, jsonNodes, diagnosticMessages);
-                        }
-                    }
+                if (entry.getValue().isJsonObject() || entry.getValue().isJsonArray()) {
+                    generateRecordForObjAndArray(entry.getValue(), entry.getKey(), isClosed, recordToTypeDescNodes,
+                            null, jsonNodes, diagnosticMessages, false);
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
                 Node recordField = getRecordField(entry, false);
@@ -271,6 +249,24 @@ public class JsonToRecordMapper {
             typeDescNodes.add(recordNames.indexOf(moveBefore), mapEntry);
             recordToTypeDescNodes.clear();
             typeDescNodes.forEach(node -> recordToTypeDescNodes.put(node.getKey(), node.getValue()));
+        }
+    }
+
+    private static void generateRecordForObjAndArray(JsonElement jsonElement, String elementKey, boolean isClosed,
+                                                     Map<String, NonTerminalNode> recordToTypeDescNodes,
+                                                     String moveBefore, Map<String, JsonElement> jsonNodes,
+                                                     List<DiagnosticMessage> diagnosticMessages,
+                                                     boolean arraySuffixAdded) {
+        if (jsonElement.isJsonObject()) {
+            String type = escapeIdentifier(StringUtils.capitalize(elementKey));
+            generateRecords(jsonElement.getAsJsonObject(), type, isClosed,
+                    recordToTypeDescNodes, moveBefore, jsonNodes, diagnosticMessages);
+        } else if (jsonElement.isJsonArray()) {
+            for (JsonElement element : jsonElement.getAsJsonArray()) {
+                String arrayElementKey = elementKey + (arraySuffixAdded ? "" : ARRAY_RECORD_SUFFIX);
+                generateRecordForObjAndArray(element, arrayElementKey, isClosed, recordToTypeDescNodes, moveBefore,
+                        jsonNodes, diagnosticMessages, true);
+            }
         }
     }
 
@@ -343,9 +339,11 @@ public class JsonToRecordMapper {
 
         for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
             String jsonField = entry.getKey();
-            JsonElement jsonElement = jsonNodes.get(jsonField);
+            Map<String, String> jsonEscapedFieldToFields = jsonNodes.entrySet().stream()
+                    .collect(Collectors.toMap(jsonEntry -> escapeIdentifier(jsonEntry.getKey()), Map.Entry::getKey));
+            JsonElement jsonElement = jsonNodes.get(jsonEscapedFieldToFields.get(jsonField));
             Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
-                    new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
+                    new AbstractMap.SimpleEntry<>(jsonEscapedFieldToFields.get(jsonField), jsonElement) :
                     jsonObject.entrySet().stream().filter(elementEntry -> escapeIdentifier(elementEntry.getKey())
                             .equals(jsonField)).findFirst().orElse(null);
             if (jsonEntry != null) {
@@ -387,8 +385,8 @@ public class JsonToRecordMapper {
                     fieldTypeName, fieldName,
                     optionalFieldToken, semicolonToken);
         } else if (entry.getValue().isJsonObject()) {
-            String elementKey = entry.getKey();
-            String type = StringUtils.capitalize(elementKey);
+            String elementKey = entry.getKey().trim();
+            String type = escapeIdentifier(StringUtils.capitalize(elementKey));
             typeName = AbstractNodeFactory.createIdentifierToken(type);
             fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(typeName.kind(), typeName);
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
@@ -478,8 +476,8 @@ public class JsonToRecordMapper {
                     typeDescriptorNodes.add(tempTypeNode);
                 }
             } else if (element.isJsonObject()) {
-                String elementKey = entry.getKey();
-                String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
+                String elementKey = entry.getKey().trim();
+                String type = escapeIdentifier(StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX);
                 Token tempTypeName = AbstractNodeFactory.createIdentifierToken(type);
 
                 TypeDescriptorNode tempTypeNode =
