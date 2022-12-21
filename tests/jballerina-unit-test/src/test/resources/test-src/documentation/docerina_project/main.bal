@@ -179,7 +179,7 @@ public class Listener {
     private string config;
 
     # Starts the registered service.
-    # ```ballerina
+    # ```
     # error? result = listenerEp.__start();
     # ```
     #
@@ -188,7 +188,7 @@ public class Listener {
     }
 
     # Stops the service listener gracefully. Already-accepted requests will be served before the connection closure.
-    # ```ballerina
+    # ```
     # error? result = listenerEp.__gracefulStop();
     # ```
     #
@@ -197,7 +197,7 @@ public class Listener {
     }
 
     # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
-    # ```ballerina
+    # ```
     # error? result = listenerEp.__attach(helloService);
     # ```
     #
@@ -216,7 +216,7 @@ public client class Caller {
     private int instanceId = -1;
 
     # Informs the caller, when the server has sent all the messages.
-    # ```ballerina
+    # ```
     # grpc:Error? result = caller->complete();
     # ```
     #

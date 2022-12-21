@@ -24,7 +24,7 @@ import ballerina/jballerina.java;
 # and also `1` for true and `0` for `false`.
 # This is the inverse of function ``value:toString`` applied to a `boolean`.
 #
-# ```ballerina
+# ```
 # boolean:fromString("true") ⇒ true
 # 
 # boolean:fromString("0") ⇒ false

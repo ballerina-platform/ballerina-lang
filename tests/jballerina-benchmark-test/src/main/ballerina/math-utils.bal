@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 
 # Returns rounded positive square root of the given value.
 #
-# ```ballerina
+# ```
 #   float squareRoot = sqrt(6.4);
 # ```
 #
@@ -33,7 +33,7 @@ public isolated function sqrt(float val) returns float = @java:Method {
 # double value that is greater than or equal to the argument
 # and is equal to a mathematical integer.
 #
-# ```ballerina
+# ```
 #   float ceilingValue = ceil(6.4);
 # ```
 #
@@ -46,7 +46,7 @@ public isolated function ceil(float val) returns float = @java:Method {
 
 # Calculates the closest int to the argument, with ties rounding to positive infinity.
 #
-# ```ballerina
+# ```
 #   int roundedIntegerValue = round(6.4);
 # ```
 #

@@ -15,7 +15,7 @@
 // under the License.
 
 # Returns a `handle`, which refers to the Java string representation of the Ballerina `string`.
-# ```ballerina
+# ```
 # handle header = java:fromString("Content-Type");
 # ```
 #
@@ -28,7 +28,7 @@ public isolated function fromString(string value) returns handle = @Method {
 
 # Returns a Ballerina `string` representation of the Java object referred by the `handle`.
 # If the `handle` refers to Java null, then this function returns a `nil` value.
-# ```ballerina
+# ```
 # string? version = java:toString(versionProperty);
 # ```
 #
@@ -42,7 +42,7 @@ public isolated function toString(handle value) returns string? = @Method {
 } external;
 
 # Returns `true` if this handle refers to Java null.
-# ```ballerina
+# ```
 # boolean status = java:isNull(value);
 # ```
 #
@@ -54,7 +54,7 @@ public isolated function isNull(handle value) returns boolean = @Method {
 } external;
 
 # Returns a `handle`, which refers to Java null.
-# ```ballerina
+# ```
 # handle nullHandle = java:createNull();
 # ```
 #
@@ -66,7 +66,7 @@ public isolated function createNull() returns handle = @Method {
 
 # Returns a `handle`, which refers to the Java Class object associated with the class or interface with the given
 # string name.
-# ```ballerina
+# ```
 # handle|error intClass = java:getClass("int");
 # ```
 #
@@ -104,7 +104,7 @@ isolated function getStringValue(int v) returns string = @Method {
 # Performs a Java cast operation on a value.
 # This casts a value describing a `JObject` to a type describing a `JObject` based on Java assignability,
 # returns an error if the cast cannot be done.
-# ```ballerina
+# ```
 # FileInputStream|error obj = java:cast(inputStream);
 # ```
 #

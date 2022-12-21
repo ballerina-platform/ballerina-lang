@@ -22,7 +22,7 @@ import ballerina/jballerina.java;
 # Each time that a strand yields, it will check the cancellation flag
 # and terminate abnormally if the flag is set.
 #
-# ```ballerina
+# ```
 # future<int> sumFuture = start int:sum(10, 13, 54, 245, 24, 29, 343, 34);
 # sumFuture.cancel();
 # ```

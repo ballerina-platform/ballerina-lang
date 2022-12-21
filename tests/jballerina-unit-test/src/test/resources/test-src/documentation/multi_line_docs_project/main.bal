@@ -17,7 +17,7 @@ import ballerina/jballerina.java;
 # s - string (This specifier is applicable for any of the supported types in Ballerina.
 #             These values will be converted to their string representation.)
 #
-# ```ballerina
+# ```
 # string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.", name, marks, subjects[0], average);
 # ```
 #
@@ -44,7 +44,7 @@ public function multilineDocsFunction(string format) returns string {
 # s - string (This specifier is applicable for any of the supported types in Ballerina.
 #             These values will be converted to their string representation.)
 #
-# ```ballerina
+# ```
 # string s8 = io:sprintf("%s scored %d for %s and has an average of %.2f.", name, marks, subjects[0], average);
 # ```
 #

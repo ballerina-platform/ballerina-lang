@@ -23,7 +23,7 @@ type DummyObject object {
 };
 
 # Prints value(s) to the STDOUT.
-# ```ballerina
+# ```
 # io:print("Start processing the CSV file from ", srcFileName);
 #
 # io:print("Start processing the CSV file from ", srcFileName);
@@ -34,7 +34,7 @@ public function print() {
 # Represents the LDAP based listener Basic Auth provider. This connects to an active directory or an LDAP,
 # retrieves the necessary user information, and performs authentication and authorization. This is an implementation
 # of the `auth:ListenerBasicAuthProvider` object.
-# ```ballerina
+# ```
 # auth:LdapUserStoreConfig config = {
 #      domainName: "ballerina.io",
 #      connectionURL: "ldap://localhost:389",

@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 
 # Prints `any` or `error` value(s) to the STDOUT.
 #
-#```ballerina
+#```
 #   print("Start processing the CSV file from ", srcFileName);
 #```
 #
@@ -30,7 +30,7 @@ public isolated function print((any|error)... values) = @java:Method {
 
 # Prints `any` or `error` value(s) to the STDOUT followed by a new line.
 #
-#```ballerina
+#```
 #   println("Start processing the CSV file from ", srcFileName);
 #```
 #
@@ -42,7 +42,7 @@ public isolated function println((any|error)... values) = @java:Method {
 
 # Returns a formatted string using the specified format string and arguments.
 #
-# ```ballerina
+# ```
 #   string s8 = sprintf("%s scored %d for %s and has an average of %.2f.", name, marks, subjects[0], average);
 # ```
 #

@@ -76,7 +76,7 @@ public type ObjectData record {|
 #
 # The following code snippet shows an example usage of this annotation. Here, the `newJavaLinkedList` Ballerina function's
 # implementation is provided by the default constructor of the `java.util.LinkedList` class.
-# ```ballerina
+# ```
 # function newJavaLinkedList() returns handle = @java:Constructor {
 #      'class: "java.util.LinkedList"
 # } external;
@@ -89,7 +89,7 @@ public const annotation ConstructorData Constructor on source external;
 #
 # The following code snippet shows an example usage of this annotation. Here, the `getUUID` Ballerina function's
 # implementation is provided by the `java.util.UUID.randomUUID` static method.
-# ```ballerina
+# ```
 # function getUUID() returns handle = @java:Method {
 #     name: "randomUUID",
 #     'class: "java.util.UUID"
@@ -101,7 +101,7 @@ public const annotation MethodData Method on source external;
 
 # Describes a Java Field access, which provides an implementation of a Ballerina function of which the body is marked as
 # `external`.
-# ```ballerina
+# ```
 # function getError() returns handle = @java:FieldGet {
 #     name:"err",
 #     'class:"java/lang/System"
@@ -111,7 +111,7 @@ public const annotation FieldData FieldGet on source external;
 
 # Describes a Java Field mutate, which provides an implementation of a Ballerina function of which the body is marked as
 # `external`.
-# ```ballerina
+# ```
 # function setContractId(handle contractId) = @java:FieldSet {
 #   name:"contractId",
 #   'class:"org/lang/impl/JavaFieldAccessMutate"
@@ -120,7 +120,7 @@ public const annotation FieldData FieldGet on source external;
 public const annotation FieldData FieldSet on source external;
 
 # Describes the Java class representing a Ballerina binding.
-# ```ballerina
+# ```
 # @java:Binding {
 #   'class: "java.io.File"
 # }

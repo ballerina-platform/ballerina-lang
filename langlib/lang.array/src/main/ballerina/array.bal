@@ -37,7 +37,7 @@ type AnydataType anydata;
 
 # Returns the number of members of an array.
 #
-# ```ballerina
+# ```
 # ["a", "b", "c", "d"].length() ⇒ 4
 # ```
 #
@@ -50,7 +50,7 @@ public isolated function length((any|error)[] arr) returns int = @java:Method {
 
 # Returns an iterator over an array.
 #
-# ```ballerina
+# ```
 # object {
 #     public isolated function next() returns record {|int value;|}?;
 # } iterator = [2, 4, 6, 8].iterator();
@@ -70,7 +70,7 @@ public isolated function iterator(Type[] arr) returns object {
 
 # Returns a new array consisting of index and member pairs.
 #
-# ```ballerina
+# ```
 # [1, 2, 3, 4].enumerate() ⇒ [[0,1],[1,2],[2,3],[3,4]]
 # ```
 #
@@ -85,7 +85,7 @@ public isolated function enumerate(Type[] arr) returns [int, Type][] = @java:Met
 
 # Applies a function to each member of an array and returns an array of the results.
 #
-# ```ballerina
+# ```
 # int[] numbers = [0, 1, 2];
 # numbers.map(n => n * 2) ⇒ [0,2,4]
 # ```
@@ -102,7 +102,7 @@ public isolated function 'map(Type[] arr, @isolatedParam function(Type val) retu
 #
 # The parameter `func` is applied to each member of parameter `arr` in order.
 #
-# ```ballerina
+# ```
 # int total = 0;
 # [1, 2, 3].forEach(function (int i) {
 #     total += i;
@@ -119,7 +119,7 @@ public isolated function forEach(Type[] arr, @isolatedParam function(Type val) r
 
 # Selects the members from an array for which a function returns true.
 #
-# ```ballerina
+# ```
 # int[] numbers = [12, 43, 60, 75, 10];
 # numbers.filter(n => n > 50) ⇒ [60,75]
 # ```
@@ -137,7 +137,7 @@ public isolated function filter(Type[] arr, @isolatedParam function(Type val) re
 # The combining function takes the combined value so far and a member of the array,
 # and returns a new combined value.
 #
-# ```ballerina
+# ```
 # [1, 2, 3].reduce(isolated function (int total, int next) returns int => total + next, 0) ⇒ 6
 # ```
 #
@@ -155,7 +155,7 @@ public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum,
 # The parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.
 # When the array is empty, returns false.
 #
-# ```ballerina
+# ```
 # int[] numbers = [1, 2, 3, 5];
 # numbers.some(n => n % 2 == 0) ⇒ true
 # ```
@@ -174,7 +174,7 @@ public isolated function some(Type[] arr, @isolatedParam function(Type val) retu
 
 # Returns a subarray using a start index (inclusive) and an end index (exclusive).
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8, 10, 12];
 #
 # numbers.slice(3) ⇒ [8,10,12]
@@ -198,7 +198,7 @@ public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.le
 # The parameter `func` is called for each member of `arr` in order unless and until a call returns false.
 # When the array is empty, returns true.
 #
-# ```ballerina
+# ```
 # int[] numbers = [1, 2, 3, 5];
 # numbers.every(n => n % 2 == 0) ⇒ false
 # ```
@@ -220,7 +220,7 @@ public isolated function every(Type[] arr, @isolatedParam function(Type val) ret
 # This removes the member of parameter `arr` with index parameter `index` and returns it.
 # It panics if there is no such member.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8];
 #
 # numbers.remove(1) ⇒ 4
@@ -240,7 +240,7 @@ public isolated function remove(Type[] arr, int index) returns Type = @java:Meth
 #
 # Panics if any member cannot be removed.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8];
 # numbers.removeAll();
 # numbers ⇒ []
@@ -259,7 +259,7 @@ public isolated function removeAll((any|error)[] arr) returns () = @java:Method 
 #
 # `setLength(arr, 0)` is equivalent to `removeAll(arr)`.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8];
 #
 # numbers.setLength(2);
@@ -280,7 +280,7 @@ public isolated function setLength((any|error)[] arr, int length) returns () = @
 # Returns `()` if not found.
 # Equality is tested using `==`.
 #
-# ```ballerina
+# ```
 # string[] strings = ["a", "b", "d", "b", "d"];
 #
 # strings.indexOf("e") is () ⇒ true
@@ -303,7 +303,7 @@ public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIn
 # Returns `()` if not found.
 # Equality is tested using `==`.
 #
-# ```ballerina
+# ```
 # string[] strings = ["a", "b", "d", "b", "d", "b"];
 #
 # strings.lastIndexOf("e") is () ⇒ true
@@ -324,7 +324,7 @@ public isolated function lastIndexOf(AnydataType[] arr, AnydataType val, int sta
 
 # Reverses the order of the members of an array.
 #
-# ```ballerina
+# ```
 # [2, 4, 12, 8, 10].reverse() ⇒ [10,8,12,4,2]
 # ```
 #
@@ -350,7 +350,7 @@ public type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
 # must be specified.
 # Sorting works the same as with the parameter `sort` clause of query expressions.
 #
-# ```ballerina
+# ```
 # string[] strings = ["c", "a", "B"];
 #
 # strings.sort() ⇒ ["B","a","c"]
@@ -380,7 +380,7 @@ public isolated function sort(Type[] arr, SortDirection direction = ASCENDING,
 #
 # The array must not be empty.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8, 10];
 # numbers.pop() ⇒ 10
 #
@@ -397,7 +397,7 @@ public isolated function pop(Type[] arr) returns Type = @java:Method {
 
 # Adds values to the end of an array.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2];
 #
 # numbers.push(4, 6);
@@ -423,7 +423,7 @@ public isolated function push(Type[] arr, Type... vals) returns () = @java:Metho
 #
 # The array must not be empty.
 #
-# ```ballerina
+# ```
 # int[] numbers = [2, 4, 6, 8, 10];
 # numbers.shift() ⇒ 2
 #
@@ -443,7 +443,7 @@ public isolated function shift(Type[] arr) returns Type = @java:Method {
 # The values newly added to the array will be in the same order
 # as they are in parameter `vals`.
 #
-# ```ballerina
+# ```
 # int[] numbers = [14];
 #
 # numbers.unshift(10, 12);
@@ -469,7 +469,7 @@ public isolated function unshift(Type[] arr, Type... vals) returns () = @java:Me
 # The result will contain only characters  `A..Z`, `a..z`, `0..9`, `+`, `/` and `=`.
 # There will be no whitespace in the returned string.
 #
-# ```ballerina
+# ```
 # byte[] byteArray = [104, 101, 108, 108, 111, 32, 98, 97];
 # byteArray.toBase64() ⇒ aGVsbG8gYmE=
 # ```
@@ -486,7 +486,7 @@ public isolated function toBase64(byte[] arr) returns string = @java:Method {
 # parameter `str` must consist of the characters `A..Z`, `a..z`, `0..9`, `+`, `/`, `=`
 # and whitespace as allowed by a Ballerina Base64Literal.
 #
-# ```ballerina
+# ```
 # array:fromBase64("aGVsbG8gYmE=") ⇒ [104,101,108,108,111,32,98,97]
 #
 # array:fromBase64("aGVsbG8gYmE--") ⇒ error
@@ -505,7 +505,7 @@ public isolated function fromBase64(string str) returns byte[]|error = @java:Met
 # The result will contain only characters  `0..9`, `a..f`.
 # There will be no whitespace in the returned string.
 #
-# ```ballerina
+# ```
 # byte[] byteArray = [170, 171, 207, 204, 173, 175, 205];
 # byteArray.toBase16() ⇒ aaabcfccadafcd
 # ```
@@ -522,7 +522,7 @@ public isolated function toBase16(byte[] arr) returns string = @java:Method {
 # `str` must consist of the characters `0..9`, `A..F`, `a..f`
 # and whitespace as allowed by a Ballerina Base16Literal.
 #
-# ```ballerina
+# ```
 # array:fromBase16("aaabcfccadafcd") ⇒ [170,171,207,204,173,175,205]
 #
 # array:fromBase16("aaabcfccadafcd==") ⇒ error
@@ -537,7 +537,7 @@ public isolated function fromBase16(string str) returns byte[]|error = @java:Met
 
 # Returns a stream from the given array.
 #
-# ```ballerina
+# ```
 # stream<string> strm = ["a", "b", "c", "d"].toStream();
 # strm.next() ⇒ {"value":"a"}
 # ```

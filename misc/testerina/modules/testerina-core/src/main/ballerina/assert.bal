@@ -44,7 +44,7 @@ public isolated function createBallerinaError(string errorMessage, string catego
 # Asserts whether the given condition is true. If it is not, a AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 #  @test:Config {}
@@ -65,7 +65,7 @@ public isolated function assertTrue(boolean condition, string msg = "Assertion F
 # Asserts whether the given condition is false. If it is not, a AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 #  @test:Config {}
@@ -86,7 +86,7 @@ public isolated function assertFalse(boolean condition, string msg = "Assertion 
 # Asserts whether the given values are equal. If it is not, an AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 # @test:Config {}
@@ -113,7 +113,7 @@ public isolated function assertEquals(any|error actual, anydata expected, string
 # Asserts whether the given values are not equal. If it is equal, an AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 #  @test:Config {}
@@ -141,7 +141,7 @@ public isolated function assertNotEquals(any actual, anydata expected, string ms
 # Asserts whether the given values are exactly equal. If it is not, an AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 #  class Person {
@@ -174,7 +174,7 @@ public isolated function assertExactEquals(any|error actual, any|error expected,
 # Asserts whether the given values are not exactly equal. If it is equal, an AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 # class Person {
@@ -208,7 +208,7 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
 # Assert failure is triggered based on your discretion. AssertError is thrown with the given errorMessage.
 #
 #### Example
-# ```ballerina
+# ```
 # import ballerina/test;
 #
 #  @test:Config {}

@@ -33,7 +33,7 @@ public const float Infinity = 1.0/0.0;
 #
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
-# ```ballerina
+# ```
 # float f = 1.2;
 # f.isFinite() ⇒ true
 # 
@@ -51,7 +51,7 @@ public isolated function isFinite(float x) returns boolean = @java:Method {
 #
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value
 #
-# ```ballerina
+# ```
 # float f = 3.21;
 # f.isInfinite() ⇒ false
 # 
@@ -69,7 +69,7 @@ public isolated function isInfinite(float x) returns boolean = @java:Method {
 #
 # Exactly one of isFinite, isInfinite and IsNaN will be true for any float value.
 #
-# ```ballerina
+# ```
 # float f = 0.23;
 # f.isNaN() ⇒ false
 # 
@@ -87,7 +87,7 @@ public isolated function isNaN(float x) returns boolean = @java:Method {
 #
 # Result is NaN if any arg is NaN
 #
-# ```ballerina
+# ```
 # float:sum(1.2, 2.3, 3.4) ⇒ 6.9
 #
 # float[] scores = [11.1, 22.2, 33.3];
@@ -111,7 +111,7 @@ public isolated function sum(float... xs) returns float = @java:Method {
 # Result is -∞ if no args
 # NaN if any arg is NaN
 #
-# ```ballerina
+# ```
 # float:max(1.2, 12.3, 3.4) ⇒ 12.3
 #
 # float[] marks = [70.3, 80.5, 98.1, 92.3];
@@ -137,7 +137,7 @@ public isolated function max(float... xs) returns float = @java:Method {
 # Result is +∞ if no args
 # Result is NaN if any arg is NaN
 #
-# ```ballerina
+# ```
 # float:min(5.2, 2.3, 3.4) ⇒ 2.3
 #
 # float[] marks = [90.3, 80.5, 98, 92.3];
@@ -160,7 +160,7 @@ public isolated function min(float... xs) returns float = @java:Method {
 
 # Returns the IEEE absolute value of a float value.
 #
-# ```ballerina
+# ```
 # float f = -3.21;
 # f.abs() ⇒ 3.21
 # ```
@@ -185,7 +185,7 @@ public isolated function abs(float x) returns float = @java:Method {
 # IEEE roundToIntegralTiesToEven operation
 # Note that `<int>x` is the same as `<int>x.round(0)`.
 #
-# ```ballerina
+# ```
 # float f = 3.55;
 # f.round() ⇒ 4.0
 # 
@@ -209,7 +209,7 @@ public isolated function round(float x, int fractionDigits = 0) returns float = 
 
 # Rounds a float down to the closest integral value.
 #
-# ```ballerina
+# ```
 # float f = 3.51;
 # f.floor() ⇒ 3.0
 # ```
@@ -223,7 +223,7 @@ public isolated function floor(float x) returns float = @java:Method {
 
 # Rounds a float up to the closest integral value.
 #
-# ```ballerina
+# ```
 # float f = 3.51;
 # f.ceiling() ⇒ 4.0
 # ```
@@ -239,7 +239,7 @@ public isolated function ceiling(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE squareRoot operation.
 #
-# ```ballerina
+# ```
 # float f = 1.96;
 # f.sqrt() ⇒ 1.4
 # ```
@@ -255,7 +255,7 @@ public isolated function sqrt(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE rootn(x, 3) operation.
 #
-# ```ballerina
+# ```
 # float f = 0.125;
 # f.cbrt() ⇒ 0.5
 # ```
@@ -271,7 +271,7 @@ public isolated function cbrt(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE pow(x, y) operation.
 #
-# ```ballerina
+# ```
 # float f = 2.1;
 # f.pow(2) ⇒ 4.41
 # ```
@@ -288,7 +288,7 @@ public isolated function pow(float x, float y) returns float = @java:Method {
 #
 # Corresponds to IEEE log operation.
 #
-# ```ballerina
+# ```
 # float f = 234.56;
 # f.log() ⇒ 5.4577114186982865
 # ```
@@ -304,7 +304,7 @@ public isolated function log(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE log10 operation.
 #
-# ```ballerina
+# ```
 # float f = 0.1;
 # f.log10() ⇒ -1.0
 # ```
@@ -320,7 +320,7 @@ public isolated function log10(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE exp operation.
 #
-# ```ballerina
+# ```
 # float f = 2.3;
 # f.exp() ⇒ 9.974182454814718
 # ```
@@ -336,7 +336,7 @@ public isolated function exp(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE sin operation.
 #
-# ```ballerina
+# ```
 # float f = 2.3;
 # f.sin() ⇒ 0.7457052121767203
 # ```
@@ -352,7 +352,7 @@ public isolated function sin(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE cos operation.
 #
-# ```ballerina
+# ```
 # float f = 0.7;
 # f.cos() ⇒ 0.7648421872844885
 # ```
@@ -368,7 +368,7 @@ public isolated function cos(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE tan operation
 #
-# ```ballerina
+# ```
 # float f = 0.2;
 # f.tan() ⇒ 0.2027100355086725
 # ```
@@ -384,7 +384,7 @@ public isolated function tan(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE acos operation.
 #
-# ```ballerina
+# ```
 # float f = 0.5;
 # f.acos() ⇒ 1.0471975511965979
 # ```
@@ -398,7 +398,7 @@ public isolated function acos(float x) returns float = @java:Method {
 
 # Returns the arctangent of a float value.
 #
-# ```ballerina
+# ```
 # float f = 243.25;
 # f.atan() ⇒ 1.5666853530369307
 # ```
@@ -416,7 +416,7 @@ public isolated function atan(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE asin operation.
 #
-# ```ballerina
+# ```
 # float f = 0.5;
 # f.asin() ⇒ 0.5235987755982989
 # ```
@@ -432,7 +432,7 @@ public isolated function asin(float x) returns float = @java:Method {
 #
 # Corresponds IEEE atan2(y, x) operation.
 #
-# ```ballerina
+# ```
 # float:atan2(24.21, 12.345) ⇒ 1.0992495979622232
 # ```
 #
@@ -449,7 +449,7 @@ public isolated function atan2(float y, float x) returns float = @java:Method {
 #
 # Corresponds to IEEE sinh operation.
 #
-# ```ballerina
+# ```
 # float f = 0.71;
 # f.sinh() ⇒ 0.7711735305928927
 # ```
@@ -465,7 +465,7 @@ public isolated function sinh(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE cosh operation.
 #
-# ```ballerina
+# ```
 # float f = 0.52;
 # f.cosh() ⇒ 1.1382740988345403
 # ```
@@ -481,7 +481,7 @@ public isolated function cosh(float x) returns float = @java:Method {
 #
 # Corresponds to IEEE tanh operation.
 #
-# ```ballerina
+# ```
 # float f = 0.9;
 # f.tanh() ⇒ 0.7162978701990245
 # ```
@@ -503,7 +503,7 @@ public isolated function tanh(float x) returns float = @java:Method {
 # - a FloatingPointTypeSuffix is not allowed
 # This is the inverse of function ``value:toString`` applied to an `float`.
 #
-# ```ballerina
+# ```
 # float:fromString("0.2453") ⇒ 0.2453
 # 
 # float:fromString("-10") ⇒ -10.0
@@ -528,7 +528,7 @@ public isolated function fromString(string s) returns float|error = @java:Method
 # - NaN will be represented by `NaN`
 # The representation includes `0x` for finite numbers.
 #
-# ```ballerina
+# ```
 # float f = -10.2453;
 # f.toHexString() ⇒ -0x1.47d97f62b6ae8p3
 # ```
@@ -548,7 +548,7 @@ public isolated function toHexString(float x) returns string = @java:Method {
 # - `NaN` is allowed
 # - `Infinity` is allowed with an optional leading `+` or `-` sign
 #
-# ```ballerina
+# ```
 # float:fromHexString("0x1.0a3d70a3d70a4p4") ⇒ 16.64
 # 
 # float:fromHexString("0x1J") ⇒ error
@@ -563,7 +563,7 @@ public isolated function fromHexString(string s) returns float|error = @java:Met
 
 # Returns IEEE 64-bit binary floating point format representation of a float value as an int.
 #
-# ```ballerina
+# ```
 # float f = 4.16;
 # f.toBitsInt() ⇒ 4616369762039853220
 # ```
@@ -579,7 +579,7 @@ public isolated function toBitsInt(float x) returns int = @java:Method {
 #
 # All bit patterns that IEEE defines to be NaNs will all be mapped to the single float NaN value.
 #
-# ```ballerina
+# ```
 # float:fromBitsInt(4) ⇒ 2.0E-323
 # ```
 #
@@ -598,7 +598,7 @@ public isolated function fromBitsInt(int x) returns float = @java:Method {
 # If `fractionDigits` is zero, there will be no decimal point.
 # Any necessary rounding will use the roundTiesToEven rounding direction.
 #
-# ```ballerina
+# ```
 # float f = 12.456;
 # f.toFixedString(2) ⇒ 12.46
 # 
@@ -633,7 +633,7 @@ public isolated function toFixedString(float x, int? fractionDigits) returns str
 # to represent the result. If `x` is zero, the exponent is zero. A zero exponent
 # is represented with a `+` sign.
 #
-# ```ballerina
+# ```
 # float f = 12.456;
 # f.toExpString(2) ⇒ 1.25e+1
 # 

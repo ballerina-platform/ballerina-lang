@@ -33,7 +33,7 @@ type DetailType Detail;
 
 # Returns the error's message.
 #
-# ```ballerina
+# ```
 # error("IO error").message() ⇒ IO error
 # ```
 #
@@ -46,7 +46,7 @@ public isolated function message(error e) returns string = @java:Method {
 
 # Returns the error's cause.
 #
-# ```ballerina
+# ```
 # error fileNotFoundError = error("file not found", file = "test.bal");
 # fileNotFoundError.cause() is () ⇒ true
 #
@@ -63,7 +63,7 @@ public isolated function cause(error e) returns error? = @java:Method {
 
 # Returns the error's detail record.
 #
-# ```ballerina
+# ```
 # error("file not found", file = "test.bal").detail() ⇒ {"file":"test.bal"}
 # ```
 #
@@ -87,7 +87,7 @@ public type StackFrame readonly & object {
 
 # Returns an object representing the stack trace of the error.
 #
-# ```ballerina
+# ```
 # error("IO error").stackTrace() ⇒ [callableName: main  fileName: test.bal lineNumber: 5]
 # ```
 #
@@ -111,7 +111,7 @@ public isolated function stackTrace(error e) returns StackFrame[] {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
 #
-# ```ballerina
+# ```
 # error("invalid salary", value = 0d).toString() ⇒ error("invalid salary",value=0)
 # ```
 #
@@ -128,7 +128,7 @@ public isolated function toString(error e) returns string = @java:Method {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
 #
-# ```ballerina
+# ```
 # error("invalid salary", value = 0d).toBalString() ⇒ error("invalid salary",value=0d)
 # ```
 #

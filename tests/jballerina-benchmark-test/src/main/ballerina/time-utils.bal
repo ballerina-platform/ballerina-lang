@@ -18,7 +18,7 @@ import ballerina/jballerina.java;
 
 # Returns the current system time in nano seconds.
 #
-# ```ballerina
+# ```
 #   int now = nanoTime();
 # ```
 #

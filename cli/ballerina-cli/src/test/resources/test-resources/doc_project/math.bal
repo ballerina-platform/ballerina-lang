@@ -1,5 +1,5 @@
 # Calculates the value of the 'a' raised to the power of 'b'.
-# ```ballerina
+# ```
 # float aPowerB = math:pow(3.2, 2.4);
 # ```
 #
