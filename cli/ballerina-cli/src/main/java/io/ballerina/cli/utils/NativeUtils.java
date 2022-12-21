@@ -55,6 +55,7 @@ public class NativeUtils {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String MODULE_CONFIGURATION_MAPPER = "$configurationMapper";
     private static final String MODULE_EXECUTE_GENERATED = "tests.test_execute-generated_";
+    private static final String TEST_EXEC_FUNCTION = "__execute__";
 
    //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
@@ -107,10 +108,10 @@ public class NativeUtils {
                     )
             );
             ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get("__execute__"));
+                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
             testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
-                            "__execute__",
+                            TEST_EXEC_FUNCTION,
                             new String[]{
                                     "io.ballerina.runtime.internal.scheduling.Strand",
                                     "io.ballerina.runtime.api.values.BString",
@@ -160,8 +161,8 @@ public class NativeUtils {
                         }
                         String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
                         String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
-                        originalTestFileRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, moduleNameForTestClz,
-                                version, testFile));
+                        originalTestFileRefConfClz = new ReflectConfigClass(
+                                getQualifiedClassName(org, moduleNameForTestClz, version, testFile));
                         for (int i = 0; i < mockedFunctions.length; i++) {
                             originalTestFileRefConfClz.addReflectConfigClassMethod(
                                     new ReflectConfigClassMethod(mockedFunctions[i]));
@@ -194,7 +195,7 @@ public class NativeUtils {
 
         //Add test suite class
         ReflectConfigClass runtimeEntityTestSuiteRefConfClz = new ReflectConfigClass(
-                "org.ballerinalang.test.runtime.entity" + ".TestSuite");
+                "org.ballerinalang.test.runtime.entity.TestSuite");
         runtimeEntityTestSuiteRefConfClz.setAllDeclaredFields(true);
         runtimeEntityTestSuiteRefConfClz.setUnsafeAllocated(true);
 
@@ -220,17 +221,17 @@ public class NativeUtils {
                 String functionToMock;
                 if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                    functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER)+1);
+                    functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER) + 1);
                 } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                    functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER)+1);
+                    functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
                 } else {
                     if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
                         functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                        functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER)+1);
+                        functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER) + 1);
                     } else {
                         functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                        functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER)+1);
+                        functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
                     }
                 }
                 functionToMock = functionToMock.replaceAll("\\\\", "");

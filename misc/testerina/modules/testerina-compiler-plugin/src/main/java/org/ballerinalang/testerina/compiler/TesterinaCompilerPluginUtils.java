@@ -36,7 +36,7 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.testerina.compiler.exceptions.CacheGenException;
+import io.ballerina.projects.ProjectException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -295,7 +295,7 @@ public class TesterinaCompilerPluginUtils {
             try {
                 Files.createDirectories(path);
             } catch (IOException e) {
-                throw new CacheGenException("couldn't create cache directories : " + e.toString());
+                throw new ProjectException("couldn't create cache directories : " + e.toString());
             }
         }
 
@@ -307,10 +307,10 @@ public class TesterinaCompilerPluginUtils {
                 String json = gson.toJson(map);
                 writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             } catch (IOException e) {
-                throw new CacheGenException("couldn't write cache data to the file : " + e.toString());
+                throw new ProjectException("couldn't write cache data to the file : " + e.toString());
             }
         } catch (IOException e) {
-            throw new CacheGenException("couldn't write cache data to the file : " + e.toString());
+            throw new ProjectException("couldn't write cache data to the file : " + e.toString());
         }
     }
 }
