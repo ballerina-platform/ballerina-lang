@@ -101,7 +101,7 @@ public isolated function abs(int n) returns int = @java:Method {
 # int:sum(10, 20, 30, 40) ⇒ 100
 # 
 # int[] marks = [50, 65, 78, 95];
-# int total = int:sum(...marks) ⇒ 288
+# int:sum(...marks) ⇒ 288
 # 
 # int num = 24;
 # num.sum(38, 15, 97, 27) ⇒ 201
@@ -120,7 +120,7 @@ public isolated function sum(int... ns) returns int = @java:Method {
 # int:max(50, 20, 30, 70, 65) ⇒ 70
 # 
 # [int, int, int] scores = [52, 95, 76];
-# int:max(int:max(...scores)) ⇒ 95
+# int:max(...scores) ⇒ 95
 # 
 # int n = 18;
 # n.max(25, 30, 4, 15) ⇒ 30
