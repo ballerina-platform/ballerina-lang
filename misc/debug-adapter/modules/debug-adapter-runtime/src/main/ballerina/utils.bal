@@ -17,15 +17,19 @@
 
 function getType(any value) returns string|error {
     // Need to handle simple values separately, since `typeof` operation returns the singleton type for simple values.
-    if (value is int) {
+    if value is () {
+        return "nil";
+    } else if value is int {
         return "int";
-    } else if (value is float) {
+    } else if value is float {
         return "float";
-    } else if (value is boolean) {
+    } else if value is decimal {
+        return "decimal";
+    } else if value is boolean {
         return "boolean";
-    } else if (value is byte) {
+    } else if value is byte {
         return "byte";
-    } else if (value is string) {
+    } else if value is string {
         return "string";
     } else {
         var result = trap (typeof value);
