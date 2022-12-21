@@ -46,11 +46,14 @@ public type TypeId readonly & record {|
 # 
 # type SampleError distinct (Error & error<record {string msg;}>);
 # 
-# typedesc:TypeId[] typeIds = <typedesc:TypeId[]>SampleError.typeIds();
-# typeIds[typeIds.length() - 1]["localId"] ⇒ Error
+# SampleError.typeIds() ⇒ [
+#       {"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"SampleError"},
+#       {"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"Error"}
+# ]
 # 
-# typedesc:TypeId[] primaryTypeIds = <typedesc:TypeId[]>SampleError.typeIds(true);
-# primaryTypeIds[primaryTypeIds.length() - 1]["localId"] ⇒ SampleError
+# SampleError.typeIds(true) ⇒ [
+#       {"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"SampleError"}
+# ]
 # ```
 # 
 # + t - the typedesc
