@@ -44,9 +44,11 @@ public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTe
                 {"convert_to_query_expr_lhs_non_record1.json"},
                 {"convert_to_query_expr_lhs_record_field1.json"},
                 {"convert_to_query_expr_lhs_record_field2.json"},
+                {"convert_to_query_expr_lhs_record_field3.json"},
                 {"convert_to_query_expr_lhs_class_field1.json"},
                 {"convert_to_query_expr_lhs_class_field2.json"},
                 {"convert_to_query_expr_lhs_record_field_incompatible_types1.json"}
+                
         };
     }
 

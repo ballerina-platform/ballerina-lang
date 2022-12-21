@@ -327,7 +327,7 @@ public class FormattingTreeModifier extends TreeModifier {
         } else {
             typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
         }
-        
+
         Token ellipsisToken;
         if (resourcePathParameterNode.paramName().isPresent()) {
             ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
@@ -729,7 +729,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
         Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
-                .arguments(), 0, 0, 0, 0);
+                .arguments(), 0, 0, 0, 0, true);
         Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return parenthesizedArgList.modify()
@@ -2530,15 +2530,13 @@ public class FormattingTreeModifier extends TreeModifier {
     public TableConstructorExpressionNode transform(TableConstructorExpressionNode tableConstructorExpressionNode) {
         Token tableKeyword = formatToken(tableConstructorExpressionNode.tableKeyword(), 1, 0);
         KeySpecifierNode keySpecifier = formatNode(tableConstructorExpressionNode.keySpecifier().orElse(null), 1, 0);
-        SeparatedNodeList<Node> rows = tableConstructorExpressionNode.rows();
         int rowTrailingWS = 0, rowTrailingNL = 0;
-        if (rows.size() > 1) {
+        if (shouldExpand(tableConstructorExpressionNode)) {
             rowTrailingNL++;
         } else {
             rowTrailingWS++;
         }
 
-        indent();
         Token openBracket = formatToken(tableConstructorExpressionNode.openBracket(), 0, rowTrailingNL);
         indent();
         SeparatedNodeList<Node> mappingConstructors =
@@ -2547,7 +2545,6 @@ public class FormattingTreeModifier extends TreeModifier {
         unindent();
         Token closeBracket =
                 formatToken(tableConstructorExpressionNode.closeBracket(), env.trailingWS, env.trailingNL);
-        unindent();
 
         return tableConstructorExpressionNode.modify()
                 .withTableKeyword(tableKeyword)
@@ -3543,8 +3540,8 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(clientResourceAccessActionNode.expression(), 0, 0);
         Token rightArrowToken  = formatNode(clientResourceAccessActionNode.rightArrowToken(), 0, 0);
         Token slashToken;
-        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() && 
-                clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() &&
+                clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
             slashToken = formatNode(clientResourceAccessActionNode.slashToken(), env.trailingWS, env.trailingNL);
         } else {
@@ -3552,27 +3549,27 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         SeparatedNodeList<Node> resourceAccessPath;
-        if (clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, env.trailingWS, env.trailingNL);
         } else {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, 0, 0);
         }
 
         SimpleNameReferenceNode methodName;
         if (clientResourceAccessActionNode.arguments().isEmpty()) {
-            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 
+            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null),
                     env.trailingWS, env.trailingNL);
         } else {
             methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 0, 0);
         }
 
         Token dotToken = formatToken(clientResourceAccessActionNode.dotToken().orElse(null), 0, 0);
-        ParenthesizedArgList argumentNode = 
+        ParenthesizedArgList argumentNode =
                 formatNode(clientResourceAccessActionNode.arguments().orElse(null), env.trailingWS, env.trailingNL);
-        
+
         return clientResourceAccessActionNode.modify()
                 .withExpression(expressionNode)
                 .withRightArrowToken(rightArrowToken)
@@ -3583,7 +3580,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withArguments(argumentNode)
                 .apply();
     }
-    
+
     @Override
     public ComputedResourceAccessSegmentNode transform(
             ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
@@ -3591,7 +3588,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
         Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
-        
+
         return computedResourceAccessSegmentNode.modify()
                 .withOpenBracketToken(openBracket)
                 .withExpression(expressionNode)
@@ -3614,7 +3611,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCloseBracketToken(closeBracket)
                 .apply();
     }
-    
+
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, env.trailingWS, env.trailingNL);
@@ -3895,6 +3892,29 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
+     * Format a delimited list of nodes. This method assumes the delimiters are followed by a single whitespace
+     * character only.
+     *
+     * @param <T> Type of the list item
+     * @param nodeList Node list to be formatted
+     * @param itemTrailingWS Number of single-length spaces to be added after each item in the list
+     * @param itemTrailingNL Number of newlines to be added after each item in the list
+     * @param listTrailingWS Number of single-length spaces to be added after the last item in the list
+     * @param listTrailingNL Number of newlines to be added after the last item in the list
+     * @param allowMultiLineParams Supports the indentation of multiline parenthesized arguments
+     * @return Formatted node list
+     */
+    protected <T extends Node> SeparatedNodeList<T> formatSeparatedNodeList(SeparatedNodeList<T> nodeList,
+                                                                            int itemTrailingWS,
+                                                                            int itemTrailingNL,
+                                                                            int listTrailingWS,
+                                                                            int listTrailingNL,
+                                                                            boolean allowMultiLineParams) {
+        return formatSeparatedNodeList(nodeList, itemTrailingWS, itemTrailingNL, 1, 0, listTrailingWS,
+                listTrailingNL, allowMultiLineParams);
+    }
+
+    /**
      * Format a delimited list of nodes.
      *
      * @param <T> Type of the list item
@@ -3956,8 +3976,18 @@ public class FormattingTreeModifier extends TreeModifier {
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
-            T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
-                    oldNode);
+            if (allowInAndMultiLine) {
+                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
+                    indent();
+                }
+            }
+            T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size,
+                    index, oldNode);
+            if (allowInAndMultiLine) {
+                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
+                    unindent();
+                }
+            }
             newNodes[2 * index] = newNode;
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -4069,7 +4099,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return true;
 
             // Template literals are multi line tokens, and newline are
-            // part of the content. Hence, we cannot wrap those.
+            // part of the content. Hence we cannot wrap those.
             case XML_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
             case TEMPLATE_STRING:
@@ -4490,6 +4520,10 @@ public class FormattingTreeModifier extends TreeModifier {
                     }
                 }
                 return false;
+            case TABLE_CONSTRUCTOR:
+                TableConstructorExpressionNode tableConstructor = (TableConstructorExpressionNode) node;
+                SeparatedNodeList<Node> rows = tableConstructor.rows();
+                return (rows.size() > 1 || (rows.size() == 1) && shouldExpand(rows.get(0)));
             case MAPPING_CONSTRUCTOR:
                 MappingConstructorExpressionNode mappingConstructorExpressionNode =
                         (MappingConstructorExpressionNode) node;

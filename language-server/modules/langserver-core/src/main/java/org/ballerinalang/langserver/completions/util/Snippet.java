@@ -30,6 +30,8 @@ public enum Snippet {
 
     DEF_FUNCTION(SnippetGenerator.getFunctionDefSnippet()),
 
+    DEF_EXPRESSION_BODIED_FUNCTION(SnippetGenerator.getExpressionBodiedFunctionDefSnippet()),
+
     DEF_RESOURCE_FUNCTION(SnippetGenerator.getResourceFunctionDefSnippet()),
 
     DEF_RESOURCE_FUNCTION_SIGNATURE(SnippetGenerator.getResourceFunctionSignatureSnippet()),
@@ -353,9 +355,7 @@ public enum Snippet {
 
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
 
-    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-
-    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
+    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet());
 
     private final SnippetBlock snippetBlock;
 

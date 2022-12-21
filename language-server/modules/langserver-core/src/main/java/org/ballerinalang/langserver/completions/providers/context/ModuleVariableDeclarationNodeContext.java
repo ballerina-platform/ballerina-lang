@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -39,6 +38,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,6 +111,14 @@ public class ModuleVariableDeclarationNodeContext extends
     public void sort(BallerinaCompletionContext context, ModuleVariableDeclarationNode node,
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
+
+        boolean onQualifiedNameIdentifier = QNameRefCompletionUtil
+                .onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        boolean hasConfigurableQualifier = hasConfigurableQualifier(context, node);
+        if (resolvedContext != ResolvedContext.ON_QUALIFIER && onQualifiedNameIdentifier && hasConfigurableQualifier) {
+            resolvedContext = ResolvedContext.ON_QUALIFIER;
+        }
+
         if (resolvedContext == ResolvedContext.INITIALIZER) {
             // Calls the NodeWithRHSInitializerProvider's sorting logic to 
             // make it consistent throughout the implementation
@@ -119,6 +127,11 @@ public class ModuleVariableDeclarationNodeContext extends
         }
 
         if (resolvedContext == ResolvedContext.ON_QUALIFIER) {
+            if (hasConfigurableQualifier) {
+                SortingUtil.sortCompletionsAfterConfigurableQualifier(
+                        context, completionItems, onQualifiedNameIdentifier);
+                return;
+            }
             SortingUtil.toDefaultSorting(context, completionItems);
             return;
         }
@@ -139,21 +152,21 @@ public class ModuleVariableDeclarationNodeContext extends
     @Override
     protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
-        if (qualifiers.isEmpty()) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        if (lastQualifier.isEmpty()) {
             return completionItems;
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        switch (lastQualifier.kind()) {
+        Set<SyntaxKind> qualKinds = CommonUtil.getQualifiersOfNode(context, node)
+                .stream().map(Node::kind).collect(Collectors.toSet());
+        switch (lastQualifier.get().kind()) {
             case PUBLIC_KEYWORD:
                 completionItems.addAll(getTypeDescContextItems(context));
                 List<Snippet> snippets = Arrays.asList(
                         Snippet.KW_TYPE, Snippet.KW_ISOLATED,
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
-                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION,
-                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION,
+                        Snippet.DEF_MAIN_FUNCTION, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
@@ -169,6 +182,8 @@ public class ModuleVariableDeclarationNodeContext extends
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                    completionItems.add(new SnippetCompletionItem(context, 
+                            Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLASS.get()));
@@ -184,6 +199,7 @@ public class ModuleVariableDeclarationNodeContext extends
                 break;
             case TRANSACTIONAL_KEYWORD:
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                 break;
             case CONFIGURABLE_KEYWORD:
                 completionItems.addAll(this.getTypeDescContextItems(context));
@@ -225,8 +241,14 @@ public class ModuleVariableDeclarationNodeContext extends
             return false;
         }
         int textPosition = context.getCursorPositionInTree();
-        TextRange equalTokenRange = node.equalsToken().get().textRange();
-        return equalTokenRange.endOffset() <= textPosition;
+        int equalTokenEndOffset = node.equalsToken().get().textRange().endOffset();
+        int semicolonTokenStartOffset = node.semicolonToken().textRange().startOffset();
+        return equalTokenEndOffset <= textPosition && textPosition <= semicolonTokenStartOffset;
+    }
+
+    private boolean hasConfigurableQualifier(BallerinaCompletionContext context, ModuleVariableDeclarationNode node) {
+        Optional<Token> lastQualifier = CommonUtil.getLastQualifier(context, node);
+        return lastQualifier.isPresent() && lastQualifier.get().kind().equals(SyntaxKind.CONFIGURABLE_KEYWORD);
     }
 
     enum ResolvedContext {

@@ -25,11 +25,11 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CANNOT_INFER_PARAM_TYPE;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.engine.NodeBasedArgProcessor.getParameterName;
@@ -90,7 +91,7 @@ public abstract class InvocationArgProcessor {
     public abstract List<Value> process(List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException;
 
     protected List<Value> getOrderedArgList(Map<String, Value> namedArgValues, FunctionSymbol definitionSymbol,
-                                            FunctionSignatureNode definitionNode) throws EvaluationException {
+                                            FunctionDefinitionNode definitionNode) throws EvaluationException {
         try {
             List<Value> argValueList = new ArrayList<>();
             List<LocalVariable> args = jdiMethodReference.arguments();
@@ -109,10 +110,10 @@ public abstract class InvocationArgProcessor {
                     continue;
                 }
                 // If this is a defaultable parameter
-                if (namedArgValues.get(argName) == null &&
-                        namedArgValues.get(argName + DEFAULTABLE_PARAM_SUFFIX) != null) {
+                String defaultableArgName = argName + DEFAULTABLE_PARAM_SUFFIX;
+                if (namedArgValues.get(argName) == null && namedArgValues.get(defaultableArgName) != null) {
                     if (definitionNode == null && definitionSymbol != null) {
-                        definitionNode = getSyntaxTreeNodeFrom(argName.replace(DEFAULTABLE_PARAM_SUFFIX, ""),
+                        definitionNode = getDefinitionNodeFrom(argName.replace(DEFAULTABLE_PARAM_SUFFIX, ""),
                                 definitionSymbol);
                     }
                     if (definitionNode != null) {
@@ -172,12 +173,12 @@ public abstract class InvocationArgProcessor {
         return resolvedTypes.size() > 1 ? bTypeResolver.getUnionTypeFrom(resolvedTypes) : resolvedTypes.get(0);
     }
 
-    private FunctionSignatureNode getSyntaxTreeNodeFrom(String argName, FunctionSymbol definitionSymbol)
+    private FunctionDefinitionNode getDefinitionNodeFrom(String argName, FunctionSymbol definitionSymbol)
             throws EvaluationException {
         try {
             TextRange textRange = definitionSymbol.getLocation().get().textRange();
             NonTerminalNode node = ((ModulePartNode) context.getDocument().syntaxTree().rootNode()).findNode(textRange);
-            return ((FunctionDefinitionNode) node).functionSignature();
+            return (FunctionDefinitionNode) node;
         } catch (Exception e) {
             throw createEvaluationException(String.format("failed to evaluate the default value expression of the " +
                     "parameter '%s' in function '%s'.", argName, functionName));
@@ -197,14 +198,19 @@ public abstract class InvocationArgProcessor {
     }
 
     private static Value getDefaultValue(SuspendedContext context, LocalVariable localVariable,
-                                         FunctionSignatureNode functionDefinition) throws EvaluationException {
+                                         FunctionDefinitionNode functionDefinition) throws EvaluationException {
 
         String name = localVariable.name();
-        Optional<ParameterNode> paramNode = functionDefinition.parameters().stream()
+        Optional<ParameterNode> paramNode = functionDefinition.functionSignature().parameters().stream()
                 .filter(parameterNode -> getParameterName(parameterNode).equals(name))
                 .findFirst();
 
         Node expression = ((DefaultableParameterNode) paramNode.get()).expression();
+        if (expression.kind().equals(SyntaxKind.INFERRED_TYPEDESC_DEFAULT)) {
+            throw createEvaluationException(CANNOT_INFER_PARAM_TYPE, getParameterName(paramNode.get()),
+                    functionDefinition.functionName().text());
+        }
+
         DebugExpressionEvaluator defaultValueEvaluator = new DebugExpressionEvaluator(new EvaluationContext(context));
         defaultValueEvaluator.setExpression(expression.toSourceCode());
         return defaultValueEvaluator.evaluate().getJdiValue();
