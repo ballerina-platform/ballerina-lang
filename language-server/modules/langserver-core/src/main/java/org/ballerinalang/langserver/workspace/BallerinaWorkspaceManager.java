@@ -875,7 +875,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             }
             // Update toml
             BallerinaToml updatedToml = ballerinaToml.get().modify().withContent(content).apply();
-            updatedToml.packageInstance().project().clearCaches();
             // Update project instance
             projectPair.setProject(updatedToml.packageInstance().project());
         } finally {

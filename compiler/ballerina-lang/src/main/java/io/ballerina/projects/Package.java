@@ -697,6 +697,9 @@ public class Package {
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
                         oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
+                // Clear compilation package cache
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)).
+                        remove(oldModuleContext.descriptor().moduleCompilationId());
             }
             updateModules(moduleContextSet);
         }
