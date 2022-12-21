@@ -55,8 +55,11 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 #
 # ```ballerina
 # string:RegExp r = re `World`;
+#
 # r.find("Not A Match") is () ⇒ true
+#
 # r.find("Hello World") is regexp:Span ⇒ true
+#
 # r.find("Hello World", 7) is regexp:Span ⇒ true
 # ```
 #
@@ -86,8 +89,11 @@ isolated function findAllImpl(RegExp reExp, string str, int startIndex = 0) retu
 #
 # ```ballerina
 # string:RegExp r = re `([bB].tt[a-z]*)`;
+#
 # r.findGroups("Not A Match") is () ⇒ true
+#
 # r.findGroups("Butter was bought by Betty but the butter was bitter.") is regexp:Groups ⇒ true
+#
 # r.findGroups("Butter was bought by Betty but the butter was bitter.", 7) is regexp:Groups ⇒ true
 # ```
 #
@@ -113,8 +119,11 @@ isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) r
 #
 # ```ballerina
 # string:RegExp r = re `[bB].tt[a-z]*`;
+#
 # r.findAll("Not A Match").length() ⇒ 0
+#
 # r.findAll("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
+#
 # r.findAll("Butter was bought by Betty but the butter was bitter.", 7).length() ⇒ 3
 # ```
 #
@@ -139,8 +148,11 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 #
 # ```ballerina
 # string:RegExp r = re `([bB].tt[a-z]*)`;
+#
 # r.findAllGroups("Not A Match").length() ⇒ 0
+#
 # r.findAllGroups("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
+#
 # r.findAllGroups("Butter was bought by Betty but the butter was bitter.", 7) ⇒ 3
 # ```
 #
@@ -184,7 +196,9 @@ isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0
 #
 # ```ballerina
 # string:RegExp r = re `World`;
+#
 # r.matchAt("Hello World") is () ⇒ true
+#
 # r.matchAt("Hello World", 6) is regexp:Span ⇒ true
 # ```
 #
@@ -210,7 +224,9 @@ isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) retu
 #
 # ```ballerina
 # string:RegExp r = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])?`;
+#
 # r.matchGroupsAt("time: 14:35:59") is () ⇒ true
+#
 # r.matchGroupsAt("time: 14:35:59", 6) is regexp:Groups ⇒ true
 # ```
 #
@@ -245,7 +261,9 @@ isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0
 #
 # ```ballerina
 # string:RegExp r = re `A|Th.*ch|^`;
+#
 # r.isFullMatch("This is a Match") ⇒ true
+#
 # r.isFullMatch("Not a complete Match") ⇒ false
 # ```
 #
@@ -267,7 +285,9 @@ isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @j
 #
 # ```ballerina
 # string:RegExp r = re `([0-9]+)×([0-9]+)`;
+#
 # r.fullMatchGroups("test: 1440×900") is () ⇒ true
+#
 # r.fullMatchGroups("1440×900") is regexp:Groups ⇒ true
 # ```
 #
@@ -292,8 +312,11 @@ public type Replacement ReplacerFunction|string;
 #
 # ```ballerina
 # string:RegExp r = re `0+`;
+#
 # r.replace("10010011", "*") ⇒ 1*10011
+#
 # r.replace("10010011", "*", 4) ⇒ 1001*11
+#
 # r.replace("122111", "*") ⇒ 122111
 # ```
 #
@@ -325,8 +348,11 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 #
 # ```ballerina
 # string:RegExp r = re `0+`;
+#
 # r.replaceAll("10010011", "*") ⇒ 1*1*11
+#
 # r.replaceAll("10010011", "*", 4) ⇒ 1001*11
+#
 # r.replaceAll("122111", "*") ⇒ 122111
 # ```
 #
@@ -388,7 +414,9 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
 #
 # ```ballerina
 # string:RegExp r = re `,`;
+#
 # r.split("abc,cde,efg") ⇒ ["abc", "cde", "efg"]
+#
 # r.split("Not Valid") ⇒ ["Not Valid"]
 # ```
 #
@@ -405,6 +433,7 @@ public isolated function split(RegExp re, string str) returns string[] = @java:M
 #
 # ```ballerina
 # regexp:fromString("AB+C*D{1,4}") ⇒ re `AB+C*D{1,4}`
+#
 # regexp:fromString("AB+^*") ⇒ error
 # ```
 #
