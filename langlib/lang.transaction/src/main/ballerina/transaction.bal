@@ -93,13 +93,13 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 # ```ballerina
 # function createEntity() returns error? {
 #     transaction {
-#         transaction:setRollbackOnly(error("not found"));
+#         transaction:setRollbackOnly(error("marked as rollback only"));
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#     transaction:setRollbackOnly(error("not found"));
+#     transaction:setRollbackOnly(error("marked as rollback only"));
 # }
 # ```
 #
@@ -116,7 +116,7 @@ public transactional isolated function setRollbackOnly(error? e) {
 # ```ballerina
 # function createEntity() returns error? {
 #     transaction {
-#         transaction:setRollbackOnly(error("not found"));
+#         transaction:setRollbackOnly(error("marked as rollback only"));
 #         transaction:getRollbackOnly() ⇒ true
 #         check commit;
 #     }
@@ -140,13 +140,13 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 # ```ballerina
 # function createEntity() returns error? {
 #     transaction {
-#         transaction:setData({"accessType": "RO"});
+#         transaction:setData({accessType: "RO"});
 #         check commit;
 #     }
 # }
 #
 # transactional function updateDB() returns error? {
-#     transaction:setData({"accessType": "RO"});
+#     transaction:setData({accessType: "RO"});
 # }
 # ```
 #
@@ -163,13 +163,13 @@ public transactional isolated function setData(readonly data) = @java:Method {
 # ```ballerina
 # function createEntity() returns error? {
 #     transaction {
-#         transaction:setData({"author": "John"});
-#         transaction:getData() ⇒ {"author":"John"}
+#         transaction:setData({accessType: "RO"});
+#         transaction:getData() ⇒ {"accessType":"RO"}
 #         check commit;
 #     }
 # }
 # transactional function updateDB() returns error? {
-#     transaction:setData({"accessType": "RO"});
+#     transaction:setData({accessType: "RO"});
 #     transaction:getData() ⇒ {"accessType":"RO"}
 # }
 # ```
