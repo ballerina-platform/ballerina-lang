@@ -248,7 +248,7 @@ public class JsonInternalUtils {
             return false;
         }
 
-        Type type = ((RefValue) json).getType();
+        Type type = TypeUtils.getReferredType(((RefValue) json).getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -398,7 +398,7 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type type = TypeChecker.getType(source);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(source));
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -438,8 +438,8 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type j1Type = TypeChecker.getType(j1);
-        Type j2Type = TypeChecker.getType(j2);
+        Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
+        Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -491,8 +491,8 @@ public class JsonInternalUtils {
         }
 
         if (checkMergeability) {
-            Type j1Type = TypeChecker.getType(j1);
-            Type j2Type = TypeChecker.getType(j2);
+            Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
+            Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -697,7 +697,7 @@ public class JsonInternalUtils {
                 json.append(null);
             }
 
-            Type type = TypeChecker.getType(value);
+            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.JSON_TAG:
                     json.append(value);
@@ -784,7 +784,7 @@ public class JsonInternalUtils {
                 return;
             }
 
-            Type type = TypeChecker.getType(value);
+            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:

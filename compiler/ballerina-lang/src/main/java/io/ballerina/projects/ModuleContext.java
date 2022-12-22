@@ -476,6 +476,11 @@ class ModuleContext {
         // Generate and write the thin JAR to the file system
         compilerBackend.performCodeGen(moduleContext, moduleContext.compilationCache);
 
+        // Skip bir caching if jar generation is not successful
+        if (Diagnostics.hasErrors(moduleContext.diagnostics())) {
+            return;
+        }
+
         if (birContent == null) {
             return;
         }

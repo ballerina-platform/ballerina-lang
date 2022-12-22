@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
@@ -378,7 +379,7 @@ public class ObserveUtils {
         }   // Else normal function
 
         if (typeDef != null) {
-            ObjectType type = typeDef.getType();
+            ObjectType type = (ObjectType) TypeUtils.getReferredType(typeDef.getType());
             Module typeModule = type.getPackage();
             String objectName = typeModule.getOrg() + "/" + typeModule.getName() + "/" + type.getName();
 
