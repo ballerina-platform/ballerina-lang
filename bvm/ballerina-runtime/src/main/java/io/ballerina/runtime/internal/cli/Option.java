@@ -51,8 +51,8 @@ public class Option {
     private final int location;
 
     public Option(Type recordType, int location) {
-        this((RecordType) recordType,
-             ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
+        this((RecordType) TypeUtils.getReferredType(recordType),
+                ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
     }
 
     public Option(RecordType recordType, BMap<BString, Object> recordVal) {

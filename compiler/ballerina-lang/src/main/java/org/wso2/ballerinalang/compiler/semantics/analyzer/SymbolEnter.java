@@ -4636,7 +4636,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         bInvokableType.paramTypes = paramTypes;
         bInvokableType.retType = retType;
         bInvokableType.restType = restType;
-        bInvokableType.flags = flags;
+        bInvokableType.flags |= flags;
         functionTypeNode.setBType(bInvokableType);
 
         List<BType> allConstituentTypes = new ArrayList<>(paramTypes);

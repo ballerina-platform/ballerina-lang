@@ -146,6 +146,26 @@ public class JvmConstantsGen {
         return moduleConstantsGen.getModuleConstantClass();
     }
 
+    public String getRefTypeConstantsClass() {
+        return refTypeConstantsGen.getRefTypeConstantsClass();
+    }
+
+    public String getArrayTypeConstantClass() {
+        return arrayTypeConstantsGen.getArrayTypeConstantClass();
+    }
+
+    public String getTupleTypeConstantsClass() {
+        return tupleTypeConstantsGen.getTupleTypeConstantsClass();
+    }
+
+    public String getUnionTypeConstantClass() {
+        return unionTypeConstantsGen.getUnionTypeConstantClass();
+    }
+
+    public String getErrorTypeConstantClass() {
+        return errorTypeConstantsGen.getErrorTypeConstantClass();
+    }
+
     public String getConstantClass() {
         return jvmBallerinaConstantsGen.getConstantClass();
     }

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -52,7 +53,8 @@ public class Map {
                                                                       MAP_VERSION, "map");
 
     public static BMap map(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
-        MapType newMapType = TypeCreator.createMapType(((FunctionType) func.getType()).getReturnType());
+        MapType newMapType =
+                TypeCreator.createMapType(((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType());
         BMap<BString, Object> newMap = ValueCreator.createMapValue(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
