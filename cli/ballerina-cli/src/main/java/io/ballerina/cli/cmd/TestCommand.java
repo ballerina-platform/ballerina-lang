@@ -328,6 +328,7 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
+                .setEnableCache(enableCache)
                 .build();
 
         if (targetDir != null) {

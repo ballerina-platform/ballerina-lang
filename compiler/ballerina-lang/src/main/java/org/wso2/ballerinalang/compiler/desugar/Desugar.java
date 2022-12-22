@@ -9411,6 +9411,11 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType rhsType = expr.getBType();
+
+        if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
+            return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
+        }
+
         if (types.isSameType(rhsType, lhsType)) {
             return expr;
         }

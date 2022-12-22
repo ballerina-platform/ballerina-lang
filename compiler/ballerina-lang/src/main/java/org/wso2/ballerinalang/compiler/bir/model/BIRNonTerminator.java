@@ -245,24 +245,27 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public final PackageID externalPackageId;
         public BIRTypeDefinition def;
         public final String objectName;
+        public final BType expectedType;
 
-        public NewInstance(Location pos, BIRTypeDefinition def, BIROperand lhsOp) {
+        public NewInstance(Location pos, BIRTypeDefinition def, BIROperand lhsOp, BType expectedType) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.lhsOp = lhsOp;
             this.def = def;
             this.objectName = null;
             this.externalPackageId = null;
             this.isExternalDef = false;
+            this.expectedType = expectedType;
         }
 
         public NewInstance(Location pos, PackageID externalPackageId, String objectName,
-                           BIROperand lhsOp) {
+                           BIROperand lhsOp, BType expectedType) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.objectName = objectName;
             this.lhsOp = lhsOp;
             this.def = null;
             this.externalPackageId = externalPackageId;
             this.isExternalDef = true;
+            this.expectedType = expectedType;
         }
 
         @Override
