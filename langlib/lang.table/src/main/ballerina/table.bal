@@ -324,6 +324,7 @@ public isolated function removeIfHasKey(table<MapType> key<KeyType> t, KeyType k
 #     {name: "Sam"}
 # ];
 # students.removeAll() is () ⇒ true
+# students ⇒ []
 #
 # table<record {|int score;|}> scores = <readonly> table [
 #     {score: 30},
