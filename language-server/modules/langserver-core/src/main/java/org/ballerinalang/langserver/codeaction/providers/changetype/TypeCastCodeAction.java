@@ -126,7 +126,7 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
         }
 
         String typeName = "";
-        if (expectedTypeSymbol.subtypeOf(actualTypeSymbol)) {
+        if (expectedTypeSymbol.subtypeOf(actualTypeSymbol) && expectedTypeSymbol.typeKind() != TypeDescKind.SINGLETON) {
             typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
         } else if (isNumeric(expectedTypeSymbol)) {
             Optional<TypeSymbol> numericExpected = findNumericType(expectedTypeSymbol);
