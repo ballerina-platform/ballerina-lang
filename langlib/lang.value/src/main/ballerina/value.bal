@@ -96,9 +96,9 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType &
 #
 # ```ballerina
 # anydata[] arr = [1, 2, 3, 4];
-# int[] numberArray = check arr.cloneWithType();
-# numberArray ⇒ [1,2,3,4]
-# arr === numberArray ⇒ false
+# int[] intArray = check arr.cloneWithType();
+# intArray ⇒ [1,2,3,4]
+# arr === intArray ⇒ false
 #
 # type Vowels string:Char[];
 #
@@ -174,6 +174,9 @@ public isolated function isReadOnly(anydata v) returns boolean = @java:Method {
 # ```ballerina
 # decimal value = 12.12d;
 # value.toString() ⇒ 12.12
+# 
+# anydata[] data = [1, "Sam", 12.3f, 12.12d, {value: 12}];
+# data.toString() ⇒ [1,"Sam",12.3,12.12,{"value":12}]
 # ```
 #
 # + v - the value to be converted to a string
@@ -196,6 +199,9 @@ public isolated function toString((any) v) returns string = @java:Method {
 # ```ballerina
 # decimal value = 12.12d;
 # value.toBalString() ⇒ 12.12d
+# 
+# anydata[] data = [1, "Sam", 12.3f, 12.12d, {value: 12}];
+# data.toBalString() ⇒ [1,"Sam",12.3,12.12d,{"value":12}]
 # ```
 #
 # + v - the value to be converted to a string
@@ -346,9 +352,9 @@ public isolated function fromJsonDecimalString(string str) returns JsonDecimal|e
 # except that it also does the inverse of the conversions done by `toJson`.
 #
 # ```ballerina
-# json jsonNumberArray = [1, 2, 3, 4];
-# int[] intNumberArray = check jsonNumberArray.fromJsonWithType();
-# intNumberArray ⇒ [1,2,3,4]
+# json arr = [1, 2, 3, 4];
+# int[] intArray = check arr.fromJsonWithType();
+# intArray ⇒ [1,2,3,4]
 #
 # type Vowels string:Char[];
 #
