@@ -314,19 +314,17 @@ public final class ConverterUtils {
         if (!existingFieldNames.contains(fieldName) && !updatedFieldNames.containsValue(fieldName)) {
             return fieldName;
         } else {
-            String extractedFieldName = isArrayField ?
-                    fieldName.substring(0, fieldName.length() - ARRAY_RECORD_SUFFIX.length()) : fieldName;
-            String[] fieldNameSplit = extractedFieldName.split("_");
-            String numericSuffix = fieldNameSplit[fieldNameSplit.length - 1]; // 01
+            String[] fieldNameSplit = fieldName.split("_");
+            String numericSuffix = fieldNameSplit[fieldNameSplit.length - 1];
+
             if (NumberUtils.isParsable(numericSuffix)) {
                 return getUpdatedFieldName(String.join("_",
                                 Arrays.copyOfRange(fieldNameSplit, 0, fieldNameSplit.length - 1)) + "_" +
-                                String.format("%02d", Integer.parseInt(numericSuffix) + 1) +
-                                (isArrayField ? ARRAY_RECORD_SUFFIX : ""),
-                        isArrayField, existingFieldNames, updatedFieldNames);
+                                String.format("%02d", Integer.parseInt(numericSuffix) + 1), isArrayField,
+                        existingFieldNames, updatedFieldNames);
             } else {
-                return getUpdatedFieldName(extractedFieldName + "_01" + (isArrayField ? ARRAY_RECORD_SUFFIX : ""),
-                        isArrayField, existingFieldNames, updatedFieldNames);
+                return getUpdatedFieldName(fieldName + "_01", isArrayField, existingFieldNames,
+                        updatedFieldNames);
             }
         }
     }

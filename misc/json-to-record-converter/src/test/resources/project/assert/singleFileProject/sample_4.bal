@@ -1,4 +1,4 @@
-type People_01Item record {
+type PeopleItem_01 record {
     string firstName;
     string lastName;
     string gender;
@@ -7,6 +7,6 @@ type People_01Item record {
 };
 
 type NewRecord_01 record {
-    People_01Item[] people;
+    PeopleItem_01[] people;
     anydata[] addresses;
 };

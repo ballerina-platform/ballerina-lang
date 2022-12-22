@@ -1,26 +1,26 @@
-type Batter_01Item record {
+type BatterItem_01 record {
     string id;
     string 'type;
 };
 
 type Batters_01 record {
-    Batter_01Item[] batter;
+    BatterItem_01[] batter;
 };
 
-type Topping_01Item record {
+type ToppingItem_01 record {
     string id;
     string 'type;
 };
 
-type NewRecord_01Item record {
+type NewRecordItem_01 record {
     string id;
     string 'type;
     string name;
     decimal ppu;
     Batters_01 batters;
-    Topping_01Item[] topping;
+    ToppingItem_01[] topping;
 };
 
 type NewRecord_01 record {
-    NewRecord_01Item[] newRecord;
+    NewRecordItem_01[] newRecord;
 };

@@ -3,7 +3,7 @@ type Special\ object_01 record {
     int age;
 };
 
-type Special\\array\-\?_01Item record {
+type Special\\array\-\?Item_01 record {
     string date;
     int value;
     string 'type?;
@@ -17,5 +17,5 @@ type NewRecord_01 record {
     int ϼ\ \+\-\+;
     boolean ōŊĖ;
     Special\ object_01 special\ object;
-    (Special\\array\-\?_01Item[]|Special\\array\-\?_01Item[][])[] special\\array\-\?;
+    (Special\\array\-\?Item_01[]|Special\\array\-\?Item_01[][])[] special\\array\-\?;
 };
