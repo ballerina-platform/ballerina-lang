@@ -488,7 +488,10 @@ public class JvmTypeGen {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+                    String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(bType.tsymbol.pkgID,
+                            JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
+                    mv.visitFieldInsn(GETSTATIC, typeOwner,
+                            JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) bType), GET_TYPE_REF_TYPE_IMPL);
                     return;
                 default:
                     return;
@@ -981,7 +984,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitLdcInsn(bInvokableSymbol.name.value);
             }
-            loadLocalType(mv, paramSymbol.type);
+            loadType(mv, paramSymbol.type);
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
@@ -1001,7 +1004,7 @@ public class JvmTypeGen {
             mv.visitLdcInsn("");
             mv.visitInsn(ICONST_0);
             mv.visitInsn(ACONST_NULL);
-            loadLocalType(mv, paramTypes.get(i));
+            loadType(mv, paramTypes.get(i));
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
@@ -1137,14 +1140,4 @@ public class JvmTypeGen {
         }
     }
 
-    public void loadLocalType(MethodVisitor mv, BType type) {
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(type.tsymbol.pkgID,
-                    JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
-            mv.visitFieldInsn(GETSTATIC, typeOwner,
-                    JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) type), GET_TYPE_REF_TYPE_IMPL);
-        } else {
-            loadType(mv, JvmCodeGenUtil.getReferredType(type));
-        }
-    }
 }
