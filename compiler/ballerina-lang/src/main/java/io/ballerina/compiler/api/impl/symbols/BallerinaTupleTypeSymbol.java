@@ -18,9 +18,12 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.TupleMemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -39,6 +42,7 @@ import java.util.StringJoiner;
 public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements TupleTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
+    private List<TupleMemberTypeSymbol> tupleMembers;
     private TypeSymbol restTypeDesc;
 
     public BallerinaTupleTypeSymbol(CompilerContext context, BTupleType tupleType) {
@@ -59,6 +63,29 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
         }
 
         return this.memberTypes;
+    }
+
+    @Override
+    public List<TupleMemberTypeSymbol> tupleTypeMembers() {
+        if (this.tupleMembers != null) {
+            return this.tupleMembers;
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+
+        List<BTupleMember> tupMembers = ((BTupleType) this.getBType()).getTupleMembers();
+        this.tupleMembers = new ArrayList<>();
+
+        for (BTupleMember tupMember : tupMembers) {
+            BVarSymbol bSymbol = tupMember.symbol;
+            this.tupleMembers.add(new BallerinaTupleMemberSymbol(
+                    context,
+                    bSymbol.getType().name.getValue(),
+                    bSymbol,
+                    typesFactory.getTypeDescriptor(bSymbol.getType())));
+        }
+
+        return this.tupleMembers;
     }
 
     @Override
