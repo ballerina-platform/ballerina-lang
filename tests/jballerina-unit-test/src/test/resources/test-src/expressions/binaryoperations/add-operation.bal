@@ -529,7 +529,7 @@ function bam() returns int {
     return 5;
 }
 
-function testNullableIntAdd() {
+function testNullableIntAddition() {
     int[] result = [1, 2];
     int? val = baz() + result[0];
     assertEquality(val, ());
