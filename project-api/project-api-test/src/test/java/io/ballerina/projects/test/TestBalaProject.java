@@ -242,14 +242,6 @@ public class TestBalaProject {
         } catch (ProjectException e) {
             // ignore
         }
-
-        // try to get id of a non-bal file from the project
-        try {
-            balaProject.documentId(null);
-            Assert.fail("expected a ProjectException");
-        } catch (ProjectException e) {
-            // ignore
-        }
     }
 
     @Test

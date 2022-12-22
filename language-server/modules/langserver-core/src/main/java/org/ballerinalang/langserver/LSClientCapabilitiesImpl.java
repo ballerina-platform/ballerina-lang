@@ -35,6 +35,7 @@ import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
  * @since 1.2.0
  */
 public class LSClientCapabilitiesImpl implements LSClientCapabilities {
+
     private final ExperimentalClientCapabilities experimentalCapabilities;
     private final InitializationOptions initializationOptions;
     private final WorkspaceClientCapabilities workspaceCapabilities;
@@ -43,7 +44,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             Map experimentalClientCapabilities, 
+                             Map experimentalClientCapabilities,
                              Map initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
@@ -56,7 +57,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.initializationOptions = initializationOptionsMap != null ?
                 parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
-        
+
         this.ballerinaClientCapabilities = new ArrayList<>();
     }
 
@@ -69,7 +70,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     public ExperimentalClientCapabilities getExperimentalCapabilities() {
         return experimentalCapabilities;
     }
-    
+
     @Override
     public InitializationOptions getInitializationOptions() {
         return initializationOptions;
@@ -146,6 +147,16 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
                 Boolean.parseBoolean(String.valueOf(renameSupport));
         initializationOptions.setSupportRenamePopup(enableRenameSupport);
 
+        Object quickPickSupport = initOptions.get(InitializationOptions.KEY_QUICKPICK_SUPPORT);
+        boolean enableQuickPickSupport = quickPickSupport != null &&
+                Boolean.parseBoolean(String.valueOf(quickPickSupport));
+        initializationOptions.setSupportQuickPick(enableQuickPickSupport);
+
+        Object lsLightWeightMode = initOptions.get(InitializationOptions.KEY_ENABLE_LIGHTWEIGHT_MODE);
+        boolean enableLSLightWeightMode = lsLightWeightMode != null &&
+                Boolean.parseBoolean(String.valueOf(lsLightWeightMode));
+        initializationOptions.setEnableLSLightWeightMode(enableLSLightWeightMode);
+
         return initializationOptions;
     }
 
@@ -153,6 +164,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents Extended LSP capabilities.
      */
     public static class ExperimentalClientCapabilitiesImpl implements ExperimentalClientCapabilities {
+
         private boolean introspectionEnabled = false;
         private boolean showTextDocumentEnabled = false;
 
@@ -189,10 +201,13 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents the initialization options the LS client will be sending.
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
+
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
         private boolean supportRenamePopup = false;
-        
+        private boolean supportQuickPick = false;
+        private boolean enableLSLightWeightMode = false;
+
         @Override
         public boolean isBalaSchemeSupported() {
             return supportBalaScheme;
@@ -218,5 +233,24 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         public void setSupportRenamePopup(boolean supportRenamePopup) {
             this.supportRenamePopup = supportRenamePopup;
         }
+
+        @Override
+        public boolean isQuickPickSupported() {
+            return supportQuickPick;
+        }
+
+        public void setEnableLSLightWeightMode(boolean enableLSLightWeightMode) {
+            this.enableLSLightWeightMode = enableLSLightWeightMode;
+        }
+
+        @Override
+        public boolean isEnableLightWeightMode() {
+            return enableLSLightWeightMode;
+        }
+
+        public void setSupportQuickPick(boolean supportQuickPick) {
+            this.supportQuickPick = supportQuickPick;
+        }
+
     }
 }

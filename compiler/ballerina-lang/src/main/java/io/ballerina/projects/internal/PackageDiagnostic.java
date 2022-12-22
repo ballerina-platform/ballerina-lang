@@ -32,6 +32,7 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -55,26 +56,32 @@ public class PackageDiagnostic extends Diagnostic {
         this.location = location;
     }
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project,
-                             boolean isGenerated) {
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;
         ModuleName moduleName = moduleDescriptor.name();
+        String diagnosticPath = diagnostic.location().lineRange().filePath();
+        Path modulesRoot = Paths.get(ProjectConstants.MODULES_ROOT);
         if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
-            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.toString());
+            Path modulePath = modulesRoot.resolve(moduleName.toString());
             filePath = project.sourceRoot().resolve(modulePath).resolve(
-                    diagnostic.location().lineRange().filePath()).toString();
+                    diagnosticPath).toString();
         } else {
+            Path generatedRoot = Paths.get(ProjectConstants.GENERATED_MODULES_ROOT);
             if (!moduleName.isDefaultModuleName()) {
-                Path modulePath;
-                if (isGenerated) {
-                    modulePath = Paths.get(ProjectConstants.GENERATED_MODULES_ROOT)
-                            .resolve(moduleName.moduleNamePart());
+                Path generatedPath = generatedRoot.
+                        resolve(moduleName.moduleNamePart());
+                if (Files.exists(project.sourceRoot().resolve(generatedPath).
+                        resolve(diagnosticPath).toAbsolutePath())) {
+                    filePath = generatedPath.resolve(diagnosticPath).toString();
                 } else {
-                    modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
+                    filePath = modulesRoot.resolve(moduleName.moduleNamePart()).
+                            resolve(diagnosticPath).toString();
                 }
-                filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
             } else {
-                filePath = diagnostic.location().lineRange().filePath();
+                filePath = Files.exists(project.sourceRoot().resolve(generatedRoot).
+                        resolve(diagnosticPath).toAbsolutePath()) ?
+                        generatedRoot.resolve(diagnosticPath).toString() : diagnosticPath;
+
             }
         }
         this.diagnostic = diagnostic;
