@@ -363,12 +363,12 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 #
 # r.replaceAll("122111", "*") ⇒ 122111
 #
-# r.replaceAll("10010011", replaceFunction) ⇒ 1*1*11
+# r.replaceAll("10010011", replaceFunction) ⇒ 121211
 #
-# r.replaceAll("10010011", replaceFunction, 4) ⇒ 1001*11
+# r.replaceAll("10010011", replaceFunction, 4) ⇒ 1001211
 #
 # isolated function replaceFunction(regexp:Groups groups) returns string {
-#    return "*";
+#    return groups[0].substring().length().toString();
 # }
 # ```
 #
