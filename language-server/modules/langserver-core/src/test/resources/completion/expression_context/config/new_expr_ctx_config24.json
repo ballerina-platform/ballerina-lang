@@ -560,7 +560,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -568,7 +568,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "L",
+      "sortText": "P",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -576,7 +576,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -584,7 +584,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -592,7 +592,7 @@
       "label": "future",
       "kind": "TypeParameter",
       "detail": "Future",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -600,7 +600,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -608,7 +608,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -616,7 +616,7 @@
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
     },
@@ -624,7 +624,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -632,7 +632,7 @@
       "label": "typedesc",
       "kind": "TypeParameter",
       "detail": "Typedesc",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -640,7 +640,7 @@
       "label": "readonly",
       "kind": "TypeParameter",
       "detail": "Readonly",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -648,7 +648,7 @@
       "label": "handle",
       "kind": "TypeParameter",
       "detail": "Handle",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -656,7 +656,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -664,7 +664,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -672,7 +672,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -680,7 +680,7 @@
       "label": "any",
       "kind": "TypeParameter",
       "detail": "Any",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -688,7 +688,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
