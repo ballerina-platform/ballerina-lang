@@ -1,6 +1,6 @@
 // Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,24 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@personAnnot {
-    id: 1,
-    perm: {a: 1, b: 2}
-}
-public type AG string;
+type TupType [@Config {count: 1} @HttpConfig int, @Config {count: 2} string, @HttpConfig boolean];
 
-type T1 [int, @member int, string...];
-
-function testTupleAnnot() {
-    [@Annot string, @Annot int] thisOne = ["aaa", 2];
+function test() {
+    [@TLSConfig @Config {count: 1} string, @HttpConfig int] tuple = ["String", 10];
 }
 
 // utils
-type Person record {|
-    int id;
-    map<int> perm;
+type Options record {|
+    int count;
 |};
 
-const annotation Person personAnnot on type;
-const annotation member on field;
-annotation Annot;
+const annotation Options Config on field;
+const annotation HttpConfig on field;
+const annotation TLSConfig on field;
