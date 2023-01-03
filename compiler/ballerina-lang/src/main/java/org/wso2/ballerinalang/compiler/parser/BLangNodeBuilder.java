@@ -1101,6 +1101,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
                         memberNode.annotations());
                 member.setName(this.createIdentifier(null, String.valueOf(i)));
+                member.name.pos = member.typeNode.getPosition();
                 member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
                 tupleTypeNode.memberTypeNodes.add(member);
