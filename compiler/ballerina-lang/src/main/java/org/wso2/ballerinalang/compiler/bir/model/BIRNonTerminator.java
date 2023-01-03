@@ -294,6 +294,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand sizeOp;
         public BType type;
         public List<BIRListConstructorEntry> values;
+        public BIROperand rhsOp;
 
         public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
                         List<BIRListConstructorEntry> values) {
@@ -302,6 +303,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.sizeOp = sizeOp;
             this.values = values;
+        }
+
+        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
+                        List<BIRListConstructorEntry> values, BIROperand rhsOp) {
+            this(location, type, lhsOp, sizeOp, values);
+            this.rhsOp = rhsOp;
         }
 
         public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,

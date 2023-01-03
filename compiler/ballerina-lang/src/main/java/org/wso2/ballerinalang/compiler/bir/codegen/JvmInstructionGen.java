@@ -1520,7 +1520,7 @@ public class JvmInstructionGen {
 
             if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
-                visitNewRecordArray(elementType);
+                visitNewRecordArray(elementType, inst);
             } else {
                 this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                         INIT_ARRAY, false);
@@ -1535,14 +1535,18 @@ public class JvmInstructionGen {
         }
     }
 
-    private void visitNewRecordArray(BType type) {
+    private void visitNewRecordArray(BType type, BIRNonTerminator.NewArray inst) {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) elementType).effectiveType : elementType;
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
-        this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
+        if (inst.rhsOp == null) {
+            this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
+        } else {
+            this.loadVar(inst.rhsOp.variableDcl);
+        }
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                 INIT_ARRAY_WITH_INITIAL_VALUES, false);
     }

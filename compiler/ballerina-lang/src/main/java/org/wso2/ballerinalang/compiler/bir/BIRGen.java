@@ -2395,6 +2395,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     public static String toNameString(BType t) {
         BTypeSymbol typeSymbol = t.tsymbol;
+        if (typeSymbol == null) {
+            return t.name.getValue();
+        }
         if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
                 ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
             return Utils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
@@ -2862,9 +2865,10 @@ public class BIRGen extends BLangNodeVisitor {
                     new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
                             typedescOp, sizeOp, initialValues));
         } else {
+            BType eType = ((BArrayType) Types.getReferredType(listConstructorExprType)).eType;
             setScopeAndEmit(
                     new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                            initialValues));
+                            initialValues, typeDescMap.getOrDefault(toNameString(eType), null)));
         }
         this.env.targetOperand = toVarRef;
     }
