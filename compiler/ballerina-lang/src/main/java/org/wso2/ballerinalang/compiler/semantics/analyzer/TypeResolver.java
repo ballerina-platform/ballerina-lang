@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -1711,10 +1712,11 @@ public class TypeResolver {
                 dlog.error(constant.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, staticType, narrowedType);
                 return;
             }
-
-
-
         }
+
+//        if (narrowedType.tag == TypeTags.RECORD) {
+//            createTypeDefinition((BRecordType) narrowedType, constant.pos, symEnv);
+//        }
 
         // Get immutable type for the narrowed type.
         BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, narrowedType, symEnv,
@@ -1760,7 +1762,7 @@ public class TypeResolver {
         if (typeDefinition != null && constant.associatedTypeDefinition == null) {
             constant.associatedTypeDefinition = typeDefinition;
         }
-
+        constant.setDeterminedType(null);
         symEnv.scope.define(constantSymbol.name, constantSymbol);
     }
 

@@ -2886,14 +2886,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 varRefExpr.symbol = constSymbol;
                 BType symbolType = symbol.type;
                 BType expectedType = Types.getReferredType(data.expType);
-                if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
-                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
-                                .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
-                                        types.isAssignable(symbolType, memType)))) {
+//                if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
+//                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
+//                                .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
+//                                        types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
-                } else {
-                    actualType = constSymbol.literalType;
-                }
+//                } else {
+//                    actualType = constSymbol.literalType;
+//                }
 
                 // If the constant is on the LHS, modifications are not allowed.
                 // E.g. m.k = "10"; // where `m` is a constant.
