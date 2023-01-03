@@ -36,15 +36,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD_PREFIX;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
@@ -108,7 +107,7 @@ public class JvmErrorTypeConstantsGen {
             String varName = entry.getValue();
             visitBErrorField(cw, varName);
             if (errorTypeCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
+                mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_INIT_METHOD + methodCount++, "()V", null, null);
             }
             createBErrorType(mv, type, varName);
             genPopulateMethod(cw, type, varName);
@@ -117,7 +116,7 @@ public class JvmErrorTypeConstantsGen {
             if (errorTypeCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 if (errorTypeCount != errorTypeVarMap.size()) {
                     mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
-                            B_ERROR_TYPE_INIT_METHOD_PREFIX + methodCount, "()V", false);
+                            B_ERROR_TYPE_INIT_METHOD + methodCount, "()V", false);
                 }
                 genMethodReturn(mv);
             }
@@ -134,7 +133,7 @@ public class JvmErrorTypeConstantsGen {
         MethodVisitor mv = null;
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX + methodCount++,
+                mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_POPULATE_METHOD + methodCount++,
                         "()V", null, null);
             }
             mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, funcName, "()V", false);
@@ -143,7 +142,7 @@ public class JvmErrorTypeConstantsGen {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 if (populateFuncCount != funcNames.size()) {
                     mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
-                            B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX + methodCount, "()V", false);
+                            B_ERROR_TYPE_POPULATE_METHOD + methodCount, "()V", false);
                 }
                 genMethodReturn(mv);
             }
@@ -171,7 +170,7 @@ public class JvmErrorTypeConstantsGen {
     }
 
     private void visitBErrorField(ClassWriter cw, String varName) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, varName,
                                         GET_ERROR_TYPE_IMPL, null, null);
         fv.visitEnd();
     }
@@ -183,10 +182,14 @@ public class JvmErrorTypeConstantsGen {
 
     private void generateStaticInitializer(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
-        mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, B_ERROR_TYPE_INIT_METHOD_PREFIX + 0,
+        mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, B_ERROR_TYPE_INIT_METHOD + 0,
                 "()V", false);
-        mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX + 0,
+        mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, B_ERROR_TYPE_POPULATE_METHOD + 0,
                 "()V", false);
         genMethodReturn(mv);
+    }
+
+    public String getErrorTypeConstantClass() {
+        return this.errorVarConstantsClass;
     }
 }

@@ -22,13 +22,16 @@ failWithinOnFail function() -> string|error {
     bb1 {
         %6 = ConstLoad 2;
         %7 = %1 < %6;
-        %7? bb2 : bb5;
+        %7? bb2 : bb6;
     }
     bb2 {
         %9 = ConstLoad -> Within do statement;
         %3 = %3 + %9;
         %6 = ConstLoad 1;
         %1 = %1 + %6;
+        GOTO bb3;
+    }
+    bb3 {
         %9 = ConstLoad custom error;
         %18 = ConstLoad 0;
         %17 = <error> %18;
@@ -36,27 +39,27 @@ failWithinOnFail function() -> string|error {
         %21 = ConstLoad message;
         %22 = ConstLoad error value;
         %20 = NewMap %19;
-        %23 = cloneReadOnly(%20) -> bb3;
+        %23 = cloneReadOnly(%20) -> bb4;
     }
-    bb3 {
+    bb4 {
         %14 = error error(%9, %17, %23);
         %21 = ConstLoad -> Error caught in inner on fail;
         %3 = %3 + %21;
         %0 = %14;
-        GOTO bb6;
+        GOTO bb7;
     }
-    bb4 {
+    bb5 {
         %22 = ConstLoad -> After do statement;
         %3 = %3 + %22;
         GOTO bb1;
     }
-    bb5 {
+    bb6 {
         %9 = ConstLoad -> Execution completed.;
         %3 = %3 + %9;
         %0 = <string|error> %3;
-        GOTO bb6;
+        GOTO bb7;
     }
-    bb6 {
+    bb7 {
         return;
     }
 

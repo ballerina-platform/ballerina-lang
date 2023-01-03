@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
@@ -183,7 +184,7 @@ public class Runtime {
                                      Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            ObjectType objectType = object.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(object.getType());
             boolean isIsolated = objectType.isIsolated() && objectType.isIsolated(methodName);
             FutureValue future = scheduler.createFuture(null, callback, properties, returnType, strandName, metadata);
             AsyncUtils.getArgsWithDefaultValues(scheduler, object, methodName, new Callback() {

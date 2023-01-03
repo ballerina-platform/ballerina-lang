@@ -66,6 +66,22 @@ public class ProjectPathsTest {
         Files.createFile(buildProjectPath.resolve("test-utils")
                 .resolve("utils.bal")); // path - /tmp/testProj/test-utils/utils.bal
 
+        // Create generated files
+        // Generated file for default module
+        Files.createDirectories(buildProjectPath.resolve("generated"));
+        Files.createFile(
+                buildProjectPath.resolve("generated").resolve("gen.bal"));
+
+        // Generated file for module 01
+        Files.createDirectories(buildProjectPath.resolve("generated").resolve("module1"));
+        Files.createFile(
+                buildProjectPath.resolve("generated").resolve("module1").resolve("gen_mod1.bal"));
+
+        // Generated file for module 02 (A new generated module)
+        Files.createDirectories(buildProjectPath.resolve("generated").resolve("module2"));
+        Files.createFile(
+                buildProjectPath.resolve("generated").resolve("module2").resolve("gen_mod2.bal"));
+
         // Create a bala project
         balaProjectPath = tempDir.resolve("testBalaProj");
         Files.createDirectories(balaProjectPath.resolve("modules").resolve("mod1"));
@@ -88,6 +104,17 @@ public class ProjectPathsTest {
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve("modules").resolve("module1").resolve("tests").resolve("main_test.bal")), buildProjectPath);
 
+        // test package root of generated files
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("generated").resolve("module1").resolve("gen_mod1.bal")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("generated").resolve("module2").resolve("gen_mod2.bal")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath.resolve("generated").resolve("gen.bal")),
+                buildProjectPath);
+
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("modules").resolve("module1").resolve("tests")
+                .resolve("main_test.bal")), buildProjectPath);
         // test package root of bala project
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
                 .resolve("modules").resolve("mod1").resolve("mod1.bal")), balaProjectPath);
@@ -105,7 +132,12 @@ public class ProjectPathsTest {
                 .resolve("modules").resolve("module1").resolve("tests")), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve("modules")), buildProjectPath);
-
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("generated")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("generated").resolve("module1")), buildProjectPath);
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
+                .resolve("generated").resolve("module2")), buildProjectPath);
         // test package root of bala project
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath), balaProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(balaProjectPath
@@ -173,6 +205,9 @@ public class ProjectPathsTest {
 
         Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
                 balaProjectPath.resolve("modules").resolve("mod1").resolve("mod1.bal")));
+
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
+                balaProjectPath.resolve("generated").resolve("module1").resolve("gen_mod1.bal")));
     }
 
     @Test

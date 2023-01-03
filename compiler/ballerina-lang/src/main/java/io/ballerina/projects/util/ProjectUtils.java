@@ -118,6 +118,7 @@ public class ProjectUtils {
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
+    private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
@@ -306,6 +307,10 @@ public class ProjectUtils {
      * @return package name
      */
     public static String guessPkgName(String packageName, String template) {
+        if (!validateOnlyNonAlphanumeric(packageName)) {
+            packageName = "my_package";
+        }
+
         if (!validatePackageName(packageName)) {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
@@ -720,6 +725,12 @@ public class ProjectUtils {
         return m.matches() && !mm.matches();
     }
 
+    private static boolean validateOnlyNonAlphanumeric(String identifiers) {
+        Matcher m = onlyNonAlphanumericPattern.matcher(identifiers);
+
+        return !m.matches();
+    }
+
     /**
      * Get `Dependencies.toml` content as a string.
      *
@@ -734,15 +745,15 @@ public class ProjectUtils {
         content.append("[ballerina]\n");
         content.append("version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
 
         // write dependencies from package dependency graph
         pkgGraphDependencies.forEach(graphDependency -> {
+            content.append("\n");
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
                                  descriptor.version().value().toString(), null, Collections.emptyList(),
                                  Collections.emptyList());
-            content.append("\n");
         });
         return String.valueOf(content);
     }
@@ -760,14 +771,14 @@ public class ProjectUtils {
         StringBuilder content = new StringBuilder(comment);
         content.append("[ballerina]\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
+            content.append("\n");
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
                                  getDependencyScope(dependency.getScope()), dependency.getDependencies(),
                                  dependency.getModules());
-            content.append("\n");
         });
         return String.valueOf(content);
     }

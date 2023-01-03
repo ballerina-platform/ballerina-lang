@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -60,7 +61,7 @@ public class Slice {
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         BArray slicedArr;
 
         switch (arrType.getTag()) {

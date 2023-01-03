@@ -94,8 +94,6 @@ public class JvmConstants {
     public static final String B_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BInitialValueEntry";
     public static final String B_LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BListInitialValueEntry";
     public static final String B_MAPPING_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/api/values/BMapInitialValueEntry";
-    public static final String MAPPING_INITIAL_VALUE_ENTRY =
-            "io/ballerina/runtime/internal/values/MappingInitialValueEntry";
     public static final String MAPPING_INITIAL_KEY_VALUE_ENTRY =
             "io/ballerina/runtime/internal/values/MappingInitialValueEntry$KeyValueEntry";
     public static final String MAPPING_INITIAL_SPREAD_FIELD_ENTRY =
@@ -124,7 +122,6 @@ public class JvmConstants {
     public static final String ERROR_TYPE = "io/ballerina/runtime/api/types/ErrorType";
     public static final String TUPLE_TYPE = "io/ballerina/runtime/api/types/TupleType";
     public static final String FUNCTION_TYPE = "io/ballerina/runtime/api/types/FunctionType";
-    public static final String TYPEDESC_TYPE = "io/ballerina/runtime/api/types/TypedescType";
     public static final String FIELD = "io/ballerina/runtime/api/types/Field";
     public static final String METHOD_TYPE = "io/ballerina/runtime/api/types/MethodType";
     public static final String RESOURCE_METHOD_TYPE = "io/ballerina/runtime/api/types/ResourceMethodType";
@@ -146,8 +143,6 @@ public class JvmConstants {
     public static final String INTERSECTABLE_REFERENCE_TYPE
             = "io/ballerina/runtime/api/types/IntersectableReferenceType";
 
-
-    public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
     public static final String ARRAY_TYPE_IMPL = "io/ballerina/runtime/internal/types/BArrayType";
     public static final String MAP_TYPE_IMPL = "io/ballerina/runtime/internal/types/BMapType";
     public static final String XML_TYPE_IMPL = "io/ballerina/runtime/internal/types/BXmlType";
@@ -315,14 +310,16 @@ public class JvmConstants {
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
-    public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
-    public static final String B_ERROR_TYPE_INIT_METHOD_PREFIX = "$error_type_init";
-    public static final String B_ERROR_TYPE_POPULATE_INIT_METHOD_PREFIX = "$error_type_init";
-    public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
-    public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
-    public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
-    public static final String B_TYPEREF_TYPE_POPULATE_INIT_METHOD_PREFIX = "$populate_typeref_type";
-    public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
+    public static final String B_UNION_TYPE_INIT_METHOD = "$union_type_init";
+    public static final String B_ERROR_TYPE_INIT_METHOD = "$error_type_init";
+    public static final String B_TUPLE_TYPE_INIT_METHOD = "$tuple_type_init";
+    public static final String B_ARRAY_TYPE_INIT_METHOD = "$array_type_init";
+    public static final String B_TYPEREF_TYPE_INIT_METHOD = "$typeref_type_init";
+    public static final String B_UNION_TYPE_POPULATE_METHOD = "$populate_union_types";
+    public static final String B_TUPLE_TYPE_POPULATE_METHOD = "$populate_tuple_types";
+    public static final String B_ARRAY_TYPE_POPULATE_METHOD = "$populate_array_types";
+    public static final String B_TYPEREF_TYPE_POPULATE_METHOD = "$populate_typeref_types";
+    public static final String B_ERROR_TYPE_POPULATE_METHOD = "$populate_error_typeS";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
@@ -337,6 +334,7 @@ public class JvmConstants {
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
     public static final String VALUE_CLASS_PREFIX = "$value$";
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
+    public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
@@ -344,7 +342,6 @@ public class JvmConstants {
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
-    public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
     public static final String JVM_STATIC_INIT_METHOD = "<clinit>";
@@ -361,6 +358,7 @@ public class JvmConstants {
     public static final String EQUALS_METHOD = "equals";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
+    public static final String CREATE_TYPE_CONSTANTS_METHOD = "$createTypeConstants";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
@@ -418,8 +416,6 @@ public class JvmConstants {
     public static final int BAL_SERVICE = 262144;
 
     // type flags
-    public static final int TYPE_FLAG_NILABLE = 1;
-    public static final int TYPE_FLAG_ANYDATA = 2;
     public static final int TYPE_FLAG_PURETYPE = 4;
 
 
