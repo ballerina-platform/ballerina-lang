@@ -31,6 +31,7 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FilenameUtils;
 import org.ballerinalang.maven.Dependency;
 import org.ballerinalang.maven.MavenResolver;
 import org.ballerinalang.maven.Utils;
@@ -61,6 +62,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.jar.Attributes;
@@ -70,6 +72,8 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
 
 /**
@@ -85,6 +89,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -166,8 +171,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project(),
-                                moduleContext.isGenerated()));
+                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
         // add compilation diagnostics
@@ -203,6 +207,9 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         switch (outputType) {
+            case GRAAL_EXEC:
+                generatedArtifact = emitGraalExecutable(filePath);
+                break;
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
@@ -530,6 +537,69 @@ public class JBallerinaBackend extends CompilerBackend {
         return executableFilePath;
     }
 
+    private Path emitGraalExecutable(Path executableFilePath) {
+        // Run create executable
+        emitExecutable(executableFilePath);
+
+        String nativeImageName;
+        String[] command;
+        Project project = this.packageContext().project();
+        String nativeImageCommand = System.getenv("GRAALVM_HOME");
+
+        if (nativeImageCommand == null) {
+            throw new ProjectException("graalVM installation directory not found. Set GRAALVM_HOME as an " +
+                    "environment variable");
+        }
+        nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
+                + (OS.contains("win") ? "native-image.cmd" : "native-image");
+
+        File commandExecutable = Paths.get(nativeImageCommand).toFile();
+        if (!commandExecutable.exists()) {
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+                    "Install it using: gu install native-image");
+        }
+
+        if (project.kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+            String fileName = project.sourceRoot().toFile().getName();
+            nativeImageName = fileName.substring(0, fileName.lastIndexOf(DOT));
+            command = new String[] {
+                    nativeImageCommand,
+                    "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "--no-fallback"
+            };
+        } else {
+            nativeImageName = project.currentPackage().packageName().toString();
+            command = new String[]{
+                    nativeImageCommand,
+                    "-jar",
+                    executableFilePath.toString(),
+                    "-H:Name=" + nativeImageName,
+                    "-H:Path=" + executableFilePath.getParent(),
+                    "--no-fallback"
+            };
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder();
+            builder.command(command);
+            builder.inheritIO();
+            Process process = builder.start();
+
+            if (process.waitFor() != 0) {
+                throw new ProjectException("unable to create native image");
+            }
+        } catch (IOException e) {
+            throw new ProjectException("unable to create native image : " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        Path graalexectablepath = Path.of(FilenameUtils.removeExtension(executableFilePath.toString()));
+        return graalexectablepath;
+    }
+
     private Map<String, byte[]> getResources(ModuleContext moduleContext) {
         Map<String, byte[]> resourceMap = new HashMap<>();
         for (DocumentId documentId : moduleContext.resourceIds()) {
@@ -597,6 +667,7 @@ public class JBallerinaBackend extends CompilerBackend {
     public enum OutputType {
         EXEC("exec"),
         BALA("bala"),
+        GRAAL_EXEC("graal_exec")
         ;
 
         private String value;

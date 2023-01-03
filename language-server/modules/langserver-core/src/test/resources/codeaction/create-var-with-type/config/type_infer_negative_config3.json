@@ -1,0 +1,9 @@
+{
+  "position": {
+    "line": 2,
+    "character": 13
+  },
+  "source": "negative_source3.bal",
+  "expected": [
+  ]
+}

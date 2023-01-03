@@ -203,6 +203,10 @@ public class PackageDependencyGraphBuilder {
         return rawGraphBuilder.build();
     }
 
+    void addUnresolvedDirectDepToRawGraph(DependencyNode unresolvedDirectDep) {
+        rawGraphBuilder.addDependency(this.rootDepNode, unresolvedDirectDep);
+    }
+
     private NodeStatus addDependencyInternal(PackageDescriptor dependent,
                                              DependencyNode dependencyNode,
                                              boolean unresolved) {

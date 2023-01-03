@@ -54,11 +54,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -71,32 +69,23 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  */
 public class PackageResolution {
     private final PackageContext rootPackageContext;
-    private final IDLPluginManager idlPluginManager;
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
-    private final List<Diagnostic> pluginDiagnosticList;
     private DiagnosticResult diagnosticResult;
     private boolean autoUpdate;
     private String dependencyGraphDump;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
-    private final List<ModuleConfig> generatedModules;
-    private final Set<IDLClientEntry> clientsToCache;
 
-    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions,
-                              IDLPluginManager idlPluginManager) {
+    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.idlPluginManager = idlPluginManager;
         this.diagnosticList = new ArrayList<>();
-        this.pluginDiagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        this.generatedModules = new ArrayList<>();
-        this.clientsToCache = new HashSet<>();
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
@@ -111,9 +100,8 @@ public class PackageResolution {
         resolveDependencies(dependencyResolution);
     }
 
-    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions,
-                                  IDLPluginManager idlPluginManager) {
-        return new PackageResolution(rootPackageContext, compilationOptions, idlPluginManager);
+    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(rootPackageContext, compilationOptions);
     }
 
     /**
@@ -171,26 +159,13 @@ public class PackageResolution {
                           ModuleDescriptor moduleDescriptor) {
         var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
         var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
-        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project(),
-                false);
+        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
     public boolean autoUpdate() {
         return autoUpdate;
-    }
-
-    List<ModuleConfig> generatedModules() {
-        return generatedModules;
-    }
-
-    Set<IDLClientEntry> clientsToCache() {
-        return clientsToCache;
-    }
-
-    public List<Diagnostic> pluginDiagnosticList() {
-        return pluginDiagnosticList;
     }
 
     private boolean getSticky(PackageContext rootPackageContext) {
@@ -256,39 +231,13 @@ public class PackageResolution {
         LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests(
-                    idlPluginManager, compilationOptions, rootPackageContext.project().currentPackage()));
+            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
         }
 
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests(
-                    idlPluginManager, compilationOptions, rootPackageContext.project().currentPackage()));
+            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
         }
-        for (ModuleId moduleId : rootPackageContext.moduleIds()) {
-            ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            this.pluginDiagnosticList.addAll(moduleContext.idlPluginDiagnostics());
-        }
-
-        for (String moduleName : idlPluginManager.cachedModuleNames()) {
-            if (rootPackageContext.moduleContext(
-                    ModuleName.from(rootPackageContext.packageName(), moduleName)) == null) {
-                Optional<ModuleConfig> config = idlPluginManager.generatedModuleConfigs().stream().filter(
-                        moduleConfig -> moduleConfig.moduleDescriptor().name().moduleNamePart()
-                                .equals(moduleName)).findFirst();
-                if (config.isEmpty()) {
-                    idlPluginManager.generatedModuleConfigs().add(
-                            Utils.createModuleConfig(moduleName, rootPackageContext.project()));
-                }
-            }
-        }
-        for (ModuleConfig generatedModuleConfig : idlPluginManager.generatedModuleConfigs()) {
-            if (!rootPackageContext.moduleIds().contains(generatedModuleConfig.moduleId())) {
-                this.generatedModules.add(generatedModuleConfig);
-            }
-        }
-        this.clientsToCache.addAll(idlPluginManager.cachedClientEntries());
-
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
         if (compilationOptions.observabilityIncluded()) {

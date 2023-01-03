@@ -67,7 +67,7 @@ public class BuildNativeImageCommandTest extends BaseCommandTest {
         }
     }
 
-    @Test(description = "Test valid ballerina project with native image")
+    @Test(groups = "native", description = "Test valid ballerina project with native image")
     public void testBuildProjectWithNativeImage() {
         Path projectPath = this.testResources.resolve("nativeimageProject");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
