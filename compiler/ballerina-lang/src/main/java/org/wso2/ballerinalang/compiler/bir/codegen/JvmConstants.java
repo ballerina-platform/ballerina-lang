@@ -360,6 +360,7 @@ public class JvmConstants {
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_CONSTANTS_METHOD = "$createTypeConstants";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
+    public static final String CREATE_TYPEDESC_INSTANCES_METHOD = "$createTypedescInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
     public static final String SERVICE_EP_AVAILABLE = "$serviceEPAvailable";
     public static final String LOCK_STORE_VAR_NAME = "$LOCK_STORE";

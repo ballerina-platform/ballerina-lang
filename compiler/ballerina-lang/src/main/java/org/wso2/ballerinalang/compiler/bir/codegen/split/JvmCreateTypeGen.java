@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -51,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -72,6 +75,7 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -92,6 +96,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
@@ -102,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPEDESC_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_CONSTANTS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
@@ -122,11 +128,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_IMMUTABLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -213,6 +222,7 @@ public class JvmCreateTypeGen {
                                    String moduleInitClass, SymbolTable symbolTable) {
         createTypeConstants(cw);
         createTypesInstance(cw, typeDefs, moduleInitClass);
+        createTypedescInstances(cw, typeDefs, moduleInitClass);
         Map<String, String> populateTypeFuncNames = populateTypes(cw, typeDefs, moduleInitClass, symbolTable);
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPES_METHOD, "()V", null, null);
@@ -223,6 +233,9 @@ public class JvmCreateTypeGen {
 
         // Invoke create-type-constants method
         mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_CONSTANTS_METHOD, "()V", false);
+
+        // Invoke create-typedesc-instances method
+        mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPEDESC_INSTANCES_METHOD, "()V", false);
 
         // Invoke the populate-type functions
         for (Map.Entry<String, String> entry : populateTypeFuncNames.entrySet()) {
@@ -242,6 +255,45 @@ public class JvmCreateTypeGen {
         for (int i = 0; i < instanceSplits; i++) {
             mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
         }
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createTypedescInstances(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String moduleInitClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPEDESC_INSTANCES_METHOD,
+                                          "()V", null, null);
+        mv.visitCode();
+        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
+            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            if (bType.tag == TypeTags.RECORD) {
+                BRecordType recordType = (BRecordType) bType;
+                BSymbol owner = recordType.tsymbol.owner;
+                if (owner != null && owner.getKind() != SymbolKind.PACKAGE) {
+                    continue;
+                }
+                String packageName = JvmCodeGenUtil.getPackageName(recordType.tsymbol.pkgID);
+                String className = getTypeDescClassName(packageName, toNameString(recordType));
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP);
+                BType referenceType = optionalTypeDef.referenceType;
+                if (referenceType == null) {
+                    jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(optionalTypeDef.type));
+                } else {
+                    BType referredType = ((BTypeReferenceType) referenceType).referredType;
+                    if (referredType.tag == TypeTags.TYPEREFDESC) {
+                        jvmTypeGen.loadType(mv, referenceType);
+                    } else {
+                        jvmTypeGen.loadType(mv, referredType);
+                    }
+                }
+                mv.visitInsn(ACONST_NULL);
+                mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+                mv.visitFieldInsn(PUTSTATIC, moduleInitClass,
+                                  jvmTypeGen.getTypedescFieldName(optionalTypeDef.internalName.value), GET_TYPEDESC);
+            }
+        }
+
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -273,7 +325,7 @@ public class JvmCreateTypeGen {
             }
             switch (bType.tag) {
                 case TypeTags.RECORD:
-                    jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, typeOwnerClass, name);
+                    jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType);
                     break;
                 case TypeTags.OBJECT:
                     jvmObjectTypeGen.createObjectType(mv, (BObjectType) bType);

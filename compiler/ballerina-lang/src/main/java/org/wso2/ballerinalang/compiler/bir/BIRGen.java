@@ -725,8 +725,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks = birFunc.basicBlocks;
         birFunc.basicBlocks.add(entryBB);
         this.env.enclBB = entryBB;
+        this.typeDescMap = new HashMap<>();
         addToTrapStack(entryBB);
-
         astFunc.body.accept(this);
         birFunc.basicBlocks.add(this.env.returnBB);
 
