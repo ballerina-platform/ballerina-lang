@@ -43,10 +43,11 @@ type KeyType anydata;
 # Returns number of members of a table.
 #
 # ```ballerina
-# table [
+# table<record {|string name;|}> students = table [
 #     {name: "Jo"},
 #     {name: "Smith"}
-# ].length() ⇒ 2
+# ];
+# students.length() ⇒ 2
 # ```
 #
 # + t - the table
@@ -95,7 +96,7 @@ public isolated function iterator(table<MapType> t) returns object {
 # ];
 # students.get("220002CS") ⇒ {"index":"220002CS","name":"Sam"}
 #
-# students.get("invalidKey") ⇒ panic
+# students.get("110002CS") ⇒ panic
 # ```
 #
 # + t - the table
@@ -114,6 +115,13 @@ public isolated function get(table<MapType> key<KeyType> t, KeyType k) returns M
 # It panics if parameter `val` is inconsistent with the inherent type of parameter `t`.
 #
 # ```ballerina
+# table<record {|int id; string name;|}> employees = table [
+#     {id: 1, name: "Jo"},
+#     {id: 2, name: "Sam"}
+# ];
+# employees.put({id: 1, name: "Pat"});
+# employees ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":1,"name":"Pat"}]
+#
 # table<record {|readonly int id; string name;|}> key(id) students = table [
 #     {id: 1, name: "Jo"},
 #     {id: 2, name: "Sam"}
@@ -121,16 +129,9 @@ public isolated function get(table<MapType> key<KeyType> t, KeyType k) returns M
 # 
 # students.put({id: 3, name: "Pat"});
 # students ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":3,"name":"Pat"}]
-# 
+#
 # students.put({id: 1, name: "Kane"});
 # students ⇒ [{"id":1,"name":"Kane"},{"id":2,"name":"Sam"},{"id":3,"name":"Pat"}]
-# 
-# table<record {|int id; string name;|}> tbl = table [
-#     {id: 1, name: "Jo"},
-#     {id: 2, name: "Sam"}
-# ];
-# tbl.put({id: 1, name: "Pat"});
-# tbl ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":1,"name":"Pat"}]
 #
 # table<record {readonly int id;}> key(id) studentIds = students;
 # studentIds.put({id: 7}) ⇒ panic
@@ -150,6 +151,13 @@ public isolated function put(table<MapType> t, MapType val) = @java:Method {
 # or if parameter `val` is inconsistent with the inherent type of `t`.
 #
 # ```ballerina
+# table<record {|int id; string name;|}> employees = table [
+#     {id: 1, name: "Jo"},
+#     {id: 2, name: "Sam"}
+# ];
+# employees.add({id: 1, name: "Pat"});
+# employees ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":1,"name":"Pat"}]
+#
 # table<record {|readonly int id; string name;|}> key(id) students = table [
 #     {id: 1, name: "Jo"},
 #     {id: 2, name: "Sam"}
@@ -157,13 +165,6 @@ public isolated function put(table<MapType> t, MapType val) = @java:Method {
 # 
 # students.add({id: 3, name: "Pat"});
 # students ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":3,"name":"Pat"}]
-#
-# table<record {|int id; string name;|}> tbl = table [
-#     {id: 1, name: "Jo"},
-#     {id: 2, name: "Sam"}
-# ];
-# tbl.add({id: 1, name: "Pat"});
-# tbl ⇒ [{"id":1,"name":"Jo"},{"id":2,"name":"Sam"},{"id":1,"name":"Pat"}]
 #
 # students.add({id: 1, name: "James"}) ⇒ panic
 #
@@ -183,10 +184,11 @@ public isolated function add(table<MapType> t, MapType val) = @java:Method {
 # Applies a function to each member of a table and returns a table of the result.
 #
 # ```ballerina
-# table [
-#     {id: 1, maths: 78, physics: 70},
-#     {id: 2, maths: 83, physics: 80}
-# ].map(student => {id: student.id, avg: (student.maths + student.physics) / 2}) ⇒ [{"id":1,"avg":74},{"id":2,"avg":81}]
+# table<record {|int id; int math; int physics;|}> students = table [
+#     {id: 1, math: 78, physics: 70},
+#     {id: 2, math: 83, physics: 80}
+# ];
+# students.map(student => {id: student.id, avg: (student.math + student.physics) / 2}) ⇒ [{"id":1,"avg":74},{"id":2,"avg":81}]
 # ```
 #
 # + t - the table
@@ -226,11 +228,12 @@ public isolated function forEach(table<MapType> t, @isolatedParam function(MapTy
 # The resulting table will have the same keys as the argument table.
 #
 # ```ballerina
-# table [
+# table<record {|int id; int salary;|}> employees = table [
 #     {id: 1, salary: 1200},
 #     {id: 2, salary: 1100},
 #     {id: 3, salary: 800}
-# ].filter(emp => emp.salary < 1000) ⇒ [{"id":3,"salary":800}]
+# ];
+# employees.filter(emp => emp.salary < 1000) ⇒ [{"id":3,"salary":800}]
 # ```
 #
 # + t - the table
@@ -248,11 +251,12 @@ public isolated function filter(table<MapType> key<KeyType> t, @isolatedParam fu
 # and returns a new combined value.
 #
 # ```ballerina
-# table [
+# table<record {int id; int salary;}> employees = table [
 #     {id: 1, salary: 1200},
 #     {id: 2, salary: 1100},
 #     {id: 3, salary: 800}
-# ].reduce(isolated function (int total, record {int id; int salary;} next) returns int => total + next.salary, 0) ⇒ 3100
+# ];
+# employees.reduce(isolated function (int total, record {int id; int salary;} next) returns int => total + next.salary, 0) ⇒ 3100
 # ```
 #
 # + t - the table
@@ -330,7 +334,7 @@ public isolated function removeIfHasKey(table<MapType> key<KeyType> t, KeyType k
 #     {score: 30},
 #     {score: 40}
 # ];
-# scores.removeAll() is () ⇒ panic
+# scores.removeAll() ⇒ panic
 # ```
 #
 # + t - the table
@@ -407,7 +411,6 @@ public isolated function toArray(table<MapType> t) returns MapType[] = @java:Met
 # ];
 # users.nextKey() ⇒ 3
 # ```
-
 #
 # + t - the table with a key of type int
 # + return - an integer not yet used as a key
