@@ -464,9 +464,13 @@ public function matches(string str, RegExp re) returns boolean {
 # This is equivalent to `regexp:find(re, str, startIndex) != ()`.
 #
 # ```ballerina
-# "Will Match Somewhere".includesMatch(re `A|Th.*ch|^`) ⇒ true
+# "This will match".includesMatch(re `Th.*ch`) ⇒ true
 #
-# "Not a match".includesMatch(re `A|Th.*ch`) ⇒ false
+# "Will this match".includesMatch(re `th.*ch`, 5) ⇒ true
+#
+# "Not a match".includesMatch(re `Th.*ch`) ⇒ false
+#
+# "Will this match".includesMatch(re `Th.*ch`, 5) ⇒ false
 # ```
 #
 # + str - the string to be matched
