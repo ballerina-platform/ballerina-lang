@@ -2094,7 +2094,7 @@ public class JvmInstructionGen {
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
         if (isNonReferredRecord(newTypeDesc.type)) {
-            BType type = Types.getReferredType(newTypeDesc.type);
+            BType type = newTypeDesc.type;
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
