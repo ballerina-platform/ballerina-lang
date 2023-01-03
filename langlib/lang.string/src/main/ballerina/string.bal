@@ -319,6 +319,8 @@ public type RegExp regexp:RegExp;
 #
 # ```ballerina
 # "This is a Match".matches(re `A|Th.*ch|^`) ⇒ true
+#
+# "Not a Match".matches(re `A|Th.*ch|^`) ⇒ false
 # ```
 #
 # + str - the string
@@ -333,6 +335,8 @@ public function matches(string str, RegExp re) returns boolean {
 #
 # ```ballerina
 # "Will Match Somewhere".includesMatch(re `A|Th.*ch|^`) ⇒ true
+#
+# "Not a match".includesMatch(re `A|Th.*ch`) ⇒ false
 # ```
 #
 # + str - the string to be matched

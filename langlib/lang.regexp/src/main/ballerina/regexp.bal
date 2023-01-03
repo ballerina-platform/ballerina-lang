@@ -323,9 +323,7 @@ public type Replacement ReplacerFunction|string;
 #
 # r.replace("10010011", replaceFunction, 4) ⇒ 1001*11
 #
-# isolated function replaceFunction(regexp:Groups groups) returns string {
-#    return "*";
-# }
+# isolated function replaceFunction(regexp:Groups groups) returns string => "*";
 # ```
 #
 # + re - the regular expression
@@ -367,9 +365,7 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 #
 # r.replaceAll("10010011", replaceFunction, 4) ⇒ 1001211
 #
-# isolated function replaceFunction(regexp:Groups groups) returns string {
-#    return groups[0].substring().length().toString();
-# }
+# isolated function replaceFunction(regexp:Groups groups) returns string => groups[0].substring().length().toString();
 # ```
 #
 # + re - the regular expression
@@ -433,7 +429,7 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
 #
 # r.split("abc,cde,efg") ⇒ ["abc","cde","efg"]
 #
-# r.split("Not Valid") ⇒ ["Not Valid"]
+# r.split("abc cde efg") ⇒ ["abc cde efg"]
 # ```
 #
 # + re - the regular expression that specifies the separator
