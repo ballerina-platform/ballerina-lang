@@ -1797,27 +1797,21 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit connectorInitExpr) {
-        BIRVariableDcl tempVarDcl = new BIRVariableDcl(connectorInitExpr.getBType(), this.env.nextLocalVarId(names),
-                                                       VarScope.FUNCTION, VarKind.TEMP);
+        BType exprType = connectorInitExpr.getBType();
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(exprType, this.env.nextLocalVarId(names), VarScope.FUNCTION,
+                VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
-
-        BTypeSymbol objectTypeSymbol = getObjectTypeSymbol(connectorInitExpr.getBType());
+        BType objectType = getEffectiveObjectType(exprType);
+        BTypeSymbol objectTypeSymbol = Types.getReferredType(objectType).tsymbol;
         BIRNonTerminator.NewInstance instruction;
         if (isInSamePackage(objectTypeSymbol, env.enclPkg.packageID)) {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
-            instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
+            instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef, objectType);
         } else {
-            BType connectorInitExprType = Types.getReferredType(connectorInitExpr.getBType());
-            BType objectType = connectorInitExprType.tag != TypeTags.UNION ? connectorInitExprType :
-                    ((BUnionType) connectorInitExprType).getMemberTypes().stream()
-                            .filter(bType -> bType.tag != TypeTags.ERROR)
-                            .findFirst()
-                            .get();
-
-            String objectName = objectType.tsymbol.name.value;
-            instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, objectTypeSymbol.pkgID,
-                                                           objectName, toVarRef);
+            String objectName = objectTypeSymbol.name.value;
+            instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, objectTypeSymbol.pkgID, objectName,
+                    toVarRef, objectType);
         }
         setScopeAndEmit(instruction);
         this.env.targetOperand = toVarRef;
@@ -2393,7 +2387,8 @@ public class BIRGen extends BLangNodeVisitor {
 
         BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
         dataLiteral.pos = tableConstructorExpr.pos;
-        dataLiteral.setBType(new BArrayType(type.constraint));
+        dataLiteral.setBType(
+                new BArrayType(((BTableType) Types.getReferredType(tableConstructorExpr.getBType())).constraint));
         dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
         dataLiteral.accept(this);
         BIROperand dataOp = this.env.targetOperand;
@@ -2859,11 +2854,12 @@ public class BIRGen extends BLangNodeVisitor {
         long size = -1L;
         BIROperand typedescOp = null;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
-        BType listConstructorExprType = Types.getReferredType(listConstructorExpr.getBType());
-        if (listConstructorExprType.tag == TypeTags.ARRAY &&
-                ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
-            size = ((BArrayType) listConstructorExprType).size;
-        } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
+        BType listConstructorExprType = listConstructorExpr.getBType();
+        BType referredType = Types.getReferredType(listConstructorExprType);
+        if (referredType.tag == TypeTags.ARRAY &&
+                ((BArrayType) referredType).state != BArrayState.OPEN) {
+            size = ((BArrayType) referredType).size;
+        } else if (referredType.tag == TypeTags.TUPLE) {
             typedescOp = this.env.targetOperand;
             size = exprs.size();
         }
@@ -2888,7 +2884,7 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        if (listConstructorExprType.tag == TypeTags.TUPLE) {
+        if (referredType.tag == TypeTags.TUPLE) {
             setScopeAndEmit(
                     new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
                             typedescOp, sizeOp, initialValues));
@@ -2996,15 +2992,15 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
-    private BTypeSymbol getObjectTypeSymbol(BType objType) {
+    private BType getEffectiveObjectType(BType objType) {
         BType type = Types.getReferredType(objType);
         if (type.tag == TypeTags.UNION) {
-            type = ((BUnionType) type).getMemberTypes().stream()
-                    .filter(t -> Types.getReferredType(t).tag == TypeTags.OBJECT)
+            return ((BUnionType) type).getMemberTypes().stream()
+                    .filter(t -> Types.getReferredType(t).tag != TypeTags.ERROR)
                     .findFirst()
                     .orElse(symTable.noType);
         }
-        return Types.getReferredType(type).tsymbol;
+        return objType;
     }
 
     private BIROperand generateStringLiteral(String value) {

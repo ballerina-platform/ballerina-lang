@@ -1514,7 +1514,7 @@ public class JvmInstructionGen {
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, instType);
+            jvmTypeGen.loadType(this.mv, inst.type);
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
@@ -1715,11 +1715,9 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-        jvmTypeGen.loadType(mv, type);
+        jvmTypeGen.loadType(mv, objectNewIns.expectedType);
         reloadObjectCtorAnnots(type, strandIndex);
-        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT,
-                false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
 
@@ -1770,6 +1768,9 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
+        // Need to remove once we fix #37875
+        type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
+
         jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
@@ -2118,7 +2119,7 @@ public class JvmInstructionGen {
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadLocalType(this.mv, btype);
+        jvmTypeGen.loadType(this.mv, btype);
 
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);

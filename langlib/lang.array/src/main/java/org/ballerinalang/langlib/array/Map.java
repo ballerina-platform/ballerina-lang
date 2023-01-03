@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -55,13 +56,13 @@ public class Map {
                                                                       ARRAY_VERSION, "map");
 
     public static BArray map(BArray arr, BFunctionPointer<Object, Object> func) {
-        Type elemType = ((FunctionType) func.getType()).getReturnType();
+        Type elemType = ((FunctionType) TypeUtils.getReferredType(func.getType())).getReturnType();
         Type retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
 
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = BArray::get;

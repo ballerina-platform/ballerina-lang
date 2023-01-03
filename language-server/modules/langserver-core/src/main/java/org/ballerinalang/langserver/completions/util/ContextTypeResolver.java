@@ -566,7 +566,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 if (fieldSymbol.isPresent()) {
                     return Optional.of(fieldSymbol.get().typeDescriptor());
                 }
+                break;
             }
+            case PARENTHESIZED_ARG_LIST:
+               return this.visit(namedArgumentNode.parent());
         }
 
         return Optional.empty();

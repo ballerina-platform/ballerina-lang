@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -113,6 +114,8 @@ public class ConfigValueCreator {
                 return createBalValue(type, ((TomlKeyValueNode) tomlValue).value());
             case TypeTags.TUPLE_TAG:
                 return createTupleValue(tomlValue, (TupleType) type);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return  createValue(tomlValue, ((ReferenceType) type).getReferredType());
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -378,9 +381,8 @@ public class ConfigValueCreator {
                 break;
             }
         }
-
-        if (isSimpleType(convertibleType.getTag()) || convertibleType.getTag() == TypeTags.FINITE_TYPE_TAG ||
-                isXMLType(convertibleType)) {
+        Type type = getEffectiveType(convertibleType);
+        if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }
         return createStructuredValue(tomlValue, convertibleType);

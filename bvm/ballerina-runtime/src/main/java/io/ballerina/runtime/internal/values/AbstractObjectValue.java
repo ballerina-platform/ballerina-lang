@@ -20,10 +20,10 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
@@ -57,13 +57,15 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.995.0
  */
 public abstract class AbstractObjectValue implements ObjectValue {
-    private BTypedesc typedesc;
-    private BObjectType type;
+    private final BTypedesc typedesc;
+    private final BObjectType objectType;
+    private final Type type;
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
-    public AbstractObjectValue(BObjectType type) {
+    public AbstractObjectValue(Type type) {
         this.type = type;
+        this.objectType = (BObjectType) TypeUtils.getReferredType(type);
         this.typedesc = new TypedescValueImpl(type);
     }
 
@@ -99,7 +101,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public String stringValue(BLink parent) {
-        return "object " + type.toString();
+        return "object " + objectType.toString();
     }
 
     @Override
@@ -109,11 +111,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public String expressionStringValue(BLink parent) {
-        if (type.typeIdSet == null) {
+        if (objectType.typeIdSet == null) {
             return "object " + this.hashCode();
         }
         StringJoiner sj = new StringJoiner("&");
-        List<TypeId> typeIds = type.typeIdSet.getIds();
+        List<TypeId> typeIds = objectType.typeIdSet.getIds();
         for (TypeId typeId : typeIds) {
             String pkg = typeId.getPkg().toString();
             if (DOT.equals(pkg)) {
@@ -122,7 +124,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
                 sj.add("{" + pkg + "}" + typeId.getName());
             }
         }
-        return "object " + sj.toString() + " " + this.hashCode();
+        return "object " + sj + " " + this.hashCode();
     }
 
     @Override
@@ -146,7 +148,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public ObjectType getType() {
+    public Type getType() {
         return type;
     }
 
@@ -157,7 +159,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public void freezeDirect() {
-        return;
     }
 
     @Override
@@ -168,7 +169,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(", ", "{", "}");
-        for (Map.Entry<String, Field> field : this.type.getFields().entrySet()) {
+        for (Map.Entry<String, Field> field : this.objectType.getFields().entrySet()) {
             if (!SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.PUBLIC)) {
                 continue;
             }
@@ -188,32 +189,32 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (value == null) {
             return null;
         } else if (value instanceof String) {
-            return "\"" + value.toString() + "\"";
+            return "\"" + value + "\"";
         } else {
             return value.toString();
         }
     }
 
     protected void checkFieldUpdate(String fieldName, Object value) {
-        if (type.isReadOnly()) {
+        if (objectType.isReadOnly()) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
 
-        Field field = type.getFields().get(fieldName);
+        Field field = objectType.getFields().get(fieldName);
 
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
-                                                         fieldName, type));
+                                                         fieldName, objectType));
         }
         checkFieldUpdateType(fieldName, value);
     }
 
     private void checkFieldUpdateType(String fieldName, Object value) {
-        Type fieldType = type.getFields().get(fieldName).getFieldType();
+        Type fieldType = objectType.getFields().get(fieldName).getFieldType();
         if (TypeChecker.checkIsType(value, fieldType)) {
             return;
         }
