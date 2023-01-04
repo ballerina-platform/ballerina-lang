@@ -309,6 +309,10 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 #     {title: "Ballerina Guide", year: "2022"}, 
 #     xml `<author>Anjana</author>`
 # ) ⇒ <book title="Ballerina Guide" year="2022"><author>Anjana</author></book>
+# 
+# xml:createElement("student") ⇒ <student/>
+# 
+# xml:createElement("person", children = xml `<name>John</name>`) ⇒ <person><name>John</name></person>
 # ```
 # 
 # + name - the name of the new element
@@ -374,6 +378,8 @@ public isolated function createText(string data) returns Text = @java:Method {
 # ```ballerina
 # xml books = xml `<book>HTML</book><book>Invisible Man</book><book>David Copperfield</book><book>Jane Eyre</book>`;
 # books.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>
+# 
+# books.slice(2) ⇒ <book>David Copperfield</book><book>Jane Eyre</book>
 # ```
 # 
 # + x - the xml value
@@ -450,8 +456,10 @@ public isolated function children(xml x) returns xml = @java:Method {
 # This is equivalent to `children(x).elements(nm)`.
 #
 # ```ballerina
-# xml books = xml `<book><title>Hamlet</title></book><book><title>Macbeth</title></book>`;
-# books.elementChildren("title") ⇒ <title>Hamlet</title><title>Macbeth</title>
+# xml books = xml `<book><play>Hamlet</play></book><book><novel>Macbeth</novel></book>`;
+# books.elementChildren("novel") ⇒ <novel>Macbeth</novel>
+# 
+# books.elementChildren() ⇒ <play>Hamlet</play><novel>Macbeth</novel>
 # ```
 # 
 # + x - the xml value
@@ -472,9 +480,9 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 #
 # ```ballerina
 # xml books = xml `<book>Hamlet</book><book>Macbeth</book>`;
-# books.map(function (xml xmlContent) returns xml {
-#     return xml `<book kind="GuideBook">${xmlContent.children()}</book>`;
-# }) ⇒ <book kind="GuideBook">Hamlet</book><book kind="GuideBook">Macbeth</book>
+# books.map(function (xml xmlContent) returns xml => 
+#   xml `<book kind="GuideBook">${xmlContent.children()}</book>`
+# ) ⇒ <book kind="GuideBook">Hamlet</book><book kind="GuideBook">Macbeth</book>
 # ```
 # 
 # + x - the xml value
