@@ -129,7 +129,7 @@ public class JvmAnnotationsGen {
         BType type = typeDef.type;
         BType refType = typeDef.referenceType == null || type.tag == TypeTags.RECORD ||
                 type.tag == TypeTags.TUPLE ? type : typeDef.referenceType;
-        jvmTypeGen.loadLocalType(mv, refType);
+        jvmTypeGen.loadType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);
 
