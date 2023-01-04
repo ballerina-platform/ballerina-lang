@@ -727,6 +727,15 @@
       "sortText": "BN",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "re ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "BP",
+      "filterText": "re ``",
+      "insertText": "re `${1}`",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
