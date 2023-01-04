@@ -83,8 +83,8 @@ type XmlType xml;
 # ```ballerina
 # object {
 #     public isolated function next() returns record {|xml value;|}?;
-# } iterator = xml `<book><title>Learning Ballerina</title></book><book><title>Java Guide</title></book>`.iterator();
-# iterator.next() ⇒ {"value":`<book><title>Learning Ballerina</title></book>`}
+# } iterator = xml `<student><name>John</name></student><student><name>Peter</name></student>`.iterator();
+# iterator.next() ⇒ {"value":`<student><name>John</name></student>`}
 # ```
 #
 # + x - xml sequence to iterate over
@@ -207,10 +207,10 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # becoming cyclic.
 # 
 # ```ballerina
-# xml:Element books = xml `<books><book>Ballerina Guide</book><book>Java Tutorial</book></books>`;
-# xml js = xml `<book>Learning HTML</book><book>Javascript Guide</book>`;
-# books.setChildren(js);
-# books ⇒ <books><book>Learning HTML</book><book>Javascript Guide</book></books>
+# xml:Element employees = xml `<employees><employee>David</employee><employee>Peter</employee></employees>`;
+# xml newEmployees = xml `<book>Alice</book><book>Bob</book>`;
+# employees.setChildren(newEmployees);
+# employees ⇒ <employees><book>Alice</book><book>Bob</book></employees>
 # 
 # xml:Element x = xml `<student age="25">John</student>`;
 # x.setChildren("Jane");
@@ -306,13 +306,13 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 # ```ballerina
 # xml:createElement(
 #     "book", 
-#     {title: "Ballerina Guide", year: "2022"}, 
-#     xml `<author>Anjana</author>`
-# ) ⇒ <book title="Ballerina Guide" year="2022"><author>Anjana</author></book>
+#     {title: "The Adventures of Sherlock Holmes", year: "1892"}, 
+#     xml `<author>Arthur Conan Doyle</author>`
+# ) ⇒ <book title="The Adventures of Sherlock Holmes" year="1892"><author>Arthur Conan Doyle</author></book>
 # 
 # xml:createElement("student") ⇒ <student/>
 # 
-# xml:createElement("person", children = xml `<name>John</name>`) ⇒ <person><name>John</name></person>
+# xml:createElement("employee", children = xml `<name>John</name>`) ⇒ <employee><name>John</name></employee>
 # ```
 # 
 # + name - the name of the new element
@@ -400,9 +400,9 @@ public isolated function slice(xml<ItemType> x, int startIndex, int endIndex = x
 # and a chunk is considered insignificant if the entire chunk is whitespace.
 #
 # ```ballerina
-# xml books = xml `<?publication year="2022"?><!--This is a programming book-->
-#                   <book author="Anjana"><title>Learning Ballerina</title></book>`;
-# books.strip() ⇒ <book author="Anjana"><title>Learning Ballerina</title></book>
+# xml books = xml `<?publication year="1604"?><!--This is a play-->
+#                   <book author="William Shakespeare"><title>Othello</title></book>`;
+# books.strip() ⇒ <book author="William Shakespeare"><title>Othello</title></book>
 # ```
 # 
 # + x - the xml value
@@ -418,11 +418,11 @@ public isolated function strip(xml x) returns xml = @java:Method {
 # otherwise, selects only elements whose expanded name is parameter `nm`.
 #
 # ```ballerina
-# xml books = xml `<!--Web dev--><script>JS Tutorial</script><!--API development--><code>Ballerina Guide</code>
-#                       <code>Learning Python</code><script>Perl Scripting</script>`;
-# books.elements() ⇒ <script>JS Tutorial</script><code>Ballerina Guide</code><code>Learning Python</code><script>Perl Scripting</script>
+# xml books = xml `<!--Mystery--><novel>Sherlock Holmes</novel><!--Drama--><play>Hamlet</play>
+#             <novel>Jane Eyre</novel><play>Macbeth</play>`;
+# books.elements() ⇒ <novel>Sherlock Holmes</novel><play>Hamlet</play><novel>Jane Eyre</novel><play>Macbeth</play>
 # 
-# books.elements("code") ⇒ <code>Ballerina Guide</code><code>Learning Python</code>
+# books.elements("novel") ⇒ <novel>Sherlock Holmes</novel><novel>Jane Eyre</novel>
 # ```
 # 
 # + x - the xml value
@@ -481,8 +481,8 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # ```ballerina
 # xml books = xml `<book>Hamlet</book><book>Macbeth</book>`;
 # books.map(function (xml xmlContent) returns xml => 
-#   xml `<book kind="GuideBook">${xmlContent.children()}</book>`
-# ) ⇒ <book kind="GuideBook">Hamlet</book><book kind="GuideBook">Macbeth</book>
+#   xml `<book kind="play">${xmlContent.children()}</book>`
+# ) ⇒ <book kind="play">Hamlet</book><book kind="play">Macbeth</book>
 # ```
 # 
 # + x - the xml value
@@ -499,14 +499,14 @@ public isolated function 'map(xml<ItemType> x, @isolatedParam function(ItemType 
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml books = xml `<book>Java Tutorial</book><book>Ballerina Guide</book>`;
+# xml books = xml `<book>Sherlock Holmes</book><book>Invisible Man</book>`;
 # xml titles = xml ``;
 # 
 # books.forEach(function (xml xmlItem) {
-#     titles += xml `<code>${xmlItem.data()}</code>`;
+#     titles += xml `<novel>${xmlItem.data()}</novel>`;
 # });
 # 
-# titles ⇒ <code>Java Tutorial</code><code>Ballerina Guide</code>
+# titles ⇒ <novel>Sherlock Holmes</novel><novel>Invisible Man</novel>
 # ```
 # 
 # + x - the xml value
@@ -521,8 +521,8 @@ public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemTy
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml programmingLanguages = xml `<script>JS</script><code>Ballerina</code><script>Perl</script><code>Python</code>`;
-# programmingLanguages.filter(x => x is xml:Element && x.getName() == "code") ⇒ <code>Ballerina</code><code>Python</code>
+# xml books = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;
+# books.filter(x => x is xml:Element && x.getName() == "play") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>
 # ```
 # 
 # + x - xml value
