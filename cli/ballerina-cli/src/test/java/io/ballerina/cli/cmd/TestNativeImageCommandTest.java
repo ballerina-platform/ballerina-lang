@@ -60,4 +60,21 @@ public class TestNativeImageCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("1 passing"));
     }
+
+    @Test(description = "Test function mocking")
+    public void testNativeFunctionMockTests() throws IOException {
+        Path projectPath = this.testResources.resolve("mockFunctionNative");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(testCommand).parse();
+        testCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("[pass] intAddTest"));
+        Assert.assertTrue(buildLog.contains("[pass] intAddTest2"));
+        Assert.assertTrue(buildLog.contains("[pass] intAddTest3"));
+        Assert.assertTrue(buildLog.contains("[pass] intAddTest4"));
+        Assert.assertTrue(buildLog.contains("[pass] intAddInsideTest"));
+        Assert.assertTrue(buildLog.contains("[pass] intDivInsideTest"));
+    }
 }
