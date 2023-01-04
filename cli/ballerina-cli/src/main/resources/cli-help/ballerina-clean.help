@@ -23,4 +23,4 @@ EXAMPLES
            $ bal clean
 
        Clean the provided target directory.
-           $ bal clean <target-directory-path>
+           $ bal clean --target-dir <target-directory-path>
