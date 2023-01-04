@@ -540,7 +540,7 @@ public class ServiceTemplateGenerator {
         filterText += "_" + serviceSnippet.symbolName;
         List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
-                filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.OTHER);
+                filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.SERVICE_TEMPLATE);
 
     }
 

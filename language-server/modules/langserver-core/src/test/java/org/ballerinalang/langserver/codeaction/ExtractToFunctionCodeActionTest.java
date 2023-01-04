@@ -138,6 +138,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 //                {"extract_to_function_exprs_object_constructor.json"}, // todo support later
                 {"extract_to_function_exprs_error_constructor.json"},
                 {"extract_to_function_exprs_within_isolated_function.json"},
+                {"extract_to_function_exprs_conditional_expr.json"},
 
                 // expressions by position
                 {"extract_to_function_exprs_position_numeric_literal_cur_after_literal.json"},

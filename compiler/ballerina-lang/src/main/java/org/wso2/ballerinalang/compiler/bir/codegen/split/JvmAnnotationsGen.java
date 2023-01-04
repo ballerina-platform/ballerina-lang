@@ -128,7 +128,7 @@ public class JvmAnnotationsGen {
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         BType refType = typeDef.referenceType == null || typeDef.type.tag == TypeTags.RECORD ? typeDef.type :
                 typeDef.referenceType;
-        jvmTypeGen.loadLocalType(mv, refType);
+        jvmTypeGen.loadType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);
 
