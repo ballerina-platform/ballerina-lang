@@ -208,13 +208,13 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # 
 # ```ballerina
 # xml:Element employees = xml `<employees><employee>David</employee><employee>Peter</employee></employees>`;
-# xml newEmployees = xml `<book>Alice</book><book>Bob</book>`;
+# xml newEmployees = xml `<employee>Alice</employee><employee>Bob</employee>`;
 # employees.setChildren(newEmployees);
-# employees ⇒ <employees><book>Alice</book><book>Bob</book></employees>
+# employees ⇒ <employees><employee>Alice</employee><employee>Bob</employee></employees>
 # 
-# xml:Element x = xml `<student age="25">John</student>`;
+# xml:Element x = xml `<student id="1205">John</student>`;
 # x.setChildren("Jane");
-# x ⇒ <students>Jane</students>
+# x ⇒ <student id="1205">Jane</student>
 # ```
 #
 # + elem - xml element
@@ -306,11 +306,13 @@ public isolated function getContent(ProcessingInstruction|Comment x) returns str
 # ```ballerina
 # xml:createElement(
 #     "book", 
-#     {title: "The Adventures of Sherlock Holmes", year: "1892"}, 
-#     xml `<author>Arthur Conan Doyle</author>`
-# ) ⇒ <book title="The Adventures of Sherlock Holmes" year="1892"><author>Arthur Conan Doyle</author></book>
+#     {genre: "Mystery", year: "1892"}, 
+#     xml `<title>Sherlock Holmes</title><author>Arthur Conan Doyle</author>`
+# ) ⇒ <book genre="Mystery" year="1892"><title>Sherlock Holmes</title><author>Arthur Conan Doyle</author></book>
 # 
-# xml:createElement("student") ⇒ <student/>
+# xml:createElement("person") ⇒ <person/>
+# 
+# xml:createElement("student", {id: "1209"}) ⇒ <student id="1209"/>
 # 
 # xml:createElement("employee", children = xml `<name>John</name>`) ⇒ <employee><name>John</name></employee>
 # ```
