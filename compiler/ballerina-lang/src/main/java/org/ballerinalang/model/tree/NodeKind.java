@@ -57,7 +57,6 @@ public enum NodeKind {
     TABLE_KEY_TYPE_CONSTRAINT,
     RETRY_SPEC,
     CLASS_DEFN,
-    TUPLE_MEMBER,
     CLIENT_DECL,
 
     /* Expressions */
