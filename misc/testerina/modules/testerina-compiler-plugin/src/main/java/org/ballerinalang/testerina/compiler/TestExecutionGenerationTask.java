@@ -60,6 +60,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestExecutionGenerationTask implements GeneratorTask<SourceGeneratorContext> {
 
+    public static final String BAL_EXTENSION = ".bal";
+
     @Override
     public void generate(SourceGeneratorContext generatorContext) {
         generateClassMockedFunctionMapping(generatorContext.currentPackage(), generatorContext);
@@ -175,7 +177,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             String moduleName = module.moduleName().toString();
             for (DocumentId documentId : module.testDocumentIds()) {
                 Document document = module.document(documentId);
-                String documentName = moduleName + "-" + document.name().replace(".bal", "")
+                String documentName = moduleName + "-" + document.name().replace(BAL_EXTENSION, "")
                         .replace("/", ".");
                 List<String> mockedFunctionList = new ArrayList<>();
                 Node rootNode = document.syntaxTree().rootNode();
@@ -186,24 +188,25 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                     NodeList statements = ((FunctionBodyBlockNode) functionBodyNode).statements();
                     for (int i = 0; i < statements.size(); i++) {
                         StatementNode statementNode = (StatementNode) statements.get(i);
-                        if (statementNode instanceof ExpressionStatementNode) {
-                            ExpressionNode expressionStatement = ((ExpressionStatementNode) statementNode).expression();
-                            if (expressionStatement instanceof MethodCallExpressionNode) {
-                                ExpressionNode methodCallExpression = ((MethodCallExpressionNode)
-                                        expressionStatement).expression();
-                                if (methodCallExpression instanceof FunctionCallExpressionNode) {
-                                    gatherMockedFunctions(mockedFunctionList, expressionStatement,
-                                            methodCallExpression);
 
-                                } else if (methodCallExpression instanceof MethodCallExpressionNode) {
-                                    methodCallExpression = ((MethodCallExpressionNode)
-                                            methodCallExpression).expression();
-                                    if (methodCallExpression instanceof FunctionCallExpressionNode) {
-                                        gatherMockedFunctions(mockedFunctionList, expressionStatement,
-                                                methodCallExpression);
-                                    }
-                                }
-                            }
+                        if (statementNode.kind() != SyntaxKind.CALL_STATEMENT) {
+                            continue;
+                        }
+                        ExpressionNode expressionStatement = ((ExpressionStatementNode) statementNode).expression();
+
+                        if (expressionStatement.kind() != SyntaxKind.METHOD_CALL) {
+                            continue;
+                        }
+                        ExpressionNode methodCallExpression = ((MethodCallExpressionNode) expressionStatement)
+                                .expression();
+
+                        if (methodCallExpression.kind() == SyntaxKind.METHOD_CALL) {
+                            methodCallExpression = ((MethodCallExpressionNode) methodCallExpression).expression();
+                        }
+
+                        if (methodCallExpression.kind() == SyntaxKind.FUNCTION_CALL) {
+                            gatherMockedFunctions(mockedFunctionList, expressionStatement, methodCallExpression);
+
                         }
                     }
                 }
@@ -221,7 +224,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
         MethodCallExpressionNode methodCallExpressionNode = (MethodCallExpressionNode) expressionStatement;
         FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) methodCallExpression;
         NameReferenceNode functionName = functionCallExpressionNode.functionName();
-        if (functionName instanceof QualifiedNameReferenceNode) {
+        if (functionName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             String modulePrefix = ((QualifiedNameReferenceNode) functionName).
                     modulePrefix().text();
             String identifier = ((QualifiedNameReferenceNode) functionName).
