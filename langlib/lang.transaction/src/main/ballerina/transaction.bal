@@ -59,7 +59,7 @@ public type Timestamp readonly & object {
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:Info info = transaction:info();
 #     info.xid ⇒ [100,102,53,51,97,57,57,51,45]
 # }
@@ -98,7 +98,7 @@ public isolated function getInfo(byte[] xid) returns Info? = @java:Method {
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:setRollbackOnly(error("marked as rollback only"));
 # }
 # ```
@@ -122,7 +122,7 @@ public transactional isolated function setRollbackOnly(error? e) {
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:getRollbackOnly() ⇒ false
 # }
 # ```
@@ -145,7 +145,7 @@ public transactional isolated function getRollbackOnly() returns boolean = @java
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:setData({accessType: "RO"});
 # }
 # ```
@@ -168,7 +168,7 @@ public transactional isolated function setData(readonly data) = @java:Method {
 #         check commit;
 #     }
 # }
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:setData({accessType: "RO"});
 #     transaction:getData() ⇒ {"accessType":"RO"}
 # }
@@ -202,7 +202,7 @@ public type RollbackHandler isolated function(Info info, error? cause, boolean w
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:onCommit(onCommitHandle);
 # }
 #
@@ -227,7 +227,7 @@ public transactional isolated function onCommit(CommitHandler handler) = @java:M
 #     }
 # }
 #
-# transactional function updateDB() returns error? {
+# transactional function updateDB() {
 #     transaction:onRollback(onRollBackHandle);
 # }
 #
