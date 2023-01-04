@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -40,12 +39,10 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -59,28 +56,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -88,15 +70,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -173,7 +151,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -379,7 +356,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.env = lambdaFunction.capturedClosureEnv;
             analyzeNode(lambdaFunction.function, data);
         }
-        validateClientDeclarations(pkgNode, data);
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage, data));
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
@@ -435,40 +411,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode, AnalyzerData data) {
         analyzeNode(xmlnsStmtNode.xmlnsDecl, data);
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration, AnalyzerData data) {
-        SymbolEnv currentEnv = data.env;
-
-        // Module-level client declarations are defined during symbol enter for the module (package) node.
-        // So we only define for client declaration statements here.
-        if (clientDeclaration.symbol == null) {
-            symbolEnter.defineNode(clientDeclaration, currentEnv);
-        }
-
-        BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
-
-        List<BLangAnnotationAttachment> annAttachments = clientDeclaration.annAttachments;
-
-        for (BLangAnnotationAttachment annotationAttachment : annAttachments) {
-            annotationAttachment.attachPoints.add(AttachPoint.Point.CLIENT);
-            annotationAttachment.accept(this, data);
-
-            BAnnotationAttachmentSymbol annotationAttachmentSymbol = annotationAttachment.annotationAttachmentSymbol;
-            if (annotationAttachmentSymbol != null) {
-                symbol.addAnnotation(annotationAttachmentSymbol);
-            }
-        }
-        validateAnnotationAttachmentCount(annAttachments);
-
-        typeChecker.checkExpr(clientDeclaration.uri, currentEnv, symTable.stringType, data.prevEnvs,
-                              data.commonAnalyzerData);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement, AnalyzerData data) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, data);
     }
 
     @Override
@@ -740,7 +682,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, currentEnv);
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition,
+                createClassScopeWithoutFields(classDefinition.symbol.scope), currentEnv);
         for (BLangSimpleVariable field : classDefinition.fields) {
             data.env = classEnv;
             analyzeNode(field, data);
@@ -771,6 +714,19 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         analyzerClassInitMethod(classDefinition, data);
+    }
+
+    private Scope createClassScopeWithoutFields(Scope classScope) {
+        Scope scope = new Scope(classScope.owner);
+        Map<Name, Scope.ScopeEntry> classScopeEntries = classScope.entries;
+        Map<Name, Scope.ScopeEntry> scopeEntries = scope.entries;
+        for (Name key : classScopeEntries.keySet()) {
+            Scope.ScopeEntry entry = classScopeEntries.get(key);
+            if (!Symbols.isFlagOn(entry.symbol.flags, Flags.FIELD)) {
+                scopeEntries.put(key, entry);
+            }
+        }
+        return scope;
     }
 
     private void analyzerClassInitMethod(BLangClassDefinition classDefinition, AnalyzerData data) {
@@ -1086,15 +1042,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         });
         validateAnnotationAttachmentCount(annotationNode.annAttachments);
-
-        BType attachedType = symbol.attachedType;
-        if (attachedType != null &&
-                attachedType != symTable.semanticError &&
-                Symbols.isAttachPointPresent(symbol.maskedPoints, AttachPoints.CLIENT) &&
-                !types.isAnydata(attachedType)) {
-            dlog.error(annotationNode.typeNode.pos, DiagnosticErrorCode.INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION,
-                       attachedType);
-        }
     }
 
     @Override
@@ -2285,6 +2232,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         setTypeOfVarRefInAssignment(varRef, data);
         data.expType = varRef.getBType();
 
+        validateFunctionVarRef(varRef, data);
+
         checkInvalidTypeDef(varRef);
         if (varRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR && data.expType.tag != TypeTags.SEMANTIC_ERROR) {
             BLangFieldBasedAccess fieldBasedAccessVarRef = (BLangFieldBasedAccess) varRef;
@@ -2306,6 +2255,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangExpression tupleVar : tupleDeStmt.varRef.expressions) {
             setTypeOfVarRefForBindingPattern(tupleVar, data);
             checkInvalidTypeDef(tupleVar);
+            validateFunctionVarRef(tupleVar, data);
         }
 
         if (tupleDeStmt.varRef.restParam != null) {
@@ -2321,6 +2271,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                                         tupleDeStmt.expr.getBType(), tupleDeStmt.expr.pos, data);
+        }
+    }
+
+    private void validateFunctionVarRef(BLangExpression expr, AnalyzerData data) {
+        if (types.isFunctionVarRef(expr)) {
+            dlog.error(expr.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_DECLARATION_FINAL,
+                    Names.FUNCTION);
+            data.expType = symTable.semanticError;
         }
     }
 
@@ -4316,6 +4274,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             case LITERAL:
             case NUMERIC_LITERAL:
                 break;
+            case UNARY_EXPR:
+                checkAnnotConstantExpression(((BLangUnaryExpr) expression).expr);
+                break;
             case SIMPLE_VARIABLE_REF:
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
@@ -4451,6 +4412,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 setTypeOfVarRef(expr, data);
+                validateFunctionVarRef(expr, data);
                 break;
             case TUPLE_VARIABLE_REF:
                 BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expr;

@@ -22,8 +22,8 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetCacheDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
-import io.ballerina.cli.task.ListTestGroupsTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.RunNativeImageTestTask;
 import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
@@ -34,13 +34,13 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
@@ -106,6 +106,16 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.nativeImage = nativeImage;
+        this.offline = true;
+    }
+
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
@@ -122,11 +132,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--list-groups", description = "list the groups available in the tests")
     private boolean listGroups;
 
-    @CommandLine.Option(names = "--groups", split = ",", description = "test groups to be executed")
-    private List<String> groupList;
+    @CommandLine.Option(names = "--groups", description = "test groups to be executed")
+    private String groupList;
 
-    @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
-    private List<String> disableGroupList;
+    @CommandLine.Option(names = "--disable-groups", description = "test groups to be disabled")
+    private String disableGroupList;
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
@@ -140,8 +150,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
-    private List<String> testList;
+    @CommandLine.Option(names = "--tests", description = "Test functions to be executed")
+    private String testList;
 
     @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
@@ -168,6 +178,9 @@ public class TestCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
@@ -232,6 +245,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -280,9 +300,11 @@ public class TestCommand implements BLauncherCmd {
                 // compile the modules
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
-                .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
-                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat, moduleMap), listGroups)
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
+                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                .addTask(new RunNativeImageTestTask(outStream, errStream, rerunTests, groupList, disableGroupList,
+                        testList, includes, coverageFormat, moduleMap, listGroups),
+                        !project.buildOptions().nativeImage())
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 
@@ -305,6 +327,8 @@ public class TestCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
+                .setNativeImage(nativeImage)
+                .setEnableCache(enableCache)
                 .build();
 
         if (targetDir != null) {

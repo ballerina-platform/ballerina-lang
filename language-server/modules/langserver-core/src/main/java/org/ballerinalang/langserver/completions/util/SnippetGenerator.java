@@ -588,18 +588,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Namespace Declaration Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getClientDeclarationSnippet() {
-        String snippet = "client \"${1}\" as ${2:clientName};";
-
-        return new SnippetBlock(ItemResolverConstants.CLIENT, ItemResolverConstants.CLIENT, snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.STATEMENT);
-    }
-
-    /**
      * Get Object Type Descriptor Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1663,6 +1651,37 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.DETACH_FUNCTION_TYPE,
                 generateFilterText(Arrays.asList("detach", ItemResolverConstants.PUBLIC_KEYWORD,
                         ItemResolverConstants.FUNCTION)), snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Regular Expression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRegularExpressionSnippet() {
+        String snippet = "re `${1}`";
+        return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, 
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Paranthesis Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getParanthesisSnippet() {
+        return new SnippetBlock(ItemResolverConstants.PARANTHESIS, ItemResolverConstants.PARANTHESIS, "(${1})",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get Square Bracket Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getSquareBracketSnippet() {
+        return new SnippetBlock(ItemResolverConstants.SQUARE_BRACKET, ItemResolverConstants.SQUARE_BRACKET, "[${1}]",
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**

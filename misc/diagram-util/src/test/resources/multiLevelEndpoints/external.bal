@@ -10,4 +10,4 @@ public client class ExternalClient {
     }
 }
 
-ExternalClient exEpOut = new ("http://example.com/0");
+ExternalClient exEpOut = check new ("http://example.com/0");

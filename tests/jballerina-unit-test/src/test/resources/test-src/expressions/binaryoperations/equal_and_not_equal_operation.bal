@@ -98,6 +98,16 @@ function checkFloatEquality() {
     test:assertFalse((b == a) || !(b != a));
 }
 
+function checkDecimalEquality() {
+    decimal d1 = 0d;
+    decimal d2 = 0.0d;
+    decimal d3 = 1.0001;
+    decimal d4 = 1.000100;
+    test:assertTrue((d1 == d2) && !(d1 != d2));
+    test:assertTrue((d3 == d4) && !(d3 != d4));
+    test:assertFalse((d1 == d3) && !(d4 != d2));
+}
+
 function checkStringEquality() {
     string a = "a";
     string b = "Hello, from Ballerina!";

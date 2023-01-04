@@ -96,6 +96,7 @@ dependencies {
     dist "com.atomikos:atomikos-util:${project.atomikosUtilVersion}"
     dist "com.atomikos:transactions:${project.atomikosTransactionsVersion}"
 
+    dist project(':architecture-model-generator')
     dist project(':ballerina-tools-api')
     dist project(':ballerina-parser')
     dist project(':ballerina-tools-api')
@@ -123,6 +124,7 @@ dependencies {
     dist project(':ballerina-shell:shell-cli')
     dist project(':compiler-plugins:package-semantic-analyzer')
     dist project(':compiler-plugins:configurable-schema-generator')
+    dist project(':compiler-plugins:architecture-model-generator-plugin')
     dist project(':identifier-util')
 
     datamapperLib project(':ballerinalang-data-mapper')
@@ -136,6 +138,7 @@ dependencies {
     langserverLib project(':ls-extensions:partial-parser')
     langserverLib project(':ls-extensions:trigger-service')
     langserverLib project(':ls-extensions:bal-shell-service')
+    langserverLib project(':ls-extensions:project-design-service')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')

@@ -239,13 +239,9 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "'string' value '\"hello\"' cannot be converted to 'float'");
     }
 
-    @Test(enabled = false) // See https://github.com/ballerina-platform/ballerina-lang/issues/29359
+    @Test
     public void testBooleanInJsonToInt() {
-        Object returns = BRunUtil.invoke(result, "testBooleanInJsonToInt");
-        Assert.assertTrue(returns instanceof BError);
-        BError error = (BError) returns;
-        String errorMsg = error.getMessage();
-        Assert.assertEquals(errorMsg, "'boolean' cannot be cast to 'int'");
+        BRunUtil.invoke(result, "testBooleanInJsonToInt");
     }
 
     @Test(description = "Test casting a null JSON to string",

@@ -51,6 +51,7 @@ import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
 import java.util.Arrays;
@@ -106,11 +107,26 @@ public class SortingUtil {
      * @return {@link Boolean} whether type completion or not
      */
     public static boolean isTypeCompletionItem(LSCompletionItem item) {
-        return (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL
-                && (((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeSymbol
-                || ((SymbolCompletionItem) item).getSymbol().orElse(null) instanceof TypeDefinitionSymbol))
-                || (item instanceof StaticCompletionItem
-                && ((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE);
+        if (item.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) item;
+            Optional<Symbol> symbol = symbolCompletionItem.getSymbol();
+            if (symbol.isPresent() && (symbol.get().kind() == SymbolKind.TYPE
+                    || symbol.get().kind() == SymbolKind.TYPE_DEFINITION
+                    || symbol.get().kind() == SymbolKind.CLASS
+                    || symbol.get().kind() == SymbolKind.CONSTANT)) {
+                return true;
+            }
+            return false;
+        }
+        if (item.getType() == LSCompletionItem.CompletionItemType.STATIC
+                && (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.TYPE)) {
+            return true;
+        }
+        if (item.getType() == LSCompletionItem.CompletionItemType.TYPE
+                || item instanceof TypeCompletionItem) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -303,11 +319,13 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
-        if (typeSymbol.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (rawType.typeKind() == TypeDescKind.TYPEDESC && completionItem.getType() == SYMBOL) {
             Optional<Symbol> optionalSymbol = ((SymbolCompletionItem) completionItem).getSymbol();
             if (optionalSymbol.isPresent() && (optionalSymbol.get().kind() == SymbolKind.TYPE_DEFINITION
-                    || optionalSymbol.get().kind() == SymbolKind.TYPE)) {
-                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(typeSymbol);
+                    || optionalSymbol.get().kind() == SymbolKind.TYPE 
+                    || optionalSymbol.get().kind() == SymbolKind.CLASS)) {
+                Optional<TypeSymbol> optionalTypeParamTypeSymbol = getTypeParameterFromTypeSymbol(rawType);
                 if (optionalTypeParamTypeSymbol.isPresent()) {
                     Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
                     return optionalTypeSymbol.isPresent()
@@ -319,7 +337,7 @@ public class SortingUtil {
             return false;
         }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
-        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
+        return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(rawType);
     }
 
     /**
@@ -666,7 +684,7 @@ public class SortingUtil {
             });
             return;
         }
-        
+
         List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
                 "decimal", "string", "xml", "map", "table");
         completionItems.forEach(lsCompletionItem -> {

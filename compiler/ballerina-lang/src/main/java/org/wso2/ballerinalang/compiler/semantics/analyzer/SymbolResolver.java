@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -39,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -473,10 +471,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
             if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
                 return symbol;
-            }
-
-            if ((tag & SymTag.CLIENT_DECL) == SymTag.CLIENT_DECL) {
-                return resolveClientDeclPrefix(symbol);
             }
 
             if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
@@ -1623,8 +1617,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
-            validateUnquotedClientKeywordUsageInQualifiedIdentifier(userDefinedTypeNode, data.env, pkgAliasIdentifier,
-                                                                    pkgAlias, typeNameIdentifier, typeName);
 
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
@@ -1743,25 +1735,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return referenceType;
         }
         return symbol.type;
-    }
-
-    private void validateUnquotedClientKeywordUsageInQualifiedIdentifier(BLangUserDefinedType userDefinedTypeNode,
-                                                                         SymbolEnv env,
-                                                                         BLangIdentifier pkgAliasIdentifier,
-                                                                         Name pkgAlias,
-                                                                         BLangIdentifier typeNameIdentifier,
-                                                                         Name typeName) {
-        if (pkgAliasIdentifier == null || !Names.CLIENT.value.equals(typeName.value) || typeNameIdentifier.isLiteral) {
-            return;
-        }
-
-        Location pos = userDefinedTypeNode.pos;
-
-        BSymbol pkgSymbol = this.resolvePrefixSymbol(env, pkgAlias, Names.fromString(pos.lineRange().filePath()));
-        if (pkgSymbol != symTable.notFoundSymbol &&
-                !this.isModuleGeneratedForClientDeclaration(env.enclPkg.packageID, pkgSymbol.pkgID)) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
-        }
     }
 
     private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
@@ -2686,46 +2659,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             this.paramValueType = paramValueType;
             this.index = index;
         }
-    }
-
-    public BSymbol resolveClientDeclPrefix(BSymbol symbol) {
-        LineRange lineRange = symbol.pos.lineRange();
-        if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
-                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
-            return symTable.notFoundSymbol;
-        }
-        Map<LineRange, Optional<PackageID>> clientDeclarations =
-                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().filePath());
-        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
-            return symTable.notFoundSymbol;
-        }
-
-        Optional<PackageID> optionalPackageID = clientDeclarations.get(lineRange);
-        if (optionalPackageID.isEmpty()) {
-            return symTable.notFoundSymbol;
-        }
-
-        ((BClientDeclarationSymbol) symbol).used = true;
-        return getModuleForPackageId(optionalPackageID.get());
-    }
-
-    public boolean isModuleGeneratedForClientDeclaration(PackageID currentPackageId, PackageID packageIdToCheck) {
-        if (!symTable.clientDeclarations.containsKey(currentPackageId)) {
-            return false;
-        }
-
-        for (Map<LineRange, Optional<PackageID>> fileClientDecls :
-                symTable.clientDeclarations.get(currentPackageId).values()) {
-            for (Optional<PackageID> optionalPackageID : fileClientDecls.values()) {
-                if (optionalPackageID.isPresent()) {
-                    if (packageIdToCheck.equals(optionalPackageID.get())) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     /**

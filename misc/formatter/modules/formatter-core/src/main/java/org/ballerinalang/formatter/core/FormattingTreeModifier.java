@@ -37,7 +37,6 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -124,7 +123,6 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
-import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -330,7 +328,7 @@ public class FormattingTreeModifier extends TreeModifier {
         } else {
             typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
         }
-        
+
         Token ellipsisToken;
         if (resourcePathParameterNode.paramName().isPresent()) {
             ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
@@ -3553,8 +3551,8 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(clientResourceAccessActionNode.expression(), 0, 0);
         Token rightArrowToken  = formatNode(clientResourceAccessActionNode.rightArrowToken(), 0, 0);
         Token slashToken;
-        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() && 
-                clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() &&
+                clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
             slashToken = formatNode(clientResourceAccessActionNode.slashToken(), env.trailingWS, env.trailingNL);
         } else {
@@ -3562,27 +3560,27 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         SeparatedNodeList<Node> resourceAccessPath;
-        if (clientResourceAccessActionNode.methodName().isEmpty() && 
+        if (clientResourceAccessActionNode.methodName().isEmpty() &&
                 clientResourceAccessActionNode.arguments().isEmpty()) {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, env.trailingWS, env.trailingNL);
         } else {
-            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
+            resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0,
                     0, 0, 0, 0, 0);
         }
 
         SimpleNameReferenceNode methodName;
         if (clientResourceAccessActionNode.arguments().isEmpty()) {
-            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 
+            methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null),
                     env.trailingWS, env.trailingNL);
         } else {
             methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 0, 0);
         }
 
         Token dotToken = formatToken(clientResourceAccessActionNode.dotToken().orElse(null), 0, 0);
-        ParenthesizedArgList argumentNode = 
+        ParenthesizedArgList argumentNode =
                 formatNode(clientResourceAccessActionNode.arguments().orElse(null), env.trailingWS, env.trailingNL);
-        
+
         return clientResourceAccessActionNode.modify()
                 .withExpression(expressionNode)
                 .withRightArrowToken(rightArrowToken)
@@ -3593,7 +3591,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withArguments(argumentNode)
                 .apply();
     }
-    
+
     @Override
     public ComputedResourceAccessSegmentNode transform(
             ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
@@ -3601,7 +3599,7 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expressionNode = formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
         Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
-        
+
         return computedResourceAccessSegmentNode.modify()
                 .withOpenBracketToken(openBracket)
                 .withExpression(expressionNode)
@@ -3624,7 +3622,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCloseBracketToken(closeBracket)
                 .apply();
     }
-    
+
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, env.trailingWS, env.trailingNL);
@@ -3633,46 +3631,6 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public Token transform(Token token) {
         return formatToken(token, env.trailingWS, env.trailingNL);
-    }
-
-
-    @Override
-    public ModuleClientDeclarationNode transform(
-            ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
-                                           env.trailingNL);
-        return moduleClientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(clientPrefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
-    }
-
-    @Override
-    public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(clientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken prefix = formatNode(clientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
-
-        return clientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(prefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
     }
 
     // ------------------------------------- Set of private helper methods -------------------------------------
@@ -4152,7 +4110,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 return true;
 
             // Template literals are multi line tokens, and newline are
-            // part of the content. Hence, we cannot wrap those.
+            // part of the content. Hence we cannot wrap those.
             case XML_TEMPLATE_EXPRESSION:
             case STRING_TEMPLATE_EXPRESSION:
             case TEMPLATE_STRING:

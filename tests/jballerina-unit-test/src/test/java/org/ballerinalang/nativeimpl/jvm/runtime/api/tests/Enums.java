@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class Enums {
 
-    private static final Module enumModule = new Module("testorg", "runtime_api.enum", "1");
+    private static final Module enumModule = new Module("testorg", "values.enum", "1");
 
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);

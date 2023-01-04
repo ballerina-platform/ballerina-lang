@@ -16,7 +16,7 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
-import testorg/runtime_api_types.objects as o;
+import types.objects as o;
 
 public annotation IntConstraints Int on type, record field;
 
@@ -86,6 +86,9 @@ public function validateTypeRef() {
     testRuntimeTypeRef();
     validateArray();
     validateFunctionParameters();
+    validateRuntimeAPIs();
+    validateValueWithUnion();
+    validateTableMultipleKey();
 }
 
 function validateFunctionParameters() {

@@ -33,70 +33,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BR",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -298,54 +234,6 @@
       ]
     },
     {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "map",
       "kind": "Unit",
       "detail": "type",
@@ -370,14 +258,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "table",
       "kind": "Unit",
       "detail": "type",
@@ -391,22 +271,6 @@
       "detail": "type",
       "sortText": "BG",
       "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -515,14 +379,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "BG",
-      "insertText": "function",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
@@ -545,6 +401,151 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "readonly",
+      "kind": "TypeParameter",
+      "detail": "Readonly",
+      "sortText": "BBN",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "TypeParameter",
+      "detail": "Handle",
+      "sortText": "BBN",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "TypeParameter",
+      "detail": "Never",
+      "sortText": "ABN",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "TypeParameter",
+      "detail": "Json",
+      "sortText": "BBN",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "TypeParameter",
+      "detail": "Anydata",
+      "sortText": "BBN",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "TypeParameter",
+      "detail": "Any",
+      "sortText": "BBN",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "TypeParameter",
+      "detail": "Byte",
+      "sortText": "ABN",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BZ",
+      "filterText": "service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "decimal",
+      "kind": "TypeParameter",
+      "detail": "Decimal",
+      "sortText": "BBN",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BBL",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "TypeParameter",
+      "detail": "Xml",
+      "sortText": "BBN",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "TypeParameter",
+      "detail": "Boolean",
+      "sortText": "BBN",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "TypeParameter",
+      "detail": "Future",
+      "sortText": "BBN",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "TypeParameter",
+      "detail": "Int",
+      "sortText": "ABN",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "TypeParameter",
+      "detail": "Float",
+      "sortText": "ABN",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "BBN",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "ABN",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "sortText": "BBN",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
