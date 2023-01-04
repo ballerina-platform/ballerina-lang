@@ -65,6 +65,8 @@ public class JsonToRecordMapperTests {
             .resolve("sample_3_person.bal");
     private final Path sample3PersonTypeDescBal = RES_DIR.resolve("ballerina")
             .resolve("sample_3_person_type_desc.bal");
+    private final Path sample3SpecialCharBal = RES_DIR.resolve("ballerina")
+            .resolve("sample_3_special_char.bal");
 
     private final Path sample4Json = RES_DIR.resolve("json")
             .resolve("sample_4.json");
@@ -330,6 +332,15 @@ public class JsonToRecordMapperTests {
         String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Person", true, false, false)
                 .getCodeBlock().replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample3PersonTypeDescBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test for JSON with user defined record name with special chars")
+    public void testForUserDefinedRecordNameWithSpecialChars() throws IOException {
+        String jsonFileContent = Files.readString(sample3Json);
+        String generatedCodeBlock = JsonToRecordMapper.convert(jsonFileContent, "Special Person", false, false, false)
+                .getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample3SpecialCharBal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 

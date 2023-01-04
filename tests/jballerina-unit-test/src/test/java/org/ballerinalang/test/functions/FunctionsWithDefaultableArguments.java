@@ -46,6 +46,12 @@ public class FunctionsWithDefaultableArguments {
         result = BCompileUtil.compile("test-src/functions/functions_with_default_parameters.bal");
     }
 
+    @Test
+    public void testFunctionCallInImportedModuleWithDefaultArguments() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/functions/testPackage");
+        BRunUtil.runMain(compileResult);
+    }
+
     @Test(description = "Test functions arguments with function calls as default value")
     public void testFunctionCallAsDefaultExpr() {
         Object arr = BRunUtil.invoke(result, "testFunctionCallAsDefaultExpr");

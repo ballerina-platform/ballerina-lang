@@ -96,6 +96,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction43.json"},
                 {"variableAssignmentRequiredCodeAction44.json"},
                 {"variableAssignmentRequiredCodeAction45.json"},
+                {"variableAssignmentRequiredCodeAction46.json"},
                 {"ignoreReturnValueCodeAction.json"},
                 {"projectVariableAssignmentRequiredCodeAction1.json"},
                 {"projectVariableAssignmentRequiredCodeAction2.json"},
@@ -123,7 +124,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 
                 // Async send action
                 {"createVarInSendAction1.json"},
-                
+
                 // Create variable with check
                 {"createVariableWithCheck1.json"},
                 {"createVariableWithCheck2.json"},
@@ -140,7 +141,10 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableNegative1.json"},
                 {"createVariableNegative2.json"},
                 {"createVariableNegative3.json"},
-                {"createVariableNegative4.json"}
+                {"createVariableNegative4.json"},
+                {"createVariableNegative5.json"},
+                {"createVariableNegative6.json"},
+                {"createVariableNegative7.json"}
         };
     }
 }

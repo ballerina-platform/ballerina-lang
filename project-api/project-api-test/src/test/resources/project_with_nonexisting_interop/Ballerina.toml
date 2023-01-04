@@ -1,0 +1,8 @@
+[package]
+org = "asmaj"
+name = "nonexisting_interop"
+version = "0.1.0"
+distribution = "2201.3.0"
+
+[build-options]
+observabilityIncluded = false
