@@ -334,7 +334,7 @@ public isolated function createElement(string name, map<string> attributes = {},
 # Creates a new xml processing instruction item.
 #
 # ```ballerina
-# xml:createProcessingInstruction("url", "ballerina.io") ⇒ <?url ballerina.io?>
+# xml:createProcessingInstruction("sort", "descending") ⇒ <?sort descending?>
 # ```
 # 
 # + target - the target part of the processing instruction to be constructed
@@ -379,9 +379,9 @@ public isolated function createText(string data) returns Text = @java:Method {
 #
 # ```ballerina
 # xml books = xml `<book>HTML</book><book>Invisible Man</book><book>David Copperfield</book><book>Jane Eyre</book>`;
-# books.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>
-# 
 # books.slice(2) ⇒ <book>David Copperfield</book><book>Jane Eyre</book>
+# 
+# books.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>
 # ```
 # 
 # + x - the xml value
@@ -459,9 +459,9 @@ public isolated function children(xml x) returns xml = @java:Method {
 #
 # ```ballerina
 # xml books = xml `<book><play>Hamlet</play></book><book><novel>Macbeth</novel></book>`;
-# books.elementChildren("novel") ⇒ <novel>Macbeth</novel>
-# 
 # books.elementChildren() ⇒ <play>Hamlet</play><novel>Macbeth</novel>
+# 
+# books.elementChildren("novel") ⇒ <novel>Macbeth</novel>
 # ```
 # 
 # + x - the xml value
@@ -557,7 +557,7 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
 # Selects all the items in a sequence that are of type `xml:Text`.
 #
 # ```ballerina
-# xml books = xml `<book></book>Hamlet<book></book>Play`;
+# xml books = xml `<book/>Hamlet<book>Novel</book>Play`;
 # books.text() ⇒ HamletPlay
 # ```
 # 
