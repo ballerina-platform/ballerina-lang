@@ -1321,10 +1321,11 @@ public class JvmInstructionGen {
     }
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
-        if (isNonReferredRecord(mapNewIns.type)) {
-            PackageID packageID = mapNewIns.lhsOp.variableDcl.type.tsymbol.pkgID;
+        BType type = mapNewIns.type;
+        if (isNonReferredRecord(type)) {
+            PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(mapNewIns.type));
+            String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
         } else {
             this.loadVar(mapNewIns.rhsOp.variableDcl);
