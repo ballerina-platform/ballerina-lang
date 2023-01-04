@@ -557,7 +557,7 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
 # Selects all the items in a sequence that are of type `xml:Text`.
 #
 # ```ballerina
-# xml books = xml `<book/>Hamlet<book>Novel</book>Play`;
+# xml books = xml `<books/>Hamlet<book>Macbeth</book>Play`;
 # books.text() ⇒ HamletPlay
 # ```
 # 
