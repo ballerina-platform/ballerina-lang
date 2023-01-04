@@ -168,6 +168,7 @@ public transactional isolated function setData(readonly data) = @java:Method {
 #         check commit;
 #     }
 # }
+#
 # transactional function updateDB() {
 #     transaction:setData({accessType: "RO"});
 #     transaction:getData() ⇒ {"accessType":"RO"}
