@@ -893,11 +893,7 @@
                               ]
                             },
                             {
-                              "kind": "TRIPLE_BACKTICK_TOKEN"
-                            },
-                            {
-                              "kind": "CODE_CONTENT",
-                              "value": "ballerina",
+                              "kind": "TRIPLE_BACKTICK_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -1224,11 +1220,7 @@
                               ]
                             },
                             {
-                              "kind": "TRIPLE_BACKTICK_TOKEN"
-                            },
-                            {
-                              "kind": "CODE_CONTENT",
-                              "value": "ballerina",
+                              "kind": "TRIPLE_BACKTICK_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
