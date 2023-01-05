@@ -53,6 +53,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -443,4 +444,21 @@ public class Values {
         return ValueCreator.createTupleValue(tupleType, elements);
     }
 
+    public static Boolean checkInlineRecordAnnotations(BTypedesc typedesc, BTypedesc constraint) {
+        Type describingType = typedesc.getDescribingType();
+        if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
+                ((ReferenceType) describingType).getReferredType().getTag() == TypeTags.INTERSECTION_TAG) {
+            describingType = ((IntersectionType)
+                    ((ReferenceType) describingType).getReferredType()).getConstituentTypes().get(0);
+        }
+        if (!(describingType instanceof AnnotatableType)) {
+            throw ErrorCreator.createError(StringUtils.fromString("Invalid type found."));
+        }
+        Object annotation = ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString("$field$.title"));
+        if (annotation == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
+        }
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:String");
+        return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+    }
 }
