@@ -19,6 +19,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -190,7 +191,8 @@ public class DiagnosticsHelper {
         if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             projectRoot = projectRoot.getParent();
         }
-        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
+        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath(),
+                context.operation() == LSContextOperation.TXT_DID_CHANGE).orElseThrow();
         // We do not send the internal diagnostics
         diagnosticMap.putAll(
                 toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
