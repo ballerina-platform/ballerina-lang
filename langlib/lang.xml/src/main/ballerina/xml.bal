@@ -102,10 +102,10 @@ public isolated function iterator(xml<ItemType> x) returns object {
 # parameter `x` does not have an item with index parameter `i`.
 # 
 # ```ballerina
-# xml books = xml `<book><title>Macbeth</title></book><book><title>Hamlet</title></book>`;
-# books.get(1) ⇒ <book><title>Hamlet</title></book>
+# xml x = xml `<book><title>Macbeth</title></book><book><title>Hamlet</title></book>`;
+# x.get(1) ⇒ <book><title>Hamlet</title></book>
 # 
-# books.get(15) ⇒ panic
+# x.get(15) ⇒ panic
 # ```
 #
 # + x - the xml sequence
@@ -144,8 +144,8 @@ public isolated function concat((xml|string)... xs) returns xml = @java:Method {
 # Returns a string giving the expanded name of an xml element.
 #
 # ```ballerina
-# xml:Element p = xml `<person age="30">John</person>`;
-# p.getName() ⇒ person
+# xml:Element e = xml `<person age="30">John</person>`;
+# e.getName() ⇒ person
 # ```
 # 
 # + elem - xml element
@@ -158,9 +158,9 @@ public isolated function getName(Element elem) returns string = @java:Method {
 # Changes the name of an XML element.
 #
 # ```ballerina
-# xml:Element s = xml `<person>John</person>`;
-# s.setName("student");
-# s ⇒ <student>John</student>
+# xml:Element e = xml `<person>John</person>`;
+# e.setName("student");
+# e ⇒ <student>John</student>
 # ```
 # 
 # + elem - xml element
@@ -176,8 +176,8 @@ public isolated function setName(Element elem, string xName) = @java:Method {
 # The keys in the map are the expanded names of the attributes.
 #
 # ```ballerina
-# xml:Element a = xml `<person id="1012" employed="yes"><name>John</name></person>`;
-# a.getAttributes() ⇒ {"id":"1012","employed":"yes"}
+# xml:Element e = xml `<person id="1012" employed="yes"><name>John</name></person>`;
+# e.getAttributes() ⇒ {"id":"1012","employed":"yes"}
 # ```
 # 
 # + x - xml element
@@ -190,8 +190,8 @@ public isolated function getAttributes(Element x) returns map<string> = @java:Me
 # Returns the children of an xml element.
 #
 # ```ballerina
-# xml:Element books = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
-# books.getChildren() ⇒ <book>Hamlet</book><book>Macbeth</book>
+# xml:Element e = xml `<books><book>Hamlet</book><book>Macbeth</book></books>`;
+# e.getChildren() ⇒ <book>Hamlet</book><book>Macbeth</book>
 # ```
 # 
 # + elem - xml element
@@ -208,13 +208,12 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # 
 # ```ballerina
 # xml:Element employees = xml `<employees><employee>David</employee><employee>Peter</employee></employees>`;
-# xml newEmployees = xml `<employee>Alice</employee><employee>Bob</employee>`;
-# employees.setChildren(newEmployees);
+# employees.setChildren(xml `<employee>Alice</employee><employee>Bob</employee>`);
 # employees ⇒ <employees><employee>Alice</employee><employee>Bob</employee></employees>
 # 
-# xml:Element x = xml `<student id="1205">John</student>`;
-# x.setChildren("Jane");
-# x ⇒ <student id="1205">Jane</student>
+# xml:Element student = xml `<student id="1205">John</student>`;
+# student.setChildren("Jane");
+# student ⇒ <student id="1205">Jane</student>
 # ```
 #
 # + elem - xml element
@@ -235,8 +234,8 @@ public isolated function setChildren(Element elem, xml|string children) = @java:
 # of the item would occur in the representation of the element in XML syntax.
 #
 # ```ballerina
-# xml:Element person = xml `<person><name>John Doe</name><age>30</age></person>`;
-# person.getDescendants() ⇒ <name>John Doe</name>John Doe<age>30</age>30
+# xml:Element e = xml `<person><name>John Doe</name><age>30</age></person>`;
+# e.getDescendants() ⇒ <name>John Doe</name>John Doe<age>30</age>30
 # ```
 # 
 # + elem - xml element
@@ -259,8 +258,8 @@ public isolated function getDescendants(Element elem) returns xml = @java:Method
 #    concatenation of the character data of x1 and the character data of x2.
 #
 # ```ballerina
-# xml book = xml `<book>Jane Eyre</book>`;
-# book.data() ⇒ Jane Eyre
+# xml x = xml `<book>Jane Eyre</book>`;
+# x.data() ⇒ Jane Eyre
 # ```
 # 
 # + x - the xml value
@@ -287,8 +286,8 @@ public isolated function getTarget(ProcessingInstruction x) returns string = @ja
 # Returns the content of a processing instruction or comment item.
 #
 # ```ballerina
-# xml:ProcessingInstruction p = xml `<?sort ascending?>`;
-# p.getContent() ⇒ ascending
+# xml:ProcessingInstruction procInstruction = xml `<?sort ascending?>`;
+# procInstruction.getContent() ⇒ ascending
 # 
 # xml:Comment comment = xml `<!--Employees by department-->`;
 # comment.getContent() ⇒ Employees by department
@@ -334,7 +333,7 @@ public isolated function createElement(string name, map<string> attributes = {},
 # Creates a new xml processing instruction item.
 #
 # ```ballerina
-# xml:createProcessingInstruction("url", "ballerina.io") ⇒ <?url ballerina.io?>
+# xml:createProcessingInstruction("sort", "descending") ⇒ <?sort descending?>
 # ```
 # 
 # + target - the target part of the processing instruction to be constructed
@@ -378,10 +377,10 @@ public isolated function createText(string data) returns Text = @java:Method {
 # Returns a subsequence of an xml value.
 #
 # ```ballerina
-# xml books = xml `<book>HTML</book><book>Invisible Man</book><book>David Copperfield</book><book>Jane Eyre</book>`;
-# books.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>
+# xml x = xml `<book>HTML</book><book>Invisible Man</book><book>David Copperfield</book><book>Jane Eyre</book>`;
+# x.slice(2) ⇒ <book>David Copperfield</book><book>Jane Eyre</book>
 # 
-# books.slice(2) ⇒ <book>David Copperfield</book><book>Jane Eyre</book>
+# x.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>
 # ```
 # 
 # + x - the xml value
@@ -402,9 +401,9 @@ public isolated function slice(xml<ItemType> x, int startIndex, int endIndex = x
 # and a chunk is considered insignificant if the entire chunk is whitespace.
 #
 # ```ballerina
-# xml books = xml `<?publication year="1604"?><!--This is a play-->
+# xml x = xml `<?publication year="1604"?><!--This is a play-->
 #                   <book author="William Shakespeare"><title>Othello</title></book>`;
-# books.strip() ⇒ <book author="William Shakespeare"><title>Othello</title></book>
+# x.strip() ⇒ <book author="William Shakespeare"><title>Othello</title></book>
 # ```
 # 
 # + x - the xml value
@@ -420,11 +419,11 @@ public isolated function strip(xml x) returns xml = @java:Method {
 # otherwise, selects only elements whose expanded name is parameter `nm`.
 #
 # ```ballerina
-# xml books = xml `<!--Mystery--><novel>Sherlock Holmes</novel><!--Drama--><play>Hamlet</play>
+# xml x = xml `<!--Mystery--><novel>Sherlock Holmes</novel><!--Drama--><play>Hamlet</play>
 #             <novel>Jane Eyre</novel><play>Macbeth</play>`;
-# books.elements() ⇒ <novel>Sherlock Holmes</novel><play>Hamlet</play><novel>Jane Eyre</novel><play>Macbeth</play>
+# x.elements() ⇒ <novel>Sherlock Holmes</novel><play>Hamlet</play><novel>Jane Eyre</novel><play>Macbeth</play>
 # 
-# books.elements("novel") ⇒ <novel>Sherlock Holmes</novel><novel>Jane Eyre</novel>
+# x.elements("novel") ⇒ <novel>Sherlock Holmes</novel><novel>Jane Eyre</novel>
 # ```
 # 
 # + x - the xml value
@@ -442,8 +441,8 @@ public isolated function elements(xml x, string? nm = ()) returns xml<Element> =
 # This is equivalent to `elements(x).map(getChildren)`.
 #
 # ```ballerina
-# xml books = xml `<books><book><title>Hamlet</title></book><book><title>Macbeth</title></book></books>`;
-# books.children() ⇒ <book><title>Hamlet</title></book><book><title>Macbeth</title></book>
+# xml x = xml `<books><book><title>Hamlet</title></book><book><title>Macbeth</title></book></books>`;
+# x.children() ⇒ <book><title>Hamlet</title></book><book><title>Macbeth</title></book>
 # ```
 # 
 # + x - xml value
@@ -458,10 +457,10 @@ public isolated function children(xml x) returns xml = @java:Method {
 # This is equivalent to `children(x).elements(nm)`.
 #
 # ```ballerina
-# xml books = xml `<book><play>Hamlet</play></book><book><novel>Macbeth</novel></book>`;
-# books.elementChildren("novel") ⇒ <novel>Macbeth</novel>
+# xml x = xml `<book><play>Hamlet</play></book><book><novel>Macbeth</novel></book>`;
+# x.elementChildren() ⇒ <play>Hamlet</play><novel>Macbeth</novel>
 # 
-# books.elementChildren() ⇒ <play>Hamlet</play><novel>Macbeth</novel>
+# x.elementChildren("novel") ⇒ <novel>Macbeth</novel>
 # ```
 # 
 # + x - the xml value
@@ -481,8 +480,8 @@ public isolated function elementChildren(xml x, string? nm = ()) returns xml<Ele
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml books = xml `<book>Hamlet</book><book>Macbeth</book>`;
-# books.map(function (xml xmlContent) returns xml => 
+# xml x = xml `<book>Hamlet</book><book>Macbeth</book>`;
+# x.map(function (xml xmlContent) returns xml => 
 #   xml `<book kind="play">${xmlContent.children()}</book>`
 # ) ⇒ <book kind="play">Hamlet</book><book kind="play">Macbeth</book>
 # ```
@@ -523,8 +522,8 @@ public isolated function forEach(xml<ItemType> x, @isolatedParam function(ItemTy
 # Each item is represented as a singleton value.
 #
 # ```ballerina
-# xml books = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;
-# books.filter(x => x is xml:Element && x.getName() == "play") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>
+# xml x = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;
+# x.filter(x => x is xml:Element && x.getName() == "play") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>
 # ```
 # 
 # + x - xml value
@@ -557,8 +556,8 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
 # Selects all the items in a sequence that are of type `xml:Text`.
 #
 # ```ballerina
-# xml books = xml `<book></book>Hamlet<book></book>Play`;
-# books.text() ⇒ HamletPlay
+# xml x = xml `John<!-- middle name --><mname>Alex</mname> Doe`;
+# x.text() ⇒ John Doe
 # ```
 # 
 # + x - the xml value
