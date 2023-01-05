@@ -458,7 +458,7 @@ public class Values {
         if (annotation == null) {
             throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
         }
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:String");
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
         return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
     }
 }
