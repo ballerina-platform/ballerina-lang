@@ -106,7 +106,7 @@ public class SymbolsInTupleTypeSymbolTest {
         assertEquals(((TypeDefinitionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.TUPLE);
         TupleTypeSymbol tupleType = (TupleTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
 
-        List<TupleMemberSymbol> tupleMembers = tupleType.tupleMembers();
+        List<TupleMemberSymbol> tupleMembers = tupleType.members();
         assertEquals(tupleMembers.size(), 3);
 
         // check tuple members

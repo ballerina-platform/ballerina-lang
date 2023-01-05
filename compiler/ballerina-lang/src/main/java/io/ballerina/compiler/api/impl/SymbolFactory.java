@@ -368,6 +368,8 @@ public class SymbolFactory {
     }
 
     /**
+     * Create a ballerina tuple member.
+     *
      * @param symbol {@link BVarSymbol} to convert
      * @return {@link BallerinaTupleMemberSymbol} generated
      */
