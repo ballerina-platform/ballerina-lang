@@ -113,18 +113,11 @@ public class ModuleExecutionFlowTests extends BaseTest {
         runAssertDynamicListener(projectPath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging",
                 "dynamic_listener_async_call_test_project");
-        BServerInstance serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
-                null, null);
-        LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
-        serverInstance.addErrorLogLeecher(errLeecherA);
-        serverInstance.shutdownServer();
-        errLeecherA.waitForText(15000);
-        serverInstance.removeAllLeechers();
+        runAssertDynamicListener(projectPath);
     }
 
     private void runAssertDynamicListener(Path projectPath) throws BallerinaTestException {

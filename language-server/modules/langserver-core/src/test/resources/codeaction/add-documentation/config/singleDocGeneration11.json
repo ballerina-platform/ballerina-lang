@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 89,
+    "character": 3
+  },
+  "source": "singleDocGeneration.bal",
+  "expected": [
+    {
+      "title": "Document this",
+      "command": {
+        "title": "Document this",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 89,
+                "character": 0
+              },
+              "end": {
+                "line": 89,
+                "character": 35
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "title": "Document all",
+      "kind": "source",
+      "command": {
+        "title": "Document all",
+        "command": "ADD_ALL_DOC",
+        "arguments": []
+      }
+    }
+  ]
+}
