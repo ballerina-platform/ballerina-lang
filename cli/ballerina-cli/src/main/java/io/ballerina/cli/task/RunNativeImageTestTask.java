@@ -350,7 +350,7 @@ public class RunNativeImageTestTask implements Task {
         }
 
         // If the function mocking does not exist, combine all test suite map entries
-        if (!isMockFunctionExist) {
+        if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
             while (testSuiteMapEntries.size() > 0) {
                 testSuiteMap.putAll(testSuiteMapEntries.remove(0));
