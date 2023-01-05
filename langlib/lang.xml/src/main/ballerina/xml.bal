@@ -144,8 +144,8 @@ public isolated function concat((xml|string)... xs) returns xml = @java:Method {
 # Returns a string giving the expanded name of an xml element.
 #
 # ```ballerina
-# xml:Element p = xml `<person age="30">John</person>`;
-# p.getName() ⇒ person
+# xml:Element e = xml `<person age="30">John</person>`;
+# e.getName() ⇒ person
 # ```
 # 
 # + elem - xml element
@@ -158,9 +158,9 @@ public isolated function getName(Element elem) returns string = @java:Method {
 # Changes the name of an XML element.
 #
 # ```ballerina
-# xml:Element s = xml `<person>John</person>`;
-# s.setName("student");
-# s ⇒ <student>John</student>
+# xml:Element e = xml `<person>John</person>`;
+# e.setName("student");
+# e ⇒ <student>John</student>
 # ```
 # 
 # + elem - xml element
@@ -272,8 +272,8 @@ public isolated function data(xml x) returns string = @java:Method {
 # Returns the target part of the processing instruction.
 #
 # ```ballerina
-# xml:ProcessingInstruction p = xml `<?sort ascending?>`;
-# p.getTarget() ⇒ sort
+# xml:ProcessingInstruction x = xml `<?sort ascending?>`;
+# x.getTarget() ⇒ sort
 # ```
 # 
 # + x - xml processing instruction item
@@ -286,8 +286,8 @@ public isolated function getTarget(ProcessingInstruction x) returns string = @ja
 # Returns the content of a processing instruction or comment item.
 #
 # ```ballerina
-# xml:ProcessingInstruction p = xml `<?sort ascending?>`;
-# p.getContent() ⇒ ascending
+# xml:ProcessingInstruction x = xml `<?sort ascending?>`;
+# x.getContent() ⇒ ascending
 # 
 # xml:Comment comment = xml `<!--Employees by department-->`;
 # comment.getContent() ⇒ Employees by department
