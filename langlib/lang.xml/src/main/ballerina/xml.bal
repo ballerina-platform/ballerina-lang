@@ -176,8 +176,8 @@ public isolated function setName(Element elem, string xName) = @java:Method {
 # The keys in the map are the expanded names of the attributes.
 #
 # ```ballerina
-# xml:Element x = xml `<person id="1012" employed="yes"><name>John</name></person>`;
-# x.getAttributes() ⇒ {"id":"1012","employed":"yes"}
+# xml:Element e = xml `<person id="1012" employed="yes"><name>John</name></person>`;
+# e.getAttributes() ⇒ {"id":"1012","employed":"yes"}
 # ```
 # 
 # + x - xml element
