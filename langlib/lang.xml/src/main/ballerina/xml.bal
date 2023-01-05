@@ -272,8 +272,8 @@ public isolated function data(xml x) returns string = @java:Method {
 # Returns the target part of the processing instruction.
 #
 # ```ballerina
-# xml:ProcessingInstruction x = xml `<?sort ascending?>`;
-# x.getTarget() ⇒ sort
+# xml:ProcessingInstruction p = xml `<?sort ascending?>`;
+# p.getTarget() ⇒ sort
 # ```
 # 
 # + x - xml processing instruction item
@@ -286,8 +286,8 @@ public isolated function getTarget(ProcessingInstruction x) returns string = @ja
 # Returns the content of a processing instruction or comment item.
 #
 # ```ballerina
-# xml:ProcessingInstruction x = xml `<?sort ascending?>`;
-# x.getContent() ⇒ ascending
+# xml:ProcessingInstruction p = xml `<?sort ascending?>`;
+# p.getContent() ⇒ ascending
 # 
 # xml:Comment comment = xml `<!--Employees by department-->`;
 # comment.getContent() ⇒ Employees by department
