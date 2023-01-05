@@ -1169,8 +1169,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         private boolean crashed;
 
-        public PackageCompilation crashedCompilation;
-
         private ProjectPair(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
