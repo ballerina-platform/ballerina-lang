@@ -211,9 +211,9 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # employees.setChildren(xml `<employee>Alice</employee><employee>Bob</employee>`);
 # employees ⇒ <employees><employee>Alice</employee><employee>Bob</employee></employees>
 # 
-# xml:Element x = xml `<student id="1205">John</student>`;
-# x.setChildren("Jane");
-# x ⇒ <student id="1205">Jane</student>
+# xml:Element student = xml `<student id="1205">John</student>`;
+# student.setChildren("Jane");
+# student ⇒ <student id="1205">Jane</student>
 # ```
 #
 # + elem - xml element
