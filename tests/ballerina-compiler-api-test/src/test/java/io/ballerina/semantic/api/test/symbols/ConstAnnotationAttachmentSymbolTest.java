@@ -115,7 +115,7 @@ public class ConstAnnotationAttachmentSymbolTest {
     public void testTupleMemberTypes(int line, int col, String annotName) {
         Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(line, col));
         BallerinaTupleMemberSymbol tupleMember = (BallerinaTupleMemberSymbol) optionalSymbol.get();
-        assertEquals(tupleMember.kind(), SymbolKind.TUPLE_MEMBER_TYPE);
+        assertEquals(tupleMember.kind(), SymbolKind.TUPLE_MEMBER);
 
         assertEquals(tupleMember.annotAttachments().size(), 1);
         AnnotationAttachmentSymbol annotAttachSymbol = tupleMember.annotAttachments().get(0);

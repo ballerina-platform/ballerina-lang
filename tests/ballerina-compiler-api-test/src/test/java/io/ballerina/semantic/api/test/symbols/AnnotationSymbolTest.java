@@ -45,7 +45,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.TUPLE_MEMBER_TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TUPLE_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -104,9 +104,9 @@ public class AnnotationSymbolTest {
                 {96, 11, WORKER, of("v1")},
                 {105, 5, ENUM, of("v1", "v5")},
                 {109, 4, ENUM_MEMBER, of("v1")},
-                {118, 25, TUPLE_MEMBER_TYPE, of("v5")},
-                {121, 8, TUPLE_MEMBER_TYPE, of("v5")},
-                {121, 20, TUPLE_MEMBER_TYPE, of("v5")}
+                {118, 25, TUPLE_MEMBER, of("v5")},
+                {121, 8, TUPLE_MEMBER, of("v5")},
+                {121, 20, TUPLE_MEMBER, of("v5")}
         };
     }
 

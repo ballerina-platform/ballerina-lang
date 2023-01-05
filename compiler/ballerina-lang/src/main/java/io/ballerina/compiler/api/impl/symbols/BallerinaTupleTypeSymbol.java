@@ -18,7 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
-import io.ballerina.compiler.api.symbols.TupleMemberTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -42,7 +42,7 @@ import java.util.StringJoiner;
 public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements TupleTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
-    private List<TupleMemberTypeSymbol> tupleMembers;
+    private List<TupleMemberSymbol> tupleMembers;
     private TypeSymbol restTypeDesc;
 
     public BallerinaTupleTypeSymbol(CompilerContext context, BTupleType tupleType) {
@@ -66,7 +66,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
     }
 
     @Override
-    public List<TupleMemberTypeSymbol> tupleTypeMembers() {
+    public List<TupleMemberSymbol> tupleMembers() {
         if (this.tupleMembers != null) {
             return this.tupleMembers;
         }

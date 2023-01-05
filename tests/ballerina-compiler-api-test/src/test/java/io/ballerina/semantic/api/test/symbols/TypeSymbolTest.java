@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
@@ -195,9 +195,9 @@ public class TypeSymbolTest {
     public void testTupleMemberTypes(int line, int col, TypeDescKind typeKind, String signature) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER_TYPE);
+        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
 
-        TupleMemberTypeSymbol tupleMember = (TupleMemberTypeSymbol) symbol.get();
+        TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
         assertEquals(tupleMember.getType().typeKind(), typeKind);
         assertEquals(tupleMember.getType().signature(), signature);
     }

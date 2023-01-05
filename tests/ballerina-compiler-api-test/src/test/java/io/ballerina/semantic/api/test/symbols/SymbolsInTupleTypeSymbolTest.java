@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -71,9 +71,9 @@ public class SymbolsInTupleTypeSymbolTest {
     public void testTupleTypeMembers(int line, int col, TypeDescKind typeKind, List<String> annots) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER_TYPE);
+        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
 
-        TupleMemberTypeSymbol tupleMember = (TupleMemberTypeSymbol) symbol.get();
+        TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
         assertEquals(tupleMember.getType().typeKind(), typeKind);
 
         // check annotation attachments
@@ -106,13 +106,13 @@ public class SymbolsInTupleTypeSymbolTest {
         assertEquals(((TypeDefinitionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.TUPLE);
         TupleTypeSymbol tupleType = (TupleTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
 
-        List<TupleMemberTypeSymbol> tupleMembers = tupleType.tupleTypeMembers();
+        List<TupleMemberSymbol> tupleMembers = tupleType.tupleMembers();
         assertEquals(tupleMembers.size(), 3);
 
         // check tuple members
         for (int i = 0; i < typeDescs.size(); i++) {
-            assertEquals(tupleMembers.get(i).kind(), SymbolKind.TUPLE_MEMBER_TYPE);
-            TupleMemberTypeSymbol memberType = tupleMembers.get(i);
+            assertEquals(tupleMembers.get(i).kind(), SymbolKind.TUPLE_MEMBER);
+            TupleMemberSymbol memberType = tupleMembers.get(i);
             assertEquals(memberType.getType().typeKind(), typeDescs.get(i));
 
             // check annot attachments of tuple members

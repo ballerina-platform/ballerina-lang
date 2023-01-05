@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -31,11 +31,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represents a tuple member type symbol.
+ * Represents a tuple member symbol.
  *
  * @since 2201.4.0
  */
-public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements TupleMemberTypeSymbol {
+public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements TupleMemberSymbol {
 
     private List<AnnotationSymbol> annots;
     private List<AnnotationAttachmentSymbol> annotAttachments;
@@ -45,7 +45,7 @@ public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements Tuple
                                       String name,
                                       BVarSymbol symbol,
                                       TypeSymbol type) {
-        super(name, SymbolKind.TUPLE_MEMBER_TYPE, symbol, context);
+        super(name, SymbolKind.TUPLE_MEMBER, symbol, context);
         this.type = type;
     }
 

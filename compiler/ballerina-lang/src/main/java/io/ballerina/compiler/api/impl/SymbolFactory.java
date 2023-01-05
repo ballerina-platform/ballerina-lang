@@ -175,7 +175,7 @@ public class SymbolFactory {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
             }
             if (symbol.owner instanceof BTypeSymbol && Symbols.isFlagOn(symbol.flags, Flags.FIELD)) {
-                return createTupleMemberType((BVarSymbol) symbol);
+                return createTupleMember((BVarSymbol) symbol);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
@@ -371,7 +371,7 @@ public class SymbolFactory {
      * @param symbol {@link BVarSymbol} to convert
      * @return {@link BallerinaTupleMemberSymbol} generated
      */
-    public BallerinaTupleMemberSymbol createTupleMemberType(BVarSymbol symbol) {
+    public BallerinaTupleMemberSymbol createTupleMember(BVarSymbol symbol) {
         TypeSymbol type = typesFactory.getTypeDescriptor(symbol.getType());
         return new BallerinaTupleMemberSymbol(context, symbol.type.name.getValue(), symbol, type);
     }

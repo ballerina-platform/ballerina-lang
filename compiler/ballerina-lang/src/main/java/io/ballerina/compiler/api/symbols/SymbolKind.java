@@ -44,5 +44,5 @@ public enum SymbolKind {
     PARAMETER,
     PATH_PARAMETER,
     ANNOTATION_ATTACHMENT,
-    TUPLE_MEMBER_TYPE
+    TUPLE_MEMBER
 }
