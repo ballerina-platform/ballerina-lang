@@ -208,8 +208,7 @@ public isolated function getChildren(Element elem) returns xml = @java:Method {
 # 
 # ```ballerina
 # xml:Element employees = xml `<employees><employee>David</employee><employee>Peter</employee></employees>`;
-# xml newEmployees = xml `<employee>Alice</employee><employee>Bob</employee>`;
-# employees.setChildren(newEmployees);
+# employees.setChildren(xml `<employee>Alice</employee><employee>Bob</employee>`);
 # employees ⇒ <employees><employee>Alice</employee><employee>Bob</employee></employees>
 # 
 # xml:Element x = xml `<student id="1205">John</student>`;
