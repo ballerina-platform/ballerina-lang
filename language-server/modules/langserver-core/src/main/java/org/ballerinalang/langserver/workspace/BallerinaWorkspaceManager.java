@@ -296,13 +296,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns module compilation from the file path provided.
      *
      * @param filePath file path of the document
+     * @param isSourceChange True if the given file's source is changed
      * @return {@link ModuleCompilation}
      */
     @Override
-    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, boolean isSourceChange) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (projectPair.isEmpty()) {
+        if (projectPair.isEmpty() || (projectPair.get().crashed() && !isSourceChange)) {
             return Optional.empty();
         }
 
@@ -310,6 +311,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Lock lock = projectPair.get().lockAndGet();
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
+            projectPair.get().setCrashed(false);
             if (compilation.diagnosticResult().diagnostics().stream()
                     .anyMatch(diagnostic -> 
                             Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
@@ -323,6 +325,17 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Unlock Project Instance
             lock.unlock();
         }
+    }
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param filePath file path of the document
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
+        return waitAndGetPackageCompilation(filePath, false);
     }
 
     @Override
@@ -1155,6 +1168,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         private Project project;
 
         private boolean crashed;
+
+        public PackageCompilation crashedCompilation;
 
         private ProjectPair(Project project, Lock lock) {
             this.project = project;

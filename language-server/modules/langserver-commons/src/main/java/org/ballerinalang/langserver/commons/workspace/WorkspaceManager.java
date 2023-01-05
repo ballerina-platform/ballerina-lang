@@ -175,6 +175,15 @@ public interface WorkspaceManager {
     /**
      * Returns module compilation from the file path provided.
      *
+     * @param filePath file path of the document
+     * @param isSourceChange True if the given file's source is changed
+     * @return {@link ModuleCompilation}
+     */
+    Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, boolean isSourceChange);
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
      * @param filePath      file path of the document
      * @param cancelChecker Cancel checker for the operation which calls this method
      * @return {@link ModuleCompilation}
