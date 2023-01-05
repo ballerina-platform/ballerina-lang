@@ -102,10 +102,10 @@ public isolated function iterator(xml<ItemType> x) returns object {
 # parameter `x` does not have an item with index parameter `i`.
 # 
 # ```ballerina
-# xml books = xml `<book><title>Macbeth</title></book><book><title>Hamlet</title></book>`;
-# books.get(1) ⇒ <book><title>Hamlet</title></book>
+# xml x = xml `<book><title>Macbeth</title></book><book><title>Hamlet</title></book>`;
+# x.get(1) ⇒ <book><title>Hamlet</title></book>
 # 
-# books.get(15) ⇒ panic
+# x.get(15) ⇒ panic
 # ```
 #
 # + x - the xml sequence
