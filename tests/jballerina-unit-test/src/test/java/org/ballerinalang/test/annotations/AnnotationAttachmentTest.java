@@ -562,7 +562,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnTupleMember() {
         BLangTupleTypeNode tp = (BLangTupleTypeNode) getTypeDefinition(
                 compileResult.getAST().getTypeDefinitions(), "Tp").getTypeNode();
-        BLangSimpleVariable m1 = tp.getMemberTypeNodes().get(0);
+        BLangSimpleVariable m1 = tp.getMemberNodes().get(0);
         Assert.assertEquals(m1.annAttachments.size(), 1);
         Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v30");
     }

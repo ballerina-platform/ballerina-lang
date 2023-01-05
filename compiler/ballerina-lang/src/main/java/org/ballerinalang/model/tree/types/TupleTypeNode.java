@@ -31,6 +31,7 @@ import java.util.List;
  */
 public interface TupleTypeNode {
 
-    List<? extends BLangSimpleVariable> getMemberTypeNodes();
+    List<? extends BLangSimpleVariable> getMemberNodes();
+    List<? extends TypeNode> getMemberTypeNodes();
     BLangType getRestParamType();
 }

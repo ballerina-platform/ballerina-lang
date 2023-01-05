@@ -42,8 +42,15 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
     public BLangType restParamType;
 
     @Override
-    public List<BLangSimpleVariable> getMemberTypeNodes() {
+    public List<BLangSimpleVariable> getMemberNodes() {
         return memberTypeNodes;
+    }
+
+    @Override
+    public List<BLangType> getMemberTypeNodes() {
+        List<BLangType> types = new ArrayList<>();
+        memberTypeNodes.forEach(member -> types.add(member.typeNode));
+        return types;
     }
 
     @Override
