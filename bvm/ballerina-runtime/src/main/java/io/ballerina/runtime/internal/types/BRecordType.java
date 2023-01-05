@@ -44,7 +44,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 public class BRecordType extends BStructureType implements RecordType {
-
+    private String internalName = null;
     public boolean sealed;
     public Type restFieldType;
     public int typeFlags;
@@ -61,8 +61,9 @@ public class BRecordType extends BStructureType implements RecordType {
      * @param sealed flag indicating the sealed status
      * @param typeFlags flags associated with the type
      */
-    public BRecordType(String typeName, Module pkg, long flags, boolean sealed, int typeFlags) {
+    public BRecordType(String typeName, String internalName, Module pkg, long flags, boolean sealed, int typeFlags) {
         super(typeName, pkg, flags, MapValueImpl.class);
+        this.internalName = internalName;
         this.sealed = sealed;
         this.typeFlags = typeFlags;
         this.readonly = SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
@@ -141,6 +142,9 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
+        if (this.internalName != null) {
+            return Utils.decodeIdentifier(this.internalName);
+        }
         return Utils.decodeIdentifier(this.typeName);
     }
 

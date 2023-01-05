@@ -386,7 +386,8 @@ public class JvmSignatures {
     public static final String RECORD_REMOVE = "(L" + STRING_VALUE + ";L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String RECORD_SET = "()L" + SET + ";";
     public static final String RECORD_SET_MAP_ENTRY = "()L" + SET + "<L" + MAP_ENTRY + "<TK;TV;>;>;";
-    public static final String RECORD_TYPE_IMPL_INIT = "(L" + STRING_VALUE + ";L" + MODULE + ";JZI)V";
+    public static final String RECORD_TYPE_IMPL_INIT =
+            "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + MODULE + ";JZI)V";
     public static final String RECORD_VALUE_CLASS = "<K:L" + OBJECT + ";V:L" + OBJECT + ";>L" + MAP_VALUE_IMPL +
             "<TK;TV;>;L" + MAP_VALUE + "<TK;TV;>;";
     public static final String RESOURCE_METHOD_TYPE_ARRAY_PARAM = "([L" + RESOURCE_METHOD_TYPE + ";)V";
