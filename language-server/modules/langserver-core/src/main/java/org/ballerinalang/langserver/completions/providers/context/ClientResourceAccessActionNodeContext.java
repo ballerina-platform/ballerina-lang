@@ -49,6 +49,7 @@ import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionIt
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -75,9 +76,16 @@ public class ClientResourceAccessActionNodeContext
                                                  ClientResourceAccessActionNode node) throws LSCompletionException {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (onSuggestClients(node, context)) {
+            // Covers following:
+            // 1. cl<cursor>->/path1/path2
+            completionItems.addAll(this.expressionCompletions(context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        }
+        
         ContextTypeResolver resolver = new ContextTypeResolver(context);
         Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
-
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }
@@ -131,6 +139,29 @@ public class ClientResourceAccessActionNodeContext
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ClientResourceAccessActionNode node,
+                     List<LSCompletionItem> completionItems) {
+        // At expression of the remote method call action, suggest clients first
+        if (onSuggestClients(node, context)) {
+            completionItems.forEach(completionItem -> {
+                Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(completionItem);
+                String sortText;
+                // Prioritize clients
+                if (typeSymbol.isPresent() && SymbolUtil.isClient(typeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(2);
+                }
+                sortText += SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+        
+        super.sort(context, node, completionItems);
     }
 
     private List<LSCompletionItem> getPathSegmentCompletionItems(ClientResourceAccessActionNode node,
@@ -262,6 +293,11 @@ public class ClientResourceAccessActionNodeContext
                 completableSegmentStartIndex <= segments.size() ?
                         segments.subList(completableSegmentStartIndex, segments.size()) : Collections.emptyList();
         return Pair.of(completableSegments, true);
+    }
+
+    private boolean onSuggestClients(ClientResourceAccessActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return cursor <= node.rightArrowToken().textRange().startOffset();
     }
 
     private boolean isInResourceMethodParameterContext(ClientResourceAccessActionNode node,

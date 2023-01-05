@@ -40,6 +40,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -193,8 +194,14 @@ public class PathUtil {
         }
         String orgName = symbol.getModule().get().id().orgName();
         String moduleName = symbol.getModule().get().id().moduleName();
-        Package langLibPackage = project.projectEnvironmentContext().environment().getService(PackageCache.class)
-                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName)).get(0);
+        List<Package> langLibPackages = project.projectEnvironmentContext().environment().getService(PackageCache.class)
+                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName));
+        // Ideally this list cannot be empty. But due to concurrent issues, it can be. 
+        // Checking if it's empty for safety.
+        if (langLibPackages.isEmpty()) {
+            return Optional.empty();
+        }
+        Package langLibPackage = langLibPackages.get(0);
         String sourceFile = symbol.getLocation().get().lineRange().filePath();
 
         Optional<Path> filepath = Optional.empty();
