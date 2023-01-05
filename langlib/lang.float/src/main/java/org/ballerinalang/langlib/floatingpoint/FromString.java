@@ -48,13 +48,8 @@ public class FromString {
 
     public static Object fromString(BString s) {
         String decimalFloatingPointNumber = s.getValue();
-        String upperCaseValue = decimalFloatingPointNumber.toUpperCase();
-        if (upperCaseValue.endsWith("F") || upperCaseValue.endsWith("D")) {
-            return getTypeConversionError(decimalFloatingPointNumber);
-        }
-
         try {
-            return TypeConverter.stringToFloat(s.getValue());
+            return TypeConverter.stringToFloat(decimalFloatingPointNumber);
         } catch (NumberFormatException e) {
             return getTypeConversionError(decimalFloatingPointNumber);
         }
