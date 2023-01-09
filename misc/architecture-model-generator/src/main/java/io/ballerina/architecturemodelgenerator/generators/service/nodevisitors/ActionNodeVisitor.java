@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -86,7 +87,19 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
-        ExpressionNode clientNode = clientResourceAccessActionNode.expression();
+        NameReferenceNode clientNode = null;
+        if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
+            NameReferenceNode fieldName = ((FieldAccessExpressionNode)
+                    clientResourceAccessActionNode.expression()).fieldName();
+            if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                clientNode = fieldName;
+            }
+            // todo : Other combinations
+        } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+            clientNode = (SimpleNameReferenceNode) clientResourceAccessActionNode.expression();
+        } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+            clientNode = (QualifiedNameReferenceNode) clientResourceAccessActionNode.expression();
+        }
         String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
@@ -106,18 +119,19 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
-        SimpleNameReferenceNode clientNode = null;
-        if (remoteMethodCallActionNode.expression() instanceof FieldAccessExpressionNode) {
+        NameReferenceNode clientNode = null;
+        if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
             NameReferenceNode fieldName = ((FieldAccessExpressionNode)
                     remoteMethodCallActionNode.expression()).fieldName();
-            if (fieldName instanceof SimpleNameReferenceNode) {
-                clientNode = (SimpleNameReferenceNode) fieldName;
+            if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                clientNode = fieldName;
             }
             // todo : Other combinations
-        } else if (remoteMethodCallActionNode.expression() instanceof SimpleNameReferenceNode) {
+        } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
             clientNode = (SimpleNameReferenceNode) remoteMethodCallActionNode.expression();
+        } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+            clientNode = (QualifiedNameReferenceNode) remoteMethodCallActionNode.expression();
         }
-        // todo : Other combinations
 
         if (clientNode != null) {
             String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
