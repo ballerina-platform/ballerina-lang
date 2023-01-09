@@ -1791,7 +1791,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (inferredTupleDetails.restMemberTypes.isEmpty()) {
-                        BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null, null);
                         inferredTupleDetails.fixedMemberTypes.add(memberType);
                     } else {
                         inferredTupleDetails.restMemberTypes.add(memberType);
@@ -6278,9 +6277,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return arrayType.eType;
             }
         } else if (type.tag == TypeTags.TUPLE) {
-            List<BTupleMember> tupleTypeList = ((BTupleType) type).members;
-            if (tupleTypeList.size() == 2 && types.isAssignable(tupleTypeList.get(0).type, symTable.stringType)) {
-                return tupleTypeList.get(1).type;
+            List<BType> tupleTypeList = ((BTupleType) type).getTupleTypes();
+            if (tupleTypeList.size() == 2 && types.isAssignable(tupleTypeList.get(0), symTable.stringType)) {
+                return tupleTypeList.get(1);
             }
         }
         dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE, type);
@@ -7660,7 +7659,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // Create a new tuple type and a closed record type as the expected rest param type with expected
             // required/defaultable paramtypes as members.
             PackageID pkgID = data.env.enclPkg.symbol.pkgID;
-            List<BTupleMember> tupleMemberTypes = new ArrayList<>();
+            List<BTupleMember> tupleMembers = new ArrayList<>();
             BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, null, VIRTUAL, data);
             mappingTypeRestArg = new BRecordType(recordSymbol);
             LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
@@ -7672,7 +7671,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BVarSymbol nonRestParam = nonRestParams.get(j);
                 Name paramName = nonRestParam.name;
                 BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(paramType);
-                tupleMemberTypes.add(new BTupleMember(paramType, varSymbol));
+                tupleMembers.add(new BTupleMember(paramType, varSymbol));
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
                                              add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
@@ -7686,15 +7685,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     tupleRestType = ((BArrayType) listTypeRestArg).eType;
                 } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                     BTupleType restTupleType = (BTupleType) listTypeRestArg;
-                    tupleMemberTypes.addAll(restTupleType.members);
-                    restTupleType.members.forEach(t -> tupleMemberTypes.add(t));
+                    tupleMembers.addAll(restTupleType.members);
+                    restTupleType.members.forEach(t -> tupleMembers.add(t));
                     if (restTupleType.restType != null) {
                         tupleRestType = restTupleType.restType;
                     }
                 }
             }
 
-            BTupleType tupleType = new BTupleType(tupleMemberTypes);
+            BTupleType tupleType = new BTupleType(tupleMembers);
             tupleType.restType = tupleRestType;
             listTypeRestArg = tupleType;
             mappingTypeRestArg.sealed = true;
@@ -7746,14 +7745,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
-                List<BTupleMember> tupleMemberTypes = tupleType.members;
+                List<BTupleMember> tupleMembers = tupleType.members;
                 BType tupleRestType = tupleType.restType;
 
-                int tupleMemCount = tupleMemberTypes.size();
+                int tupleMemCount = tupleMembers.size();
 
                 for (int j = 0; j < iExpr.restArgs.size(); j++) {
                     BLangExpression restArg = iExpr.restArgs.get(j);
-                    BType memType = j < tupleMemCount ? tupleMemberTypes.get(j).type : tupleRestType;
+                    BType memType = j < tupleMemCount ? tupleMembers.get(j).type : tupleRestType;
                     checkTypeParamExpr(restArg, memType, true, data);
                     if (restType != symTable.semanticError && data.resultType == symTable.semanticError) {
                         restType = data.resultType;
