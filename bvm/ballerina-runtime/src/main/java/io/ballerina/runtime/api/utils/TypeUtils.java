@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
@@ -159,4 +160,10 @@ public class TypeUtils {
         return constraint;
     }
 
+    public static Type getEffectiveType(Type type) {
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return ((BIntersectionType) type).getEffectiveType();
+        }
+        return type;
+    }
 }

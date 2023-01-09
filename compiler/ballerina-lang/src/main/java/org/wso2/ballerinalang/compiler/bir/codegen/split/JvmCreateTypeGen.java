@@ -278,7 +278,6 @@ public class JvmCreateTypeGen {
         mv.visitEnd();
     }
 
-
     private void createTypedescInstance(MethodVisitor mv, BType bType, BIRTypeDefinition typeDefinition,
                                         String moduleInitClass) {
         String className;
@@ -286,7 +285,8 @@ public class JvmCreateTypeGen {
             PackageID pkgID = bType.tsymbol.pkgID;
             String packageName = JvmCodeGenUtil.getPackageName(pkgID);
             className = getTypeDescClassName(packageName, toNameString(bType));
-        } else if (bType.tag == TypeTags.TUPLE) {
+        } else if (Types.getEffectiveType(bType).tag == TypeTags.TUPLE) {
+            bType = Types.getEffectiveType(bType);
             className = TYPEDESC_VALUE_IMPL;
         } else {
             return;
@@ -299,7 +299,7 @@ public class JvmCreateTypeGen {
             jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(bType));
         } else {
             BType referredType = ((BTypeReferenceType) referenceType).referredType;
-            if (referredType.tag == TypeTags.TYPEREFDESC) {
+            if (referredType.tag == TypeTags.TYPEREFDESC || bType.tag == TypeTags.TUPLE) {
                 jvmTypeGen.loadType(mv, referenceType);
             } else {
                 jvmTypeGen.loadType(mv, referredType);
@@ -325,7 +325,7 @@ public class JvmCreateTypeGen {
             String name = optionalTypeDef.internalName.value;
             BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
             if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
-                    bType.tag != TypeTags.UNION && bType.tag != TypeTags.TUPLE) {
+                    bType.tag != TypeTags.UNION && Types.getEffectiveType(bType).tag != TypeTags.TUPLE) {
                         // do not generate anything for other types (e.g.: finite type, etc.)
                         continue;
                     } else {
@@ -335,7 +335,7 @@ public class JvmCreateTypeGen {
                     mv.visitCode();
                 }
             }
-            switch (bType.tag) {
+            switch (Types.getEffectiveType(bType).tag) {
                 case TypeTags.RECORD:
                     jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType);
                     break;
@@ -346,7 +346,7 @@ public class JvmCreateTypeGen {
                     jvmErrorTypeGen.createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
                     break;
                 case TypeTags.TUPLE:
-                    jvmTupleTypeGen.createTupleType(mv, (BTupleType) bType);
+                    jvmTupleTypeGen.createTupleType(mv, (BTupleType) Types.getEffectiveType(bType));
                     break;
                 default:
                     jvmUnionTypeGen.createUnionType(mv, (BUnionType) bType);
