@@ -363,7 +363,7 @@ public class AnnotationTests {
         BTypeDefinitionSymbol symbol =
                 ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Tup")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 1);
-        List<BTupleMember> members = ((BTupleType) symbol.type).memberTypes;
+        List<BTupleMember> members = ((BTupleType) symbol.type).members;
         List<? extends AnnotationAttachmentSymbol> m1 = members.get(0).symbol.getAnnotations();
 
         BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
@@ -380,7 +380,7 @@ public class AnnotationTests {
 
         symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T1")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 0);
-        members = ((BTupleType) symbol.type).memberTypes;
+        members = ((BTupleType) symbol.type).members;
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
@@ -392,7 +392,7 @@ public class AnnotationTests {
 
         symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T2")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 0);
-        members = ((BTupleType) symbol.type).memberTypes;
+        members = ((BTupleType) symbol.type).members;
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));

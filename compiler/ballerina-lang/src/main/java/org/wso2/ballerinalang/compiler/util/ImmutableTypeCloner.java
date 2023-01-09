@@ -404,7 +404,7 @@ public class ImmutableTypeCloner {
                                                               Names names, Set<BType> unresolvedTypes,
                                                               BTupleType type) {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
-        List<BTupleMember> origTupleMemTypes = type.memberTypes;
+        List<BTupleMember> origTupleMemTypes = type.members;
 
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
         if (immutableType.isPresent()) {
@@ -418,7 +418,7 @@ public class ImmutableTypeCloner {
         BTupleType tupleEffectiveImmutableType =
                 (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().effectiveType;
         tupleEffectiveImmutableType.isCyclic = type.isCyclic;
-        tupleEffectiveImmutableType.setMemberTypes(immutableMemTypes);
+        tupleEffectiveImmutableType.setMembers(immutableMemTypes);
 
         String originalTypeName = origTupleTypeSymbol == null ? "" : origTupleTypeSymbol.name.getValue();
         Name origTupleTypeSymbolName = Names.EMPTY;

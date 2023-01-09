@@ -1589,7 +1589,7 @@ public class BIRPackageSymbolEnter {
 
                         tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
-                    bTupleType.memberTypes = tupleMembers;
+                    bTupleType.members = tupleMembers;
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();

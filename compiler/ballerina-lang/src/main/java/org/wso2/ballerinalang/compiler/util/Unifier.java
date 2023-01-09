@@ -222,7 +222,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
         if (hasMatchedTupleType) {
-            if (expTupleType.memberTypes.size() != originalType.memberTypes.size()) {
+            if (expTupleType.members.size() != originalType.members.size()) {
                 hasMatchedTupleType = false;
             } else {
                 BType expRestType = expTupleType.restType;
@@ -234,7 +234,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.memberTypes) :
+        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.members) :
                 Collections.singletonList(new BTupleMember(null, null));
 
         List<BTupleMember> members = new ArrayList<>();
@@ -242,7 +242,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         boolean errored = false;
 
-        List<BTupleMember> tupleTypes = originalType.memberTypes;
+        List<BTupleMember> tupleTypes = originalType.members;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
             if (this.visitedTypes.contains(tupleTypes.get(i).type)) {
                 continue;
@@ -668,7 +668,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
             }
             return getConstraintTypeIfNotError(
-                    ((BTupleType) restArgType).memberTypes.get(index - requiredArgCount).type);
+                    ((BTupleType) restArgType).members.get(index - requiredArgCount).type);
         }
 
         BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);

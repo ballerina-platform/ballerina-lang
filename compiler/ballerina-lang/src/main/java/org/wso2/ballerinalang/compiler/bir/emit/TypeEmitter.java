@@ -234,9 +234,9 @@ class TypeEmitter {
             return bType.toString();
         }
         StringBuilder tupleStr = new StringBuilder("(");
-        int length = bType.memberTypes.size();
+        int length = bType.members.size();
         int i = 0;
-        for (BTupleMember tupleMember : bType.memberTypes) {
+        for (BTupleMember tupleMember : bType.members) {
             if (tupleMember != null) {
                 tupleStr.append(emitTypeRef(tupleMember.type, tabs));
                 i += 1;

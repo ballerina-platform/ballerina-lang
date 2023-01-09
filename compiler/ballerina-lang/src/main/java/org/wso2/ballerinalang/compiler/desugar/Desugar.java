@@ -1641,11 +1641,11 @@ public class Desugar extends BLangNodeVisitor {
             boolean isIndexBasedAccessExpr = tupleExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
             if (restType.tag == TypeTags.TUPLE) {
                 BTupleType restTupleType = (BTupleType) restType;
-                for (int index = 0; index < restTupleType.memberTypes.size(); index++) {
+                for (int index = 0; index < restTupleType.members.size(); index++) {
                     BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                             (long) index);
                     BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef, indexExpr);
-                    tupleValueExpr.setBType(restTupleType.memberTypes.get(index).type);
+                    tupleValueExpr.setBType(restTupleType.members.get(index).type);
                     if (isIndexBasedAccessExpr) {
                         createAssignmentStmt(tupleValueExpr, blockStmt, countExpr, tupleVarSymbol,
                                 (BLangIndexBasedAccess) tupleExpr);
@@ -2598,11 +2598,11 @@ public class Desugar extends BLangNodeVisitor {
             modifiedTupleExpr.setBType(tupleExpr.getBType());
             tupleExpr = modifiedTupleExpr;
             isIndexBasedAccessExpr = true;
-            for (int index = 0; index < restTupleType.memberTypes.size(); index++) {
+            for (int index = 0; index < restTupleType.members.size(); index++) {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(restParam, indexExpr);
-                tupleValueExpr.setBType(restTupleType.memberTypes.get(index).type);
+                tupleValueExpr.setBType(restTupleType.members.get(index).type);
                 createAssignmentStmt(tupleValueExpr, blockStmt, indexExpr, tupleVarSymbol,
                         (BLangIndexBasedAccess) tupleExpr);
                 // Increment the count for each visited member in the tupleLiteral.
@@ -5855,7 +5855,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
         BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
-        List<BTupleMember> tupleMemberTypes = tupleType.memberTypes;
+        List<BTupleMember> tupleMemberTypes = tupleType.members;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
 
@@ -5874,7 +5874,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BTupleType spreadOpTuple = (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
-                        i += spreadOpTuple.memberTypes.size();
+                        i += spreadOpTuple.members.size();
                         continue;
                     }
                 }
@@ -6683,7 +6683,7 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
         BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BTupleMember type : resourcePathType.memberTypes) {
+        for (BTupleMember type : resourcePathType.members) {
             BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type.type,
                     this.env.scope.owner, type.type.tsymbol.pos, VIRTUAL);
             invocationParams.add(param);
@@ -9337,7 +9337,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BLangExpression indexExpr = rewriteExpr(createIntLiteral(varargIndex));
                     BType memberAccessExprType = tupleTypedVararg ?
-                            ((BTupleType) varargType).memberTypes.get(varargIndex).type
+                            ((BTupleType) varargType).members.get(varargIndex).type
                             : ((BArrayType) varargType).eType;
                     args.add(addConversionExprIfRequired(ASTBuilderUtil.createMemberAccessExprNode(memberAccessExprType,
                              varargRef, indexExpr), param.type));

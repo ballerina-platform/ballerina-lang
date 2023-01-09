@@ -2512,7 +2512,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                             for (BType possibleType : possibleTypes) {
                                 if (possibleType.tag == TypeTags.TUPLE) {
-                                    memberTypes.add(((BTupleType) possibleType).memberTypes.get(i).type);
+                                    memberTypes.add(((BTupleType) possibleType).members.get(i).type);
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
@@ -2597,7 +2597,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int i = 0;
         BType type;
         for (BLangVariable var : varNode.memberVariables) {
-            type = tupleTypeNode.memberTypes.get(i).type;
+            type = tupleTypeNode.members.get(i).type;
             i++;
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
@@ -2616,13 +2616,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (varNode.restVariable != null) {
-            int tupleNodeMemCount = tupleTypeNode.memberTypes.size();
+            int tupleNodeMemCount = tupleTypeNode.members.size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
             List<BTupleMember> memberTypes = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
-                    memberTypes.add(tupleTypeNode.memberTypes.get(j));
+                    memberTypes.add(tupleTypeNode.members.get(j));
                 }
             }
             if (!memberTypes.isEmpty()) {
@@ -2651,9 +2651,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BType possibleType : possibleTypes) {
             if (possibleType.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) possibleType;
-                for (int j = varNode.memberVariables.size(); j < tupleType.memberTypes.size();
+                for (int j = varNode.memberVariables.size(); j < tupleType.members.size();
                      j++) {
-                    memberRestTypes.add(tupleType.memberTypes.get(j).type);
+                    memberRestTypes.add(tupleType.members.get(j).type);
                 }
                 if (tupleType.restType != null) {
                     memberRestTypes.add(tupleType.restType);
@@ -2675,7 +2675,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private boolean checkMemVarCountMatchWithMemTypeCount(BLangTupleVariable varNode, BTupleType tupleTypeNode) {
         int memberVarsSize = varNode.memberVariables.size();
         BLangVariable restVariable = varNode.restVariable;
-        int tupleTypesSize = tupleTypeNode.memberTypes.size();
+        int tupleTypesSize = tupleTypeNode.members.size();
         if (memberVarsSize > tupleTypesSize) {
             return false;
         }
