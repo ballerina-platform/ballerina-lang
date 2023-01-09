@@ -1322,7 +1322,7 @@ public class JvmInstructionGen {
 
     void generateMapNewIns(BIRNonTerminator.NewStructure mapNewIns, int localVarOffset) {
         BType type = mapNewIns.type;
-        if (isNonReferredRecord(type)) {
+        if (Types.isUserDefinedTypeDefinition(type)) {
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
@@ -1528,7 +1528,14 @@ public class JvmInstructionGen {
             }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
-            this.loadVar(inst.typedescOp.variableDcl);
+            if (Types.isUserDefinedTypeDefinition(instType)) {
+                PackageID packageID = instType.tsymbol.pkgID;
+                String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+                String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(instType));
+                mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
+            } else {
+                this.loadVar(inst.typedescOp.variableDcl);
+            }
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate", INSTANTIATE, true);

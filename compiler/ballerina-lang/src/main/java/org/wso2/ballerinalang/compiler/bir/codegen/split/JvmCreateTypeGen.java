@@ -123,6 +123,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
@@ -264,39 +265,50 @@ public class JvmCreateTypeGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPEDESC_INSTANCES_METHOD,
                                           "()V", null, null);
         mv.visitCode();
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
-            if (bType.tag == TypeTags.RECORD) {
-                BRecordType recordType = (BRecordType) bType;
-                BSymbol owner = recordType.tsymbol.owner;
-                if (owner != null && owner.getKind() != SymbolKind.PACKAGE) {
-                    continue;
-                }
-                String packageName = JvmCodeGenUtil.getPackageName(recordType.tsymbol.pkgID);
-                String className = getTypeDescClassName(packageName, toNameString(recordType));
-                mv.visitTypeInsn(NEW, className);
-                mv.visitInsn(DUP);
-                BType referenceType = optionalTypeDef.referenceType;
-                if (referenceType == null) {
-                    jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(optionalTypeDef.type));
-                } else {
-                    BType referredType = ((BTypeReferenceType) referenceType).referredType;
-                    if (referredType.tag == TypeTags.TYPEREFDESC) {
-                        jvmTypeGen.loadType(mv, referenceType);
-                    } else {
-                        jvmTypeGen.loadType(mv, referredType);
-                    }
-                }
-                mv.visitInsn(ACONST_NULL);
-                mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
-                mv.visitFieldInsn(PUTSTATIC, moduleInitClass,
-                                  jvmTypeGen.getTypedescFieldName(optionalTypeDef.internalName.value), GET_TYPEDESC);
+        for (BIRTypeDefinition typeDefinition : typeDefs) {
+            BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
+            BSymbol owner = bType.tsymbol.owner;
+            if (owner != null && owner.getKind() != SymbolKind.PACKAGE) {
+                continue;
             }
+            createTypedescInstance(mv, bType, typeDefinition, moduleInitClass);
         }
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+
+    private void createTypedescInstance(MethodVisitor mv, BType bType, BIRTypeDefinition typeDefinition,
+                                        String moduleInitClass) {
+        String className;
+        if (bType.tag == TypeTags.RECORD) {
+            PackageID pkgID = bType.tsymbol.pkgID;
+            String packageName = JvmCodeGenUtil.getPackageName(pkgID);
+            className = getTypeDescClassName(packageName, toNameString(bType));
+        } else if (bType.tag == TypeTags.TUPLE) {
+            className = TYPEDESC_VALUE_IMPL;
+        } else {
+            return;
+        }
+
+        mv.visitTypeInsn(NEW, className);
+        mv.visitInsn(DUP);
+        BType referenceType = typeDefinition.referenceType;
+        if (referenceType == null) {
+            jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+        } else {
+            BType referredType = ((BTypeReferenceType) referenceType).referredType;
+            if (referredType.tag == TypeTags.TYPEREFDESC) {
+                jvmTypeGen.loadType(mv, referenceType);
+            } else {
+                jvmTypeGen.loadType(mv, referredType);
+            }
+        }
+        mv.visitInsn(ACONST_NULL);
+        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass,
+                jvmTypeGen.getTypedescFieldName(typeDefinition.internalName.value), GET_TYPEDESC);
     }
 
     private int createTypesInstanceSplits(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {

@@ -24,6 +24,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -5413,6 +5414,14 @@ public class Types {
         }
 
         return intersectionErrorType;
+    }
+
+    // This function checks whether the specified type definition is a user-defined type or not.
+    public static boolean isUserDefinedTypeDefinition(BType type) {
+        type = Types.getReferredType(type);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        return typeSymbol != null  && (type.tag == TypeTags.RECORD || type.tag == TypeTags.TUPLE) &&
+                typeSymbol.name != Names.EMPTY && typeSymbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     private BType createRecordIntersection(IntersectionContext intersectionContext,
