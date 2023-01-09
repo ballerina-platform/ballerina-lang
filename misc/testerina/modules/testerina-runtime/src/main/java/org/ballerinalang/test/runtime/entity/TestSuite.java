@@ -246,6 +246,10 @@ public class TestSuite {
         return this.mockFunctionNamesMap;
     }
 
+    public void removeAllMockFunctions() {
+        this.mockFunctionNamesMap = new HashMap<>();
+    }
+
     public void addTestUtilityFunction(String functionName, String functionClassName) {
         this.testUtilityFunctions.put(functionName, functionClassName);
     }

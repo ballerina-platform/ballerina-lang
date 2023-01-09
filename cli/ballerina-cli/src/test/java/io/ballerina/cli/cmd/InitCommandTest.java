@@ -260,7 +260,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                " ballerina-init - Create a new Ballerina package inside the current\n"));
+                " ballerina-init - Initialize a Ballerina package inside the current\n"));
 
     }
 
@@ -273,7 +273,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Create a new Ballerina package inside the current\n"));
+                "ballerina-init - Initialize a Ballerina package inside the current\n"));
     }
 
     @Test(description = "Test init command inside a directory with invalid package name")
@@ -343,6 +343,30 @@ public class InitCommandTest extends BaseCommandTest {
     @Test(description = "Test init command with package name has invalid underscores",
             dataProvider = "packageNamesHasInvalidUnderscores")
     public void testInitCommandWithPackageNameHasInvalidUnderscores(String pkgName, String errMessage)
+            throws IOException {
+        Path projectPath = tmpDir.resolve("sample5");
+        if (Files.notExists(projectPath)) {
+            Files.createDirectory(projectPath);
+        }
+
+        String[] args = { pkgName };
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
+        new CommandLine(initCommand).parseArgs(args);
+        initCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + pkgName + "' :\n" + errMessage));
+    }
+
+    @DataProvider(name = "PackageNameHasOnlyDots")
+    public Object[][] providePackageNameHasOnlyDots() {
+        return new Object[][] {
+                { ".", "Package name can only contain alphanumerics and underscores." },
+                { "..", "Package name can only contain alphanumerics and underscores." }
+        };
+    }
+    @Test(description = "Test init command with package name has only dots",
+            dataProvider = "PackageNameHasOnlyDots")
+    public void testInitCommandWithPackageNameHasOnlyDots(String pkgName, String errMessage)
             throws IOException {
         Path projectPath = tmpDir.resolve("sample5");
         if (Files.notExists(projectPath)) {

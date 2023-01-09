@@ -44,7 +44,7 @@
       "detail": "Person",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}},\nname: ${2:\"\"},\nage: ${3:0}",
+      "insertText": "address: {street: ${1:\"\"}, city: ${2:\"\"}, postalCode: ${3:\"\"}},\nname: ${4:\"\"},\nage: ${5:0}",
       "insertTextFormat": "Snippet"
     }
   ]

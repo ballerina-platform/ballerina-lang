@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -47,7 +48,7 @@ public class Cast {
 
     public static Object cast(BObject value, BTypedesc castType) {
         BHandle handleObj;
-        ObjectType objType = value.getType();
+        ObjectType objType = (ObjectType) TypeUtils.getReferredType(value.getType());
         String valueObjName = objType.getName();
         handleObj = (BHandle) value.get(StringUtils.fromString(jObjField));
         Object jObj = handleObj.getValue();

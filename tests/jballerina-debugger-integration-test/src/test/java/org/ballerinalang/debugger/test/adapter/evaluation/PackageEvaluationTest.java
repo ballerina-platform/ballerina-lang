@@ -53,6 +53,8 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
 
         // with qualified literals (i.e. imported modules from the same package)
         debugTestRunner.assertExpression(context, "other:sum(2,6)", "8", "int");
+        // with typedesc values as arguments
+        debugTestRunner.assertExpression(context, "processTypeDesc(Student)", "evaluation_tests:Student", "typedesc");
     }
 
     @Override
@@ -106,19 +108,26 @@ public class PackageEvaluationTest extends ExpressionEvaluationTest {
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        super.variableReferenceEvaluationTest();
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
+        super.nameReferenceEvaluationTest();
 
         // Todo - move to common evaluation test suite after fixing the value string
         debugTestRunner.assertExpression(context, GLOBAL_VAR_03,
                 "(debug_test_resources/evaluation_tests:0:$anonType$nameMap$_0 & readonly)",
                 "record");
 
-        // with qualified variable references (i.e. imported modules)
+        // qualified variable references (i.e. imported modules)
         debugTestRunner.assertExpression(context, "other:publicConstant", "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, "other:publicModuleVariable", "\"public\"", "string");
         debugTestRunner.assertExpression(context, "other:constMap",
                 "(debug_test_resources/evaluation_tests.other:0:$anonType$constMap$_0 & readonly)",
                 "record");
+
+        // other simple name references (i.e. types)
+        debugTestRunner.assertExpression(context, "Student", "evaluation_tests:Student", "typedesc");
+        debugTestRunner.assertExpression(context, "AnonPerson", "evaluation_tests:AnonPerson", "typedesc");
+
+        // other qualified name references (i.e. types)
+        debugTestRunner.assertExpression(context, "other:Kid", "evaluation_tests.other:Kid", "typedesc");
     }
 }
