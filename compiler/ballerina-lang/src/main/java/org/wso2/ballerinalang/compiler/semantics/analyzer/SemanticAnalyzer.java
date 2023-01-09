@@ -1609,7 +1609,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BTupleMember> memberTypes = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
             BType type = getTupleMemberType(memberVariable);
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
@@ -2509,7 +2509,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BTupleMember> sourceTypes = new ArrayList<>(((BTupleType) source).memberTypes);
         if (((BTupleType) source).restType != null) {
             BType type = ((BTupleType) source).restType;
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             sourceTypes.add(new BTupleMember(type, varSymbol));
         }
 
@@ -2923,7 +2923,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
                     BType type = memberMatchPattern.getBType();
-                    BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                     memberTypes.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType matchPatternType = new BTupleType(memberTypes);
@@ -3066,7 +3066,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), types.get(i).type, data);
                     BType type = matchPatterns.get(i).getBType();
-                    BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null,
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
                             type, null, null, null);
                     memberTypes.add(new BTupleMember(type, varSymbol));
                 }
@@ -3239,7 +3239,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangBindingPattern bindingPattern : listBindingPattern.bindingPatterns) {
             analyzeNode(bindingPattern, data);
             BType type = bindingPattern.getBType();
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null,
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
                     type, null, null, null);
             listMemberTypes.add(new BTupleMember(type, varSymbol));
             listBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
@@ -3580,7 +3580,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
             memberMatchPattern.accept(this, data);
             BType type = memberMatchPattern.getBType();
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             memberTypes.add(new BTupleMember(type, varSymbol));
             checkForSimilarVars(listMatchPattern.declaredVars, memberMatchPattern.declaredVars, memberMatchPattern.pos);
             listMatchPattern.declaredVars.putAll(memberMatchPattern.declaredVars);
@@ -3672,7 +3672,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (int i = 0; i < bindingPatterns.size(); i++) {
                     assignTypesToMemberPatterns(bindingPatterns.get(i), types.get(i).type, data);
                     BType type = bindingPatterns.get(i).getBType();
-                    BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
                     memberTypes.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType tupleType = new BTupleType(memberTypes);

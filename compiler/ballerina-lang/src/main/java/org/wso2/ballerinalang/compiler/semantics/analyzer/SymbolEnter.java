@@ -2523,7 +2523,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                             if (memberTypes.size() > 1) {
                                 BType type = BUnionType.create(null, memberTypes);
-                                BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null,
+                                BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null,
                                         null, null);
                                 memberTupleTypes.add(new BTupleMember(type, varSymbol));
                             } else {

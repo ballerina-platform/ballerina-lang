@@ -1328,7 +1328,7 @@ public class Types {
         List<BTupleMember> sourceTypes = new ArrayList<>(source.memberTypes);
         if (source.restType != null) {
             BType type = source.restType;
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             sourceTypes.add(new BTupleMember(type, varSymbol));
         }
         return sourceTypes.stream()
@@ -4802,7 +4802,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
             BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env);
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
@@ -5374,7 +5374,7 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(intersectionType.flags, null, null, intersectionType,
+            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, null, null, intersectionType,
                     null, null, null);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }

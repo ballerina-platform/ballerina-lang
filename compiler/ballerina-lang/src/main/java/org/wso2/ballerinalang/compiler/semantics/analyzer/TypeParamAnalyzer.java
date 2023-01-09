@@ -877,7 +877,7 @@ public class TypeParamAnalyzer {
             if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-            BVarSymbol varSymbol = Symbols.createBVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
+            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
                     null, null, null);
             memberTypes.add(new BTupleMember(matchingBoundType, varSymbol));
         }
