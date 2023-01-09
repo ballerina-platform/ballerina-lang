@@ -101,7 +101,7 @@ public class ValueConverter {
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
-        Type convertibleType = TypeConverter.getConvertibleTypeFromJson(value, targetType,
+        Type convertibleType = TypeConverter.getConvertibleType(value, targetType,
                 null, new ArrayList<>(), errors, true);
         if (convertibleType == null) {
             throw CloneUtils.createConversionError(value, targetType, errors);

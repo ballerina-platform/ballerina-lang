@@ -263,14 +263,14 @@ public class TypeConverter {
         }
     }
 
-    public static Type getConvertibleType(Object inputValue, Type targetType, String varName, boolean isFromJson,
+    public static Type getConvertibleType(Object inputValue, Type targetType, String varName,
                                           List<TypeValuePair> unresolvedValues, List<String> errors,
                                           boolean allowNumericConversion) {
 
         int targetTypeTag = targetType.getTag();
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                return getConvertibleTypeInTargetUnionType(inputValue, (BUnionType) targetType, varName, isFromJson,
+                return getConvertibleTypeInTargetUnionType(inputValue, (BUnionType) targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors,
@@ -285,7 +285,7 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName, isFromJson,
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName,
                         unresolvedValues, errors, allowNumericConversion)) {
                     return targetType;
                 }
@@ -305,20 +305,21 @@ public class TypeConverter {
                 return TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
-                return isFromJson ? getConvertibleTypeFromJson(inputValue, effectiveType, varName,
-                        unresolvedValues, errors, allowNumericConversion) : getConvertibleType(inputValue,
-                        effectiveType, varName, false, unresolvedValues, errors, allowNumericConversion);
+                return getConvertibleType(inputValue, effectiveType, varName, unresolvedValues, errors,
+                        allowNumericConversion);
             case TypeTags.FINITE_TYPE_TAG:
-                return getConvertibleFiniteType(inputValue, (BFiniteType) targetType, varName, isFromJson,
+                return getConvertibleFiniteType(inputValue, (BFiniteType) targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return getConvertibleType(inputValue, ((BTypeReferenceType) targetType).getReferredType(), varName,
-                        isFromJson, unresolvedValues, errors, allowNumericConversion);
+                        unresolvedValues, errors, allowNumericConversion);
             case TypeTags.TYPEDESC_TAG:
                 return getConvertibleType(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
-                        isFromJson, unresolvedValues, errors, allowNumericConversion);
+                        unresolvedValues, errors, allowNumericConversion);
             default:
-                if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)) {
+                if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
+                        || (TypeTags.isXMLTypeTag(targetTypeTag)
+                                && (TypeChecker.getType(inputValue).getTag() == TypeTags.STRING_TAG))) {
                     return targetType;
                 }
         }
@@ -326,7 +327,7 @@ public class TypeConverter {
     }
 
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
-                                                           String varName, boolean isFromJson, List<String> errors,
+                                                           String varName, List<String> errors,
                                                            List<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
         // only the first matching type is returned.
@@ -340,7 +341,7 @@ public class TypeConverter {
         // if not we check for a convertible type
         for (Type memType : memberTypes) {
             Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    isFromJson, unresolvedValues, errors, allowNumericConversion);
+                    unresolvedValues, errors, allowNumericConversion);
             if (convertibleTypeInUnion != null) {
                 return convertibleTypeInUnion;
             }
@@ -349,13 +350,13 @@ public class TypeConverter {
     }
 
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
-                                                String varName, boolean isFromJson, List<String> errors,
+                                                String varName, List<String> errors,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
             if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
-                return getConvertibleType(inputValue, valueType, varName, isFromJson, unresolvedValues,
+                return getConvertibleType(inputValue, valueType, varName, unresolvedValues,
                         errors, allowNumericConversion);
             }
         }
@@ -384,35 +385,8 @@ public class TypeConverter {
         return null;
     }
 
-    public static Type getConvertibleTypeFromJson(Object value, Type targetType, String varName,
-                                                  List<TypeValuePair> unresolvedValues, List<String> errors,
-                                                  boolean allowNumericConversion) {
-
-        int targetTypeTag = TypeUtils.getReferredType(targetType).getTag();
-
-        Type convertibleType = TypeConverter.getConvertibleType(value, targetType, varName, true,
-                unresolvedValues, errors, allowNumericConversion);
-
-        if (convertibleType == null) {
-            switch (targetTypeTag) {
-                case TypeTags.XML_TAG:
-                case TypeTags.XML_ELEMENT_TAG:
-                case TypeTags.XML_COMMENT_TAG:
-                case TypeTags.XML_PI_TAG:
-                case TypeTags.XML_TEXT_TAG:
-                    if (TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) {
-                        return targetType;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        return convertibleType;
-    }
-
     private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
-                                                     boolean isFromJson, List<TypeValuePair> unresolvedValues,
+                                                     List<TypeValuePair> unresolvedValues,
                                                      List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
@@ -457,55 +431,30 @@ public class TypeConverter {
             String fieldNameLong = getLongFieldName(varName, fieldName);
             int initialErrorCount = errors.size();
 
-            if (isFromJson) {
-                if (targetFieldTypes.containsKey(fieldName)) {
-                    if (getConvertibleTypeFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            fieldNameLong, unresolvedValues, errors, allowNumericConversion) ==  null) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
-                                fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "', found '" +
-                                getShortSourceValue(valueEntry.getValue()) + "'");
-                        returnVal = false;
-                    }
-                } else if (!targetType.sealed) {
-                    if (getConvertibleTypeFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
-                            unresolvedValues, errors, allowNumericConversion) ==  null) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
-                                valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "', found '" +
-                                getShortSourceValue(valueEntry.getValue()) + "'");
-                        returnVal = false;
-                    }
-                } else {
-                    addErrorMessage(0, errors, "field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
+            if (targetFieldTypes.containsKey(fieldName)) {
+                if (getConvertibleType(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                        fieldNameLong, unresolvedValues, errors, allowNumericConversion) ==  null) {
+                    addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
+                            fieldNameLong + "' in record '" + targetType + "' should be of type '" +
+                            targetFieldTypes.get(fieldName) + "', found '" +
+                            getShortSourceValue(valueEntry.getValue()) + "'");
+                    returnVal = false;
+                }
+            } else if (!targetType.sealed) {
+                if (getConvertibleType(valueEntry.getValue(), restFieldType, fieldNameLong,
+                        unresolvedValues, errors, allowNumericConversion) ==  null) {
+                    addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
+                            valueEntry.getKey() + "' adding to the record '" +
+                            targetType + "' should be of type '" + restFieldType + "', found '" +
+                            getShortSourceValue(valueEntry.getValue()) + "'");
                     returnVal = false;
                 }
             } else {
-                if (targetFieldTypes.containsKey(fieldName)) {
-                    if (getConvertibleType(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            fieldNameLong, false, unresolvedValues, errors, allowNumericConversion) ==  null) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
-                                fieldNameLong + "' in record '" + targetType + "' should be of type '" +
-                                targetFieldTypes.get(fieldName) + "', found '" +
-                                getShortSourceValue(valueEntry.getValue()) + "'");
-                        returnVal = false;
-                    }
-                } else if (!targetType.sealed) {
-                    if (getConvertibleType(valueEntry.getValue(), restFieldType, fieldNameLong,
-                            false, unresolvedValues, errors, allowNumericConversion) ==  null) {
-                        addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
-                                valueEntry.getKey() + "' adding to the record '" +
-                                targetType + "' should be of type '" + restFieldType + "', found '" +
-                                getShortSourceValue(valueEntry.getValue()) + "'");
-                        returnVal = false;
-                    }
-                } else {
-                    addErrorMessage(0 , errors, "field '" + fieldNameLong + "' cannot be added to the closed record '" +
-                            targetType + "'");
-                    returnVal = false;
-                }
+                addErrorMessage(0 , errors, "field '" + fieldNameLong + "' cannot be added to the closed record '" +
+                        targetType + "'");
+                returnVal = false;
             }
+
             if ((!returnVal) && (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1)) {
                 return false;
             }
@@ -589,7 +538,7 @@ public class TypeConverter {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldNameLong = getLongFieldName(varName, valueEntry.getKey().toString());
             int initialErrorCount = errors.size();
-            if (getConvertibleType(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong, false,
+            if (getConvertibleType(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong,
                     unresolvedValues, errors, allowNumericConversion) ==  null) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "map field '" +
                         fieldNameLong + "' should be of type '" + targetType.getConstrainedType() + "', found '"
@@ -634,7 +583,7 @@ public class TypeConverter {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
             convertibleType = getConvertibleType(source.get(i), targetTypeElementType, elementIndex,
-                    false, unresolvedValues, errors, allowNumericConversion);
+                    unresolvedValues, errors, allowNumericConversion);
             if (convertibleType == null) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "array element '" +
                         elementIndex + "' should be of type '" + targetTypeElementType + "', found '" +
@@ -673,7 +622,7 @@ public class TypeConverter {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
             convertibleType = getConvertibleType(source.getRefValue(i), targetTypes.get(i), elementIndex,
-                    false, unresolvedValues, errors, allowNumericConversion);
+                    unresolvedValues, errors, allowNumericConversion);
             if (convertibleType == null) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetTypes.get(i).toString() + "', found '" +
@@ -689,7 +638,7 @@ public class TypeConverter {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
             convertibleType = getConvertibleType(source.getRefValue(i), targetRestType, elementIndex,
-                    false, unresolvedValues, errors, allowNumericConversion);
+                    unresolvedValues, errors, allowNumericConversion);
             if (convertibleType == null) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetRestType + "', found '" +
