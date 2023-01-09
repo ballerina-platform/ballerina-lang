@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerina/lang.runtime as runtime;
 
 string str = "Hello Ballerina!";
 string str1 = "Hello Hello Ballerina!";
@@ -685,6 +686,138 @@ function testIncludesMatch() {
     string:RegExp regex6 = re `apple|orange|pear|banana|kiwi`;
     boolean result6 = stringToMatch6.includesMatch(regex6);
     assertTrue(result6);
+}
+
+function testFromBytesAsync() {
+    foreach int i in 0 ... 4 {
+        callFromBytesAsync();
+    }
+}
+
+function callFromBytesAsync() {
+    string append = "";
+    worker w1 {
+        future<string|error> bytesFuture = start callFromBytes1();
+        runtime:sleep(2);
+        string|error str = wait bytesFuture;
+        assertTrue(str is string);
+        if (str is string) {
+            append += str + " ";
+        }
+    }
+    worker w2 {
+        future<string|error> bytesFuture = start callFromBytes2();
+        string|error str = wait bytesFuture;
+        assertTrue(str is string);
+        if (str is string) {
+            append += str + " ";
+        }
+    }
+    _ = wait {w1, w2};
+    assertTrue(append == "Hello Ballerina! Hello!~?£ßЯλ☃✈௸😀🄰🍺 " ||
+    append == "Hello!~?£ßЯλ☃✈௸😀🄰🍺 Hello Ballerina! ");
+}
+
+function callFromBytes1() returns string|error {
+    byte[] bytes = [
+        72,
+        101,
+        108,
+        108,
+        111,
+        33,
+        126,
+        63,
+        194,
+        163,
+        195,
+        159,
+        208,
+        175,
+        206,
+        187,
+        226,
+        152,
+        131,
+        226,
+        156,
+        136,
+        224,
+        175,
+        184,
+        240,
+        159,
+        152,
+        128,
+        240,
+        159,
+        132,
+        176,
+        240,
+        159,
+        141,
+        186
+    ];
+    return check string:fromBytes(bytes);
+}
+
+function callFromBytes2() returns string|error {
+    byte[] bytes = [
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        66,
+        97,
+        108,
+        108,
+        101,
+        114,
+        105,
+        110,
+        97,
+        33
+    ];
+    return checkpanic string:fromBytes(bytes);
+}
+
+function testEqualsIgnoreCaseAsciiAsync() {
+    foreach int i in 0 ... 4 {
+        callEqualsIgnoreCaseAsciiAsync();
+    }
+}
+
+function callEqualsIgnoreCaseAsciiAsync() {
+    boolean append = true;
+    worker w1 {
+        future<boolean|error> equalsFuture = start callEqualsIgnoreCaseAscii1();
+        runtime:sleep(2);
+        boolean|error result = wait equalsFuture;
+        assertTrue(result is boolean);
+        if (result is boolean) {
+            append = append && result;
+        }
+    }
+    worker w2 {
+        future<boolean|error> equalsFuture = start callEqualsIgnoreCaseAscii2();
+        boolean|error result = wait equalsFuture;
+        assertTrue(result is boolean);
+        if (result is boolean) {
+            append = append && result;
+        }
+    }
+    _ = wait {w1, w2};
+    assertTrue(append);
+}
+
+function callEqualsIgnoreCaseAscii1() returns boolean {
+    return string:equalsIgnoreCaseAscii("aBCdeFg", "aBCdeFg");
+}
+
+function callEqualsIgnoreCaseAscii2() returns boolean {
+    return string:equalsIgnoreCaseAscii("Duල්Viන්", "Duල්Viන්");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
