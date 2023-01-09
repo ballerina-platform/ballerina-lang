@@ -50,5 +50,4 @@ test {
 configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testImplementation.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
 }
