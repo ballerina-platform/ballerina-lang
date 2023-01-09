@@ -86,7 +86,18 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
-        ExpressionNode clientNode = clientResourceAccessActionNode.expression();
+        SimpleNameReferenceNode clientNode = null;
+        if (clientResourceAccessActionNode.expression() instanceof FieldAccessExpressionNode) {
+            NameReferenceNode fieldName = ((FieldAccessExpressionNode)
+                    clientResourceAccessActionNode.expression()).fieldName();
+            if (fieldName instanceof SimpleNameReferenceNode) {
+                clientNode = (SimpleNameReferenceNode) fieldName;
+            }
+            // todo : Other combinations
+        } else if (clientResourceAccessActionNode.expression() instanceof SimpleNameReferenceNode) {
+            clientNode = (SimpleNameReferenceNode) clientResourceAccessActionNode.expression();
+        }
+        // todo : Other combinations
         String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
         String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
