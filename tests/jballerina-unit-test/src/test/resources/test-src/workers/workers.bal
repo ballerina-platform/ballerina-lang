@@ -375,36 +375,6 @@ public function receiveDefaultWithCheckAndTrap() {
     validateError(trap f(), "error: err from panic");
 }
 
-int rs = 0;
-public function sameStrandMultipleInvocation() {
-    rs = 0;
-    while rs < 2 {
-        rs = rs + 1;
-        test(rs + 10);
-    }
-    sleep(60);
-    return;
-}
-
-function test(int c) {
-    @strand{thread:"any"}
-    worker w1 {
-        int a = c;
-        if (c == 11) {
-            sleep(20);
-        }
-        a -> w2;
-    }
-    @strand{thread:"any"}
-    worker w2 {
-        if (c == 12) {
-            sleep(20);
-        }
-        int b = <- w1;
-    }
-}
-
-
 function workerTestWithLambda() returns int {
     invokeTestFunc(5);
     int a = fa();

@@ -18,20 +18,15 @@
  */
 package org.ballerinalang.test.lock;
 
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Tests for Ballerina locks.
@@ -41,217 +36,92 @@ import static org.testng.Assert.assertTrue;
 public class LocksInMainTest {
 
     private CompileResult parallelCompileResult;
+    private CompileResult locksCompileResult;
 
     @BeforeClass
     public void setup() {
         parallelCompileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
         assertEquals(parallelCompileResult.getErrorCount(), 0);
+
+        locksCompileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
+        assertEquals(locksCompileResult.getErrorCount(), 0);
     }
 
     @Test(description = "Tests lock within a lock")
     public void testLockWithinLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "lockWithinLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 77L);
-        assertEquals(returns.get(1).toString(), "second sample value");
-
+        BRunUtil.invoke(locksCompileResult, "testLockWithinLock");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
-    @Test(description = "Tests lock within in workers", enabled = false)
+    @Test(description = "Tests lock within workers")
     public void simpleLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/simple-lock.bal");
-        Object returns = BRunUtil.invoke(compileResult, "simpleLock");
-        assertTrue(returns instanceof BString);
-        assertEquals(returns.toString(), "main in critical after w1 is out");
+        BRunUtil.invoke(compileResult, "testSimpleLock");
     }
 
     @Test(description = "Tests lock within lock in workers")
     public void testLockWithinLockInWorkers() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "lockWithinLockInWorkers");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 66L);
-        assertEquals(returns.get(1).toString(), "sample output");
-
+        BRunUtil.invoke(locksCompileResult, "testLockWithinLockInWorkers");
     }
 
     @Test(description = "Tests lock inside while loop")
     public void testLockInsideWhileLoop() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object returns = BRunUtil.invoke(compileResult, "lockInsideWhileLoop");
-        assertSame(returns.getClass(), Long.class);
-
-        assertEquals(returns, 56L);
-
+        BRunUtil.invoke(locksCompileResult, "testLockInsideWhileLoop");
     }
 
-    @Test(description = "Tests throwing and error inside lock")
+    @Test(description = "Tests throwing an error inside lock")
     public void testThrowErrorInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 51L);
-        assertEquals(returns.get(1).toString(), "second worker string");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideLock");
     }
 
     @Test(description = "Tests throwing an error inside a lock inside try catch block")
     public void testThrowErrorInsideLockInsideTrap() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryFinally");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 53L);
-        assertEquals(returns.get(1).toString(), "worker 2 sets the string value after try catch finally");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideLockInsideTrap");
     }
 
     @Test(description = "Tests throwing an error inside try catch finally block inside a lock")
     public void testThrowErrorInsideTryCatchFinallyInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchFinallyInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 53L);
-        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try catch finally inside lock");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideTryCatchFinallyInsideLock");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
-    @Test(description = "Tests throwing an error inside try finally block inside a lock", enabled = false)
+    @Test(description = "Tests throwing an error inside try finally block inside a lock")
     public void testThrowErrorInsideTryFinallyInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryFinallyInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 52L);
-        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try finally");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideTryFinallyInsideLock");
     }
 
     @Test(description = "Tests throwing an error inside a lock inside try catch block")
     public void testThrowErrorInsideLockInsideTryCatch() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideLockInsideTryCatch");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 52L);
-        assertEquals(returns.get(1).toString(), "worker 2 sets the string value after try catch");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideLockInsideTryCatch");
     }
 
     @Test(description = "Tests throwing an error inside try catch block inside a lock")
     public void testThrowErrorInsideTryCatchInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "throwErrorInsideTryCatchInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 52L);
-        assertEquals(returns.get(1).toString(), "worker 2 sets the string after try catch inside lock");
+        BRunUtil.invoke(locksCompileResult, "testThrowErrorInsideTryCatchInsideLock");
     }
 
     @Test(description = "Tests lock within lock in workers for boolean and blob")
     public void testLockWithinLockInWorkersForBlobAndBoolean() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "lockWithinLockInWorkersForBlobAndBoolean");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Boolean.class);
-        assertTrue(returns.get(1) instanceof BArray);
-
-        assertTrue((Boolean) returns.get(0));
-        ByteArrayUtils.assertJBytesWithBBytes(((BArray) returns.get(1)).getBytes(), "sample blob output".getBytes());
-
+        BRunUtil.invoke(locksCompileResult, "testLockWithinLockInWorkersForBlobAndBoolean");
     }
 
     @Test(description = "Tests lock within functions down the function chain")
     public void testLockWithinFunctionsDownTheLine() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks_in_functions_down_the_chain.bal");
-
-        Object returns = BRunUtil.invoke(compileResult, "lockWithinLock");
-        assertTrue(returns instanceof BString);
-        String result = returns.toString();
-        assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
+        BRunUtil.invoke(compileResult, "testLockWithinFunctionsDownTheLine");
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
-    @Test(description = "Tests returning inside lock statement", enabled = false)
+    @Test(description = "Tests returning inside lock statement")
     public void testReturnInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "returnInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 88L);
-        assertEquals(returns.get(1).toString(), "changed value11");
-
+        BRunUtil.invoke(locksCompileResult, "testReturnInsideLock");
     }
 
     @Test(description = "Tests break inside lock statement")
     public void testBreakInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "breakInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 657L);
-        assertEquals(returns.get(1).toString(), "lock value inside second worker after while");
-
+        BRunUtil.invoke(locksCompileResult, "testBreakInsideLock");
     }
 
     @Test(description = "Tests next inside lock statement")
     public void testNextInsideLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
-
-        Object val = BRunUtil.invoke(compileResult, "nextInsideLock");
-        BArray returns = (BArray) val;
-        assertEquals(returns.size(), 2);
-        assertSame(returns.get(0).getClass(), Long.class);
-        assertTrue(returns.get(1) instanceof BString);
-
-        assertEquals(returns.get(0), 657L);
-        assertEquals(returns.get(1).toString(), "lock value inside second worker after while");
-
+        BRunUtil.invoke(locksCompileResult, "testNextInsideLock");
     }
 
     @Test(description = "Test lock negative cases")
@@ -264,25 +134,29 @@ public class LocksInMainTest {
                                   18, 9);
     }
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/22987
-    @Test(description = "Test for parallel run using locks", enabled = false)
+    @Test()
+    public void testPanicIfInLockConcurrently() {
+        BRunUtil.invoke(parallelCompileResult, "testPanicIfInLockConcurrently");
+    }
+
+    @Test(description = "Test for parallel run using locks")
     public void testParallelRunUsingLocks() {
-        Object returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
+        BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }
 
     @Test(description = "Test for parallel run when invocations have global variable dependencies")
     public void testParallelRunWithInvocationDependencies() {
-        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
+        BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
     }
 
     @Test(description = "Test for parallel run when invocations have loops and global var dependencies")
     public void testParallelRunWithChainedInvocationDependencies() {
-        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
+        BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
     }
 
     @Test(description = "Test for parallel run when invocation are recursive and have global var dependencies")
     public void testParallelRunWithRecursiveInvocationDependencies() {
-        Object returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
+        BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
     }
 
     @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
@@ -292,8 +166,7 @@ public class LocksInMainTest {
         BRunUtil.invoke(importInvocationDependencies, "testLockWithInvokableChainsAccessingGlobal");
     }
 
-    //TODO testcase disabled with https://github.com/ballerina-platform/ballerina-lang/issues/28930
-    @Test(description = "Test for locks on global references", enabled = false)
+    @Test(description = "Test for locks on global references")
     public void testLocksWhenGlobalVariablesReferToSameValue() {
         BRunUtil.invoke(parallelCompileResult, "testLocksWhenGlobalVariablesReferToSameValue");
     }
@@ -311,5 +184,6 @@ public class LocksInMainTest {
     @AfterClass
     public void tearDown() {
         parallelCompileResult = null;
+        locksCompileResult = null;
     }
 }

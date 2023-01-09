@@ -84,7 +84,7 @@ function testCheckInObjectFieldInitializer2() {
     assertEquality("'string' value 'invalid' cannot be converted to 'int'", <string> checkpanic e.detail()["message"]);
     error:StackFrame[] callStack = e.stackTrace();
     int callStackLength = callStack.length();
-    assertEquality("callableName: fromString moduleName: ballerina.lang.int.0 fileName: int.bal lineNumber: 128",
+    assertEquality("callableName: fromString moduleName: ballerina.lang.int.0 fileName: int.bal lineNumber: 173",
         callStack[callStackLength - 2].toString());
 }
 

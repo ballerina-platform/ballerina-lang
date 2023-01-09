@@ -155,7 +155,7 @@ public class JvmTypeTestGen {
         BType otherType = null;
         int foundError = 0;
         for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
-            if (bType.tag == TypeTags.ERROR) {
+            if (JvmCodeGenUtil.getReferredType(bType).tag == TypeTags.ERROR) {
                 foundError++;
             } else {
                 otherType = bType;
@@ -195,7 +195,7 @@ public class JvmTypeTestGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         jvmInstructionGen.loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (typeTestIns.type.tag != TypeTags.ERROR) {
+        if (JvmCodeGenUtil.getReferredType(typeTestIns.type).tag != TypeTags.ERROR) {
             generateNegateBoolean();
         }
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);

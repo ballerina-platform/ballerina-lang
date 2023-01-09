@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -57,6 +58,7 @@ public abstract class BIRNode {
         public final List<BIRImportModule> importModules;
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
+        public final Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls;
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
@@ -75,6 +77,7 @@ public abstract class BIRNode {
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
+            this.importedGlobalVarsDummyVarDcls = new HashSet<>();
             this.functions = new ArrayList<>();
             this.annotations = new ArrayList<>();
             this.constants = new ArrayList<>();
