@@ -3040,7 +3040,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     }
                     if (arrayType.state == BArrayState.CLOSED) {
                         BType type = arrayType.eType;
-                        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         BTupleType restTupleType = createTupleForClosedArray(
                                 arrayType.size - listMatchPattern.matchPatterns.size(),
                                 new BTupleMember(type, varSymbol));
@@ -3646,7 +3646,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     }
                     if (arrayType.state == BArrayState.CLOSED) {
                         BType type = arrayType.eType;
-                        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         BTupleType restTupleType = createTupleForClosedArray(
                                 arrayType.size - listBindingPattern.bindingPatterns.size(),
                                 new BTupleMember(type, varSymbol));

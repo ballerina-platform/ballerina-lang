@@ -4460,7 +4460,7 @@ public class Desugar extends BLangNodeVisitor {
         Location restPatternPos = restBindingPattern.pos;
         List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
         BType restType = ((BRecordType) restBindingPattern.getBType()).restFieldType;
-        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(restType);
+        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(restType);
         BVarSymbol stringVarSymbol = Symbols.createBVarSymbol(0, null, null,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
@@ -9491,7 +9491,7 @@ public class Desugar extends BLangNodeVisitor {
             List<BTupleMember> memberTypes = new ArrayList<>();
             for (int i = 0; i < tupleVariable.memberVariables.size(); i++) {
                 BType member = getStructuredBindingPatternType(tupleVariable.memberVariables.get(i));
-                BVarSymbol varSymbol = Symbols.createBVarSymbolForType(member);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(member);
                 memberTypes.add(
                         new BTupleMember(member, varSymbol));
             }

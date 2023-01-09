@@ -203,7 +203,6 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
-import static org.ballerinalang.model.tree.NodeKind.RECORD_TYPE;
 import static org.ballerinalang.model.tree.NodeKind.TUPLE_TYPE_NODE;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
@@ -1999,7 +1998,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
                 for (BType member : definedTupleType.getTupleTypes()) {
-                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(member);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(member);
                     if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member, varSymbol))) {
                         return constructDependencyListError(typeDef, member);
                     }
@@ -2517,7 +2516,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(referredType);
+                                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
                                     memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                                 }
                             }
@@ -2529,7 +2528,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 memberTupleTypes.add(new BTupleMember(type, varSymbol));
                             } else {
                                 memberTypes.forEach(m ->
-                                        memberTupleTypes.add(new BTupleMember(m, Symbols.createBVarSymbolForType(m))));
+                                        memberTupleTypes.add(new BTupleMember(m,
+                                                Symbols.createVarSymbolForTupleMember(m))));
                             }
                         }
                         tupleTypeNode = new BTupleType(memberTupleTypes);
@@ -2546,7 +2546,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     List<BTupleMember> memberTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
                         BType type = possibleTypes.get(0);
-                        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         memberTypes.add(new BTupleMember(type, varSymbol));
                     }
                     tupleTypeNode = new BTupleType(memberTypes);
@@ -2556,7 +2556,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 case TypeTags.ANYDATA:
                     List<BTupleMember> memberTupleTypes = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
-                        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(referredType);
+                        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
                         memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
                     }
                     tupleTypeNode = new BTupleType(memberTupleTypes);
@@ -2574,7 +2574,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     BType eType = arrayType.eType;
                     for (int i = 0; i < arrayType.size; i++) {
                         BType type = arrayType.eType;
-                        BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                         tupleTypes.add(new BTupleMember(type, varSymbol));
 
                     }

@@ -1677,7 +1677,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BType fieldType = tableConstraintField.type;
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(fieldType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(fieldType);
             memTypes.add(new BTupleMember(fieldType, varSymbol));
         }
 
@@ -1858,7 +1858,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (bArrayType.state == BArrayState.CLOSED) {
                 for (int i = 0; i < bArrayType.size; i++) {
                     BType memberType = bArrayType.eType;
-                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(memberType);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                     inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
                 }
             } else {
@@ -6197,7 +6197,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         symTable.semanticError, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
                 memberTypeList.add(new BTupleMember(symTable.stringType, stringVarSymbol));
                 BType memberType = ((BMapType) type).getConstraint();
-                BVarSymbol varSymbol = Symbols.createBVarSymbolForType(memberType);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                 memberTypeList.add(new BTupleMember(memberType, varSymbol));
                 BTupleType newExpType = new BTupleType(null, memberTypeList);
                 selectType = checkExpr(selectExp, env, newExpType, data);
@@ -7672,7 +7672,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType paramType = paramTypes.get(j);
                 BVarSymbol nonRestParam = nonRestParams.get(j);
                 Name paramName = nonRestParam.name;
-                BVarSymbol varSymbol = Symbols.createBVarSymbolForType(paramType);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(paramType);
                 tupleMemberTypes.add(new BTupleMember(paramType, varSymbol));
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{

@@ -1117,7 +1117,7 @@ public class Types {
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
                     .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                            Symbols.createBVarSymbolForType(f.type))).forEach(fieldTypes::add);
+                            Symbols.createVarSymbolForTupleMember(f.type))).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -4813,7 +4813,7 @@ public class Types {
         }
         for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
             BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typeToRemove.restType, env);
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         return new BTupleType(tupleTypes);
@@ -4824,7 +4824,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (BTupleMember tupleMember : originalType.memberTypes) {
             BType type = getRemainingMatchExprType(tupleMember.type, eType, env);
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
@@ -5332,7 +5332,7 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(intersectionType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(intersectionType);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 

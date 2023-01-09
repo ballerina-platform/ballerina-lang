@@ -73,7 +73,7 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         List<BTupleMember> memberTypes = new ArrayList<>();
         for (TypeSymbol memberType : this.memberTypes) {
             BType type = getMemberType(memberType);
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
 

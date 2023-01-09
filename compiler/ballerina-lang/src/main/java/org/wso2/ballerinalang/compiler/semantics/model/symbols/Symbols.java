@@ -232,7 +232,7 @@ public class Symbols {
         return new BVarSymbol(flags, name, pkgID, type, owner, pos, origin);
     }
 
-    public static BVarSymbol createBVarSymbolForType(BType type) {
+    public static BVarSymbol createVarSymbolForTupleMember(BType type) {
         return createBVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID, type, type.tsymbol.owner,
                 type.tsymbol.pos, type.tsymbol.origin);
     }

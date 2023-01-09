@@ -967,14 +967,14 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
                 if (tag == TypeTags.FINITE) {
                     // https://github.com/ballerina-platform/ballerina-lang/issues/35127
-                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                     tupleTypes.add(new BTupleMember(type, varSymbol));
                     continue;
                 }
 
                 if (tag == TypeTags.INTERSECTION) {
                     memberConstValue.type = type;
-                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
                     tupleTypes.add(new BTupleMember(type, varSymbol));
                     continue;
                 }
@@ -985,7 +985,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             if (newType == null) {
                 return null;
             }
-            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(newType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
             tupleTypes.add(new BTupleMember(newType, varSymbol));
 
             if (newType.tag != TypeTags.FINITE) {
