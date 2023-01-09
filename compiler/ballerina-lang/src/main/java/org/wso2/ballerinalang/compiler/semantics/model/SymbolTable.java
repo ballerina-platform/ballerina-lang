@@ -130,7 +130,7 @@ public class SymbolTable {
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-    BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+    BVarSymbol varSymbol = Symbols.createBVarSymbol(0, null, null,
             noType, null, null, SymbolOrigin.VIRTUAL);
     public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
     public final BType recordType = new BRecordType(null);

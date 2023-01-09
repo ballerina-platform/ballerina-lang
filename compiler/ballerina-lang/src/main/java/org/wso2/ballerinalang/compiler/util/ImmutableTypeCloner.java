@@ -438,8 +438,7 @@ public class ImmutableTypeCloner {
             }
             BType newType = getImmutableType(pos, types, origTupleMemType.type, env,
                     pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
-            BVarSymbol varSymbol = new BVarSymbol(newType.flags, newType.tsymbol.name, newType.tsymbol.pkgID,
-                    newType, newType.tsymbol.owner, newType.tsymbol.pos, newType.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(newType);
             BTupleMember memberType = new BTupleMember(newType, varSymbol);
             tupleEffectiveImmutableType.addMembers(memberType);
         }

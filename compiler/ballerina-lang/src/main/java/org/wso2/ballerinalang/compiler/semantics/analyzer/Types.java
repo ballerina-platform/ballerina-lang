@@ -1116,9 +1116,8 @@ public class Types {
             List<BTupleMember> fieldTypes = new ArrayList<>();
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
-                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type, new BVarSymbol(f.type.flags,
-                            f.type.tsymbol.name, f.type.tsymbol.pkgID, f.type, f.type.tsymbol.owner,
-                            f.type.tsymbol.pos, f.type.tsymbol.origin))).forEach(fieldTypes::add);
+                    .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
+                            Symbols.createBVarSymbolForType(f.type))).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -1329,7 +1328,7 @@ public class Types {
         List<BTupleMember> sourceTypes = new ArrayList<>(source.memberTypes);
         if (source.restType != null) {
             BType type = source.restType;
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
             sourceTypes.add(new BTupleMember(type, varSymbol));
         }
         return sourceTypes.stream()
@@ -4803,7 +4802,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
             BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typesToRemove.get(i).type, env);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = Symbols.createBVarSymbol(type.flags, null, null, type, null, null, null);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
@@ -4814,8 +4813,7 @@ public class Types {
         }
         for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
             BType type = getRemainingMatchExprType(originalTupleTypes.get(i).type, typeToRemove.restType, env);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         return new BTupleType(tupleTypes);
@@ -4826,8 +4824,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (BTupleMember tupleMember : originalType.memberTypes) {
             BType type = getRemainingMatchExprType(tupleMember.type, eType, env);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID,
-                    type, type.tsymbol.owner, type.tsymbol.pos, type.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(type);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
@@ -5335,9 +5332,7 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, intersectionType.tsymbol.name,
-                    intersectionType.tsymbol.pkgID, intersectionType, intersectionType.tsymbol.owner,
-                    intersectionType.tsymbol.pos, intersectionType.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(intersectionType);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 
@@ -5379,8 +5374,8 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = new BVarSymbol(intersectionType.flags, null, null, intersectionType, null, null,
-                    null);
+            BVarSymbol varSymbol = Symbols.createBVarSymbol(intersectionType.flags, null, null, intersectionType,
+                    null, null, null);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 

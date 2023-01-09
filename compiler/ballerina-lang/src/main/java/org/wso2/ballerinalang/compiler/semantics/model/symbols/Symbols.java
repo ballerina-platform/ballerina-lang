@@ -222,6 +222,21 @@ public class Symbols {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
 
+    public static BVarSymbol createBVarSymbol(long flags,
+                                              Name name,
+                                              PackageID pkgID,
+                                              BType type,
+                                              BSymbol owner,
+                                              Location pos,
+                                              SymbolOrigin origin) {
+        return new BVarSymbol(flags, name, pkgID, type, owner, pos, origin);
+    }
+
+    public static BVarSymbol createBVarSymbolForType(BType type) {
+        return createBVarSymbol(type.flags, type.tsymbol.name, type.tsymbol.pkgID, type, type.tsymbol.owner,
+                type.tsymbol.pos, type.tsymbol.origin);
+    }
+
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
         return typeName + Names.DOT.value + funcName;
     }

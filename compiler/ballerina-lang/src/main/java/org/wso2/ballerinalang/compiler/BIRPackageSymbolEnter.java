@@ -1582,7 +1582,7 @@ public class BIRPackageSymbolEnter {
                         long fieldFlags = inputStream.readLong();
 
                         BType memberType = readTypeFromCp();
-                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(index), tuplePkg,
+                        BVarSymbol varSymbol = Symbols.createBVarSymbol(fieldFlags, names.fromString(index), tuplePkg,
                                 memberType, tupleOwner, symTable.builtinPos, COMPILED_SOURCE);
 
                         defineAnnotAttachmentSymbols(inputStream, varSymbol);

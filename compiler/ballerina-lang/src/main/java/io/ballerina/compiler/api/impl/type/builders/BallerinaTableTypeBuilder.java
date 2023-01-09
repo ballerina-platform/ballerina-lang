@@ -161,9 +161,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         List<BTupleMember> tupleMembers = new ArrayList<>();
         for (TypeSymbol keyType : keyTypes) {
             BType constraintType = checkKeyConstraintBType(keyType, rowType);
-            BVarSymbol varSymbol = new BVarSymbol(constraintType.flags, constraintType.tsymbol.name,
-                    constraintType.tsymbol.pkgID, constraintType, constraintType.tsymbol.owner,
-                    constraintType.tsymbol.pos, constraintType.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(constraintType);
             tupleMembers.add(new BTupleMember(constraintType, varSymbol));
         }
 

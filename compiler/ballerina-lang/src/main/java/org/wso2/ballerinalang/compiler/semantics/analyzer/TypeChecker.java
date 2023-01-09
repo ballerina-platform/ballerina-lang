@@ -1677,8 +1677,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BType fieldType = tableConstraintField.type;
-            BVarSymbol varSymbol = new BVarSymbol(fieldType.flags, fieldType.tsymbol.name, fieldType.tsymbol.pkgID,
-                    fieldType, fieldType.tsymbol.owner, fieldType.tsymbol.pos, fieldType.tsymbol.origin);
+            BVarSymbol varSymbol = Symbols.createBVarSymbolForType(fieldType);
             memTypes.add(new BTupleMember(fieldType, varSymbol));
         }
 
@@ -1792,8 +1791,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (inferredTupleDetails.restMemberTypes.isEmpty()) {
-                        BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null,
-                                null);
+                        BVarSymbol varSymbol = Symbols.createBVarSymbol(memberType.flags, null, null, memberType,
+                                null, null, null);
                         inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
                     } else {
                         inferredTupleDetails.restMemberTypes.add(memberType);
@@ -1859,9 +1858,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (bArrayType.state == BArrayState.CLOSED) {
                 for (int i = 0; i < bArrayType.size; i++) {
                     BType memberType = bArrayType.eType;
-                    BVarSymbol varSymbol = new BVarSymbol(memberType.flags, memberType.tsymbol.name,
-                            memberType.tsymbol.pkgID, memberType, memberType.tsymbol.owner, memberType.tsymbol.pos,
-                            memberType.tsymbol.origin);
+                    BVarSymbol varSymbol = Symbols.createBVarSymbolForType(memberType);
                     inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
                 }
             } else {
@@ -1869,7 +1866,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         } else {
             dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP, originalExprType);
-            BVarSymbol errVarSymbol = new BVarSymbol(0, null, null,
+            BVarSymbol errVarSymbol = Symbols.createBVarSymbol(0, null, null,
                     symTable.semanticError, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
             inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(symTable.semanticError, errVarSymbol));
         }
@@ -2230,7 +2227,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             checkExpr(e, expType, data);
             if (inferredTupleDetails.restMemberTypes.isEmpty()) {
                 BType memberType = data.resultType;
-                BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null, null);
+                BVarSymbol varSymbol = Symbols.createBVarSymbol(memberType.flags, null, null, memberType,
+                        null, null, null);
                 inferredTupleDetails.fixedMemberTypes.add(new BTupleMember(memberType, varSymbol));
             } else {
                 inferredTupleDetails.restMemberTypes.add(data.resultType);
@@ -3115,7 +3113,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (int i = 0; i < varRefExpr.expressions.size(); i++) {
             ((BLangVariableReference) varRefExpr.expressions.get(i)).isLValue = true;
             BType memberType = checkExpr(varRefExpr.expressions.get(i), symTable.noType, data);
-            BVarSymbol varSymbol = new BVarSymbol(memberType.flags, null, null, memberType, null, null, null);
+            BVarSymbol varSymbol = Symbols.createBVarSymbol(memberType.flags, null, null, memberType, null,
+                    null, null);
             results.add(new BTupleMember(memberType, varSymbol));
         }
         BTupleType actualType = new BTupleType(results);
@@ -6194,13 +6193,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 break;
             case TypeTags.MAP:
                 List<BTupleMember> memberTypeList = new ArrayList<>(2);
-                BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+                BVarSymbol stringVarSymbol = Symbols.createBVarSymbol(0, null, null,
                         symTable.semanticError, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
                 memberTypeList.add(new BTupleMember(symTable.stringType, stringVarSymbol));
                 BType memberType = ((BMapType) type).getConstraint();
-                BVarSymbol varSymbol = new BVarSymbol(memberType.flags, memberType.tsymbol.name,
-                        memberType.tsymbol.pkgID, memberType, memberType.tsymbol.owner, memberType.tsymbol.pos,
-                        memberType.tsymbol.origin);
+                BVarSymbol varSymbol = Symbols.createBVarSymbolForType(memberType);
                 memberTypeList.add(new BTupleMember(memberType, varSymbol));
                 BTupleType newExpType = new BTupleType(null, memberTypeList);
                 selectType = checkExpr(selectExp, env, newExpType, data);
@@ -7675,9 +7672,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType paramType = paramTypes.get(j);
                 BVarSymbol nonRestParam = nonRestParams.get(j);
                 Name paramName = nonRestParam.name;
-                BVarSymbol varSymbol = new BVarSymbol(paramType.flags, paramType.tsymbol.name,
-                        paramType.tsymbol.pkgID, paramType, paramType.tsymbol.owner, paramType.tsymbol.pos,
-                        paramType.tsymbol.origin);
+                BVarSymbol varSymbol = Symbols.createBVarSymbolForType(paramType);
                 tupleMemberTypes.add(new BTupleMember(paramType, varSymbol));
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{

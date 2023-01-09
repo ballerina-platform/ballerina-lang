@@ -561,9 +561,7 @@ public class TypeParamAnalyzer {
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
                         .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                                new BVarSymbol(f.type.flags, f.type.tsymbol.name, f.type.tsymbol.pkgID, f.type,
-                                        f.type.tsymbol.owner, f.type.tsymbol.pos,
-                                        f.type.tsymbol.origin))).forEach(memberTypes::add);
+                                Symbols.createBVarSymbolForType(f.type))).forEach(memberTypes::add);
                 if (memberTypes.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0).type, env, resolvedTypes, result);
                 } else {
@@ -879,8 +877,8 @@ public class TypeParamAnalyzer {
             if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType, null, null,
-                    null);
+            BVarSymbol varSymbol = Symbols.createBVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
+                    null, null, null);
             memberTypes.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
