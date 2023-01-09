@@ -57,7 +57,7 @@ public class NativeUtils {
     private static final String MODULE_EXECUTE_GENERATED = "tests.test_execute-generated_";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
 
-   //Add dynamically loading classes and methods to reflection config
+    //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
                                            Map<String, TestSuite> testSuiteMap) throws IOException {
         String org = currentPackage.packageOrg().toString();
