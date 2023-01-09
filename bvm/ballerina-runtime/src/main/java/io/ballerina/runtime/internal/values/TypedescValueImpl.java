@@ -25,11 +25,13 @@ import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getEffectiveType;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
@@ -91,6 +93,9 @@ public class TypedescValueImpl implements  TypedescValue {
             return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
             return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues);
+        } else if (getEffectiveType(referredType).getTag() == TypeTags.TUPLE_TAG) {
+            return new TupleValueImpl(new BTypeReferenceType(getEffectiveType(referredType)),
+                                      (BListInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + this.describingType);

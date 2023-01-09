@@ -1547,13 +1547,12 @@ public class JvmInstructionGen {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) elementType).effectiveType : elementType;
-        String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
-        String typedescFieldName =
-                jvmTypeGen.getTypedescFieldName(toNameString(elementType));
-        if (inst.rhsOp == null) {
+        if (inst.typedescOp == null) {
+            String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
+            String typedescFieldName = jvmTypeGen.getTypedescFieldName(toNameString(elementType));
             this.mv.visitFieldInsn(GETSTATIC, typeOwner, typedescFieldName, "L" + TYPEDESC_VALUE + ";");
         } else {
-            this.loadVar(inst.rhsOp.variableDcl);
+            this.loadVar(inst.typedescOp.variableDcl);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD,
                 INIT_ARRAY_WITH_INITIAL_VALUES, false);
