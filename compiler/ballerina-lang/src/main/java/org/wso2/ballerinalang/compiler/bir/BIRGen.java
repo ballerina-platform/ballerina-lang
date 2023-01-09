@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -33,6 +32,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -99,6 +98,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -189,8 +189,23 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -683,6 +698,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB = entryBB;
         this.typeDescMap = new HashMap<>();
         addToTrapStack(entryBB);
+        analyzeParametersAndReturnType(astFunc);
         astFunc.body.accept(this);
         birFunc.basicBlocks.add(this.env.returnBB);
 
@@ -713,6 +729,20 @@ public class BIRGen extends BLangNodeVisitor {
         self.name = new Name("%self");
 
         return self;
+    }
+
+    private void analyzeParametersAndReturnType(BLangFunction astFunc) {
+        if (astFunc.returnTypeNode != null) {
+            astFunc.returnTypeNode.accept(this);
+        }
+        for (BLangSimpleVariable parameter : astFunc.requiredParams) {
+            if (parameter.typeNode != null) {
+                parameter.typeNode.accept(this);
+            }
+        }
+        if (astFunc.restParam != null && astFunc.restParam.typeNode != null) {
+            astFunc.restParam.typeNode.accept(this);
+        }
     }
 
     @Override
@@ -1079,12 +1109,17 @@ public class BIRGen extends BLangNodeVisitor {
             this.currentScope = newScope;
         }
 
-        if (astVarDefStmt.var.expr == null) {
+        BLangSimpleVariable simpleVariable = astVarDefStmt.var;
+        if (simpleVariable.typeNode != null) {
+            simpleVariable.typeNode.accept(this);
+        }
+
+        if (simpleVariable.expr == null) {
             return;
         }
 
         // Visit the rhs expression.
-        astVarDefStmt.var.expr.accept(this);
+        simpleVariable.expr.accept(this);
 
         // Create a variable reference and
         BIROperand varRef = new BIROperand(birVarDcl);
@@ -1110,6 +1145,111 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
         env.enclPkg.isListenerAvailable |= Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER);
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+        if (Types.getReferredType(userDefinedType.getBType()).getKind() == TypeKind.RECORD) {
+            createNewTypeDescInst(userDefinedType.pos, userDefinedType.getBType(), Collections.emptyList());
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        createNewTypeDescInst(tupleTypeNode.pos, tupleTypeNode.getBType(), Collections.emptyList());
+        tupleTypeNode.memberTypeNodes.forEach(member -> member.accept(this));
+        if (tupleTypeNode.restParamType != null) {
+            tupleTypeNode.restParamType.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        unionTypeNode.memberTypeNodes.forEach(typeNode -> typeNode.accept(this));
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        createNewTypeDescInst(recordTypeNode.pos, recordTypeNode.getBType(), Collections.emptyList());
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            if (field.typeNode != null) {
+                field.typeNode.accept(this);
+            }
+        }
+        if (recordTypeNode.restFieldType != null) {
+            recordTypeNode.restFieldType.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        arrayType.elemtype.accept(this);
+    }
+
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        constrainedType.constraint.accept(this);
+    }
+
+    @Override
+    public void visit(BLangErrorType errorType) {
+        if (errorType.detailType != null) {
+            errorType.detailType.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangTableTypeNode tableTypeNode) {
+        tableTypeNode.constraint.accept(this);
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
+            tableTypeNode.tableKeyTypeConstraint.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        streamType.type.accept(this);
+        streamType.constraint.accept(this);
+        if (streamType.error != null) {
+            streamType.error.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
+        keyTypeConstraint.keyType.accept(this);
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        BType type = intersectionTypeNode.getBType();
+        if (type.tag != TypeTags.INTERSECTION) {
+            return;
+        }
+        BType effectiveType = ((BIntersectionType) intersectionTypeNode.getBType()).effectiveType;
+        if (effectiveType.tag == TypeTags.RECORD || effectiveType.tag == TypeTags.TUPLE) {
+            createNewTypeDescInst(intersectionTypeNode.pos, effectiveType, Collections.emptyList());
+        }
     }
 
     @Override
@@ -2253,19 +2393,6 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    public static String toNameString(BType t) {
-        BTypeSymbol typeSymbol = t.tsymbol;
-        if (typeSymbol == null) {
-            return t.name.getValue();
-        }
-        if ((typeSymbol.kind == SymbolKind.RECORD || typeSymbol.kind == SymbolKind.OBJECT) &&
-                ((BStructureTypeSymbol) typeSymbol).typeDefinitionSymbol != null) {
-            return Utils.encodeNonFunctionIdentifier(((BStructureTypeSymbol) typeSymbol)
-                    .typeDefinitionSymbol.name.value);
-        }
-        return Utils.encodeNonFunctionIdentifier(typeSymbol.name.value);
-    }
-
     @Override
     public void visit(BLangBreak breakStmt) {
         BIRLockDetailsHolder toUnlock = this.env.unlockVars.peek();
@@ -2734,9 +2861,10 @@ public class BIRGen extends BLangNodeVisitor {
                                 this.env.targetOperand, sizeOp, initialValues));
             }
         } else {
+            BType eType = ((BArrayType) Types.getReferredType(listConstructorExprType)).eType;
             setScopeAndEmit(
-                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                            initialValues));
+                    new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
+                                              typeDescMap.getOrDefault(eType, null), sizeOp, initialValues));
         }
         this.env.targetOperand = toVarRef;
     }
