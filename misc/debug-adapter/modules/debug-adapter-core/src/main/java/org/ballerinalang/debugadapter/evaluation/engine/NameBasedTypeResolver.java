@@ -24,7 +24,7 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +59,7 @@ public class NameBasedTypeResolver extends EvaluationTypeResolver<String> {
      */
     @Override
     public List<Value> resolve(String typeDescriptor) throws EvaluationException {
-        List<Value> resolvedTypes = new ArrayList<>();
+        List<Value> resolvedTypes = new LinkedList<>();
         // If the type is a union, resolves each sub type iteratively.
         if (typeDescriptor.contains(UNION_TYPE_SEPARATOR_REGEX)) {
             String[] unionTypes = typeDescriptor.split(UNION_TYPE_SEPARATOR_REGEX);

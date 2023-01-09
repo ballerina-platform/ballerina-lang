@@ -16,24 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.CodeActionManager;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContextImpl;
-import io.ballerina.projects.plugins.codeaction.DocumentEdit;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextDocument;
-import io.ballerina.tools.text.TextRange;
-import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.PathUtil;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -52,17 +35,9 @@ import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.ResourceOperation;
-import org.eclipse.lsp4j.TextDocumentEdit;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -72,6 +47,7 @@ import java.util.stream.Collectors;
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
+
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -111,14 +87,18 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
         try {
             List<Path> paths = this.workspaceManagerProxy.get().didChangeWatched(params);
-            DidChangeWatchedFilesContext context =
-                    ContextBuilder.buildDidChangeWatchedFilesContext(
-                            this.workspaceManagerProxy.get(),
-                            this.serverContext);
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
-            for (Path projectRoot : paths) {
-                diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
+            LSClientCapabilities lsClientCapabilities = this.serverContext.get(LSClientCapabilities.class);
+            // Don't publish diagnostics on lightweight mode
+            if (!lsClientCapabilities.getInitializationOptions().isEnableLightWeightMode()) {
+                DidChangeWatchedFilesContext context =
+                        ContextBuilder.buildDidChangeWatchedFilesContext(
+                                this.workspaceManagerProxy.get(),
+                                this.serverContext);
+                DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
+                // project roots are the reloaded project roots. Hence we re-publish the diagnostics.
+                for (Path projectRoot : paths) {
+                    diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context, projectRoot);
+                }
             }
         } catch (WorkspaceDocumentException e) {
             String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
@@ -133,10 +113,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     .map(CommandArgument::from)
                     .collect(Collectors.toList());
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManagerProxy.get(),
-                                                                                      this.serverContext,
-                                                                                      commandArguments,
-                                                                                      this.clientCapabilities,
-                                                                                      this.languageServer);
+                    this.serverContext,
+                    commandArguments,
+                    this.clientCapabilities,
+                    this.languageServer);
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
@@ -150,9 +130,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                     TelemetryUtil.sendTelemetryEvent(context.languageServercontext(),
                                             lsFeatureUsageTelemetryEvent));
                     return result;
-                } else {
-                    // Check in plugins
-                    return executeCommandExternal(context, params);
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Execute Command", e);
@@ -161,74 +138,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
             }
             this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, "Operation 'workspace/executeCommand' failed!",
-                                       new LSCommandExecutorException(
-                                               "No command executor found for '" + params.getCommand() + "'"),
-                                       null, (Position) null);
+                    new LSCommandExecutorException(
+                            "No command executor found for '" + params.getCommand() + "'"),
+                    null, (Position) null);
             return false;
         });
-    }
-
-    /**
-     * Execute commands provided by compiler plugins. Depending on the result, relevant workspace edits will be
-     * performed.
-     *
-     * @param context Execute command context
-     * @param params  Execute command params
-     * @return any | null
-     */
-    private Object executeCommandExternal(ExecuteCommandContext context, ExecuteCommandParams params) {
-        List<CodeActionArgument> args = new LinkedList<>();
-        String uri = null;
-        for (CommandArgument arg : context.getArguments()) {
-            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
-                uri = arg.valueAs(String.class);
-            } else {
-                args.add(CodeActionArgument.from(arg.key(), arg.value()));
-            }
-        }
-
-        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
-        if (filePath.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        Optional<PackageCompilation> packageCompilation = 
-                context.workspace().waitAndGetPackageCompilation(filePath.get());
-        Optional<Document> document = context.workspace().document(filePath.get());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath.get());
-        if (packageCompilation.isEmpty() || document.isEmpty() || semanticModel.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(uri, filePath.get(), 
-                null, document.get(), semanticModel.get(), args);
-
-        String providerName = params.getCommand();
-        CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
-        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, codeActionContext);
-
-        List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
-        docEdits.forEach(docEdit -> {
-            Optional<SyntaxTree> originalST = PathUtil.getPathFromURI(docEdit.getFileUri())
-                    .flatMap(workspaceManagerProxy.get()::document)
-                    .flatMap(doc -> Optional.of(doc.syntaxTree()));
-            if (originalST.isEmpty()) {
-                return;
-            }
-
-            TextRange textRange = originalST.get().rootNode().textRangeWithMinutiae();
-            TextDocument textDocument = originalST.get().textDocument();
-            LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
-            LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
-            LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
-            Range range = PositionUtil.toRange(LineRange.from(docEdit.getFileUri(), 
-                    lineRange.startLine(), lineRange.endLine()));
-            TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
-            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
-                    docEdit.getFileUri(), null), Collections.singletonList(edit));
-            Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
-            edits.add(either);
-        });
-        return CommandUtil.applyWorkspaceEdit(edits, languageServer.getClient());
     }
 }

@@ -29,8 +29,10 @@ import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,6 +47,13 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("jsonToRecord")
 public class JsonToRecordConverterService implements ExtendedLanguageServerService {
+    private WorkspaceManager workspaceManager;
+
+    @Override
+    public void init(LanguageServer langServer, WorkspaceManager workspaceManager) {
+        ExtendedLanguageServerService.super.init(langServer, workspaceManager);
+        this.workspaceManager = workspaceManager;
+    }
 
     @Override
     public Class<?> getRemoteInterface() {
@@ -61,6 +70,7 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
             boolean isRecordTypeDesc = request.getIsRecordTypeDesc();
             boolean isClosed = request.getIsClosed();
             boolean forceFormatRecordFields = request.getForceFormatRecordFields();
+            String filePathUri = request.getFilePathUri();
 
             try {
                 JsonElement parsedJson = JsonParser.parseString(jsonString);
@@ -75,7 +85,8 @@ public class JsonToRecordConverterService implements ExtendedLanguageServerServi
                     }
                 } else {
                     response = JsonToRecordMapper.convert(jsonString, recordName, isRecordTypeDesc, isClosed,
-                            forceFormatRecordFields);
+                            forceFormatRecordFields, filePathUri, workspaceManager);
+
                 }
             } catch (JsonSyntaxException e) {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});

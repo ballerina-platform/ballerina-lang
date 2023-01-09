@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 7,
+    "character": 19
+  },
+  "source": "extractToConstant.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "const int CONST = 10;\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 18
+            },
+            "end": {
+              "line": 7,
+              "character": 20
+            }
+          },
+          "newText": "CONST"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
