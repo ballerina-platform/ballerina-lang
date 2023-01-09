@@ -311,7 +311,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Lock lock = projectPair.get().lockAndGet();
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
-            projectPair.get().setCrashed(false);
+            if (projectPair.get().crashed) {
+                projectPair.get().setCrashed(false);
+            }
             if (compilation.diagnosticResult().diagnostics().stream()
                     .anyMatch(diagnostic -> 
                             Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
