@@ -188,14 +188,13 @@ public class DiagnosticsHelper {
         // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
         // IDE requires the original path.
         Path projectRoot = workspace.projectRoot(context.filePath());
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectRoot = projectRoot.getParent();
-        }
-        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath(),
-                context.operation() == LSContextOperation.TXT_DID_CHANGE).orElseThrow();
+        Path originalPath = project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
+                ? projectRoot.getParent() : projectRoot;
+        Optional<PackageCompilation> compilationResult = workspace.waitAndGetPackageCompilation(context.filePath(),
+                context.operation() == LSContextOperation.TXT_DID_CHANGE);
         // We do not send the internal diagnostics
-        diagnosticMap.putAll(
-                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
+        compilationResult.ifPresent(compilation -> diagnosticMap.putAll(
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), originalPath, workspace)));
         return diagnosticMap;
     }
 
