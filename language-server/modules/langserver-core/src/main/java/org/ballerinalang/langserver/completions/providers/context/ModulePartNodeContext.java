@@ -170,8 +170,6 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             List<Symbol> types = QNameRefCompletionUtil.getModuleContent(context,
                     (QualifiedNameReferenceNode) nodeAtCursor, predicate);
             completionItems.addAll(this.getCompletionItemList(types, context));
-            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            completionItems.addAll(this.getClientDeclCompletionItemList(context, nameRef, predicate));
             return completionItems;
         }
 

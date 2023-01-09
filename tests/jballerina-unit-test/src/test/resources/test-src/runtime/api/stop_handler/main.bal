@@ -17,7 +17,7 @@
 import ballerina/lang.runtime;
 import ballerina/test;
 
-import runtime_api.moduleA;
+import stop_handler.moduleA;
 
 function stopHandlerFunc1() returns error? {
     runtime:sleep(1);

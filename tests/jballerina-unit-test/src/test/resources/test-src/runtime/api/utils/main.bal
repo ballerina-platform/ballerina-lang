@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/utils_api.jsons;
+import testorg/utils.jsons;
 
 public function main() {
     jsons:validateAPI();

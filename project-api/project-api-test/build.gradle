@@ -44,8 +44,6 @@ dependencies {
     testCompile project(':ballerina-lang')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':project-api-test-artifact:logging-file-appender-plugin')
-    testRuntime project(':project-api-test-artifact:idl-client-gen-plugin')
-    testRuntime project(':project-api-test-artifact:idl-import-simple-compiler-plugin')
     testRuntime project(':compiler-plugins:package-semantic-analyzer')
 
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')

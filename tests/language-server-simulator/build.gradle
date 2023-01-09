@@ -77,7 +77,7 @@ jacocoTestReport {
 
 task downloadBalTestProject(type: Download) {
     // Download nBallerina latest tag
-    src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset13.zip"
+    src "https://github.com/ballerina-platform/nballerina/archive/refs/heads/main.zip"
     onlyIfModified true
     dest new File("${buildDir}/nballeirna-src.zip")
 }
@@ -94,7 +94,7 @@ task runLSSimulator(type: JavaExec) {
     dependsOn loadDistributionCache
     dependsOn unpackBalTestProject
 
-    def extractedBalSrcDir = "${buildDir}/${balSourceDir}/nballerina-subset13/compiler"
+    def extractedBalSrcDir = "${buildDir}/${balSourceDir}/nballerina-main/compiler"
     systemProperty "ls.simulation.src", "${extractedBalSrcDir}"
 
     systemProperty "ballerina.home", "$buildDir/"
