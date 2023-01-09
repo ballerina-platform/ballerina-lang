@@ -43,6 +43,7 @@ import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.CloneUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.commons.TypeValuePair;

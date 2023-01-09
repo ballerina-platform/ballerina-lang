@@ -3274,6 +3274,17 @@ public class TypeChecker {
         return true;
     }
 
+    static boolean isRegExpType(Type targetType) {
+        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            Type referredType = ((ReferenceType) targetType).getReferredType();
+            if (referredType.getQualifiedName().equals("ballerina/lang.regexp:0:RegExp")) {
+                return true;
+            }
+            return isRegExpType(referredType);
+        }
+        return false;
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      *

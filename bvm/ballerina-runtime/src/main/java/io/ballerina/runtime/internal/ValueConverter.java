@@ -1,21 +1,22 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-package org.ballerinalang.langlib.value;
+
+package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
@@ -26,10 +27,10 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -38,11 +39,8 @@ import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.CloneUtils;
-import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -61,21 +59,16 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
- * Extern function lang.values:fromJsonWithType.
+ * Responsible for performing conversion of values at runtime.
  *
- * @since 2.0
+ * @since 2201.4.0
  */
-public class FromJsonWithType {
+public class ValueConverter {
 
-    private FromJsonWithType() {
-    }
+    private ValueConverter() {}
 
-    public static Object fromJsonWithType(Object value, BTypedesc t) {
+    public static Object convert(Object value, BTypedesc t) {
         return convert(value, t.getDescribingType(), t);
-    }
-
-    public static Object convert(Object value, Type targetType) {
-        return convert(value, targetType, null);
     }
 
     public static Object convert(Object value, Type targetType, BTypedesc t) {
@@ -89,10 +82,9 @@ public class FromJsonWithType {
     }
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t) {
-        TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (value == null) {
-            if (targetType.isNilable()) {
+            if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
             }
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
@@ -101,11 +93,11 @@ public class FromJsonWithType {
 
         Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
 
+        TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
         }
-
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
@@ -115,9 +107,8 @@ public class FromJsonWithType {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = TypeUtils.getReferredType(convertibleType);
-
         Object newValue;
+        Type matchingType = TypeUtils.getReferredType(convertibleType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -127,8 +118,11 @@ public class FromJsonWithType {
             case TypeTags.TUPLE_TAG:
                 newValue = convertArray((BArray) value, matchingType, unresolvedValues, t);
                 break;
+            case TypeTags.TABLE_TAG:
+                newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
+                break;
             default:
-                if (isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
+                if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
                     try {
                         newValue = RegExpFactory.parse(((BString) value).getValue());
                         break;
@@ -163,15 +157,12 @@ public class FromJsonWithType {
         return newValue;
     }
 
-    private static boolean isRegExpType(Type targetType) {
-        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            Type referredType = ((ReferenceType) targetType).getReferredType();
-            if (referredType.getQualifiedName().equals("ballerina/lang.regexp:0:RegExp")) {
-                return true;
-            }
-            return isRegExpType(referredType);
+    private static Type getTargetFromTypeDesc(Type targetType) {
+        Type referredType = TypeUtils.getReferredType(targetType);
+        if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
+            return ((TypedescType) referredType).getConstraint();
         }
-        return false;
+        return targetType;
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
@@ -199,13 +190,15 @@ public class FromJsonWithType {
                     return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType, targetTypeField);
                 } else {
                     return convertToRecord(map, unresolvedValues, t, recordType, restFieldType,
-                                           targetTypeField);
+                            targetTypeField);
                 }
             case TypeTags.JSON_TAG:
                 Type matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
                 return convert(map, matchingType, unresolvedValues, t);
             case TypeTags.INTERSECTION_TAG:
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
+            default:
+                break;
         }
         // should never reach here
         throw createConversionError(map, targetType);
@@ -230,7 +223,7 @@ public class FromJsonWithType {
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, t, restFieldType, targetTypeField, entry);
             initialValues[count] = ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()),
-                                                                    newValue);
+                    newValue);
             count++;
         }
         return (BMap<?, ?>) t.instantiate(Scheduler.getStrand(), initialValues);
@@ -242,7 +235,6 @@ public class FromJsonWithType {
         Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
         return convert(entry.getValue(), fieldType, unresolvedValues, t);
     }
-
 
     private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues,
                                        BTypedesc t) {
@@ -272,13 +264,13 @@ public class FromJsonWithType {
                     jsonValues[i] = newValue;
                 }
                 return ValueCreator.createArrayValue(jsonValues,
-                                                     TypeCreator.createArrayType(PredefinedTypes.TYPE_JSON));
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_JSON));
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
                 Object[] tableValues = new Object[array.size()];
                 for (int i = 0; i < array.size(); i++) {
                     BMap<?, ?> bMap = (BMap<?, ?>) convert(array.get(i), tableType.getConstrainedType(),
-                                                           unresolvedValues, t);
+                            unresolvedValues, t);
                     tableValues[i] = bMap;
                 }
                 BArray data = ValueCreator
@@ -288,9 +280,25 @@ public class FromJsonWithType {
                 return ValueCreator.createTableValue(tableType, data, fieldNames);
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),
-                                    unresolvedValues, t);
+                        unresolvedValues, t);
         }
         // should never reach here
         throw createConversionError(array, targetType);
+    }
+
+    private static Object convertTable(BTable<?, ?> bTable, Type targetType,
+                                       List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        TableType tableType = (TableType) targetType;
+        Object[] tableValues = new Object[bTable.size()];
+        int count = 0;
+        for (Object tableValue : bTable.values()) {
+            BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(), unresolvedValues, t);
+            tableValues[count++] = bMap;
+        }
+        BArray data = ValueCreator.createArrayValue(tableValues,
+                TypeCreator.createArrayType(tableType.getConstrainedType()));
+        BArray fieldNames;
+        fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+        return ValueCreator.createTableValue(tableType, data, fieldNames);
     }
 }
