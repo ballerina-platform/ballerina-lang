@@ -1,17 +1,17 @@
 mapInits function() -> (string|(), int|()) {
     %0(RETURN) (string|(), int|());
-    %1(LOCAL) map<Employee>;
-    %2(TEMP) typeDesc<any|error>;
+    %1(TEMP) typeDesc<any|error>;
+    %2(LOCAL) map<Employee>;
     %3(TEMP) typeDesc<any|error>;
-    %5(LOCAL) Person;
-    %8(TEMP) string;
+    %4(TEMP) typeDesc<any|error>;
+    %6(LOCAL) Person;
     %9(TEMP) string;
     %10(TEMP) string;
-    %11(TEMP) int;
-    %12(TEMP) string;
+    %11(TEMP) string;
+    %12(TEMP) int;
     %13(TEMP) string;
-    %14(TEMP) Employee;
-    %18(TEMP) typeDesc<any|error>;
+    %14(TEMP) string;
+    %15(TEMP) Employee;
     %21(SYNTHETIC) string|();
     %22(SYNTHETIC) Employee|();
     %26(SYNTHETIC) Employee|();
@@ -39,24 +39,24 @@ mapInits function() -> (string|(), int|()) {
     %115(SYNTHETIC) boolean;
 
     bb0 {
-        %2 = newType Employee;
-        %3 = newType map<Employee>;
-        %1 = NewMap %3;
-        %3 = newType Person;
-        %8 = ConstLoad name;
-        %9 = ConstLoad Jack;
-        %10 = ConstLoad age;
-        %11 = ConstLoad 25;
-        %12 = ConstLoad address;
-        %13 = ConstLoad Usa;
-        %5 = NewMap %7;
-        %14 = <Employee> %5;
-        %8 = ConstLoad jack;
-        %1[%8] = %14;
-        %18 = newType (string|(), int|());
-        %11 = ConstLoad 2;
+        %1 = newType (string|(), int|());
+        %3 = newType Employee;
+        %4 = newType map<Employee>;
+        %2 = NewMap %4;
+        %4 = newType Person;
+        %9 = ConstLoad name;
+        %10 = ConstLoad Jack;
+        %11 = ConstLoad age;
+        %12 = ConstLoad 25;
+        %13 = ConstLoad address;
+        %14 = ConstLoad Usa;
+        %6 = NewMap %8;
+        %15 = <Employee> %6;
         %9 = ConstLoad jack;
-        %22 = %1[%9];
+        %2[%9] = %15;
+        %12 = ConstLoad 2;
+        %10 = ConstLoad jack;
+        %22 = %2[%10];
         %26 = %22;
         %31 = ConstLoad true;
         %31? bb1 : bb2;
@@ -116,10 +116,10 @@ mapInits function() -> (string|(), int|()) {
         %43? bb15 : bb16;
     }
     bb15 {
-        %14 = <Employee> %45;
-        %10 = ConstLoad name;
-        %12 = %14[%10];
-        %21 = <string|()> %12;
+        %15 = <Employee> %45;
+        %11 = ConstLoad name;
+        %13 = %15[%11];
+        %21 = <string|()> %13;
         GOTO bb24;
     }
     bb16 {
@@ -154,8 +154,8 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb24;
     }
     bb24 {
-        %13 = ConstLoad jack;
-        %75 = %1[%13];
+        %14 = ConstLoad jack;
+        %75 = %2[%14];
         %79 = %75;
         %31 = ConstLoad true;
         %31? bb25 : bb26;
@@ -215,9 +215,9 @@ mapInits function() -> (string|(), int|()) {
         %96? bb39 : bb40;
     }
     bb39 {
-        %14 = <Employee> %98;
-        %8 = ConstLoad age;
-        %110 = %14[%8];
+        %15 = <Employee> %98;
+        %9 = ConstLoad age;
+        %110 = %15[%9];
         %74 = <int|()> %110;
         GOTO bb48;
     }
@@ -253,7 +253,7 @@ mapInits function() -> (string|(), int|()) {
         GOTO bb48;
     }
     bb48 {
-        %0 = newArray %18[%11];
+        %0 = newArray %1[%12];
         GOTO bb49;
     }
     bb49 {
