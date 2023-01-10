@@ -6473,7 +6473,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Add `@strand {thread: "any"}` annotation to an isolated start-action.
         if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
-                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+                isIsolated(actionInvocation.symbol.type.flags)) {
             addStrandAnnotationWithThreadAny(actionInvocation.pos);
             actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
             ((BInvokableSymbol) actionInvocation.symbol)
@@ -7723,7 +7723,7 @@ public class Desugar extends BLangNodeVisitor {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
         BLangFunction function = bLangLambdaFunction.function;
         // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
-        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
+        if (function.flagSet.contains(Flag.WORKER) && isIsolated(function.symbol.type.flags) &&
                 isIsolated(env.enclInvokable.symbol.flags)) {
             addStrandAnnotationWithThreadAny(function.pos);
             function.addAnnotationAttachment(this.strandAnnotAttachement);
