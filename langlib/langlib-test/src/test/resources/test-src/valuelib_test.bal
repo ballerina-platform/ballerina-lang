@@ -2305,6 +2305,370 @@ function testCloneWithTypeWithTuples() returns error? {
     assertFalse(x is Array);
 }
 
+type FooTab2 record {|
+    int x2 = 1;
+    int y3 = 2;
+|};
+
+type FooTab3 record {
+    string x3;
+    int y3;
+};
+
+type FooTab4 record {
+    string x3;
+    int y3 = 1;
+};
+
+type FooTab5 record {
+    string x3;
+    int y3?;
+};
+
+type FooTab6 record {
+    string x3;
+};
+
+type TableFoo2 table<FooTab2>;
+type TableFoo3 table<FooTab3>;
+type TableFoo4 table<FooTab4>;
+type TableFoo5 table<FooTab5>;
+type TableFoo6 table<FooTab6>;
+
+function testCloneWithTypeTable() {
+    json jj = [
+        {x3: "abc"},
+        {x3: "abc"}
+    ];
+
+    table<FooTab2>|error tabJ2 = jj.cloneWithType(TableFoo2);
+    assertEquality(tabJ2 is error, true);
+
+    table<FooTab3>|error tabJ3 = jj.cloneWithType(TableFoo3);
+    assertEquality(tabJ3 is error, true);
+
+    table<FooTab4>|error tabJ4 = jj.cloneWithType(TableFoo4);
+    assertEquality(tabJ4 is table<FooTab4>, true);
+
+    table<FooTab5>|error tabJ5 = jj.cloneWithType(TableFoo5);
+    assertEquality(tabJ5 is table<FooTab5>, true);
+
+    table<FooTab6>|error tabJ6 = jj.cloneWithType(TableFoo6);
+    assertEquality(tabJ6 is table<FooTab6>, true);
+}
+
+type RegExpType string:RegExp;
+
+function testCloneWithTypeOnRegExp() {
+    string s = "AB+C*D{1,4}";
+    RegExpType|error x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `AB+C*D{1,4}` == x1, true);
+    }
+
+    s = "A?B+C*?D{1,4}";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A?B+C*?D{1,4}` == x1, true);
+    }
+
+    s = "A\\sB\\WC\\Dd\\\\";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A\sB\WC\Dd\\` == x1, true);
+    }
+
+    s = "\\s{1}\\p{sc=Braille}*";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\s{1}\p{sc=Braille}*` == x1, true);
+    }
+
+    s = "AB+\\p{gc=Lu}{1,}";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `AB+\p{gc=Lu}{1,}` == x1, true);
+    }
+
+    s = "A\\p{Lu}??B+\\W\\(+?C*D{1,4}?";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `A\p{Lu}??B+\W\(+?C*D{1,4}?` == x1, true);
+    }
+
+    s = "\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*` == x1, true);
+    }
+
+
+    s = "[\\r\\n\\^]";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\r\n\^]` == x1, true);
+    }
+
+    s = "[A\\sB\\WC\\Dd\\\\]";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[A\sB\WC\Dd\\]` == x1, true);
+    }
+
+    s = "[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??` == x1, true);
+    }
+
+    s = "[A\\sA-GB\\WC\\DJ-Kd\\\\]*";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[A\sA-GB\WC\DJ-Kd\\]*` == x1, true);
+    }
+
+    s = "[\\sA-F\\p{sc=Braille}K-Mabc-d\\--]";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\sA-F\p{sc=Braille}K-Mabc-d\--]` == x1, true);
+    }
+
+    s = "[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?` == x1, true);
+    }
+
+    s = "(?:ABC)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?:ABC)` == x1, true);
+    }
+
+    s = "(?i:ABC)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i:ABC)` == x1, true);
+    }
+
+    s = "(?i-m:AB+C*)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-m:AB+C*)` == x1, true);
+    }
+
+    s = "(?imxs:AB+C*D{1,4})";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?imxs:AB+C*D{1,4})` == x1, true);
+    }
+
+    s = "(?imx-s:A?B+C*?D{1,4})";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?imx-s:A?B+C*?D{1,4})` == x1, true);
+    }
+
+    s = "(?i-s:\\s{1}\\p{sc=Braille}*)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-s:\s{1}\p{sc=Braille}*)` == x1, true);
+    }
+
+    s = "(?ims-x:\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA+?\\)*)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?ims-x:\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA+?\)*)` == x1, true);
+    }
+
+    s = "(?im-sx:[A\\sA-GB\\WC\\DJ-Kd\\\\]*)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?im-sx:[A\sA-GB\WC\DJ-Kd\\]*)` == x1, true);
+    }
+
+    s = "(?i-sxm:[\\p{Lu}-\\w\\p{sc=Latin}\\p{gc=Lu}\\p{Lu}-\\w\\p{Lt}\\tA\\)\\p{Lu}-\\w]{12,32}?)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?i-sxm:[\p{Lu}-\w\p{sc=Latin}\p{gc=Lu}\p{Lu}-\w\p{Lt}\tA\)\p{Lu}-\w]{12,32}?)` == x1, true);
+    }
+
+    s = "(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(?:(?i-m:ab|cd)|aa|abcdef[a-zefg-ijk-]|ba|b|c{1,3}^)+|ef` == x1, true);
+    }
+
+    s = "(z)((a+)?(b+)?(c))*";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `(z)((a+)?(b+)?(c))*` == x1, true);
+    }
+
+    s = "^^^^^^^robot$$$$";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `^^^^^^^robot$$$$` == x1, true);
+    }
+
+    s = "cx{0,93}c";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `cx{0,93}c` == x1, true);
+    }
+
+    s = "[\\d]*[\\s]*bc.";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `[\d]*[\s]*bc.` == x1, true);
+    }
+
+    s = "\\??\\??\\??\\??\\??";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\??\??\??\??\??` == x1, true);
+    }
+
+    s = ".?.?.?.?.?.?.?";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `.?.?.?.?.?.?.?` == x1, true);
+    }
+
+    s = "bc..[\\d]*[\\s]*";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `bc..[\d]*[\s]*` == x1, true);
+    }
+
+    s = "\\\\u123";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `\\u123` == x1, true);
+    }
+
+    s = "";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is string:RegExp, true);
+    if (x1 is string:RegExp) {
+        assertEquality(re `` == x1, true);
+    }
+}
+
+function testCloneWithTypeOnRegExpNegative() {
+    string s = "AB+^*";
+    RegExpType|error x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\hCD";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\h'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\pCD";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\p'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\uCD";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\u{001CD";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u{001CD'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "AB\\p{sc=Lu";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing '}' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "[^abc";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ']' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "(abc";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ')' character",
+        <string> checkpanic x1.detail()["message"]);
+    }
+
+    s = "(ab^*)";
+    x1 = s.cloneWithType(RegExpType);
+    assertEquality(x1 is error, true);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
+        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
+        <string> checkpanic x1.detail()["message"]);
+    }
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {

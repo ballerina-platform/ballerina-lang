@@ -370,7 +370,10 @@ public class LangLibValueTest {
                 "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
                 "testCloneWithTypeWithAmbiguousUnion",
                 "testCloneWithTypeWithTuples",
-                "testCloneWithTypeToUnion"
+                "testCloneWithTypeToUnion",
+                "testCloneWithTypeTable",
+                "testCloneWithTypeOnRegExp",
+                "testCloneWithTypeOnRegExpNegative"
         };
     }
 
