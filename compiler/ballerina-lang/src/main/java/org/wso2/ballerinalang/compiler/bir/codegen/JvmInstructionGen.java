@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
@@ -2104,7 +2103,7 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
-        if (isNonReferredRecord(newTypeDesc.type)) {
+        if (Types.isUserDefinedTypeDefinition(newTypeDesc.type)) {
             BType type = newTypeDesc.type;
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
@@ -2114,12 +2113,6 @@ public class JvmInstructionGen {
             generateNewTypedescCreate(newTypeDesc.type, closureVars);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
-    }
-
-    private boolean isNonReferredRecord(BType type) {
-        type = Types.getReferredType(type);
-        return type.tsymbol != null && type.tag == TypeTags.RECORD &&
-                type.tsymbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
