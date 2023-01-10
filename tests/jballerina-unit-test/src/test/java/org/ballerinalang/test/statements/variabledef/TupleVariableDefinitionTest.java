@@ -439,7 +439,21 @@ public class TupleVariableDefinitionTest {
                 "but found 'Ints'", 128, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
                 "but found 'IntsOrStrings'", 129, 5);
-
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 133, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 133, 34);
+        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 133, 41);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 134, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "missing error keyword", 134, 36);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 135, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 135, 35);
+        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 135, 43);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 136, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 136, 35);
+        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 136, 43);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

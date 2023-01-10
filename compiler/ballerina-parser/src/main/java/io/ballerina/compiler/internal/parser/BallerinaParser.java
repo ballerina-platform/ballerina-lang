@@ -16720,18 +16720,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 // T[..] ..
                 STNode typedBindingPattern = parseTypedBindingPatternOrMemberAccess(typeDesc, true, true, context);
-                if (typedBindingPattern.kind != SyntaxKind.TYPED_BINDING_PATTERN) {
-                    STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-                    STNode typeDescriptor = STNodeFactory.createTypeReferenceNode(
-                            SyntaxErrors.createMissingToken(SyntaxKind.ASTERISK_TOKEN),
-                            SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN),
-                            SyntaxErrors.createMissingToken(SyntaxKind.SEMICOLON_TOKEN)
-                    );
-                    STNode captureBindingPattern = STNodeFactory.createCaptureBindingPatternNode(identifier);
-                    typedBindingPattern = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(
-                            STNodeFactory.createTypedBindingPatternNode(typeDescriptor, captureBindingPattern),
-                            typedBindingPattern, DiagnosticErrorCode.ERROR_INVALID_BINDING_PATTERN);
-                }
+                assert typedBindingPattern.kind == SyntaxKind.TYPED_BINDING_PATTERN;
                 return typedBindingPattern;
             case CLOSE_PAREN_TOKEN:
             case COMMA_TOKEN:
@@ -16811,7 +16800,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseAsMemberAccessExpr(STNode typeNameOrExpr, STNode openBracket, STNode member) {
-        typeNameOrExpr = getExpression(typeNameOrExpr);
         member = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, member, false, true);
         STNode closeBracket = parseCloseBracket();
         endContext();
@@ -17329,6 +17317,9 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.NONE;
             case ERROR_CONSTRUCTOR:
+                if (isTypedBindingPattern) {
+                    return SyntaxKind.LIST_BINDING_PATTERN;
+                }
                 if (isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) memberNode)) {
                     return SyntaxKind.NONE;
                 }
@@ -17734,7 +17725,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member,
                                              boolean isRoot) {
         memberList = getBindingPatternsList(memberList, true);
-        memberList.add(member);
+        memberList.add(getBindingPattern(member, true));
         switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
         endContext();
