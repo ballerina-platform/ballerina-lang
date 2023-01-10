@@ -43,10 +43,9 @@ public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements Tuple
     private final TypeSymbol type;
 
     public BallerinaTupleMemberSymbol(CompilerContext context,
-                                      String name,
                                       BVarSymbol symbol,
                                       TypeSymbol type) {
-        super(name, SymbolKind.TUPLE_MEMBER, symbol, context);
+        super(null, SymbolKind.TUPLE_MEMBER, symbol, context);
         this.type = type;
     }
 

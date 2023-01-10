@@ -374,9 +374,8 @@ public class SymbolFactory {
      * @return {@link BallerinaTupleMemberSymbol} generated
      */
     public BallerinaTupleMemberSymbol createTupleMember(BVarSymbol symbol) {
-        BType bType = symbol.getType();
-        TypeSymbol type = typesFactory.getTypeDescriptor(bType);
-        return new BallerinaTupleMemberSymbol(context, bType.name.getValue(), symbol, type);
+        TypeSymbol type = typesFactory.getTypeDescriptor(symbol.getType());
+        return new BallerinaTupleMemberSymbol(context, symbol, type);
     }
 
     private boolean isReadonlyIntersectionArrayType(BType type) {
