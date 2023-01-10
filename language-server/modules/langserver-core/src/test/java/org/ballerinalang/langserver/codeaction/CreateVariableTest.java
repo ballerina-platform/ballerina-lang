@@ -96,6 +96,7 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction43.json"},
                 {"variableAssignmentRequiredCodeAction44.json"},
                 {"variableAssignmentRequiredCodeAction45.json"},
+                {"variableAssignmentRequiredCodeAction46.json"},
                 {"ignoreReturnValueCodeAction.json"},
                 {"projectVariableAssignmentRequiredCodeAction1.json"},
                 {"projectVariableAssignmentRequiredCodeAction2.json"},

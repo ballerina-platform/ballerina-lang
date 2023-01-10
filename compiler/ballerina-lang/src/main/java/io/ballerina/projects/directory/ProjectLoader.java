@@ -67,6 +67,13 @@ public class ProjectLoader {
             if (ProjectConstants.MODULES_ROOT.equals(
                     Optional.of(absFilePath.getParent()).get().toFile().getName())) {
                 projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.equals(absFilePath.toFile().getName())) {
+                // Generated default module
+                projectRoot = Optional.of(absFilePath.getParent()).get();
+            } else if (ProjectConstants.GENERATED_MODULES_ROOT.
+                    equals(Optional.of(absFilePath.getParent()).get().toFile().getName())) {
+                // Generated non default module
+                projectRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
             } else {
                 projectRoot = absFilePath;
             }

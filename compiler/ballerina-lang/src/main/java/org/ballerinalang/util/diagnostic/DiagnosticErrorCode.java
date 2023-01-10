@@ -780,30 +780,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
     OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
-
     INVALID_START_CHAR_CODE_IN_RANGE("BCE4035", "invalid.start.char.code.in.range"),
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
-
-    INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER(
-            "BCE4038", "invalid.usage.of.the.client.keyword.as.an.unquoted.identifier"),
-    INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION("BCE4039", "invalid.non.anydata.client.decl.annotation"),
-    NO_MODULE_GENERATED_FOR_CLIENT_DECL("BCE4040", "no.module.generated.for.client.decl"),
-    UNUSED_CLIENT_DECL_PREFIX("BCE4041", "unused.client.decl.prefix"),
-    UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4042", "unsupported.exposure.of.construct.from.module.generated.for.client.decl"),
-    MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE(
-            "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
-    MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
-            "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
-    CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4045", "cannot.import.module.generated.for.a.client.decl"),
-    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4046",
+    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4038",
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
-            "BCE4047", "outer.join.must.be.declared.with.var"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4048", "invalid.error.query.construct.type"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4049", "invalid.error.query.construct.map.type")
+            "BCE4039", "outer.join.must.be.declared.with.var"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4040", "invalid.error.query.construct.type"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4041", "invalid.error.query.construct.map.type")
     ;
 
     private String diagnosticId;
