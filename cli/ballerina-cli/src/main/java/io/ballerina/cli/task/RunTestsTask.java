@@ -53,6 +53,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -66,6 +67,7 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
+import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -79,6 +81,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
  * @since 2.0.0
  */
 public class RunTestsTask implements Task {
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
     private final PrintStream out;
     private final PrintStream err;
     private final String includesInCoverage;
@@ -91,12 +95,13 @@ public class RunTestsTask implements Task {
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
+    private boolean enableNativeImageAgent;
 
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups)  {
+                        Map<String, Module> modules, boolean listGroups, boolean enableNativeImageAgent)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -114,6 +119,7 @@ public class RunTestsTask implements Task {
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
         this.listGroups = listGroups;
+        this.enableNativeImageAgent = enableNativeImageAgent;
     }
 
     @Override
@@ -258,7 +264,23 @@ public class RunTestsTask implements Task {
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
-        cmdArgs.add(System.getProperty("java.command"));
+        boolean nativeImageAgentEnabled = false;
+        if (enableNativeImageAgent) {
+            String graalvmHome = System.getenv("GRAALVM_HOME");
+            if (graalvmHome != null) {
+                nativeImageAgentEnabled = true;
+                String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
+                        + (OS.contains("win") ? "java.exe" : "java");
+                cmdArgs.add(javaCmd);
+                cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs");
+            }
+        }
+        if (!nativeImageAgentEnabled) {
+            if (enableNativeImageAgent) {
+                this.out.println("warning: failed to engage GraalVM native-image agent. Please set GRAALVM_HOME.");
+            }
+            cmdArgs.add(System.getProperty("java.command"));
+        }
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
         cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
