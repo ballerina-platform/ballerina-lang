@@ -105,12 +105,13 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         ConstantData constantData = getConstantData(context);
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
-        
-        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart);
+
+        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, 
+                addNewLineAtStart);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
         addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart());
-        
+
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
@@ -124,11 +125,20 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (nodeList.size() == 1) {
             return Collections.singletonList(codeAction);
         }
-        
+
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
         nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
                 getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
-        
+
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            Position replacePosition = textEdits.get(1).getRange().getStart();
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
+                            textEditMap, 
+                            new Position(replacePosition.getLine() + 1, replacePosition.getCharacter()))), 
+                    CodeActionKind.RefactorExtract));
+        }
+
         return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
                         textEditMap)), CodeActionKind.RefactorExtract));
@@ -252,6 +262,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     }
 
     private static class ConstantData {
+
         Position position;
         boolean addNewLineAtStart;
 
