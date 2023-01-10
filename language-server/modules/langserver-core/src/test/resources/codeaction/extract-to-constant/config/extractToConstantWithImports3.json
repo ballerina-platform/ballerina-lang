@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 4,
-    "character": 25
+    "line": 10,
+    "character": 13
   },
-  "source": "extractToConstantWithImports.bal",
+  "source": "extractToConstantWithImports3.bal",
   "expected": [
     {
       "title": "Extract to constant",
@@ -20,20 +20,20 @@
               "character": 0
             }
           },
-          "newText": "\nconst string CONST = \"Hello World\";\n"
+          "newText": "const int CONST1 = 0;\n"
         },
         {
           "range": {
             "start": {
-              "line": 4,
-              "character": 22
+              "line": 10,
+              "character": 12
             },
             "end": {
-              "line": 4,
-              "character": 35
+              "line": 10,
+              "character": 13
             }
           },
-          "newText": "CONST"
+          "newText": "CONST1"
         }
       ]
     }

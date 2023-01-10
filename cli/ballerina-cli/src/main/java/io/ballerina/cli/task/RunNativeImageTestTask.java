@@ -32,6 +32,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -137,7 +138,7 @@ public class RunNativeImageTestTask implements Task {
 
 
     private static byte[] getModifiedClassBytes(String className, List<String> functionNames, TestSuite suite,
-                                               ClassLoader classLoader) {
+                                                ClassLoader classLoader) {
         Class<?> functionToMockClass;
         try {
             functionToMockClass = classLoader.loadClass(className);
@@ -350,7 +351,7 @@ public class RunNativeImageTestTask implements Task {
         }
 
         // If the function mocking does not exist, combine all test suite map entries
-        if (!isMockFunctionExist) {
+        if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
             while (testSuiteMapEntries.size() > 0) {
                 testSuiteMap.putAll(testSuiteMapEntries.remove(0));
@@ -404,7 +405,7 @@ public class RunNativeImageTestTask implements Task {
 
                             if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                                 moduleName = ModuleName.from(project.currentPackage().packageName(),
-                                                                                moduleName).toString();
+                                        moduleName).toString();
                             }
                             testReport.addModuleStatus(moduleName, moduleStatus);
                         }
@@ -478,9 +479,15 @@ public class RunNativeImageTestTask implements Task {
         cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
-        if (testSuiteMap.size() == 1) {
+        if (currentPackage.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            String[] splittedArray = currentPackage.project().sourceRoot().toString().
+                    replace(ProjectConstants.BLANG_SOURCE_EXT, "").split("/");
+            packageName = splittedArray[splittedArray.length - 1];
+            validateResourcesWithinJar(testSuiteMap, packageName);
+        } else if (testSuiteMap.size() == 1) {
             packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();
         }
+
 
         // set name and path
         nativeArgs.add("-H:Name=" + packageName);
@@ -530,6 +537,34 @@ public class RunNativeImageTestTask implements Task {
             return 1;
         }
     }
+
+    private void validateResourcesWithinJar(Map<String, TestSuite> testSuiteMap, String packageName)
+            throws IOException {
+        TestSuite testSuite = testSuiteMap.values().toArray(new TestSuite[0])[0];
+        List<String> dependencies = testSuite.getTestExecutionDependencies();
+        String jarPath = "";
+        for (String dependency : dependencies) {
+            if (dependency.contains(packageName + ".jar")) {
+                jarPath = dependency;
+            }
+        }
+        try (ZipInputStream jarInputStream = new ZipInputStream(new FileInputStream(jarPath))) {
+            ZipEntry entry;
+            boolean isResourceExist = false;
+            while ((entry = jarInputStream.getNextEntry()) != null) {
+                String path = entry.getName();
+                if (path.startsWith("resources/")) {
+                    isResourceExist = true;
+                }
+                jarInputStream.closeEntry();
+            }
+            if (isResourceExist) {
+                throw createLauncherException("native image testing is not supported for standalone " +
+                        "Ballerina files containing resources");
+            }
+        }
+    }
+
 
     private String getClassPath(Map<String, TestSuite> testSuiteMap) {
         List<String> dependencies = new ArrayList<>();

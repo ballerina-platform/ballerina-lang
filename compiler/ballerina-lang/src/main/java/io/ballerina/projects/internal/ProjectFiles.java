@@ -32,7 +32,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +67,12 @@ public class ProjectFiles {
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        otherModules.addAll(loadNewGeneratedModules(packageDirPath));
+        List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
+        if (otherModules.isEmpty()) {
+            otherModules = newModules;
+        } else {
+            otherModules.addAll(newModules);
+        }
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
@@ -79,7 +83,7 @@ public class ProjectFiles {
                 ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
     }
 
-    private static Collection<? extends ModuleData> loadNewGeneratedModules(Path packageDirPath) {
+    private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {
         Path generatedSourceRoot = packageDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
         if (Files.isDirectory(generatedSourceRoot)) {
             try (Stream<Path> pathStream = Files.walk(generatedSourceRoot, 1)) {

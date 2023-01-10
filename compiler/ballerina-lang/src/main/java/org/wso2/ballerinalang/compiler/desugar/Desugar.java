@@ -7244,7 +7244,7 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         }
 
-        BLangSimpleVariableDef tempVarDef = createVarDef("result",
+        BLangSimpleVariableDef tempVarDef = createVarDef("$result$",
                 binaryExpr.getBType(), null, binaryExpr.pos);
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempVarDef.var.symbol);
         blockStmt.addStatement(tempVarDef);
