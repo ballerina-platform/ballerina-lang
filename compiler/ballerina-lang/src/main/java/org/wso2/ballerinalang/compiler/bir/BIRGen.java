@@ -1190,14 +1190,10 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         createNewTypeDescInst(tupleTypeNode.getBType(), Collections.emptyList());
-        BLangType typeNode;
-        for (BLangSimpleVariable member : tupleTypeNode.memberTypeNodes) {
-            typeNode = member.typeNode;
-            if (member.typeNode != null) {
-                typeNode.accept(this);
-            }
+        for (BLangType member : tupleTypeNode.memberTypeNodes) {
+            member.accept(this);
         }
-        typeNode = tupleTypeNode.restParamType;
+        BLangType typeNode = tupleTypeNode.restParamType;
         if (typeNode != null) {
             typeNode.accept(this);
         }
