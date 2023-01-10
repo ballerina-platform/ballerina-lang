@@ -86,7 +86,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_OVER);
         debugHitInfo = debugTestRunner.waitForDebugHit(15000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 41);
+        Assert.assertEquals(localVariables.size(), 42);
         Assert.assertTrue(localVariables.containsKey("byteVar"));
 
         // debug point variable should be visible when multiple function returned values are present.
