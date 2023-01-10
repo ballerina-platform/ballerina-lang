@@ -2669,6 +2669,28 @@ function testCloneWithTypeOnRegExpNegative() {
     }
 }
 
+function testCloneWithTypeWithXML() {
+    string s1 = "<test>name</test>";
+    xml|error xe = s1.cloneWithType(XmlType);
+    assertEquality(xe is xml, true);
+
+    xml x = checkpanic xe;
+    json j = x.toJson();
+    assertEquality(j, s1);
+}
+
+type Student4 record {
+    int id;
+    xml x;
+};
+
+function testCloneWithTypeRecordWithXMLField() {
+    Student4 student = {id: 1, x: xml `<book>DJ</book>`};
+    json j = <json> student.toJson();
+    Student4|error ss = j.cloneWithType(Student4);
+    assertEquality(ss is Student4, true);
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {
@@ -2719,6 +2741,9 @@ function testToJsonWithXML() {
                   </movie>`;
     json j = x1.toJson();
     xml x2 = checkpanic j.fromJsonWithType(XmlType);
+    assert(<xml> x2, x1);
+
+    x2 = checkpanic j.cloneWithType(XmlType);
     assert(<xml> x2, x1);
 
     map<anydata> m2 = {a: 1, b: x1};

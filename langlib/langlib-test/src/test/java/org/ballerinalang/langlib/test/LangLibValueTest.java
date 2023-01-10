@@ -373,7 +373,9 @@ public class LangLibValueTest {
                 "testCloneWithTypeToUnion",
                 "testCloneWithTypeTable",
                 "testCloneWithTypeOnRegExp",
-                "testCloneWithTypeOnRegExpNegative"
+                "testCloneWithTypeOnRegExpNegative",
+                "testCloneWithTypeWithXML",
+                "testCloneWithTypeRecordWithXMLField"
         };
     }
 
