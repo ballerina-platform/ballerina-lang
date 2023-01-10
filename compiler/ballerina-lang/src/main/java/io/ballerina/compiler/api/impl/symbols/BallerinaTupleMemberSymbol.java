@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a tuple member symbol.
@@ -47,6 +48,11 @@ public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements Tuple
                                       TypeSymbol type) {
         super(name, SymbolKind.TUPLE_MEMBER, symbol, context);
         this.type = type;
+    }
+
+    @Override
+    public Optional<String> getName() {
+        return Optional.empty();
     }
 
     public TypeSymbol getType() {
