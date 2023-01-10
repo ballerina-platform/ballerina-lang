@@ -34,6 +34,7 @@ public enum DocumentContext implements LSOperation {
     DC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
     DC_SYNTAX_TREE_NODE("ballerinaDocument/syntaxTreeNode"),
     DC_EXEC_POSITION("ballerinaDocument/executorPositions"),
+    DC_NODE_DEFINITION_BY_POSITION("ballerinaDocument/syntaxTreeNodeByPosition"),
     DC_RESOLVE_MISSING_DEPENDENCIES("ballerinaDocument/resolveMissingDependencies");
 
     private final String name;

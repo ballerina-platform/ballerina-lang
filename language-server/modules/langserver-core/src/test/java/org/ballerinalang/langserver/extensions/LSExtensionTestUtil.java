@@ -42,6 +42,7 @@ import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
 import java.io.IOException;
@@ -52,6 +53,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import static org.ballerinalang.langserver.util.TestUtil.getTextDocumentPositionParams;
 
 /**
  * Provides util methods for testing lang-server extension apis.
@@ -70,6 +73,8 @@ public class LSExtensionTestUtil {
     private static final String GET_TYPE_FROM_SYMBOL = "ballerinaSymbol/getTypeFromSymbol";
     private static final String GET_TYPE_FROM_EXPRESSION = "ballerinaSymbol/getTypeFromExpression";
     private static final String GET_TYPE_FROM_FN_DEFINITION = "ballerinaSymbol/getTypesFromFnDefinition";
+    private static final String GET_NODE_DEFINITION_BY_POSITION = "ballerinaDocument/syntaxTreeNodeByPosition";
+
     private static final Gson GSON = new Gson();
     private static final JsonParser parser = new JsonParser();
 
@@ -189,8 +194,15 @@ public class LSExtensionTestUtil {
         return getResult(result);
     }
 
+    public static BallerinaSyntaxTreeResponse getSTNodeDefinitionByPosition(String filePath, Position position,
+                                                                            Endpoint serviceEndpoint) {
+        TextDocumentPositionParams request = getTextDocumentPositionParams(filePath, position);
+        CompletableFuture<?> result = serviceEndpoint.request(GET_NODE_DEFINITION_BY_POSITION, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
     public static JsonObject getConnectorByFqn(String org, String packageName, String module, String version,
-                                          String name, Endpoint serviceEndpoint) {
+                                               String name, Endpoint serviceEndpoint) {
         BallerinaConnectorRequest connectorRequest = new BallerinaConnectorRequest(org, packageName, module,
                 version, name);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, connectorRequest);
