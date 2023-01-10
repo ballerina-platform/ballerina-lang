@@ -20,9 +20,6 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -34,6 +31,7 @@ public class EqualsIgnoreCaseAscii {
 
     private EqualsIgnoreCaseAscii() {
     }
+
     public static boolean equalsIgnoreCaseAscii(BString s1, BString s2) {
         if (s1.length() != s2.length()) {
             return false;
@@ -56,14 +54,6 @@ public class EqualsIgnoreCaseAscii {
     }
 
     private static boolean isPureAscii(String  str) {
-        byte[] byteArray = str.getBytes();
-        CharsetDecoder decoder = StandardCharsets.US_ASCII.newDecoder();
-        try {
-            decoder.decode(ByteBuffer.wrap(byteArray));
-            decoder.reset();
-        } catch (CharacterCodingException e) {
-            return false;
-        }
-        return true;
+        return StandardCharsets.US_ASCII.newEncoder().canEncode(str);
     }
 }
