@@ -95,7 +95,8 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                         SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
                 completionItem.getCompletionItem().setSortText(sortText);
             } else if (parameterSymbol.isEmpty()) {
-                super.sort(context, node, completionItems);
+                completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                        SortingUtil.toRank(context, completionItem)));
             } else {
                 completionItem.getCompletionItem().setSortText(
                         SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
