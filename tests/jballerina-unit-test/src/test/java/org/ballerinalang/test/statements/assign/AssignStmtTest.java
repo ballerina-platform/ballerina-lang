@@ -218,10 +218,21 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid operation: type 'record {| int b?; anydata...; |}[1]?' does not support member access",
                 153, 5);
-        BAssertUtil.validateError(resultNegative, i++, "invalid binding pattern", 157, 25);
-        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; member " +
-                "variable count mismatch with member type count", 158, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 157, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid binding pattern", 157, 34);
+        BAssertUtil.validateError(resultNegative, i++, "missing close parenthesis token", 157, 41);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 158, 5);
         BAssertUtil.validateError(resultNegative, i++, "missing error keyword", 158, 36);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 159, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid binding pattern", 159, 35);
+        BAssertUtil.validateError(resultNegative, i++, "missing close parenthesis token", 159, 43);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 160, 5);
+        BAssertUtil.validateError(resultNegative, i++, "invalid binding pattern", 160, 35);
+        BAssertUtil.validateError(resultNegative, i++, "missing close parenthesis token", 160, 43);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

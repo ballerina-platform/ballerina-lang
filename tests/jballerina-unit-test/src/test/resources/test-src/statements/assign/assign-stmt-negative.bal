@@ -156,4 +156,6 @@ function testOptionalFieldAssignment() {
 function testInvalidErrorConstructorAssignment() {
     [error, boolean...] [error(g,), ...j] = [error("error!"), true];
     [error, boolean...] [error(g2),(), ...j] = [error("error!"), true];
+    [error, boolean...] [error(g, /), ...j] = [error("error!"), true];
+    [error, boolean...] [error(g, ~), ...j] = [error("error!"), true];
 }
