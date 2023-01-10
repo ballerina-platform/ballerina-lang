@@ -759,16 +759,22 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void analyzeParametersAndReturnType(BLangFunction astFunc) {
-        if (astFunc.returnTypeNode != null) {
-            astFunc.returnTypeNode.accept(this);
+        BLangType typeNode = astFunc.returnTypeNode;
+        if (typeNode != null) {
+            typeNode.accept(this);
         }
         for (BLangSimpleVariable parameter : astFunc.requiredParams) {
-            if (parameter.typeNode != null) {
-                parameter.typeNode.accept(this);
+            typeNode = parameter.typeNode;
+            if (typeNode != null) {
+                typeNode.accept(this);
             }
         }
-        if (astFunc.restParam != null && astFunc.restParam.typeNode != null) {
-            astFunc.restParam.typeNode.accept(this);
+        BLangSimpleVariable restParam = astFunc.restParam;
+        if (restParam != null) {
+            typeNode = restParam.typeNode;
+            if (typeNode != null) {
+                typeNode.accept(this);
+            }
         }
     }
 
@@ -1231,6 +1237,23 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
+        BLangType typeNode = functionTypeNode.returnTypeNode;
+        if (typeNode != null) {
+            typeNode.accept(this);
+        }
+        for (BLangSimpleVariable parameter : functionTypeNode.params) {
+            typeNode = parameter.typeNode;
+            if (typeNode != null) {
+                typeNode.accept(this);
+            }
+        }
+        BLangVariable restParam = functionTypeNode.restParam;
+        if (restParam != null) {
+            typeNode = restParam.typeNode;
+            if (typeNode != null) {
+                typeNode.accept(this);
+            }
+        }
     }
 
     @Override
