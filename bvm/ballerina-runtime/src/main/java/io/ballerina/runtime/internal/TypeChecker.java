@@ -2190,7 +2190,7 @@ public class TypeChecker {
     private static boolean checkIsLikeType(List<String> errors, Object sourceValue, Type targetType,
                                            List<TypeValuePair> unresolvedValues,
                                            boolean allowNumericConversion, String varName) {
-        Type sourceType = getType(sourceValue);
+        Type sourceType = getReferredType(getType(sourceValue));
         if (checkIsType(sourceType, targetType, new ArrayList<>())) {
             return true;
         }
