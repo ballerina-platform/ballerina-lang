@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -246,5 +247,12 @@ public class RuntimeUtils {
     }
 
     private RuntimeUtils() {
+    }
+
+    public static Type getEffectiveType(Type type) {
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return ((BIntersectionType) type).getEffectiveType();
+        }
+        return type;
     }
 }
