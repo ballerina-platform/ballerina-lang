@@ -145,6 +145,12 @@ public isolated function filter(Type[] arr, @isolatedParam function(Type val) re
 # + func - combining function
 # + initial - initial value for the first argument of combining parameter `func`
 # + return - result of combining the members of parameter `arr` using parameter `func`
+#
+# For example
+# ```
+# reduce([1, 2, 3], function (int total, int n) returns int { return total + n; }, 0)
+# ```
+# is the same as `sum(1, 2, 3)`.
 public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = @java:Method {
     'class: "org.ballerinalang.langlib.array.Reduce",
     name: "reduce"
@@ -172,27 +178,6 @@ public isolated function some(Type[] arr, @isolatedParam function(Type val) retu
     return false;
 }
 
-# Returns a subarray using a start index (inclusive) and an end index (exclusive).
-#
-# ```ballerina
-# int[] numbers = [2, 4, 6, 8, 10, 12];
-#
-# numbers.slice(3) ⇒ [8,10,12]
-#
-# numbers.slice(0, 4) ⇒ [2,4,6,8]
-#
-# numbers.slice(0, 10) ⇒ panic
-# ```
-#
-# + arr - the array
-# + startIndex - index of first member to include in the slice
-# + endIndex - index of first member not to include in the slice
-# + return - array slice within specified range
-public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.length()) returns Type[] = @java:Method {
-    'class: "org.ballerinalang.langlib.array.Slice",
-    name: "slice"
-} external;
-
 # Tests whether a function returns true for every member of an array.
 #
 # The parameter `func` is called for each member of `arr` in order unless and until a call returns false.
@@ -214,6 +199,27 @@ public isolated function every(Type[] arr, @isolatedParam function(Type val) ret
     }
     return true;
 }
+
+# Returns a subarray using a start index (inclusive) and an end index (exclusive).
+#
+# ```ballerina
+# int[] numbers = [2, 4, 6, 8, 10, 12];
+#
+# numbers.slice(3) ⇒ [8,10,12]
+#
+# numbers.slice(0, 4) ⇒ [2,4,6,8]
+#
+# numbers.slice(0, 10) ⇒ panic
+# ```
+#
+# + arr - the array
+# + startIndex - index of first member to include in the slice
+# + endIndex - index of first member not to include in the slice
+# + return - array slice within specified range
+public isolated function slice(Type[] arr, int startIndex, int endIndex = arr.length()) returns Type[] = @java:Method {
+    'class: "org.ballerinalang.langlib.array.Slice",
+    name: "slice"
+} external;
 
 # Removes a member of an array.
 #
@@ -544,6 +550,9 @@ public isolated function fromBase16(string str) returns byte[]|error = @java:Met
 #
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
+# The returned stream will use an iterator over `arr` and
+# will therefore handle mutation of `arr` in the same way
+# as an iterator does.
 public isolated function toStream(Type[] arr) returns stream<Type> {
      return <stream<Type>>internal:construct(internal:getElementType(typeof arr), typeof (), iterator(arr));
 }
