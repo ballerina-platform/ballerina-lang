@@ -471,7 +471,7 @@ public class RunNativeImageTestTask implements Task {
         List<String> nativeArgs = new ArrayList<>();
         cmdArgs.add(nativeImageCommand);
 
-        Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-config
+        Path nativeConfigPath = target.getNativeConfigPath();   // <abs>target/cache/test_cache/native-configs
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
         // Run native-image command with generated configs

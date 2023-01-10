@@ -272,7 +272,7 @@ public class RunTestsTask implements Task {
                 String javaCmd = graalvmHome + File.separator + BIN_DIR_NAME + File.separator
                         + (OS.contains("win") ? "java.exe" : "java");
                 cmdArgs.add(javaCmd);
-                cmdArgs.add("-agentlib:native-image-agent=config-output-dir=target/native-image-configs");
+                cmdArgs.add("-agentlib:native-image-agent=config-output-dir=" + target.getTracedNativeConfigsPath());
             }
         }
         if (!nativeImageAgentEnabled) {

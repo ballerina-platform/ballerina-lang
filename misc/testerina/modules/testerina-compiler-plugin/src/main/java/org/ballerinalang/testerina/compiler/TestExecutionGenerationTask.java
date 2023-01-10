@@ -43,6 +43,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.GeneratorTask;
 import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
@@ -213,8 +214,8 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
                 testFileMockedFunctionMapping.put(documentName, mockedFunctionList);
             }
         }
-        Path cachePath = pack.project().targetDir().resolve("cache").resolve("tests_cache")
-                .resolve("native-config");
+        Path cachePath = pack.project().targetDir().resolve(ProjectConstants.CACHES_DIR_NAME)
+                .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME).resolve(ProjectConstants.NATIVE_CONFIGS_DIR_NAME);
         TesterinaCompilerPluginUtils.writeCacheMapAsJson(testFileMockedFunctionMapping, cachePath,
                 "mocked-func-class-map.json");
     }

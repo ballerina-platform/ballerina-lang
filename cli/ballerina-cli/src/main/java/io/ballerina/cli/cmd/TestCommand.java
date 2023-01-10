@@ -304,7 +304,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups, enableNativeImageAgent), project.buildOptions().nativeImage())
+                        includes, coverageFormat, moduleMap, listGroups, enableNativeImageAgent),
+                         project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat, moduleMap, listGroups),
                         !project.buildOptions().nativeImage())
