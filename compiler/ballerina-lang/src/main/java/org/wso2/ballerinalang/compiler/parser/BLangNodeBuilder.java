@@ -795,8 +795,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     } else {
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
                     }
-
-                    tupleTypeNode.memberTypeNodes.add(param.typeNode);
+                    tupleTypeNode.memberTypeNodes.add(param);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
@@ -818,7 +817,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
-                    tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
+                    BLangSimpleVariable member = new BLangSimpleVariable();
+                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.memberTypeNodes.size())));
+                    member.addFlag(Flag.FIELD);
+                    member.typeNode = bLangFiniteTypeNode;
+                    tupleTypeNode.memberTypeNodes.add(member);
             }
         }
         bLFunction.getParameters().addAll(0, params);
@@ -1090,12 +1093,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
-                MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
-                tupleTypeNode.memberTypeNodes.add(createTypeNode(member.typeDescriptor()));
+                MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
+                BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
+                        memberNode.annotations());
+                member.setName(this.createIdentifier(null, String.valueOf(i)));
+                member.name.pos = member.typeNode.getPosition();
+                member.addFlag(Flag.FIELD);
+                member.pos = getPositionWithoutMetadata(memberNode);
+                tupleTypeNode.memberTypeNodes.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
-
         return tupleTypeNode;
     }
 
