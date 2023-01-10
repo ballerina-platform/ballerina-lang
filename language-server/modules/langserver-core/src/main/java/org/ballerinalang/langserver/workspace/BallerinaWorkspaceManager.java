@@ -299,7 +299,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * @param isSourceChange True if the given file's source is changed
      * @return {@link ModuleCompilation}
      */
-    @Override
     public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, boolean isSourceChange) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));

@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -178,7 +179,7 @@ public class DiagnosticsHelper {
     }
 
     public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
-        WorkspaceManager workspace = context.workspace();
+        BallerinaWorkspaceManager workspace = (BallerinaWorkspaceManager) context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
         Optional<Project> project = workspace.project(context.filePath());
