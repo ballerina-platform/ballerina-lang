@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
-import ballerina/lang.runtime as runtime;
 
 string str = "Hello Ballerina!";
 string str1 = "Hello Hello Ballerina!";
@@ -689,20 +688,18 @@ function testIncludesMatch() {
 }
 
 function testFromBytesAsync() {
-    foreach int i in 0 ... 4 {
+    foreach int i in 0 ... 15 {
         callFromBytesAsync();
     }
 }
 
-function callFromBytesAsync() {
-    string append = "";
+isolated function callFromBytesAsync() {
     worker w1 {
         future<string|error> bytesFuture = start callFromBytes1();
-        runtime:sleep(2);
         string|error str = wait bytesFuture;
         assertTrue(str is string);
         if (str is string) {
-            append += str + " ";
+            assertEquals(str, "Hello!~?£ßЯλ☃✈௸😀🄰🍺");
         }
     }
     worker w2 {
@@ -710,15 +707,13 @@ function callFromBytesAsync() {
         string|error str = wait bytesFuture;
         assertTrue(str is string);
         if (str is string) {
-            append += str + " ";
+            assertEquals(str, "Hello Ballerina!");
         }
     }
     _ = wait {w1, w2};
-    assertTrue(append == "Hello Ballerina! Hello!~?£ßЯλ☃✈௸😀🄰🍺 " ||
-    append == "Hello!~?£ßЯλ☃✈௸😀🄰🍺 Hello Ballerina! ");
 }
 
-function callFromBytes1() returns string|error {
+isolated function callFromBytes1() returns string|error {
     byte[] bytes = [
         72,
         101,
@@ -761,7 +756,7 @@ function callFromBytes1() returns string|error {
     return check string:fromBytes(bytes);
 }
 
-function callFromBytes2() returns string|error {
+isolated function callFromBytes2() returns string|error {
     byte[] bytes = [
         72,
         101,
@@ -784,20 +779,18 @@ function callFromBytes2() returns string|error {
 }
 
 function testEqualsIgnoreCaseAsciiAsync() {
-    foreach int i in 0 ... 4 {
+    foreach int i in 0 ... 15 {
         callEqualsIgnoreCaseAsciiAsync();
     }
 }
 
-function callEqualsIgnoreCaseAsciiAsync() {
-    boolean append = true;
+isolated function callEqualsIgnoreCaseAsciiAsync() {
     worker w1 {
         future<boolean|error> equalsFuture = start callEqualsIgnoreCaseAscii1();
-        runtime:sleep(2);
         boolean|error result = wait equalsFuture;
         assertTrue(result is boolean);
         if (result is boolean) {
-            append = append && result;
+            assertTrue(result);
         }
     }
     worker w2 {
@@ -805,24 +798,23 @@ function callEqualsIgnoreCaseAsciiAsync() {
         boolean|error result = wait equalsFuture;
         assertTrue(result is boolean);
         if (result is boolean) {
-            append = append && result;
+            assertTrue(result);
         }
     }
     _ = wait {w1, w2};
-    assertTrue(append);
 }
 
-function callEqualsIgnoreCaseAscii1() returns boolean {
+isolated function callEqualsIgnoreCaseAscii1() returns boolean {
     return string:equalsIgnoreCaseAscii("aBCdeFg", "aBCdeFg");
 }
 
-function callEqualsIgnoreCaseAscii2() returns boolean {
+isolated function callEqualsIgnoreCaseAscii2() returns boolean {
     return string:equalsIgnoreCaseAscii("Duල්Viන්", "Duල්Viන්");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquals(anydata expected, anydata actual) {
+isolated function assertEquals(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
     }
@@ -834,7 +826,7 @@ function assertEquals(anydata expected, anydata actual) {
     panic error(ASSERTION_ERROR_REASON, message = msg);
 }
 
-function assertTrue(anydata actual) {
+isolated function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
 
