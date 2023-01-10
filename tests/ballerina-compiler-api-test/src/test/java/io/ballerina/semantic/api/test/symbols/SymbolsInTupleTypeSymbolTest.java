@@ -46,7 +46,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for tuple member type symbols.
+ * Test cases for tuple type symbol.
  *
  * @since 2201.4.0
  */
