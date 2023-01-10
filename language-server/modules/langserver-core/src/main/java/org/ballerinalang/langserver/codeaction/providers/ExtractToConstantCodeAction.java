@@ -121,13 +121,14 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
         // Selection is a position
         List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
+        if (nodeList.size() == 1) {
+            return Collections.singletonList(codeAction);
+        }
+        
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-
         nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
                 getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
-        codeAction.setCommand(new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
-                textEditMap)));
-
+        
         return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
                         textEditMap)), CodeActionKind.RefactorExtract));
