@@ -96,7 +96,8 @@ public class TypedescValueImpl implements  TypedescValue {
         }
         Type effectiveType = getEffectiveType(referredType);
         if (effectiveType.getTag() == TypeTags.TUPLE_TAG) {
-            return new TupleValueImpl(new BTypeReferenceType(effectiveType), (BListInitialValueEntry[]) initialValues);
+            return new TupleValueImpl(new BTypeReferenceType(effectiveType, true),
+                                      (BListInitialValueEntry[]) initialValues);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + this.describingType);

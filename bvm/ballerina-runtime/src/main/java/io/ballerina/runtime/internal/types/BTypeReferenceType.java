@@ -47,8 +47,8 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
         this.readOnly = readOnly;
     }
 
-    public BTypeReferenceType(Type referredType) {
-        this(referredType.getName(), referredType.getPkg(), (int) referredType.getFlags(), true);
+    public BTypeReferenceType(Type referredType, boolean readOnly) {
+        this(referredType.getName(), referredType.getPkg(), (int) referredType.getFlags(), readOnly);
         setReferredType(referredType);
     }
 
