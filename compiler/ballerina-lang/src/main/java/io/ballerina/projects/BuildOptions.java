@@ -28,9 +28,11 @@ public class BuildOptions {
     private CompilationOptions compilationOptions;
     private String targetDir;
     private Boolean enableCache;
+    private Boolean nativeImage;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache) {
+                 CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
+                 Boolean nativeImage) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -38,6 +40,7 @@ public class BuildOptions {
         this.compilationOptions = compilationOptions;
         this.targetDir = targetPath;
         this.enableCache = enableCache;
+        this.nativeImage = nativeImage;
     }
 
     public boolean testReport() {
@@ -96,8 +99,16 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean exportComponentModel() {
+        return this.compilationOptions.exportComponentModel();
+    }
+
     public boolean enableCache() {
         return this.compilationOptions.enableCache();
+    }
+
+    public boolean nativeImage() {
+        return toBooleanDefaultIfNull(this.nativeImage);
     }
 
     /**
@@ -138,6 +149,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setEnableCache(this.enableCache);
         }
+        if (theirOptions.nativeImage != null) {
+            buildOptionsBuilder.setNativeImage(theirOptions.nativeImage);
+        } else {
+            buildOptionsBuilder.setNativeImage(this.nativeImage);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -151,6 +167,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
@@ -186,7 +203,8 @@ public class BuildOptions {
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
-        TARGET_DIR("targetDir");
+        TARGET_DIR("targetDir"),
+        NATIVE_IMAGE("native");
 
         private final String name;
 
@@ -213,6 +231,7 @@ public class BuildOptions {
         private String targetPath;
         private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+        private Boolean nativeImage;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -309,16 +328,26 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+            compilationOptionsBuilder.setExportComponentModel(value);
+            return this;
+        }
+
         public BuildOptionsBuilder setEnableCache(Boolean value) {
             compilationOptionsBuilder.setEnableCache(value);
             enableCache = value;
             return this;
         }
 
+        public BuildOptionsBuilder setNativeImage(Boolean value) {
+            nativeImage = value;
+            return this;
+        }
+
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache);
+                    compilationOptions, targetPath, enableCache, nativeImage);
         }
     }
 }

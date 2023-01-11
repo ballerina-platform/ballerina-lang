@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
@@ -31,6 +30,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -85,7 +85,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         // 6. the qualified name reference of a function call expression
         // 7. a record field with default value
         // 8. a function call expression used in a start action
-        // 9. a client declaration or a module client declaration
         return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
                 && !(nodeKind == SyntaxKind.MAPPING_CONSTRUCTOR && parentKind == SyntaxKind.TABLE_CONSTRUCTOR)
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.LOCAL_VAR_DECL) 
@@ -98,8 +97,6 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 && parentKind != SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE
                 && parentKind != SyntaxKind.ENUM_MEMBER
                 && !(nodeKind == SyntaxKind.FUNCTION_CALL && parentKind == SyntaxKind.START_ACTION)
-                && parentKind != SyntaxKind.CLIENT_DECLARATION
-                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -127,8 +124,16 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         if (statementNode == null) {
             return Collections.emptyList();
         }
+        String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
+        if (statementNode.kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
+            String variable = String.format("%s %s = %s", typeDescriptor, varName, value);
+            TextEdit edit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
+                    PositionUtil.toPosition(replaceRange.endLine())),  variable);
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                    List.of(edit), context.fileUri(), CodeActionKind.RefactorExtract));
+        }
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
-        String varDeclStr = String.format("%s %s = %s;%n%s", typeSymbol.get().signature(), varName, value, paddingStr);
+        String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
                 statementNode.lineRange().startLine().offset());
         TextEdit varDeclEdit = new TextEdit(new Range(varDeclPos, varDeclPos), varDeclStr);
@@ -148,7 +153,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)
                 && !(statementNode instanceof ModuleMemberDeclarationNode) 
-                && !(statementNode instanceof ObjectFieldNode)) {
+                && statementNode.kind() != SyntaxKind.OBJECT_FIELD) {
             statementNode = statementNode.parent();
         }
         return statementNode;
@@ -171,12 +176,10 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
                 PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .filter(symbol -> (symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER) 
                         && context.currentSemanticModel().get().references(symbol).stream()
-                        .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
-                                        .getRangeFromLineRange(location.lineRange()),
-                                PositionUtil.toRange(matchedNode.lineRange()))))
-                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                        .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                                PositionUtil.toRange(getStatementNode(matchedNode).lineRange())))
+                        .anyMatch(location -> 
+                                PositionUtil.isWithinLineRange(location.lineRange(), matchedNode.lineRange())))
+                .filter(symbol -> symbol.getLocation().isPresent() && PositionUtil.isWithinLineRange(
+                        symbol.getLocation().get().lineRange(), getStatementNode(matchedNode).lineRange()))
                 .collect(Collectors.toList());
         
         if (symbolsWithinRange.size() == 0) {
@@ -184,8 +187,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         }
 
         return symbolsWithinRange.stream().noneMatch(symbol -> symbol.getLocation().isPresent() && PositionUtil
-                .isRangeWithinRange(PositionUtil.getRangeFromLineRange(symbol.getLocation().get().lineRange()), 
-                        PositionUtil.toRange(matchedNode.lineRange())));
+                .isWithinLineRange(symbol.getLocation().get().lineRange(), matchedNode.lineRange()));
     }
 
     /**

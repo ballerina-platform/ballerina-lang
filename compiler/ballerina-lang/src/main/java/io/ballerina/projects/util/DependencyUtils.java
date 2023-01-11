@@ -41,4 +41,5 @@ public class DependencyUtils {
         compilationOptionsBuilder.setOffline(false).setSticky(false);
         project.currentPackage().getResolution(compilationOptionsBuilder.build());
     }
+
 }

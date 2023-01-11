@@ -57,7 +57,6 @@ public enum NodeKind {
     TABLE_KEY_TYPE_CONSTRAINT,
     RETRY_SPEC,
     CLASS_DEFN,
-    CLIENT_DECL,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -118,7 +117,6 @@ public enum NodeKind {
     CHECK_EXPR,
     CHECK_PANIC_EXPR,
     FAIL,
-    ERROR_CONSTRUCTOR,
     TYPE_TEST_EXPR,
     IS_LIKE,
     IGNORE_EXPR,

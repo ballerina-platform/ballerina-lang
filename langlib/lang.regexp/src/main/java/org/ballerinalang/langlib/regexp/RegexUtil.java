@@ -15,18 +15,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.langlib.regexp;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.RegExpValue;
-import org.wso2.ballerinalang.util.Lists;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +39,7 @@ import java.util.regex.Pattern;
  * @since 2201.3.0
  */
 public class RegexUtil {
-    static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(Lists.of(PredefinedTypes.TYPE_INT,
+    static final BTupleType SPAN_AS_TUPLE_TYPE = new BTupleType(List.of(PredefinedTypes.TYPE_INT,
             PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
 
     static final BArrayType GROUPS_AS_SPAN_ARRAY_TYPE = new BArrayType(SPAN_AS_TUPLE_TYPE);
@@ -52,5 +55,42 @@ public class RegexUtil {
         String patternStr = StringUtils.getStringValue(translatedRegExpVal, null);
         Pattern pattern = Pattern.compile(patternStr);
         return pattern.matcher(inputStr);
+    }
+
+    static BArray getGroupZeroAsSpan(Matcher matcher) {
+        BArray resultTuple = ValueCreator.createTupleValue(SPAN_AS_TUPLE_TYPE);
+        resultTuple.add(0, matcher.start());
+        resultTuple.add(1, matcher.end());
+        resultTuple.add(2, StringUtils.fromString(matcher.group()));
+        return resultTuple;
+    }
+
+    static BArray getMatcherGroupsAsSpanArr(Matcher matcher) {
+        BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        if (matcher.groupCount() == 0) {
+            BArray span = getGroupZeroAsSpan(matcher);
+            group.append(span);
+            return group;
+        }
+        for (int i = 1; i <= matcher.groupCount(); i++) {
+            int matcherStart = matcher.start(i);
+            if (matcherStart == -1) {
+                continue;
+            }
+            BArray resultTuple = ValueCreator.createTupleValue(SPAN_AS_TUPLE_TYPE);
+            resultTuple.add(0, matcherStart);
+            resultTuple.add(1, matcher.end(i));
+            resultTuple.add(2, StringUtils.fromString(matcher.group(i)));
+            group.append(resultTuple);
+        }
+        return group;
+    }
+
+    public static BString substring(BString value, long startIndex, long endIndex) {
+        return value.substring((int) startIndex, (int) endIndex);
+    }
+
+    public static long length(BString value) {
+        return value.length();
     }
 }

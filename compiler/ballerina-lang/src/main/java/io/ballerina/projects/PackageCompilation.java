@@ -196,7 +196,6 @@ public class PackageCompilation {
         diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
-        diagnostics.addAll(packageResolution.pluginDiagnosticList());
         // add compilation diagnostics
         if (!packageResolution.diagnosticResult().hasErrors()) {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {

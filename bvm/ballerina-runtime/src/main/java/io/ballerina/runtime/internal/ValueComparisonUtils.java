@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -179,8 +180,8 @@ public class ValueComparisonUtils {
      * 0 left hand side value = right hand side value
      */
     public static int compareValues(Object lhsValue, Object rhsValue, String direction) {
-        int lhsTypeTag = TypeChecker.getType(lhsValue).getTag();
-        int rhsTypeTag = TypeChecker.getType(rhsValue).getTag();
+        int lhsTypeTag = TypeUtils.getReferredType(TypeChecker.getType(lhsValue)).getTag();
+        int rhsTypeTag = TypeUtils.getReferredType(TypeChecker.getType(rhsValue)).getTag();
         boolean inRelationalExpr = false;
         if (direction.isEmpty()) {
             inRelationalExpr = true;

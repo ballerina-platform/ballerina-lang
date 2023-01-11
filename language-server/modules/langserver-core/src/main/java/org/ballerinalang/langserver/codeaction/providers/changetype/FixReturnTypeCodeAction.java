@@ -71,10 +71,10 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
 
         //Suggest the code action only if the immediate parent of the matched node is either of return statement,
         //check expression, check action.
-        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
-                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION && 
-                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_ACTION) {
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        if (matchedNode.parent() != null && matchedNode.parent().kind() != SyntaxKind.RETURN_STATEMENT &&
+                matchedNode.kind() != SyntaxKind.CHECK_EXPRESSION && 
+                matchedNode.kind() != SyntaxKind.CHECK_ACTION) {
             return false;
         }
 
@@ -104,7 +104,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         }
 
         Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
-        if (funcDef.isEmpty() || RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+        if (funcDef.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -122,6 +122,10 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 types.add(Collections.singleton("error?"));
             }
         } else {
+            // Not going to provide code action to change return type of the main() function
+            if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+                return Collections.emptyList();
+            }
             List<List<String>> combinedTypes = new ArrayList<>();
             ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
             returnStatementFinder.visit(funcDef.get());

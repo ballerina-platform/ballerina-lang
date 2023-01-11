@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -55,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -162,7 +160,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -731,20 +728,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmt) {
         analyzeNode(xmlnsStmt.xmlnsDecl, env);
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-        BClientDeclarationSymbol symbol = (BClientDeclarationSymbol) clientDeclaration.symbol;
-        if (!symbol.used) {
-            BLangIdentifier prefix = clientDeclaration.prefix;
-            dlog.error(prefix.pos, DiagnosticErrorCode.UNUSED_CLIENT_DECL_PREFIX, prefix.value);
-        }
-    }
-    
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     @Override
@@ -1698,7 +1681,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
         providers.add(provider);
 
-        // Store the dependencies of functions seperately for lock optimization in later stage.
+        // Store the dependencies of functions separately for lock optimization in later stage.
         addFunctionToGlobalVarDependency(dependent, provider);
     }
 
@@ -2418,7 +2401,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
-            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD, fieldAccess.symbol);
+            dlog.error(fieldAccess.pos, DiagnosticErrorCode.CANNOT_UPDATE_FINAL_OBJECT_FIELD,
+                    fieldAccess.symbol.originalName);
         }
     }
 

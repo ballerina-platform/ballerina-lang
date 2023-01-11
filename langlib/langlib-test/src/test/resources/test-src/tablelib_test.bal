@@ -683,6 +683,100 @@ function testRemoveThenIterate() returns boolean {
     return ar.length() == 2 && ar[0].name == "John" && ar[1].name == "Jim";
 }
 
+function testRemoveEmptyThenIterate() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    foreach var v in data {
+        ar.push(v);
+    }
+    return ar.length() == 0;
+}
+
+function testRemoveEmptyAddThenIterate() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    Employee newEmp = { name: "JesB", department: "Security" };
+    data.add(newEmp);
+    foreach var v in data {
+        ar.push(v);
+    }
+    return ar.length() == 1 && ar[0].name == "JesB";
+}
+
+function testRemoveEmptyIterateThenAdd() returns boolean {
+    table<Employee> key(name) data = table [
+        { name: "Mary", department: "IT"},
+        { name: "John", department: "HR" },
+        { name: "Jim", department: "Admin" }
+    ];
+
+    Employee[] ar = [];
+    var rm1 = data.remove("Mary");
+    var rm2 = data.remove("John");
+    var rm3 = data.remove("Jim");
+
+    foreach var v in data {
+        ar.push(v);
+    }
+    data.add({name: "JesB", department: "Security"});
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
+}
+
+function testRemoveEmptyIterateThenAddQueryExpr() returns boolean {
+    table<Employee> key(name) data = table [
+            {name: "Mary", department: "IT"},
+            {name: "John", department: "HR"},
+            {name: "Jim", department: "Admin"}
+        ];
+
+    var _ = data.remove("Mary");
+    var _ = data.remove("John");
+    var _ = data.remove("Jim");
+
+    Employee[] ar = from var v in data
+        select v;
+    data.add({name: "JesB", department: "Security"});
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
+}
+
+function testRemoveEmptyIterateThenAddQueryAction() returns boolean|error {
+    table<Employee> key(name) data = table [
+            {name: "Mary", department: "IT"},
+            {name: "John", department: "HR"},
+            {name: "Jim", department: "Admin"}
+        ];
+
+    Employee[] ar = [];
+    var _ = data.remove("Mary");
+    var _ = data.remove("John");
+    var _ = data.remove("Jim");
+
+    check from var v in data
+        do {
+            ar.push(v);
+        };
+    data.add({name: "JesB", department: "Security"});
+    return data.length() == 1 && data["JesB"]?.name == "JesB" && ar.length() == 0;
+}
+
 function testAddInconsistentDataToKeylessTbl() {
     EngineerTable engineerTbl = table [
       { name: "Lisa", age: 22, intern: true },
@@ -1147,6 +1241,91 @@ function testLengthWithEmptyKeyedKeyLessTbl() {
             {name: "Draco", age: 23}
         ];
     assertEquals(4, personTable.length());
+}
+
+type Coordinate1 record {|
+    readonly int x;
+    int y?;
+|};
+
+function testTableIterationAfterPut1() {
+    table<Coordinate1> key(x) positions = table [];
+    positions.put({x: 0});
+    positions.put({x: 1});
+    positions.put({x: -1});
+    assertEquals(positions.toString(), "[{\"x\":0},{\"x\":1},{\"x\":-1}]");
+    int sum = -2;
+    foreach var position in positions {
+        sum = sum + position.x;
+    }
+    assertEquals(sum, -2);
+}
+
+type Coordinate2 record {|
+    readonly float x;
+    int y?;
+|};
+
+function testTableIterationAfterPut2() {
+    table<Coordinate2> key(x) positions = table [];
+    positions.put({x: 0});
+    positions.put({x: 1});
+    positions.put({x: -1});
+    assertEquals(positions.toString(), "[{\"x\":0.0},{\"x\":1.0},{\"x\":-1.0}]");
+    float sum = -2;
+    foreach var position in positions {
+        sum = sum + position.x;
+    }
+    assertEquals(sum, -2.0);
+}
+
+type Coordinate3 record {|
+    readonly decimal x;
+    int y?;
+|};
+
+function testTableIterationAfterPut3() {
+    table<Coordinate3> key(x) positions = table [];
+    positions.put({x: 0});
+    positions.put({x: 1});
+    positions.put({x: -1});
+    assertEquals(positions.toString(), "[{\"x\":0},{\"x\":1},{\"x\":-1}]");
+    decimal sum = -2;
+    foreach var position in positions {
+        sum = sum + position.x;
+    }
+    assertEquals(sum, -2d);
+}
+
+type Position record {|
+    readonly int x;
+    readonly int y;
+|};
+
+Position 'start = {x: 0, y: 0};
+Position end = {x: 5, y: 5};
+
+function testTableIterationAfterPut4() {
+    int iterations = 0;
+    int length = 0;
+    table<Position> key(x,y) possible = table [];
+    possible.add('start);
+    while !possible.hasKey([end.x, end.y]) {
+        iterations = iterations + 1;
+        table<Position> key(x,y) next = table [];
+        foreach var p in possible {
+            next.put({x: p.x, y: p.y});
+            next.put({x: p.x + 1, y: p.y});
+            next.put({x: p.x - 1, y: p.y});
+            next.put({x: p.x, y: p.y + 1});
+            next.put({x: p.x, y: p.y - 1});
+        }
+        var _ = next.removeIfHasKey(['start.x, 'start.y - 1]);
+        possible = next;
+        length = possible.length();
+    }
+    assertEquals(iterations, 10);
+    assertEquals(length, 218);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

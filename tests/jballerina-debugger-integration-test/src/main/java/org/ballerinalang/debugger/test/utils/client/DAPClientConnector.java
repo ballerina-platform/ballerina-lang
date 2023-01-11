@@ -125,6 +125,7 @@ public class DAPClientConnector {
 
             if (inputStream == null || outputStream == null) {
                 LOGGER.warn("Unable to establish connection with the debug server.");
+                streamConnectionProvider.stop();
                 return;
             }
 
@@ -141,7 +142,7 @@ public class DAPClientConnector {
             debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
                 LOGGER.info("initialize response received from the debug server.");
-                requestManager = new DAPRequestManager(this, debugClient, debugServer, initializeResult);
+                requestManager = new DAPRequestManager(this, debugServer);
                 debugClient.connect(requestManager);
                 myConnectionState = ConnectionState.CONNECTED;
                 return res;
@@ -152,7 +153,7 @@ public class DAPClientConnector {
             LOGGER.warn("Runtime error occurred when trying to initialize connection with the debug server.", e);
         } catch (Exception e) {
             myConnectionState = ConnectionState.NOT_CONNECTED;
-            LOGGER.warn("Internal occurred when trying to initialize connection with the debug server.", e);
+            LOGGER.warn("Internal error occurred when trying to initialize connection with the debug server.", e);
         }
     }
 

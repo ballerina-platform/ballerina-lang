@@ -39,8 +39,6 @@ public interface PackageNode extends Node {
 
     void addNamespaceDeclaration(XMLNSDeclarationNode xmlnsDecl);
 
-    List<? extends ClientDeclarationNode> getClientDeclarations();
-
     List<? extends ConstantNode> getConstants();
 
     List<? extends BLangVariable> getGlobalVariables();

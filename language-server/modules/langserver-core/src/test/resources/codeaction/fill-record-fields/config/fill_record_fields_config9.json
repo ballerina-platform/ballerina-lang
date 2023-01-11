@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 17,
+    "character": 15
+  },
+  "source": "fill_record_fields_source6.bal",
+  "expected": [
+    {
+      "title": "Fill 'Person' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 15
+            },
+            "end": {
+              "line": 17,
+              "character": 15
+            }
+          },
+          "newText": "address: {street: \"\", city: \"\", postalCode: \"\"}, name: \"\", age: 0"
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields in positional argument context"
+}

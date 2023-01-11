@@ -102,6 +102,17 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                 boolean dumpBuildTime, boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
+        this.nativeImage = nativeImage;
+    }
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
                                                                   "output file name may or may not contain the " +
                                                                   "'.jar' extension.")
@@ -160,8 +171,16 @@ public class BuildCommand implements BLauncherCmd {
             " the services in the current package")
     private Boolean exportOpenAPI;
 
+    @CommandLine.Option(names = "--export-component-model", description = "generate a model to represent " +
+            "interactions between the package components (i.e. service/type definitions) and, export it in JSON format",
+            hidden = true)
+    private Boolean exportComponentModel;
+
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    private Boolean nativeImage;
 
     public void execute() {
         long start = 0;
@@ -232,6 +251,10 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
+        if (project.buildOptions().nativeImage()) {
+            this.outStream.println("WARNING: GraalVM Native Image generation in Ballerina is an experimental feature");
+        }
+
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -275,7 +298,9 @@ public class BuildCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setExportOpenAPI(exportOpenAPI)
-                .setEnableCache(enableCache);
+                .setExportComponentModel(exportComponentModel)
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

@@ -74,10 +74,10 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
-    private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module objectModule = new Module("testorg", "values.objects", "1");
+    private static final Module recordModule = new Module("testorg", "values.records", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
-    private static final BString intAnnotation = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+    private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
 
@@ -130,7 +130,7 @@ public class Values {
     }
 
     public static BArray getParameters(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
@@ -155,7 +155,7 @@ public class Values {
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         if (funcType.isPresent()) {
@@ -195,7 +195,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));
@@ -266,6 +266,14 @@ public class Values {
 
     public static BString decodeIdentifier(BString identifier) {
         return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
+    }
+
+    public static BString escapeSpecialCharacters(BString identifier) {
+        return StringUtils.fromString(IdentifierUtils.escapeSpecialCharacters(identifier.getValue()));
+    }
+
+    public static BString unescapeSpecialCharacters(BString string) {
+        return StringUtils.fromString(IdentifierUtils.unescapeBallerina(string.getValue()));
     }
 
     public static BMap<BString, Object> getRecordNegative(BString recordName) {
@@ -350,7 +358,7 @@ public class Values {
     public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Array");
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
             Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
@@ -397,7 +405,7 @@ public class Values {
     }
 
     public static Object validateFunctionParameterFromObject(BObject object) {
-        ObjectType type = object.getType();
+        ObjectType type = (ObjectType) object.getType();
         for (MethodType methodType : type.getMethods()) {
             if (methodType.getName() == "testFunction") {
                 return validateFunctionType(methodType.getType());

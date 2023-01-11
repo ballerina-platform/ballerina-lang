@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -39,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClientDeclarationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -472,10 +470,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
             if ((tag & SymTag.XMLNS) == SymTag.XMLNS) {
                 return symbol;
-            }
-
-            if ((tag & SymTag.CLIENT_DECL) == SymTag.CLIENT_DECL) {
-                return resolveClientDeclPrefix(symbol);
             }
 
             if ((tag & SymTag.IMPORT) == SymTag.IMPORT &&
@@ -1595,8 +1589,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
 
-        Name pkgAlias = names.fromIdNode(userDefinedTypeNode.pkgAlias);
-        Name typeName = names.fromIdNode(userDefinedTypeNode.typeName);
+        BLangIdentifier pkgAliasIdentifier = userDefinedTypeNode.pkgAlias;
+        Name pkgAlias = names.fromIdNode(pkgAliasIdentifier);
+        BLangIdentifier typeNameIdentifier = userDefinedTypeNode.typeName;
+        Name typeName = names.fromIdNode(typeNameIdentifier);
         BSymbol symbol = symTable.notFoundSymbol;
         SymbolEnv env = data.env;
 
@@ -1609,6 +1605,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         // 2) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
+
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? Types.getReferredType(tempSymbol.type).tsymbol
@@ -2648,27 +2645,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             this.paramValueType = paramValueType;
             this.index = index;
         }
-    }
-
-    public BSymbol resolveClientDeclPrefix(BSymbol symbol) {
-        LineRange lineRange = symbol.pos.lineRange();
-        if (!symTable.clientDeclarations.containsKey(symbol.pkgID) ||
-                !symTable.clientDeclarations.get(symbol.pkgID).containsKey(symbol.pos.lineRange().filePath())) {
-            return symTable.notFoundSymbol;
-        }
-        Map<LineRange, Optional<PackageID>> clientDeclarations =
-                symTable.clientDeclarations.get(symbol.pkgID).get(symbol.pos.lineRange().filePath());
-        if (!clientDeclarations.containsKey(lineRange) || clientDeclarations.get(lineRange).isEmpty()) {
-            return symTable.notFoundSymbol;
-        }
-
-        Optional<PackageID> optionalPackageID = clientDeclarations.get(lineRange);
-        if (optionalPackageID.isEmpty()) {
-            return symTable.notFoundSymbol;
-        }
-
-        ((BClientDeclarationSymbol) symbol).used = true;
-        return getModuleForPackageId(optionalPackageID.get());
     }
 
     /**
