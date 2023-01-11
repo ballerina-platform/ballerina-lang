@@ -73,8 +73,14 @@
             ]
           },
           {
-            "line": 12,
-            "character": 17
+            "4": {
+              "line": 12,
+              "character": 17
+            },
+            "4 * 5": {
+              "line": 12,
+              "character": 17
+            }
           }
         ]
       },

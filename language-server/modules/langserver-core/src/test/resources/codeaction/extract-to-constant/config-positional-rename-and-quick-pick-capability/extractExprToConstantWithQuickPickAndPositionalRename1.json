@@ -101,8 +101,18 @@
             ]
           },
           {
-            "line": 2,
-            "character": 21
+            "10": {
+              "line": 2,
+              "character": 21
+            },
+            "10 * 20": {
+              "line": 2,
+              "character": 21
+            },
+            "10 * 20 + 30": {
+              "line": 2,
+              "character": 21
+            }
           }
         ]
       },

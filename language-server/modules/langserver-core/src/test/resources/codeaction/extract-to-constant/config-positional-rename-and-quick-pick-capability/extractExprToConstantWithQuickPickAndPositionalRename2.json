@@ -73,8 +73,14 @@
             ]
           },
           {
-            "line": 2,
-            "character": 31
+            "30": {
+              "line": 2,
+              "character": 31
+            },
+            "10 * 20 + 30": {
+              "line": 2,
+              "character": 21
+            }
           }
         ]
       },

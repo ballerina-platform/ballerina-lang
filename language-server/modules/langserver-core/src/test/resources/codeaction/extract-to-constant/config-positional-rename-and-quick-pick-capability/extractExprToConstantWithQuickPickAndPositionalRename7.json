@@ -101,8 +101,18 @@
             ]
           },
           {
-            "line": 15,
-            "character": 21
+            "3.14": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3 * 4": {
+              "line": 15,
+              "character": 21
+            }
           }
         ]
       },
