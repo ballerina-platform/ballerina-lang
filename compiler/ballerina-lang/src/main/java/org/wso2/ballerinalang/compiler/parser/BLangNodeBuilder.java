@@ -1097,8 +1097,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
                 BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
                         memberNode.annotations());
-                member.setName(this.createIdentifier(null, String.valueOf(i)));
-                member.name.pos = member.typeNode.getPosition();
+                member.setName(this.createIdentifier(member.typeNode.getPosition(), String.valueOf(i)));
                 member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
                 tupleTypeNode.memberTypeNodes.add(member);

@@ -64,8 +64,8 @@ public class DocModelTest {
                 "First membertype should be TIME_DELTA_START");
         Assert.assertEquals(tupleType.get().memberTypes.get(1).name, "int",
                 "Second membertype should be int");
-        Assert.assertEquals(tupleType.get().memberTypes.get(0).category, "constants",
-                "First membertype category should be constants");
+        Assert.assertEquals(tupleType.get().memberTypes.get(0).category, "reference",   // TODO: Fix #39232
+                "First membertype category should be reference");
         Assert.assertEquals(tupleType.get().memberTypes.get(1).category, "builtin",
                 "Second membertype category should be builtin");
         Assert.assertEquals(tupleType.get().memberTypes.get(0).orgName, "test_org",

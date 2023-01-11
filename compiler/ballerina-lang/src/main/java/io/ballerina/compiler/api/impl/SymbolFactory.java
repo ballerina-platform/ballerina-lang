@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaPathParameterSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaServiceDeclarationSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaTupleMemberSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -172,6 +173,9 @@ public class SymbolFactory {
             }
             if (symbol.owner instanceof BObjectTypeSymbol) {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
+            }
+            if (symbol.owner instanceof BTypeSymbol && Symbols.isFlagOn(symbol.flags, Flags.FIELD)) {
+                return createTupleMember((BVarSymbol) symbol);
             }
             if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
@@ -361,6 +365,17 @@ public class SymbolFactory {
         return symbolBuilder
                 .withTypeDescriptor(typeDescriptor)
                 .build();
+    }
+
+    /**
+     * Create a symbol for a tuple member.
+     *
+     * @param symbol {@link BVarSymbol} to convert
+     * @return {@link BallerinaTupleMemberSymbol} generated
+     */
+    public BallerinaTupleMemberSymbol createTupleMember(BVarSymbol symbol) {
+        TypeSymbol type = typesFactory.getTypeDescriptor(symbol.getType());
+        return new BallerinaTupleMemberSymbol(context, symbol, type);
     }
 
     private boolean isReadonlyIntersectionArrayType(BType type) {
