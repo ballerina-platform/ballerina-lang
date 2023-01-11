@@ -49,10 +49,10 @@ public class CloneWithType {
         }
     }
 
-    // need to remove this after fixing https://github.com/ballerina-platform/ballerina-lang/issues/35141
+    // need to remove this after fixing standard libraries to use the runtime API
     public static Object convert(Type convertType, Object inputValue) {
         try {
-            return ValueConverter.convert(inputValue, convertType, null);
+            return ValueConverter.convert(inputValue, convertType);
         } catch (BError e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
         } catch (BallerinaException e) {
