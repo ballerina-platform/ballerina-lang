@@ -344,7 +344,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         String fileUri = actual.data.getFileUri().replace(root.toUri().toString(), "");
         actual.data.setFileUri(fileUri);
     }
-    
+
     private boolean isReportUsageStatsCommand(JsonObject command) {
         return command.get("title").getAsString().equals("Report usage statistics");
     }
@@ -437,31 +437,11 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             }
             return false;
         } else if ("ballerina.action.extract".equals(actualCommand.get("command").getAsString())) {
-            if (actualArgs.size() == 3) {
-                String actualName = actualArgs.get(0).getAsString();
-                String expectedName = expArgs.get(0).getAsString();
-
-                String actualFilePath = actualArgs.get(1).getAsString().replace(sourceRoot.toString(), "");
-                if (actualFilePath.startsWith("/") || actualFilePath.startsWith("\\")) {
-                    actualFilePath = actualFilePath.substring(1);
-                }
-                String expectedFilePath = expArgs.get(1).getAsString();
-                
-                JsonObject actualTextEdits = actualArgs.get(2).getAsJsonObject();
-                JsonObject expectedTextEdits = expArgs.get(2).getAsJsonObject();
-
-                if (actualName.equals(expectedName) && actualFilePath.equals(expectedFilePath)
-                        && actualTextEdits.equals(expectedTextEdits)) {
-                    return true;
-                }
-
-                JsonArray newArgs = new JsonArray();
-                newArgs.add(actualName);
-                newArgs.add(actualFilePath);
-                newArgs.add(actualTextEdits);
-                actualCommand.add("arguments", newArgs);
+            if (actualArgs.size() == 3 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)) {
+                return true;
             }
-            return false;
+            return actualArgs.size() == 4 && validateExtractCmd(actualCommand, actualArgs, expArgs, sourceRoot)
+                    && actualArgs.get(3).getAsJsonObject().equals(expArgs.get(3).getAsJsonObject());
         }
 
         if (CommandConstants.POSITIONAL_RENAME_COMMAND.equals(actualCommand.get("command").getAsString())) {
@@ -505,5 +485,32 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
             }
         }
         return TestUtil.isArgumentsSubArray(actualArgs, expArgs);
+    }
+
+    private boolean validateExtractCmd(JsonObject actualCommand, JsonArray actualArgs,
+                                       JsonArray expArgs, Path sourceRoot) {
+        String actualName = actualArgs.get(0).getAsString();
+        String expectedName = expArgs.get(0).getAsString();
+
+        String actualFilePath = actualArgs.get(1).getAsString().replace(sourceRoot.toString(), "");
+        if (actualFilePath.startsWith("/") || actualFilePath.startsWith("\\")) {
+            actualFilePath = actualFilePath.substring(1);
+        }
+        String expectedFilePath = expArgs.get(1).getAsString();
+
+        JsonObject actualTextEdits = actualArgs.get(2).getAsJsonObject();
+        JsonObject expectedTextEdits = expArgs.get(2).getAsJsonObject();
+
+        if (actualName.equals(expectedName) && actualFilePath.equals(expectedFilePath)
+                && actualTextEdits.equals(expectedTextEdits)) {
+            return true;
+        }
+
+        JsonArray newArgs = new JsonArray();
+        newArgs.add(actualName);
+        newArgs.add(actualFilePath);
+        newArgs.add(actualTextEdits);
+        actualCommand.add("arguments", newArgs);
+        return false;
     }
 }

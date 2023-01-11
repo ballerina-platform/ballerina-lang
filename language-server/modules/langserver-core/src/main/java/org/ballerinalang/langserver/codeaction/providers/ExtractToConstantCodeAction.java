@@ -106,23 +106,26 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
 
-        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, 
+        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition,
                 addNewLineAtStart);
-        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart());
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
             // Selection is a range
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart(), addNewLineAtStart);
             return Collections.singletonList(codeAction);
         }
 
         // Selection is a position
         List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
         if (nodeList.size() == 1) {
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart(), addNewLineAtStart);
             return Collections.singletonList(codeAction);
         }
 
@@ -131,12 +134,12 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
                 getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
-            Position replacePosition = textEdits.get(1).getRange().getStart();
-            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
-                            textEditMap, 
-                            new Position(replacePosition.getLine() + 1, replacePosition.getCharacter()))), 
-                    CodeActionKind.RefactorExtract));
+            return Collections.singletonList(
+                    CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                            new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
+                                    textEditMap,
+                                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart))),
+                            CodeActionKind.RefactorExtract));
         }
 
         return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
@@ -160,13 +163,22 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position replacePosition,
+                                boolean addNewLineAtStart) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.POSITIONAL_RENAME_COMMAND,
-                    List.of(context.fileUri(), new Position(position.getLine() + 1, position.getCharacter()))));
+                    List.of(context.fileUri(), getRenamePosition(replacePosition, addNewLineAtStart))));
         }
+    }
+
+    private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {
+        int line = replacePosition.getLine() + 1;
+        if (addNewLineAtStart) {
+            line += 1;
+        }
+        return new Position(line, replacePosition.getCharacter());
     }
 
     @Override

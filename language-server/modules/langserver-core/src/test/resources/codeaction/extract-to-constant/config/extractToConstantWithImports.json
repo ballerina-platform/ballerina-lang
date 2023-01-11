@@ -42,7 +42,7 @@
         "arguments": [
           "extractToConstantWithImports.bal",
           {
-            "line": 5,
+            "line": 6,
             "character": 22
           }
         ]
