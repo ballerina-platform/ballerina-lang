@@ -33,50 +33,44 @@ function testAnnotationOnLocalRecord() {
     string k = "chiranS";
     record {@annot {value: k} string x;} r = {x : ""}; 
 
-    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-    assertEquality("typedesc map", (typeof m).toString());
-    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
 }
 
 function testAnnotationWithMultipleFieldsOnLocalRecord() {
     string k = "chiranS";
     record {@details {name: k, age: 26} string x;} r = {x : ""}; 
 
-    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-    assertEquality("typedesc map", (typeof m).toString());
-    assertEquality("{\"details\":{\"name\":\"chiranS\",\"age\":26}}", m.toString()); 
+    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+    assertEquality({name: "chiranS", age: 26},  <map<anydata>>m["details"]);
 }
 
 function testAnnotationOnLocalRecordWithMultipleFields() {
     string k = "chiranS";
     record {@annot {value: k} string x; @annot {value: k} string y; } r = {x : "", y: ""}; 
 
-    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-    assertEquality("typedesc map", (typeof m).toString());
-    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
 
-    any y = getLocalRecordAnnotations(typeof r, "$field$.y");
-    assertEquality("typedesc map", (typeof y).toString());
-    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", y.toString()); 
+    map<any> y = getLocalRecordAnnotations(typeof r, "$field$.y");
+    assertEquality({value: "chiranS"}, <map<anydata>>y["annot"]);
 }
 
-
 string gVar = "foo";
+
 function testAnnotationOnLocalRecordWithGlobalVariable() {
     record {@annot {value: gVar} string x;} r = {x : ""}; 
 
-    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-    assertEquality("typedesc map", (typeof m).toString());
-    assertEquality("{\"annot\":{\"value\":\"foo\"}}", m.toString()); 
+    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+    assertEquality({value: "foo"}, <map<anydata>>m["annot"]);
 }
 
 function testAnnotationOnLocalRecordWithinLambdaFunction() {
     string k = "chiranS";
     function() func = function () {
                                     record {@annot {value: k} string x;} r = {x : ""}; 
-                                    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-                                    assertEquality("typedesc map", (typeof m).toString());
-                                    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+                                    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+                                    assertEquality({value: "chiranS"} , <map<anydata>>m["annot"]);
                                 };
     func();
 }
@@ -85,9 +79,8 @@ function testAnnotationOnLocalRecordWithinLambdaFunction1() {
     string k = "chiranS";
     function(string) func = function (string value) {
                                     record {@annot {value: value} string x;} r = {x : ""}; 
-                                    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-                                    assertEquality("typedesc map", (typeof m).toString());
-                                    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+                                    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+                                    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
                                 };
     func(k);
 }
@@ -97,9 +90,8 @@ function testAnnotationOnLocalRecordWithinNestedLambdaFunctions() {
     function () returns function() var1 = function () returns function() {
                                 function() func = function () {
                                     record {@annot {value: k} string x;} r = {x : ""}; 
-                                    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-                                    assertEquality("typedesc map", (typeof m).toString());
-                                    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+                                    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+                                    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
                                 };
                                 return func;
                                 };
@@ -112,9 +104,8 @@ function testAnnotationOnLocalRecordWithinNestedLambdaFunctions1() {
     function (string) returns function() var1 = function (string val) returns function() {
                                 function() func = function () {
                                     record {@annot {value: val} string x;} r = {x : ""}; 
-                                    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-                                    assertEquality("typedesc map", (typeof m).toString());
-                                    assertEquality("{\"annot\":{\"value\":\"chiranS\"}}", m.toString()); 
+                                    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+                                    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
                                 };
                                 return func;
                                 };
@@ -128,9 +119,8 @@ function testAnnotationOnLocalRecordWithinNestedLambdaFunctions2() {
                                 string name = "Name: ";
                                 function() func = function () {
                                     record {@annot {value: name + val} string x;} r = {x : ""}; 
-                                    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-                                    assertEquality("typedesc map", (typeof m).toString());
-                                    assertEquality("{\"annot\":{\"value\":\"Name: chiranS\"}}", m.toString()); 
+                                    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+                                    assertEquality({value: "Name: chiranS"}, <map<anydata>>m["annot"]);
                                 };
                                 return func;
                                 };
@@ -139,11 +129,12 @@ function testAnnotationOnLocalRecordWithinNestedLambdaFunctions2() {
 }
 
 function testMultipleAnnotationsOnLocaRecord() {
-    string k = "chiran";
+    string k = "chiranS";
     record {@annot {value: k} @annot1 {value: k} string x;} r = {x : ""}; 
 
-    any m = getLocalRecordAnnotations(typeof r, "$field$.x");
-    assertEquality("typedesc map", (typeof m).toString());
+    map<any> m = getLocalRecordAnnotations(typeof r, "$field$.x");
+    assertEquality({value: "chiranS"}, <map<anydata>>m["annot"]);
+    assertEquality({value: "chiranS"}, <map<anydata>>m["annot1"]);
 }
 
 function testLocalRecordAnnotations() {
@@ -159,23 +150,17 @@ function testLocalRecordAnnotations() {
         testAnnotationOnLocalRecordWithMultipleFields();
 }
 
-function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns any =
+function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
 @java:Method {
-    'class: "org/ballerinalang/test/annotations/GetLocalRecordAnnotations",
+    'class: "org/ballerinalang/test/annotations/LocalRecordAnnotationTest",
     name: "getLocalRecordAnnotations"
 } external;
 
-function assertEquality(any|error expected, any|error  actual) {
-    if expected is anydata && actual is anydata && expected == actual {
+function assertEquality(anydata expected, anydata  actual) {
+
+    if expected == actual {
         return;
     }
 
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error("AssertionError",
-                                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

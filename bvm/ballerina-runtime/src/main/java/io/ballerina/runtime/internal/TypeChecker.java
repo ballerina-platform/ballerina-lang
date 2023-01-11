@@ -584,28 +584,10 @@ public class TypeChecker {
      * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
-    public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {
-        MapValue annotMap = typedescValue.getAnnotations();
-        if (annotMap != null) {
-            Object annotation = annotMap.get(annotTag);
-            if (annotation != null) {
-                return annotation;
-            }
-        }
-        Type describingType = typedescValue.getDescribingType();
-        if (!(describingType instanceof BAnnotatableType)) {
-            return null;
-        }
-        return ((BAnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
-    }
-
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
         MapValue annotMap = typedescValue.getAnnotations();
         if (annotMap != null) {
-            Object annotation = annotMap.get(annotTag);
-            if (annotation != null) {
-                return annotation;
-            }
+            return annotMap.get(annotTag);
         }
         Type describingType = typedescValue.getDescribingType();
         if (!(describingType instanceof BAnnotatableType)) {

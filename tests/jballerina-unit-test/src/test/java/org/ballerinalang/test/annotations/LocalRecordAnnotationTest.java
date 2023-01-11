@@ -16,11 +16,16 @@
  */
 package org.ballerinalang.test.annotations;
 
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.values.TypedescValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -37,8 +42,28 @@ public class LocalRecordAnnotationTest {
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
-    @Test
-    public void testLocalServiceAnnotEvaluation() {
-        BRunUtil.invoke(result, "testLocalRecordAnnotations");
+    @Test(dataProvider = "dataToTestAnnotationsOfLocalRecord")
+    public void testLocalRecordAnnotations(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "dataToTestAnnotationsOfLocalRecord")
+    public Object[] dataToTestAnnotationsOfLocalRecord() {
+        return new String[]{
+                "testMultipleAnnotationsOnLocaRecord",
+                "testAnnotationOnLocalRecord",
+                "testAnnotationOnLocalRecordWithGlobalVariable",
+                "testAnnotationOnLocalRecordWithinLambdaFunction",
+                "testAnnotationOnLocalRecordWithinLambdaFunction1",
+                "testAnnotationOnLocalRecordWithinNestedLambdaFunctions",
+                "testAnnotationOnLocalRecordWithinNestedLambdaFunctions1",
+                "testAnnotationOnLocalRecordWithinNestedLambdaFunctions2",
+                "testAnnotationWithMultipleFieldsOnLocalRecord",
+                "testAnnotationOnLocalRecordWithMultipleFields"
+        };
+    }
+
+    public static BMap getLocalRecordAnnotations(TypedescValue typedescValue, BString annotName) {
+        return (BMap) TypeChecker.getAnnotValue(typedescValue, annotName);
     }
 }

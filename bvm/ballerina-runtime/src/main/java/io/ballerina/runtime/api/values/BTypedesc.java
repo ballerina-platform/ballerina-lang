@@ -48,7 +48,7 @@ public interface BTypedesc extends BValue {
     Object instantiate(Strand strand);
 
     /**
-     * Returns the annotations of the value describe by this type descriptor.
+     * Returns the annotations specified on this type descriptor.
      *
      * @return annotations
      */

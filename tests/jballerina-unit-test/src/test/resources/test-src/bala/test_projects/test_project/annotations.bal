@@ -21,3 +21,14 @@ public class MyClass {
     @ObjMethodAnnot {i: 102}
     public function bar(int i) returns string => i.toString();
 }
+
+type AnnotRecordOne record {|
+    string value;
+|};
+
+annotation AnnotRecordOne annotOne on type, field;
+
+public function testAnnotationsOnLocalRecordFields() returns record {string x; string y;} {
+    record {@annotOne {value: "10"} string x; string y;} r = {x : "", y: ""};
+    return r;
+}

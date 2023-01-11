@@ -1,4 +1,5 @@
 import testorg/foo;
+import ballerina/jballerina.java;
 
 @foo:ConfigAnnotation {
     numVal: 10,
@@ -26,6 +27,17 @@ function testAnnotOnBoundMethod() {
     foo:OtherConfiguration rec = <foo:OtherConfiguration> r;
     assertEquality(102, rec.i);
 }
+
+function testAnnotOnRecordFields() {
+    map<any> m = getLocalRecordAnnotations(typeof foo:testAnnotationsOnLocalRecordFields(), "$field$.x");
+    assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+}
+
+function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
+@java:Method {
+    'class: "org/ballerinalang/test/annotations/GetLocalRecordAnnotations",
+    name: "getLocalRecordAnnotations"
+} external;
 
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
