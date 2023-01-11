@@ -2278,7 +2278,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
-                BTupleType tupleType = (BTupleType) varArgType;
+                BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
+                    getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
+                    (BTupleType) varArgType;
+
                 List<BType> memberTypes = tupleType.tupleTypes;
 
                 BLangExpression varArgExpr = varArg.expr;
@@ -2381,6 +2384,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         // Args for rest param provided as both individual args and vararg.
         analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
+    }
+
+    private BTupleType getRepresentativeTupleTypeForRemainingArgs(int paramCount, int reqArgCount,
+                                                                  BArrayType arrayType) {
+        int remReqArgCount = paramCount - reqArgCount;
+        List<BType> memTypes = new ArrayList<>(remReqArgCount);
+        BType eType = arrayType.eType;
+        for (int i = 0; i < remReqArgCount; i++) {
+            memTypes.add(eType);
+        }
+
+        if (arrayType.size > remReqArgCount) {
+            return new BTupleType(null, memTypes, eType, 0);
+        }
+
+        return new BTupleType(memTypes);
     }
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
