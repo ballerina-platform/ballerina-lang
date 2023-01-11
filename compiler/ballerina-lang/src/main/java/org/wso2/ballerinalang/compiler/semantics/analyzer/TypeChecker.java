@@ -1859,7 +1859,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (bArrayType.state == BArrayState.CLOSED) {
                 for (int i = 0; i < bArrayType.size; i++) {
                     BType memberType = bArrayType.eType;
-                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                     inferredTupleDetails.fixedMemberTypes.add(memberType);
                 }
             } else {
@@ -2204,7 +2203,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         return checkExpr(exprToCheck, eType, data) == symTable.semanticError;
     }
-
 
     private InferredTupleDetails checkExprList(List<BLangExpression> exprs, AnalyzerData data) {
         return checkExprList(exprs, symTable.noType, data);

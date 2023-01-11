@@ -78,7 +78,7 @@ public class MemberTypeDescriptorNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2201.3.0
+     * @since 2201.4.0
      */
     public static class MemberTypeDescriptorNodeModifier {
         private final MemberTypeDescriptorNode oldNode;
