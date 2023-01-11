@@ -587,12 +587,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType silentCompatibleLiteralTypeCheck(BFiniteType finiteType, BLangLiteral literalExpr,
                                                       Object literalValue, AnalyzerData data) {
-        BType resIntType = symTable.semanticError;
+        BType resIntegerLiteralType = symTable.semanticError;
         List<BType> compatibleTypes = new ArrayList<>();
         for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-            resIntType = silentIntTypeCheck(literalExpr, literalValue, valueExpr.getBType(), data);
-            if (resIntType != symTable.semanticError) {
-                compatibleTypes.add(resIntType);
+            resIntegerLiteralType = silentIntTypeCheck(literalExpr, literalValue, valueExpr.getBType(), data);
+            if (resIntegerLiteralType != symTable.semanticError) {
+                compatibleTypes.add(resIntegerLiteralType);
             }
         }
         for (int i = TypeTags.INT; i <= TypeTags.DECIMAL; i++) {
@@ -602,7 +602,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-        return resIntType;
+        return resIntegerLiteralType;
     }
 
     private BType checkIfOutOfRangeAndReturnType(BFiniteType finiteType, BLangLiteral literalExpr, Object literalValue,
