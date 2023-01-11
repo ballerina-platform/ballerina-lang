@@ -112,7 +112,7 @@ public class ValueConverter {
                 newValue = convertArray((BArray) value, matchingType, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
-                newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues);
+                newValue = convertTable((BTable<?, ?>) value, matchingType, unresolvedValues);
                 break;
             default:
                 if (TypeChecker.isRegExpType(targetType) && matchingType.getTag() == TypeTags.STRING_TAG) {
