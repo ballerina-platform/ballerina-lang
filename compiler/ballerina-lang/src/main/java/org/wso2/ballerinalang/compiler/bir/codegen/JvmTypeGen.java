@@ -1087,9 +1087,11 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, FINITE_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        // Load type name
+        // load type name
         String name = Utils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
+        // load original type name
+        mv.visitLdcInsn(finiteType.tsymbol.originalName.value);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
@@ -1118,8 +1120,7 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(finiteType));
 
         // initialize the finite type using the value space
-        mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD,
-                INIT_FINITE_TYPE_IMPL, false);
+        mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD, INIT_FINITE_TYPE_IMPL, false);
     }
 
     private void loadValueType(MethodVisitor mv, BType valueType) {

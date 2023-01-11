@@ -124,8 +124,15 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         if (statementNode == null) {
             return Collections.emptyList();
         }
-        String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
         String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
+        if (statementNode.kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
+            String variable = String.format("%s %s = %s", typeDescriptor, varName, value);
+            TextEdit edit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
+                    PositionUtil.toPosition(replaceRange.endLine())),  variable);
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                    List.of(edit), context.fileUri(), CodeActionKind.RefactorExtract));
+        }
+        String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
         String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(), 
                 statementNode.lineRange().startLine().offset());

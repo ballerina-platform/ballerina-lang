@@ -571,43 +571,52 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "FUNCTION_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
                                           "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "FUNCTION_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "ISOLATED_KEYWORD",
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "ISOLATED_KEYWORD",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "FUNCTION_KEYWORD",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "WHITESPACE_MINUTIAE",
                                                   "value": " "
                                                 }
                                               ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "FUNCTION_KEYWORD",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "FUNCTION_SIGNATURE",
-                                          "children": [
-                                            {
-                                              "kind": "OPEN_PAREN_TOKEN"
                                             },
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "CLOSE_PAREN_TOKEN"
+                                              "kind": "FUNCTION_SIGNATURE",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_PAREN_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
+                                                  "kind": "CLOSE_PAREN_TOKEN"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -623,10 +632,19 @@
                                       ]
                                     },
                                     {
-                                      "kind": "INT_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1674,24 +1692,33 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "FUNCTION_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
                                           "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "ISOLATED_KEYWORD",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
-                                                }
-                                              ]
-                                            }
-                                          ]
+                                          "children": []
                                         },
                                         {
-                                          "kind": "FUNCTION_KEYWORD"
+                                          "kind": "FUNCTION_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "ISOLATED_KEYWORD",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "FUNCTION_KEYWORD"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -1705,10 +1732,19 @@
                                       ]
                                     },
                                     {
-                                      "kind": "INT_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },

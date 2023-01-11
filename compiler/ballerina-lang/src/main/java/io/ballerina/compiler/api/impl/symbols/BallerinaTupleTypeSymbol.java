@@ -51,8 +51,8 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
             List<TypeSymbol> types = new ArrayList<>();
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
 
-            for (BType type : ((BTupleType) this.getBType()).tupleTypes) {
-                types.add(typesFactory.getTypeDescriptor(type));
+            for (BType tupleMemberType : ((BTupleType) this.getBType()).getTupleTypes()) {
+                types.add(typesFactory.getTypeDescriptor(tupleMemberType));
             }
 
             this.memberTypes = Collections.unmodifiableList(types);

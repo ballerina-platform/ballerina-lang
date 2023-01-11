@@ -96,6 +96,8 @@ public class TableUtils {
             } else {
                 return (long) obj.hashCode();
             }
+        } else if (obj instanceof Long) {
+            return (long) obj;
         } else {
             return (long) obj.hashCode();
         }

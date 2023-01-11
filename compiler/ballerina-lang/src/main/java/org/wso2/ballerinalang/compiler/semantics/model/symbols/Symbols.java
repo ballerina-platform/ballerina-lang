@@ -222,6 +222,12 @@ public class Symbols {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
 
+    public static BVarSymbol createVarSymbolForTupleMember(BType type) {
+        BTypeSymbol tsymbol = type.tsymbol;
+        return new BVarSymbol(type.flags, tsymbol.name, tsymbol.pkgID, type, tsymbol.owner,
+                tsymbol.pos, tsymbol.origin);
+    }
+
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
         return typeName + Names.DOT.value + funcName;
     }
