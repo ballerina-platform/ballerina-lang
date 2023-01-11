@@ -728,8 +728,8 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
@@ -970,8 +970,8 @@ public class CentralAPIClient {
         // TODO: update this client initiation with default timeouts after fixing central/triggers API.
         OkHttpClient client = new OkHttpClient.Builder()
                 .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(40, TimeUnit.SECONDS)
+                .readTimeout(40, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
 
