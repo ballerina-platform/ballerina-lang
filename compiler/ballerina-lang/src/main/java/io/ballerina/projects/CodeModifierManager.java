@@ -37,7 +37,7 @@ import java.util.Objects;
 
 class CodeModifierManager {
     private Package currentPackage;
-    private final PackageCompilation compilation;
+    private PackageCompilation compilation;
     private final CodeModifierTasks codeModifierTasks;
 
     private CodeModifierManager(PackageCompilation compilation, CodeModifierTasks codeModifierTasks) {
@@ -129,6 +129,7 @@ class CodeModifierManager {
 
             if (codeModifyTaskResult.containsSourceFile() || codeModifyTaskResult.containsTestSourceFile()) {
                 currentPackage = new PackageModifier().modifyPackage(currentPackage, codeModifyTaskResult);
+                compilation = currentPackage.getCompilation();
             }
         }
     }

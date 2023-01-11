@@ -112,6 +112,7 @@ public class CommonUtil {
 
     public static final String EXPR_SCHEME = "expr";
 
+    //lang.array, regexp, lang.value, lang.runtime, jballerina.java are not pre-declared.
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
             "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
@@ -304,16 +305,16 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package info to evaluate
+     * @param module {@link Package} module info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
+    public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = pkg.packageOrg().value() + "/";
+        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg().value() + "/";
         }
 
-        return orgName + pkg.packageName().value();
+        return orgName + module.packageName().value();
     }
 
     /**

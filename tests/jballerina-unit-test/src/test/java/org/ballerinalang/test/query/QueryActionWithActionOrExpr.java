@@ -64,7 +64,10 @@ public class QueryActionWithActionOrExpr {
                 "testQueryActionWithParenthesizedQueryActionOrExpr",
                 "testPrecedenceOfActionsWhenUsingActionOrExprWithQueryAction",
                 "testQueryActionWithAllQueryClauses",
-                "testQueryActionWithNestedQueryActionOrExpr"
+                "testQueryActionWithNestedQueryActionOrExpr",
+                "testQueryActionWithClientResourceAccessAction",
+                "testQueryActionWithGroupedClientResourceAccessAction",
+                "testNestedQueryActionWithClientResourceAccessAction"
         };
     }
 

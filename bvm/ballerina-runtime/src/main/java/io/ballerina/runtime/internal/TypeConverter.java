@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -541,6 +542,7 @@ public class TypeConverter {
     }
 
     public static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
+        targetType = TypeUtils.getReferredType(targetType);
         Type inputValueType = TypeChecker.getType(inputValue);
         if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
             return false;
@@ -568,6 +570,8 @@ public class TypeConverter {
                 return true;
             case TypeTags.INTERSECTION_TAG:
                 return isValidTableConstraint(((BIntersectionType) tableConstrainedType).getEffectiveType());
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isValidTableConstraint(((ReferenceType) tableConstrainedType).getReferredType());
             default:
                 return false;
         }
@@ -923,7 +927,27 @@ public class TypeConverter {
     }
 
     public static Double stringToFloat(String value) throws NumberFormatException {
+        if (hasFloatOrDecimalLiteralSuffix(value)) {
+            throw new NumberFormatException();
+        }
         return Double.parseDouble(value);
+    }
+
+    public static boolean hasFloatOrDecimalLiteralSuffix(String value) {
+        int length = value.length();
+        if (length == 0) {
+            return false;
+        }
+
+        switch (value.charAt(length - 1)) {
+            case 'F':
+            case 'f':
+            case 'D':
+            case 'd':
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static Boolean stringToBoolean(String value) throws NumberFormatException {

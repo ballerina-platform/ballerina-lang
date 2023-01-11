@@ -30,7 +30,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class FieldLevelDocsTest {
     private BClass employeeCls;
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() throws Exception {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "record_object_fields_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);

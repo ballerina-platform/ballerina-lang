@@ -82,7 +82,7 @@ function testSimpleQueryAction3() returns error? {
 }
 
 function simpleQueryAction() returns string|error {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return "string 1";
@@ -91,7 +91,7 @@ function simpleQueryAction() returns string|error {
 }
 
 function simpleQueryAction2() returns error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {
         check returnNil();
         return;
@@ -371,7 +371,7 @@ function testWildcardBindingPatternInQueryAction2() {
 
 function testQueryActionWithAsyncCalls() returns error? {
     int sum = 0;
-    check from var x in [1, 2, 3]
+    from var x in [1, 2, 3]
     do {
          runtime:sleep(0.1);
          sum = sum + x;
@@ -393,11 +393,16 @@ class IterableWithError {
     }
 }
 
-function testErrorHandlingWithinQueryAction() {
+function getErrorThrownFromDoClause() returns error? {
     error? res1 = from int v in 1 ... 2
         do {
             _ = check getErrorOrString();
         };
+    assertTrue(res1 !is error);
+}
+
+function testErrorHandlingWithinQueryAction() returns error? {
+    error? res1 = getErrorThrownFromDoClause();
     assertTrue(res1 is error);
 
     IterableWithError itr = new IterableWithError();
@@ -419,10 +424,10 @@ function testErrorHandlingWithinQueryAction() {
 
     error? res4 = ();
     do {
-        check from int i in 1 ... 2
-            do {
-                _ = check getErrorOrString();
-            };
+        from int i in 1 ... 2
+        do {
+            _ = check getErrorOrString();
+        };
     } on fail var e {
         res4 = e;
     }
@@ -432,10 +437,10 @@ function testErrorHandlingWithinQueryAction() {
 }
 
 function throwErrorFromQueryAction() returns error? {
-    check from int v in 1 ... 2
-        do {
-            _ = check getErrorOrString();
-        };
+    from int v in 1 ... 2
+    do {
+        _ = check getErrorOrString();
+    };
 }
 
 function failFromQueryAction() returns error? {
@@ -463,12 +468,12 @@ function returnString() returns string {
 }
 
 function returnStringOrError() returns string|error {
-    check from int i in 1 ... 3
-        do {
-            if (3 + 2) == 5 {
-                return "Dummy string";
-            }
-        };
+    from int i in 1 ... 3
+    do {
+        if (3 + 2) == 5 {
+            return "Dummy string";
+        }
+    };
     //checking return statement breaks the loop
     panic error("Return statement should brake the loop and return");
 }
@@ -525,26 +530,26 @@ Team[] team = [
 function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() returns error? {
     float sum = 0.0;
 
-    check from var {email, problemId, score} in events
-        join var {user, teamId} in team
-        on email equals user
-        where teamId == 2
-        do {
-            sum += score;
-        };
+    from var {email, problemId, score} in events
+    join var {user, teamId} in team
+    on email equals user
+    where teamId == 2
+    do {
+        sum += score;
+    };
     assertEquality(167.0, sum);
 }
 
 function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2() returns error? {
     float sum = 0.0;
 
-    check from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
-        join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
-        on ev.email equals us
-        where ti == 2
-        do {
-            sum += ev.score;
-        };
+    from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+    join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
+    on ev.email equals us
+    where ti == 2
+    do {
+        sum += ev.score;
+    };
     assertEquality(95.0, sum);
 }
 
@@ -555,16 +560,16 @@ function assertTrue (any|error actual) {
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[1, 2], [2, 3, 4]];
     int sumOfEven = 0;
-    check from int[] arr in data
+    from int[] arr in data
+    do {
+        int[] evenNumbers = from int i in arr
+            where i % 2 == 0
+            select i;
+        from int i in evenNumbers
         do {
-            int[] evenNumbers = from int i in arr
-                where i % 2 == 0
-                select i;
-            check from int i in evenNumbers
-                do {
-                    sumOfEven += i;
-                };
+            sumOfEven += i;
         };
+    };
     assertEquality(8, sumOfEven);
 }
 
@@ -573,7 +578,7 @@ function returnErrorOrNil1() returns error? {
 }
 
 function foo1() returns string|error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {        
         check returnErrorOrNil1();
         return "str1";
@@ -586,7 +591,7 @@ function returnErrorOrNil2() returns error? {
 }
 
 function foo2() returns string|error? {
-    check from int _ in [1, 3, 5]
+    from int _ in [1, 3, 5]
     do {        
         check returnErrorOrNil2();
         return "str1";
@@ -595,7 +600,7 @@ function foo2() returns string|error? {
 }
 
 function foo3() returns string|error? {
-    check from int _ in []
+    from int _ in []
     do {        
         check returnErrorOrNil1();
         return "str1";
@@ -604,7 +609,7 @@ function foo3() returns string|error? {
 }
 
 function foo4() returns string|error? {
-    check from int _ in []
+    from int _ in []
     do {        
         check returnErrorOrNil2();
         return "str1";
@@ -736,6 +741,65 @@ function testQueryWithOptionalFieldRecord() {
                 select {x, y};
     Topt[] vy = [{x: 1, y: 2}, {x: 3}];
     assertEquality(vx, vy);
+}
+
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        self.i += 2;
+        if self.i < 10 {
+            return {value: self.i};
+        }
+        return ();
+    }
+}
+
+function testQueryStreamWithDiffTargetTypes() returns error? {
+    EvenNumberGenerator evenGen1 = new ();
+    stream<int, error?> numberStream1 = new (evenGen1);
+    int count1 = 0;
+    check from int num in numberStream1
+        do {
+            count1 += 1;
+        };
+    assertEquality(4, count1);
+
+    EvenNumberGenerator evenGen2 = new ();
+    stream<int, error?> numberStream2 = new (evenGen2);
+    int count2 = 0;
+    _ = check from int num in numberStream2
+        do {
+            count2 += 1;
+        };
+    assertEquality(4, count1);
+
+    EvenNumberGenerator evenGen3 = new ();
+    stream<int, error?> numberStream3 = new (evenGen3);
+    int count3 = 0;
+    var _ = check from int num in numberStream3
+        do {
+            count3 += 1;
+        };
+    assertEquality(4, count3);
+
+    EvenNumberGenerator evenGen4 = new ();
+    stream<int, error?> numberStream4 = new (evenGen4);
+    int count4 = 0;
+    error? e = from int num in numberStream4
+        do {
+            count4 += 1;
+        };
+    assertTrue(e !is error);
+    assertEquality(4, count4);
+
+    EvenNumberGenerator evenGen5 = new ();
+    stream<int, error?> numberStream5 = new (evenGen5);
+    int count5 = 0;
+    () _ = check from int num in numberStream5
+        do {
+            count5 += 1;
+        };
+    assertEquality(4, count5);
 }
 
 function assertEquality(any|error expected, any|error actual) {
