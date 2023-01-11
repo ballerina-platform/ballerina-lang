@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
@@ -55,8 +56,6 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
  * Responsible for performing conversion of values at runtime.
@@ -72,13 +71,7 @@ public class ValueConverter {
     }
 
     public static Object convert(Object value, Type targetType, BTypedesc t) {
-        try {
-            return convert(value, targetType, new ArrayList<>(), t);
-        } catch (BError e) {
-            return e;
-        } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
-        }
+        return convert(value, targetType, new ArrayList<>(), t);
     }
 
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t) {
@@ -87,7 +80,7 @@ public class ValueConverter {
             if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
             }
-            throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
@@ -95,7 +88,8 @@ public class ValueConverter {
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
+            throw new BallerinaException(
+                    BallerinaErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
         }
         unresolvedValues.add(typeValuePair);

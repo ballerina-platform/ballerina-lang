@@ -165,13 +165,14 @@ public class ErrorUtils {
     }
 
     public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
                 BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
     public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }

@@ -15,10 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.ValueConverter;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -30,6 +39,12 @@ public class FromJsonWithType {
     private FromJsonWithType() {}
 
     public static Object fromJsonWithType(Object value, BTypedesc t) {
-        return ValueConverter.convert(value, t);
+        try {
+            return ValueConverter.convert(value, t);
+        } catch (BError e) {
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
+        } catch (BallerinaException e) {
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
+        }
     }
 }
