@@ -748,30 +748,6 @@
       ]
     },
     {
-      "label": "testFunction",
-      "kind": "Variable",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "BB",
-      "filterText": "testFunction",
-      "insertText": "testFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function (..) {..}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "BP",
-      "filterText": "function",
-      "insertText": "function (int[] a) returns int {\n    return 0;\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Unit",
       "detail": "type",
