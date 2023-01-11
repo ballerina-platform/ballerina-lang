@@ -24,7 +24,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -965,6 +964,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        BType type = userDefinedType.getBType();
+        if (type != null && type.tag == TypeTags.RECORD) {
+            SymbolEnv symbolEnv = env.createClone();
+            BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
+            ((BRecordType) userDefinedType.getBType()).enclMapSymbols =
+                                                     collectClosureMapSymbols(symbolEnv, enclInvokable, false);
+        }
         result = userDefinedType;
     }
 
@@ -1424,7 +1430,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                                                   boolean isWorker) {
         // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
-        while (symbolEnv != null && symbolEnv.enclInvokable == enclInvokable) {
+        while (symbolEnv != null && symbolEnv.node != null && symbolEnv.enclInvokable == enclInvokable) {
             BVarSymbol mapSym = getMapSymbol(symbolEnv.node);
 
             // Skip non-block bodies
@@ -1963,12 +1969,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
-        SymbolEnv symbolEnv = env.createClone();
-        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-        if (structLiteral.getBType().getKind() == TypeKind.RECORD) {
-            ((BRecordType) structLiteral.getBType()).enclMapSymbols =
-                                                     collectClosureMapSymbols(symbolEnv, enclInvokable, false);
-        }
         for (RecordLiteralNode.RecordField field : structLiteral.fields) {
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValueField =

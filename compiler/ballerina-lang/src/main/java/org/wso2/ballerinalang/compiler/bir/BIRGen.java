@@ -1183,13 +1183,13 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         if (Types.getReferredType(userDefinedType.getBType()).getKind() == TypeKind.RECORD) {
-            createNewTypeDescInst(userDefinedType.getBType(), Collections.emptyList());
+            createNewTypeDescInst(userDefinedType.getBType());
         }
     }
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        createNewTypeDescInst(tupleTypeNode.getBType(), Collections.emptyList());
+        createNewTypeDescInst(tupleTypeNode.getBType());
         for (BLangType member : tupleTypeNode.memberTypeNodes) {
             member.accept(this);
         }
@@ -1210,7 +1210,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        createNewTypeDescInst(recordTypeNode.getBType(), Collections.emptyList());
+        createNewTypeDescInst(recordTypeNode.getBType());
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             if (field.typeNode != null) {
                 field.typeNode.accept(this);
@@ -1301,7 +1301,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         BType effectiveType = ((BIntersectionType) intersectionTypeNode.getBType()).effectiveType;
         if (effectiveType.tag == TypeTags.RECORD || effectiveType.tag == TypeTags.TUPLE) {
-            createNewTypeDescInst(effectiveType, Collections.emptyList());
+            createNewTypeDescInst(effectiveType);
         }
     }
 
@@ -1762,7 +1762,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        createNewTypeDescInst(astMapLiteralExpr.getBType(), Collections.emptyList());
+        createNewTypeDescInst(astMapLiteralExpr.getBType());
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(astMapLiteralExpr.getBType(), this.env.nextLocalVarId(names),
                                    VarScope.FUNCTION, VarKind.TEMP);
@@ -1807,7 +1807,7 @@ public class BIRGen extends BLangNodeVisitor {
             instruction = new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, typeDescMap.get(type),
                                                 generateMappingConstructorEntries(astStructLiteralExpr.fields), type);
         } else {
-            createNewTypeDescInst(type, mapToVarDcls(type));
+            createNewTypeDescInst(type);
             instruction = new BIRNonTerminator.NewStructure(astStructLiteralExpr.pos, toVarRef, this.env.targetOperand,
                                                   generateMappingConstructorEntries(astStructLiteralExpr.fields), type);
         }
@@ -1817,7 +1817,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private List<BIROperand> mapToVarDcls(BType type) {
-        TreeMap<Integer, BVarSymbol> enclMapSymbols = ((BRecordType) Types.getReferredType(type)).enclMapSymbols;
+        BType referredType = Types.getReferredType(type);
+        if (referredType.tag != TypeTags.RECORD) {
+            return Collections.emptyList();
+        }
+        TreeMap<Integer, BVarSymbol> enclMapSymbols = ((BRecordType) referredType).enclMapSymbols;
         if (enclMapSymbols == null || enclMapSymbols.size() == 0) {
             return Collections.emptyList();
         }
@@ -2159,7 +2163,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
-        createNewTypeDescInst(waitLiteral.getBType(), Collections.emptyList());
+        createNewTypeDescInst(waitLiteral.getBType());
         BIRBasicBlock thenBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(thenBB);
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(waitLiteral.getBType(),
@@ -2430,10 +2434,11 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
         BType type = typeLoad.symbol.tag == SymTag.TYPE_DEF ?
                 ((BTypeDefinitionSymbol) typeLoad.symbol).referenceType : typeLoad.symbol.type;
-        createNewTypeDescInst(type, Collections.emptyList());
+        createNewTypeDescInst(type);
     }
 
-    private void createNewTypeDescInst(BType type, List<BIROperand> varDcls) {
+    private void createNewTypeDescInst(BType type) {
+        List<BIROperand> varDcls = mapToVarDcls(type);
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind
                         .TEMP);
@@ -2908,7 +2913,7 @@ public class BIRGen extends BLangNodeVisitor {
                         new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
                                 typeDescMap.get(referredType), sizeOp, initialValues));
             } else {
-                createNewTypeDescInst(listConstructorExprType, Collections.emptyList());
+                createNewTypeDescInst(listConstructorExprType);
                 setScopeAndEmit(
                         new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef,
                                 this.env.targetOperand, sizeOp, initialValues));
