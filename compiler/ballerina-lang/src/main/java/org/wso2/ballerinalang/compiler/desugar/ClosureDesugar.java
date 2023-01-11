@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -965,11 +966,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
         BType type = userDefinedType.getBType();
-        if (type != null && type.tag == TypeTags.RECORD) {
-            SymbolEnv symbolEnv = env.createClone();
-            BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
-            ((BRecordType) userDefinedType.getBType()).enclMapSymbols =
-                                                     collectClosureMapSymbols(symbolEnv, enclInvokable, false);
+        if (type == null) {
+            result = userDefinedType;
+            return;
+        }
+        if (type.tag == TypeTags.RECORD) {
+            ((BRecordType) type).enclMapSymbols = collectClosureMapSymbols(env, false);
+        } else if (type.tag == TypeTags.ERROR) {
+            BType detailType = ((BErrorType) type).detailType;
+            if (detailType.tag == TypeTags.RECORD) {
+                ((BRecordType) detailType).enclMapSymbols = collectClosureMapSymbols(env, false);
+            }
         }
         result = userDefinedType;
     }
@@ -1421,14 +1428,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
             // Save param closure map of the encl invokable.
             bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
             boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
-            bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
+            bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(env, isWorker);
         }
         result = bLangLambdaFunction;
     }
 
-    private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv, BLangInvokableNode enclInvokable,
-                                                                  boolean isWorker) {
+    private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv env, boolean isWorker) {
         // Recursively iterate back to the encl invokable and get all map symbols visited.
+        SymbolEnv symbolEnv = env.createClone();
+        BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
         while (symbolEnv != null && symbolEnv.node != null && symbolEnv.enclInvokable == enclInvokable) {
             BVarSymbol mapSym = getMapSymbol(symbolEnv.node);
