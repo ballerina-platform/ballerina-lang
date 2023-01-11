@@ -1473,9 +1473,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     continue;
                 }
 
-                long flags = field.symbol.flags;
-                if (recordKeyValueField == null && !(Symbols.isFlagOn(flags, Flags.OPTIONAL)
-                        || Symbols.isFlagOn(flags, Flags.REQUIRED))) {
+                if (recordKeyValueField == null && isFieldWithDefaultValue(field)) {
                     dlog.error(row.pos,
                             DiagnosticErrorCode.UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER);
                 } else {
@@ -1487,6 +1485,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return data.resultType != symTable.semanticError;
+    }
+
+    private boolean isFieldWithDefaultValue(BField field) {
+        long flags = field.symbol.flags;
+        return !Symbols.isFlagOn(flags, Flags.REQUIRED) && !Symbols.isFlagOn(flags, Flags.OPTIONAL);
     }
 
     private boolean isConstExpression(BLangExpression expression) {

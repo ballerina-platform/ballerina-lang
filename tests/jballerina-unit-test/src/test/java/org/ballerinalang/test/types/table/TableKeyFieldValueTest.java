@@ -34,8 +34,8 @@ import org.testng.annotations.Test;
  */
 public class TableKeyFieldValueTest {
     private CompileResult result;
-    private static final String DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE = "using record default " +
-            "values for table key fields is not yet supported";
+    private static final String DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE = "using default values of " +
+            "record fields for table key fields is not yet supported";
 
     @BeforeClass
     public void setup() {
