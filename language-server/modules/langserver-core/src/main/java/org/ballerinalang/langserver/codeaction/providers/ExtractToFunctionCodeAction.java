@@ -48,12 +48,10 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -222,7 +220,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
                 CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, replaceFuncCallStartPos);
+        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
+                replaceFuncCallStartPos);
         return List.of(codeAction);
     }
 
@@ -388,7 +387,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 replaceFunctionCall);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, replaceEdit.getRange().getStart());
+        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
+                replaceEdit.getRange().getStart());
         return List.of(codeAction);
     }
 
@@ -542,15 +542,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return false;
     }
 
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
-        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(
-                    CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION, CommandConstants.POSITIONAL_RENAME_COMMAND,
-                    List.of(context.fileUri(), position)));
-        }
-    }
-
     /*
      * TODO remove with the fix of #37454
      * */
@@ -634,11 +625,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private static class ArgListsHolder {
+
         private List<String> extractFunctionArgs;
         private List<String> replaceFunctionCallArgs;
     }
 
     static class ExtractToFunctionTypeFinder extends NodeVisitor {
+
         List<String> symbolNamesList;
         Map<String, NonTerminalNode> nodeList = new LinkedHashMap<>();
 

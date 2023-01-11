@@ -116,7 +116,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             // Selection is a range
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
-            addRenamePopup(context, codeAction,
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
                     getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
@@ -126,7 +126,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (nodeList.size() == 1) {
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
-            addRenamePopup(context, codeAction,
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
                     getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
@@ -169,15 +169,6 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     private boolean isExpressionNode(Node node) {
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
-    }
-
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position renamePosition) {
-        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(
-                    CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.POSITIONAL_RENAME_COMMAND,
-                    List.of(context.fileUri(), renamePosition)));
-        }
     }
 
     private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {

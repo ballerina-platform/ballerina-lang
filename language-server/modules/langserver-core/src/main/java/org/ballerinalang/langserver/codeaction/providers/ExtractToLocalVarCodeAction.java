@@ -34,12 +34,10 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -131,7 +129,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         if (statementNode.kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
             String variable = String.format("%s %s = %s", typeDescriptor, varName, value);
             TextEdit edit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
-                    PositionUtil.toPosition(replaceRange.endLine())),  variable);
+                    PositionUtil.toPosition(replaceRange.endLine())), variable);
             return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
                     List.of(edit), context.fileUri(), CodeActionKind.RefactorExtract));
         }
@@ -145,18 +143,14 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
                 List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        addRenamePopup(context, codeAction, replaceEdit.getRange().getStart());
+        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE,
+                getRenamePosition(replaceEdit.getRange().getStart()));
 
         return Collections.singletonList(codeAction);
     }
-
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position position) {
-        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(
-                    CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.POSITIONAL_RENAME_COMMAND,
-                    List.of(context.fileUri(), new Position(position.getLine() + 1, position.getCharacter()))));
-        }
+    
+    private Position getRenamePosition(Position position) {
+        return new Position(position.getLine() + 1, position.getCharacter());
     }
 
     @Override
@@ -167,7 +161,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
     private Node getStatementNode(Node node) {
         Node statementNode = node;
         while (statementNode != null && !(statementNode instanceof StatementNode)
-                && !(statementNode instanceof ModuleMemberDeclarationNode) 
+                && !(statementNode instanceof ModuleMemberDeclarationNode)
                 && statementNode.kind() != SyntaxKind.OBJECT_FIELD) {
             statementNode = statementNode.parent();
         }
