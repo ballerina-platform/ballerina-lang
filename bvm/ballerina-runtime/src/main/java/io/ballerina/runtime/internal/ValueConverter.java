@@ -124,23 +124,23 @@ public class ValueConverter {
                         throw createConversionError(value, targetType, e.getMessage());
                     }
                 }
+                if (TypeChecker.checkIsType(value, matchingType)) {
+                    newValue = value;
+                    break;
+                }
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     try {
                         newValue = XmlFactory.parse(((BString) value).getValue());
-                        break;
-                    } catch (Throwable e) {
+                    } catch (BError e) {
                         throw createConversionError(value, targetType, e.getMessage());
                     }
+                    break;
                 }
 
                 // handle primitive values
                 if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                    if (TypeChecker.checkIsType(value, matchingType)) {
-                        newValue = value;
-                    } else {
-                        // Has to be a numeric conversion.
-                        newValue = TypeConverter.convertValues(matchingType, value);
-                    }
+                    // Has to be a numeric conversion.
+                    newValue = TypeConverter.convertValues(matchingType, value);
                     break;
                 }
                 // should never reach here

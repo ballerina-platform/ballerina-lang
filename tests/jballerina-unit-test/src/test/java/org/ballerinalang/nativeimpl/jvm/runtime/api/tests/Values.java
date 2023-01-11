@@ -53,11 +53,11 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import org.ballerinalang.langlib.value.FromJsonWithType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -247,7 +247,7 @@ public class Values {
     }
 
     public static Object getRecordValueFromJson(Object jsonValue, BTypedesc type) {
-        return FromJsonWithType.convert(jsonValue, type.getDescribingType());
+        return ValueConverter.convert(jsonValue, type);
     }
 
     public static BObject getInvalidObject(BString objectName) {
