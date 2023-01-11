@@ -374,6 +374,33 @@ function testMultipleVarAssignments() {
     assertTrue(obj3.foo());
 }
 
+function testLocalVariablesAsFieldDefaults() {
+    int a = 10;
+
+    var obj = object {
+        int x = a;
+
+        function init() {
+        }
+    };
+    assertValueEquality(obj.x, 10);
+}
+
+int b = 11;
+
+var moduleObj = object {
+    int x = b;
+
+    function init() {
+    }
+};
+
+function testModuleLevelObjectCtrWithModuleLevelVariableAsFieldDefaults() {
+    assertValueEquality(moduleObj.x, 11);
+    b = 12;
+    assertValueEquality(moduleObj.x, 11);
+}
+
 // assertion helpers
 
 const ASSERTION_ERROR_REASON = "AssertionError";

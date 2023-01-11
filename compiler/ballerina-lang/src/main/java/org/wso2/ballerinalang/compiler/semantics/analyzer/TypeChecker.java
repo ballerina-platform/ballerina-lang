@@ -2842,12 +2842,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-        } else if (Names.CLIENT.equals(varName) && !identifier.isLiteral) {
-            if (pkgSymbol != symTable.notFoundSymbol &&
-                    !symResolver.isModuleGeneratedForClientDeclaration(data.env.enclPkg.packageID, pkgSymbol.pkgID)) {
-                dlog.error(varRefExpr.pos,
-                           DiagnosticErrorCode.INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER);
-            }
         }
 
         if (pkgSymbol.tag == SymTag.XMLNS) {
@@ -2918,7 +2912,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String recordName = this.anonymousModelHelper.getNextAnonymousTypeKey(data.env.enclPkg.symbol.pkgID);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, names.fromString(recordName),
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
-                                                                    varRefExpr.pos, SOURCE);
+                                                                         varRefExpr.pos, SOURCE);
         symbolEnter.defineSymbol(varRefExpr.pos, recordSymbol, data.env);
 
         boolean unresolvedReference = false;
@@ -3692,29 +3686,29 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkExpr(resourceAccessInvocation.expr, data);
         BType lhsExprType = resourceAccessInvocation.expr.getBType();
         BType referredLhsExprType = Types.getReferredType(lhsExprType);
-        
-        if (referredLhsExprType.tag != TypeTags.OBJECT || 
+
+        if (referredLhsExprType.tag != TypeTags.OBJECT ||
                 !Symbols.isFlagOn(referredLhsExprType.tsymbol.flags, Flags.CLIENT)) {
-            dlog.error(resourceAccessInvocation.expr.pos, 
+            dlog.error(resourceAccessInvocation.expr.pos,
                     DiagnosticErrorCode.CLIENT_RESOURCE_ACCESS_ACTION_IS_ONLY_ALLOWED_ON_CLIENT_OBJECTS);
             data.resultType = symTable.semanticError;
             return;
         }
-        
+
         BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) referredLhsExprType.tsymbol;
 
         if (!validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data)) {
             // Should not resolve the target resource method if the resource path segment types are invalid
             return;
         }
-                
+
         // Filter all the resource methods defined on target resource path
         List<BResourceFunction> resourceFunctions = new ArrayList<>();
         data.isResourceAccessPathSegments = true;
         for (BAttachedFunction targetFunc : objectTypeSym.attachedFuncs) {
             if (Symbols.isResource(targetFunc.symbol)) {
                 BResourceFunction resourceFunction = (BResourceFunction) targetFunc;
-                BLangExpression clonedResourceAccPathSeg = 
+                BLangExpression clonedResourceAccPathSeg =
                         nodeCloner.cloneNode(resourceAccessInvocation.resourceAccessPathSegments);
                 BType resolvedType = checkExprSilent(clonedResourceAccPathSeg, resourceFunction.resourcePathType, data);
                 if (resolvedType != symTable.semanticError) {
@@ -3722,19 +3716,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
-        
+
         if (resourceFunctions.size() == 0) {
             dlog.error(resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE,
                     lhsExprType);
             data.resultType = symTable.semanticError;
             return;
         }
-        
+
         // Filter the resource methods in the list by resource access method name
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         int targetResourceFuncCount = resourceFunctions.size();
         if (targetResourceFuncCount == 0) {
-            dlog.error(resourceAccessInvocation.name.pos, 
+            dlog.error(resourceAccessInvocation.name.pos,
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
             data.resultType = symTable.semanticError;
         } else if (targetResourceFuncCount > 1) {
@@ -3751,7 +3745,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     /**
      * Validate resource access path segment types.
-     * 
+     *
      * @return true if the path segment types are valid. False otherwise
      */
     public boolean validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {
@@ -3774,7 +3768,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             BType pathSegmentType = checkExpr(clonedPathSegment, data);
             if (!types.isAssignable(pathSegmentType, symTable.pathParamAllowedType)) {
-                dlog.error(clonedPathSegment.getPosition(), 
+                dlog.error(clonedPathSegment.getPosition(),
                         DiagnosticErrorCode.UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE, pathSegmentType);
                 isValidResourceAccessPathSegmentTypes = false;
             }
@@ -3782,10 +3776,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         return isValidResourceAccessPathSegmentTypes;
     }
-    
+
     public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvoc,
                                                       BResourceFunction targetResourceFunc, AnalyzerData data) {
-        // targetResourceFunc symbol params will contain path params and rest path params as well, 
+        // targetResourceFunc symbol params will contain path params and rest path params as well,
         // hence we need to remove path params from the list before calling to `checkInvocationParamAndReturnType` 
         // method otherwise we get `missing required parameter` error
         BInvokableSymbol targetResourceSym = targetResourceFunc.symbol;
@@ -3849,7 +3843,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
                                               new Name(String.format("$let_symbol_%d$",
-                                                      data.commonAnalyzerData.letCount++)),
+                                                       data.commonAnalyzerData.letCount++)),
                 data.env.enclPkg.symbol.pkgID, letExpression.getBType(), data.env.scope.owner,
                                               letExpression.pos);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, data.env, letSymbol);
@@ -4575,14 +4569,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BField field = new BField(names.fromIdNode(keyVal.key), null,
                                       new BVarSymbol(0, names.fromIdNode(keyVal.key),
                                                      names.originalNameFromIdNode(keyVal.key),
-                                                     data.env.enclPkg.packageID, fieldType, null, keyVal.pos, VIRTUAL));
+                                                     data.env.enclPkg.packageID, fieldType, null,
+                                                     keyVal.pos, VIRTUAL));
             retType.fields.put(field.name.value, field);
         }
 
         retType.restFieldType = symTable.noType;
         retType.sealed = true;
         retType.tsymbol = Symbols.createRecordSymbol(Flags.ANONYMOUS, Names.EMPTY, data.env.enclPkg.packageID, retType,
-                                                     null, pos, VIRTUAL);
+                                              null, pos, VIRTUAL);
         return retType;
     }
 
@@ -5578,15 +5573,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        SymbolKind kind = xmlnsSymbol.getKind();
-
-        if (kind == SymbolKind.CLIENT_DECL) {
-            dlog.error(bLangXMLQName.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE, prefix);
-            data.resultType = symTable.semanticError;
-            return;
-        }
-
-        if (kind == SymbolKind.PACKAGE) {
+        if (xmlnsSymbol.getKind() == SymbolKind.PACKAGE) {
             xmlnsSymbol = findXMLNamespaceFromPackageConst(bLangXMLQName.localname.value, bLangXMLQName.prefix.value,
                     (BPackageSymbol) xmlnsSymbol, bLangXMLQName.pos, data);
         }
@@ -7032,7 +7019,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangNode bLangNode = env.node;
         if ((env.enclType != null && env.enclType.getKind() == NodeKind.FUNCTION_TYPE) ||
                 (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
-                bLangNode.getKind() != NodeKind.ARROW_EXPR && bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                bLangNode.getKind() != NodeKind.ARROW_EXPR &&
+                bLangNode.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
                 encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
                 !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
@@ -7680,9 +7668,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 tupleMemberTypes.add(paramType);
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
-                                            add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
-                                            nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
-                                            symTable.builtinPos, VIRTUAL);
+                                             add(required ? Flag.REQUIRED : Flag.OPTIONAL); }}), paramName,
+                                             nonRestParam.getOriginalName(), pkgID, paramType, recordSymbol,
+                                             symTable.builtinPos, VIRTUAL);
                 fields.put(paramName.value, new BField(paramName, null, fieldSymbol));
             }
 
@@ -7799,7 +7787,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (paramType.tag != TypeTags.RECORD) {
             return;
         }
-        
+
         Set<String> fields = ((BRecordType) paramType).fields.keySet();
         for (String field : fields) {
             if (includedRecordParamNames.contains(field)) {
@@ -7811,7 +7799,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     // If there is a named-arg or positional-arg corresponding to an included-record-param,
     // it is an error for a named-arg to specify a field of that included-record-param.
     private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs,
-                                                      HashSet<String> incRecordFields) {
+                                                     HashSet<String> incRecordFields) {
         if (incRecordFields.isEmpty()) {
             return;
         }
@@ -8848,7 +8836,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         String nsPrefix = nsPrefixedFieldAccess.nsPrefix.value;
         BSymbol nsSymbol = symResolver.lookupSymbolInPrefixSpace(data.env, names.fromString(nsPrefix));
 
-        if (nsSymbol == symTable.notFoundSymbol || nsSymbol.getKind() == SymbolKind.CLIENT_DECL) {
+        if (nsSymbol == symTable.notFoundSymbol) {
             dlog.error(nsPrefixedFieldAccess.nsPrefix.pos, DiagnosticErrorCode.CANNOT_FIND_XML_NAMESPACE,
                     nsPrefixedFieldAccess.nsPrefix);
         } else if (nsSymbol.getKind() == SymbolKind.PACKAGE) {
@@ -9670,7 +9658,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
                 BType spreadOpType = checkExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
-                                                expType, data);
+                                               expType, data);
                 BType type = Types.getReferredType(spreadOpType);
 
                 if (type.tag == TypeTags.MAP) {

@@ -43,7 +43,6 @@ public class AnnotationDeclarationTest {
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 19, 22);
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 20, 45);
         BAssertUtil.validateError(compileResult, index++, "missing source keyword", 21, 37);
-        BAssertUtil.validateError(compileResult, index++, "missing source keyword", 22, 37);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
@@ -51,9 +50,9 @@ public class AnnotationDeclarationTest {
     public void testSourceAnnotDeclWithoutConst() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_annot_without_const_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
         String errorMessage = "annotation declaration with 'source' attach point(s) should be a 'const' declaration";
-        for (int index = 0; index < 10; index++) {
+        for (int index = 0; index < 9; index++) {
             BAssertUtil.validateError(compileResult, index, errorMessage, index + 17, 1);
         }
     }
