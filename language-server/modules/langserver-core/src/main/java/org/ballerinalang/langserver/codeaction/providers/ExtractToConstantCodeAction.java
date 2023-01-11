@@ -116,7 +116,8 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
             // Selection is a range
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
-            addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart(), addNewLineAtStart);
+            addRenamePopup(context, codeAction,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
 
@@ -125,20 +126,27 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         if (nodeList.size() == 1) {
             CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                     textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
-            addRenamePopup(context, codeAction, textEdits.get(1).getRange().getStart(), addNewLineAtStart);
+            addRenamePopup(context, codeAction,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
             return Collections.singletonList(codeAction);
         }
 
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
-                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
+        nodeList.forEach(extractableNode -> {
+            textEditMap.put(extractableNode.toSourceCode().strip(),
+                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
+        });
 
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
+            nodeList.forEach(extractableNode ->
+                    renamePositionMap.put(extractableNode.toSourceCode().strip(),
+                            getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart(),
+                                    addNewLineAtStart)));
             return Collections.singletonList(
                     CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                            new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
-                                    textEditMap,
-                                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart))),
+                            new Command(NAME, EXTRACT_COMMAND,
+                                    List.of(NAME, context.filePath().toString(), textEditMap, renamePositionMap)),
                             CodeActionKind.RefactorExtract));
         }
 
@@ -163,17 +171,17 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
-    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position replacePosition,
-                                boolean addNewLineAtStart) {
+    private void addRenamePopup(CodeActionContext context, CodeAction codeAction, Position renamePosition) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
             codeAction.setCommand(new Command(
                     CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT, CommandConstants.POSITIONAL_RENAME_COMMAND,
-                    List.of(context.fileUri(), getRenamePosition(replacePosition, addNewLineAtStart))));
+                    List.of(context.fileUri(), renamePosition)));
         }
     }
 
     private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {
+        // line position will increment by one due to const declaration statement
         int line = replacePosition.getLine() + 1;
         if (addNewLineAtStart) {
             line += 1;
