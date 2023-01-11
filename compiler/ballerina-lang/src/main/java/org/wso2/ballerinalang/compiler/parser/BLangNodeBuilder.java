@@ -888,7 +888,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.anonTypeNameSuffixes.push(constantNode.name.value);
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
         this.anonTypeNameSuffixes.pop();
-        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName, constantNode.name.value);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
@@ -1048,20 +1048,21 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangUserDefinedType deSugarTypeAsUserDefType(BLangType toIndirect) {
-        BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(toIndirect);
+        BLangTypeDefinition bLTypeDef = createTypeDefinitionWithTypeNode(toIndirect, null);
         Location pos = toIndirect.pos;
         addToTop(bLTypeDef);
 
         return createUserDefinedType(pos, (BLangIdentifier) TreeBuilder.createIdentifierNode(), bLTypeDef.name);
     }
 
-    private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect) {
+    private BLangTypeDefinition createTypeDefinitionWithTypeNode(BLangType toIndirect, String originalName) {
         Location pos = toIndirect.pos;
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, this.anonTypeNameSuffixes);
-        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        IdentifierNode anonTypeGenName = originalName == null ? createIdentifier(symTable.builtinPos, genName)
+                : createIdentifier(symTable.builtinPos, genName, originalName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
         bLTypeDef.flagSet.add(Flag.ANONYMOUS);
@@ -3847,14 +3848,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                 literal.originalValue = null;
                 typeNodeAssociated.addValue(deepLiteral);
-                bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
+                bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated,
+                        memberName.value);
             } else {
                 bLangConstant.associatedTypeDefinition = null;
             }
         } else {
             BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
             typeNodeAssociated.addValue(deepLiteral);
-            bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
+            bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated,
+                    memberName.value);
         }
         this.anonTypeNameSuffixes.pop();
         return bLangConstant;
@@ -5942,6 +5945,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangIdentifier createIdentifier(Location pos, String value) {
+        return createIdentifier(pos, value, value);
+    }
+
+    private BLangIdentifier createIdentifier(Location pos, String value, String originalValue) {
         BLangIdentifier bLIdentifer = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         if (value == null) {
             return bLIdentifer;
@@ -5954,7 +5961,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             bLIdentifer.setValue(Utils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
-        bLIdentifer.setOriginalValue(value);
+        bLIdentifer.setOriginalValue(originalValue);
         bLIdentifer.pos = pos;
         return bLIdentifer;
     }
