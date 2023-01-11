@@ -168,7 +168,7 @@ public class BindingPatternTest {
         Optional<Symbol> symbol = model.symbol(srcFile, from(29, 5));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
-        TypeSymbol tupleMemberType = ((TupleMemberSymbol) symbol.get()).getType();
+        TypeSymbol tupleMemberType = ((TupleMemberSymbol) symbol.get()).typeDescriptor();
         assertEquals(tupleMemberType.typeKind(), INT);
     }
 

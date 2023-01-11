@@ -54,7 +54,7 @@ public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements Tuple
         return Optional.empty();
     }
 
-    public TypeSymbol getType() {
+    public TypeSymbol typeDescriptor() {
         return this.type;
     }
 

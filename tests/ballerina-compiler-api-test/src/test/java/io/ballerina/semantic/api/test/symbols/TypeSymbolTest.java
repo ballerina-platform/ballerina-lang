@@ -198,8 +198,8 @@ public class TypeSymbolTest {
         assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
 
         TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
-        assertEquals(tupleMember.getType().typeKind(), typeKind);
-        assertEquals(tupleMember.getType().signature(), signature);
+        assertEquals(tupleMember.typeDescriptor().typeKind(), typeKind);
+        assertEquals(tupleMember.typeDescriptor().signature(), signature);
     }
 
     @DataProvider(name = "TupleTypeMemberPosProvider")

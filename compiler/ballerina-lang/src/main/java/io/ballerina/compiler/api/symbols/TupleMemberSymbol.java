@@ -28,5 +28,5 @@ public interface TupleMemberSymbol extends Symbol, Annotatable {
      *
      * @return {@link TypeSymbol}
      */
-    TypeSymbol getType();
+    TypeSymbol typeDescriptor();
 }

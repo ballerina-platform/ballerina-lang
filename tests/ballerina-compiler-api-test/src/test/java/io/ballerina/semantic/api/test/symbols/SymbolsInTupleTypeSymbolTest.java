@@ -74,7 +74,7 @@ public class SymbolsInTupleTypeSymbolTest {
         assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
 
         TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
-        assertEquals(tupleMember.getType().typeKind(), typeKind);
+        assertEquals(tupleMember.typeDescriptor().typeKind(), typeKind);
 
         // check annotation attachments
         List<AnnotationAttachmentSymbol> annotSymbols = tupleMember.annotAttachments();
@@ -113,7 +113,7 @@ public class SymbolsInTupleTypeSymbolTest {
         for (int i = 0; i < typeDescs.size(); i++) {
             assertEquals(tupleMembers.get(i).kind(), SymbolKind.TUPLE_MEMBER);
             TupleMemberSymbol memberType = tupleMembers.get(i);
-            assertEquals(memberType.getType().typeKind(), typeDescs.get(i));
+            assertEquals(memberType.typeDescriptor().typeKind(), typeDescs.get(i));
 
             // check annot attachments of tuple members
             List<AnnotationAttachmentSymbol> annotAttachments = memberType.annotAttachments();
