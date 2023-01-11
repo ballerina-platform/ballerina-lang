@@ -318,12 +318,24 @@ public class TypeConverter {
                         unresolvedValues, errors, allowNumericConversion);
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
-                        || (TypeTags.isXMLTypeTag(targetTypeTag)
-                                && (TypeChecker.getType(inputValue).getTag() == TypeTags.STRING_TAG))) {
+                        || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToXmlType(inputValue))) {
                     return targetType;
                 }
         }
         return null;
+    }
+
+    private static boolean isStringConvertibleToXmlType(Object inputValue) {
+        if (TypeChecker.getType(inputValue).getTag() == TypeTags.STRING_TAG) {
+            try {
+                XmlFactory.parse(((BString) inputValue).getValue());
+            } catch (BError e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
