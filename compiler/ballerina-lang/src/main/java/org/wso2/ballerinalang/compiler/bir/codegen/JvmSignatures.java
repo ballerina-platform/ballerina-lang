@@ -285,7 +285,7 @@ public class JvmSignatures {
     public static final String INIT_ERROR = "(L" + B_STRING_VALUE + ";)V";
     public static final String INIT_ERROR_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INIT_FIELD_IMPL = "(L" + TYPE + ";L" + STRING_VALUE + ";J)V";
-    public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + SET + ";I)V";
+    public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + SET + ";I)V";
     public static final String INIT_FUNCTION_PARAM = "(L" + STRING_VALUE + ";ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_FUNCTION_TYPE_IMPL = "(L" + MODULE + ";J)V";
     public static final String INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS = "(L" + MODULE + ";[L" + FUNCTION_PARAMETER + ";" +
