@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.test;
 import ballerina/lang.'value as value;
 
 type Address record {
@@ -2677,6 +2678,23 @@ function testCloneWithTypeWithXML() {
     xml x = checkpanic xe;
     json j = x.toJson();
     assertEquality(j, s1);
+
+    xml wso2 = xml `<name>WSO2</name>`;
+    xml bal = xml `<name>Ballerina</name>`;
+    json mapXmlJson = {name: wso2.toJson(), team: bal.toJson()};
+    map<xml> mapXml = checkpanic mapXmlJson.cloneWithType();
+    test:assertValueEqual(mapXml, {"name": xml `<name>WSO2</name>`,"team": xml `<name>Ballerina</name>`});
+
+    json[] tableMapXmlJson = [
+        {id: wso2.toJson(), title: bal.toJson()}
+    ];
+    table<map<xml>> tableMapXml = checkpanic tableMapXmlJson.cloneWithType();
+    test:assertValueEqual(tableMapXml, table [{"id": xml `<name>WSO2</name>`,"title": xml `<name>Ballerina</name>`}]);
+
+    anydata xmlArrayAnydata = [xml `<name>WSO2</name>`, xml `<name>Ballerina</name>`];
+    json xmlArrayJson = xmlArrayAnydata.toJson();
+    xml[] xmlArray = checkpanic xmlArrayJson.cloneWithType();
+    test:assertValueEqual(xmlArray, xmlArrayAnydata);
 }
 
 type Student4 record {
