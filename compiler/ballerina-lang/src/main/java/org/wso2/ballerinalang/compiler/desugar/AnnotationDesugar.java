@@ -81,7 +81,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -630,18 +629,16 @@ public class AnnotationDesugar {
         return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
     }
 
-
-    public BLangLambdaFunction defineAnnotationsForLocalRecords(BLangRecordTypeNode recordTypeNode,
-                                                                BLangPackage pkgNode, SymbolEnv env, PackageID pkgID,
-                                                                BSymbol owner) {
+    public BLangLambdaFunction defineFieldAnnotations(List<BLangSimpleVariable> fields, Location pos,
+                                                      BLangPackage pkgNode, SymbolEnv env, PackageID pkgID,
+                                                      BSymbol owner) {
         BLangFunction function = null;
         BLangRecordLiteral mapLiteral = null;
         BLangLambdaFunction lambdaFunction = null;
 
         boolean annotFunctionDefined = false;
 
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
-
+        for (BLangSimpleVariable field : fields) {
             BLangLambdaFunction fieldAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
                                                                      pkgID, owner, false);
             if (fieldAnnotLambda != null) {
@@ -649,7 +646,7 @@ public class AnnotationDesugar {
                         closureGenerator.createSimpleVariable(fieldAnnotLambda.function, fieldAnnotLambda);
                 env.scope.define(invokableSymbol.name, invokableSymbol);
                 if (!annotFunctionDefined) {
-                    function = defineFunction(recordTypeNode.pos, pkgID, owner);
+                    function = defineFunction(pos, pkgID, owner);
                     mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
                     annotFunctionDefined = true;
                 }

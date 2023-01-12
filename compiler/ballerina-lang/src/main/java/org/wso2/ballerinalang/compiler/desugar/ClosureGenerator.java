@@ -385,8 +385,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BSymbol owner = recordTypeNode.symbol.owner;
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
-            BLangLambdaFunction lambdaFunction =
-                    annotationDesugar.defineAnnotationsForLocalRecords(recordTypeNode, env.enclPkg, env, pkgID, owner);
+            BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(recordTypeNode.fields,
+                                                                    recordTypeNode.pos, env.enclPkg, env, pkgID, owner);
             if (lambdaFunction != null) {
                 BInvokableSymbol invokableSymbol = createSimpleVariable(lambdaFunction.function, lambdaFunction);
                 ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).annotations =
@@ -402,6 +402,17 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
+        PackageID pkgID = tupleTypeNode.getBType().tsymbol.pkgID;
+        BSymbol owner = tupleTypeNode.getBType().tsymbol.owner;
+
+        if (owner.getKind() != SymbolKind.PACKAGE) {
+            BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(tupleTypeNode.memberTypeNodes,
+                                                                     tupleTypeNode.pos, env.enclPkg, env, pkgID, owner);
+            if (lambdaFunction != null) {
+                BInvokableSymbol invokableSymbol = createSimpleVariable(lambdaFunction.function, lambdaFunction);
+                tupleTypeNode.getBType().tsymbol.annotations = createSimpleVariable(invokableSymbol);
+            }
+        }
         List<BLangSimpleVariable> rewrittenMembers = new ArrayList<>();
         tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
         tupleTypeNode.memberTypeNodes = rewrittenMembers;
@@ -903,7 +914,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 updateFunctionParamsOfClosures(env, varRefExpr);
             }
         }
-        if (varRefExpr.symbol == null) {
+        if (varRefSym == null) {
             result = varRefExpr;
             return;
         }
@@ -1621,7 +1632,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
     @SuppressWarnings("unchecked")
     private <E extends BLangExpression> List<E> rewriteExprs(List<E> nodeList) {
         for (int i = 0; i < nodeList.size(); i++) {
-            rewriteExpr(nodeList.get(i));
             nodeList.set(i, rewriteExpr(nodeList.get(i)));
         }
         return nodeList;

@@ -1669,14 +1669,26 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         BType bType = astArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList());
+            BTypeSymbol typeSymbol = bType.tsymbol;
+            BIROperand anonMap = null;
+            if (typeSymbol != null && typeSymbol.annotations != null) {
+                BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+                anonMap = new BIROperand(varDcl);
+            }
+            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList(), anonMap);
         }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
 
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
-        visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList());
+        BIROperand anonMap = null;
+        BTypeSymbol typeSymbol = tupleLiteral.getBType().tsymbol;
+        if (typeSymbol != null && typeSymbol.annotations != null) {
+            BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+            anonMap = new BIROperand(varDcl);
+        }
+        visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList(), anonMap);
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -1689,7 +1701,13 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
         BType bType = jsonArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList());
+            BIROperand anonMap = null;
+            BTypeSymbol typeSymbol = jsonArrayLiteralExpr.getBType().tsymbol;
+            if (typeSymbol != null && typeSymbol.annotations != null) {
+                BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+                anonMap = new BIROperand(varDcl);
+            }
+            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList(), anonMap);
         }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
