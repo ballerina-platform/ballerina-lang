@@ -53,7 +53,10 @@ public class LocalTupleAnnotationTest {
                 "testAnnotationOnTupleFields",
                 "testAnnotationOnTupleFields2",
                 "testAnnotationOnTupleWithGlobalVariable",
-                "testMultipleAnnotationsOnLocalTuple"
+                "testMultipleAnnotationsOnLocalTuple",
+                "testGlobalAnnotationsOnFunctionPointerReturnType",
+                "testGlobalAnnotationsOnFunctionReturnType",
+                "testGlobalAnnotationsOnFunctionParameterType"
         };
     }
 
