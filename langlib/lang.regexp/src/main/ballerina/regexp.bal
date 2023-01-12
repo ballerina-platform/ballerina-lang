@@ -53,6 +53,16 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 
 # Returns the first match of a regular expression within a string.
 #
+# ```ballerina
+# string:RegExp r = re `World`;
+#
+# r.find("Not A Match") is () ⇒ true
+#
+# r.find("Hello World") is regexp:Span ⇒ true
+#
+# r.find("Hello World", 7) is regexp:Span ⇒ true
+# ```
+#
 # + re - the regular expression
 # + str - the string in which to look for a match of `re`
 # + startIndex - the index within `str` at which to start looking for a match
@@ -77,6 +87,16 @@ isolated function findAllImpl(RegExp reExp, string str, int startIndex = 0) retu
 
 # Returns the `Groups` for the first match of a regular expression within a string.
 #
+# ```ballerina
+# string:RegExp r = re `([bB].tt[a-z]*)`;
+#
+# r.findGroups("Not A Match") is () ⇒ true
+#
+# r.findGroups("Butter was bought by Betty but the butter was bitter.") is regexp:Groups ⇒ true
+#
+# r.findGroups("Butter was bought by Betty but the butter was bitter.", 7) is regexp:Groups ⇒ true
+# ```
+#
 # + re - the regular expression
 # + str - the string in which to look for a match of `re`
 # + startIndex - the index within `str` at which to start looking for a match
@@ -97,6 +117,16 @@ isolated function findGroupsImpl(RegExp reExp, string str, int startIndex = 0) r
 # After one match is found, it looks for the next match starting where the previous
 # match ended, so the list of matches will be non-overlapping.
 #
+# ```ballerina
+# string:RegExp r = re `[bB].tt[a-z]*`;
+#
+# r.findAll("Not A Match").length() ⇒ 0
+#
+# r.findAll("Butter was bought by Betty but the butter was bitter.").length() ⇒ 4
+#
+# r.findAll("Butter was bought by Betty but the butter was bitter.", 7).length() ⇒ 3
+# ```
+#
 # + re - the regular expression
 # + str - the string in which to look for matches of `re`
 # + startIndex - the index within `str` at which to start looking for matches
@@ -115,6 +145,16 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 # Returns the `Groups` of all the matches of a regular expression within a string.
 # After one match is found, it looks for the next match starting where the previous
 # match ended, so the list of matches will be non-overlapping.
+#
+# ```ballerina
+# string:RegExp r = re `(([a-z]u)(bble))`;
+#
+# r.findAllGroups("Not A Match").length() ⇒ 0
+#
+# r.findAllGroups("rubble, trouble, bubble, hubble").length() ⇒ 3
+#
+# r.findAllGroups("rubble, trouble, bubble, hubble", 7) ⇒ 2
+# ```
 #
 # + re - the regular expression
 # + str - the string in which to look for matches of `re`
@@ -154,6 +194,14 @@ isolated function findAllGroupsImpl(RegExp reExp, string str, int startIndex = 0
 
 # Tests whether there is a match of a regular expression at a specific index in the string.
 #
+# ```ballerina
+# string:RegExp r = re `World`;
+#
+# r.matchAt("Hello World") is () ⇒ true
+#
+# r.matchAt("Hello World", 6) is regexp:Span ⇒ true
+# ```
+#
 # + re - the regular expression
 # + str - the string in which to look for a match of `re`
 # + startIndex - the index within `str` at which to look for a match; defaults to zero
@@ -173,6 +221,14 @@ isolated function matchAtImpl(RegExp reExp, string str, int startIndex = 0) retu
 } external;
 
 # Returns the `Groups` of the match of a regular expression at a specific index in the string.
+#
+# ```ballerina
+# string:RegExp r = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])?`;
+#
+# r.matchGroupsAt("time: 14:35:59") is () ⇒ true
+#
+# r.matchGroupsAt("time: 14:35:59", 6) is regexp:Groups ⇒ true
+# ```
 #
 # + re - the regular expression
 # + str - the string in which to look for a match of `re`
@@ -203,6 +259,14 @@ isolated function matchGroupsAtImpl(RegExp reExp, string str, int startIndex = 0
 # A match of a regular expression in a string is a full match if it
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
 #
+# ```ballerina
+# string:RegExp r = re `A|Th.*ch|^`;
+#
+# r.isFullMatch("This is a Match") ⇒ true
+#
+# r.isFullMatch("Not a complete Match") ⇒ false
+# ```
+#
 # + re - the regular expression
 # + str - the string
 # + return - true if there is full match of `re` with `str`, and false otherwise
@@ -218,6 +282,14 @@ isolated function isFullMatchImpl(RegExp reExp, string str) returns boolean = @j
 # Returns the `Groups` of the match of a regular expression that is a full match of a string.
 # A match of the regular expression in a string is a full match if it
 # starts at index 0 and ends at index `n`, where `n` is the length of the string.
+#
+# ```ballerina
+# string:RegExp r = re `([0-9]+)×([0-9]+)`;
+#
+# r.fullMatchGroups("test: 1440×900") is () ⇒ true
+#
+# r.fullMatchGroups("1440×900") is regexp:Groups ⇒ true
+# ```
 #
 # + re - the regular expression
 # + str - the string in which to look for a match of `re`
@@ -237,6 +309,22 @@ public type ReplacerFunction isolated function (Groups groups) returns string;
 public type Replacement ReplacerFunction|string;
 
 # Replaces the first match of a regular expression.
+#
+# ```ballerina
+# string:RegExp r = re `0+`;
+#
+# r.replace("10010011", "*") ⇒ 1*10011
+#
+# r.replace("10010011", "*", 4) ⇒ 1001*11
+#
+# r.replace("122111", "*") ⇒ 122111
+#
+# r.replace("10010011", replaceFunction) ⇒ 1*10011
+#
+# r.replace("10010011", replaceFunction, 4) ⇒ 1001*11
+#
+# isolated function replaceFunction(regexp:Groups groups) returns string => "*";
+# ```
 #
 # + re - the regular expression
 # + str - the string in which to perform the replacements
@@ -263,6 +351,22 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
 # Replaces all matches of a regular expression.
 # After one match is found, it looks for the next match starting where the previous
 # match ended, so the matches will be non-overlapping.
+#
+# ```ballerina
+# string:RegExp r = re `0+`;
+#
+# r.replaceAll("10010011", "*") ⇒ 1*1*11
+#
+# r.replaceAll("10010011", "*", 4) ⇒ 1001*11
+#
+# r.replaceAll("122111", "*") ⇒ 122111
+#
+# r.replaceAll("10010011", replaceFunction) ⇒ 121211
+#
+# r.replaceAll("10010011", replaceFunction, 4) ⇒ 1001211
+#
+# isolated function replaceFunction(regexp:Groups groups) returns string => groups[0].substring().length().toString();
+# ```
 #
 # + re - the regular expression
 # + str - the string in which to perform the replacements
@@ -320,6 +424,14 @@ isolated function getReplacementString(Groups groups, Replacement replacement) r
 # between matches, or after the last match.  If there are no matches, then
 # `[str]` will be returned.
 #
+# ```ballerina
+# string:RegExp r = re `,`;
+#
+# r.split("abc,cde,efg") ⇒ ["abc","cde","efg"]
+#
+# r.split("abc cde efg") ⇒ ["abc cde efg"]
+# ```
+#
 # + re - the regular expression that specifies the separator
 # + str - the string to be split
 # + return - a list of substrings of `str` separated by matches of `re`
@@ -330,6 +442,12 @@ public isolated function split(RegExp re, string str) returns string[] = @java:M
 
 # Constructs a regular expression from a string.
 # The syntax of the regular expression is the same as accepted by the `re` tagged data template expression.
+#
+# ```ballerina
+# regexp:fromString("AB+C*D{1,4}") ⇒ re `AB+C*D{1,4}`
+#
+# regexp:fromString("AB+^*") ⇒ error
+# ```
 #
 # + str - the string representation of a regular expression
 # + return - the regular expression, or an error value if `str` is not a valid regular expression

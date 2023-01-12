@@ -64,8 +64,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:11)] annotation should be a record with " +
-                        "'functionName' and 'moduleName'(optional) fields\n" +
+                "ERROR [tests/test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
                         "error: compilation contains errors");
     }
 
@@ -74,8 +73,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:11)] annotation should be a record with " +
-                        "'functionName' and 'moduleName'(optional) fields\n" +
+                "ERROR [tests/test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
                         "error: compilation contains errors");
     }
 
@@ -131,7 +129,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported for single file projects\n" +
+                "ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported with " +
+                        "standalone Ballerina files\n" +
                         "error: compilation contains errors");
     }
 }

@@ -12,7 +12,7 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "**Description**  \nReturns a substring of a string."
+              "value": "**Description**  \nReturns a substring of a string.\n\n```ballerina\n\"Hello, my name is John\".substring(7) \u21d2 my name is John\n\"Hello, my name is John Anderson\".substring(18, 22) \u21d2 John\n```"
             }
           },
           "parameters": [
