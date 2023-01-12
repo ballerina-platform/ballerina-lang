@@ -98,6 +98,9 @@ public class CompileTask implements Task {
             }
 
             PackageResolution packageResolution = project.currentPackage().getResolution();
+            if (!packageResolution.diagnosticResult().diagnostics().isEmpty()) {
+                diagnostics.addAll(packageResolution.diagnosticResult().diagnostics());
+            }
 
             if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);

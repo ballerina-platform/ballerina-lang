@@ -328,7 +328,7 @@ public class RemotePackageRepository implements PackageRepository {
                 DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
                         resolutionRequest.packageName(),
-                        version);
+                        version, match.get().getDeprecated(), match.get().getDeprecateMessage());
                 PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
                         packageDescriptor,
                         dependencies);

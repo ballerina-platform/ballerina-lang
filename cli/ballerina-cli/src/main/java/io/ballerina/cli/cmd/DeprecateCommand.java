@@ -1,0 +1,201 @@
+/*
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
+package io.ballerina.cli.cmd;
+
+import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Settings;
+import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
+import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
+
+import java.io.PrintStream;
+import java.util.List;
+
+import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
+import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
+import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
+import static io.ballerina.projects.util.ProjectUtils.validatePackageVersion;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+
+/**
+ * This class represents the "bal deprecate" command.
+ *
+ * @since 2201.4.0
+ */
+@CommandLine.Command(name = DEPRECATE_COMMAND, description = "deprecate a package in Ballerina Central")
+public class DeprecateCommand implements BLauncherCmd {
+
+    private PrintStream outStream;
+    private PrintStream errStream;
+    private boolean exitWhenFinish;
+
+    private static final String USAGE_TEXT =
+            "bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]";
+
+    @CommandLine.Parameters
+    private List<String> argList;
+
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
+    private boolean helpFlag;
+
+    @CommandLine.Option(names = "--debug", hidden = true)
+    private String debugPort;
+
+    @CommandLine.Option(names = {"--message", "-m"})
+    private String deprecationMsg;
+
+    @CommandLine.Option(names = {"--undo"})
+    private boolean undoFlag;
+
+    public DeprecateCommand() {
+        this.outStream = System.out;
+        this.errStream = System.err;
+        this.exitWhenFinish = true;
+    }
+
+    public DeprecateCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
+    @Override
+    public void execute() {
+        if (helpFlag) {
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(DEPRECATE_COMMAND);
+            outStream.println(commandUsageInfo);
+            return;
+        }
+
+        if (null != debugPort) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
+        }
+
+        if (argList == null || argList.isEmpty()) {
+            CommandUtil.printError(this.errStream, "no package given", "bal deprecate <package> [OPTIONS]",
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (argList.size() > 1) {
+            CommandUtil.printError(this.errStream, "too many arguments", "bal deprecate <package> ",
+                                   false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String packageValue = argList.get(0);
+        if (packageValue.split(":").length != 2) {
+            CommandUtil.printError(errStream, "invalid package. Provide the package with the version.",
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        String packageSignature = packageValue.split(":")[0];
+        if (!validateOrgName(packageSignature.split("/")[0])) {
+            CommandUtil.printError(errStream, "invalid package organization. Only alphanumerics and underscores" +
+                            " are allowed in organization name. Provide a valid package organization. ",
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (!validatePackageName(packageSignature.split("/")[1])) {
+            CommandUtil.printError(errStream, "invalid package name. Only alphanumerics, underscores and " +
+                            "periods are allowed in a package name and the maximum length is 256 characters. " +
+                            "Provide a valid package name.",
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (!validatePackageVersion(packageValue.split(":")[1])) {
+            CommandUtil.printError(errStream, "invalid package. Provide a valid package version.",
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        // Skip --includes flag if it is set without code coverage
+        if (deprecationMsg != null && undoFlag) {
+            this.outStream.println("warning: ignoring --message (-m) flag since this is an undo request");
+        }
+        deprecateInCentral(packageValue);
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
+    }
+
+    @Override
+    public String getName() {
+        return DEPRECATE_COMMAND;
+    }
+
+    @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("deprecates a package in Ballerina Central \n");
+    }
+
+    @Override
+    public void printUsage(StringBuilder out) {
+        out.append(" bal deprecate {<org-name>/<package-name>:<version>} \n");
+    }
+
+    @Override
+    public void setParentCmdParser(CommandLine parentCmdParser) {
+    }
+
+    /**
+     * Deprecate a package in central.
+     *
+     * @param packageInfo package to deprecate.
+     */
+    private void deprecateInCentral(String packageInfo) {
+        try {
+            Settings settings;
+            try {
+                settings = RepoUtils.readSettings();
+                // Ignore Settings.toml diagnostics in the deprecate command
+            } catch (SettingsTomlException e) {
+                // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                settings = Settings.from();
+            }
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    initializeProxy(settings.getProxy()),
+                    getAccessTokenOfCLI(settings));
+            client.deprecatePackage(packageInfo, deprecationMsg,
+                    JvmTarget.JAVA_11.code(),
+                    RepoUtils.getBallerinaVersion(), this.undoFlag);
+        } catch (CentralClientException e) {
+            String errorMessage = e.getMessage();
+            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                // removing the error stack
+                if (errorMessage.contains("\n\tat")) {
+                    errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                }
+                CommandUtil.printError(this.errStream, errorMessage, null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
+    }
+}

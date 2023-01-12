@@ -203,6 +203,16 @@ public class ProjectUtils {
     }
 
     /**
+     * Validates the package version.
+     *
+     * @param version name.
+     * @return true if name does not have initial numeric characters, else false.
+     */
+    public static boolean validatePackageVersion(String version) {
+        return version.matches("^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-zA-Z0-9]+)?$");
+    }
+
+    /**
      * Remove last character of the given string.
      *
      * @param aString given string

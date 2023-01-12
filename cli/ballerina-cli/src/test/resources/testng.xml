@@ -42,6 +42,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.CommandUtilTest" />
             <class name="io.ballerina.cli.cmd.TestNativeImageCommandTest"/>
             <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"></class>
+            <class name="io.ballerina.cli.cmd.DeprecationCommandTest"></class>
         </classes>
     </test>
 </suite>
