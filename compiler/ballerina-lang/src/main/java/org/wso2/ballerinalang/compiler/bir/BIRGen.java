@@ -255,6 +255,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private BirScope currentScope;
 
+    private int globalIgnoreVarIndex = 0;
+
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
         if (birGen == null) {
@@ -1119,12 +1121,22 @@ public class BIRGen extends BLangNodeVisitor {
         String name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? ANNOTATION_DATA : varNode.name.value;
         String originalName = ANNOTATION_DATA.equals(varNode.symbol.getOriginalName().value) ?
                                                                     ANNOTATION_DATA : varNode.name.originalValue;
-        BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
-                                                                  varNode.symbol.type, varNode.symbol.pkgID,
-                                                                  names.fromString(name),
-                                                                  names.fromString(originalName), VarScope.GLOBAL,
-                                                                  VarKind.GLOBAL, varNode.name.value,
-                                                                  varNode.symbol.origin.toBIROrigin());
+        BIRGlobalVariableDcl birVarDcl;
+        if (Names.fromString(name) != Names.IGNORE) {
+            birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
+                    varNode.symbol.type, varNode.symbol.pkgID,
+                    Names.fromString(name),
+                    Names.fromString(originalName), VarScope.GLOBAL,
+                    VarKind.GLOBAL, varNode.name.value,
+                    varNode.symbol.origin.toBIROrigin());
+        } else {
+            birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
+                    varNode.symbol.type, varNode.symbol.pkgID,
+                    Names.fromString("$_" + globalIgnoreVarIndex++),
+                    Names.fromString(originalName), VarScope.GLOBAL,
+                    VarKind.GLOBAL, varNode.name.value,
+                    varNode.symbol.origin.toBIROrigin());
+        }
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
         birVarDcl.annotAttachments.addAll(getBIRAnnotAttachments(varNode.symbol.getAnnotations()));
 
