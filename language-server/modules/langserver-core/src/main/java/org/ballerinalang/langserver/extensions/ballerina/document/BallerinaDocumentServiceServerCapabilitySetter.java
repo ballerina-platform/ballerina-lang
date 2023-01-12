@@ -42,7 +42,8 @@ public class BallerinaDocumentServiceServerCapabilitySetter
         capabilities.setSyntaxTreeNode(true);
         capabilities.setResolveMissingDependencies(true);
         capabilities.setSyntaxTreeByName(true);
-        
+        capabilities.setSyntaxTreeNodeByPosition(true);
+
         return Optional.of(capabilities);
     }
     

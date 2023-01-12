@@ -74,7 +74,8 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInFieldAccessInReturnStmt.json"},
                 {"extractToVariableInFieldAccessInAssignmentStmt.json"},
                 {"extractToVariableInObjectField.json"},
-                {"extractToVariableInXmlnsDecl.json"}
+                {"extractToVariableInXmlnsDecl.json"},
+                {"extractToVariableInvalidExpressionStatement.json"}
         };
     }
 
