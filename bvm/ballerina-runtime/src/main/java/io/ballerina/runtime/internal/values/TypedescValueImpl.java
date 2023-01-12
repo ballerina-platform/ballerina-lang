@@ -100,7 +100,7 @@ public class TypedescValueImpl implements  TypedescValue {
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
-            return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues);
+            return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues, this);
         }
         // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
         throw new BallerinaException("Given type can't be instantiated at runtime : " + this.describingType);
