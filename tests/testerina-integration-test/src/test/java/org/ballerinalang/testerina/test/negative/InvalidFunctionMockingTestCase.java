@@ -45,8 +45,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,5:2)] could not find function 'createJdbcClient' in module " +
-                        "'intg_tests/non_existent_function_mock:0.1.0'\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,5:2)] cannot find the function 'createJdbcClient' " +
+                        "in module 'intg_tests/non_existent_function_mock:0.1.0'\n" +
                         "error: compilation contains errors");
     }
 
@@ -55,7 +55,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:38)] could not find function 'intAdd' in module " +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,3:38)] cannot find the function 'intAdd' in module " +
                         "'intg_tests/non_existent_function_mock:0.1.0'\n" +
                         "error: compilation contains errors");
     }
@@ -65,7 +65,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
                         "error: compilation contains errors");
     }
 
@@ -74,7 +74,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,3:11)] missing required 'functionName' field\n" +
                         "error: compilation contains errors");
     }
 
@@ -83,7 +83,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:14)] function name cannot be empty\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,3:14)] function name cannot be empty\n" +
                         "error: compilation contains errors");
     }
 
@@ -92,7 +92,7 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,3:14)] function name cannot be empty\n" +
+                "ERROR [tests" + File.separator + "test.bal:(3:1,3:14)] function name cannot be empty\n" +
                         "error: compilation contains errors");
     }
 
@@ -101,8 +101,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,6:2)] could not find specified module 'intg_tests/module1:0.1.0'\n" +
-                        "error: compilation contains errors");
+                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] cannot find the specified module " +
+                        "'intg_tests/module1:0.1.0'\nerror: compilation contains errors");
     }
 
     @Test
@@ -110,8 +110,8 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock2").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests/test.bal:(3:1,6:2)] could not find specified module 'intg_tests/module1:0.1.0'\n" +
-                        "error: compilation contains errors");
+                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] cannot find the specified module " +
+                        "'intg_tests/module1:0.1.0'\nerror: compilation contains errors");
     }
 
     @Test

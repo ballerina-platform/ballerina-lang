@@ -224,7 +224,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find specified module '" + vals[0] + "'");
+                                "cannot find the specified module '" + vals[0] + "'");
                         break;
                     }
 
@@ -241,7 +241,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         }
                     } else {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find function '" + vals[1] + "' in module '" + vals[0] + "'");
+                                "cannot find the function '" + vals[1] + "' in module '" + vals[0] + "'");
                         break;
                     }
 
@@ -344,7 +344,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                       AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                    "could not find specified module '" + moduleName + "'");
+                    "cannot find the specified module '" + moduleName + "'");
         } else {
             if (functionName == null) {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
@@ -362,7 +362,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 }
                 // If it reaches this part, then the function has'nt been found in both packages
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                        "could not find function '" + functionName + "' in module '" + moduleName + "'");
+                        "cannot find the function '" + functionName + "' in module '" + moduleName + "'");
             }
         }
         return false;
