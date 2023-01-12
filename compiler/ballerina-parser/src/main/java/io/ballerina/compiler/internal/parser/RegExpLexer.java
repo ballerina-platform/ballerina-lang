@@ -153,7 +153,7 @@ public class RegExpLexer extends AbstractLexer {
             // Handle NumericEscape.
             case 'u':
                 if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    processNumericEscape();
+                    processNumericEscapeWithoutBackslash();
                     return getRegExpText(SyntaxKind.RE_NUMERIC_ESCAPE);
                 }
                 break;

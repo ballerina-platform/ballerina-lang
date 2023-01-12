@@ -2400,7 +2400,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RE_LITERAL_CHAR:
             case RE_CONTROL_ESCAPE:
             case RE_NUMERIC_ESCAPE:
-            case RE_SYNTAX_CHAR:
             case RE_SIMPLE_CHAR_CLASS_CODE:
             case RE_PROPERTY:
             case RE_UNICODE_SCRIPT_START:

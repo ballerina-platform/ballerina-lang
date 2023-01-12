@@ -284,6 +284,12 @@ public abstract class AbstractLexer {
      * <code>NumericEscape := \ u { CodePoint }</code>
      */
     protected void processNumericEscape() {
+        // Process for '\'
+        reader.advance();
+        processNumericEscapeWithoutBackslash();
+    }
+
+    protected void processNumericEscapeWithoutBackslash() {
         // Process 'u {'
         this.reader.advance(2);
 

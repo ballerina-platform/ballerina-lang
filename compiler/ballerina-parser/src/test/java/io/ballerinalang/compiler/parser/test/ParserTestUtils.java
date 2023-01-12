@@ -367,7 +367,6 @@ public class ParserTestUtils {
             case RE_LITERAL_CHAR:
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
-            case RE_SYNTAX_CHAR:
             case RE_SIMPLE_CHAR_CLASS_CODE:
             case RE_PROPERTY:
             case RE_UNICODE_SCRIPT_START:
@@ -1345,8 +1344,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_CONTROL_ESCAPE;
             case "RE_QUOTE_ESCAPE":
                 return SyntaxKind.RE_QUOTE_ESCAPE;
-            case "RE_SYNTAX_CHAR":
-                return SyntaxKind.RE_SYNTAX_CHAR;
             case "RE_SIMPLE_CHAR_CLASS_ESCAPE":
                 return SyntaxKind.RE_SIMPLE_CHAR_CLASS_ESCAPE;
             case "RE_SIMPLE_CHAR_CLASS_CODE":
