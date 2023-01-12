@@ -135,7 +135,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
+                                          "kind": "BITWISE_XOR_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
