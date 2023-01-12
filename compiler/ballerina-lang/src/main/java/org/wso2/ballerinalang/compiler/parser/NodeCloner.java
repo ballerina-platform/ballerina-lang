@@ -1843,7 +1843,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTupleTypeNode clone = new BLangTupleTypeNode();
         source.cloneRef = clone;
-        clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        clone.members = cloneList(source.members);
         clone.restParamType = clone(source.restParamType);
         cloneBLangType(source, clone);
     }

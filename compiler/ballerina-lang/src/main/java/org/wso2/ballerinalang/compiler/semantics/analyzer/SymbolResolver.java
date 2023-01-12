@@ -1431,13 +1431,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangSimpleVariable> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
+        List<BLangSimpleVariable> memberTypes = new ArrayList<>(tupleTypeNode.members.size());
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE,
                 Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
         boolean hasUndefinedMember = false;
-        for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
+        for (BLangSimpleVariable memTypeNode : tupleTypeNode.members) {
             BType bType = memTypeNode.getBType();
             if (bType == null) {
                 symbolEnter.defineNode(memTypeNode, tupleEnv);

@@ -1366,7 +1366,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
+        tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }

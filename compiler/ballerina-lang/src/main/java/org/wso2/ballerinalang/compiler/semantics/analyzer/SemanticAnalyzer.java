@@ -421,7 +421,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (containsClientObjectTypeOrFunctionType(returnType)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
         }
-        for (BLangSimpleVariable pathParamType : funcNode.resourcePathType.memberTypeNodes) {
+        for (BLangSimpleVariable pathParamType : funcNode.resourcePathType.members) {
             symResolver.resolveTypeNode(pathParamType.typeNode, data.env);
             if (!types.isAssignable(pathParamType.typeNode.getBType(), symTable.pathParamAllowedType)) {
                 dlog.error(pathParamType.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
@@ -989,10 +989,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+        List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.members;
         BType bType = tupleTypeNode.getBType();
-        BSymbol tSymbol = bType.tsymbol != null ? bType.tsymbol : symTable.notFoundSymbol;
-        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tSymbol), data.env);
+        SymbolEnv tupleEnv = bType.tag == TypeTags.NONE ? data.env :
+                SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
 
         for (int i = 0; i < memberTypeNodes.size(); i++) {
             data.env = tupleEnv;

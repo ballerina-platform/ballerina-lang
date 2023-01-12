@@ -1363,7 +1363,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TUPLE_TYPE_NODE:
                 BLangTupleTypeNode tupleNode = (BLangTupleTypeNode) currentTypeOrClassNode;
-                List<BLangSimpleVariable> tupleMemberTypeNodes = tupleNode.memberTypeNodes;
+                List<BLangSimpleVariable> tupleMemberTypeNodes = tupleNode.members;
                 for (BLangSimpleVariable memberTypeNode : tupleMemberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode.typeNode, visitedNodes, true);
                 }
@@ -4534,7 +4534,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangSimpleVariable memType : tupleTypeNode.memberTypeNodes) {
+        for (BLangSimpleVariable memType : tupleTypeNode.members) {
             defineNode(memType.typeNode, env);
         }
         if (tupleTypeNode.restParamType != null) {

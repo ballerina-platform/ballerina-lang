@@ -3097,7 +3097,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, data));
+        tupleTypeNode.members.forEach(memberType -> analyzeNode(memberType, data));
         analyzeTypeNode(tupleTypeNode.restParamType, data);
     }
 

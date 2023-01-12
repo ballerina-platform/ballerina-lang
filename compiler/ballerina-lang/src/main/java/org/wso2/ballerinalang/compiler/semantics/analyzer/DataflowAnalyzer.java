@@ -2035,7 +2035,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(type -> analyzeNode(type, env));
+        tupleTypeNode.members.forEach(type -> analyzeNode(type, env));
     }
 
     @Override
