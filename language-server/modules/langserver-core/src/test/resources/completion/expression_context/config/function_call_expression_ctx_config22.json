@@ -585,7 +585,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -601,7 +601,7 @@
       "label": "myJson",
       "kind": "Variable",
       "detail": "json",
-      "sortText": "CD",
+      "sortText": "AD",
       "insertText": "myJson",
       "insertTextFormat": "Snippet"
     },
@@ -615,7 +615,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CE",
+      "sortText": "AE",
       "filterText": "testPositionalArgs",
       "insertText": "testPositionalArgs()",
       "insertTextFormat": "Snippet"

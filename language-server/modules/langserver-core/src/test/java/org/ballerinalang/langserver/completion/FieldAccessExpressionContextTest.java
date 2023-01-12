@@ -52,11 +52,6 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-            "foreach_stmt_ctx_config24.json",
-            "foreach_stmt_ctx_config20.json",
-            "field_access_ctx_config20.json",
-            "field_access_ctx_config4.json",
-
             // var declaration cases
             "field_access_ctx_config27.json",
             "field_access_ctx_config26.json"

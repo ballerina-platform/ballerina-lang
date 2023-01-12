@@ -54,10 +54,7 @@ public class QueryExpressionContextTest extends CompletionTest {
                 "query_expr_ctx_orderby_clause_config4.json",
                 "query_expr_ctx_config3.json", // issue #31449
                 "query_expr_ctx_config4.json", // issue #31449
-
-                // expected type cases
-                "query_expr_ctx_where_clause_config5.json",
-                "query_expr_ctx_config7.json",
+                "query_expr_ctx_config4.json", // issue #31449
 
                 // var declaration cases
                 "query_expr_ctx_config18.json",
