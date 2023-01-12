@@ -35,7 +35,7 @@ function testAnnotOnRecordFields() {
 
 function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
 @java:Method {
-    'class: "org/ballerinalang/test/annotations/GetLocalRecordAnnotations",
+    'class: "org/ballerinalang/test/annotations/LocalRecordAnnotationTest",
     name: "getLocalRecordAnnotations"
 } external;
 
