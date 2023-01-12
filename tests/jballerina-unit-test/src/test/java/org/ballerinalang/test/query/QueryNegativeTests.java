@@ -104,11 +104,13 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'error?', found '(error|int)'", 520, 47);
         validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 525, 16);
         validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 530, 20);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 544, 15);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 553, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string[]'", 574, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string'", 583, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string[]'", 586, 17);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 
