@@ -1601,7 +1601,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (astStructLiteralExpr.getBType().getKind() == TypeKind.RECORD) {
             BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) astStructLiteralExpr.getBType().tsymbol;
             if (typeSymbol.annotations != null) {
-                BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+                BIRVariableDcl varDcl = getAnnotations(typeSymbol.annotations, this.env);
                 anonMap = new BIROperand(varDcl);
             }
         }
@@ -1672,7 +1672,7 @@ public class BIRGen extends BLangNodeVisitor {
             BTypeSymbol typeSymbol = bType.tsymbol;
             BIROperand anonMap = null;
             if (typeSymbol != null && typeSymbol.annotations != null) {
-                BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+                BIRVariableDcl varDcl = getAnnotations(typeSymbol.annotations, this.env);
                 anonMap = new BIROperand(varDcl);
             }
             visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList(), anonMap);
@@ -1685,11 +1685,19 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand anonMap = null;
         BTypeSymbol typeSymbol = tupleLiteral.getBType().tsymbol;
         if (typeSymbol != null && typeSymbol.annotations != null) {
-            BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+            BIRVariableDcl varDcl = getAnnotations(typeSymbol.annotations, this.env);
             anonMap = new BIROperand(varDcl);
         }
         visitTypedesc(tupleLiteral.pos, tupleLiteral.getBType(), Collections.emptyList(), anonMap);
         generateListConstructorExpr(tupleLiteral);
+    }
+
+    private BIRVariableDcl getAnnotations(BVarSymbol annotations, BIRGenEnv env) {
+        if (env.symbolVarMap.containsKey(annotations)) {
+            return env.symbolVarMap.get(annotations);
+        } else {
+            return globalVarMap.get(annotations);
+        }
     }
 
     @Override
@@ -1704,7 +1712,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand anonMap = null;
             BTypeSymbol typeSymbol = jsonArrayLiteralExpr.getBType().tsymbol;
             if (typeSymbol != null && typeSymbol.annotations != null) {
-                BIRVariableDcl varDcl = this.env.symbolVarMap.get(typeSymbol.annotations);
+                BIRVariableDcl varDcl = getAnnotations(typeSymbol.annotations, this.env);
                 anonMap = new BIROperand(varDcl);
             }
             visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList(), anonMap);

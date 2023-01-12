@@ -256,7 +256,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             BLangSimpleVariable simpleVariable = queue.poll().var;
             simpleVariable.flagSet.add(Flag.PUBLIC);
             simpleVariable.symbol.flags |= Flags.PUBLIC;
-            pkgEnv.enclPkg.globalVars.add(0, rewrite(simpleVariable, pkgEnv));
+            pkgEnv.enclPkg.globalVars.add(rewrite(simpleVariable, pkgEnv));
         }
     }
 
@@ -402,10 +402,10 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        PackageID pkgID = tupleTypeNode.getBType().tsymbol.pkgID;
         BSymbol owner = tupleTypeNode.getBType().tsymbol.owner;
-
         if (owner.getKind() != SymbolKind.PACKAGE) {
+            PackageID pkgID = tupleTypeNode.getBType().tsymbol.pkgID;
+            owner = getOwner(env);
             BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(tupleTypeNode.memberTypeNodes,
                                                                      tupleTypeNode.pos, env.enclPkg, env, pkgID, owner);
             if (lambdaFunction != null) {
@@ -918,8 +918,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             result = varRefExpr;
             return;
         }
-        markClosureVariable(varRefSym, env, varRefSym.pos);
-        result = varRefExpr;
+        result = markClosureVariable(varRefExpr, env);
     }
 
     private void updateFunctionParamsOfClosures(SymbolEnv symbolEnv, BLangSimpleVarRef varRefExpr) {
@@ -1192,25 +1191,26 @@ public class ClosureGenerator extends BLangNodeVisitor {
             result = localVarRef;
             return;
         }
-        markClosureVariable(symbol, env, symbol.pos);
-        result = localVarRef;
+        result = markClosureVariable(localVarRef, env);
     }
 
-    private void markClosureVariable(BSymbol symbol, SymbolEnv env, Location pos) {
+    private BLangSimpleVarRef markClosureVariable(BLangSimpleVarRef varRefExpr, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-            BVarSymbol varSymbol = (BVarSymbol) symbol;
+        if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+            BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
             if (!varSymbol.closure && encInvokable != null && !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
                     encInvokable.flagSet.contains(Flag.LAMBDA)) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol =
-                        symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+                        symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                     varSymbol.closure = true;
-                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol, pos));
+                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol,
+                            varRefExpr.pos));
                 }
             }
         }
+        return varRefExpr;
     }
 
     @Override
