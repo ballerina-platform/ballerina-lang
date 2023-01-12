@@ -907,23 +907,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             result = varRefExpr;
             return;
         }
-
-        BLangInvokableNode encInvokable = env.enclInvokable;
-        if ((varRefExpr.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
-            BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
-            if (!varSymbol.closure && encInvokable != null && !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
-                    encInvokable.flagSet.contains(Flag.LAMBDA)) {
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                BSymbol resolvedSymbol =
-                        symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
-                    varSymbol.closure = true;
-                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol,
-                                                                                              varRefExpr.pos));
-                }
-            }
-        }
-
+        markClosureVariable(varRefSym, env, varRefSym.pos);
         result = varRefExpr;
     }
 
@@ -1192,7 +1176,30 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+        BSymbol symbol = localVarRef.symbol;
+        if (symbol == null) {
+            result = localVarRef;
+            return;
+        }
+        markClosureVariable(symbol, env, symbol.pos);
         result = localVarRef;
+    }
+
+    private void markClosureVariable(BSymbol symbol, SymbolEnv env, Location pos) {
+        BLangInvokableNode encInvokable = env.enclInvokable;
+        if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+            BVarSymbol varSymbol = (BVarSymbol) symbol;
+            if (!varSymbol.closure && encInvokable != null && !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
+                    encInvokable.flagSet.contains(Flag.LAMBDA)) {
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol =
+                        symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+                if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                    varSymbol.closure = true;
+                    ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(varSymbol, pos));
+                }
+            }
+        }
     }
 
     @Override
