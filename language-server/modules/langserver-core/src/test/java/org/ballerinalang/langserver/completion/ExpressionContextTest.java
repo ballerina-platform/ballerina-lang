@@ -62,20 +62,8 @@ public class ExpressionContextTest extends CompletionTest {
 
                 // expectedType cases
                 "mapping_constructor_expr_ctx_config3.json",
-                "new_expr_ctx_config15.json",
-                "new_expr_ctx_config11.json",
-                "new_expr_ctx_config16.json",
-                "new_expr_ctx_config26.json",
-                "new_expr_ctx_config14.json",
                 "mapping_expr_ctx_config38_negative.json",
                 "anon_func_expr_ctx_config1a.json",
-
-                "new_expr_ctx_config13.json",
-                "new_expr_ctx_config24.json",
-                "function_call_expression_ctx_config15.json",
-                "function_call_expression_ctx_config13.json",
-                "mapping_expr_ctx_config32c.json",
-                "mapping_constructor_expr_ctx_config3.json",
 
                 // var declaration cases
                 "mapping_expr_ctx_config5.json",
