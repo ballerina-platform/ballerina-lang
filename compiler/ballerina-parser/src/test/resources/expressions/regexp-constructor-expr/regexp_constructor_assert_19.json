@@ -146,7 +146,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
+                                        "ERROR_MISSING_BACKSLASH"
                                       ],
                                       "trailingMinutiae": [
                                         {
@@ -429,7 +429,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_BACK_SLASH"
+                                        "ERROR_MISSING_BACKSLASH"
                                       ],
                                       "trailingMinutiae": [
                                         {
