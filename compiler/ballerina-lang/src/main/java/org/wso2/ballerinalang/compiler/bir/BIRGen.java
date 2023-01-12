@@ -60,7 +60,6 @@ import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -80,11 +79,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -92,7 +89,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -220,6 +216,9 @@ import javax.xml.XMLConstants;
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.createBIRAnnotationAttachment;
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRConstantVal;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 
 /**
@@ -547,32 +546,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Add the constant to the package.
         this.env.enclPkg.constants.add(birConstant);
-    }
-
-    private ConstValue getBIRConstantVal(BLangConstantValue constValue) {
-        int tag = constValue.type.tag;
-        if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
-        }
-
-        if (tag == TypeTags.RECORD) {
-            Map<String, ConstValue> mapConstVal = new HashMap<>();
-            ((Map<String, BLangConstantValue>) constValue.value)
-                    .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
-        }
-
-        if (tag == TypeTags.TUPLE) {
-            List<BLangConstantValue> constantValueList = (List<BLangConstantValue>) constValue.value;
-            ConstValue[] tupleConstVal = new ConstValue[constantValueList.size()];
-            for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
-                tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
-            }
-            return new ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
-        }
-
-        return new ConstValue(constValue.value, constValue.type);
     }
 
     @Override
@@ -3059,28 +3032,4 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
-    private List<BIRAnnotationAttachment> getBIRAnnotAttachments(
-            List<? extends AnnotationAttachmentSymbol> astAnnotAttachments) {
-        List<BIRAnnotationAttachment> annotationAttachments = new ArrayList<>(astAnnotAttachments.size());
-        for (AnnotationAttachmentSymbol annotationAttachmentSymbol : astAnnotAttachments) {
-            annotationAttachments.add(createBIRAnnotationAttachment(
-                    (BAnnotationAttachmentSymbol) annotationAttachmentSymbol));
-        }
-        return annotationAttachments;
-    }
-
-    private BIRAnnotationAttachment createBIRAnnotationAttachment(BAnnotationAttachmentSymbol annotAttachmentSymbol) {
-        Location pos = annotAttachmentSymbol.pos;
-        PackageID annotPkgID = annotAttachmentSymbol.annotPkgID;
-        Name annotTag = annotAttachmentSymbol.annotTag;
-
-        if (!annotAttachmentSymbol.isConstAnnotation()) {
-            return new BIRAnnotationAttachment(pos, annotPkgID, annotTag);
-        }
-
-        BLangConstantValue attachmentValue =
-                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotAttachmentSymbol)
-                        .attachmentValueSymbol.value;
-        return new BIRNode.BIRConstAnnotationAttachment(pos, annotPkgID, annotTag, getBIRConstantVal(attachmentValue));
-    }
 }
