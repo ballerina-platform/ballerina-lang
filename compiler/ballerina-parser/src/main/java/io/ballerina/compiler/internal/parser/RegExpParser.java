@@ -193,7 +193,9 @@ public class RegExpParser extends AbstractParser {
                 if (isReSimpleCharClassCode(nextToken)) {
                     return parseReSimpleCharClassEscape(backSlash);
                 }
-                STNode syntaxChar = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.RE_SYNTAX_CHAR,
+                // "BITWISE_XOR_TOKEN" syntax kind is used here to mock the flow for a ReSyntaxChar and give the
+                // diagnostic, instead of having a separate syntax kind to represent ReSyntaxChar.
+                STNode syntaxChar = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.BITWISE_XOR_TOKEN,
                         DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR);
                 syntaxChar = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(syntaxChar, consume());
                 return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
@@ -521,8 +523,7 @@ public class RegExpParser extends AbstractParser {
         while (!isEndOfDigits(nextToken.kind, isLeastDigits)) {
             STNode digit = consume();
             if (nextToken.kind != SyntaxKind.DIGIT) {
-                updateLastNodeInListWithInvalidNode(digits, digit,
-                        DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+                updateLastNodeInListWithInvalidNode(digits, digit, DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
             } else {
                 digits.add(digit);
             }

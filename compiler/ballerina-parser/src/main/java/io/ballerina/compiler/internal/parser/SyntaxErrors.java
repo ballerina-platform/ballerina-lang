@@ -574,10 +574,10 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
             case DIGIT:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
-            case RE_SYNTAX_CHAR:
+            case BITWISE_XOR_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR;
             case BACK_SLASH_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_BACK_SLASH;
+                return DiagnosticErrorCode.ERROR_MISSING_BACKSLASH;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
