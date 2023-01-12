@@ -142,9 +142,7 @@ public class CreateExecutableTask implements Task {
         }
 
         for (Diagnostic d : jarResolverDiagnostics) {
-            if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.WARNING)) {
-                out.println("\n" + d.toString());
-            }
+            out.println("\n" + d.toString());
         }
 
         // notify plugin
