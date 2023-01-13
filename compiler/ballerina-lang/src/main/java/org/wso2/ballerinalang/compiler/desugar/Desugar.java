@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -6456,10 +6457,13 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
 
-        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
-        // isolated named worker declaration.
-        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
-            addStrandAnnotationWithThreadAny(actionInvocation);
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action.
+        if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
+                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation.pos);
+            actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+            ((BInvokableSymbol) actionInvocation.symbol)
+                    .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
         }
 
         BLangExpression invocation = rewriteInvocation(actionInvocation, actionInvocation.async);
@@ -6472,20 +6476,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+    private void addStrandAnnotationWithThreadAny(Location pos) {
         if (this.strandAnnotAttachement == null) {
             BLangPackage pkgNode = env.enclPkg;
             List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
             // Create strand annotation once and reuse it for all isolated start-actions and named workers.
-            this.strandAnnotAttachement =
-                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            this.strandAnnotAttachement = annotationDesugar.createStrandAnnotationWithThreadAny(pos, env);
             // Add init function for record type node in type def introduced for internally added strand annotation.
             addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
         }
-
-        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
-        ((BInvokableSymbol) actionInvocation.symbol)
-                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     @Override
@@ -7710,7 +7709,21 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        BLangFunction function = bLangLambdaFunction.function;
+        // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
+        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
+                isIsolated(env.enclInvokable.symbol.flags)) {
+            addStrandAnnotationWithThreadAny(function.pos);
+            function.addAnnotationAttachment(this.strandAnnotAttachement);
+            BInvokableSymbol funcSymbol = function.symbol;
+            funcSymbol.addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
+            funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
+        }
         result = bLangLambdaFunction;
+    }
+
+    private boolean isIsolated(long flags) {
+        return Symbols.isFlagOn(flags, Flags.ISOLATED);
     }
 
     @Override

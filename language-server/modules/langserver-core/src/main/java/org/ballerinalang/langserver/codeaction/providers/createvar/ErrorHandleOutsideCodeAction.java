@@ -55,12 +55,14 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      */
     @Override
     public int priority() {
+
         return 998;
     }
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
+
         return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
                 CodeActionNodeValidator.validate(context.nodeAtRange());
     }
@@ -72,10 +74,12 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
+
         String uri = context.fileUri();
 
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION
+                || isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
@@ -107,6 +111,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     @Override
     public String getName() {
+
         return NAME;
     }
 
@@ -133,6 +138,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     private String getTypeWithoutError(UnionTypeSymbol unionTypeDesc, CodeActionContext context,
                                        ImportsAcceptor importsAcceptor) {
+
         return unionTypeDesc.memberTypeDescriptors().stream()
                 .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
                 .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, context, importsAcceptor).orElseThrow())

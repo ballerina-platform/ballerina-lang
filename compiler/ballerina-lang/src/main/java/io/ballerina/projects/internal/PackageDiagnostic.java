@@ -98,7 +98,7 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.location.lineRange().filePath();
         // add package info if it is a dependency
         if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
             filePath = moduleDescriptor.org() + "/" +
