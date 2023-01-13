@@ -548,8 +548,8 @@ public class JBallerinaBackend extends CompilerBackend {
 
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                    "environment variable\nHINT: to install GraalVM follow the below link\n" +
-                    "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
+                    "environment variable\nHINT: To install GraalVM, " +
+                    "follow the link https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
         }
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
