@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
  */
 public class BTupleType extends BType implements TupleType {
 
-    public List<BTupleMember> members;
+    private List<BTupleMember> members;
+    private List<BType> memberTypes;
     public BType restType;
     public Boolean isAnyData = null;
     public boolean resolvingToString = false;
@@ -92,9 +93,11 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public List<BType> getTupleTypes() {
-        List<BType> types = new ArrayList<>();
-        members.forEach(member -> types.add(member.type));
-        return types;
+        if (memberTypes == null) {
+            memberTypes = new ArrayList<>();
+            members.forEach(member -> memberTypes.add(member.type));
+        }
+        return memberTypes;
     }
 
     public List<BTupleMember> getTupleMembers() {
@@ -153,6 +156,9 @@ public class BTupleType extends BType implements TupleType {
             return false;
         }
         this.members.add(member);
+        if (this.memberTypes != null) {
+            this.memberTypes.add(member.type);
+        }
         if (Symbols.isFlagOn(this.flags, Flags.READONLY) && !Symbols.isFlagOn(member.type.flags, Flags.READONLY)) {
             this.flags ^= Flags.READONLY;
         }
@@ -174,6 +180,9 @@ public class BTupleType extends BType implements TupleType {
         }
         setCyclicFlag(restType);
         return true;
+    }
+    public void setTupleMembers(List<BTupleMember> members) {
+        this.members = members;
     }
 
     public void setMembers(List<BTupleMember> members) {

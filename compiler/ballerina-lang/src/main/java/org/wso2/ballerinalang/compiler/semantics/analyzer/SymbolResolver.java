@@ -1437,18 +1437,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
         boolean hasUndefinedMember = false;
-        for (BLangSimpleVariable memTypeNode : tupleTypeNode.members) {
-            BType bType = memTypeNode.getBType();
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
+            BType bType = member.getBType();
             if (bType == null) {
-                symbolEnter.defineNode(memTypeNode, tupleEnv);
+                symbolEnter.defineNode(member, tupleEnv);
             } else if (bType == symTable.noType) {
-                memTypeNode.setBType(null);
-                symbolEnter.defineNode(memTypeNode, tupleEnv);
+                member.setBType(null);
+                symbolEnter.defineNode(member, tupleEnv);
             }
-            if (memTypeNode.getBType() == symTable.noType) {
+            if (member.getBType() == symTable.noType) {
                 hasUndefinedMember = true;
             }
-            memberTypes.add(memTypeNode);
+            memberTypes.add(member);
         }
         // If at least one member is undefined, return noType as the type.
         if (hasUndefinedMember) {
