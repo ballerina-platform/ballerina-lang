@@ -3285,6 +3285,20 @@ public class TypeChecker {
         return false;
     }
 
+    static boolean isStructuredType(Type type) {
+        Type referredType = TypeUtils.getReferredType(type);
+        switch (referredType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.TUPLE_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.TABLE_TAG:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Type vector of size two, to hold the source and the target types.
      *

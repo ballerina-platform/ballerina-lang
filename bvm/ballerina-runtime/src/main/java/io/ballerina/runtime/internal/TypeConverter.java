@@ -342,20 +342,27 @@ public class TypeConverter {
                                                            String varName, List<String> errors,
                                                            List<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
-        // only the first matching type is returned.
-        // first we check whether the inputValue falls into one of the member types of the union
         List<Type> memberTypes = targetUnionType.getMemberTypes();
-        for (Type memType : memberTypes) {
-            if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                return memType;
+        if (TypeChecker.isStructuredType(getType(inputValue))) {
+            for (Type memType : memberTypes) {
+                Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
+                        unresolvedValues, errors, allowNumericConversion);
+                if (convertibleTypeInUnion != null) {
+                    return convertibleTypeInUnion;
+                }
             }
-        }
-        // if not we check for a convertible type
-        for (Type memType : memberTypes) {
-            Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                    unresolvedValues, errors, allowNumericConversion);
-            if (convertibleTypeInUnion != null) {
-                return convertibleTypeInUnion;
+        } else {
+            for (Type memType : memberTypes) {
+                if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                    return memType;
+                }
+            }
+            for (Type memType : memberTypes) {
+                Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
+                        unresolvedValues, errors, allowNumericConversion);
+                if (convertibleTypeInUnion != null) {
+                    return convertibleTypeInUnion;
+                }
             }
         }
         return null;
