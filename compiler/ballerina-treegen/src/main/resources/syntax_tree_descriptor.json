@@ -4544,7 +4544,7 @@
         {
             "name": "ReAtomCharOrEscapeNode",
             "base": "Node",
-            "kind": "RE_CHAR_ESCAPE",
+            "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
             "attributes": [
                 {
                     "name": "reAtomCharOrEscape",
