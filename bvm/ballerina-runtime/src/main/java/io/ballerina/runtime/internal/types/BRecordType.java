@@ -44,7 +44,7 @@ import java.util.Optional;
  * @since 0.995.0
  */
 public class BRecordType extends BStructureType implements RecordType {
-    private String internalName = null;
+    private final String internalName;
     public boolean sealed;
     public Type restFieldType;
     public int typeFlags;
@@ -95,6 +95,7 @@ public class BRecordType extends BStructureType implements RecordType {
             this.restFieldType = restFieldType;
             this.fields = fields;
         }
+        this.internalName = typeName;
     }
 
     private Map<String, Field> getReadOnlyFields(Map<String, Field> fields) {
@@ -142,10 +143,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
-        if (this.internalName != null) {
-            return Utils.decodeIdentifier(this.internalName);
-        }
-        return Utils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.internalName);
     }
 
     @Override
