@@ -19,6 +19,7 @@
 package io.ballerina.jsonmapper.util;
 
 import com.google.gson.JsonPrimitive;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -27,10 +28,23 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,6 +60,7 @@ public final class ConverterUtils {
 
     private ConverterUtils() {}
 
+    private static final String ARRAY_RECORD_SUFFIX = "Item";
     private static final String QUOTED_IDENTIFIER_PREFIX = "'";
     private static final String ESCAPE_NUMERIC_PATTERN = "\\b\\d.*";
     private static final List<String> KEYWORDS = SyntaxInfo.keywords();
@@ -64,14 +79,93 @@ public final class ConverterUtils {
                 identifier = identifier.substring(1);
             }
             identifier = unescapeUnicodeCodepoints(identifier);
-            // TODO: Escape Special Character does not escapes backslashes.
-            //  Refer - https://github.com/ballerina-platform/ballerina-lang/issues/36912
             identifier = escapeSpecialCharacters(identifier);
             if (identifier.matches(ESCAPE_NUMERIC_PATTERN)) {
                 identifier = "\\" + identifier;
             }
             return identifier;
         }
+    }
+
+    /**
+     * This method returns existing Types on a module/file(for single file projects).
+     *
+     * @param workspaceManager Workspace manager instance
+     * @param filePathUri FilePath URI of the/a file in a singleFileProject or module
+     * @return {@link List<String>} List of already existing Types
+     */
+    public static List<String> getExistingTypeNames(WorkspaceManager workspaceManager, String filePathUri) {
+        List<String> existingTypeNames = new ArrayList<>();
+        if (filePathUri == null) {
+            return existingTypeNames;
+        }
+
+        Path filePathResolved;
+        try {
+            URI filePathUriResolved = new URI(filePathUri);
+            filePathResolved = Path.of(filePathUriResolved);
+        } catch (InvalidPathException | URISyntaxException e) {
+            return existingTypeNames;
+        }
+
+        if (workspaceManager != null && workspaceManager.semanticModel(filePathResolved).isPresent()) {
+            List<Symbol> moduleSymbols = workspaceManager.semanticModel(filePathResolved).get().moduleSymbols();
+            moduleSymbols.forEach(symbol -> {
+                if (symbol.getName().isPresent()) {
+                    existingTypeNames.add(symbol.getName().get());
+                }
+            });
+            return existingTypeNames;
+        }
+
+        try {
+            Project project;
+            List<Symbol> moduleSymbols;
+            Path projectRoot = ProjectUtils.findProjectRoot(filePathResolved);
+            if (projectRoot == null) {
+                // Since the project-root cannot be found, the provided file is considered as SingleFileProject.
+                project = SingleFileProject.load(filePathResolved);
+                moduleSymbols =
+                        project.currentPackage().getDefaultModule().getCompilation().getSemanticModel().moduleSymbols();
+                moduleSymbols.forEach(symbol -> {
+                    if (symbol.getName().isPresent()) {
+                        existingTypeNames.add(symbol.getName().get());
+                    }
+                });
+            } else {
+                project = BuildProject.load(projectRoot);
+                moduleSymbols = project.currentPackage()
+                        .module(project.documentId(filePathResolved).moduleId())
+                        .getCompilation().getSemanticModel().moduleSymbols();
+                moduleSymbols.forEach(symbol -> {
+                    if (symbol.getName().isPresent()) {
+                        existingTypeNames.add(symbol.getName().get());
+                    }
+                });
+            }
+        } catch (ProjectException pe) {
+            return existingTypeNames;
+        }
+        return existingTypeNames;
+    }
+
+    /**
+     * This method returns an alternative fieldName if the given filedName is already exist.
+     *
+     * @param fieldName Field name of the JSON Object/Array
+     * @param isArrayField To denote whether given field is an array or not
+     * @param existingFieldNames The list of already existing field names
+     * @param updatedFieldNames The list of updated field names
+     * @return {@link List<String>} List of already existing Types
+     */
+    public static String getAndUpdateFieldNames(String fieldName, boolean isArrayField, List<String> existingFieldNames,
+                                                Map<String, String> updatedFieldNames) {
+        String updatedFieldName = getUpdatedFieldName(fieldName, isArrayField, existingFieldNames, updatedFieldNames);
+        if (!fieldName.equals(updatedFieldName)) {
+            updatedFieldNames.put(fieldName, updatedFieldName);
+            return updatedFieldName;
+        }
+        return fieldName;
     }
 
     /**
@@ -208,6 +302,29 @@ public final class ConverterUtils {
             if (typeDescNodes.stream().noneMatch(typeDescNode -> typeDescNode.toSourceCode()
                     .equals(typeDescNodeToBeInserted.toSourceCode()))) {
                 typeDescNodes.add(typeDescNodeToBeInserted);
+            }
+        }
+    }
+
+    private static String getUpdatedFieldName(String fieldName, boolean isArrayField, List<String> existingFieldNames,
+                                              Map<String, String> updatedFieldNames) {
+        if (updatedFieldNames.containsKey(fieldName)) {
+            return updatedFieldNames.get(fieldName);
+        }
+        if (!existingFieldNames.contains(fieldName) && !updatedFieldNames.containsValue(fieldName)) {
+            return fieldName;
+        } else {
+            String[] fieldNameSplit = fieldName.split("_");
+            String numericSuffix = fieldNameSplit[fieldNameSplit.length - 1];
+
+            if (NumberUtils.isParsable(numericSuffix)) {
+                return getUpdatedFieldName(String.join("_",
+                                Arrays.copyOfRange(fieldNameSplit, 0, fieldNameSplit.length - 1)) + "_" +
+                                String.format("%02d", Integer.parseInt(numericSuffix) + 1), isArrayField,
+                        existingFieldNames, updatedFieldNames);
+            } else {
+                return getUpdatedFieldName(fieldName + "_01", isArrayField, existingFieldNames,
+                        updatedFieldNames);
             }
         }
     }

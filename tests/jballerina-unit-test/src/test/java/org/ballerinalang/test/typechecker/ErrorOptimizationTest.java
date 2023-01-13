@@ -54,6 +54,7 @@ public class ErrorOptimizationTest {
                 "testWithMultipleErrors",
                 "testWithMultipleErrorsAndError",
                 "testWithRecordAndError",
+                "testMultipleErrorUnionWithError"
         };
     }
 }

@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class GetFilterFunc {
 
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
-        FunctionType functionType = (FunctionType) bFunctionPointer.getType();
+        FunctionType functionType = (FunctionType) TypeUtils.getReferredType(bFunctionPointer.getType());
         functionType.getParameters()[0].type = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY,
                 PredefinedTypes.TYPE_ERROR), 0);
         return bFunctionPointer;

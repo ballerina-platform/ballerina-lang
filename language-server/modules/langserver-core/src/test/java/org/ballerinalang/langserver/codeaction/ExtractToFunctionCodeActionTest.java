@@ -88,6 +88,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"extract_to_function_stmts_lock_stmt.json"},
 
                 {"extract_to_function_stmts_foreach_stmt.json"},
+                {"extract_to_function_stmts_foreach_stmt2.json"},
                 {"extract_to_function_stmts_foreach_stmt_with_range_expr.json"},
                 {"extract_to_function_stmts_foreach_stmt_without_iterable_declared_inside.json"},
 
@@ -137,6 +138,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 //                {"extract_to_function_exprs_object_constructor.json"}, // todo support later
                 {"extract_to_function_exprs_error_constructor.json"},
                 {"extract_to_function_exprs_within_isolated_function.json"},
+                {"extract_to_function_exprs_conditional_expr.json"},
 
                 // expressions by position
                 {"extract_to_function_exprs_position_numeric_literal_cur_after_literal.json"},
@@ -258,9 +260,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
                 {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
-                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
-                {"neg_extract_to_function_exprs_pos_service_uri_in_module_client_declaration.json"},
-                {"neg_extract_to_function_exprs_pos_service_uri_in_client_declaration.json"},
+                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"}
         };
     }
 
