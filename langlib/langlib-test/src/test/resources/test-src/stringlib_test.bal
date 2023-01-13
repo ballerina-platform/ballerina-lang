@@ -687,9 +687,134 @@ function testIncludesMatch() {
     assertTrue(result6);
 }
 
+function testFromBytesAsync() {
+    foreach int i in 0 ... 15 {
+        callFromBytesAsync();
+    }
+}
+
+isolated function callFromBytesAsync() {
+    worker w1 {
+        future<string|error> bytesFuture = start callFromBytes1();
+        string|error str = wait bytesFuture;
+        assertTrue(str is string);
+        if (str is string) {
+            assertEquals(str, "Hello!~?£ßЯλ☃✈௸😀🄰🍺");
+        }
+    }
+    worker w2 {
+        future<string|error> bytesFuture = start callFromBytes2();
+        string|error str = wait bytesFuture;
+        assertTrue(str is string);
+        if (str is string) {
+            assertEquals(str, "Hello Ballerina!");
+        }
+    }
+    _ = wait {w1, w2};
+}
+
+isolated function callFromBytes1() returns string|error {
+    byte[] bytes = [
+        72,
+        101,
+        108,
+        108,
+        111,
+        33,
+        126,
+        63,
+        194,
+        163,
+        195,
+        159,
+        208,
+        175,
+        206,
+        187,
+        226,
+        152,
+        131,
+        226,
+        156,
+        136,
+        224,
+        175,
+        184,
+        240,
+        159,
+        152,
+        128,
+        240,
+        159,
+        132,
+        176,
+        240,
+        159,
+        141,
+        186
+    ];
+    return check string:fromBytes(bytes);
+}
+
+isolated function callFromBytes2() returns string|error {
+    byte[] bytes = [
+        72,
+        101,
+        108,
+        108,
+        111,
+        32,
+        66,
+        97,
+        108,
+        108,
+        101,
+        114,
+        105,
+        110,
+        97,
+        33
+    ];
+    return checkpanic string:fromBytes(bytes);
+}
+
+function testEqualsIgnoreCaseAsciiAsync() {
+    foreach int i in 0 ... 15 {
+        callEqualsIgnoreCaseAsciiAsync();
+    }
+}
+
+isolated function callEqualsIgnoreCaseAsciiAsync() {
+    worker w1 {
+        future<boolean|error> equalsFuture = start callEqualsIgnoreCaseAscii1();
+        boolean|error result = wait equalsFuture;
+        assertTrue(result is boolean);
+        if (result is boolean) {
+            assertTrue(result);
+        }
+    }
+    worker w2 {
+        future<boolean|error> equalsFuture = start callEqualsIgnoreCaseAscii2();
+        boolean|error result = wait equalsFuture;
+        assertTrue(result is boolean);
+        if (result is boolean) {
+            assertTrue(result);
+        }
+    }
+    _ = wait {w1, w2};
+}
+
+isolated function callEqualsIgnoreCaseAscii1() returns boolean {
+    return string:equalsIgnoreCaseAscii("aBCdeFg", "aBCdeFg");
+}
+
+isolated function callEqualsIgnoreCaseAscii2() returns boolean {
+    return string:equalsIgnoreCaseAscii("Duල්Viන්", "Duල්Viන්");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
-function assertEquals(anydata expected, anydata actual) {
+isolated function assertEquals(anydata expected, anydata actual) {
     if (expected == actual) {
         return;
     }
@@ -701,7 +826,7 @@ function assertEquals(anydata expected, anydata actual) {
     panic error(ASSERTION_ERROR_REASON, message = msg);
 }
 
-function assertTrue(anydata actual) {
+isolated function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
 
