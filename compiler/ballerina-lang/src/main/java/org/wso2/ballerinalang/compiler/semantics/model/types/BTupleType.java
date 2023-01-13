@@ -181,12 +181,10 @@ public class BTupleType extends BType implements TupleType {
         setCyclicFlag(restType);
         return true;
     }
-    public void setTupleMembers(List<BTupleMember> members) {
-        this.members = members;
-    }
 
     public void setMembers(List<BTupleMember> members) {
         assert members.size() == 0;
+        this.memberTypes = null;
         this.members = members;
     }
 

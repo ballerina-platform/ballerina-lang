@@ -3075,7 +3075,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     listMatchPattern.setBType(tupleType);
                     return;
                 }
-                tupleType.restType = createTypeForTupleRestType(matchPatterns.size(), members, patternTupleType.restType);
+                tupleType.restType = createTypeForTupleRestType(matchPatterns.size(), members,
+                        patternTupleType.restType);
                 listMatchPattern.restMatchPattern.setBType(tupleType.restType);
                 matchPattern.setBType(patternType);
                 BVarSymbol restMatchPatternSymbol = listMatchPattern.restMatchPattern.declaredVars
