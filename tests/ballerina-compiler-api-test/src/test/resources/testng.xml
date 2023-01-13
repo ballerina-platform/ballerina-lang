@@ -158,6 +158,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInOnFailClauseTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInQueryExprsTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInTupleTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeDefSymbolTest" />

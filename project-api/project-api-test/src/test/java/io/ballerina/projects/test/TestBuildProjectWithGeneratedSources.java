@@ -105,6 +105,37 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
         resetPermissions(generatedDirPath);
     }
 
+    @Test (description = "tests loading a valid build project with a new generated module")
+    public void testProjectWithNewGeneratedModule() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("new_generated_mod");
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        // 4) Get Ballerina.toml file
+        Optional<BallerinaToml> ballerinaTomlOptional = currentPackage.ballerinaToml();
+        Assert.assertTrue(ballerinaTomlOptional.isPresent());
+
+        int noOfSrcDocuments = 0;
+        int noOfTestDocuments = 0;
+        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 2);
+        for (ModuleId moduleId : moduleIds) {
+            Module module = currentPackage.module(moduleId);
+            noOfSrcDocuments += module.documentIds().size();
+            noOfTestDocuments += module.testDocumentIds().size();
+            for (DocumentId docId : module.documentIds()) {
+                Assert.assertNotNull(module.document(docId).syntaxTree());
+            }
+        }
+        Assert.assertEquals(noOfSrcDocuments, 2);
+        Assert.assertEquals(noOfTestDocuments, 0);
+    }
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");

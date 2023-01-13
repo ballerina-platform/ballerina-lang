@@ -1656,7 +1656,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (definedType.tsymbol.name == Names.EMPTY) {
             isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
-            definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
+            definedType.tsymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
 
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;

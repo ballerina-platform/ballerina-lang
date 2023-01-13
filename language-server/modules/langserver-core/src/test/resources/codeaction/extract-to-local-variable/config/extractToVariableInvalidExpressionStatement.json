@@ -1,0 +1,35 @@
+{
+  "range": {
+    "start": {
+      "line": 7,
+      "character": 4
+    },
+    "end": {
+      "line": 7,
+      "character": 12
+    }
+  },
+  "source": "extractToVariableInvalidExpressionStatement.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 12
+            }
+          },
+          "newText": "string|int? var1 = myvar.id"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

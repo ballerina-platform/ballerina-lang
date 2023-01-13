@@ -19,6 +19,7 @@ module io.ballerina.LSExtensions.jsonToRecordConverter {
     requires org.eclipse.lsp4j.jsonrpc;
     requires swagger.parser.core;
     requires swagger.parser.v3;
+    requires org.eclipse.lsp4j;
 
     exports io.ballerina.converters;
     exports io.ballerina.converters.util;
