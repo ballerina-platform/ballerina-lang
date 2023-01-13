@@ -19,13 +19,11 @@
 package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.ValueConverter;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
@@ -44,8 +42,6 @@ public class CloneWithType {
             return ValueConverter.convert(v, t);
         } catch (BError e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
-        } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
@@ -55,8 +51,6 @@ public class CloneWithType {
             return ValueConverter.convert(inputValue, convertType);
         } catch (BError e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
-        } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 }

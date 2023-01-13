@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -87,9 +86,8 @@ public class ValueConverter {
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(
-                    BallerinaErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
+            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType));
         }
         unresolvedValues.add(typeValuePair);
 
