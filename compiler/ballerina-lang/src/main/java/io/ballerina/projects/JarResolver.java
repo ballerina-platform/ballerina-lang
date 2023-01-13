@@ -79,7 +79,7 @@ public class JarResolver {
         this.diagnosticList = new ArrayList<>();
     }
 
-    public DiagnosticResult diagnosticResult() {
+    DiagnosticResult diagnosticResult() {
         if (this.diagnosticResult == null) {
             this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
         }

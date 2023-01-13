@@ -2290,12 +2290,14 @@ public class TestBuildProject extends BaseTest {
         Collection<JarLibrary> jarLibraries =
                 jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
 
-        Assert.assertFalse(jBallerinaBackend.jarResolver().diagnosticResult().hasErrors());
-        Assert.assertTrue(jBallerinaBackend.jarResolver().diagnosticResult().hasWarnings());
-        Assert.assertEquals(jBallerinaBackend.jarResolver().diagnosticResult().warningCount(), 2);
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
+
+        Assert.assertFalse(emitResult.diagnostics().hasErrors());
+        Assert.assertTrue(emitResult.diagnostics().hasWarnings());
+        Assert.assertEquals(emitResult.diagnostics().warningCount(), 2);
 
         ArrayList<Diagnostic> diagnostics =
-                new ArrayList<>(jBallerinaBackend.jarResolver().diagnosticResult().diagnostics());
+                new ArrayList<>(emitResult.diagnostics().diagnostics());
         Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
                 " files. 'native1.txt' dependency of 'platformlib/pkg2' conflicts with 'native1.txt' dependency of " +
                 "'platformlib/pkg1'. Picking 'native1.txt' over 'native1.txt'.");

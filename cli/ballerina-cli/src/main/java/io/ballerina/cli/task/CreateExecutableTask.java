@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -28,7 +29,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -95,7 +96,6 @@ public class CreateExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
-        List<Diagnostic> jarResolverDiagnostics;
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
@@ -103,13 +103,13 @@ public class CreateExecutableTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
+            EmitResult emitResult;
             if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
-                jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
             } else {
-                jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
             }
 
-            jarResolverDiagnostics = new ArrayList<>(jBallerinaBackend.jarResolver().diagnosticResult().diagnostics());
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -122,6 +122,19 @@ public class CreateExecutableTask implements Task {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
+
+            List<Diagnostic> diagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
+            if (!diagnostics.isEmpty()) {
+                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
+                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
+                diagnostics = diagnostics.stream()
+                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
+                        .collect(Collectors.toList());
+                if (!diagnostics.isEmpty()) {
+                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
+                }
+            }
+
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }
@@ -139,10 +152,6 @@ public class CreateExecutableTask implements Task {
                     this.out.println("\t" + relativePathToExecutable);
                 }
             }
-        }
-
-        for (Diagnostic d : jarResolverDiagnostics) {
-            out.println("\n" + d.toString());
         }
 
         // notify plugin
