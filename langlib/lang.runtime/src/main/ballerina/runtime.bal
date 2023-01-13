@@ -41,6 +41,16 @@ type CallStackElement record {|
 # The listener becomes a module listener of the module from which this
 # function is called.
 #
+# ```ballerina
+# runtime:DynamicListener ln = object {
+#     public function 'start() returns error? {}
+#     public function gracefulStop() returns error? {}
+#     public function immediateStop() returns error? {}
+# };
+# 
+# runtime:registerListener(ln);
+# ```
+# 
 # + listener - the listener object to be registered
 public isolated function registerListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
@@ -50,6 +60,17 @@ public isolated function registerListener(DynamicListener 'listener) = @java:Met
 #
 # The `listener` ceases to be a module listener of the module from
 # which this function is called.
+# 
+# ```ballerina
+# runtime:DynamicListener ln = object {
+#     public function 'start() returns error? {}
+#     public function gracefulStop() returns error? {}
+#     public function immediateStop() returns error? {}
+# };
+# 
+# runtime:deregisterListener(ln);
+# ```
+# 
 # + listener - the listener object to be unregistered
 public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
@@ -57,6 +78,10 @@ public isolated function deregisterListener(DynamicListener 'listener) = @java:M
 
 # Halts the current strand for a predefined amount of time.
 #
+# ```ballerina
+# runtime:sleep(5);
+# ```
+# 
 # + seconds - An amount of time to sleep in seconds
 public isolated function sleep(decimal seconds) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Sleep"
@@ -75,6 +100,10 @@ public type StackFrame readonly & object {
 
 # Returns a stack trace for the current call stack.
 #
+# ```ballerina
+# runtime:StackFrame[] stackTrace = runtime:getStackTrace();
+# ```
+# 
 # The first member of the array represents the top of the call stack.
 # + return - an array representing the current call stack
 public isolated function getStackTrace() returns StackFrame[] {
@@ -94,7 +123,7 @@ isolated function externGetStackTrace() returns CallStackElement[] = @java:Metho
     'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
 } external;
 
-# Type of the function passed to `onGracefulStop.
+# Type of the function passed to `onGracefulStop`.
 public type StopHandler function() returns error?;
 
 # Registers a function that will be called during graceful shutdown.
@@ -102,6 +131,11 @@ public type StopHandler function() returns error?;
 # that was passed as an argument; the handler functions will be called
 # after calling `gracefulStop` on all registered listeners,
 # in reverse order of the corresponding calls to `onGracefulStop`.
+# 
+# ```ballerina
+# runtime:onGracefulStop(function() returns error? {});
+# ```
+# 
 # + handler - function to be called
 public isolated function onGracefulStop(StopHandler 'handler) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"

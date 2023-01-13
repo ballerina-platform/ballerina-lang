@@ -162,7 +162,7 @@ public function validateStringAPI() {
     res = trap convertJSONToString(tab1);
     test:assertTrue(res is error);
     error err = <error>res;
-    test:assertEquals(<string>checkpanic err.detail()["message"], "'table<utils_api.jsons:Address>' value cannot be" +
+    test:assertEquals(<string>checkpanic err.detail()["message"], "'table<utils.jsons:Address>' value cannot be" +
     " converted to 'json': cannot construct json object from 'table<map<anydata>>' type data");
     test:assertEquals(err.message(), "{ballerina/lang.value}ConversionError");
 

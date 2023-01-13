@@ -76,6 +76,14 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(output, expectedInt, "string arg parsed as invalid int");
     }
 
+    @Test(dataProvider = "floatValues")
+    public void testFloatArg(String specifiedFloat, String expectedFloat) {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_float_param.bal");
+        String output = runMain(compileResult, new String[]{specifiedFloat});
+        Assert.assertEquals(output, expectedFloat, "string arg parsed as invalid float");
+    }
+
     @Test(dataProvider = "decimalValues")
     public void testDecimalArg(String specifiedDecimal, String expectedDecimal) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
@@ -147,18 +155,35 @@ public class ArgumentParserPositiveTest {
     public Object[][] intValues() {
         return new Object[][]{
                 {"10", "10"},
-                {"0x1efa2", "126882"},
-                {"0XFAF1", "64241"}
+                {"-10", "-10"}
         };
     }
 
-    //Todo: commented tests to be fixed with #30394
+    @DataProvider(name = "floatValues")
+    public Object[][] floatValues() {
+        return new Object[][]{
+                {"10.5", "10.5"},
+                {"-10", "-10.0"},
+                {"-216.538", "-216.538"},
+                {"0x1efa2p0", "126882.0"},
+                {"-0x1efa2p1", "-253764.0"},
+                {"0XFAF1P2", "256964.0"},
+                {"-0XFAF1P2", "-256964.0"},
+                {"0XFAf1p-25", "0.0019145309925079346"},
+                {"-0XFaF1P-25", "-0.0019145309925079346"},
+                {"0x1ef.a2p5", "15860.25"},
+                {"-0x1ef.a2p5", "-15860.25"},
+                {"-0X1EF.A2P-2", "-123.908203125"}
+        };
+    }
+
     @DataProvider(name = "decimalValues")
     public Object[][] decimalValues() {
         return new Object[][]{
                 {"10", "10"},
-//                {"-10.123", "-10.123"},
-                {"10.123e1423", "1.0123E+1424"}
+                {"-10.123", "-10.123"},
+                {"10.123e1423", "1.0123E+1424"},
+                {"-10.123e1423", "-1.0123E+1424"}
         };
     }
 

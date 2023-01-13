@@ -171,8 +171,7 @@ public class JBallerinaBackend extends CompilerBackend {
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project(),
-                                moduleContext.isGenerated()));
+                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
         // add compilation diagnostics
@@ -549,14 +548,15 @@ public class JBallerinaBackend extends CompilerBackend {
 
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                    "environment variable");
+                    "environment variable\nHINT: to install GraalVM follow the below link\n" +
+                    "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
         }
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
                 + (OS.contains("win") ? "native-image.cmd" : "native-image");
 
         File commandExecutable = Paths.get(nativeImageCommand).toFile();
         if (!commandExecutable.exists()) {
-            throw new ProjectException("Cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
+            throw new ProjectException("cannot find '" + commandExecutable.getName() + "' in the GRAALVM_HOME. " +
                     "Install it using: gu install native-image");
         }
 

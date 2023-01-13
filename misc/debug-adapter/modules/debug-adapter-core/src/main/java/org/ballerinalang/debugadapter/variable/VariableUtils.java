@@ -52,6 +52,8 @@ public class VariableUtils {
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
     static final String INTERNAL_VALUE_PREFIX = "io.ballerina.runtime.internal.values.";
+    public static final String INTERNAL_TYPE_PREFIX = "io.ballerina.runtime.internal.types.";
+    public static final String INTERNAL_TYPE_REF_TYPE = "BTypeReferenceType";
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
