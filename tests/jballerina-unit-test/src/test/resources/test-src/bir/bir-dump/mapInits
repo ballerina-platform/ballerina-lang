@@ -1,259 +1,254 @@
 mapInits function() -> (string|(), int|()) {
     %0(RETURN) (string|(), int|());
-    %1(TEMP) typeDesc<any|error>;
-    %2(LOCAL) map<Employee>;
-    %3(TEMP) typeDesc<any|error>;
-    %4(TEMP) typeDesc<any|error>;
-    %6(LOCAL) Person;
-    %9(TEMP) string;
+    %1(LOCAL) map<Employee>;
+    %2(TEMP) typeDesc<any|error>;
+    %4(LOCAL) Person;
+    %6(TEMP) string;
+    %7(TEMP) string;
+    %8(TEMP) string;
+    %9(TEMP) int;
     %10(TEMP) string;
     %11(TEMP) string;
-    %12(TEMP) int;
-    %13(TEMP) string;
-    %14(TEMP) string;
-    %15(TEMP) Employee;
-    %21(SYNTHETIC) string|();
-    %22(SYNTHETIC) Employee|();
-    %26(SYNTHETIC) Employee|();
-    %28(SYNTHETIC) boolean;
-    %29(SYNTHETIC) boolean;
-    %30(SYNTHETIC) any|error;
-    %31(TEMP) boolean;
-    %43(SYNTHETIC) boolean;
-    %44(SYNTHETIC) boolean;
-    %45(SYNTHETIC) any|error;
-    %61(SYNTHETIC) boolean;
-    %62(SYNTHETIC) boolean;
-    %72(TEMP) ();
-    %74(SYNTHETIC) int|();
-    %75(SYNTHETIC) Employee|();
-    %79(SYNTHETIC) Employee|();
-    %81(SYNTHETIC) boolean;
-    %82(SYNTHETIC) boolean;
-    %83(SYNTHETIC) any|error;
-    %96(SYNTHETIC) boolean;
-    %97(SYNTHETIC) boolean;
-    %98(SYNTHETIC) any|error;
-    %110(TEMP) int;
-    %114(SYNTHETIC) boolean;
-    %115(SYNTHETIC) boolean;
+    %12(TEMP) Employee;
+    %18(SYNTHETIC) string|();
+    %19(SYNTHETIC) Employee|();
+    %23(SYNTHETIC) Employee|();
+    %25(SYNTHETIC) boolean;
+    %26(SYNTHETIC) boolean;
+    %27(SYNTHETIC) any|error;
+    %28(TEMP) boolean;
+    %40(SYNTHETIC) boolean;
+    %41(SYNTHETIC) boolean;
+    %42(SYNTHETIC) any|error;
+    %58(SYNTHETIC) boolean;
+    %59(SYNTHETIC) boolean;
+    %69(TEMP) ();
+    %71(SYNTHETIC) int|();
+    %72(SYNTHETIC) Employee|();
+    %76(SYNTHETIC) Employee|();
+    %78(SYNTHETIC) boolean;
+    %79(SYNTHETIC) boolean;
+    %80(SYNTHETIC) any|error;
+    %93(SYNTHETIC) boolean;
+    %94(SYNTHETIC) boolean;
+    %95(SYNTHETIC) any|error;
+    %107(TEMP) int;
+    %111(SYNTHETIC) boolean;
+    %112(SYNTHETIC) boolean;
 
     bb0 {
-        %1 = newType (string|(), int|());
-        %3 = newType Employee;
-        %4 = newType map<Employee>;
-        %2 = NewMap %4;
-        %4 = newType Person;
-        %9 = ConstLoad name;
-        %10 = ConstLoad Jack;
-        %11 = ConstLoad age;
-        %12 = ConstLoad 25;
-        %13 = ConstLoad address;
-        %14 = ConstLoad Usa;
-        %6 = NewMap %8;
-        %15 = <Employee> %6;
-        %9 = ConstLoad jack;
-        %2[%9] = %15;
-        %12 = ConstLoad 2;
-        %10 = ConstLoad jack;
-        %22 = %2[%10];
-        %26 = %22;
-        %31 = ConstLoad true;
-        %31? bb1 : bb2;
+        %2 = newType map<Employee>;
+        %1 = NewMap %2;
+        %6 = ConstLoad name;
+        %7 = ConstLoad Jack;
+        %8 = ConstLoad age;
+        %9 = ConstLoad 25;
+        %10 = ConstLoad address;
+        %11 = ConstLoad Usa;
+        %4 = NewMap %5;
+        %12 = <Employee> %4;
+        %6 = ConstLoad jack;
+        %1[%6] = %12;
+        %9 = ConstLoad 2;
+        %7 = ConstLoad jack;
+        %19 = %1[%7];
+        %23 = %19;
+        %28 = ConstLoad true;
+        %28? bb1 : bb2;
     }
     bb1 {
-        %29 = ConstLoad true;
-        %30 = <any|error> %26;
+        %26 = ConstLoad true;
+        %27 = <any|error> %23;
         GOTO bb3;
     }
     bb2 {
-        %29 = ConstLoad false;
+        %26 = ConstLoad false;
         GOTO bb3;
     }
     bb3 {
-        %29? bb4 : bb5;
+        %26? bb4 : bb5;
     }
     bb4 {
-        %28 = %30 is ();
+        %25 = %27 is ();
         GOTO bb6;
     }
     bb5 {
-        %28 = ConstLoad false;
+        %25 = ConstLoad false;
         GOTO bb6;
     }
     bb6 {
-        %28? bb7 : bb8;
+        %25? bb7 : bb8;
     }
     bb7 {
-        %21 = <string|()> %30;
+        %18 = <string|()> %27;
         GOTO bb24;
     }
     bb8 {
-        %31 = ConstLoad true;
-        %31? bb9 : bb10;
+        %28 = ConstLoad true;
+        %28? bb9 : bb10;
     }
     bb9 {
-        %44 = ConstLoad true;
-        %45 = <any|error> %26;
+        %41 = ConstLoad true;
+        %42 = <any|error> %23;
         GOTO bb11;
     }
     bb10 {
-        %44 = ConstLoad false;
+        %41 = ConstLoad false;
         GOTO bb11;
     }
     bb11 {
-        %44? bb12 : bb13;
+        %41? bb12 : bb13;
     }
     bb12 {
-        %43 = %45 is Employee;
+        %40 = %42 is Employee;
         GOTO bb14;
     }
     bb13 {
-        %43 = ConstLoad false;
+        %40 = ConstLoad false;
         GOTO bb14;
     }
     bb14 {
-        %43? bb15 : bb16;
+        %40? bb15 : bb16;
     }
     bb15 {
-        %15 = <Employee> %45;
-        %11 = ConstLoad name;
-        %13 = %15[%11];
-        %21 = <string|()> %13;
+        %12 = <Employee> %42;
+        %8 = ConstLoad name;
+        %10 = %12[%8];
+        %18 = <string|()> %10;
         GOTO bb24;
     }
     bb16 {
-        %31 = ConstLoad true;
-        %31? bb17 : bb18;
+        %28 = ConstLoad true;
+        %28? bb17 : bb18;
     }
     bb17 {
-        %62 = ConstLoad true;
+        %59 = ConstLoad true;
         GOTO bb19;
     }
     bb18 {
-        %62 = %26 is any;
+        %59 = %23 is any;
         GOTO bb19;
     }
     bb19 {
-        %62? bb20 : bb21;
+        %59? bb20 : bb21;
     }
     bb20 {
-        %61 = ConstLoad true;
+        %58 = ConstLoad true;
         GOTO bb22;
     }
     bb21 {
-        %61 = ConstLoad false;
+        %58 = ConstLoad false;
         GOTO bb22;
     }
     bb22 {
-        %61? bb23 : bb24;
+        %58? bb23 : bb24;
     }
     bb23 {
-        %72 = ConstLoad 0;
-        %21 = <string|()> %72;
+        %69 = ConstLoad 0;
+        %18 = <string|()> %69;
         GOTO bb24;
     }
     bb24 {
-        %14 = ConstLoad jack;
-        %75 = %2[%14];
-        %79 = %75;
-        %31 = ConstLoad true;
-        %31? bb25 : bb26;
+        %11 = ConstLoad jack;
+        %72 = %1[%11];
+        %76 = %72;
+        %28 = ConstLoad true;
+        %28? bb25 : bb26;
     }
     bb25 {
-        %82 = ConstLoad true;
-        %83 = <any|error> %79;
+        %79 = ConstLoad true;
+        %80 = <any|error> %76;
         GOTO bb27;
     }
     bb26 {
-        %82 = ConstLoad false;
+        %79 = ConstLoad false;
         GOTO bb27;
     }
     bb27 {
-        %82? bb28 : bb29;
+        %79? bb28 : bb29;
     }
     bb28 {
-        %81 = %83 is ();
+        %78 = %80 is ();
         GOTO bb30;
     }
     bb29 {
-        %81 = ConstLoad false;
+        %78 = ConstLoad false;
         GOTO bb30;
     }
     bb30 {
-        %81? bb31 : bb32;
+        %78? bb31 : bb32;
     }
     bb31 {
-        %74 = <int|()> %83;
+        %71 = <int|()> %80;
         GOTO bb48;
     }
     bb32 {
-        %31 = ConstLoad true;
-        %31? bb33 : bb34;
+        %28 = ConstLoad true;
+        %28? bb33 : bb34;
     }
     bb33 {
-        %97 = ConstLoad true;
-        %98 = <any|error> %79;
+        %94 = ConstLoad true;
+        %95 = <any|error> %76;
         GOTO bb35;
     }
     bb34 {
-        %97 = ConstLoad false;
+        %94 = ConstLoad false;
         GOTO bb35;
     }
     bb35 {
-        %97? bb36 : bb37;
+        %94? bb36 : bb37;
     }
     bb36 {
-        %96 = %98 is Employee;
+        %93 = %95 is Employee;
         GOTO bb38;
     }
     bb37 {
-        %96 = ConstLoad false;
+        %93 = ConstLoad false;
         GOTO bb38;
     }
     bb38 {
-        %96? bb39 : bb40;
+        %93? bb39 : bb40;
     }
     bb39 {
-        %15 = <Employee> %98;
-        %9 = ConstLoad age;
-        %110 = %15[%9];
-        %74 = <int|()> %110;
+        %12 = <Employee> %95;
+        %6 = ConstLoad age;
+        %107 = %12[%6];
+        %71 = <int|()> %107;
         GOTO bb48;
     }
     bb40 {
-        %31 = ConstLoad true;
-        %31? bb41 : bb42;
+        %28 = ConstLoad true;
+        %28? bb41 : bb42;
     }
     bb41 {
-        %115 = ConstLoad true;
+        %112 = ConstLoad true;
         GOTO bb43;
     }
     bb42 {
-        %115 = %79 is any;
+        %112 = %76 is any;
         GOTO bb43;
     }
     bb43 {
-        %115? bb44 : bb45;
+        %112? bb44 : bb45;
     }
     bb44 {
-        %114 = ConstLoad true;
+        %111 = ConstLoad true;
         GOTO bb46;
     }
     bb45 {
-        %114 = ConstLoad false;
+        %111 = ConstLoad false;
         GOTO bb46;
     }
     bb46 {
-        %114? bb47 : bb48;
+        %111? bb47 : bb48;
     }
     bb47 {
-        %72 = ConstLoad 0;
-        %74 = <int|()> %72;
+        %69 = ConstLoad 0;
+        %71 = <int|()> %69;
         GOTO bb48;
     }
     bb48 {
-        %0 = newArray %1[%12];
+        %0 = newArray typedesc0[%9];
         GOTO bb49;
     }
     bb49 {

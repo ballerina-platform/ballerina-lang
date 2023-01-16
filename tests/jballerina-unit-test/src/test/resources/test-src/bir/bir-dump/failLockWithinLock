@@ -1,123 +1,118 @@
 failLockWithinLock function() -> (int, string) {
     %0(RETURN) (int, string);
-    %1(TEMP) typeDesc<any|error>;
-    %2(SYNTHETIC) error|();
-    %5(SYNTHETIC) error|();
-    %8(SYNTHETIC) error|();
-    %11(TEMP) boolean;
-    %13(TEMP) error;
-    %15(LOCAL) error;
-    %17(TEMP) string;
-    %19(TEMP) ();
-    %20(TEMP) typeDesc<any|error>;
-    %21(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
+    %1(SYNTHETIC) error|();
+    %4(SYNTHETIC) error|();
+    %7(SYNTHETIC) error|();
+    %10(TEMP) boolean;
+    %12(TEMP) error;
+    %14(LOCAL) error;
+    %16(TEMP) string;
+    %18(TEMP) ();
+    %19(TEMP) typeDesc<any|error>;
+    %20(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
+    %21(TEMP) string;
     %22(TEMP) string;
-    %23(TEMP) string;
-    %24(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
-    %25(LOCAL) error;
-    %41(TEMP) int;
+    %23(TEMP) map<ballerina/lang.value:0.0.0:Cloneable>;
+    %24(LOCAL) error;
+    %40(TEMP) int;
 
     bb0 {
-        %1 = newType (int, string);
-        GOTO bb1;
+        lock -> bb1;
     }
     bb1 {
+        lockWithinLockInt = ConstLoad 50;
+        lockWithinLockString = ConstLoad sample value;
         lock -> bb2;
     }
     bb2 {
-        lockWithinLockInt = ConstLoad 50;
-        lockWithinLockString = ConstLoad sample value;
+        lockWithinLockString = ConstLoad second sample value;
+        lockWithinLockInt = ConstLoad 99;
         lock -> bb3;
     }
     bb3 {
-        lockWithinLockString = ConstLoad second sample value;
-        lockWithinLockInt = ConstLoad 99;
-        lock -> bb4;
+        lockWithinLockInt = ConstLoad 90;
+        %7 = ConstLoad 0;
+        GOTO bb4;
     }
     bb4 {
-        lockWithinLockInt = ConstLoad 90;
-        %8 = ConstLoad 0;
-        GOTO bb5;
+        unlock -> bb5;
     }
     bb5 {
-        unlock -> bb6;
+        %10 = %7 is error;
+        %10? bb6 : bb7;
     }
     bb6 {
-        %11 = %8 is error;
-        %11? bb7 : bb8;
+        %12 = <error> %7;
+        panic %12;
     }
     bb7 {
-        %13 = <error> %8;
-        panic %13;
+        %16 = ConstLoad custom error;
+        %18 = ConstLoad 0;
+        %12 = <error> %18;
+        %19 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
+        %21 = ConstLoad message;
+        %22 = ConstLoad error value;
+        %20 = NewMap %19;
+        %23 = cloneReadOnly(%20) -> bb8;
     }
     bb8 {
-        %17 = ConstLoad custom error;
-        %19 = ConstLoad 0;
-        %13 = <error> %19;
-        %20 = newType map<ballerina/lang.value:0.0.0:Cloneable>;
-        %22 = ConstLoad message;
-        %23 = ConstLoad error value;
-        %21 = NewMap %20;
-        %24 = cloneReadOnly(%21) -> bb9;
+        %14 = error error(%16, %12, %23);
+        GOTO bb9;
     }
     bb9 {
-        %15 = error error(%17, %13, %24);
-        GOTO bb10;
+        unlock -> bb10;
     }
     bb10 {
-        unlock -> bb11;
-    }
-    bb11 {
-        %25 = %15;
+        %24 = %14;
         lockWithinLockInt = ConstLoad 100;
         lockWithinLockString = ConstLoad Error caught;
-        %19 = ConstLoad 0;
-        GOTO bb16;
+        %18 = ConstLoad 0;
+        GOTO bb15;
+    }
+    bb11 {
+        %4 = ConstLoad 0;
+        GOTO bb15;
     }
     bb12 {
-        %5 = ConstLoad 0;
-        GOTO bb16;
+        unlock -> bb13;
     }
     bb13 {
-        unlock -> bb14;
+        %10 = %4 is error;
+        %10? bb14 : bb15;
     }
     bb14 {
-        %11 = %5 is error;
-        %11? bb15 : bb16;
+        %12 = <error> %4;
+        panic %12;
     }
     bb15 {
-        %13 = <error> %5;
-        panic %13;
+        %1 = ConstLoad 0;
+        GOTO bb16;
     }
     bb16 {
-        %2 = ConstLoad 0;
-        GOTO bb17;
+        unlock -> bb17;
     }
     bb17 {
-        unlock -> bb18;
+        %10 = %1 is error;
+        %10? bb18 : bb19;
     }
     bb18 {
-        %11 = %2 is error;
-        %11? bb19 : bb20;
+        %12 = <error> %1;
+        panic %12;
     }
     bb19 {
-        %13 = <error> %2;
-        panic %13;
+        %40 = ConstLoad 2;
+        %0 = newArray typedesc1[%40];
+        GOTO bb20;
     }
     bb20 {
-        %41 = ConstLoad 2;
-        %0 = newArray %1[%41];
-        GOTO bb21;
-    }
-    bb21 {
         return;
     }
 
     -------------------------------------------------------------
     | trapBB       | endBB        | targetBB     | errorOp      |
     -------------------------------------------------------------
-    | bb2          | bb16         | bb17         | %2           |
-    | bb3          | bb12         | bb13         | %5           |
-    | bb4          | bb4          | bb5          | %8           |
+    | bb1          | bb15         | bb16         | %1           |
+    | bb2          | bb11         | bb12         | %4           |
+    | bb3          | bb3          | bb4          | %7           |
     -------------------------------------------------------------
 }
