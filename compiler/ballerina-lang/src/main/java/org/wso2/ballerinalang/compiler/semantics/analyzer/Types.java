@@ -148,6 +148,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.UNSIGN
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.OBJECT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.RECORD;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TUPLE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNION;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.isSimpleBasicType;
 
@@ -5416,12 +5417,17 @@ public class Types {
         return intersectionErrorType;
     }
 
-    // This function checks whether the specified type definition is a user-defined type or not.
     public static boolean isUserDefinedTypeDefinition(BType type) {
         type = Types.getReferredType(type);
         BTypeSymbol typeSymbol = type.tsymbol;
-        return typeSymbol != null  && (type.tag == TypeTags.RECORD || type.tag == TypeTags.TUPLE) &&
-                typeSymbol.name != Names.EMPTY && typeSymbol.owner.getKind() == SymbolKind.PACKAGE;
+        switch (type.tag) {
+            case RECORD:
+                return typeSymbol != null  && typeSymbol.owner.getKind() == SymbolKind.PACKAGE;
+            case TUPLE:
+                return typeSymbol != null && typeSymbol.name != Names.EMPTY;
+            default:
+                return false;
+        }
     }
 
     private BType createRecordIntersection(IntersectionContext intersectionContext,
