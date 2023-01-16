@@ -59,6 +59,7 @@ public abstract class BIRNode {
         public final List<BIRImportModule> importModules;
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
+        public final List<BIRNonTerminator.NewTypeDesc> typedescs;
         public final Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls;
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
@@ -83,6 +84,7 @@ public abstract class BIRNode {
             this.annotations = new ArrayList<>();
             this.constants = new ArrayList<>();
             this.serviceDecls = new ArrayList<>();
+            this.typedescs = new ArrayList<>();
         }
 
         @Override
@@ -225,6 +227,15 @@ public abstract class BIRNode {
         public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name, Name originalName,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
             super(pos, type, name, originalName, scope, kind, metaVarName);
+            this.flags = flags;
+            this.pkgId = pkgId;
+            this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
+        }
+
+        public BIRGlobalVariableDcl(BType type, Name name, VarScope scope, VarKind kind, long flags, PackageID pkgId,
+                                    SymbolOrigin origin) {
+            super(type, name, scope, kind);
             this.flags = flags;
             this.pkgId = pkgId;
             this.origin = origin;
