@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -936,6 +935,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        ((BRecordType) recordTypeNode.getBType()).enclMapSymbols = collectClosureMapSymbols(env, false);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             field.typeNode = rewrite(field.typeNode, env);
         }
@@ -965,19 +965,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
-        BType type = userDefinedType.getBType();
-        if (type == null) {
-            result = userDefinedType;
-            return;
-        }
-        if (type.tag == TypeTags.RECORD) {
-            ((BRecordType) type).enclMapSymbols = collectClosureMapSymbols(env, false);
-        } else if (type.tag == TypeTags.ERROR) {
-            BType detailType = ((BErrorType) type).detailType;
-            if (detailType.tag == TypeTags.RECORD) {
-                ((BRecordType) detailType).enclMapSymbols = collectClosureMapSymbols(env, false);
-            }
-        }
         result = userDefinedType;
     }
 
