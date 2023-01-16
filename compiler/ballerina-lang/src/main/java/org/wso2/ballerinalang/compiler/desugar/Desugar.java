@@ -1243,20 +1243,14 @@ public class Desugar extends BLangNodeVisitor {
         // referenced types are invoked on the current record type.
 
         if (recordTypeNode.isAnonymous && recordTypeNode.isLocal) {
-            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(recordTypeNode);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(recordTypeNode.getBType(),
                     recordTypeNode.getBType().tsymbol, recordTypeNode, env);
             recordTypeNode.desugared = true;
-            result = userDefinedType;
+            result = recordTypeNode;
             return;
         }
 
         result = recordTypeNode;
-    }
-
-    private BLangUserDefinedType desugarLocalAnonRecordTypeNode(BLangRecordTypeNode recordTypeNode) {
-        return ASTBuilderUtil.createUserDefineTypeNode(recordTypeNode.symbol.name.value, recordTypeNode.getBType(),
-                                                       recordTypeNode.pos);
     }
 
     @Override
@@ -1329,11 +1323,10 @@ public class Desugar extends BLangNodeVisitor {
         // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
         // We need to create type-defs for local anonymous types with type param.
         if (errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
-            BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
             TypeDefBuilderHelper.createTypeDefinitionForTSymbol(errorType.getBType(), errorType.getBType().tsymbol,
                     errorType, env);
             errorType.desugared = true;
-            result = userDefinedType;
+            result = errorType;
             return;
         }
         result = errorType;
