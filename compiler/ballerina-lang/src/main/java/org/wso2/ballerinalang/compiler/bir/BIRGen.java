@@ -1260,8 +1260,9 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableTypeNode tableTypeNode) {
         tableTypeNode.constraint.accept(this);
-        if (tableTypeNode.tableKeyTypeConstraint != null) {
-            tableTypeNode.tableKeyTypeConstraint.accept(this);
+        BLangTableKeyTypeConstraint tableKeyTypeConstraint = tableTypeNode.tableKeyTypeConstraint;
+        if (tableKeyTypeConstraint != null) {
+            tableKeyTypeConstraint.accept(this);
         }
     }
 
@@ -1269,8 +1270,9 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangStreamType streamType) {
         streamType.type.accept(this);
         streamType.constraint.accept(this);
-        if (streamType.error != null) {
-            streamType.error.accept(this);
+        BLangType error = streamType.error;
+        if (error != null) {
+            error.accept(this);
         }
     }
 
