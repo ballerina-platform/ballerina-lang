@@ -53,6 +53,7 @@ class BIRGenEnv {
     Map<BSymbol, BIRVariableDcl> symbolVarMap = new HashMap<>();
     private int currentBBId = -1;
     private int currentLocalVarId = -1;
+    private int currentTypedescId = -1;
     private int currentLambdaVarId = -1;
 
     BIRBasicBlock enclBB;
@@ -92,6 +93,11 @@ class BIRGenEnv {
     Name nextLocalVarId(Names names) {
         currentLocalVarId++;
         return names.merge(Names.BIR_LOCAL_VAR_PREFIX, names.fromString(Integer.toString(currentLocalVarId)));
+    }
+
+    Name nextTypedescId(Names names) {
+        currentTypedescId++;
+        return names.merge(Names.TYPEDESC, Names.fromString(Integer.toString(currentTypedescId)));
     }
 
     Name nextLambdaVarId(Names names) {
