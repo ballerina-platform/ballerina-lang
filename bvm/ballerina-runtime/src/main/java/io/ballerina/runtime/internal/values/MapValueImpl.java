@@ -67,6 +67,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.getEffectiveType;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -307,8 +308,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) referredType,
-                    true)) {
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value,
+                                          (BRecordType) getEffectiveType(referredType), true)) {
                 putValue(key, value);
             }
         }
