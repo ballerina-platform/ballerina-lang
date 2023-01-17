@@ -643,7 +643,8 @@ public class AnnotationDesugar {
                                                                      pkgID, owner, false);
             if (fieldAnnotLambda != null) {
                 BInvokableSymbol invokableSymbol =
-                        closureGenerator.createSimpleVariable(fieldAnnotLambda.function, fieldAnnotLambda);
+                        closureGenerator.createSimpleVariable(fieldAnnotLambda.function, fieldAnnotLambda,
+                                                              owner.getKind() == SymbolKind.PACKAGE);
                 env.scope.define(invokableSymbol.name, invokableSymbol);
                 if (!annotFunctionDefined) {
                     function = defineFunction(pos, pkgID, owner);
