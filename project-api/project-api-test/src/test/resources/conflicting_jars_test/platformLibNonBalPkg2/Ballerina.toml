@@ -5,16 +5,16 @@ version = "0.1.0"
 distribution = "2201.0.4-rc1.4"
 
 [[platform.java11.dependency]]
-groupId="com.example"
+groupId="com.example_n1"
 artifactId="native1"
 version="1.0.1"
-path="./lib/native-1.0.1.jar"
+path="./lib/native1-1.0.1.jar"
 
 [[platform.java11.dependency]]
 path="./lib/lib2-1.0.0.jar"
 
 [[platform.java11.dependency]]
-groupId="com.example"
+groupId="com.example3"
 artifactId="lib3"
 version="2.0.1"
 path="./lib/lib3-2.0.1.jar"
