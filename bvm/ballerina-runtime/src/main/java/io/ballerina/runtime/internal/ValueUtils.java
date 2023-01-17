@@ -241,4 +241,19 @@ public class ValueUtils {
         return new TypedescValueImpl(type);
     }
 
+    /**
+     * Provide the Typedesc Value depending on the immutability of a value.
+     * @param isReadOnly Indicates that the type is a read-only
+     * @param value Ballerina value
+     * @param typedescValue typedesc value
+     * @return     typedesc with the suitable type
+     */
+    public static BTypedesc getTypedescValue(Boolean isReadOnly, BValue value, TypedescValueImpl typedescValue) {
+        if (isReadOnly) {
+            TypedescValueImpl typedesc = (TypedescValueImpl) createSingletonTypedesc(value);
+            typedesc.annotations = typedescValue.annotations;
+            return typedesc;
+        }
+        return typedescValue;
+    }
 }
