@@ -82,7 +82,8 @@ public class FormatCmdTest {
         }
     }
 
-    @Test(description = "Test ballerina project formatting with dot op")
+    @Test(description = "Test ballerina project formatting with dot op",
+            dependsOnMethods = "formatCLIOnBallerinaProject")
     public void formatCLIOnBallerinaProjectWithDotOp() {
         List<String> argList = new ArrayList<>();
         argList.add(".");
