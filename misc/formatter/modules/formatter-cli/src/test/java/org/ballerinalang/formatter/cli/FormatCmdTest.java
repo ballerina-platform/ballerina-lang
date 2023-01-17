@@ -18,11 +18,15 @@
 package org.ballerinalang.formatter.cli;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +37,66 @@ public class FormatCmdTest {
     private static final Path RES_DIR = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
     private static final String NOT_A_BAL_PROJECT = "notAProject";
     private static final String BAL_PROJECT = "project";
+
+    private static final Path SINGLE_FILE_PROJECT_SOURCE =
+            RES_DIR.resolve("SingleFileProject/source/singleFileProject.bal");
+    private static final Path SINGLE_FILE_PROJECT_TEMP_SOURCE =
+            RES_DIR.resolve("SingleFileProject/source/singleFileProjectTemp.bal");
+    private static final Path SINGLE_FILE_PROJECT_ASSERT =
+            RES_DIR.resolve("SingleFileProject/assert/singleFileProject.bal");
+
+    private static final Path BALLERINA_PROJECT_SOURCE =
+            RES_DIR.resolve("BallerinaProject/source/Project");
+    private static final Path BALLERINA_PROJECT_TEMP_SOURCE =
+            RES_DIR.resolve("BallerinaProject/source/ProjectTemp");
+    private static final Path BALLERINA_PROJECT_ASSERT =
+            RES_DIR.resolve("BallerinaProject/assert/Project");
+
+    @Test(description = "Test single file project formatting")
+    public void formatCLIOnASingleFileProject() {
+        List<String> argList = new ArrayList<>();
+        argList.add(SINGLE_FILE_PROJECT_SOURCE.toString());
+        try {
+            FormatUtil.execute(argList, false, null, null, false, null);
+            Assert.assertEquals(Files.readString(SINGLE_FILE_PROJECT_SOURCE),
+                    Files.readString(SINGLE_FILE_PROJECT_ASSERT));
+            Files.copy(SINGLE_FILE_PROJECT_TEMP_SOURCE, SINGLE_FILE_PROJECT_SOURCE,
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            Assert.fail("Failed to update the source file.");
+        }
+    }
+
+    @Test(description = "Test ballerina project formatting")
+    public void formatCLIOnBallerinaProject() {
+        List<String> argList = new ArrayList<>();
+        try {
+            FormatUtil.execute(argList, false, null, null, false, BALLERINA_PROJECT_SOURCE);
+            Assert.assertEquals(Files.readString(BALLERINA_PROJECT_SOURCE.resolve("main.bal")),
+                    Files.readString(BALLERINA_PROJECT_ASSERT.resolve("main.bal")));
+            Assert.assertEquals(Files.readString(BALLERINA_PROJECT_SOURCE.resolve("modules/util/util.bal")),
+                    Files.readString(BALLERINA_PROJECT_ASSERT.resolve("modules/util/util.bal")));
+            FileUtils.copyDirectory(BALLERINA_PROJECT_TEMP_SOURCE.toFile(), BALLERINA_PROJECT_SOURCE.toFile());
+        } catch (IOException e) {
+            Assert.fail("Failed to update the source file.");
+        }
+    }
+
+    @Test(description = "Test ballerina project formatting with dot op")
+    public void formatCLIOnBallerinaProjectWithDotOp() {
+        List<String> argList = new ArrayList<>();
+        argList.add(".");
+        try {
+            FormatUtil.execute(argList, false, null, null, false, BALLERINA_PROJECT_SOURCE);
+            Assert.assertEquals(Files.readString(BALLERINA_PROJECT_SOURCE.resolve("main.bal")),
+                    Files.readString(BALLERINA_PROJECT_ASSERT.resolve("main.bal")));
+            Assert.assertEquals(Files.readString(BALLERINA_PROJECT_SOURCE.resolve("modules/util/util.bal")),
+                    Files.readString(BALLERINA_PROJECT_ASSERT.resolve("modules/util/util.bal")));
+            FileUtils.copyDirectory(BALLERINA_PROJECT_TEMP_SOURCE.toFile(), BALLERINA_PROJECT_SOURCE.toFile());
+        } catch (IOException e) {
+            Assert.fail("Failed to update the source file.");
+        }
+    }
 
     @Test(description = "Test to check the exception for too many argument provided.")
     public void formatCLITooManyArgumentsTest() {

@@ -39,10 +39,10 @@ public class FormatCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--dry-run"})
     private boolean dryRun;
 
-    @CommandLine.Option(names = "--module", hidden = true)
+    @CommandLine.Option(names = "--module")
     private String moduleName;
 
-    @CommandLine.Option(names = "--file", hidden = true)
+    @CommandLine.Option(names = "--file")
     private String fileName;
 
     @Override

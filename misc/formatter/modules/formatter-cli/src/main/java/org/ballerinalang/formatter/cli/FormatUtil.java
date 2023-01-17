@@ -80,7 +80,7 @@ class FormatUtil {
         try {
             // If parameters are available user has given either the module name or the ballerina file path.
             // Else user is in a ballerina project and expecting to format the whole ballerina project or with options
-            if (argList != null && !argList.isEmpty()) {
+            if (argList != null && !argList.isEmpty() && !argList.get(0).equals(".")) {
                 if (FormatUtil.isBalFile(argList.get(0))) {
 
                     // Cannot allow moduleName and fileName options in single file projects
