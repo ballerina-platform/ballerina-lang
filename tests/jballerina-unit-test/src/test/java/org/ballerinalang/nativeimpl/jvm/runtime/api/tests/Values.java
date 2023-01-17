@@ -44,6 +44,7 @@ import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -53,7 +54,6 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
-import io.ballerina.runtime.internal.ValueConverter;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -247,7 +247,7 @@ public class Values {
     }
 
     public static Object getRecordValueFromJson(Object jsonValue, BTypedesc type) {
-        return ValueConverter.convert(jsonValue, type);
+        return ValueUtils.convert(jsonValue, type.getDescribingType());
     }
 
     public static BObject getInvalidObject(BString objectName) {
