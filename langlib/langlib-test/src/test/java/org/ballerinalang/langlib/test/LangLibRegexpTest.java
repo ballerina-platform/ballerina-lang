@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -33,11 +34,12 @@ import org.testng.annotations.Test;
  */
 public class LangLibRegexpTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, negativeTests;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/regexp_test.bal");
+        negativeTests = BCompileUtil.compile("test-src/regexp_negative_test.bal");
     }
 
     @AfterClass
@@ -67,6 +69,28 @@ public class LangLibRegexpTest {
                 "testFromStringNegative",
                 "testLangLibFuncWithNamedArgExpr",
                 "testSplit"
+        };
+    }
+
+    @Test(dataProvider = "negativeRegexpFindIndexProvider")
+    public void testNegativeRegexp(String functionName, int startIndex, int length) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                "error(\"IndexOutOfRange\",message=\"invalid start index '" + startIndex + "' provided in string of " +
+                        "length '" + length + "', for regular expression find operation.\")");
+    }
+
+    @DataProvider(name = "negativeRegexpFindIndexProvider")
+    private Object[][] negativeRegexpFindIndexes() {
+        return new Object[][] {
+                {"testNegativeIndexFind", -3, 5},
+                {"testInvalidIndexFind", 12, 5},
+                {"testNegativeIndexFindAll", -8, 51},
+                {"testInvalidIndexFindAll", 112, 63},
+                {"testNegativeIndexFindGroups", -3, 52},
+                {"testInvalidIndexFindGroups", 97, 52},
+                {"testNegativeIndexFindAllGroups", -4, 31},
+                {"testInvalidIndexFindAllGroups", 123, 31},
         };
     }
 }
