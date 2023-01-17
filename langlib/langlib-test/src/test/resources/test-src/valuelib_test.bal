@@ -1939,41 +1939,53 @@ function testCloneWithTypeWithAmbiguousUnion() {
 
     json[] jsonArr = [23d];
     string[]|int[]|decimal[] arrayUnionVal = checkpanic jsonArr.cloneWithType();
-    assert(arrayUnionVal, [23d]);
-    assertTrue(arrayUnionVal is decimal[]);
+    assert(arrayUnionVal, [23]);
+    assertTrue(arrayUnionVal is int[]);
 
     json[] jsonArr1 = [23.0d, 24];
     int[]|[decimal, int] arrTupleUnionVal = checkpanic jsonArr1.cloneWithType();
-    assert(arrTupleUnionVal, [23.0d, 24]);
-    assertTrue(arrTupleUnionVal is [decimal, int]);
+    assert(arrTupleUnionVal, [23, 24]);
+    assertTrue(arrTupleUnionVal is int[]);
 
     [json] jsonTuple = [23d];
     string[]|int[]|decimal[] arrayUnionVal1 = checkpanic jsonTuple.cloneWithType();
-    assert(arrayUnionVal1, [23d]);
-    assertTrue(arrayUnionVal1 is decimal[]);
+    assert(arrayUnionVal1, [23]);
+    assertTrue(arrayUnionVal1 is int[]);
 
     [json, json] jsonTuple1 = [23.0d, 24];
     int[]|[decimal, int] arrTupleUnionVal1 = checkpanic jsonTuple1.cloneWithType();
-    assert(arrTupleUnionVal1, [23.0d, 24]);
-    assertTrue(arrTupleUnionVal1 is [decimal, int]);
+    assert(arrTupleUnionVal1, [23, 24]);
+    assertTrue(arrTupleUnionVal1 is int[]);
 
-    int[]|[decimal, int...] arrTupleRestUnionVal1 = checkpanic jsonTuple1.cloneWithType();
+    [decimal, int...]|int[] arrTupleRestUnionVal1 = checkpanic jsonTuple1.cloneWithType();
     assert(arrTupleRestUnionVal1, [23.0d, 24]);
     assertTrue(arrTupleRestUnionVal1 is [decimal, int...]);
 
     val = [[1.2d, 2.3d]];
     int[][]|decimal[][] clone2D = checkpanic val.cloneWithType();
-    assert(clone2D, [[1.2d, 2.3d]]);
-    assertTrue(clone2D is decimal[][]);
+    assert(clone2D, [[1, 2]]);
+    assertTrue(clone2D is int[][]);
+
+    decimal[][]|int[][] clone2D2 = checkpanic val.cloneWithType();
+    assert(clone2D2, [[1.2d, 2.3d]]);
+    assertTrue(clone2D2 is decimal[][]);
 
     [[int,int...]]|[decimal,decimal...][] clone2DRest = checkpanic val.cloneWithType();
-    assert(clone2DRest, [[1.2d, 2.3d]]);
-    assertTrue(clone2DRest is [decimal,decimal...][] );
+    assert(clone2DRest, [[1, 2]]);
+    assertTrue(clone2DRest is [[int,int...]]);
+
+    [decimal,decimal...][]|[[int,int...]] clone2DRest2 = checkpanic val.cloneWithType();
+    assert(clone2DRest2, [[1.2d, 2.3d]]);
+    assertTrue(clone2DRest2 is [decimal,decimal...][] );
 
     val = [[1.2d, "l"], 9];
     [[decimal, string], int]|int[][]|decimal[][] cloneTuple = checkpanic val.cloneWithType();
     assert(cloneTuple, [[1.2d, "l"], 9]);
     assertTrue(cloneTuple is [[decimal, string], int]);
+
+    int[][]|decimal[][]|[[decimal, string], int] cloneTuple2 = checkpanic val.cloneWithType();
+    assert(cloneTuple2, [[1.2d, "l"], 9]);
+    assertTrue(cloneTuple2 is [[decimal, string], int]);
 
     [[decimal, string...], int...]|int[][]|decimal[][] cloneTupleRest = checkpanic val.cloneWithType();
     assert(cloneTupleRest, [[1.2d, "l"], 9]);
@@ -1984,12 +1996,12 @@ function testCloneWithTypeWithAmbiguousUnion() {
         year: [2010.0d, 2011.0d]
     };
 
-    Movie recordVal = checkpanic  jsonMap.cloneWithType(Movie);
-    assertTrue(recordVal.year is decimal[]);
+    Movie recordVal = checkpanic jsonMap.cloneWithType(Movie);
+    assertTrue(recordVal.year is int[]);
 
     json jsonMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
-    map<int[]|decimal[]> mapVal = checkpanic  jsonMap1.cloneWithType();
-    assertTrue(mapVal["b"] is decimal[]);
+    map<int[]|decimal[]>|map<float[]> mapVal = checkpanic jsonMap1.cloneWithType();
+    assertTrue(mapVal["b"] is int[]);
 
     json moviesJson = [
         {
@@ -2021,10 +2033,13 @@ function testCloneWithTypeWithAmbiguousUnion() {
             }
         ];
 
-    Movie[] movieArr = checkpanic moviesJson.cloneWithType();
-    assertTrue(movieArr[0].year is decimal[]);
-    assertTrue(movieArr[1].year is decimal[]);
-    assertTrue(movieArr[2].year is decimal[]);
+    Movie[]|table<map<anydata>> movieArr = checkpanic moviesJson.cloneWithType();
+    assertTrue(movieArr is Movie[]);
+    if (movieArr is Movie[]) {
+        assertTrue(movieArr[0].year is int[]);
+        assertTrue(movieArr[1].year is int[]);
+        assertTrue(movieArr[2].year is int[]);
+    }
 
     table<Movie> movieTab = checkpanic tableJson.cloneWithType();
     foreach Movie mov in movieTab {
@@ -2032,13 +2047,13 @@ function testCloneWithTypeWithAmbiguousUnion() {
     }
 
     // json with other union combinations
-    json m = {a: 1, b: 2};
+    json m = {a: 1, b: 2.2};
     map<int>|map<decimal> clone = checkpanic m.cloneWithType();
     assertTrue(clone is map<int>);
     assertTrue(clone["a"] is int);
     assertTrue(clone["b"] is int);
 
-    m = {salary: 1000};
+    m = {salary: 1000d};
     Emp1|Emp2 clone1 = checkpanic m.cloneWithType();
     assertTrue(clone1 is Emp1);
     assertFalse(clone1 is Emp2);
@@ -2059,25 +2074,25 @@ function testCloneWithTypeWithAmbiguousUnion() {
 
     anydata[] anydataArr = [23d];
     string[]|int[]|decimal[] arrayUnionVal2 = checkpanic anydataArr.cloneWithType();
-    assert(arrayUnionVal2, [23d]);
-    assertTrue(arrayUnionVal2 is decimal[]);
+    assert(arrayUnionVal2, [23]);
+    assertTrue(arrayUnionVal2 is int[]);
 
     anydata[] anydataArr1 = [23.0d, 24];
-    int[]|[decimal, int] arrTupleUnionVal2 = checkpanic anydataArr1.cloneWithType();
+    [decimal, int]|int[] arrTupleUnionVal2 = checkpanic anydataArr1.cloneWithType();
     assert(arrTupleUnionVal2, [23.0d, 24]);
     assertTrue(arrTupleUnionVal2 is [decimal, int]);
 
     [anydata] anydataTuple = [23d];
-    string[]|int[]|decimal[] arrayUnionVal3 = checkpanic  anydataTuple.cloneWithType();
+    string[]|decimal[]|int[]|() arrayUnionVal3 = checkpanic anydataTuple.cloneWithType();
     assert(arrayUnionVal3, [23d]);
     assertTrue(arrayUnionVal3 is decimal[]);
 
     [anydata, anydata] anydataTuple1 = [23.0d, 24];
-    int[]|[decimal, int] arrTupleUnionVal3 = checkpanic  anydataTuple1.cloneWithType();
+    [decimal, int]|int[]|float[] arrTupleUnionVal3 = checkpanic anydataTuple1.cloneWithType();
     assert(arrTupleUnionVal3, [23.0d, 24]);
     assertTrue(arrTupleUnionVal3 is [decimal, int]);
 
-    int[]|[decimal, int...] arrTupleUnionVal3Rest = checkpanic  anydataTuple1.cloneWithType();
+    [decimal, int...]|int[]|[float...] arrTupleUnionVal3Rest = checkpanic anydataTuple1.cloneWithType();
     assert(arrTupleUnionVal3Rest, [23.0d, 24]);
     assertTrue(arrTupleUnionVal3Rest is [decimal, int...]);
 
@@ -2087,11 +2102,11 @@ function testCloneWithTypeWithAmbiguousUnion() {
     };
 
     Movie recordVal1 = checkpanic anydataMap.cloneWithType(Movie);
-    assertTrue(recordVal1.year is decimal[]);
+    assertTrue(recordVal1.year is int[]);
 
     anydata anydataMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
     map<int[]|decimal[]> mapVal1 = checkpanic anydataMap1.cloneWithType();
-    assertTrue(mapVal1["b"] is decimal[]);
+    assertTrue(mapVal1["b"] is int[]);
 
     anydata moviesAnydata = [
         {
@@ -2124,9 +2139,9 @@ function testCloneWithTypeWithAmbiguousUnion() {
         ];
 
     Movie[] movieArr1 = checkpanic moviesAnydata.cloneWithType();
-    assertTrue(movieArr1[0].year is decimal[]);
-    assertTrue(movieArr1[1].year is decimal[]);
-    assertTrue(movieArr1[2].year is decimal[]);
+    assertTrue(movieArr1[0].year is int[]);
+    assertTrue(movieArr1[1].year is int[]);
+    assertTrue(movieArr1[2].year is int[]);
 
     table<Movie> movieTab1 = checkpanic tableAnydata.cloneWithType();
     foreach Movie mov in movieTab1 {
@@ -2141,21 +2156,21 @@ function testCloneWithTypeWithAmbiguousUnion() {
 
     Union[] unionArr = [23d];
     string[]|int[]|decimal[] arrayUnionVal4 = checkpanic unionArr.cloneWithType();
-    assert(arrayUnionVal4, [23d]);
-    assertTrue(arrayUnionVal4 is decimal[]);
+    assert(arrayUnionVal4, [23]);
+    assertTrue(arrayUnionVal4 is int[]);
 
     Union[] UnionArr2 = [23.0d, 24];
-    int[]|[decimal, int] arrTupleUnionVal5 = checkpanic UnionArr2.cloneWithType();
+    [decimal, int]|int[] arrTupleUnionVal5 = checkpanic UnionArr2.cloneWithType();
     assert(arrTupleUnionVal5, [23.0d, 24]);
     assertTrue(arrTupleUnionVal5 is [decimal, int]);
 
     [Union] unionTuple = [23d];
-    string[]|int[]|decimal[] arrayUnionVal5 = checkpanic unionTuple.cloneWithType();
+    string[]|decimal[]|int[] arrayUnionVal5 = checkpanic unionTuple.cloneWithType();
     assert(arrayUnionVal5, [23d]);
     assertTrue(arrayUnionVal5 is decimal[]);
 
     [Union, Union] unionTuple1 = [23.0d, 24];
-    int[]|[decimal, int] arrTupleUnionVal6 = checkpanic unionTuple1.cloneWithType();
+    [decimal, int]|int[] arrTupleUnionVal6 = checkpanic unionTuple1.cloneWithType();
     assert(arrTupleUnionVal6, [23.0d, 24]);
     assertTrue(arrTupleUnionVal6 is [decimal, int]);
 
@@ -2165,11 +2180,11 @@ function testCloneWithTypeWithAmbiguousUnion() {
     };
 
     Movie recordVal2 = checkpanic unionMap.cloneWithType(Movie);
-    assertTrue(recordVal2.year is decimal[]);
+    assertTrue(recordVal2.year is int[]);
 
     Union unionMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
     map<int[]|decimal[]> mapVal2 = checkpanic unionMap1.cloneWithType();
-    assertTrue(mapVal2["b"] is decimal[]);
+    assertTrue(mapVal2["b"] is int[]);
 
     Union moviesUnion = [
         {
@@ -2201,10 +2216,13 @@ function testCloneWithTypeWithAmbiguousUnion() {
             }
         ];
 
-    Movie[] movieArr2 = checkpanic moviesUnion.cloneWithType();
-    assertTrue(movieArr2[0].year is decimal[]);
-    assertTrue(movieArr2[1].year is decimal[]);
-    assertTrue(movieArr2[2].year is decimal[]);
+    Movie[]|table<map<anydata>> movieArr2 = checkpanic moviesUnion.cloneWithType();
+    assertTrue(movieArr2 is Movie[]);
+    if (movieArr2 is Movie[]) {
+        assertTrue(movieArr2[0].year is int[]);
+        assertTrue(movieArr2[1].year is int[]);
+        assertTrue(movieArr2[2].year is int[]);
+    }
 
     table<Movie> movieTab2 = checkpanic tableUnion.cloneWithType();
     foreach Movie mov in movieTab2 {
@@ -2695,6 +2713,55 @@ function testCloneWithTypeWithXML() {
     json xmlArrayJson = xmlArrayAnydata.toJson();
     xml[] xmlArray = checkpanic xmlArrayJson.cloneWithType();
     test:assertValueEqual(xmlArray, xmlArrayAnydata);
+}
+
+type union_with_int string|float|byte|int:Unsigned8|int:Signed8|int;
+
+function testConvertToUnionWithAmbiguousMemberTypes() {
+    json j = {x: 1};
+    record {float x;}|record {int x;} v1 = checkpanic j.cloneWithType();
+    test:assertValueEqual(v1, {"x": 1.0});
+
+    j = {y: {x: 1}};
+    record {record {float x;}|record {int x;} y;} v2 = checkpanic j.cloneWithType();
+    test:assertValueEqual(v2, {"y": {"x": 1.0}});
+
+    j = {x: 1, y: 2};
+    record {float x; float|int y;}|record {int x; decimal y;} v3 = checkpanic j.cloneWithType();
+    test:assertValueEqual(v3, {"x": 1.0, "y": 2});
+
+    float x = 12.0;
+    int|float y1 = checkpanic x.cloneWithType();
+    test:assertValueEqual(y1, 12.0);
+
+    j = {x: 6.0, y: 12};
+    record {int|float x; float y;} y2 = checkpanic j.fromJsonWithType();
+    test:assertValueEqual(y2, {"x": 6.0, "y": 12.0});
+
+    j = {x: 6.0, y: 12};
+    record {int|float x; int y;} y3 = checkpanic j.fromJsonWithType();
+    test:assertValueEqual(y3, {"x": 6.0, "y": 12});
+
+    -127 val1 = -127;
+    union_with_int val1_ans = checkpanic val1.fromJsonWithType();
+    test:assertValueEqual(val1_ans, -127);
+
+    j = {x: 1};
+    record {float|int x;}|record {float x;}|record {int x;} val2_ans = checkpanic j.cloneWithType();
+    test:assertValueEqual(val2_ans, {x: 1});
+
+    2 val3 = 2;
+    1|2.0|2.0d|int|2 val3_ans = checkpanic val3.fromJsonWithType();
+    test:assertValueEqual(val3_ans, 2);
+
+    1|2.0|2.0d|2 val3_ans2 = checkpanic val3.fromJsonWithType();
+    test:assertValueEqual(val3_ans2, 2);
+
+    1|2.0d|2.0 val3_ans3 = checkpanic val3.fromJsonWithType();
+    test:assertValueEqual(val3_ans3, 2.0d);
+
+    1|2.0 val3_ans4 = checkpanic val3.cloneWithType();
+    test:assertValueEqual(val3_ans4, 2.0);
 }
 
 type Student4 record {
