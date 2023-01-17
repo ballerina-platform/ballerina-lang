@@ -379,7 +379,7 @@
           "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
         }
       },
-      "sortText": "CC",
+      "sortText": "AC",
       "filterText": "doTask",
       "insertText": "doTask(${1})",
       "insertTextFormat": "Snippet",
@@ -406,7 +406,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CC",
+      "sortText": "AC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
@@ -415,7 +415,7 @@
       "label": "list1",
       "kind": "Variable",
       "detail": "int[]",
-      "sortText": "BB",
+      "sortText": "AB",
       "insertText": "list1",
       "insertTextFormat": "Snippet"
     },
@@ -423,7 +423,7 @@
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "CB",
+      "sortText": "AB",
       "insertText": "value2",
       "insertTextFormat": "Snippet"
     },
@@ -434,7 +434,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "CM",
+      "sortText": "AM",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },

@@ -52,12 +52,7 @@ public class QueryExpressionContextTest extends CompletionTest {
                 "query_expr_ctx_onconflict_clause_config1a.json",
                 // Order By [asc/desc]
                 "query_expr_ctx_orderby_clause_config4.json",
-                "query_expr_ctx_config3.json", // issue #31449
-
-                // var declaration cases
-                "query_expr_ctx_config18.json",
-                "query_expr_ctx_config14.json",
-                "query_expr_ctx_config8.json"
+                "query_expr_ctx_config3.json" // issue #31449
         );
     }
 
