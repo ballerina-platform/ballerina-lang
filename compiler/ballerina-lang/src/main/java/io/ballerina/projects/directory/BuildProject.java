@@ -127,10 +127,6 @@ public class BuildProject extends Project {
     }
 
     private Optional<Path> modulePath(ModuleId moduleId) {
-        if (isGeneratedModule(currentPackage().module(moduleId))) {
-            return Optional.of(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(
-                    currentPackage().module(moduleId).moduleName().moduleNamePart()));
-        }
         if (currentPackage().moduleIds().contains(moduleId)) {
             if (currentPackage().getDefaultModule().moduleId() == moduleId) {
                 return Optional.of(sourceRoot);
@@ -142,12 +138,36 @@ public class BuildProject extends Project {
         return Optional.empty();
     }
 
+    private Optional<Path> generatedModulePath(ModuleId moduleId) {
+        if (currentPackage().moduleIds().contains(moduleId)) {
+            Optional<Path> generatedModulePath = Optional.of(sourceRoot.
+                    resolve(ProjectConstants.GENERATED_MODULES_ROOT));
+            if (currentPackage().getDefaultModule().moduleId() == moduleId && generatedModulePath.isPresent() &&
+                    Files.isDirectory(generatedModulePath.get())) {
+                return generatedModulePath;
+            }
+            String moduleName = currentPackage().module(moduleId).moduleName().moduleNamePart();
+            if (generatedModulePath.isPresent() && Files.isDirectory(generatedModulePath.get())) {
+                Optional<Path> generatedModuleDirPath = Optional.of(generatedModulePath.get().resolve(moduleName));
+                if (generatedModuleDirPath.isPresent() && Files.isDirectory(generatedModuleDirPath.get())) {
+                    return Optional.of(generatedModulePath.get().resolve(moduleName));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override
     public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);
             Optional<Path> modulePath = modulePath(moduleId);
             if (module.documentIds().contains(documentId)) {
+                Optional<Path> generatedModulePath = generatedModulePath(moduleId);
+                if (generatedModulePath.isPresent() && Files.exists(
+                        generatedModulePath.get().resolve(module.document(documentId).name()))) {
+                    return Optional.of(generatedModulePath.get().resolve(module.document(documentId).name()));
+                }
                 if (modulePath.isPresent()) {
                     return Optional.of(modulePath.get().resolve(module.document(documentId).name()));
                 }
@@ -180,6 +200,8 @@ public class BuildProject extends Project {
     public DocumentId documentId(Path file) {
         if (isFilePathInProject(file)) {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
+            String parentFileName = Optional.of(parent.getFileName()).get().toString();
+            boolean isDefaultModule = false;
             for (ModuleId moduleId : this.currentPackage().moduleIds()) {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
@@ -188,10 +210,12 @@ public class BuildProject extends Project {
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
+                    isDefaultModule = true;
                 }
 
                 Module module = this.currentPackage().module(moduleId);
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)) {
+                if (parentFileName.equals(moduleDirName) ||
+                        (isDefaultModule && ProjectConstants.GENERATED_MODULES_ROOT.equals(parentFileName))) {
                     // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
@@ -199,7 +223,7 @@ public class BuildProject extends Project {
                             return documentId;
                         }
                     }
-                } else if (Optional.of(parent.getFileName()).get().toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                } else if (ProjectConstants.TEST_DIR_NAME.equals(parentFileName)) {
                     // this is a test file
                     if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
                             .equals(moduleDirName)) {

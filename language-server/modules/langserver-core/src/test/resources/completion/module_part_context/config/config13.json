@@ -9,7 +9,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "B",
+      "sortText": "D",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "B",
+      "sortText": "AD",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "A",
+      "sortText": "AE",
       "filterText": "function",
       "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
@@ -36,7 +36,7 @@
       "label": "function <name>(..) => <expression>",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "function",
       "insertText": "function ${1:name}(${2})${3} => (${4});",
       "insertTextFormat": "Snippet"

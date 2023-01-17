@@ -46,7 +46,9 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
@@ -130,10 +132,14 @@ public class TesterinaUtils {
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
+        String suiteExecuteFilePath = suite.getExecuteFilePath();
+        if (suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
+            suiteExecuteFilePath = suiteExecuteFilePath.replace(DOT, FILE_NAME_PERIOD_SEPARATOR);
+        }
         String testExecuteClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
-                suite.getExecuteFilePath());
+                suiteExecuteFilePath);
         Class<?> testExecuteClazz;
         try {
             testExecuteClazz = classLoader.loadClass(testExecuteClassName);
@@ -142,6 +148,9 @@ public class TesterinaUtils {
         }
         Scheduler scheduler = new Scheduler(4, false);
         Scheduler initScheduler = new Scheduler(4, false);
+
+        // start TRAP signal handler which produces the strand dump
+        startTrapSignalHandler();
 
         // This will init and start the test module.
         startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args);

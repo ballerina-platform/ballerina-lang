@@ -17,6 +17,7 @@
  */
 
 apply from: "$rootDir/gradle/javaProject.gradle"
+apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
     compile.transitive = false

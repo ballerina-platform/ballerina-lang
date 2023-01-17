@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.evaluation.engine;
 import com.sun.jdi.Method;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
@@ -50,10 +50,10 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
  */
 public class NodeBasedArgProcessor extends InvocationArgProcessor {
 
-    private final FunctionSignatureNode definitionNode;
+    private final FunctionDefinitionNode definitionNode;
 
     public NodeBasedArgProcessor(SuspendedContext context, String functionName, Method jdiMethodReference,
-                                 FunctionSignatureNode definitionNode) {
+                                 FunctionDefinitionNode definitionNode) {
         super(context, functionName, jdiMethodReference);
         this.definitionNode = definitionNode;
     }
@@ -72,8 +72,8 @@ public class NodeBasedArgProcessor extends InvocationArgProcessor {
         List<ParameterNode> params = new ArrayList<>();
         Map<String, ParameterNode> remainingParams = new HashMap<>();
 
-        if (!definitionNode.parameters().isEmpty()) {
-            for (ParameterNode paramNode : definitionNode.parameters()) {
+        if (!definitionNode.functionSignature().parameters().isEmpty()) {
+            for (ParameterNode paramNode : definitionNode.functionSignature().parameters()) {
                 params.add(paramNode);
                 remainingParams.put(getParameterName(paramNode), paramNode);
             }
