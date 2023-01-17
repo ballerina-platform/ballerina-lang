@@ -2860,11 +2860,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, data.env,
                     names.fromIdNode(varRefExpr.pkgAlias), varName);
             // if no symbol, check same for object attached function
-            if (symbol == symTable.notFoundSymbol && data.env.enclType != null) {
+            BLangType enclType = data.env.enclType;
+            if (symbol == symTable.notFoundSymbol && enclType != null && enclType.getBType().tsymbol.scope != null) {
                 Name objFuncName = names.fromString(Symbols
-                        .getAttachedFuncSymbolName(data.env.enclType.getBType().tsymbol.name.value, varName.value));
+                        .getAttachedFuncSymbolName(enclType.getBType().tsymbol.name.value, varName.value));
                 symbol = symResolver.resolveStructField(varRefExpr.pos, data.env, objFuncName,
-                        data.env.enclType.getBType().tsymbol);
+                        enclType.getBType().tsymbol);
             }
 
             // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
