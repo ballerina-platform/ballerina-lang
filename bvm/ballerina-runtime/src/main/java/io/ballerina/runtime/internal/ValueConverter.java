@@ -50,8 +50,10 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
@@ -71,14 +73,14 @@ public class ValueConverter {
 
     public static Object convert(Object value, Type targetType) {
         try {
-            return convert(value, targetType, new ArrayList<>());
+            return convert(value, targetType, new HashSet<>());
         } catch (BallerinaException e) {
             throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
                     StringUtils.fromString(e.getDetail()));
         }
     }
 
-    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {
 
         if (value == null) {
             if (getTargetFromTypeDesc(targetType).isNilable()) {
@@ -99,7 +101,7 @@ public class ValueConverter {
 
         List<String> errors = new ArrayList<>();
         Type convertibleType = TypeConverter.getConvertibleType(value, targetType,
-                null, new ArrayList<>(), errors, true);
+                null, new HashSet<>(), errors, true);
         if (convertibleType == null) {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
@@ -162,7 +164,7 @@ public class ValueConverter {
         return targetType;
     }
 
-    private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convertMap(BMap<?, ?> map, Type targetType, Set<TypeValuePair> unresolvedValues) {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
@@ -196,7 +198,7 @@ public class ValueConverter {
         throw createConversionError(map, targetType);
     }
 
-    private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
+    private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, Set<TypeValuePair> unresolvedValues,
                                                          RecordType recordType,
                                                          Type restFieldType, Map<String, Type> targetTypeField) {
         Map<String, Object> valueMap = new HashMap<>();
@@ -207,14 +209,14 @@ public class ValueConverter {
         return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
     }
 
-    private static Object convertRecordEntry(List<TypeValuePair> unresolvedValues,
+    private static Object convertRecordEntry(Set<TypeValuePair> unresolvedValues,
                                              Type restFieldType, Map<String, Type> targetTypeField,
                                              Map.Entry<?, ?> entry) {
         Type fieldType = targetTypeField.getOrDefault(entry.getKey().toString(), restFieldType);
         return convert(entry.getValue(), fieldType, unresolvedValues);
     }
 
-    private static Object convertArray(BArray array, Type targetType, List<TypeValuePair> unresolvedValues) {
+    private static Object convertArray(BArray array, Type targetType, Set<TypeValuePair> unresolvedValues) {
         switch (targetType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) targetType;
@@ -266,7 +268,7 @@ public class ValueConverter {
     }
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
-                                       List<TypeValuePair> unresolvedValues) {
+                                       Set<TypeValuePair> unresolvedValues) {
         TableType tableType = (TableType) targetType;
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;

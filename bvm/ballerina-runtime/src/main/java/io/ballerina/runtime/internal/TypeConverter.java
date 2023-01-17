@@ -264,7 +264,7 @@ public class TypeConverter {
     }
 
     public static Type getConvertibleType(Object inputValue, Type targetType, String varName,
-                                          List<TypeValuePair> unresolvedValues, List<String> errors,
+                                          Set<TypeValuePair> unresolvedValues, List<String> errors,
                                           boolean allowNumericConversion) {
 
         int targetTypeTag = targetType.getTag();
@@ -340,7 +340,7 @@ public class TypeConverter {
 
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
                                                            String varName, List<String> errors,
-                                                           List<TypeValuePair> unresolvedValues,
+                                                           Set<TypeValuePair> unresolvedValues,
                                                            boolean allowNumericConversion) {
         List<Type> memberTypes = targetUnionType.getMemberTypes();
         if (TypeChecker.isStructuredType(getType(inputValue))) {
@@ -370,7 +370,7 @@ public class TypeConverter {
 
     public static Type getConvertibleFiniteType(Object inputValue, BFiniteType targetFiniteType,
                                                 String varName, List<String> errors,
-                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+                                                Set<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         // only the first matching type is returned.
         if (targetFiniteType.valueSpace.size() == 1) {
             Type valueType = getType(targetFiniteType.valueSpace.iterator().next());
@@ -405,7 +405,7 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
-                                                     List<TypeValuePair> unresolvedValues,
+                                                     Set<TypeValuePair> unresolvedValues,
                                                      List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
@@ -546,7 +546,7 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
-                                                  List<TypeValuePair> unresolvedValues, String varName,
+                                                  Set<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
@@ -572,7 +572,7 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
-                                                    List<TypeValuePair> unresolvedValues, String varName,
+                                                    Set<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;
@@ -617,7 +617,7 @@ public class TypeConverter {
     }
 
     private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
-                                                    List<TypeValuePair> unresolvedValues, String varName,
+                                                    Set<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowNumericConversion) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;

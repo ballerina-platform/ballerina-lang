@@ -375,7 +375,7 @@ public class ConfigValueCreator {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         Type convertibleType = null;
         for (Type type : unionType.getMemberTypes()) {
-            convertibleType = TypeConverter.getConvertibleType(balValue, type, null, new ArrayList<>(),
+            convertibleType = TypeConverter.getConvertibleType(balValue, type, null, new HashSet<>(),
                     new ArrayList<>(), false);
             if (convertibleType != null) {
                 break;
