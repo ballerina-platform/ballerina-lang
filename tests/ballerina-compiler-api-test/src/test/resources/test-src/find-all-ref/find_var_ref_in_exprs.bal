@@ -186,8 +186,8 @@ function testListConstructorSpreadOp() {
 }
 
 function testRegexpExp() {
-    string r1 = re `[a-z]`;
-    string r2 = re `((c)(d))`;
-    string r3 = re `[bB].tt[a-z]*`;
-    string r4 = re `[bB].${r3}`;
+    string:RegExp r1 = re `[a-z]`;
+    string:RegExp r2 = re `((c)(d))`;
+    string:RegExp r3 = re `[bB].tt[a-z]*`;
+    string:RegExp r4 = re `[bB].${r3}`;
 }
