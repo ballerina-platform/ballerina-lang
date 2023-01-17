@@ -1,5 +1,12 @@
-import ballerina/module1;
+type Config record {
+    int count = 10;
+    string name = "";
+};
 
-function testFunction() {
-    final module1:Client clientEP = check new("http://example.com", );
+public client class MyClient {
+    function init(string url, *Config config) {
+
+    }
 }
+
+MyClient myClient = new("http://example.com", );
