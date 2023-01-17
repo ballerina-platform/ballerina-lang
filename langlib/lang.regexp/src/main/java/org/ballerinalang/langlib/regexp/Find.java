@@ -22,6 +22,9 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
 
@@ -35,6 +38,12 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TY
 public class Find {
 
     public static BArray find(BRegexpValue regExp, BString str, int startIndex) {
+        int strLength = str.length();
+        if (startIndex < 0 || strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
+
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         if (matcher.find(startIndex)) {
             return RegexUtil.getGroupZeroAsSpan(matcher);
@@ -43,6 +52,12 @@ public class Find {
     }
 
     public static BArray findGroups(BRegexpValue regExp, BString str, int startIndex) {
+        int strLength = str.length();
+        if (startIndex < 0 || strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
+
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region(startIndex, str.length());
@@ -62,6 +77,12 @@ public class Find {
     }
 
     public static BArray findAll(BRegexpValue regExp, BString str, int startIndex) {
+        int strLength = str.length();
+        if (startIndex < 0 || strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
+
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region(startIndex, str.length());
@@ -75,6 +96,12 @@ public class Find {
     }
 
     public static BArray findAllGroups(BRegexpValue regExp, BString str, int startIndex) {
+        int strLength = str.length();
+        if (startIndex < 0 || strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
+
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
