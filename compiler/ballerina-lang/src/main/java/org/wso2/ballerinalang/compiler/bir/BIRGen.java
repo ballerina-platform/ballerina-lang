@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
@@ -601,7 +600,10 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         Name funcName;
-        analyzeParametersAndReturnType(astFunc);
+        List<BLangSimpleVariable> requiredParams = astFunc.requiredParams;
+        BLangSimpleVariable restParam = astFunc.restParam;
+        BLangType returnTypeNode = astFunc.returnTypeNode;
+        analyzeParametersAndReturnType(requiredParams, restParam, returnTypeNode);
         if (isTypeAttachedFunction) {
             funcName = names.fromString(astFunc.symbol.name.value);
         } else {
@@ -639,12 +641,11 @@ public class BIRGen extends BLangNodeVisitor {
 
         // Populate annotation attachments on return type
         BTypeSymbol tsymbol = astFunc.symbol.type.tsymbol;
-        if (astFunc.returnTypeNode != null && tsymbol != null) {
+        if (returnTypeNode != null && tsymbol != null) {
             birFunc.returnTypeAnnots.addAll(getBIRAnnotAttachments(((BInvokableTypeSymbol) tsymbol).returnTypeAnnots));
         }
 
-        birFunc.argsCount = astFunc.requiredParams.size()
-                + (astFunc.restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
+        birFunc.argsCount = requiredParams.size() + (restParam != null ? 1 : 0) + astFunc.paramClosureMap.size();
         if (astFunc.flagSet.contains(Flag.ATTACHED) && typeDefs.containsKey(astFunc.receiver.getBType().tsymbol)) {
             typeDefs.get(astFunc.receiver.getBType().tsymbol).attachedFuncs.add(birFunc);
         } else {
@@ -664,9 +665,9 @@ public class BIRGen extends BLangNodeVisitor {
         astFunc.paramClosureMap.forEach((k, v) -> addRequiredParam(birFunc, v, astFunc.pos));
 
         // Create variable declaration for function params
-        astFunc.requiredParams.forEach(requiredParam -> addParam(birFunc, requiredParam));
-        if (astFunc.restParam != null) {
-            addRestParam(birFunc, astFunc.restParam.symbol, astFunc.restParam.pos);
+        requiredParams.forEach(requiredParam -> addParam(birFunc, requiredParam));
+        if (restParam != null) {
+            addRestParam(birFunc, restParam.symbol, restParam.pos);
         }
 
         if (astFunc.flagSet.contains(Flag.RESOURCE)) {
@@ -741,23 +742,23 @@ public class BIRGen extends BLangNodeVisitor {
         return self;
     }
 
-    private void analyzeParametersAndReturnType(BLangFunction astFunc) {
-        BLangType typeNode = astFunc.returnTypeNode;
-        if (typeNode != null) {
-            typeNode.accept(this);
-        }
-        for (BLangSimpleVariable parameter : astFunc.requiredParams) {
+    private void analyzeParametersAndReturnType(List<BLangSimpleVariable> requiredParams, BLangVariable restParam,
+                                                BLangType returnTypeNode) {
+        BLangType typeNode;
+        for (BLangSimpleVariable parameter : requiredParams) {
             typeNode = parameter.typeNode;
             if (typeNode != null) {
                 typeNode.accept(this);
             }
         }
-        BLangSimpleVariable restParam = astFunc.restParam;
         if (restParam != null) {
             typeNode = restParam.typeNode;
             if (typeNode != null) {
                 typeNode.accept(this);
             }
+        }
+        if (returnTypeNode != null) {
+            returnTypeNode.accept(this);
         }
     }
 
@@ -1234,23 +1235,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        BLangType typeNode = functionTypeNode.returnTypeNode;
-        if (typeNode != null) {
-            typeNode.accept(this);
-        }
-        for (BLangSimpleVariable parameter : functionTypeNode.params) {
-            typeNode = parameter.typeNode;
-            if (typeNode != null) {
-                typeNode.accept(this);
-            }
-        }
-        BLangVariable restParam = functionTypeNode.restParam;
-        if (restParam != null) {
-            typeNode = restParam.typeNode;
-            if (typeNode != null) {
-                typeNode.accept(this);
-            }
-        }
+        analyzeParametersAndReturnType(functionTypeNode.params, functionTypeNode.restParam,
+                                       functionTypeNode.returnTypeNode);
     }
 
     @Override
@@ -1297,13 +1283,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        BType type = intersectionTypeNode.getBType();
-        if (type.tag != TypeTags.INTERSECTION) {
-            return;
-        }
-        BType effectiveType = ((BIntersectionType) intersectionTypeNode.getBType()).effectiveType;
-        if (effectiveType.tag == TypeTags.RECORD || effectiveType.tag == TypeTags.TUPLE) {
-            createNewTypedescInst(effectiveType, intersectionTypeNode.pos);
+        for (BLangType typeNode : intersectionTypeNode.constituentTypeNodes) {
+            typeNode.accept(this);
         }
     }
 
