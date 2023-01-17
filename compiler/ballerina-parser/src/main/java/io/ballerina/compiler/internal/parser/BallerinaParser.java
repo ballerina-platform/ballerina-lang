@@ -335,6 +335,22 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as a let var declaration.
+     *
+     * @param allowActions Allow actions
+     * @return Parsed node
+     */
+    public STNode parseAsLetVarDeclaration(boolean allowActions) {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        switchContext(ParserRuleContext.QUERY_EXPRESSION);
+        switchContext(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL);
+        STNode letVarDeclaration = parseLetVarDecl(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, true, allowActions);
+        letVarDeclaration = invalidateRestAndAddToTrailingMinutiae(letVarDeclaration);
+        return letVarDeclaration;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
