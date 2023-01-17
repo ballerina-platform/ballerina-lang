@@ -318,6 +318,7 @@ public abstract class NodeVisitor {
     public void visit(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
         visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
     }
+
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
