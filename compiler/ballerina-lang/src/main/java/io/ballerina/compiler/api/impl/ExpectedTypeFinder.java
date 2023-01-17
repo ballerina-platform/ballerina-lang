@@ -209,7 +209,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField &&
                 ((BLangRecordLiteral.BLangRecordVarNameField) bLangNode).symbol != null &&
-            node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 BLangExpression bLangExpression = ((BLangRecordLiteral.BLangRecordVarNameField) bLangNode)
                         .impConversionExpr;
                 if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
@@ -242,7 +242,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null || bLangNode.toString().equals("")) {
+        if (bLangNode == null) {
             return Optional.empty();
         }
 
@@ -287,7 +287,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         if (node.typedBindingPattern().typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC) {
-            throw new IllegalStateException();
+            Types types = semanticModel.types();
+            TypeBuilder builder = types.builder();
+            UnionTypeSymbol unionTypeSymbol = builder.UNION_TYPE.withMemberTypes(types.ANY, types.ERROR).build();
+            return Optional.of(unionTypeSymbol);
         }
 
         return this.visit(node.typedBindingPattern().bindingPattern());
@@ -416,7 +419,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         BType returnType = ((BLangArrowFunction) nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange()))
                 .funcType.getReturnType();
         if (!node.rightDoubleArrow().isMissing() &&
-               node.rightDoubleArrow().lineRange().endLine().offset() <= linePosition.offset()) {
+                node.rightDoubleArrow().lineRange().endLine().offset() <= linePosition.offset()) {
             // Cursor is at the expression node
             return Optional.of(typesFactory.getTypeDescriptor(returnType));
         }
@@ -481,9 +484,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             if (bLangNode instanceof BLangTypeInit) {
                 List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                         initInvocation).symbol)).params;
+                if (params.size() == 0) {
+                    throw new IllegalStateException();
+                }
+
                 int argIndex = 0;
                 List<BLangExpression> argsExpr = ((BLangTypeInit) bLangNode).argsExpr;
-                if (argsExpr.isEmpty() && !params.isEmpty()) {
+                if (argsExpr.isEmpty()) {
                     return getTypeFromBType(params.get(0).getType());
                 }
 
@@ -516,16 +523,27 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (parenthesizedArgList.isPresent() && isWithinParenthesis(linePosition,
                 parenthesizedArgList.get().openParenToken(),
                 parenthesizedArgList.get().closeParenToken())) {
-            if (bLangNode instanceof BLangTypeInit &&
-                    ((BLangInvocation) ((BLangTypeInit) bLangNode).
-                    initInvocation).symbol != null) {
-                List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
-                        initInvocation).symbol)).params;
+            if (bLangNode instanceof BLangTypeInit) {
+                BLangInvocation initInvocation = (BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation;
+                if (initInvocation.symbol == null) {
+                    throw new IllegalStateException();
+                }
+
+                List<BVarSymbol> params = ((BInvokableSymbol) initInvocation.symbol).params;
+                int size = initInvocation.argExprs.size();
+                if (params.size() == 0) {
+                    throw new IllegalStateException();
+                }
+
+                if (size == 0) {
+                    return getParamType(initInvocation);
+                }
+
                 int argIndex = 0;
                 for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
                     if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())
                             && argIndex < params.size()) {
-                            return getTypeFromBType(params.get(argIndex).getType());
+                        return getTypeFromBType(params.get(argIndex).getType());
                     }
 
                     argIndex += 1;
@@ -646,12 +664,14 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (extractedType.get().typeKind() != TypeDescKind.ARRAY) {
-            return Optional.empty();
+            throw new IllegalStateException();
         }
 
-        BArrayType bArrayType = (BArrayType) ((BallerinaArrayTypeSymbol) extractedType.get()).getBType();
-        if (bArrayType.eType != null && bArrayType.eType.getKind() != TypeKind.OTHER) {
-            return Optional.of(typesFactory.getTypeDescriptor(bArrayType.eType));
+        if (isWithinParenthesis(linePosition, node.openBracket(), node.closeBracket())) {
+            BArrayType bArrayType = (BArrayType) ((BallerinaArrayTypeSymbol) extractedType.get()).getBType();
+            if (bArrayType.eType != null && bArrayType.eType.getKind() != TypeKind.OTHER) {
+                return Optional.of(typesFactory.getTypeDescriptor(bArrayType.eType));
+            }
         }
 
         return Optional.empty();
@@ -1004,7 +1024,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     public List<Symbol> getModuleContent(QualifiedNameReferenceNode qNameRef,
-                                                Predicate<Symbol> predicate) {
+                                         Predicate<Symbol> predicate) {
         Optional<ModuleSymbol> module = searchModuleForAlias(getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                         .filter(predicate)

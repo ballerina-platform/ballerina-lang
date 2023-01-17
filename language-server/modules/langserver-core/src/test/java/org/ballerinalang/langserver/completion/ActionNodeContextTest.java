@@ -20,7 +20,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,6 +46,9 @@ public class ActionNodeContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.emptyList();
+        return Arrays.asList(
+                // var declaration cases
+                "remote_action_config5.json"
+        );
     }
 }

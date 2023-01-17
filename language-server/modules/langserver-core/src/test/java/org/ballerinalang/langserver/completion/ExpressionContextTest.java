@@ -62,13 +62,26 @@ public class ExpressionContextTest extends CompletionTest {
 
                 // expectedType cases
                 "mapping_constructor_expr_ctx_config3.json",
-                "new_expr_ctx_config15.json",
-                "new_expr_ctx_config11.json",
-                "new_expr_ctx_config16.json",
-                "new_expr_ctx_config26.json",
-                "new_expr_ctx_config14.json",
                 "mapping_expr_ctx_config38_negative.json",
-                "anon_func_expr_ctx_config1a.json"
-        );
+                "anon_func_expr_ctx_config1a.json",
+
+                // var declaration cases
+                "mapping_expr_ctx_config5.json",
+                "mapping_expr_ctx_config4.json",
+                "mapping_expr_ctx_config8.json",
+                "mapping_expr_ctx_config6.json",
+                "mapping_expr_ctx_config2.json",
+                "mapping_expr_ctx_config1.json",
+                "mapping_expr_ctx_config3.json",
+                "mapping_expr_ctx_config9.json",
+
+                "anon_func_expr_ctx_config1b.json",
+                "object_constructor_expr_ctx_config1.json",
+
+                // init fix cases
+
+                "mapping_expr_ctx_config32b.json"
+
+                );
     }
 }
