@@ -44,13 +44,12 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 //)
 public class FromBytes {
 
-    private static final CharsetDecoder charsetDecoder = StandardCharsets.UTF_8.newDecoder();
-
     private FromBytes() {
     }
 
     public static Object fromBytes(BArray bytes) {
         try {
+            CharsetDecoder charsetDecoder = StandardCharsets.UTF_8.newDecoder();
             String str = charsetDecoder.decode(ByteBuffer.wrap(bytes.getBytes())).toString();
             charsetDecoder.reset();
             return StringUtils.fromString(str);

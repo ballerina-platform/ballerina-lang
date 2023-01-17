@@ -60,6 +60,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,6 +71,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.StringJoiner;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
@@ -105,8 +107,25 @@ public class RunNativeImageTestTask implements Task {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    private static class StreamGobbler extends Thread {
+        private InputStream inputStream;
+        private PrintStream printStream;
+
+        public StreamGobbler(InputStream inputStream, PrintStream printStream) {
+            this.inputStream = inputStream;
+            this.printStream = printStream;
+        }
+
+        @Override
+        public void run() {
+            Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8);
+            while (sc.hasNextLine()) {
+                printStream.println(sc.nextLine());
+            }
+        }
+    }
+
     private final PrintStream out;
-    private final PrintStream err;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -117,12 +136,11 @@ public class RunNativeImageTestTask implements Task {
 
     TestReport testReport;
 
-    public RunNativeImageTestTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
+    public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
                                   Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
-        this.err = err;
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -505,11 +523,12 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException("error while generating the necessary graalvm argument file", e);
         }
 
-        ProcessBuilder builder = new ProcessBuilder();
+        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
-        IOUtils.copy(process.getInputStream(), out);
-        IOUtils.copy(process.getErrorStream(), err);
+        StreamGobbler outputGobbler =
+                new StreamGobbler(process.getInputStream(), out);
+        outputGobbler.start();
 
         if (process.waitFor() == 0) {
             cmdArgs = new ArrayList<>();
@@ -530,8 +549,9 @@ public class RunNativeImageTestTask implements Task {
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();
-            IOUtils.copy(process.getInputStream(), out);
-            IOUtils.copy(process.getErrorStream(), err);
+            outputGobbler =
+                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler.start();
             return process.waitFor();
         } else {
             return 1;
