@@ -48,7 +48,6 @@ import java.util.List;
 class FormatUtil {
     static final String CMD_NAME = "format";
     private static final PrintStream outStream = System.err;
-//    private static Path projectPath;
 
     /**
      * Execute formatter.
