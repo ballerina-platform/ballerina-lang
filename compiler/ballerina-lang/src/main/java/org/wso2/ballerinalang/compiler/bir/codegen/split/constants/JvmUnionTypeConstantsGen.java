@@ -46,6 +46,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
@@ -66,6 +67,9 @@ public class JvmUnionTypeConstantsGen {
     private final Queue<TypeNamePair> queue;
     private final Map<BUnionType, String> unionTypeVarMap;
 
+    private int unionTypeVarCount;
+    private int methodCount;
+
     /**
      * Stack keeps track of recursion in union types. The method creation is performed only if recursion is completed.
      */
@@ -78,6 +82,8 @@ public class JvmUnionTypeConstantsGen {
         funcNames = new ArrayList<>();
         queue = new LinkedList<>();
         unionTypeVarMap = new TreeMap<>(bTypeHashComparator);
+        unionTypeVarCount = 0;
+        methodCount = 1;
     }
 
     public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
@@ -95,6 +101,14 @@ public class JvmUnionTypeConstantsGen {
 
     private String generateBUnionInits(BUnionType type, SymbolTable symbolTable) {
         String varName = JvmConstants.UNION_TYPE_VAR_PREFIX + constantIndex++;
+        if (unionTypeVarCount % MAX_CONSTANTS_PER_METHOD == 0 && unionTypeVarCount != 0) {
+            mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
+                    B_UNION_TYPE_INIT_METHOD + methodCount, "()V", false);
+            genMethodReturn(mv);
+
+            mv = cw.visitMethod(ACC_STATIC, B_UNION_TYPE_INIT_METHOD + methodCount++, "()V",
+                    null, null);
+        }
         visitBUnionField(varName);
         createBunionType(mv, type, varName);
         // Queue is used here to avoid recursive calls to the genPopulateMethod. This can happen when a union
@@ -108,7 +122,35 @@ public class JvmUnionTypeConstantsGen {
                 genPopulateMethod((BUnionType) typeNamePair.type, typeNamePair.varName, symbolTable);
             }
         }
+        unionTypeVarCount++;
         return varName;
+    }
+
+    private void visitUnionTypePopulateInitMethods() {
+        int populateFuncCount = 0;
+        int populateInitMethodCount = 1;
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_UNION_TYPE_POPULATE_METHOD,
+                "()V", null, null);
+        for (String funcName : funcNames) {
+            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
+                mv = cw.visitMethod(ACC_STATIC, B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount++,
+                        "()V", null, null);
+            }
+            mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass, funcName, "()V", false);
+
+            populateFuncCount++;
+            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
+                if (populateFuncCount != funcNames.size()) {
+                    mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
+                            B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                }
+                genMethodReturn(mv);
+            }
+        }
+
+        if (populateFuncCount % MAX_CONSTANTS_PER_METHOD != 0) {
+            genMethodReturn(mv);
+        }
     }
 
     private void genPopulateMethod(BUnionType type, String varName, SymbolTable symbolTable) {
@@ -139,11 +181,7 @@ public class JvmUnionTypeConstantsGen {
 
     public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_UNION_TYPE_POPULATE_METHOD, "()V", null, null);
-        for (String funcName : funcNames) {
-            mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass, funcName, "()V", false);
-        }
-        genMethodReturn(mv);
+        visitUnionTypePopulateInitMethods();
         cw.visitEnd();
         jarEntries.put(unionVarConstantsClass + ".class", cw.toByteArray());
     }
