@@ -17,11 +17,11 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents a tuple member symbol.
+ * Represents a member type symbol.
  *
  * @since 2201.4.0
  */
-public interface TupleMemberSymbol extends Symbol, Annotatable {
+public interface MemberTypeSymbol extends Symbol, Annotatable {
 
     /**
      * Get the type of the member.

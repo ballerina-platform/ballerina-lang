@@ -19,7 +19,7 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTupleMemberSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMemberTypeSymbol;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -114,7 +114,7 @@ public class ConstAnnotationAttachmentSymbolTest {
     @Test(dataProvider = "TupleMemberTypeDataProvider")
     public void testTupleMemberTypes(int line, int col, String annotName) {
         Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(line, col));
-        BallerinaTupleMemberSymbol tupleMember = (BallerinaTupleMemberSymbol) optionalSymbol.get();
+        BallerinaMemberTypeSymbol tupleMember = (BallerinaMemberTypeSymbol) optionalSymbol.get();
         assertEquals(tupleMember.kind(), SymbolKind.TUPLE_MEMBER);
 
         assertEquals(tupleMember.annotAttachments().size(), 1);

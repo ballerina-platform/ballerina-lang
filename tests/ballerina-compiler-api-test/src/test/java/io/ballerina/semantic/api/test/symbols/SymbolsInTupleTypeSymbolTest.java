@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -73,7 +73,7 @@ public class SymbolsInTupleTypeSymbolTest {
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
 
-        TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
+        MemberTypeSymbol tupleMember = (MemberTypeSymbol) symbol.get();
         assertEquals(tupleMember.typeDescriptor().typeKind(), typeKind);
 
         // check annotation attachments
@@ -106,13 +106,13 @@ public class SymbolsInTupleTypeSymbolTest {
         assertEquals(((TypeDefinitionSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.TUPLE);
         TupleTypeSymbol tupleType = (TupleTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
 
-        List<TupleMemberSymbol> tupleMembers = tupleType.members();
+        List<MemberTypeSymbol> tupleMembers = tupleType.members();
         assertEquals(tupleMembers.size(), 3);
 
         // check tuple members
         for (int i = 0; i < typeDescs.size(); i++) {
             assertEquals(tupleMembers.get(i).kind(), SymbolKind.TUPLE_MEMBER);
-            TupleMemberSymbol memberType = tupleMembers.get(i);
+            MemberTypeSymbol memberType = tupleMembers.get(i);
             assertEquals(memberType.typeDescriptor().typeKind(), typeDescs.get(i));
 
             // check annot attachments of tuple members
