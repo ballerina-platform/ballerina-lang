@@ -20,7 +20,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,12 +47,9 @@ public class VariableDeclarationContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList(
+        return List.of(
                 // expected type cases
-                "var_def_ctx_config16.json",
-
-                // var declaration changes
-                "var_def_in_obj_constructor_config1.json"
+                "var_def_ctx_config16.json" // issue #38711
         );
     }
 }
