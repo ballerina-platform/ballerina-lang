@@ -20,7 +20,7 @@
 }
 public type AG string;
 
-type T1 [int, @member int, string...];
+type T1 [@member int, @member int, @member AG];
 
 function testTupleAnnot() {
     [@Annot string, @Annot int] thisOne = ["aaa", 2];

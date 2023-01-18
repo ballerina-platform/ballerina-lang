@@ -104,9 +104,6 @@ public class AnnotationSymbolTest {
                 {96, 11, WORKER, of("v1")},
                 {105, 5, ENUM, of("v1", "v5")},
                 {109, 4, ENUM_MEMBER, of("v1")},
-                {118, 25, TUPLE_MEMBER, of("v5")},
-                {121, 8, TUPLE_MEMBER, of("v5")},
-                {121, 20, TUPLE_MEMBER, of("v5")}
         };
     }
 

@@ -193,13 +193,7 @@ public class TypeSymbolTest {
 
     @Test(dataProvider = "TupleTypeMemberPosProvider")
     public void testTupleMemberTypes(int line, int col, TypeDescKind typeKind, String signature) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
-
-        MemberTypeSymbol tupleMember = (MemberTypeSymbol) symbol.get();
-        assertEquals(tupleMember.typeDescriptor().typeKind(), typeKind);
-        assertEquals(tupleMember.typeDescriptor().signature(), signature);
+        assertBasicsAndGetType(line, col, typeKind, signature);
     }
 
     @DataProvider(name = "TupleTypeMemberPosProvider")

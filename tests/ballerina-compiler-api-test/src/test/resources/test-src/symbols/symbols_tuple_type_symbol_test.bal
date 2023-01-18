@@ -14,10 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type TupType [@Config {count: 1} @HttpConfig int, @Config {count: 2} string, @HttpConfig boolean];
+type BuiltInTupType [@Config {count: 1} @HttpConfig int, @Config {count: 2} string, @HttpConfig boolean];
+
+type RecType record {
+    int a;
+};
+
+type AType string|int;
+
+type BType int;
+
+const BConst = "BB";
+
+type UserDefTupType [@HttpConfig RecType, AType, BType, BConst];
 
 function test() {
-    [@TLSConfig @Config {count: 1} string, @HttpConfig int] tuple = ["String", 10];
+    [@TLSConfig @Config {count: 1} string, @HttpConfig AType] tuple = ["String", 10];
 }
 
 // utils
