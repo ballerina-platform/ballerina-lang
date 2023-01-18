@@ -204,8 +204,12 @@ public class TesterinaUtils {
     private static void stopSuite(Scheduler scheduler, Class<?> initClazz) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
+        Object response = stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
                 new Object[]{scheduler.getRuntimeRegistry()});
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("stopping modules for test suite failed due to " +
+                    formatErrorMessage((Throwable) response), (Throwable) response);
+        }
     }
 
     private static String formatErrorMessage(Throwable e) {
