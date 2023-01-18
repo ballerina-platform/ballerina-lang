@@ -90,6 +90,7 @@ public class TypedescValueImpl implements  TypedescValue {
         return instantiate(s, new BInitialValueEntry[0]);
     }
 
+    @Override
     public MapValue getAnnotations() {
         return annotations;
     }

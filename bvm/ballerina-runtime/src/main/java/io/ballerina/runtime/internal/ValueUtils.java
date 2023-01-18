@@ -243,17 +243,17 @@ public class ValueUtils {
 
     /**
      * Provide the Typedesc Value depending on the immutability of a value.
-     * @param isReadOnly Indicates that the type is a read-only
+     * @param readOnly Indicates that the type is a subtype of readonly
      * @param value Ballerina value
-     * @param typedescValue typedesc value
+     * @param inherentType Inherent type of the value
      * @return     typedesc with the suitable type
      */
-    public static BTypedesc getTypedescValue(Boolean isReadOnly, BValue value, TypedescValueImpl typedescValue) {
-        if (isReadOnly) {
+    public static BTypedesc getTypedescValue(Boolean readOnly, BValue value, TypedescValueImpl inherentType) {
+        if (readOnly) {
             TypedescValueImpl typedesc = (TypedescValueImpl) createSingletonTypedesc(value);
-            typedesc.annotations = typedescValue.annotations;
+            typedesc.annotations = inherentType.annotations;
             return typedesc;
         }
-        return typedescValue;
+        return inherentType;
     }
 }
