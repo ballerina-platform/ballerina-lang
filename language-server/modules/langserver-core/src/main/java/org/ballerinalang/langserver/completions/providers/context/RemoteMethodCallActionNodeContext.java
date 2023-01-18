@@ -61,9 +61,6 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             return completionItems;
         }
 
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
-
         Optional<TypeSymbol> expressionType = Optional.empty();
         if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
             LinePosition linePosition = node.expression().location().lineRange().endLine();

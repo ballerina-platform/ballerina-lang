@@ -84,8 +84,6 @@ public class ClientResourceAccessActionNodeContext
             return completionItems;
         }
 
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
         LinePosition linePosition = node.expression().location().lineRange().endLine();
         Optional<TypeSymbol> expressionType = Optional.empty();
         if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {

@@ -4,6 +4,7 @@
     "character": 46
   },
   "source": "query_expression/source/query_expr_ctx_source14.bal",
+  "description": "",
   "items": [
     {
       "label": "module1",
@@ -564,7 +565,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "CL",
+      "sortText": "AL",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },

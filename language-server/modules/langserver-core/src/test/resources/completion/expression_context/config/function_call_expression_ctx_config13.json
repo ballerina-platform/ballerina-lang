@@ -4,6 +4,7 @@
     "character": 10
   },
   "source": "expression_context/source/function_call_expression_ctx_source13.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -579,7 +580,7 @@
       "label": "re ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "T",
+      "sortText": "P",
       "filterText": "re ``",
       "insertText": "re `${1}`",
       "insertTextFormat": "Snippet"
@@ -588,7 +589,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -596,7 +597,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "P",
+      "sortText": "L",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -604,7 +605,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -612,7 +613,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -620,7 +621,7 @@
       "label": "future",
       "kind": "TypeParameter",
       "detail": "Future",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -628,7 +629,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -636,7 +637,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -644,7 +645,7 @@
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "function",
       "insertTextFormat": "Snippet"
     },
@@ -652,7 +653,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -660,7 +661,7 @@
       "label": "typedesc",
       "kind": "TypeParameter",
       "detail": "Typedesc",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -668,7 +669,7 @@
       "label": "readonly",
       "kind": "TypeParameter",
       "detail": "Readonly",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -676,7 +677,7 @@
       "label": "handle",
       "kind": "TypeParameter",
       "detail": "Handle",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -684,7 +685,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -692,7 +693,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -700,7 +701,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -708,7 +709,7 @@
       "label": "any",
       "kind": "TypeParameter",
       "detail": "Any",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -716,7 +717,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "R",
+      "sortText": "N",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
