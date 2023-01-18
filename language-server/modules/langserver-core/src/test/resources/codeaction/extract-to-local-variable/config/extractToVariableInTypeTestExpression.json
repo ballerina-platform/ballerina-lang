@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "boolean var1 \u003d val is int;\n    "
+          "newText": "boolean var1 = val is int;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTypeTestExpression.bal",
+          {
+            "line": 2,
+            "character": 20
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

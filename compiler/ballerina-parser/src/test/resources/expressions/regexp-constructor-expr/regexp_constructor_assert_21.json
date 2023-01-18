@@ -149,7 +149,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "$"
                                             }
@@ -272,7 +272,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "$"
                                             }
@@ -399,7 +399,7 @@
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "$"
                                             }
@@ -526,7 +526,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "$"
                                             }
@@ -653,7 +653,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "a#"
                                             }
@@ -780,7 +780,7 @@
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "a#"
                                             }

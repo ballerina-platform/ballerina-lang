@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -100,12 +101,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
                 PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
-
-        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
         edits.addAll(importsAcceptor.getNewImportTextEdits());
-        CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition);
+
+        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
+                edits, uri, CodeActionKind.QuickFix);
+        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition,
+                modifiedTextEdits.varRenamePosition.get(0), modifiedTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 
@@ -130,6 +132,10 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
+
+        Position varRenamePosition = createVarTextEdits.varRenamePosition.get(0);
+        varRenamePosition.setCharacter(
+                varRenamePosition.getCharacter() - (typeWithError.length() - typeWithoutError.length()));
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
