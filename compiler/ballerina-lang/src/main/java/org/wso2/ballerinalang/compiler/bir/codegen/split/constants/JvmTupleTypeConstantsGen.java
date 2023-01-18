@@ -143,24 +143,17 @@ public class JvmTupleTypeConstantsGen {
                 "()V", null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
+                mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
+                        B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                genMethodReturn(mv);
+
                 mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }
             mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass, funcName, "()V", false);
-
             populateFuncCount++;
-            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                if (populateFuncCount != funcNames.size()) {
-                    mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
-                            B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
-                }
-                genMethodReturn(mv);
-            }
         }
-
-        if (populateFuncCount % MAX_CONSTANTS_PER_METHOD != 0) {
-            genMethodReturn(mv);
-        }
+        genMethodReturn(mv);
     }
 
     private void createBTupleType(BTupleType tupleType, String varName) {

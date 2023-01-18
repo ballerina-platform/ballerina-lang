@@ -115,24 +115,17 @@ public class JvmErrorTypeConstantsGen {
                 "()V", null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
+                mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
+                        B_ERROR_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                genMethodReturn(mv);
+
                 mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }
             mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, funcName, "()V", false);
-
             populateFuncCount++;
-            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                if (populateFuncCount != funcNames.size()) {
-                    mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
-                            B_ERROR_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
-                }
-                genMethodReturn(mv);
-            }
         }
-
-        if (populateFuncCount % MAX_CONSTANTS_PER_METHOD != 0) {
-            genMethodReturn(mv);
-        }
+        genMethodReturn(mv);
     }
 
     private void genPopulateMethod(BErrorType type, String varName) {

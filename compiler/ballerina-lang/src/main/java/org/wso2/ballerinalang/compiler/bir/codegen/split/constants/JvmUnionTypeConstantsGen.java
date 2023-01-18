@@ -133,24 +133,17 @@ public class JvmUnionTypeConstantsGen {
                 "()V", null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
+                mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
+                        B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                genMethodReturn(mv);
+
                 mv = cw.visitMethod(ACC_STATIC, B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }
             mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass, funcName, "()V", false);
-
             populateFuncCount++;
-            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                if (populateFuncCount != funcNames.size()) {
-                    mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
-                            B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
-                }
-                genMethodReturn(mv);
-            }
         }
-
-        if (populateFuncCount % MAX_CONSTANTS_PER_METHOD != 0) {
-            genMethodReturn(mv);
-        }
+        genMethodReturn(mv);
     }
 
     private void genPopulateMethod(BUnionType type, String varName, SymbolTable symbolTable) {
