@@ -19,6 +19,9 @@ import ballerina/test;
 public type MyError error<record { int code; string message?; error cause?; }>;
 public type YourError error<record { int value; string message?; error cause?; }>;
 
+type FooError error;
+type BarError error;
+
 function testWithValue() {
     string|MyError someValue = "some";
     test:assertTrue(someValue is string);
@@ -90,4 +93,18 @@ function testWithMultipleErrorsAndError() {
     test:assertTrue(someValue is error);
     test:assertFalse(someValue is int);
     test:assertFalse(someValue is YourError);
+}
+
+function testMultipleErrorUnionWithError() {
+    FooError|error foo = error("");
+    test:assertTrue(foo is FooError);
+    test:assertTrue(foo is BarError);
+    test:assertTrue(foo is error);
+
+    MyError|error errorValue = error("");
+    test:assertTrue(errorValue is error);
+    test:assertFalse(errorValue is MyError);
+    test:assertFalse(errorValue is YourError);
+    test:assertTrue(errorValue is FooError);
+    test:assertTrue(errorValue is FooError|BarError);
 }

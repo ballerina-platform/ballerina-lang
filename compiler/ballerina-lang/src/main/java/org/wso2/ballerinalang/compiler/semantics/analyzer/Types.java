@@ -179,6 +179,9 @@ public class Types {
     private static final BigDecimal DECIMAL_MIN =
             new BigDecimal("-9.999999999999999999999999999999999e6144", MathContext.DECIMAL128);
 
+    private static final BigDecimal MIN_DECIMAL_MAGNITUDE =
+            new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
+
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -4076,6 +4079,17 @@ public class Types {
         return (longObject >= SIGNED32_MIN_VALUE && longObject <= SIGNED32_MAX_VALUE);
     }
 
+    BigDecimal getValidDecimalNumber(Location pos, BigDecimal bd) {
+        if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
+            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, bd.toString(), symTable.decimalType);
+            return null;
+        } else if (bd.abs(MathContext.DECIMAL128).compareTo(MIN_DECIMAL_MAGNITUDE) < 0 &&
+                bd.abs(MathContext.DECIMAL128).compareTo(BigDecimal.ZERO) > 0) {
+            return BigDecimal.ZERO;
+        }
+        return bd;
+    }
+
     boolean isSigned16LiteralValue(Long longObject) {
 
         return (longObject >= SIGNED16_MIN_VALUE && longObject <= SIGNED16_MAX_VALUE);
@@ -7100,7 +7114,8 @@ public class Types {
         DEFAULT,
         STREAM,
         MAP,
-        TABLE
+        TABLE,
+        ACTION
     }
 
     QueryConstructType getQueryConstructType(BLangQueryExpr queryExpr) {
@@ -7139,5 +7154,10 @@ public class Types {
         result[0] = nodeText.substring(0, nodeText.indexOf('`'));
         result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
         return result;
+    }
+
+    public boolean isFunctionVarRef(BLangExpression expr) {
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol != null
+                && (((BLangSimpleVarRef) expr).symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION;
     }
 }

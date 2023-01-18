@@ -2244,6 +2244,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangDo doNode) {
         doNode.body.stmts.forEach(this::acceptNode);
+        this.acceptNode(doNode.onFailClause);
     }
 
     @Override
@@ -2297,6 +2298,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
         this.acceptNode(workerReceiveNode.sendExpression);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        this.acceptNode(resourceAccessInvocation.expr);
     }
 
     private void acceptNode(BLangNode node) {

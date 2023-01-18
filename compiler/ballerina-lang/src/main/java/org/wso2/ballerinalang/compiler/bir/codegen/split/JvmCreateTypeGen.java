@@ -92,7 +92,18 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_UNION_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_CONSTANTS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
@@ -171,9 +182,36 @@ public class JvmCreateTypeGen {
         jarEntries.put(typesClass + ".class", jvmPackageGen.getBytes(typesCw, module));
     }
 
+    void createTypeConstants(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_CONSTANTS_METHOD, "()V", null, null);
+        mv.visitCode();
+
+        String refTypeConstantsClass = jvmConstantsGen.getRefTypeConstantsClass();
+        String arrayTypeConstantClass = jvmConstantsGen.getArrayTypeConstantClass();
+        String tupleTypeConstantsClass = jvmConstantsGen.getTupleTypeConstantsClass();
+        String unionTypeConstantClass = jvmConstantsGen.getUnionTypeConstantClass();
+        String errorTypeConstantClass = jvmConstantsGen.getErrorTypeConstantClass();
+
+        mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_INIT_METHOD, "()V", false);
+
+        mv.visitMethodInsn(INVOKESTATIC, refTypeConstantsClass, B_TYPEREF_TYPE_POPULATE_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, arrayTypeConstantClass, B_ARRAY_TYPE_POPULATE_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, tupleTypeConstantsClass, B_TUPLE_TYPE_POPULATE_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, unionTypeConstantClass, B_UNION_TYPE_POPULATE_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_POPULATE_METHOD, "()V", false);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
     void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
                                    String moduleInitClass, SymbolTable symbolTable) {
-
+        createTypeConstants(cw);
         createTypesInstance(cw, typeDefs, moduleInitClass);
         Map<String, String> populateTypeFuncNames = populateTypes(cw, typeDefs, moduleInitClass, symbolTable);
 
@@ -182,6 +220,9 @@ public class JvmCreateTypeGen {
 
         // Invoke create-type-instances method
         mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
+
+        // Invoke create-type-constants method
+        mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_CONSTANTS_METHOD, "()V", false);
 
         // Invoke the populate-type functions
         for (Map.Entry<String, String> entry : populateTypeFuncNames.entrySet()) {
@@ -656,7 +697,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
 
         // Load the field type
-        jvmTypeGen.loadLocalType(mv, field.symbol.type);
+        jvmTypeGen.loadType(mv, field.symbol.type);
 
         // Load field name
         mv.visitLdcInsn(decodeIdentifier(field.name.value));
@@ -669,6 +710,10 @@ public class JvmCreateTypeGen {
 
     public JvmUnionTypeGen getJvmUnionTypeGen() {
         return jvmUnionTypeGen;
+    }
+
+    public JvmErrorTypeGen getJvmErrorTypeGen() {
+        return jvmErrorTypeGen;
     }
 
     public JvmTupleTypeGen getJvmTupleTypeGen() {

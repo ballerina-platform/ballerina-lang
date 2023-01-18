@@ -743,6 +743,65 @@ function testQueryWithOptionalFieldRecord() {
     assertEquality(vx, vy);
 }
 
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        self.i += 2;
+        if self.i < 10 {
+            return {value: self.i};
+        }
+        return ();
+    }
+}
+
+function testQueryStreamWithDiffTargetTypes() returns error? {
+    EvenNumberGenerator evenGen1 = new ();
+    stream<int, error?> numberStream1 = new (evenGen1);
+    int count1 = 0;
+    check from int num in numberStream1
+        do {
+            count1 += 1;
+        };
+    assertEquality(4, count1);
+
+    EvenNumberGenerator evenGen2 = new ();
+    stream<int, error?> numberStream2 = new (evenGen2);
+    int count2 = 0;
+    _ = check from int num in numberStream2
+        do {
+            count2 += 1;
+        };
+    assertEquality(4, count1);
+
+    EvenNumberGenerator evenGen3 = new ();
+    stream<int, error?> numberStream3 = new (evenGen3);
+    int count3 = 0;
+    var _ = check from int num in numberStream3
+        do {
+            count3 += 1;
+        };
+    assertEquality(4, count3);
+
+    EvenNumberGenerator evenGen4 = new ();
+    stream<int, error?> numberStream4 = new (evenGen4);
+    int count4 = 0;
+    error? e = from int num in numberStream4
+        do {
+            count4 += 1;
+        };
+    assertTrue(e !is error);
+    assertEquality(4, count4);
+
+    EvenNumberGenerator evenGen5 = new ();
+    stream<int, error?> numberStream5 = new (evenGen5);
+    int count5 = 0;
+    () _ = check from int num in numberStream5
+        do {
+            count5 += 1;
+        };
+    assertEquality(4, count5);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
