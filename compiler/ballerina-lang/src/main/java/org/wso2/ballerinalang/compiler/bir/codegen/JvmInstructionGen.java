@@ -2109,7 +2109,7 @@ public class JvmInstructionGen {
                 type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
     }
 
-    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotation) {
+    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
         BType type = JvmCodeGenUtil.getReferredType(btype);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
@@ -2128,8 +2128,8 @@ public class JvmInstructionGen {
             this.loadVar(closureVar.variableDcl);
             mv.visitInsn(AASTORE);
         }
-        if (annotation != null) {
-            this.loadVar(annotation.variableDcl);
+        if (annotations != null) {
+            this.loadVar(annotations.variableDcl);
             this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
                                     false);
         } else {

@@ -256,7 +256,7 @@ public class JvmValueGen {
         fv.visitEnd();
 
         this.createTypeDescConstructor(cw);
-        this.createNewTypeDescConstructor(cw, className);
+        this.createTypeDescConstructorWithAnnotations(cw, className);
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
@@ -436,7 +436,7 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    private void createNewTypeDescConstructor(ClassWriter cw, String name) {
+    private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
 
         String descriptor = TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);

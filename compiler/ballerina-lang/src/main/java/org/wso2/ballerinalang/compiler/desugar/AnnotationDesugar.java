@@ -657,9 +657,6 @@ public class AnnotationDesugar {
         }
 
         if (annotFunctionDefined) {
-            if (mapLiteral.fields.isEmpty()) {
-                return null;
-            }
             lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
         }
 
