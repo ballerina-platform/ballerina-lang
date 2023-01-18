@@ -17,14 +17,11 @@
  */
 package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 
-import io.ballerina.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
