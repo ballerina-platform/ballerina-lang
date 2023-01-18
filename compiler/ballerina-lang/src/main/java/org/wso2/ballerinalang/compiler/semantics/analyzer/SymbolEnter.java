@@ -2597,7 +2597,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int i = 0;
         BType type;
         for (BLangVariable var : varNode.memberVariables) {
-            type = tupleTypeNode.getMembers().get(i).type;
+            type = tupleTypeNode.getTupleTypes().get(i);
             i++;
             if (var.getKind() == NodeKind.VARIABLE) {
                 // '_' is allowed in tuple variables. Not allowed if all variables are named as '_'
@@ -2653,7 +2653,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BTupleType tupleType = (BTupleType) possibleType;
                 for (int j = varNode.memberVariables.size(); j < tupleType.getMembers().size();
                      j++) {
-                    memberRestTypes.add(tupleType.getMembers().get(j).type);
+                    memberRestTypes.add(tupleType.getTupleTypes().get(j));
                 }
                 if (tupleType.restType != null) {
                     memberRestTypes.add(tupleType.restType);

@@ -2435,9 +2435,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BTupleType tupleType = (BTupleType) varArgType;
 
-        for (BTupleMember type : tupleType.getMembers()) {
+        for (BType type : tupleType.getTupleTypes()) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
-                                                           type.type, pos);
+                                                           type, pos);
         }
 
         BType restType = tupleType.restType;
