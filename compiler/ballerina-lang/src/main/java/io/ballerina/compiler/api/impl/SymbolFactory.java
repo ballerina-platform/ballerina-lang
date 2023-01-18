@@ -174,9 +174,6 @@ public class SymbolFactory {
             if (symbol.owner instanceof BObjectTypeSymbol) {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
             }
-            if (symbol.owner instanceof BTypeSymbol && Symbols.isFlagOn(symbol.flags, Flags.FIELD)) {
-                return createTupleMember((BVarSymbol) symbol);
-            }
             if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
             }
