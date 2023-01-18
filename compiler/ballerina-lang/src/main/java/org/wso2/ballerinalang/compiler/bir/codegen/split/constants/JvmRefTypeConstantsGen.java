@@ -96,7 +96,6 @@ public class JvmRefTypeConstantsGen {
             mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass,
                     B_TYPEREF_TYPE_INIT_METHOD + methodCount, "()V", false);
             genMethodReturn(mv);
-
             mv = cw.visitMethod(ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD + methodCount++, "()V",
                     null, null);
         }
@@ -117,7 +116,6 @@ public class JvmRefTypeConstantsGen {
                 mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass,
                         B_TYPEREF_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
                 genMethodReturn(mv);
-
                 mv = cw.visitMethod(ACC_STATIC, B_TYPEREF_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }

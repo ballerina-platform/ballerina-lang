@@ -105,7 +105,6 @@ public class JvmTupleTypeConstantsGen {
             mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
                     B_TUPLE_TYPE_INIT_METHOD + methodCount, "()V", false);
             genMethodReturn(mv);
-
             mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD + methodCount++, "()V",
                     null, null);
         }
@@ -146,7 +145,6 @@ public class JvmTupleTypeConstantsGen {
                 mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
                         B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
                 genMethodReturn(mv);
-
                 mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }

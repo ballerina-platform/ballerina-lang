@@ -105,7 +105,6 @@ public class JvmUnionTypeConstantsGen {
             mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
                     B_UNION_TYPE_INIT_METHOD + methodCount, "()V", false);
             genMethodReturn(mv);
-
             mv = cw.visitMethod(ACC_STATIC, B_UNION_TYPE_INIT_METHOD + methodCount++, "()V",
                     null, null);
         }
@@ -136,7 +135,6 @@ public class JvmUnionTypeConstantsGen {
                 mv.visitMethodInsn(INVOKESTATIC, unionVarConstantsClass,
                         B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
                 genMethodReturn(mv);
-
                 mv = cw.visitMethod(ACC_STATIC, B_UNION_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }

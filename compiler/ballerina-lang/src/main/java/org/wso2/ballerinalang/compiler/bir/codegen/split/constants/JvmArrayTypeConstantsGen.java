@@ -100,7 +100,6 @@ public class JvmArrayTypeConstantsGen {
             mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
                     B_ARRAY_TYPE_INIT_METHOD + methodCount, "()V", false);
             genMethodReturn(mv);
-
             mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD + methodCount++, "()V",
                     null, null);
         }
@@ -132,7 +131,6 @@ public class JvmArrayTypeConstantsGen {
                 mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
                         B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
                 genMethodReturn(mv);
-
                 mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount++,
                         "()V", null, null);
             }
