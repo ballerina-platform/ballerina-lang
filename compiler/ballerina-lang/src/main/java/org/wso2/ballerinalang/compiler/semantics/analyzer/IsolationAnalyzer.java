@@ -1914,8 +1914,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangSimpleVariable memberType : tupleTypeNode.members) {
-            analyzeNode(memberType.typeNode, env);
+        for (BLangType memberType : tupleTypeNode.getMemberTypeNodes()) {
+            analyzeNode(memberType, env);
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
