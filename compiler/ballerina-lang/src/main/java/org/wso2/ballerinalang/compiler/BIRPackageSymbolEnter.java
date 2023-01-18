@@ -1215,7 +1215,6 @@ public class BIRPackageSymbolEnter {
 
             // Read the type flags to identify if type reference types are nullable.
             int typeFlags = inputStream.readInt();
-
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
@@ -1317,17 +1316,8 @@ public class BIRPackageSymbolEnter {
                     }
 
                     recordType.typeInclusions = readTypeInclusions();
-                    boolean hasAnnotations = inputStream.readBoolean();
-                    if (hasAnnotations) {
-                        String fieldName = getStringCPEntryValue(inputStream);
-                        var fieldFlags = inputStream.readLong();
-                        byte[] docBytes = readDocBytes(inputStream);
-                        BType fieldType = readTypeFromCp();
-                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName),
-                                                              recordSymbol.pkgID, fieldType, recordSymbol,
-                                                              symTable.builtinPos, COMPILED_SOURCE);
-                        defineMarkDownDocAttachment(varSymbol, docBytes);
-                        recordSymbol.annotations = varSymbol;
+                    if (inputStream.readBoolean()) {
+                        readFieldAnnotations(recordSymbol);
                     }
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
@@ -1606,6 +1596,9 @@ public class BIRPackageSymbolEnter {
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();
                     }
+                    if (inputStream.readBoolean()) {
+                        readFieldAnnotations(tupleTypeSymbol);
+                    }
 
                     return bTupleType;
                 case TypeTags.FUTURE:
@@ -1755,6 +1748,17 @@ public class BIRPackageSymbolEnter {
                     return symTable.regExpType;
             }
             return null;
+        }
+
+        private void readFieldAnnotations(BTypeSymbol typeSymbol) throws IOException {
+            String fieldName = getStringCPEntryValue(inputStream);
+            var fieldFlags = inputStream.readLong();
+            byte[] docBytes = readDocBytes(inputStream);
+            BType fieldType = readTypeFromCp();
+            BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName), typeSymbol.pkgID, fieldType,
+                                                  typeSymbol, symTable.builtinPos, COMPILED_SOURCE);
+            defineMarkDownDocAttachment(varSymbol, docBytes);
+            typeSymbol.annotations = varSymbol;
         }
 
         private BTypeIdSet readTypeIdSet(DataInputStream inputStream) throws IOException {
