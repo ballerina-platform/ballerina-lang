@@ -330,9 +330,9 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        buff.writeInt(bTupleType.getTupleMembers().size());
-        for (int i = 0; i < bTupleType.getTupleMembers().size(); i++) {
-            BTupleMember memberType = bTupleType.getTupleMembers().get(i);
+        buff.writeInt(bTupleType.getMembers().size());
+        for (int i = 0; i < bTupleType.getMembers().size(); i++) {
+            BTupleMember memberType = bTupleType.getMembers().get(i);
             buff.writeInt(addStringCPEntry(Integer.toString(i)));
             buff.writeLong(memberType.symbol.flags);
             writeTypeCpIndex(memberType.type);

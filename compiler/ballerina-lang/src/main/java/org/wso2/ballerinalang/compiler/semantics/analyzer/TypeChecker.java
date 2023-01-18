@@ -1834,7 +1834,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (!inferredTupleDetails.restMemberTypes.isEmpty()) {
             if (spreadOpExprType.tag == TypeTags.TUPLE) {
                 BTupleType bTupleType = (BTupleType) spreadOpExprType;
-                bTupleType.getTupleMembers().forEach(t -> inferredTupleDetails.restMemberTypes.add(t.type));
+                bTupleType.getMembers().forEach(t -> inferredTupleDetails.restMemberTypes.add(t.type));
                 if (!types.isFixedLengthTuple(bTupleType)) {
                     inferredTupleDetails.restMemberTypes.add(bTupleType.restType);
                 }
@@ -1924,7 +1924,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
                         if (types.isFixedLengthTuple(tType)) {
-                            listExprSize += tType.getTupleMembers().size();
+                            listExprSize += tType.getMembers().size();
                             continue;
                         }
 
@@ -1974,7 +1974,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 case TypeTags.TUPLE:
                     BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
-                    List<BTupleMember> tupleTypes = spreadOpTuple.getTupleMembers();
+                    List<BTupleMember> tupleTypes = spreadOpTuple.getMembers();
                     for (BTupleMember tupleMemberType : tupleTypes) {
                         if (types.typeIncompatible(spreadOpExpr.pos, tupleMemberType.type, eType)) {
                             return symTable.semanticError;
@@ -1998,7 +1998,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkTupleType(BLangListConstructorExpr listConstructor, BTupleType tupleType, AnalyzerData data) {
         List<BLangExpression> exprs = listConstructor.exprs;
-        List<BTupleMember> memberTypes = tupleType.getTupleMembers();
+        List<BTupleMember> memberTypes = tupleType.getMembers();
         int memberTypeSize = memberTypes.size();
         BType restType = tupleType.restType;
 
@@ -2027,7 +2027,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
                         if (types.isFixedLengthTuple(tType)) {
-                            listExprSize += tType.getTupleMembers().size();
+                            listExprSize += tType.getMembers().size();
                             continue;
                         }
 
@@ -2103,19 +2103,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 case TypeTags.TUPLE:
                     BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
-                    int spreadOpMemberTypeSize = spreadOpTuple.getTupleMembers().size();
+                    int spreadOpMemberTypeSize = spreadOpTuple.getMembers().size();
 
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         for (int i = 0; i < spreadOpMemberTypeSize && nonRestTypeIndex < memberTypeSize;
                              i++, nonRestTypeIndex++) {
-                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getTupleMembers().get(i).type,
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getMembers().get(i).type,
                                     memberTypes.get(nonRestTypeIndex).type)) {
                                 return symTable.semanticError;
                             }
                         }
 
                         for (int i = remainNonRestCount; i < spreadOpMemberTypeSize; i++) {
-                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getTupleMembers().get(i).type,
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getMembers().get(i).type,
                                     restType)) {
                                 return symTable.semanticError;
                             }
@@ -2130,14 +2130,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     for (int i = 0; nonRestTypeIndex < memberTypeSize; i++, nonRestTypeIndex++) {
-                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getTupleMembers().get(i).type,
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getMembers().get(i).type,
                                 memberTypes.get(nonRestTypeIndex).type)) {
                             return symTable.semanticError;
                         }
                     }
 
                     for (int i = nonRestTypeIndex; i < spreadOpMemberTypeSize; i++) {
-                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getTupleMembers().get(i).type,
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.getMembers().get(i).type,
                                 restType)) {
                             return symTable.semanticError;
                         }
@@ -5930,7 +5930,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else if (listType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) listType;
             final int size = exprs.size();
-            final int requiredItems = tupleType.getTupleMembers().size();
+            final int requiredItems = tupleType.getMembers().size();
 
             if (size < requiredItems || (size > requiredItems && tupleType.restType == null)) {
                 dlog.error(pos, code, requiredItems, size);
@@ -5938,7 +5938,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             int i;
-            List<BTupleMember> memberTypes = tupleType.getTupleMembers();
+            List<BTupleMember> memberTypes = tupleType.getMembers();
             for (i = 0; i < requiredItems; i++) {
                 errored = (checkExpr(exprs.get(i), memberTypes.get(i).type, data) == symTable.semanticError) ||
                                                                                                                 errored;
@@ -7685,8 +7685,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     tupleRestType = ((BArrayType) listTypeRestArg).eType;
                 } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                     BTupleType restTupleType = (BTupleType) listTypeRestArg;
-                    tupleMembers.addAll(restTupleType.getTupleMembers());
-                    restTupleType.getTupleMembers().forEach(t -> tupleMembers.add(t));
+                    tupleMembers.addAll(restTupleType.getMembers());
+                    restTupleType.getMembers().forEach(t -> tupleMembers.add(t));
                     if (restTupleType.restType != null) {
                         tupleRestType = restTupleType.restType;
                     }
@@ -7745,7 +7745,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
-                List<BTupleMember> tupleMembers = tupleType.getTupleMembers();
+                List<BTupleMember> tupleMembers = tupleType.getMembers();
                 BType tupleRestType = tupleType.restType;
 
                 int tupleMemCount = tupleMembers.size();
@@ -8339,12 +8339,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkTupleFieldType(BType tupleType, int indexValue) {
         BTupleType bTupleType = (BTupleType) tupleType;
-        if (bTupleType.getTupleMembers().size() <= indexValue && bTupleType.restType != null) {
+        if (bTupleType.getMembers().size() <= indexValue && bTupleType.restType != null) {
             return bTupleType.restType;
-        } else if (indexValue < 0 || bTupleType.getTupleMembers().size() <= indexValue) {
+        } else if (indexValue < 0 || bTupleType.getMembers().size() <= indexValue) {
             return symTable.semanticError;
         }
-        return bTupleType.getTupleMembers().get(indexValue).type;
+        return bTupleType.getMembers().get(indexValue).type;
     }
 
     private void validateTags(BLangXMLElementLiteral bLangXMLElementLiteral, SymbolEnv xmlElementEnv,
@@ -9346,7 +9346,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private LinkedHashSet<BType> collectTupleFieldTypes(BTupleType tupleType, LinkedHashSet<BType> memberTypes) {
-        tupleType.getTupleMembers()
+        tupleType.getMembers()
                 .forEach(memberType -> {
                     if (memberType.type.tag == TypeTags.UNION) {
                         collectMemberTypes((BUnionType) memberType.type, memberTypes);

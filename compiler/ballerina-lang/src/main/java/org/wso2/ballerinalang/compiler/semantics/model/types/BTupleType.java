@@ -100,7 +100,7 @@ public class BTupleType extends BType implements TupleType {
         return memberTypes;
     }
 
-    public List<BTupleMember> getTupleMembers() {
+    public List<BTupleMember> getMembers() {
         return members;
     }
 

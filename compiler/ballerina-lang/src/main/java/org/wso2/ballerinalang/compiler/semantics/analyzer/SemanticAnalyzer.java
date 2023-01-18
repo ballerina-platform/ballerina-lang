@@ -999,7 +999,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangSimpleVariable memberType = memberTypeNodes.get(i);
             analyzeNode(memberType, data);
             if (isTuple) {
-                List<BTupleMember> members = ((BTupleType) bType).getTupleMembers();
+                List<BTupleMember> members = ((BTupleType) bType).getMembers();
                 for (BLangAnnotationAttachment ann : memberType.annAttachments) {
                     members.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
                 }
@@ -1310,7 +1310,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 break;
             case TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BTupleMember member : tupleType.getTupleMembers()) {
+                for (BTupleMember member : tupleType.getMembers()) {
                     if (!isSupportedConfigType(member.type, errors, varName, unresolvedTypes, isRequired)) {
                         errors.add("tuple element type '" + member + "' is not supported");
                     }
@@ -2500,13 +2500,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             if (((BTupleType) source).restType != null) {
                 dlog.error(rhsPos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, target.getBType(), source);
                 return;
-            } else if (((BTupleType) source).getTupleMembers().size() != target.expressions.size()) {
+            } else if (((BTupleType) source).getMembers().size() != target.expressions.size()) {
                 dlog.error(rhsPos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, target.getBType(), source);
                 return;
             }
         }
 
-        List<BTupleMember> sourceTypes = new ArrayList<>(((BTupleType) source).getTupleMembers());
+        List<BTupleMember> sourceTypes = new ArrayList<>(((BTupleType) source).getMembers());
         if (((BTupleType) source).restType != null) {
             BType type = ((BTupleType) source).restType;
             BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
@@ -2933,7 +2933,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     BType listRestType = listMatchPattern.restMatchPattern.getBType();
                     if (listRestType.tag == TypeTags.TUPLE) {
                         BTupleType restTupleType = (BTupleType) listRestType;
-                        matchPatternType.getTupleMembers().addAll(restTupleType.getTupleMembers());
+                        matchPatternType.getMembers().addAll(restTupleType.getMembers());
                         matchPatternType.restType = restTupleType.restType;
                     } else {
                         matchPatternType.restType = ((BArrayType) listRestType).eType;
@@ -3060,7 +3060,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     return;
                 }
                 BTupleType patternTupleType = (BTupleType) patternType;
-                List<BTupleMember> members = patternTupleType.getTupleMembers();
+                List<BTupleMember> members = patternTupleType.getMembers();
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
                 List<BTupleMember> memberTypes = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
@@ -3667,7 +3667,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     return;
                 }
                 BTupleType bindingPatternTupleType = (BTupleType) bindingPatternType;
-                List<BTupleMember> types = bindingPatternTupleType.getTupleMembers();
+                List<BTupleMember> types = bindingPatternTupleType.getMembers();
                 List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
                 List<BTupleMember> members = new ArrayList<>();
                 for (int i = 0; i < bindingPatterns.size(); i++) {
