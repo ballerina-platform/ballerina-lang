@@ -15,15 +15,18 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -35,9 +38,9 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -137,36 +140,46 @@ public class PathUtil {
     /**
      * Returns the file path.
      *
-     * @param orgName    organization name
-     * @param moduleName module name
-     * @param project    ballerina project
-     * @param symbol     symbol
-     * @param context    service operation context
+     * @param symbol  symbol
+     * @param project ballerina project
+     * @param context service operation context
      * @return file path
      */
-    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
-                                                          Project project, Symbol symbol,
-                                                          DocumentServiceContext context) {
-        if (symbol.getLocation().isEmpty()) {
+    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
+        if (symbol.getLocation().isEmpty() || symbol.getModule().isEmpty()) {
             return Optional.empty();
         }
-        Collection<ResolvedPackageDependency> dependencies =
+        String orgName = symbol.getModule().get().id().orgName();
+        String moduleName = symbol.getModule().get().id().moduleName();
+        // If the symbol belongs to a langlib, need to derive file path in a different manner
+        if (CommonUtil.isLangLib(orgName, moduleName)) {
+            return getFilePathForLanglibSymbol(project, symbol);
+        }
+        
+        // We search for the symbol in project's dependencies
+        Collection<ResolvedPackageDependency> dependencies = 
                 project.currentPackage().getResolution().dependencyGraph().getNodes();
-        Optional<Path> filepath = Optional.empty();
+        // Symbol location has only the name of the file
         String sourceFile = symbol.getLocation().get().lineRange().filePath();
         for (ResolvedPackageDependency depNode : dependencies) {
+            // Check for matching dependency
             Package depPackage = depNode.packageInstance();
+            if (!depPackage.packageOrg().value().equals(orgName)) {
+                continue;
+            }
             for (ModuleId moduleId : depPackage.moduleIds()) {
-                if (depPackage.packageOrg().value().equals(orgName) &&
-                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                if (depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
                     Module module = depPackage.module(moduleId);
-                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
-                    documentIds.addAll(module.testDocumentIds());
-                    for (DocumentId docId : documentIds) {
+                    // Find in source files
+                    for (DocumentId docId : module.documentIds()) {
                         if (module.document(docId).name().equals(sourceFile)) {
-                            filepath =
-                                    module.project().documentPath(docId);
-                            break;
+                            return module.project().documentPath(docId);
+                        }
+                    }
+                    // Find in test sources
+                    for (DocumentId docId : module.testDocumentIds()) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            return module.project().documentPath(docId);
                         }
                     }
                 }
@@ -174,25 +187,37 @@ public class PathUtil {
                 context.checkCancelled();
             }
         }
-        return filepath;
+        return Optional.empty();
     }
 
-    /**
-     * Returns the file path.
-     *
-     * @param symbol  symbol
-     * @param project ballerina project
-     * @param context service operation context
-     * @return file path
-     */
-    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
-        if (symbol.getModule().isEmpty()) {
+    private static Optional<Path> getFilePathForLanglibSymbol(Project project, Symbol symbol) {
+        if (symbol.getLocation().isEmpty() || symbol.getModule().isEmpty()) {
             return Optional.empty();
         }
-        ModuleID moduleID = symbol.getModule().get().id();
-        String orgName = moduleID.orgName();
-        String moduleName = moduleID.moduleName();
-        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
+        String orgName = symbol.getModule().get().id().orgName();
+        String moduleName = symbol.getModule().get().id().moduleName();
+        List<Package> langLibPackages = project.projectEnvironmentContext().environment().getService(PackageCache.class)
+                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName));
+        // Ideally this list cannot be empty. But due to concurrent issues, it can be. 
+        // Checking if it's empty for safety.
+        if (langLibPackages.isEmpty()) {
+            return Optional.empty();
+        }
+        Package langLibPackage = langLibPackages.get(0);
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+
+        Optional<Path> filepath = Optional.empty();
+        for (ModuleId moduleId : langLibPackage.moduleIds()) {
+            Module module = langLibPackage.module(moduleId);
+            for (DocumentId docId : module.documentIds()) {
+                if (module.document(docId).name().equals(sourceFile)) {
+                    filepath = module.project().documentPath(docId);
+                    break;
+                }
+            }
+        }
+
+        return filepath;
     }
 
     /**
@@ -244,12 +269,20 @@ public class PathUtil {
                     .resolve(module.moduleName().toString())
                     .resolve(filePath);
         }
-
+        Path sourceRoot = module.project().sourceRoot();
         if (module.isDefaultModule()) {
-            return module.project().sourceRoot().resolve(filePath);
+            if (Files.exists(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(filePath))) {
+                return sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(filePath);
+            }
+            return sourceRoot.resolve(filePath);
         } else {
-            return module.project().sourceRoot()
-                    .resolve("modules")
+            if (Files.exists(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
+                    resolve(module.moduleName().moduleNamePart()).resolve(filePath))) {
+                return sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
+                        resolve(module.moduleName().moduleNamePart()).resolve(filePath);
+            }
+            return sourceRoot
+                    .resolve(ProjectConstants.MODULES_ROOT)
                     .resolve(module.moduleName().moduleNamePart())
                     .resolve(filePath);
         }

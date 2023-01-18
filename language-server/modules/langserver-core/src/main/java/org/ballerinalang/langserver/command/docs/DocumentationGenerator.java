@@ -20,11 +20,14 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -119,8 +122,14 @@ public class DocumentationGenerator {
             case CLASS_DEFINITION: {
                 return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
             }
+            case CONST_DECLARATION: {
+                return Optional.of(generateModuleMemberDocumentation((ConstantDeclarationNode) node, syntaxTree));
+            }
+            case ENUM_DECLARATION: {
+                return Optional.of(generateModuleMemberDocumentation((EnumDeclarationNode) node, syntaxTree));
+            }
             case MODULE_VAR_DECL: {
-                return Optional.of(generateModuleVarDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
+                return Optional.of(generateModuleMemberDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
             }
             case ANNOTATION_DECLARATION: {
                 return Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
@@ -172,21 +181,17 @@ public class DocumentationGenerator {
     }
 
     /**
-     * Generate documentation for service node.
+     * Generate documentation for module member declaration nodes.
      *
-     * @param varDeclarationNode service declaration node
+     * @param declarationNode declaration node
      * @param syntaxTree       syntaxTree {@link SyntaxTree}
      * @return generated doc attachment
      */
-    private static DocAttachmentInfo generateModuleVarDocumentation(ModuleVariableDeclarationNode varDeclarationNode,
-                                                                  SyntaxTree syntaxTree) {
-        Optional<MetadataNode> metadata = varDeclarationNode.metadata();
-        Position docStart = PositionUtil.toRange(varDeclarationNode.lineRange()).getStart();
-        if (metadata.isPresent() && !metadata.get().annotations().isEmpty()) {
-            docStart = PositionUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
-        }
+    private static DocAttachmentInfo generateModuleMemberDocumentation(ModuleMemberDeclarationNode declarationNode,
+                                                                       SyntaxTree syntaxTree) {
+        Position docStart = PositionUtil.toRange(declarationNode.lineRange()).getStart();
         String desc = String.format("Description%n");
-        return new DocAttachmentInfo(desc, docStart, getPadding(varDeclarationNode, syntaxTree));
+        return new DocAttachmentInfo(desc, docStart, getPadding(declarationNode, syntaxTree));
     }
 
     /**

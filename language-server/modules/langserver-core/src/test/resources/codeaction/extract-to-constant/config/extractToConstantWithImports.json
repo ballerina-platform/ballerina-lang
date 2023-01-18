@@ -12,15 +12,15 @@
         {
           "range": {
             "start": {
-              "line": 3,
+              "line": 2,
               "character": 0
             },
             "end": {
-              "line": 3,
+              "line": 2,
               "character": 0
             }
           },
-          "newText": "const string CONST \u003d \"Hello World\";\n"
+          "newText": "\nconst string CONST = \"Hello World\";\n"
         },
         {
           "range": {

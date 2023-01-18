@@ -98,7 +98,7 @@ public class FromJsonWithType {
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
-        Type sourceType = TypeChecker.getType(value);
+        Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
