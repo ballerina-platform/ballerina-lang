@@ -177,7 +177,7 @@ public class BallerinaConnectorListRequest {
     public Map<String, String> getQueryMap() {
         Map<String, String> params = new HashMap();
 
-        if (getQuery() != null && getQuery() != "") {
+        if (getQuery() != null && !getQuery().equals("")) {
             params.put("q", getQuery());
         }
 
