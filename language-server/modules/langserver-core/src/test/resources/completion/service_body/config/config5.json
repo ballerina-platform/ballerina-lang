@@ -4,6 +4,7 @@
     "character": 7
   },
   "source": "service_body/source/source5.bal",
+  "description": "",
   "items": [
     {
       "label": "isolated",
@@ -452,15 +453,6 @@
       ]
     },
     {
-      "label": "resource function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "resource_function",
-      "insertText": "resource function ${1:accessor} ${2:path} (${3})${4} {\n\t${5}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -636,6 +628,15 @@
       "detail": "Typedesc",
       "sortText": "B",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path}(${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
