@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "getInt",
       "insertText": "getInt()",
       "insertTextFormat": "Snippet"
@@ -24,7 +24,7 @@
       "label": "value1",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +32,7 @@
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "value2",
       "insertTextFormat": "Snippet"
     },
@@ -46,7 +46,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "getField",
       "insertText": "getField()",
       "insertTextFormat": "Snippet"
@@ -61,7 +61,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
@@ -76,7 +76,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "doTask",
       "insertText": "doTask()",
       "insertTextFormat": "Snippet"
@@ -85,7 +85,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "O",
+      "sortText": "S",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"

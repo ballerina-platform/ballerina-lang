@@ -22,7 +22,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,10 +51,6 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList(
-            // var declaration cases
-            "field_access_ctx_config27.json",
-            "field_access_ctx_config26.json"
-        );
+        return Collections.emptyList();
     }
 }
