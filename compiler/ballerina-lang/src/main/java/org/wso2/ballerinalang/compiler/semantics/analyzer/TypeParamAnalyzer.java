@@ -557,15 +557,15 @@ public class TypeParamAnalyzer {
             if (actualType.keyTypeConstraint != null) {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
             } else if (!actualType.fieldNameList.isEmpty()) {
-                List<BTupleMember> memberTypes = new ArrayList<>();
+                List<BTupleMember> members = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
                         .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                                Symbols.createVarSymbolForTupleMember(f.type))).forEach(memberTypes::add);
-                if (memberTypes.size() == 1) {
-                    findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0).type, env, resolvedTypes, result);
+                                Symbols.createVarSymbolForTupleMember(f.type))).forEach(members::add);
+                if (members.size() == 1) {
+                    findTypeParam(loc, expType.keyTypeConstraint, members.get(0).type, env, resolvedTypes, result);
                 } else {
-                    BTupleType tupleType = new BTupleType(memberTypes);
+                    BTupleType tupleType = new BTupleType(members);
                     findTypeParam(loc, expType.keyTypeConstraint, tupleType, env, resolvedTypes, result);
                 }
             }
@@ -871,7 +871,7 @@ public class TypeParamAnalyzer {
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
-        List<BTupleMember> memberTypes = new ArrayList<>();
+        List<BTupleMember> members = new ArrayList<>();
         for (BType type : expType.getTupleTypes()) {
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
             if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
@@ -879,7 +879,7 @@ public class TypeParamAnalyzer {
             }
             BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
                     null, null, null);
-            memberTypes.add(new BTupleMember(matchingBoundType, varSymbol));
+            members.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
         BType restType = expType.restType;
@@ -894,7 +894,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        return new BTupleType(memberTypes);
+        return new BTupleType(members);
     }
 
     private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

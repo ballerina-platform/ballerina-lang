@@ -2507,17 +2507,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
 
                     if (possibleTypes.size() > 1) {
-                        List<BTupleMember> memberTupleTypes = new ArrayList<>();
+                        List<BTupleMember> members = new ArrayList<>();
                         for (int i = 0; i < varNode.memberVariables.size(); i++) {
                             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                             for (BType possibleType : possibleTypes) {
                                 if (possibleType.tag == TypeTags.TUPLE) {
-                                    memberTypes.add(((BTupleType) possibleType).getMembers().get(i).type);
+                                    memberTypes.add(((BTupleType) possibleType).getTupleTypes().get(i));
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
                                     BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
-                                    memberTupleTypes.add(new BTupleMember(referredType, varSymbol));
+                                    members.add(new BTupleMember(referredType, varSymbol));
                                 }
                             }
 
@@ -2525,14 +2525,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 BType type = BUnionType.create(null, memberTypes);
                                 BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null,
                                         null, null);
-                                memberTupleTypes.add(new BTupleMember(type, varSymbol));
+                                members.add(new BTupleMember(type, varSymbol));
                             } else {
                                 memberTypes.forEach(m ->
-                                        memberTupleTypes.add(new BTupleMember(m,
+                                        members.add(new BTupleMember(m,
                                                 Symbols.createVarSymbolForTupleMember(m))));
                             }
                         }
-                        tupleTypeNode = new BTupleType(memberTupleTypes);
+                        tupleTypeNode = new BTupleType(members);
                         tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                         break;
                     }
@@ -2543,13 +2543,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                         break;
                     }
 
-                    List<BTupleMember> memberTypes = new ArrayList<>();
+                    List<BTupleMember> members = new ArrayList<>();
                     for (int i = 0; i < varNode.memberVariables.size(); i++) {
                         BType type = possibleTypes.get(0);
                         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
-                        memberTypes.add(new BTupleMember(type, varSymbol));
+                        members.add(new BTupleMember(type, varSymbol));
                     }
-                    tupleTypeNode = new BTupleType(memberTypes);
+                    tupleTypeNode = new BTupleType(members);
                     tupleTypeNode.restType = getPossibleRestTypeForUnion(varNode, possibleTypes);
                     break;
                 case TypeTags.ANY:
@@ -2619,14 +2619,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             int tupleNodeMemCount = tupleTypeNode.getMembers().size();
             int varNodeMemCount = varNode.memberVariables.size();
             BType restType = tupleTypeNode.restType;
-            List<BTupleMember> memberTypes = new ArrayList<>();
+            List<BTupleMember> members = new ArrayList<>();
             if (varNodeMemCount < tupleNodeMemCount) {
                 for (int j = varNodeMemCount; j < tupleNodeMemCount; j++) {
-                    memberTypes.add(tupleTypeNode.getMembers().get(j));
+                    members.add(tupleTypeNode.getMembers().get(j));
                 }
             }
-            if (!memberTypes.isEmpty()) {
-                BTupleType restTupleType = new BTupleType(memberTypes);
+            if (!members.isEmpty()) {
+                BTupleType restTupleType = new BTupleType(members);
                 restTupleType.restType = restType;
                 type = restTupleType;
             } else {

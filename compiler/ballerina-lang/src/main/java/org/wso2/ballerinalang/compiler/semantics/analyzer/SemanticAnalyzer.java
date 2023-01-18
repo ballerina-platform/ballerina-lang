@@ -421,11 +421,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (containsClientObjectTypeOrFunctionType(returnType)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE);
         }
-        for (BLangSimpleVariable pathParamType : funcNode.resourcePathType.members) {
-            symResolver.resolveTypeNode(pathParamType.typeNode, data.env);
-            if (!types.isAssignable(pathParamType.typeNode.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParamType.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
-                        pathParamType.getBType());
+        for (BLangSimpleVariable pathParam : funcNode.resourcePathType.members) {
+            symResolver.resolveTypeNode(pathParam.typeNode, data.env);
+            if (!types.isAssignable(pathParam.typeNode.getBType(), symTable.pathParamAllowedType)) {
+                dlog.error(pathParam.typeNode.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
+                        pathParam.getBType());
             }
         }
 
@@ -989,18 +989,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangSimpleVariable> memberTypeNodes = tupleTypeNode.members;
+        List<BLangSimpleVariable> memberNodes = tupleTypeNode.members;
         BType bType = tupleTypeNode.getBType();
         data.env = bType.tag == TypeTags.NONE ? data.env :
                 SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
         boolean isTuple = bType.tag == TypeTags.TUPLE;
 
-        for (int i = 0; i < memberTypeNodes.size(); i++) {
-            BLangSimpleVariable memberType = memberTypeNodes.get(i);
-            analyzeNode(memberType, data);
+        for (int i = 0; i < memberNodes.size(); i++) {
+            BLangSimpleVariable member = memberNodes.get(i);
+            analyzeNode(member, data);
             if (isTuple) {
                 List<BTupleMember> members = ((BTupleType) bType).getMembers();
-                for (BLangAnnotationAttachment ann : memberType.annAttachments) {
+                for (BLangAnnotationAttachment ann : member.annAttachments) {
                     members.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
                 }
             }
@@ -3062,15 +3062,15 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 BTupleType patternTupleType = (BTupleType) patternType;
                 List<BTupleMember> members = patternTupleType.getMembers();
                 List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
-                List<BTupleMember> memberTypes = new ArrayList<>();
+                List<BTupleMember> newMembers = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), members.get(i).type, data);
                     BType type = matchPatterns.get(i).getBType();
                     BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
                             type, null, null, null);
-                    memberTypes.add(new BTupleMember(type, varSymbol));
+                    newMembers.add(new BTupleMember(type, varSymbol));
                 }
-                BTupleType tupleType = new BTupleType(memberTypes);
+                BTupleType tupleType = new BTupleType(newMembers);
 
                 if (listMatchPattern.restMatchPattern == null) {
                     listMatchPattern.setBType(tupleType);

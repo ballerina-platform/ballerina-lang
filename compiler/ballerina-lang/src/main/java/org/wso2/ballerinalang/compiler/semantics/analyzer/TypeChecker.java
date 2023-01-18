@@ -9346,12 +9346,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private LinkedHashSet<BType> collectTupleFieldTypes(BTupleType tupleType, LinkedHashSet<BType> memberTypes) {
-        tupleType.getMembers()
+        tupleType.getTupleTypes()
                 .forEach(memberType -> {
-                    if (memberType.type.tag == TypeTags.UNION) {
-                        collectMemberTypes((BUnionType) memberType.type, memberTypes);
+                    if (memberType.tag == TypeTags.UNION) {
+                        collectMemberTypes((BUnionType) memberType, memberTypes);
                     } else {
-                        memberTypes.add(memberType.type);
+                        memberTypes.add(memberType);
                     }
                 });
         BType tupleRestType = tupleType.restType;

@@ -1301,13 +1301,13 @@ public class Types {
 
     private boolean checkAllTupleMembersBelongNoType(List<BTupleMember> tupleTypes) {
         boolean isNoType = false;
-        for (BTupleMember memberType : tupleTypes) {
-            switch (memberType.type.tag) {
+        for (BTupleMember member : tupleTypes) {
+            switch (member.type.tag) {
                 case TypeTags.NONE:
                     isNoType = true;
                     break;
                 case TypeTags.TUPLE:
-                    isNoType = checkAllTupleMembersBelongNoType(((BTupleType) memberType.type).getMembers());
+                    isNoType = checkAllTupleMembersBelongNoType(((BTupleType) member.type).getMembers());
                     if (!isNoType) {
                         return false;
                     }
@@ -3144,15 +3144,15 @@ public class Types {
             if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
                 return false;
             }
-            List<BTupleMember> targetTupleTypes = target.getMembers();
+            List<BType> targetTupleTypes = target.getTupleTypes();
             BType targetRestType = target.restType;
 
             if (source.tag == TypeTags.ARRAY) {
                 // Check whether the element type of the source array has same ordered type with each member type in
                 // target tuple type.
                 BType eType = ((BArrayType) source).eType;
-                for (BTupleMember memberType : targetTupleTypes) {
-                    if (!isSameOrderedType(eType, memberType.type, this.unresolvedTypes)) {
+                for (BType memberType : targetTupleTypes) {
+                    if (!isSameOrderedType(eType, memberType, this.unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -3163,7 +3163,7 @@ public class Types {
             }
 
             BTupleType sourceT = (BTupleType) source;
-            List<BTupleMember> sourceTupleTypes = sourceT.getMembers();
+            List<BType> sourceTupleTypes = sourceT.getTupleTypes();
 
             BType sourceRestType = sourceT.restType;
 
@@ -3173,7 +3173,7 @@ public class Types {
             int len = Math.min(sourceTupleCount, targetTupleCount);
             for (int i = 0; i < len; i++) {
                 // Check whether the corresponding member types are same ordered type.
-                if (!isSameOrderedType(sourceTupleTypes.get(i).type, targetTupleTypes.get(i).type,
+                if (!isSameOrderedType(sourceTupleTypes.get(i), targetTupleTypes.get(i),
                         this.unresolvedTypes)) {
                     return false;
                 }
@@ -3208,14 +3208,14 @@ public class Types {
             }
         }
 
-        private boolean hasCommonOrderedTypeForTuples(List<BTupleMember> typeList, int startIndex) {
-            BType baseType = typeList.get(startIndex - 1).type;
+        private boolean hasCommonOrderedTypeForTuples(List<BType> typeList, int startIndex) {
+            BType baseType = typeList.get(startIndex - 1);
             for (int i = startIndex; i < typeList.size(); i++) {
                 if (isNil(baseType)) {
-                    baseType = typeList.get(i).type;
+                    baseType = typeList.get(i);
                     continue;
                 }
-                if (!isSameOrderedType(baseType, typeList.get(i).type, this.unresolvedTypes)) {
+                if (!isSameOrderedType(baseType, typeList.get(i), this.unresolvedTypes)) {
                     return false;
                 }
             }
