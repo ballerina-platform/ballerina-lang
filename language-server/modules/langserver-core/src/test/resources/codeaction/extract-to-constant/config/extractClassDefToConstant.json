@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const float CONST \u003d 3.14;\n"
+          "newText": "const float CONST = 3.14;\n"
         },
         {
           "range": {
@@ -35,7 +35,19 @@
           },
           "newText": "CONST"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename constant",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConstant.bal",
+          {
+            "line": 17,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

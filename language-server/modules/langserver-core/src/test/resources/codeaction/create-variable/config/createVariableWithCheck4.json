@@ -4,6 +4,7 @@
     "character": 4
   },
   "source": "createVariableWithCheck.bal",
+  "description": "Parent function has error return type",
   "expected": [
     {
       "title": "Create variable and check error",
@@ -37,7 +38,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithCheck.bal",
@@ -46,6 +47,5 @@
       },
       "resolvable": false
     }
-  ],
-  "description": "Parent function has error return type"
+  ]
 }
