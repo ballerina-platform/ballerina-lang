@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.commons;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.eclipse.lsp4j.Position;
 
 /**
  * Represents the hover operation context.
@@ -42,13 +41,6 @@ public interface HoverContext extends PositionedOperationContext {
      * @return {@link Token} at the cursor
      */
     Token getTokenAtCursor();
-
-    /**
-     * Get the cursor position.
-     *
-     * @return {@link Position}
-     */
-    Position getCursorPosition();
 
     /**
      * Set the node at cursor.

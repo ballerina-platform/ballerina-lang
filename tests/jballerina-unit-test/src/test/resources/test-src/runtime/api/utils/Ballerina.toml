@@ -1,4 +1,4 @@
 [package]
 org= "testorg"
-name="utils_api"
+name="utils"
 version= "1.0.0"

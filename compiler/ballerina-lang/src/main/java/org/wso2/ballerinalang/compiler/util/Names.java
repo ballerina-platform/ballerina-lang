@@ -151,8 +151,6 @@ public class Names {
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name DEFAULT_MAJOR_VERSION = new Name("0");
 
-    public static final Name CLIENT = new Name("client");
-
     public CompilerContext context;
 
     public static Names getInstance(CompilerContext context) {

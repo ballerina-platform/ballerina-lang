@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.expressions.object;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -57,7 +58,9 @@ public class ObjectConstructorTest {
                 {"testObjectConstructorWithDistinctTypeReferenceVar"},
                 {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
                 {"testObjectConstructorExprWithReadOnlyCET"},
-                {"testMultipleVarAssignments"}
+                {"testMultipleVarAssignments"},
+                {"testLocalVariablesAsFieldDefaults"},
+                {"testModuleLevelObjectCtrWithModuleLevelVariableAsFieldDefaults"}
         };
     }
 
@@ -234,6 +237,16 @@ public class ObjectConstructorTest {
     @Test(dataProvider = "MultiLevelClosureTestFunctionList")
     public void testMultiLevelClosures(String funcName) {
         BRunUtil.invoke(multiLevelClosures, funcName);
+    }
+
+    @Test
+    public void testInvalidFieldsInObjectCtr() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/expressions/object/object_constructor_fields_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined symbol 'x'", 22, 17);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'x'", 33, 13);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass

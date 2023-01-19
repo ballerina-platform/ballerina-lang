@@ -119,10 +119,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -140,7 +140,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -237,10 +237,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -258,11 +258,11 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 }
                                               ]
@@ -366,10 +366,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -387,7 +387,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -491,10 +491,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -512,15 +512,15 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "3"
                                                 }
                                               ]
@@ -624,10 +624,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -645,15 +645,15 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "3"
                                                 }
                                               ]
@@ -665,7 +665,7 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 }
                                               ]
@@ -762,10 +762,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -783,15 +783,15 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "3"
                                                 }
                                               ]
@@ -803,15 +803,15 @@
                                               "kind": "LIST",
                                               "children": [
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "1"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "2"
                                                 },
                                                 {
-                                                  "kind": "RE_BRACED_QUANTIFIER_DIGIT",
+                                                  "kind": "DIGIT",
                                                   "value": "3"
                                                 }
                                               ]

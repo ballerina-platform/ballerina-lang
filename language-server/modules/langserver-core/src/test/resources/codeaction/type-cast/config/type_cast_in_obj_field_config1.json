@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 2,
+    "line": 4,
     "character": 12
   },
   "source": "type_cast_in_obj_fields.bal",
@@ -12,11 +12,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 4,
               "character": 12
             },
             "end": {
-              "line": 2,
+              "line": 4,
               "character": 12
             }
           },
@@ -32,11 +32,11 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 4,
               "character": 4
             },
             "end": {
-              "line": 2,
+              "line": 4,
               "character": 7
             }
           },

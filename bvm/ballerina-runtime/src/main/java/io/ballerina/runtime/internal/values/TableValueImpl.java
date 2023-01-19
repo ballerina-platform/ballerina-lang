@@ -82,7 +82,8 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
-    private TableType type;
+    private Type type;
+    private TableType tableType;
     private Type iteratorNextReturnType;
     private ConcurrentHashMap<Long, List<Map.Entry<K, V>>> entries;
     private LinkedHashMap<Long, List<V>> values;
@@ -93,7 +94,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     //These are required to achieve the iterator behavior
     private LinkedHashMap<Long, K> indexToKeyMap;
-    private LinkedHashMap<K, Long> keyToIndexMap;
+    private LinkedHashMap<Long, Long> keyToIndexMap;
     private LinkedHashMap<K, V> keyValues;
     private long noOfAddedEntries = 0;
 
@@ -102,39 +103,44 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private final Map<String, Object> nativeData = new HashMap<>();
     private BTypedesc typedesc;
 
-    public TableValueImpl(TableType type) {
-        this.type = type;
+    public TableValueImpl(TableType tableType) {
+        this.type = this.tableType = tableType;
 
         this.entries = new ConcurrentHashMap<>();
         this.keys = new LinkedHashMap<>();
         this.values = new LinkedHashMap<>();
         this.keyToIndexMap = new LinkedHashMap<>();
         this.indexToKeyMap = new LinkedHashMap<>();
-        this.fieldNames = type.getFieldNames();
+        this.fieldNames = tableType.getFieldNames();
         this.keyValues = new LinkedHashMap<>();
-        if (type.getFieldNames().length > 0) {
+        if (tableType.getFieldNames().length > 0) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();
         }
-        this.typedesc = getTypedescValue(type, this);
+        this.typedesc = getTypedescValue(tableType, this);
     }
 
-    public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
-        this(type);
+    public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
+        this((TableType) TypeUtils.getReferredType(type), data, fieldNames);
+        this.type = type;
+    }
+
+    public TableValueImpl(TableType tableType, ArrayValue data, ArrayValue fieldNames) {
+        this(tableType);
         if (this.fieldNames == null) {
             this.fieldNames = fieldNames.getStringArray();
         }
 
         addData(data);
-        if (type.isReadOnly()) {
+        if (tableType.isReadOnly()) {
             this.typedesc = createSingletonTypedesc(this);
         }
     }
 
     // TODO: Might be unnecessary after fixing issue lang/#36721
-    public TableValueImpl(TableType type, ArrayValue fieldNames) {
-        this(type);
+    public TableValueImpl(TableType tableType, ArrayValue fieldNames) {
+        this(tableType);
         this.fieldNames = fieldNames.getStringArray();
 
         if (this.fieldNames.length > 0) {
@@ -167,7 +173,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return refs.get(this);
         }
 
-        TableValueImpl<K, V> clone = new TableValueImpl<>(type);
+        TableValueImpl<K, V> clone = new TableValueImpl<>(tableType);
+        clone.type = type;
+
         if (fieldNames != null) {
             clone.fieldNames = fieldNames;
         }
@@ -195,7 +203,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     protected void handleFrozenTableValue() {
         synchronized (this) {
             try {
-                if (this.type.isReadOnly()) {
+                if (this.tableType.isReadOnly()) {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
@@ -313,7 +321,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return this.get(key);
         }
 
-        Type expectedType = (this.type).getConstrainedType();
+        Type expectedType = (this.tableType).getConstrainedType();
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
@@ -363,7 +371,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.tableType = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
         this.typedesc = createSingletonTypedesc(this);
@@ -405,7 +415,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
-        String[] keysList = type.getFieldNames();
+        String[] keysList = tableType.getFieldNames();
         for (int i = 0; i < keysList.length; i++) {
             keyJoiner.add(keysList[i]);
         }
@@ -460,7 +470,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(tableType.getConstrainedType());
         }
 
         return iteratorNextReturnType;
@@ -518,7 +528,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            checkInherentTypeViolation((MapValue) data, type);
+            checkInherentTypeViolation((MapValue) data, tableType);
 
             ArrayList<V> newData = new ArrayList<>();
             newData.add(data);
@@ -527,9 +537,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             List<Map.Entry<K, V>> entryList = new ArrayList<>();
             entryList.add(entry);
             UUID uuid = UUID.randomUUID();
-            entries.put((long) uuid.hashCode(), entryList);
-            updateIndexKeyMappings((K) data);
-            values.put((long) uuid.hashCode(), newData);
+            Long hash = (long) uuid.hashCode();
+            entries.put(hash, entryList);
+            updateIndexKeyMappings((K) data, hash);
+            values.put(hash, newData);
             keyValues.put((K) data, data);
             return data;
         }
@@ -564,7 +575,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
-            checkInherentTypeViolation(dataMap, type);
+            checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
@@ -585,7 +596,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 List<V> extValues = values.get(hash);
                 extValues.add(data);
                 keyValues.put(key, data);
-                updateIndexKeyMappings(key);
+                updateIndexKeyMappings(key, hash);
                 return;
             }
 
@@ -631,7 +642,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             entryList.add(entry);
             entries.put(hash, entryList);
             keys.put(hash, key);
-            updateIndexKeyMappings(key);
+            updateIndexKeyMappings(key, hash);
             values.put(hash, data);
             keyValues.put(key, value);
             return data.get(0);
@@ -639,7 +650,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
-            checkInherentTypeViolation(dataMap, type);
+            checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             ArrayList<V> newData = new ArrayList<>();
@@ -660,7 +671,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                         List<V> valueList = values.get(hash);
                         valueList.remove(entry.getValue());
                         entryList.remove(entry);
-                        Long index = keyToIndexMap.remove(key);
+                        Long index = keyToIndexMap.remove(hash);
                         indexToKeyMap.remove(index);
                         if (index != null && index == noOfAddedEntries - 1) {
                             noOfAddedEntries--;
@@ -671,7 +682,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             }
             entries.remove(hash);
             keys.remove(hash);
-            Long index = keyToIndexMap.remove(key);
+            Long index = keyToIndexMap.remove(hash);
             indexToKeyMap.remove(index);
             if (index != null && index == noOfAddedEntries - 1) {
                 noOfAddedEntries--;
@@ -703,7 +714,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             public DefaultKeyWrapper() {
                 if (fieldNames.length == 1) {
-                    keyType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                    keyType = getTableConstraintField(tableType.getConstrainedType(), fieldNames[0]);
                     if (keyType != null && keyType.getTag() == TypeTags.INT_TAG) {
                         nextKeySupported = true;
                     }
@@ -744,9 +755,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     }
 
     // This method updates the indexes and the order required by the iterators
-    private void updateIndexKeyMappings(K key) {
-        if (!keyToIndexMap.containsKey(key)) {
-            keyToIndexMap.put(key, noOfAddedEntries);
+    private void updateIndexKeyMappings(K key, Long hash) {
+        if (!keyToIndexMap.containsKey(hash)) {
+            keyToIndexMap.put(hash, noOfAddedEntries);
             indexToKeyMap.put(noOfAddedEntries, key);
             noOfAddedEntries++;
         }
@@ -779,7 +790,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
 
-        if (tableValue.type.getTag() != this.type.getTag()) {
+        if (tableValue.tableType.getTag() != this.tableType.getTag()) {
             return false;
         }
 

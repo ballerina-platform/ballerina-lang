@@ -16,7 +16,7 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
-import testorg/runtime_api_types.objects as o;
+import types.objects as o;
 
 public annotation IntConstraints Int on type, record field;
 
@@ -84,6 +84,10 @@ public function validateTypeRef() {
     testRuntimeTypeRef();
     validateArray();
     validateFunctionParameters();
+    validateRuntimeAPIs();
+    validateValueWithUnion();
+    validateTableMultipleKey();
+    validateInlineRecordField();
 }
 
 function validateFunctionParameters() {
@@ -427,6 +431,65 @@ function validateArray() {
         test:assertFail("Expected error not found.");
     }
 }
+
+public type StringConstraints record {|
+    int length?;
+    int minLength?;
+    int maxLength?;
+|};
+
+public annotation StringConstraints String on record field;
+
+type InlineAlbum readonly & record {|
+    @String {
+        minLength: 1
+    }
+    string title;
+    string artist;
+|};
+
+type MutableAlbum record {|
+    @String {
+        maxLength: 5,
+        minLength: 1
+    }
+    string title;
+    string artist;
+|};
+
+MutableAlbum mutableAlbum = {
+    artist: "testA",
+    title: "testssA"
+};
+
+InlineAlbum inlineImmutableAlbum = {
+    artist: "testB",
+    title: "testssB"
+};
+
+record {|
+    @String {
+        minLength: 1
+    }
+    string title;
+    string artist;
+|} inlineAlbum = {
+    artist: "testC",
+    title: "testssC"
+};
+
+function validateInlineRecordField() {
+    boolean s1 = checkInlineRecordAnnotations(MutableAlbum, StringConstraints);
+    boolean s2 = checkInlineRecordAnnotations(InlineAlbum, StringConstraints);
+    boolean s3 = checkInlineRecordAnnotations(typeof inlineAlbum, StringConstraints);
+    test:assertTrue(s1);
+    test:assertTrue(s2);
+    test:assertTrue(s3);
+}
+
+public isolated function checkInlineRecordAnnotations(typedesc<any> t1, typedesc<any> t2) returns boolean = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
 
 # Validates the provided value against the configured annotations.
 #

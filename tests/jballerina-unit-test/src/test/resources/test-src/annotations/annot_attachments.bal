@@ -294,3 +294,13 @@ public enum Color2 {
     RED,
     BLUE
 }
+
+public const annotation record {| int increment = 1; |} v29 on source type;
+
+@v29 {
+    increment: -1
+}
+type Qux record {|
+    int x;
+|};
+

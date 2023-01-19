@@ -541,6 +541,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),
     CONSTANT_DECLARATION_NOT_YET_SUPPORTED("BCE3507", "constant.declaration.not.yet.supported.for.type"),
     SELF_REFERENCE_CONSTANT("BCE3508", "self.reference.constant"),
+    INT_RANGE_OVERFLOW_ERROR("BCE3509", "int.range.overflow"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("BCE3600", "arrow.expression.mismatched.parameter.length"),
@@ -625,7 +626,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MULTIPLE_INFER_TYPEDESC_PARAMS("BCE3932", "multiple.infer.typedesc.params"),
     INVALID_DEPENDENTLY_TYPED_RETURN_TYPE_WITH_INFERRED_TYPEDESC_PARAM(
             "BCE3933", "invalid.dependently.typed.return.type.with.inferred.typedesc.param"),
-    CANNOT_INFER_TYPE_FOR_PARAM("BCE3934", "cannot.infer.type.for.param"),
+    CANNOT_INFER_TYPEDESC_ARGUMENT_FROM_CET("BCE3934", "cannot.infer.typedesc.argument.from.cet"),
     CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM("BCE3935",
             "cannot.use.inferred.typedesc.default.with.unreferenced.param"),
 
@@ -779,24 +780,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
     INVALID_RESOURCE_METHOD_RETURN_TYPE("BCE4033", "invalid.resource.method.return.type"),
     OUT_OF_RANGE("BCE4034", "numeric.literal.out.of.range"),
-
     INVALID_START_CHAR_CODE_IN_RANGE("BCE4035", "invalid.start.char.code.in.range"),
     INVALID_QUANTIFIER_MINIMUM("BCE4036", "invalid.quantifier.minimum"),
     DUPLICATE_FLAGS("BCE4037", "duplicate.flags"),
-
-    INVALID_USAGE_OF_THE_CLIENT_KEYWORD_AS_UNQUOTED_IDENTIFIER(
-            "BCE4038", "invalid.usage.of.the.client.keyword.as.an.unquoted.identifier"),
-    INVALID_NON_ANYDATA_CLIENT_DECL_ANNOTATION("BCE4039", "invalid.non.anydata.client.decl.annotation"),
-    NO_MODULE_GENERATED_FOR_CLIENT_DECL("BCE4040", "no.module.generated.for.client.decl"),
-    UNUSED_CLIENT_DECL_PREFIX("BCE4041", "unused.client.decl.prefix"),
-    UNSUPPORTED_EXPOSURE_OF_CONSTRUCT_FROM_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4042", "unsupported.exposure.of.construct.from.module.generated.for.client.decl"),
-    MODULE_GENERATED_FOR_CLIENT_DECL_MUST_HAVE_A_CLIENT_OBJECT_TYPE(
-            "BCE4043", "module.generated.for.client.decl.must.have.a.client.object.type"),
-    MODULE_GENERATED_FOR_CLIENT_DECL_CANNOT_HAVE_MUTABLE_STATE(
-            "BCE4044", "module.generated.for.client.decl.cannot.have.mutable.state"),
-    CANNOT_IMPORT_MODULE_GENERATED_FOR_CLIENT_DECL(
-            "BCE4045", "cannot.import.module.generated.for.a.client.decl")
+    CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4038",
+            "cannot.infer.typedesc.argument.without.cet"),
+    OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
+            "BCE4039", "outer.join.must.be.declared.with.var")
     ;
 
     private String diagnosticId;
