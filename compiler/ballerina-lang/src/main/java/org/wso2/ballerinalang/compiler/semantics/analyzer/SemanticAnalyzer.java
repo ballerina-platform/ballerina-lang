@@ -994,7 +994,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.env = bType.tag == TypeTags.NONE ? data.env :
                 SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
         boolean isTuple = bType.tag == TypeTags.TUPLE;
-        List<BTupleMember> members = ((BTupleType) bType).getMembers();
+        List<BTupleMember> members = isTuple ? ((BTupleType) bType).getMembers() : null;
 
         for (int i = 0; i < memberNodes.size(); i++) {
             BLangSimpleVariable member = memberNodes.get(i);
