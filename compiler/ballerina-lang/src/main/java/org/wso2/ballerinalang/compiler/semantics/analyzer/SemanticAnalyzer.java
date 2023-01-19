@@ -994,12 +994,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.env = bType.tag == TypeTags.NONE ? data.env :
                 SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(bType.tsymbol), data.env);
         boolean isTuple = bType.tag == TypeTags.TUPLE;
+        List<BTupleMember> members = ((BTupleType) bType).getMembers();
 
         for (int i = 0; i < memberNodes.size(); i++) {
             BLangSimpleVariable member = memberNodes.get(i);
             analyzeNode(member, data);
             if (isTuple) {
-                List<BTupleMember> members = ((BTupleType) bType).getMembers();
                 for (BLangAnnotationAttachment ann : member.annAttachments) {
                     members.get(i).symbol.addAnnotation(ann.annotationAttachmentSymbol);
                 }

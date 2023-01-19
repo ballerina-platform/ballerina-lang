@@ -516,9 +516,10 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInTuple(Location loc, BTupleType expType, BTupleType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-
-        for (int i = 0; i < expType.getMembers().size() && i < actualType.getMembers().size(); i++) {
-            findTypeParam(loc, expType.getMembers().get(i).type, actualType.getMembers().get(i).type, env,
+        List<BType> expTypeMemberTypes = expType.getTupleTypes();
+        List<BType> actualTypeMemberTypes = actualType.getTupleTypes();
+        for (int i = 0; i < expTypeMemberTypes.size() && i < actualTypeMemberTypes.size(); i++) {
+            findTypeParam(loc, expTypeMemberTypes.get(i), actualTypeMemberTypes.get(i), env,
                     resolvedTypes, result);
         }
     }
