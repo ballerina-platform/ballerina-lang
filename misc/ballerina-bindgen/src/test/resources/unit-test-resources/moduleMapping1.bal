@@ -311,10 +311,10 @@ public function newFileInputStream2(FileDescriptor arg0) returns FileInputStream
 
 # The constructor function to generate an object of `java.io.FileInputStream`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `FileInputStream` class or `FileNotFoundException` error generated.
-public function newFileInputStream3(string arg0) returns FileInputStream|FileNotFoundException {
-    handle|error externalObj = java_io_FileInputStream_newFileInputStream3(java:fromString(arg0));
+public function newFileInputStream3(string? arg0) returns FileInputStream|FileNotFoundException {
+    handle|error externalObj = java_io_FileInputStream_newFileInputStream3(arg0 is () ? java:createNull() : java:fromString(arg0));
     if (externalObj is error) {
         FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
         return e;

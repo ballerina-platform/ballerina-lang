@@ -68,14 +68,14 @@ distinct class JIOException {
 
     # The function that maps to the `getLocalizedMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
+    # + return - The `string?` value returning from the Java mapping.
     function getLocalizedMessage() returns string? {
         return java:toString(java_io_IOException_getLocalizedMessage(self.jObj));
     }
 
     # The function that maps to the `getMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
+    # + return - The `string?` value returning from the Java mapping.
     function getMessage() returns string? {
         return java:toString(java_io_IOException_getMessage(self.jObj));
     }
@@ -213,21 +213,21 @@ function newJIOException1() returns JIOException {
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `JIOException` class generated.
-function newJIOException2(string arg0) returns JIOException {
-    handle externalObj = java_io_IOException_newJIOException2(java:fromString(arg0));
+function newJIOException2(string? arg0) returns JIOException {
+    handle externalObj = java_io_IOException_newJIOException2(arg0 is () ? java:createNull() : java:fromString(arg0));
     JIOException newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + arg1 - The `Throwable` value required to map with the Java constructor parameter.
 # + return - The new `JIOException` class generated.
-function newJIOException3(string arg0, Throwable arg1) returns JIOException {
-    handle externalObj = java_io_IOException_newJIOException3(java:fromString(arg0), arg1.jObj);
+function newJIOException3(string? arg0, Throwable arg1) returns JIOException {
+    handle externalObj = java_io_IOException_newJIOException3(arg0 is () ? java:createNull() : java:fromString(arg0), arg1.jObj);
     JIOException newObj = new (externalObj);
     return newObj;
 }

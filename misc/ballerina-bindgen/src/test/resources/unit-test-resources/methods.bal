@@ -28,9 +28,9 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `AbstractSet` value required to map with the Java method parameter.
     # + arg1 - The `Object` value required to map with the Java method parameter.
-    # + arg2 - The `string` value required to map with the Java method parameter.
-    function abstractObjectParam(AbstractSet arg0, Object arg1, string arg2) {
-        org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(self.jObj, arg0.jObj, arg1.jObj, java:fromString(arg2));
+    # + arg2 - The `string?` value required to map with the Java method parameter.
+    function abstractObjectParam(AbstractSet arg0, Object arg1, string? arg2) {
+        org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(self.jObj, arg0.jObj, arg1.jObj, arg2 is () ? java:createNull() : java:fromString(arg2));
     }
 
     # The function that maps to the `enumParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -54,9 +54,9 @@ distinct class MethodsTestResource {
     # The function that maps to the `errorParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `JIOException` value required to map with the Java method parameter.
-    # + arg1 - The `string[]` value required to map with the Java method parameter.
+    # + arg1 - The `string?[]` value required to map with the Java method parameter.
     # + return - The `error?` value returning from the Java mapping.
-    function errorParam(JIOException arg0, string[] arg1) returns error? {
+    function errorParam(JIOException arg0, string?[] arg1) returns error? {
         org_ballerinalang_bindgen_MethodsTestResource_errorParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1, "java.lang.String"));
     }
 
@@ -64,9 +64,9 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `Set` value required to map with the Java method parameter.
     # + arg1 - The `int` value required to map with the Java method parameter.
-    # + arg2 - The `string[]` value required to map with the Java method parameter.
+    # + arg2 - The `string?[]` value required to map with the Java method parameter.
     # + return - The `Set` value returning from the Java mapping.
-    function genericObjectParam(Set arg0, int arg1, string[] arg2) returns Set|error {
+    function genericObjectParam(Set arg0, int arg1, string?[] arg2) returns Set|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(self.jObj, arg0.jObj, arg1, check jarrays:toHandle(arg2, "java.lang.String"));
         Set newObj = new (externalObj);
         return newObj;
@@ -273,19 +273,19 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnFloat` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `float` value required to map with the Java method parameter.
-    # + arg1 - The `string` value required to map with the Java method parameter.
+    # + arg1 - The `string?` value required to map with the Java method parameter.
     # + return - The `float` value returning from the Java mapping.
-    function returnFloat2(float arg0, string arg1) returns float {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnFloat2(self.jObj, arg0, java:fromString(arg1));
+    function returnFloat2(float arg0, string? arg1) returns float {
+        return org_ballerinalang_bindgen_MethodsTestResource_returnFloat2(self.jObj, arg0, arg1 is () ? java:createNull() : java:fromString(arg1));
     }
 
     # The function that maps to the `returnFloatArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `float[]` value required to map with the Java method parameter.
-    # + arg1 - The `string` value required to map with the Java method parameter.
+    # + arg1 - The `string?` value required to map with the Java method parameter.
     # + return - The `float[]` value returning from the Java mapping.
-    function returnFloatArray(float[] arg0, string arg1) returns float[]|error {
-        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(self.jObj, check jarrays:toHandle(arg0, "float"), java:fromString(arg1));
+    function returnFloatArray(float[] arg0, string? arg1) returns float[]|error {
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnFloatArray(self.jObj, check jarrays:toHandle(arg0, "float"), arg1 is () ? java:createNull() : java:fromString(arg1));
         return <float[]>check jarrays:fromHandle(externalObj, "float");
     }
 
@@ -479,16 +479,16 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnString` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + arg0 - The `string` value required to map with the Java method parameter.
-    # + return - The `string` value returning from the Java mapping.
-    function returnString(string arg0) returns string? {
-        return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0)));
+    # + arg0 - The `string?` value required to map with the Java method parameter.
+    # + return - The `string?` value returning from the Java mapping.
+    function returnString(string? arg0) returns string? {
+        return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, arg0 is () ? java:createNull() : java:fromString(arg0)));
     }
 
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray() returns string[]?|error {
+    # + return - The `string?[]` value returning from the Java mapping.
+    function returnStringArray() returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray(self.jObj);
         if java:isNull(externalObj) {
             return null;
@@ -498,11 +498,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnStringArray1` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + arg0 - The `string[]` value required to map with the Java method parameter.
+    # + arg0 - The `string?[]` value required to map with the Java method parameter.
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
-    # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string[]?|error {
+    # + return - The `string?[]` value returning from the Java mapping.
+    function returnStringArray1(string?[] arg0, StringBuffer arg1, int arg2) returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if java:isNull(externalObj) {
             return null;
@@ -512,11 +512,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnStringArray2` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + arg0 - The `string[]` value required to map with the Java method parameter.
+    # + arg0 - The `string?[]` value required to map with the Java method parameter.
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
-    # + return - The `string[]` or the `InterruptedException` value returning from the Java mapping.
-    function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]?|InterruptedException|error {
+    # + return - The `string?[]` or the `InterruptedException` value returning from the Java mapping.
+    function returnStringArray2(string?[] arg0, StringBuffer arg1, int arg2) returns string?[]?|InterruptedException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if java:isNull(externalObj) {
             return null;

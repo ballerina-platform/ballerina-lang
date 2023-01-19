@@ -108,11 +108,11 @@ function newConstructorsTestResource1() returns ConstructorsTestResource {
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `boolean` value required to map with the Java constructor parameter.
-# + arg1 - The `string` value required to map with the Java constructor parameter.
+# + arg1 - The `string?` value required to map with the Java constructor parameter.
 # + arg2 - The `StringBuffer` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource2(boolean arg0, string arg1, StringBuffer arg2) returns ConstructorsTestResource {
-    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource2(arg0, java:fromString(arg1), arg2.jObj);
+function newConstructorsTestResource2(boolean arg0, string? arg1, StringBuffer arg2) returns ConstructorsTestResource {
+    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource2(arg0, arg1 is () ? java:createNull() : java:fromString(arg1), arg2.jObj);
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
@@ -203,10 +203,10 @@ function newConstructorsTestResource9(int[] arg0) returns ConstructorsTestResour
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `int[]` value required to map with the Java constructor parameter.
-# + arg1 - The `string` value required to map with the Java constructor parameter.
+# + arg1 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource10(int[] arg0, string arg1) returns ConstructorsTestResource|error {
-    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource10(check jarrays:toHandle(arg0, "int"), java:fromString(arg1));
+function newConstructorsTestResource10(int[] arg0, string? arg1) returns ConstructorsTestResource|error {
+    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource10(check jarrays:toHandle(arg0, "int"), arg1 is () ? java:createNull() : java:fromString(arg1));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
@@ -236,9 +236,9 @@ function newConstructorsTestResource12(Object[] arg0) returns ConstructorsTestRe
 #
 # + arg0 - The `Object[]` value required to map with the Java constructor parameter.
 # + arg1 - The `boolean` value required to map with the Java constructor parameter.
-# + arg2 - The `string[]` value required to map with the Java constructor parameter.
+# + arg2 - The `string?[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource13(Object[] arg0, boolean arg1, string[] arg2) returns ConstructorsTestResource|error {
+function newConstructorsTestResource13(Object[] arg0, boolean arg1, string?[] arg2) returns ConstructorsTestResource|error {
     handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource13(check jarrays:toHandle(arg0, "java.lang.Object"), arg1, check jarrays:toHandle(arg2, "java.lang.String"));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
@@ -246,19 +246,19 @@ function newConstructorsTestResource13(Object[] arg0, boolean arg1, string[] arg
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource14(string arg0) returns ConstructorsTestResource {
-    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource14(java:fromString(arg0));
+function newConstructorsTestResource14(string? arg0) returns ConstructorsTestResource {
+    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource14(arg0 is () ? java:createNull() : java:fromString(arg0));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string[]` value required to map with the Java constructor parameter.
+# + arg0 - The `string?[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource15(string[] arg0) returns ConstructorsTestResource|error {
+function newConstructorsTestResource15(string?[] arg0) returns ConstructorsTestResource|error {
     handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource15(check jarrays:toHandle(arg0, "java.lang.String"));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
@@ -266,10 +266,10 @@ function newConstructorsTestResource15(string[] arg0) returns ConstructorsTestRe
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string[]` value required to map with the Java constructor parameter.
-# + arg1 - The `string[]` value required to map with the Java constructor parameter.
+# + arg0 - The `string?[]` value required to map with the Java constructor parameter.
+# + arg1 - The `string?[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource16(string[] arg0, string[] arg1) returns ConstructorsTestResource|error {
+function newConstructorsTestResource16(string?[] arg0, string?[] arg1) returns ConstructorsTestResource|error {
     handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource16(check jarrays:toHandle(arg0, "java.lang.String"), check jarrays:toHandle(arg1, "java.lang.String"));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
@@ -277,23 +277,23 @@ function newConstructorsTestResource16(string[] arg0, string[] arg1) returns Con
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + arg1 - The `byte` value required to map with the Java constructor parameter.
 # + arg2 - The `int` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource17(string arg0, byte arg1, int arg2) returns ConstructorsTestResource {
-    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource17(java:fromString(arg0), arg1, arg2);
+function newConstructorsTestResource17(string? arg0, byte arg1, int arg2) returns ConstructorsTestResource {
+    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource17(arg0 is () ? java:createNull() : java:fromString(arg0), arg1, arg2);
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + arg1 - The `int` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class or `IOException` error generated.
-function newConstructorsTestResource18(string arg0, int arg1) returns ConstructorsTestResource|IOException {
-    handle|error externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource18(java:fromString(arg0), arg1);
+function newConstructorsTestResource18(string? arg0, int arg1) returns ConstructorsTestResource|IOException {
+    handle|error externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource18(arg0 is () ? java:createNull() : java:fromString(arg0), arg1);
     if (externalObj is error) {
         IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
         return e;
@@ -305,11 +305,11 @@ function newConstructorsTestResource18(string arg0, int arg1) returns Constructo
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
-# + arg1 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
+# + arg1 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
-function newConstructorsTestResource19(string arg0, string arg1) returns ConstructorsTestResource {
-    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource19(java:fromString(arg0), java:fromString(arg1));
+function newConstructorsTestResource19(string? arg0, string? arg1) returns ConstructorsTestResource {
+    handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource19(arg0 is () ? java:createNull() : java:fromString(arg0), arg1 is () ? java:createNull() : java:fromString(arg1));
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
