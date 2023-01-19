@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 23,
+    "character": 22
+  },
+  "source": "source1.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'module1:Response'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 4
+            },
+            "end": {
+              "line": 23,
+              "character": 4
+            }
+          },
+          "newText": "module1:Response unionResult = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'json'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 4
+            },
+            "end": {
+              "line": 23,
+              "character": 4
+            }
+          },
+          "newText": "json unionResult = "
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'anydata'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 23,
+              "character": 4
+            },
+            "end": {
+              "line": 23,
+              "character": 4
+            }
+          },
+          "newText": "anydata unionResult = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}
