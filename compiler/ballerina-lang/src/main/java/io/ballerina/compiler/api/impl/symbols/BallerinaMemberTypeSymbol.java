@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Represents a member type symbol.
+ * Represents a tuple member symbol.
  *
  * @since 2201.4.0
  */

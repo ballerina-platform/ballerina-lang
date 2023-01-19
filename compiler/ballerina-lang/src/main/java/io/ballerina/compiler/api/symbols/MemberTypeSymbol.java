@@ -17,7 +17,7 @@
 package io.ballerina.compiler.api.symbols;
 
 /**
- * Represents a member type symbol.
+ * Represents a tuple member symbol.
  *
  * @since 2201.4.0
  */
