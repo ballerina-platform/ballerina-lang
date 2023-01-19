@@ -240,10 +240,6 @@ public class JMethod extends BFunction {
         return hasException;
     }
 
-    public boolean getIsStringReturn() {
-        return isStringReturn;
-    }
-
     public String getReturnType() {
         return returnType;
     }

@@ -23,6 +23,8 @@ import org.ballerinalang.bindgen.utils.BindgenEnv;
 import java.lang.reflect.Field;
 import java.util.Collections;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
@@ -63,10 +65,10 @@ public class JField extends BFunction {
         if (type.isPrimitive() || type.equals(String.class)) {
             isObject = false;
         }
-        if (fieldType.equals(BALLERINA_STRING)) {
+        if (fieldType.equals(BALLERINA_STRING) || fieldType.equals(BALLERINA_NILLABLE_STRING)) {
             isString = true;
         }
-        if (fieldType.equals(BALLERINA_STRING_ARRAY)) {
+        if (fieldType.equals(BALLERINA_STRING_ARRAY) || fieldType.equals(BALLERINA_NILLABLE_STRING_ARRAY)) {
             isStringArray = true;
         }
         if (type.isArray()) {
@@ -121,7 +123,7 @@ public class JField extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (super.getKind() == BFunctionKind.FIELD_GET) {
             returnString.append(fieldObj.getShortTypeName());
-            if (isString || isStringArray) {
+            if (isStringArray) {
                 returnString.append("?");
             }
             if (returnError) {

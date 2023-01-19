@@ -44,8 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE;
@@ -208,7 +208,7 @@ public class BindgenUtils {
         if (javaType.isPrimitive()) {
             return javaType.getSimpleName();
         } else if (javaType.getSimpleName().equals(JAVA_STRING)) {
-            return BALLERINA_STRING;
+            return BALLERINA_NILLABLE_STRING;
         } else {
             return HANDLE;
         }
@@ -233,9 +233,9 @@ public class BindgenUtils {
             case LONG:
                 return INT;
             case JAVA_STRING:
-                return BALLERINA_STRING;
+                return BALLERINA_NILLABLE_STRING;
             case JAVA_STRING_ARRAY:
-                return BALLERINA_STRING_ARRAY;
+                return BALLERINA_NILLABLE_STRING_ARRAY;
             default:
                 return HANDLE;
         }
@@ -296,7 +296,7 @@ public class BindgenUtils {
                 if (file.isDirectory()) {
                     File[] paths = file.listFiles();
                     if (paths != null) {
-                        for (File filePath: paths) {
+                        for (File filePath : paths) {
                             if (isJarFile(filePath)) {
                                 urls.add(filePath.toURI().toURL());
                                 classPaths.add(filePath.getName());
