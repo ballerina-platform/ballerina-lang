@@ -1367,7 +1367,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
+        tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }
@@ -1642,11 +1642,11 @@ public class Desugar extends BLangNodeVisitor {
             boolean isIndexBasedAccessExpr = tupleExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
             if (restType.tag == TypeTags.TUPLE) {
                 BTupleType restTupleType = (BTupleType) restType;
-                for (int index = 0; index < restTupleType.members.size(); index++) {
+                for (int index = 0; index < restTupleType.getMembers().size(); index++) {
                     BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                             (long) index);
                     BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef, indexExpr);
-                    tupleValueExpr.setBType(restTupleType.members.get(index).type);
+                    tupleValueExpr.setBType(restTupleType.getTupleTypes().get(index));
                     if (isIndexBasedAccessExpr) {
                         createAssignmentStmt(tupleValueExpr, blockStmt, countExpr, tupleVarSymbol,
                                 (BLangIndexBasedAccess) tupleExpr);
@@ -2599,11 +2599,11 @@ public class Desugar extends BLangNodeVisitor {
             modifiedTupleExpr.setBType(tupleExpr.getBType());
             tupleExpr = modifiedTupleExpr;
             isIndexBasedAccessExpr = true;
-            for (int index = 0; index < restTupleType.members.size(); index++) {
+            for (int index = 0; index < restTupleType.getMembers().size(); index++) {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(restParam, indexExpr);
-                tupleValueExpr.setBType(restTupleType.members.get(index).type);
+                tupleValueExpr.setBType(restTupleType.getTupleTypes().get(index));
                 createAssignmentStmt(tupleValueExpr, blockStmt, indexExpr, tupleVarSymbol,
                         (BLangIndexBasedAccess) tupleExpr);
                 // Increment the count for each visited member in the tupleLiteral.
@@ -5856,7 +5856,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
         BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
-        List<BTupleMember> tupleMemberTypes = tupleType.members;
+        List<BType> tupleMemberTypes = tupleType.getTupleTypes();
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
 
@@ -5875,7 +5875,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BTupleType spreadOpTuple = (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
-                        i += spreadOpTuple.members.size();
+                        i += spreadOpTuple.getMembers().size();
                         continue;
                     }
                 }
@@ -5887,7 +5887,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BType targetType = tupleType.restType;
             if (!isInRestType && i < tupleMemberTypeSize) {
-                targetType = tupleMemberTypes.get(i).type;
+                targetType = tupleMemberTypes.get(i);
             }
 
             types.setImplicitCastExpr(expr, expType, targetType);
@@ -6682,9 +6682,9 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
         BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BTupleMember type : resourcePathType.members) {
-            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type.type,
-                    this.env.scope.owner, type.type.tsymbol.pos, VIRTUAL);
+        for (BType type : resourcePathType.getTupleTypes()) {
+            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
+                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
             invocationParams.add(param);
         }
 
@@ -9346,7 +9346,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BLangExpression indexExpr = rewriteExpr(createIntLiteral(varargIndex));
                     BType memberAccessExprType = tupleTypedVararg ?
-                            ((BTupleType) varargType).members.get(varargIndex).type
+                            ((BTupleType) varargType).getTupleTypes().get(varargIndex)
                             : ((BArrayType) varargType).eType;
                     args.add(addConversionExprIfRequired(ASTBuilderUtil.createMemberAccessExprNode(memberAccessExprType,
                              varargRef, indexExpr), param.type));

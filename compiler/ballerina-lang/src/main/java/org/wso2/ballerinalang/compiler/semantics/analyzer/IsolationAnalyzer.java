@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -1914,12 +1913,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangSimpleVariable memberTypeNode : tupleTypeNode.memberTypeNodes) {
-            analyzeNode(memberTypeNode.typeNode, env);
+        for (BLangType memberType : tupleTypeNode.getMemberTypeNodes()) {
+            analyzeNode(memberType, env);
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
     }
+
     @Override
     public void visit(BLangErrorType errorTypeNode) {
         analyzeNode(errorTypeNode.detailType, env);
@@ -2279,7 +2279,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
                 BTupleType tupleType = (BTupleType) varArgType;
-                List<BTupleMember> memberTypes = tupleType.members;
+                List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
                 boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
@@ -2300,7 +2300,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         continue;
                     }
 
-                    BType type = memberTypes.get(tupleIndex).type;
+                    BType type = memberTypes.get(tupleIndex);
 
                     BLangExpression arg = null;
                     if (listConstrVarArg) {
@@ -2335,7 +2335,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 int memberTypeCount = memberTypes.size();
                 if (tupleIndex < memberTypeCount) {
                     for (int i = tupleIndex; i < memberTypeCount; i++) {
-                        BType type = memberTypes.get(i).type;
+                        BType type = memberTypes.get(i);
                         BLangExpression arg = null;
                         if (listConstrVarArg) {
                             arg = listConstructorExpr.exprs.get(i);
@@ -2434,9 +2434,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BTupleType tupleType = (BTupleType) varArgType;
 
-        for (BTupleMember type : tupleType.members) {
+        for (BType type : tupleType.getTupleTypes()) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
-                                                           type.type, pos);
+                                                           type, pos);
         }
 
         BType restType = tupleType.restType;
@@ -4161,8 +4161,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BTupleType bTupleType) {
-            for (BTupleMember memType : bTupleType.members) {
-                visitType(memType.type);
+            for (BType memType : bTupleType.getTupleTypes()) {
+                visitType(memType);
             }
 
             visitType(bTupleType.restType);

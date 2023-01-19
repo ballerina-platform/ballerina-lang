@@ -73,7 +73,7 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
 
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         this.tupleMembers = new ArrayList<>();
-        for (BTupleMember tupMember : ((BTupleType) this.getBType()).getTupleMembers()) {
+        for (BTupleMember tupMember : ((BTupleType) this.getBType()).getMembers()) {
             this.tupleMembers.add(symbolFactory.createTupleMember(tupMember.symbol));
         }
 

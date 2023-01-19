@@ -222,7 +222,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
         if (hasMatchedTupleType) {
-            if (expTupleType.members.size() != originalType.members.size()) {
+            if (expTupleType.getMembers().size() != originalType.getMembers().size()) {
                 hasMatchedTupleType = false;
             } else {
                 BType expRestType = expTupleType.restType;
@@ -234,21 +234,21 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        List<BTupleMember> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.members) :
-                Collections.singletonList(new BTupleMember(null, null));
+        List<BType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.getTupleTypes()) :
+                Collections.singletonList(null);
 
         List<BTupleMember> members = new ArrayList<>();
         int delta = hasMatchedTupleType ? 1 : 0;
 
         boolean errored = false;
 
-        List<BTupleMember> tupleTypes = originalType.members;
+        List<BType> tupleTypes = originalType.getTupleTypes();
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
-            if (this.visitedTypes.contains(tupleTypes.get(i).type)) {
+            if (this.visitedTypes.contains(tupleTypes.get(i))) {
                 continue;
             }
-            BType member = tupleTypes.get(i).type;
-            BType expMember = expTupleTypes.get(j).type;
+            BType member = tupleTypes.get(i);
+            BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);
             BVarSymbol varSymbol = new BVarSymbol(newMem.flags, null, null, newMem, null, null, null);
             members.add(new BTupleMember(newMem, varSymbol));
@@ -668,7 +668,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
             }
             return getConstraintTypeIfNotError(
-                    ((BTupleType) restArgType).members.get(index - requiredArgCount).type);
+                    ((BTupleType) restArgType).getTupleTypes().get(index - requiredArgCount));
         }
 
         BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);
