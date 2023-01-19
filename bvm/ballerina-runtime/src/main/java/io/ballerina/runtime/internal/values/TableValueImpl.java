@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
@@ -719,7 +720,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public MultiKeyWrapper() {
                 super();
                 List<Type> keyTypes = new ArrayList<>();
-                Type constraintType = type.getConstrainedType();
+                Type constraintType = TypeUtils.getReferredType(type.getConstrainedType());
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
                     Arrays.stream(fieldNames)
