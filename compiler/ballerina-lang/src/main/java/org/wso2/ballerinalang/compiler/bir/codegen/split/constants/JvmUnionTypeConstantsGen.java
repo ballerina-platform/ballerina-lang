@@ -59,16 +59,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmUnionTypeConstantsGen {
 
     private final String unionVarConstantsClass;
-    private int constantIndex = 0;
-    private JvmUnionTypeGen jvmUnionTypeGen;
-    private final ClassWriter cw;
-    private MethodVisitor mv;
     private final List<String> funcNames;
     private final Queue<TypeNamePair> queue;
     private final Map<BUnionType, String> unionTypeVarMap;
-
+    private final ClassWriter cw;
+    private MethodVisitor mv;
+    private JvmUnionTypeGen jvmUnionTypeGen;
     private int unionTypeVarCount;
     private int methodCount;
+    private int constantIndex = 0;
 
     /**
      * Stack keeps track of recursion in union types. The method creation is performed only if recursion is completed.

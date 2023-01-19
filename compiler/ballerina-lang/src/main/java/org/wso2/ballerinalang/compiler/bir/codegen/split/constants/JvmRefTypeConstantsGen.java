@@ -59,9 +59,7 @@ public class JvmRefTypeConstantsGen {
     private final ClassWriter cw;
     private MethodVisitor mv;
     private final List<String> funcNames;
-
     private final Map<BTypeReferenceType, String> typeRefVarMap;
-
     private int typeDefCount;
     private int methodCount;
 

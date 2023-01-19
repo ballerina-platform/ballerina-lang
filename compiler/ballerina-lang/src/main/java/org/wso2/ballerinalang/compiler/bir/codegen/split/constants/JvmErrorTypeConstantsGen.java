@@ -56,15 +56,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmErrorTypeConstantsGen {
 
     private final String errorVarConstantsClass;
-    private int constantIndex = 0;
     private JvmErrorTypeGen jvmErrorTypeGen;
     private final ClassWriter cw;
     private MethodVisitor mv;
     private final List<String> funcNames;
     private final Map<BErrorType, String> errorTypeVarMap;
-
     private int errorTypeCount;
     private int methodCount;
+    private int constantIndex = 0;
 
     public JvmErrorTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         errorVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,

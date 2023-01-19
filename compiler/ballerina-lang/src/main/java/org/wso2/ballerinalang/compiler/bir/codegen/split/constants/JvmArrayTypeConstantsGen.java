@@ -60,13 +60,12 @@ public class JvmArrayTypeConstantsGen {
     private final ClassWriter cw;
     private MethodVisitor mv;
     private final Map<BArrayType, String> arrayTypeVarMap;
-    private int constantIndex = 0;
     private JvmArrayTypeGen jvmArrayTypeGen;
     private final List<String> funcNames;
     private final Types types;
-
     private int arrayTypeVarCount;
     private int methodCount;
+    private int constantIndex = 0;
 
     public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types) {
         this.arrayConstantsClass =
