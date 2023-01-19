@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;

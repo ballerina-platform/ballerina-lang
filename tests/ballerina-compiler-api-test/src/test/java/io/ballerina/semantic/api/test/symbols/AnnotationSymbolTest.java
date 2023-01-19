@@ -45,7 +45,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.TUPLE_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.WORKER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;

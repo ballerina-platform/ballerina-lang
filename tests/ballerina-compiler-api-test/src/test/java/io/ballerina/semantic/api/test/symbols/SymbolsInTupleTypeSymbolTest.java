@@ -20,9 +20,9 @@ package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
