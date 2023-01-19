@@ -777,6 +777,21 @@ client class MyClient2 {
     }
 }
 
+type Rec record {|
+    int a;
+    string b;
+|};
+
+client class MyClient3 {
+    resource function get [string]() returns Rec[] {
+        return [{a: 1, b: "A"}, {a: 2, b: "B"}];
+    }
+
+    resource function put path/[string](Rec r) returns int {
+        return r.a;
+    }
+}
+
 function testQueryActionOrExprWithClientResourceAccessAction() {
     MyClient myClient = new;
 
@@ -824,6 +839,14 @@ function testQueryActionOrExprWithClientResourceAccessAction() {
             let int[] arr = myClient2->/[5].put(b)
             select myClient2->/path/[arr[0]]/path2/path3("book", arr[1]);
     assertEquality([[1, "book", [5]], [6, "book", [5]]], res8);
+
+    MyClient3 myClient3 = new;
+
+    string a = "a";
+    var res9 = from Rec r in myClient3->/a.get()
+            where r.a == 1
+            select myClient3->/path/[a].put(r);
+    assertEquality([1], res9);
 }
 
 function testQueryActionOrExprWithGroupedClientResourceAccessAction() {
