@@ -7746,14 +7746,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
-                List<BType> tupleMembers = tupleType.getTupleTypes();
+                List<BType> tupleMemberTypes = tupleType.getTupleTypes();
                 BType tupleRestType = tupleType.restType;
 
-                int tupleMemCount = tupleMembers.size();
+                int tupleMemCount = tupleMemberTypes.size();
 
                 for (int j = 0; j < iExpr.restArgs.size(); j++) {
                     BLangExpression restArg = iExpr.restArgs.get(j);
-                    BType memType = j < tupleMemCount ? tupleMembers.get(j) : tupleRestType;
+                    BType memType = j < tupleMemCount ? tupleMemberTypes.get(j) : tupleRestType;
                     checkTypeParamExpr(restArg, memType, true, data);
                     if (restType != symTable.semanticError && data.resultType == symTable.semanticError) {
                         restType = data.resultType;
