@@ -1135,7 +1135,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        find(tupleTypeNode.memberTypeNodes);
+        find(tupleTypeNode.members);
         find(tupleTypeNode.restParamType);
     }
 

@@ -795,7 +795,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     } else {
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
                     }
-                    tupleTypeNode.memberTypeNodes.add(param);
+                    tupleTypeNode.members.add(param);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
@@ -818,10 +818,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
                     BLangSimpleVariable member = new BLangSimpleVariable();
-                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.memberTypeNodes.size())));
+                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.members.size())));
                     member.addFlag(Flag.FIELD);
                     member.typeNode = bLangFiniteTypeNode;
-                    tupleTypeNode.memberTypeNodes.add(member);
+                    tupleTypeNode.members.add(member);
             }
         }
         bLFunction.getParameters().addAll(0, params);
@@ -1100,7 +1100,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 member.setName(this.createIdentifier(member.typeNode.getPosition(), String.valueOf(i)));
                 member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
-                tupleTypeNode.memberTypeNodes.add(member);
+                tupleTypeNode.members.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
