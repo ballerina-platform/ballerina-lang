@@ -207,7 +207,7 @@ public class TesterinaUtils {
         Object response = stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
                 new Object[]{scheduler.getRuntimeRegistry()});
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("stopping modules for test suite failed due to " +
+            throw new BallerinaTestException("dependant module stop for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
     }
