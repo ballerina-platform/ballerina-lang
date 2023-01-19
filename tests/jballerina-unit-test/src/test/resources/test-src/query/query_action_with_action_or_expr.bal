@@ -663,6 +663,21 @@ client class MyClient {
     }
 }
 
+client class MyClient2 {
+    resource function get [string]() returns Rec[] {
+        return [{a: 1, b: "A"}, {a: 2, b: "B"}, {a: 1, b: "C"}];
+    }
+
+    resource function put path/[string](Rec r) returns string {
+        return r.b;
+    }
+}
+
+type Rec record {|
+    int a;
+    string b;
+|};
+
 function testQueryActionWithClientResourceAccessAction() {
     MyClient myClient = new;
     string[] arr = [];
@@ -694,6 +709,19 @@ function testQueryActionWithClientResourceAccessAction() {
             };
     assertEquality(true, res3 is ());
     assertEquality(["book1", "book1", "book2", "book1"], arr);
+
+    MyClient2 myClient2 = new;
+
+    string str = "";
+    var res4 = from Rec r in myClient2->/a.get()
+        where r.a == 1
+        do {
+            Rec r1 = {a: 1, b: "D"};
+            string v1 = r.b;
+            str += myClient2->/path/[v1].put(r1);
+        };
+    assertEquality(true, res4 is ());
+    assertEquality("DD", str);
 }
 
 function testQueryActionWithGroupedClientResourceAccessAction() {
