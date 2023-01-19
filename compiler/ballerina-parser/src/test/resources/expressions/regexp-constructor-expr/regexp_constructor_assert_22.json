@@ -149,7 +149,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "g\u003da"
                                             }
@@ -272,7 +272,7 @@
                                               "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "s\u003da"
                                             }
@@ -399,18 +399,18 @@
                                               "kind": "RE_UNICODE_PROPERTY_VALUE",
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
+                                                "ERROR_INVALID_TOKEN_IN_REG_EXP"
                                               ],
                                               "value": "}"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "kind": "CLOSE_BRACE_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
                                           ]
                                         }
                                       ]
@@ -528,22 +528,17 @@
                                               "value": "gc\u003d"
                                             },
                                             {
-                                              "kind": "RE_UNICODE_GENERAL_CATEGORY_NAME",
+                                              "kind": "RE_UNICODE_PROPERTY_VALUE",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP"
-                                              ],
-                                              "value": "}"
+                                                "ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                          ]
+                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }

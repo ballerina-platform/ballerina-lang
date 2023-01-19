@@ -23,7 +23,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type",
+      "label": "'type",
       "kind": "Field",
       "detail": "Pet.type",
       "sortText": "K",

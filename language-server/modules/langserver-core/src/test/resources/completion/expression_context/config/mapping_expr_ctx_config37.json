@@ -116,7 +116,7 @@
       "detail": "MyConfig",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${2:false},\nerr1: error(\"\", message = ${3:\"\"}),\nmyXML: ${4:xml ``},\nkeywords: [${5:[]}],\ncredentials: {ip: ${6:\"\"}, port: ${7:0}, username: ${8:\"\"}, files: ${9:new ()}},\nrecord2: {f1: ${7:0}},\nrecord1: {},\nmyMap: ${9:{}},\nmyTable: table [${10:}],\nmyError: error(\"\"),\nrandomNum: ${12:error(\"\")}",
+      "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${4:false},\nerr1: error(\"\", message = ${5:\"\"}),\nmyXML: ${6:xml ``},\nkeywords: [${7:[]}],\ncredentials: {ip: ${8:\"\"}, port: ${9:0}, username: ${10:\"\"}, files: ${11:new ()}},\nrecord2: {f1: ${12:0}},\nrecord1: {},\nmyMap: ${13:{}},\nmyTable: table [${14:}],\nmyError: error(\"\"),\nrandomNum: ${15:error(\"\")}",
       "insertTextFormat": "Snippet"
     },
     {
