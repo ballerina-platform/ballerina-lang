@@ -472,6 +472,14 @@ function testReadOnlyTupleWithListBindingPatternInDestructuringAssignment() {
     assertEqual(<int[]> [12, 34, 56], c);
     assertEqual(<int[]> [1, 2], d);
     assertEqual("s1", e);
+
+    int[] f;
+    int[] g;
+    string h;
+    [f, [g, h]] = t2;
+    assertEqual(<int[]> [12, 34, 56], f);
+    assertEqual(<int[]> [1, 2], g);
+    assertEqual("s1", h);
 }
 
 function assertEqual(any|error expected, any|error actual) {

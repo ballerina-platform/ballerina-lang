@@ -267,6 +267,13 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     assertEquality(<int[]> [12, 34, 56], a);
     assertEquality(<int[]> [1, 2], x2);
     assertEquality("s1", y2);
+
+    int[] c;
+    int[] d;
+    {a: c, b: {x: d, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], c);
+    assertEquality(<int[]> [1, 2], d);
+    assertEquality("s1", y2);
 }
 
 function assertEquality(anydata expected, anydata actual) {
