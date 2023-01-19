@@ -300,7 +300,7 @@ public class JMethod extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (getHasReturn()) {
             returnString.append(this.returnType);
-            if (getIsStringReturn() || isStringArrayReturn()) {
+            if (isStringArrayReturn()) {
                 returnString.append("?");
             }
             if (getHasException()) {

@@ -1025,10 +1025,11 @@ class BindgenNodeFactory {
         }
         for (JParameter jParameter : bFunction.getParameters()) {
             if (jParameter.getIsString()) {
-                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+                argValues.add(String.format("%s is () ? java:createNull() : java:fromString(%s)",
+                        jParameter.getFieldName(), jParameter.getFieldName()));
             } else if (jParameter.isArray()) {
-                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\")");
+                argValues.add(String.format("check jarrays:toHandle(%s, \"%s\")",
+                        jParameter.getFieldName(), jParameter.getComponentType()));
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {

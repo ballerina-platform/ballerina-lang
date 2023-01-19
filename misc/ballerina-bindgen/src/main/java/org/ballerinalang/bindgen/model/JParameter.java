@@ -23,9 +23,9 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
@@ -78,10 +78,10 @@ public class JParameter {
         }
         if (parameterClass.equals(String.class)) {
             isString = true;
-            shortTypeName = BALLERINA_STRING;
+            shortTypeName = BALLERINA_NILLABLE_STRING;
         } else if (parameterClass.equals(String[].class)) {
             isStringArray = true;
-            shortTypeName = BALLERINA_STRING_ARRAY;
+            shortTypeName = BALLERINA_NILLABLE_STRING_ARRAY;
             componentType = String.class.getName();
         } else {
             if (!parameterClass.isPrimitive()) {
