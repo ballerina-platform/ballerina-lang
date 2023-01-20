@@ -235,7 +235,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     }
 
     /**
-     * Check if action node is inside an action statement node
+     * Check if action node is inside an action statement node.
      *
      * @param actionNode Action node
      * @return True if the action node is within an action statement
@@ -275,7 +275,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
     }
 
     /**
-     * Finds and returns the action node in focus
+     * Finds and returns the action node in focus.
      *
      * @param context Code action context
      * @return Action node (optional)
