@@ -11,6 +11,13 @@ type Batters record {
 type ToppingItem record {
     string id;
     string 'type;
+    string color?;
+};
+
+type BaseItem record {
+    string id;
+    string 'type;
+    string color?;
 };
 
 type NewRecord record {
@@ -20,4 +27,5 @@ type NewRecord record {
     decimal ppu;
     Batters batters;
     (ToppingItem|string|ToppingItem[]|string[])[] topping;
+    BaseItem[][] base;
 };

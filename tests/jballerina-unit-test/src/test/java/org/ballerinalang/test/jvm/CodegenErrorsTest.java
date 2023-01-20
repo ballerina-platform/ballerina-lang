@@ -95,4 +95,10 @@ public class CodegenErrorsTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/checked_expr_method_too_large.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
+
+    @Test
+    public void testTooLargeStringConstantClass() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/tooLargeStringConstantClass");
+        BRunUtil.invoke(result, "main");
+    }
 }

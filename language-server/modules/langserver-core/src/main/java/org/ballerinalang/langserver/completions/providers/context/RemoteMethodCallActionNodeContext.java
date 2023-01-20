@@ -53,6 +53,14 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (onSuggestClients(node, context)) {
+            // Covers following:
+            // 1. cl<cursor>->func()
+            completionItems.addAll(this.expressionCompletions(context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        }
+
         Optional<TypeSymbol> expressionType = Optional.empty();
         if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
             LinePosition linePosition = node.expression().location().lineRange().endLine();
@@ -113,12 +121,33 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
     }
 
+    private boolean onSuggestClients(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return cursor <= node.rightArrowToken().textRange().startOffset();
+    }
+
     @Override
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
         if (TypeResolverUtil.isInMethodCallParameterContext(node, context.getCursorPositionInTree())) {
             super.sort(context, node, completionItems);
+            return;
+        }
+
+        // At expression of the remote method call action, suggest clients first
+        if (onSuggestClients(node, context)) {
+            completionItems.forEach(completionItem -> {
+                Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(completionItem);
+                String sortText;
+                if (typeSymbol.isPresent() && SymbolUtil.isClient(typeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(2);
+                }
+                sortText += SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
             return;
         }
 

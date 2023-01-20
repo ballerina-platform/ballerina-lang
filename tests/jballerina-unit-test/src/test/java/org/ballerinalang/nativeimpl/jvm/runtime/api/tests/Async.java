@@ -87,7 +87,7 @@ public class Async {
     }
 
     public static boolean isolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
@@ -95,7 +95,7 @@ public class Async {
     }
 
     public static boolean isIsolatedFunctionWithName(BObject obj, BString method) {
-        ObjectType objectType = obj.getType();
+        ObjectType objectType = (ObjectType) obj.getType();
         return objectType.isIsolated() && objectType.isIsolated(method.getValue());
     }
 
@@ -115,7 +115,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
@@ -128,7 +128,7 @@ public class Async {
     }
 
     public static boolean isolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
@@ -141,7 +141,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
@@ -249,7 +249,7 @@ public class Async {
     }
 
     private static boolean isRemoteMethodIsolated(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
+        MethodType[] methods = ((ObjectType) obj.getType()).getMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("getA")) {
                 return method.isIsolated();
