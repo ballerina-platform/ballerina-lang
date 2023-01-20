@@ -38,7 +38,7 @@ public interface TupleTypeSymbol extends TypeSymbol {
      *
      * @return {@link List} of member types
      */
-    List<TupleMemberSymbol> members();
+    List<MemberTypeSymbol> members();
 
     /**
      * Get the rest type descriptor.

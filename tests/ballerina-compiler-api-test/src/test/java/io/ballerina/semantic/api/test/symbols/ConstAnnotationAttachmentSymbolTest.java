@@ -19,22 +19,23 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTupleMemberSymbol;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -111,25 +112,39 @@ public class ConstAnnotationAttachmentSymbolTest {
         assertEquals(((BallerinaConstantValue) permMap.get("b")).valueType().typeKind(), TypeDescKind.INT);
     }
 
-    @Test(dataProvider = "TupleMemberTypeDataProvider")
-    public void testTupleMemberTypes(int line, int col, String annotName) {
-        Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(line, col));
-        BallerinaTupleMemberSymbol tupleMember = (BallerinaTupleMemberSymbol) optionalSymbol.get();
-        assertEquals(tupleMember.kind(), SymbolKind.TUPLE_MEMBER);
+    @Test
+    public void testAnnotInTupleMembers1() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(22, 5));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
 
-        assertEquals(tupleMember.annotAttachments().size(), 1);
-        AnnotationAttachmentSymbol annotAttachSymbol = tupleMember.annotAttachments().get(0);
-
-        assertTrue(annotAttachSymbol.typeDescriptor().getName().isPresent());
-        assertEquals(annotAttachSymbol.typeDescriptor().getName().get(), annotName);
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "member");
+        });
     }
 
-    @DataProvider(name = "TupleMemberTypeDataProvider")
-    public Object[][] getTupleMemberTypeData() {
-        return new Object[][]{
-                {22, 22, "member"},
-                {25, 12, "Annot"},
-                {25, 27, "Annot"}
-        };
+    @Test
+    public void testAnnotInTupleMembers2() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(25, 32));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
+
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "Annot");
+        });
     }
 }

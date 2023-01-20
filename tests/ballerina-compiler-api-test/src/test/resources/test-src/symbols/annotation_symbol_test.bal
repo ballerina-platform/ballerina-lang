@@ -116,12 +116,6 @@ public type T2 object {
     @v5 string name;
 };
 
-type TupleType [int, @v5 int, string...];
-
-function testAnnotInTupleMember() {
-   [@v5 string, @v5 int] tup = ["aaa", 2];
-}
-
 // util
 
 public class Listener {
