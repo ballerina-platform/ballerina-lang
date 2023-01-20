@@ -220,16 +220,19 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
+        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
             diagnostics.addAll(pluginDiagnostics);
-
-            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         }
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        jarResolver().diagnosticResult().diagnostics().stream().forEach(
+                diagnostic -> allDiagnostics.add(diagnostic));
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, diagnosticResult, generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
