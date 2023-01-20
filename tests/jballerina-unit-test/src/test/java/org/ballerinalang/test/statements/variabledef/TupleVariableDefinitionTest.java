@@ -38,12 +38,14 @@ import org.testng.annotations.Test;
  */
 public class TupleVariableDefinitionTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative, tupleVarDefnSyntaxNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/variabledef/tuple-variable-definition-negative.bal");
+        tupleVarDefnSyntaxNegative = BCompileUtil
+                .compile("test-src/statements/variabledef/tuple-variable-definition-syntax-negative.bal");
     }
 
     @Test(description = "Test tuple basic variable definition")
@@ -439,22 +441,28 @@ public class TupleVariableDefinitionTest {
                 "but found 'Ints'", 128, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
                 "but found 'IntsOrStrings'", 129, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 133, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 133, 34);
-        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 133, 41);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 134, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "missing error keyword", 134, 36);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 135, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 135, 35);
-        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 135, 43);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern; " +
-                "member variable count mismatch with member type count", 136, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern", 136, 35);
-        BAssertUtil.validateError(resultNegative, ++i, "missing close parenthesis token", 136, 43);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testTupleVarDefnSyntaxNegative() {
+        int i = -1;
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 18, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 18, 34);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 18, 41);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 19, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing error keyword", 19, 36);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 20, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 20, 35);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 20, 43);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 21, 5);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "invalid binding pattern", 21, 35);
+        BAssertUtil.validateError(tupleVarDefnSyntaxNegative, ++i, "missing close parenthesis token", 21, 43);
+        Assert.assertEquals(tupleVarDefnSyntaxNegative.getErrorCount(), i + 1);
     }
 
     @AfterClass

@@ -117,14 +117,6 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testErrorBindingPatternInLocalVarDecl() {
-        testFile("typed-binding-patterns/typed_binding_patterns_source_28.bal",
-                "typed-binding-patterns/typed_binding_patterns_assert_28.json");
-        testFile("typed-binding-patterns/typed_binding_patterns_source_29.bal",
-                "typed-binding-patterns/typed_binding_patterns_assert_29.json");
-    }
-
-    @Test
     public void testListBindingPatternInVarDecl() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_26.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_26.json");
@@ -188,5 +180,13 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
     public void testListBindingPatternWithFieldBidingPatternMembers() {
         testFile("typed-binding-patterns/typed_binding_patterns_source_27.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_27.json");
+    }
+
+    @Test
+    public void testErrorBindingPatternInsideListBindingPatternRecovery() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_28.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_28.json");
+        testFile("typed-binding-patterns/typed_binding_patterns_source_29.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_29.json");
     }
 }

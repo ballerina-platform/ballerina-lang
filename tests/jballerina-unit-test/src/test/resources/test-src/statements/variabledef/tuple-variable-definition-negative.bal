@@ -128,10 +128,3 @@ function testTupleVarDeclWithInvalidTypeReferenceType() {
     Ints [a, b] = i;
     IntsOrStrings [c, d] = i;
 }
-
-function testTupleVarDeclWithInvalidSyntax() {
-    [error, boolean...] [error(g,), ...j] = [error("error!"), true];
-    [error, boolean...] [error(g2),(), ...j] = [error("error!"), true];
-    [error, boolean...] [error(g, /), ...j] = [error("error!"), true];
-    [error, boolean...] [error(g, ~), ...j] = [error("error!"), true];
-}
