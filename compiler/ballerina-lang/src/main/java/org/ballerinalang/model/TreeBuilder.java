@@ -41,6 +41,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationReferenceAttributeNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.RetrySpecNode;
@@ -200,6 +201,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -1136,6 +1138,10 @@ public class TreeBuilder {
         return new BLangResourceFunction();
     }
 
+    public static BLangResourcePathSegment createResourcePathSegmentNode(NodeKind kind) {
+        return new BLangResourcePathSegment(kind);
+    }
+    
     public static IgnoreNode createIgnoreExprNode() {
         return new BLangIgnoreExpr();
     }

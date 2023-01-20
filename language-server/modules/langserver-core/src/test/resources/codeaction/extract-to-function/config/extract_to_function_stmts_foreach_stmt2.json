@@ -35,7 +35,19 @@
           },
           "newText": "extracted(rec, result)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_foreach_stmt2.bal",
+          {
+            "line": 9,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
     }
   ],
   "description": "Extract to function for foreach statement, checks the basic foreach statement"

@@ -94,7 +94,7 @@ public class TesterinaFunction {
                                              funcName + " due to " + e.getMessage(), e);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
-            throw new BallerinaTestException(targetException.getMessage(), targetException);
+            return targetException;
         }
     }
 

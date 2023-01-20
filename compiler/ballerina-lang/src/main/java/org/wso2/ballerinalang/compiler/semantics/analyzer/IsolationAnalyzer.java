@@ -3119,7 +3119,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isDefinedOutsideLock(Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isDefinedOutsideLock(Name name, long symTag, SymbolEnv currentEnv) {
         if (Names.IGNORE == name ||
                 symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
             return false;
@@ -3160,7 +3160,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                currentEnv);
     }
 
-    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, long symTag, SymbolEnv currentEnv) {
         BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
         if (symbol != symTable.notFoundSymbol &&
                 (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
