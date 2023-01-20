@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -2294,11 +2295,19 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangResourceFunction clone = new BLangResourceFunction();
         cloneFunctionNode(source, clone);
 
-        clone.resourcePath = cloneList(source.resourcePath);
+        clone.resourcePathSegments = cloneList(source.resourcePathSegments);
         clone.methodName = clone(source.methodName);
         clone.restPathParam = clone(source.restPathParam);
         clone.pathParams = cloneList(source.pathParams);
-        clone.resourcePathType = clone(source.resourcePathType);
+    }
+    
+    @Override
+    public void visit(BLangResourcePathSegment source) {
+        BLangResourcePathSegment clone = new BLangResourcePathSegment(source.kind);
+        source.cloneRef = clone;
+        clone.name = clone(source.name);
+        clone.symbol = source.symbol;
+        clone.typeNode = clone(source.typeNode);
     }
 
     private void cloneFunctionNode(BLangFunction source, BLangFunction clone) {

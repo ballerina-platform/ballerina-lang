@@ -297,6 +297,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -778,50 +779,61 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         populateFunctionNode(name, qualifierList, methodSignature, functionBody, bLFunction);
         bLFunction.methodName = createIdentifier(accessorName);
 
-        bLFunction.resourcePath =  new ArrayList<>();
         List<BLangSimpleVariable> params = new ArrayList<>();
-        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+        List<BLangResourcePathSegment> resourcePathSegments = new ArrayList<>();
         for (Node pathSegment : relativeResourcePath) {
+            BLangResourcePathSegment bLangPathSegment;
             switch (pathSegment.kind()) {
                 case SLASH_TOKEN:
                     continue;
                 case RESOURCE_PATH_SEGMENT_PARAM:
                     BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLangPathSegment = TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_PARAM_SEGMENT);
                     if (!param.name.value.equals(Names.EMPTY.value)) {
                         params.add(param);
                         bLFunction.addPathParam(param);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^");
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "$^");
                     }
 
-                    tupleTypeNode.memberTypeNodes.add(param.typeNode);
+                    bLangPathSegment.typeNode = param.typeNode;
+                    bLangPathSegment.pos = param.pos;
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
+                    bLangPathSegment = 
+                            TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT);
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "^^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "^^");
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^^"));
+                        bLangPathSegment.name = createIdentifier(getPosition(pathSegment), "$^^");
                     }
 
-                    tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
+                    bLangPathSegment.typeNode = ((BLangArrayType) restParam.typeNode).elemtype;
+                    bLangPathSegment.pos = restParam.pos;
                     break;
                 case DOT_TOKEN:
-                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    bLangPathSegment = TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_ROOT_PATH_SEGMENT);
+                    bLangPathSegment.name = createIdentifier((Token) pathSegment);
+                    bLangPathSegment.pos = bLangPathSegment.name.pos;
                     break;
                 default:
-                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    bLangPathSegment = 
+                            TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_IDENTIFIER_SEGMENT);
+                    bLangPathSegment.name = createIdentifier((Token) pathSegment);
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
-                    tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
+                    bLangPathSegment.typeNode = bLangFiniteTypeNode;
+                    bLangPathSegment.pos = bLangPathSegment.name.pos;
             }
+            resourcePathSegments.add(bLangPathSegment);
         }
         bLFunction.getParameters().addAll(0, params);
-        bLFunction.resourcePathType = tupleTypeNode;
+        bLFunction.resourcePathSegments = resourcePathSegments;
 
         return bLFunction;
     }

@@ -34,13 +34,13 @@ import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,8 +146,8 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
                 BResourceFunction resFn = (BResourceFunction) method;
                 StringJoiner stringJoiner = new StringJoiner("/");
 
-                for (Name name : resFn.resourcePath) {
-                    stringJoiner.add(name.value);
+                for (BResourcePathSegmentSymbol pathSegmentSym : resFn.pathSegmentSymbols) {
+                    stringJoiner.add(pathSegmentSym.name.value);
                 }
 
                 methods.put(resFn.accessor.value + " " + stringJoiner.toString(),
