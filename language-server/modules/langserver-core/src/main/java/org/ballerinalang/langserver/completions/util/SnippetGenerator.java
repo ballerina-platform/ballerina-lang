@@ -17,14 +17,11 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.SnippetBlock.Kind;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.StringJoiner;
-import java.util.stream.IntStream;
 
 /**
  * Generates Snippets for language constructs.
@@ -798,28 +795,6 @@ public class SnippetGenerator {
                         ItemResolverConstants.RECORD_KEYWORD)),
                 snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
-
-    /**
-     * Get Resource Definition Snippet Block.
-     *
-     * @param name             name of the snippet
-     * @param label            label of the snippet
-     * @param params           params for the snippet
-     * @param orgToAliasImport import
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    private static SnippetBlock getResourceDefinitionSnippet(String name, String label, List<String> params,
-                                                             Pair<String, String> orgToAliasImport) {
-        StringJoiner paramsJoiner = new StringJoiner(",");
-        IntStream.range(0, params.size()).forEach(
-                i -> paramsJoiner.add(params.get(i).replace("#", String.valueOf(i + 1))));
-        String snippet = "resource function " + name + "(" + paramsJoiner.toString() + ") {"
-                + CommonUtil.LINE_SEPARATOR + "\t${" + (1 + params.size()) + "}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(label + " " + ItemResolverConstants.RESOURCE,
-                generateFilterText(Arrays.asList(ItemResolverConstants.RESOURCE, ItemResolverConstants.FUNCTION)),
-                snippet, ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET, orgToAliasImport);
-    }
-    //todo: Form here
 
     /**
      * Get Return Statement Snippet Block.
