@@ -508,11 +508,12 @@ public class RunNativeImageTestTask implements Task {
 
 
         // set name and path
-        nativeArgs.add("-H:Name=" + packageName);
-        nativeArgs.add("-H:Path=" + nativeTargetPath);
+        nativeArgs.add("-H:Name=" + addQuotationMarkToString(packageName));
+        nativeArgs.add("-H:Path=" + convertWinPathToUnixFormat(addQuotationMarkToString(nativeTargetPath.toString())));
 
         // native-image configs
-        nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
+                    nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
@@ -558,6 +559,18 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
+    private String addQuotationMarkToString(String word) {
+        return "\"" + word + "\"";
+    }
+
+    private String convertWinPathToUnixFormat(String path) {
+        if (OS.contains("win")) {
+            path = path.replace("\\", "/");
+        }
+        return path;
+    }
+
+
     private void validateResourcesWithinJar(Map<String, TestSuite> testSuiteMap, String packageName)
             throws IOException {
         TestSuite testSuite = testSuiteMap.values().toArray(new TestSuite[0])[0];
@@ -593,6 +606,8 @@ public class RunNativeImageTestTask implements Task {
 
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
+                        .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().forEach(classPath::add);
