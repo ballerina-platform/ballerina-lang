@@ -2441,7 +2441,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                     ASTBuilderUtil.createIdentifier(
                             pos,
-                            TypeDefBuilderHelper.getPackageAlias(data.env, pos.lineRange().filePath(),
+                            TypeDefBuilderHelper.getPackageAlias(data.env, pos.lineRange().fileName(),
                                                                  applicableRecordTypeSymbol.pkgID)),
                     ASTBuilderUtil.createIdentifier(pos, applicableRecordTypeSymbol.name.value));
             origTypeRef.pos = pos;
@@ -9636,7 +9636,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private Name getCurrentCompUnit(BLangNode node) {
-        return names.fromString(node.pos.lineRange().filePath());
+        return names.fromString(node.pos.lineRange().fileName());
     }
 
 

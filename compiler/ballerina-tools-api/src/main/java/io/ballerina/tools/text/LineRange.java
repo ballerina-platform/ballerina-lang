@@ -25,22 +25,27 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class LineRange {
-    private final String filePath;
+    private final String fileName;
     private final LinePosition startLine;
     private final LinePosition endLine;
 
-    private LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
-        this.filePath = filePath;
+    private LineRange(String fileName, LinePosition startLine, LinePosition endLine) {
+        this.fileName = fileName;
         this.startLine = startLine;
         this.endLine = endLine;
     }
 
-    public static LineRange from(String filePath, LinePosition startLine, LinePosition endLine) {
-        return new LineRange(filePath, startLine, endLine);
+    public static LineRange from(String fileName, LinePosition startLine, LinePosition endLine) {
+        return new LineRange(fileName, startLine, endLine);
     }
 
+    @Deprecated
     public String filePath() {
-        return filePath;
+        return fileName;
+    }
+
+    public String fileName() {
+        return fileName;
     }
 
     public LinePosition startLine() {

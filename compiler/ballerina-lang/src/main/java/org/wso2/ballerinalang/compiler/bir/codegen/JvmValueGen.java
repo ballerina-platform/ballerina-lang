@@ -246,7 +246,7 @@ public class JvmValueGen {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
-            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+            cw.visitSource(typeDef.pos.lineRange().fileName(), null);
         } else {
             cw.visitSource(className, null);
         }
@@ -361,7 +361,7 @@ public class JvmValueGen {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
-            cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+            cw.visitSource(typeDef.pos.lineRange().fileName(), null);
         } else {
             cw.visitSource(className, null);
         }
@@ -598,7 +598,7 @@ public class JvmValueGen {
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visitSource(typeDef.pos.lineRange().filePath(), null);
+        cw.visitSource(typeDef.pos.lineRange().fileName(), null);
 
         SymbolTable symbolTable = jvmPackageGen.symbolTable;
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
