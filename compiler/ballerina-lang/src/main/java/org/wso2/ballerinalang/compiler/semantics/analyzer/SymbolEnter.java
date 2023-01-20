@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -103,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
@@ -3469,7 +3471,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 !errorVariable.restDetail.name.value.equals(Names.IGNORE.value);
     }
 
-    private BTypeSymbol createTypeSymbol(int type, SymbolEnv env) {
+    private BTypeSymbol createTypeSymbol(long type, SymbolEnv env) {
         return new BTypeSymbol(type, Flags.PUBLIC, Names.EMPTY, env.enclPkg.packageID,
                 null, env.scope.owner, symTable.builtinPos, VIRTUAL);
     }
@@ -4922,11 +4924,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BAttachedFunction createResourceFunction(BLangFunction funcNode, BInvokableSymbol funcSymbol,
                                                      BInvokableType funcType) {
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) funcNode.receiver.getBType().tsymbol;
         BLangResourceFunction resourceFunction = (BLangResourceFunction) funcNode;
         Name accessor = names.fromIdNode(resourceFunction.methodName);
-        List<Name> resourcePath = resourceFunction.resourcePath.stream()
-                .map(names::fromIdNode)
-                .collect(Collectors.toList());
 
         List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
                 .map(p -> {
@@ -4941,10 +4941,32 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
-        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
-        return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym,
-                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
+        BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
+                funcType, accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+
+        List<BLangResourcePathSegment> pathSegments = resourceFunction.resourcePathSegments;
+        int resourcePathCount = pathSegments.size();
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
+        BResourcePathSegmentSymbol parentResource = null;
+        for (int i = 0; i < resourcePathCount; i++) {
+            BLangResourcePathSegment pathSegment = pathSegments.get(i);
+            Name resourcePathSymbolName = Names.fromString(pathSegment.name.value);
+            BType resourcePathSegmentType = pathSegment.typeNode == null ? 
+                    symTable.noType : symResolver.resolveTypeNode(pathSegment.typeNode, env);
+            pathSegment.setBType(resourcePathSegmentType);
+
+            BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(resourcePathSymbolName,
+                    env.enclPkg.symbol.pkgID, resourcePathSegmentType, objectTypeSymbol, pathSegment.pos,
+                    parentResource, bResourceFunction, SOURCE);
+
+            objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
+            pathSegmentSymbols.add(pathSym);
+            pathSegment.symbol = pathSym;
+            parentResource = pathSym;
+        }
+
+        bResourceFunction.pathSegmentSymbols = pathSegmentSymbols;
+        return bResourceFunction;
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -5239,10 +5261,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAttachedFunction attachedFunc;
         if (referencedFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
-            attachedFunc = new BResourceFunction(referencedFunc.funcName,
-                    funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
-                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    resourceFunction.resourcePathType, referencedFunc.pos);
+            BResourceFunction cacheFunc = new BResourceFunction(referencedFunc.funcName, funcSymbol,
+                    (BInvokableType) funcSymbol.type, resourceFunction.accessor, resourceFunction.pathParams,
+                    resourceFunction.restPathParam, referencedFunc.pos);
+            cacheFunc.pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+            attachedFunc = cacheFunc;
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

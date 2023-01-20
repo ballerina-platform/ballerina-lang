@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 6,
+    "character": 4
+  },
+  "source": "createVariable3.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'record {|string a; int b;|}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 4
+            }
+          },
+          "newText": "record {|string a; int b;|} mappingResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable3.bal",
+          {
+            "line": 6,
+            "character": 32
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

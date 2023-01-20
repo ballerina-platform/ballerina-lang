@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 9,
+    "character": 4
+  },
+  "source": "createVariableWithIntersectionType.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "Foo & readonly intersectionValue = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithIntersectionType.bal",
+          {
+            "line": 9,
+            "character": 19
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

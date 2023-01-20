@@ -1,35 +1,17 @@
 Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
 ===========================================
 
-Total strand group count \t:\t8
+Total strand group count \t:\t14
 Total strand count       \t:\t19
-Active strand group count\t:\t5
+Active strand group count\t:\t11
 Active strand count      \t:\t17
 
-group \d* \[QUEUED\]: \[5\]
+group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "main" \[testOrg.testPackageWithModules.0:main\] \[WAITING\]:
 \t\tat\ttestOrg.testPackageWithModules.0.1.0:bar\(main.bal:49\)
 \t\t  \ttestOrg.testPackageWithModules.0.1.0:foo\(main.bal:36\)
 \t\t  \ttestOrg.testPackageWithModules.0.1.0:foobar\(main.bal:32\)
 \t\t  \ttestOrg.testPackageWithModules.0.1.0:main\(main.bal:28\)
-
-\tstrand \d* "w1" \[testOrg.testPackageWithModules.utils.0:func3\]\[\d*\] \[BLOCKED\]:
-\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:sleep_and_wait_nested\(utils.bal:50\)
-\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:sleep_and_wait\(utils.bal:46\)
-\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:\$lambda\$_0\(utils.bal:33\)
-
-\tstrand \d* "w2" \[testOrg.testPackageWithModules.utils.0:func3\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
-\t\tat\ttestOrg.testPackageWithModules.utils.0.1.0:\$lambda\$_1\(utils.bal:40\)
-
-\tstrand \d* "w1" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED\]:
-\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait_nested\(main.bal:57\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait\(main.bal:53\)
-\t\t  \ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_0\(main.bal:41\)
-
-\tstrand \d* "w2" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
-\t\tat\ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_1\(main.bal:46\)
 
 group \d* \[QUEUED\]: \[7\]
 \tstrand \d* "futureResult1" \[testOrg.testPackageWithModules.0:main\]\[\d*\] \[BLOCKED\]:
@@ -63,19 +45,43 @@ group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "w2" \[testOrg.testPackageWithModules.0:balfunc\]\[\d*\] \[WAITING FOR LOCK\]:
 \t\tat\ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_3\(main.bal:74\)
 
-group \d* \[QUEUED\]: \[3\]
+group \d* \[QUEUED\]: \[1\]
+\tstrand \d* "w1" \[testOrg.testPackageWithModules.utils.0:func3\]\[\d*\] \[BLOCKED\]:
+\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
+\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:sleep_and_wait_nested\(utils.bal:50\)
+\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:sleep_and_wait\(utils.bal:46\)
+\t\t  \ttestOrg.testPackageWithModules.utils.0.1.0:\$lambda\$_0\(utils.bal:33\)
+
+group \d* \[QUEUED\]: \[1\]
+\tstrand \d* "w2" \[testOrg.testPackageWithModules.utils.0:func3\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
+\t\tat\ttestOrg.testPackageWithModules.utils.0.1.0:\$lambda\$_1\(utils.bal:40\)
+
+group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "futureResult3" \[testOrg.testPackageWithModules.0:main\]\[\d*\] \[WAITING\]:
 \t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:func3\(anotherutils.bal:44\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:func2\(anotherutils.bal:28\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:func1\(anotherutils.bal:24\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:entryfunc\(anotherutils.bal:20\)
 
+group \d* \[QUEUED\]: \[1\]
+\tstrand \d* "w1" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED\]:
+\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
+\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait_nested\(main.bal:57\)
+\t\t  \ttestOrg.testPackageWithModules.0.1.0:sleep_and_wait\(main.bal:53\)
+\t\t  \ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_0\(main.bal:41\)
+
+group \d* \[QUEUED\]: \[1\]
+\tstrand \d* "w2" \[testOrg.testPackageWithModules.0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
+\t\tat\ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_1\(main.bal:46\)
+
+group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "w1" \[testOrg.testPackageWithModules.anotherutils.0:func3\]\[\d*\] \[BLOCKED\]:
 \t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:sleep_and_wait_nested\(anotherutils.bal:52\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:sleep_and_wait\(anotherutils.bal:48\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:\$lambda\$_0\(anotherutils.bal:33\)
 
+group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "w2" \[testOrg.testPackageWithModules.anotherutils.0:func3\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
 \t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:\$lambda\$_1\(anotherutils.bal:40\)
 

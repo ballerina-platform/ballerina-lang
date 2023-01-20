@@ -59,10 +59,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -6470,10 +6472,13 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
 
-        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
-        // isolated named worker declaration.
-        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
-            addStrandAnnotationWithThreadAny(actionInvocation);
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action.
+        if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
+                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation.pos);
+            actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+            ((BInvokableSymbol) actionInvocation.symbol)
+                    .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
         }
 
         BLangExpression invocation = rewriteInvocation(actionInvocation, actionInvocation.async);
@@ -6486,20 +6491,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+    private void addStrandAnnotationWithThreadAny(Location pos) {
         if (this.strandAnnotAttachement == null) {
             BLangPackage pkgNode = env.enclPkg;
             List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
             // Create strand annotation once and reuse it for all isolated start-actions and named workers.
-            this.strandAnnotAttachement =
-                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            this.strandAnnotAttachement = annotationDesugar.createStrandAnnotationWithThreadAny(pos, env);
             // Add init function for record type node in type def introduced for internally added strand annotation.
             addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
         }
-
-        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
-        ((BInvokableSymbol) actionInvocation.symbol)
-                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     @Override
@@ -6538,7 +6538,7 @@ public class Desugar extends BLangNodeVisitor {
         reorderArguments(pathParamInvocation);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceFunc.pathSegmentSymbols;
 
         int pathParamInvocationRequiredArgCount = pathParamInvocation.requiredArgs.size();
 
@@ -6557,7 +6557,7 @@ public class Desugar extends BLangNodeVisitor {
         for (int i = 0; i < pathParamInvocationRequiredArgCount; i++) {
             BLangExpression requiredArg = pathParamInvocation.requiredArgs.get(i);
             // Resource path size is always >= pathParamInvocationRequiredArgCount
-            Name resourcePathName = resourcePath.get(i);
+            Name resourcePathName = pathSegmentSymbols.get(i).name;
             if (firstRequiredArgFromRestArg == null && requiredArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
                 firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
                 if (resourcePathName.value.equals("^")) {
@@ -6581,7 +6581,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        Name lastResourcePathName = resourcePath.get(resourcePath.size() - 1);
+        Name lastResourcePathName = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1).name;
         if (lastResourcePathName.value.equals("^^")) {
             // After reordering pathParamInvocation.restArgs size will always be 0 or 1
             for (BLangExpression restArg : pathParamInvocation.restArgs) {
@@ -6645,25 +6645,26 @@ public class Desugar extends BLangNodeVisitor {
                 resourceAccessInvocation.symbol.pos, VIRTUAL);
 
         BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
 
-        List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
-        BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BType type : resourcePathType.tupleTypes) {
-            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
-                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
-            invocationParams.add(param);
+        List<BVarSymbol> invocationParams = new ArrayList<>(pathSegmentSymbols.size());
+
+        int pathSegmentCount = pathSegmentSymbols.size();
+        BResourcePathSegmentSymbol lastPathSegmentSym = pathSegmentSymbols.get(pathSegmentSymbols.size() - 1);
+        if (lastPathSegmentSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
+                    new BArrayType(lastPathSegmentSym.type), this.env.scope.owner, lastPathSegmentSym.pos, VIRTUAL);
+            pathSegmentCount--;
+        }
+
+        if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+            invocationParams.addAll(pathSegmentSymbols.subList(0, pathSegmentCount).stream()
+                    .map(s -> new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, s.type, 
+                            this.env.scope.owner, s.pos, VIRTUAL)).collect(Collectors.toList()));
         }
 
         invokableSymbol.params = invocationParams;
-
-        BType resourcePathRestType = resourcePathType.restType;
-        if (resourcePathRestType != null) {
-            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
-                    new BArrayType(resourcePathRestType), this.env.scope.owner,
-                    resourcePathRestType.tsymbol.pos, VIRTUAL);
-        }
 
         bLangInvocation.symbol = invokableSymbol;
 
@@ -7722,6 +7723,16 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        BLangFunction function = bLangLambdaFunction.function;
+        // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
+        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
+                Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(function.pos);
+            function.addAnnotationAttachment(this.strandAnnotAttachement);
+            BInvokableSymbol funcSymbol = function.symbol;
+            funcSymbol.addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
+            funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
+        }
         result = bLangLambdaFunction;
     }
 
