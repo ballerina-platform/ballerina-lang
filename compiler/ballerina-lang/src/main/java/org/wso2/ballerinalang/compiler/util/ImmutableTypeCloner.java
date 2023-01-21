@@ -671,7 +671,7 @@ public class ImmutableTypeCloner {
                                                                    unresolvedTypes, type, origUnionTypeSymbol,
                                                                    originalMemberList);
         BType effectiveType = immutableType.effectiveType;
-        BTypeSymbol tsymbol = immutableType.effectiveType.tsymbol;
+        BTypeSymbol tsymbol = effectiveType.tsymbol;
         if (effectiveType.tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
                 tsymbol.name.value.isEmpty()) {
             return immutableType;

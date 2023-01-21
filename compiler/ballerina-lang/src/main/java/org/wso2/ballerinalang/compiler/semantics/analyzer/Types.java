@@ -3694,7 +3694,8 @@ public class Types {
     }
 
     private boolean isJsonAnydataOrUserDefinedUnion(BType type) {
-        return type.tag == TypeTags.UNION || type.tag == TypeTags.JSON || type.tag == TypeTags.ANYDATA;
+        int tag = type.tag;
+        return tag == TypeTags.UNION || tag == TypeTags.JSON || tag == TypeTags.ANYDATA;
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {
