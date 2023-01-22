@@ -400,7 +400,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         BTypeSymbol typeSymbol = tupleTypeNode.getBType().tsymbol;
         BSymbol owner = typeSymbol.owner;
-        desugarFieldAnnotations(owner, typeSymbol, tupleTypeNode.memberTypeNodes, tupleTypeNode.pos);
+        desugarFieldAnnotations(owner, typeSymbol, tupleTypeNode.members, tupleTypeNode.pos);
         List<BLangSimpleVariable> rewrittenMembers = new ArrayList<>();
         tupleTypeNode.members.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
         tupleTypeNode.members = rewrittenMembers;
