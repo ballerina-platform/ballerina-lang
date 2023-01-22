@@ -1,6 +1,6 @@
-// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -14,24 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-@personAnnot {
-    id: 1,
-    perm: {a: 1, b: 2}
+const A = "AA";
+
+type Foo int;
+
+const annotation annot on field;
+
+type TupleType [@annot int, @annot A, Foo];
+
+function testTupleType() {
+    TupleType tup = [10, "AA"];
+    A a = A;
 }
-public type AG string;
-
-type T1 [@member int, @member int, @member AG];
-
-function testTupleAnnot() {
-    [@Annot string, @Annot int] thisOne = ["aaa", 2];
-}
-
-// utils
-type Person record {|
-    int id;
-    map<int> perm;
-|};
-
-const annotation Person personAnnot on type;
-const annotation member on field;
-annotation Annot;

@@ -19,8 +19,8 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -36,15 +36,15 @@ import java.util.Optional;
  *
  * @since 2201.4.0
  */
-public class BallerinaTupleMemberSymbol extends BallerinaSymbol implements TupleMemberSymbol {
+public class BallerinaMemberTypeSymbol extends BallerinaSymbol implements MemberTypeSymbol {
 
     private List<AnnotationSymbol> annots;
     private List<AnnotationAttachmentSymbol> annotAttachments;
     private final TypeSymbol type;
 
-    public BallerinaTupleMemberSymbol(CompilerContext context,
-                                      BVarSymbol symbol,
-                                      TypeSymbol type) {
+    public BallerinaMemberTypeSymbol(CompilerContext context,
+                                     BVarSymbol symbol,
+                                     TypeSymbol type) {
         super(null, SymbolKind.TUPLE_MEMBER, symbol, context);
         this.type = type;
     }

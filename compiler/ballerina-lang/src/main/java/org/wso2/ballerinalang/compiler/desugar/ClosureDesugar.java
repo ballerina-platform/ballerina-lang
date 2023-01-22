@@ -944,8 +944,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         List<BLangSimpleVariable> rewrittenMembers = new ArrayList<>();
-        tupleTypeNode.memberTypeNodes.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
-        tupleTypeNode.memberTypeNodes = rewrittenMembers;
+        tupleTypeNode.members.forEach(member -> rewrittenMembers.add(rewrite(member, env)));
+        tupleTypeNode.members = rewrittenMembers;
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }

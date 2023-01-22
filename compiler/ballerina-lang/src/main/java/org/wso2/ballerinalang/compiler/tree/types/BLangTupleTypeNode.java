@@ -38,18 +38,18 @@ import java.util.stream.Collectors;
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     // BLangNodes
-    public List<BLangSimpleVariable> memberTypeNodes = new ArrayList<>();
+    public List<BLangSimpleVariable> members = new ArrayList<>();
     public BLangType restParamType;
 
     @Override
     public List<BLangSimpleVariable> getMemberNodes() {
-        return memberTypeNodes;
+        return members;
     }
 
     @Override
     public List<BLangType> getMemberTypeNodes() {
         List<BLangType> types = new ArrayList<>();
-        memberTypeNodes.forEach(member -> types.add(member.typeNode));
+        members.forEach(member -> types.add(member.typeNode));
         return types;
     }
 
@@ -80,7 +80,7 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     @Override
     public String toString() {
-        return "[" + memberTypeNodes.stream().map(BLangSimpleVariable::toString).collect(Collectors.joining(","))
+        return "[" + members.stream().map(BLangSimpleVariable::toString).collect(Collectors.joining(","))
                 + ((restParamType != null) ? "," + restParamType.toString() + "...]" : "]");
     }
 }

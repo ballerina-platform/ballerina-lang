@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
@@ -193,13 +192,7 @@ public class TypeSymbolTest {
 
     @Test(dataProvider = "TupleTypeMemberPosProvider")
     public void testTupleMemberTypes(int line, int col, TypeDescKind typeKind, String signature) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
-
-        TupleMemberSymbol tupleMember = (TupleMemberSymbol) symbol.get();
-        assertEquals(tupleMember.typeDescriptor().typeKind(), typeKind);
-        assertEquals(tupleMember.typeDescriptor().signature(), signature);
+        assertBasicsAndGetType(line, col, typeKind, signature);
     }
 
     @DataProvider(name = "TupleTypeMemberPosProvider")

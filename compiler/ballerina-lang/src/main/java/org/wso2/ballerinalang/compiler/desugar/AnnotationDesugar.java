@@ -605,7 +605,7 @@ public class AnnotationDesugar {
         }
         List<BLangSimpleVariable> fields;
         if (typeDef.typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
-            fields = ((BLangTupleTypeNode) typeDef.typeNode).memberTypeNodes;
+            fields = ((BLangTupleTypeNode) typeDef.typeNode).members;
         } else {
             fields = ((BLangStructureTypeNode) typeDef.typeNode).fields;
         }

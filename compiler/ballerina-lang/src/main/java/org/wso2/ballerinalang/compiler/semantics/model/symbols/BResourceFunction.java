@@ -55,10 +55,11 @@ public class BResourceFunction extends BAttachedFunction {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
         List<String> resourcePathStrings = new ArrayList<>(resourcePath.size());
+        List<BType> resourcePathMemberTypes = resourcePathType.getTupleTypes();
         for (int i = 0; i < resourcePath.size(); i++) {
             Name resourcePath = this.resourcePath.get(i);
             if (resourcePath.value.equals("^") || resourcePath.value.equals("$^")) {
-                resourcePathStrings.add("[" + resourcePathType.getTupleTypes().get(i) + "]");
+                resourcePathStrings.add("[" + resourcePathMemberTypes.get(i) + "]");
             } else if (resourcePath.value.equals("^^") || resourcePath.value.equals("$^^")) {
                 resourcePathStrings.add("[" + resourcePathType.restType + "...]");
             } else {

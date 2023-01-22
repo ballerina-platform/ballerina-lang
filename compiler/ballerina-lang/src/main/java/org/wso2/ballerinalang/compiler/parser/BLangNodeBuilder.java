@@ -795,7 +795,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     } else {
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$^"));
                     }
-                    tupleTypeNode.memberTypeNodes.add(param);
+                    tupleTypeNode.members.add(param);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
@@ -818,10 +818,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
                     BLangSimpleVariable member = new BLangSimpleVariable();
-                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.memberTypeNodes.size())));
+                    member.setName(this.createIdentifier(null, String.valueOf(tupleTypeNode.members.size())));
                     member.addFlag(Flag.FIELD);
                     member.typeNode = bLangFiniteTypeNode;
-                    tupleTypeNode.memberTypeNodes.add(member);
+                    tupleTypeNode.members.add(member);
             }
         }
         bLFunction.getParameters().addAll(0, params);
@@ -1100,7 +1100,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 member.setName(this.createIdentifier(member.typeNode.getPosition(), String.valueOf(i)));
                 member.addFlag(Flag.FIELD);
                 member.pos = getPositionWithoutMetadata(memberNode);
-                tupleTypeNode.memberTypeNodes.add(member);
+                tupleTypeNode.members.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
@@ -2395,34 +2395,33 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private boolean isTokenInRegExp(SyntaxKind kind) {
         switch (kind) {
-            case RE_ASSERTION_VALUE:
-            case RE_CHAR:
-            case RE_ESCAPE:
-            case RE_SYNTAX_CHAR:
+            case RE_LITERAL_CHAR:
+            case RE_CONTROL_ESCAPE:
+            case RE_NUMERIC_ESCAPE:
             case RE_SIMPLE_CHAR_CLASS_CODE:
             case RE_PROPERTY:
             case RE_UNICODE_SCRIPT_START:
             case RE_UNICODE_PROPERTY_VALUE:
             case RE_UNICODE_GENERAL_CATEGORY_START:
             case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_CHAR_SET_ATOM:
-            case RE_CHAR_SET_ATOM_NO_DASH:
-            case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
-            case RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH:
             case RE_FLAGS_VALUE:
-            case RE_BASE_QUANTIFIER_VALUE:
-            case RE_BRACED_QUANTIFIER_DIGIT:
+            case DIGIT:
+            case ASTERISK_TOKEN:
+            case PLUS_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case DOT_TOKEN:
             case OPEN_BRACE_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case CLOSE_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
             case CLOSE_PAREN_TOKEN:
-            case QUESTION_MARK_TOKEN:
+            case DOLLAR_TOKEN:
             case BITWISE_XOR_TOKEN:
             case COLON_TOKEN:
             case BACK_SLASH_TOKEN:
             case MINUS_TOKEN:
+            case ESCAPED_MINUS_TOKEN:
             case PIPE_TOKEN:
             case COMMA_TOKEN:
                 return true;
@@ -5574,9 +5573,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        BLangExpression charOrEscape = (BLangExpression) reAtomCharOrEscapeNode.reAtomCharOrEscape().apply(this);
+        // Return the literal for escape sequence if it's in a character class.
+        if (this.isInCharacterClass) {
+            return charOrEscape;
+        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
-        reAtomCharOrEscape.charOrEscape = (BLangExpression) reAtomCharOrEscapeNode.reAtomCharOrEscape().apply(this);
+        reAtomCharOrEscape.charOrEscape = charOrEscape;
         reAtomCharOrEscape.pos = getPosition(reAtomCharOrEscapeNode);
         return reAtomCharOrEscape;
     }
@@ -5846,12 +5850,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private void checkValidityOfFlags(String flags, Location pos) {
-        List<Character> charList = new ArrayList<>();
+        Set<Character> charList = new HashSet<>();
         for (int i = 0; i < flags.length(); i++) {
             char flag = flags.charAt(i);
             if (charList.contains(flag)) {
                 dlog.error(pos, DiagnosticErrorCode.DUPLICATE_FLAGS, flag);
-                return;
             }
             charList.add(flag);
         }

@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TupleMemberSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -167,9 +166,8 @@ public class BindingPatternTest {
     public void testListBindingPatternPos() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(29, 5));
         assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TUPLE_MEMBER);
-        TypeSymbol tupleMemberType = ((TupleMemberSymbol) symbol.get()).typeDescriptor();
-        assertEquals(tupleMemberType.typeKind(), INT);
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE);
+        assertEquals(((TypeSymbol) symbol.get()).typeKind(), INT);
     }
 
     @Test(dataProvider = "PosProvider2")

@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -1370,7 +1371,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.memberTypeNodes.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
+        tupleTypeNode.members.forEach(member -> member.typeNode = rewrite(member.typeNode, env));
         tupleTypeNode.restParamType = rewrite(tupleTypeNode.restParamType, env);
         result = tupleTypeNode;
     }
@@ -1645,11 +1646,12 @@ public class Desugar extends BLangNodeVisitor {
             boolean isIndexBasedAccessExpr = tupleExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR;
             if (restType.tag == TypeTags.TUPLE) {
                 BTupleType restTupleType = (BTupleType) restType;
-                for (int index = 0; index < restTupleType.members.size(); index++) {
+                List<BType> restTupleMemberTypes = restTupleType.getTupleTypes();
+                for (int index = 0; index < restTupleMemberTypes.size(); index++) {
                     BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                             (long) index);
                     BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(arrayVarRef, indexExpr);
-                    tupleValueExpr.setBType(restTupleType.members.get(index).type);
+                    tupleValueExpr.setBType(restTupleMemberTypes.get(index));
                     if (isIndexBasedAccessExpr) {
                         createAssignmentStmt(tupleValueExpr, blockStmt, countExpr, tupleVarSymbol,
                                 (BLangIndexBasedAccess) tupleExpr);
@@ -2602,11 +2604,12 @@ public class Desugar extends BLangNodeVisitor {
             modifiedTupleExpr.setBType(tupleExpr.getBType());
             tupleExpr = modifiedTupleExpr;
             isIndexBasedAccessExpr = true;
-            for (int index = 0; index < restTupleType.members.size(); index++) {
+            List<BType> restTupleMemberTypes = restTupleType.getTupleTypes();
+            for (int index = 0; index < restTupleMemberTypes.size(); index++) {
                 BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.intType,
                         (long) index);
                 BLangIndexBasedAccess tupleValueExpr = ASTBuilderUtil.createIndexAccessExpr(restParam, indexExpr);
-                tupleValueExpr.setBType(restTupleType.members.get(index).type);
+                tupleValueExpr.setBType(restTupleMemberTypes.get(index));
                 createAssignmentStmt(tupleValueExpr, blockStmt, indexExpr, tupleVarSymbol,
                         (BLangIndexBasedAccess) tupleExpr);
                 // Increment the count for each visited member in the tupleLiteral.
@@ -5859,7 +5862,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         List<BLangExpression> exprs = tupleLiteral.exprs;
         BTupleType tupleType = (BTupleType) Types.getReferredType(tupleLiteral.getBType());
-        List<BTupleMember> tupleMemberTypes = tupleType.members;
+        List<BType> tupleMemberTypes = tupleType.getTupleTypes();
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
 
@@ -5878,7 +5881,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BTupleType spreadOpTuple = (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
-                        i += spreadOpTuple.members.size();
+                        i += spreadOpTuple.getMembers().size();
                         continue;
                     }
                 }
@@ -5890,7 +5893,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BType targetType = tupleType.restType;
             if (!isInRestType && i < tupleMemberTypeSize) {
-                targetType = tupleMemberTypes.get(i).type;
+                targetType = tupleMemberTypes.get(i);
             }
 
             types.setImplicitCastExpr(expr, expType, targetType);
@@ -6507,10 +6510,13 @@ public class Desugar extends BLangNodeVisitor {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
 
-        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
-        // isolated named worker declaration.
-        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
-            addStrandAnnotationWithThreadAny(actionInvocation);
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action.
+        if (!actionInvocation.functionPointerInvocation && actionInvocation.async &&
+                Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation.pos);
+            actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+            ((BInvokableSymbol) actionInvocation.symbol)
+                    .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
         }
 
         BLangExpression invocation = rewriteInvocation(actionInvocation, actionInvocation.async);
@@ -6523,20 +6529,15 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+    private void addStrandAnnotationWithThreadAny(Location pos) {
         if (this.strandAnnotAttachement == null) {
             BLangPackage pkgNode = env.enclPkg;
             List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
             // Create strand annotation once and reuse it for all isolated start-actions and named workers.
-            this.strandAnnotAttachement =
-                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            this.strandAnnotAttachement = annotationDesugar.createStrandAnnotationWithThreadAny(pos, env);
             // Add init function for record type node in type def introduced for internally added strand annotation.
             addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
         }
-
-        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
-        ((BInvokableSymbol) actionInvocation.symbol)
-                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     @Override
@@ -6687,9 +6688,9 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
         BTupleType resourcePathType = targetResourceFunc.resourcePathType;
-        for (BTupleMember type : resourcePathType.members) {
-            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type.type,
-                    this.env.scope.owner, type.type.tsymbol.pos, VIRTUAL);
+        for (BType type : resourcePathType.getTupleTypes()) {
+            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
+                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
             invocationParams.add(param);
         }
 
@@ -7759,6 +7760,16 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+        BLangFunction function = bLangLambdaFunction.function;
+        // Add `@strand {thread: "any"}` annotation to an isolated named worker declaration in an isolated function.
+        if (function.flagSet.contains(Flag.WORKER) && Symbols.isFlagOn(function.symbol.type.flags, Flags.ISOLATED) &&
+                Symbols.isFlagOn(env.enclInvokable.symbol.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(function.pos);
+            function.addAnnotationAttachment(this.strandAnnotAttachement);
+            BInvokableSymbol funcSymbol = function.symbol;
+            funcSymbol.addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
+            funcSymbol.schedulerPolicy = SchedulerPolicy.ANY;
+        }
         result = bLangLambdaFunction;
     }
 
@@ -9341,7 +9352,7 @@ public class Desugar extends BLangNodeVisitor {
                 } else {
                     BLangExpression indexExpr = rewriteExpr(createIntLiteral(varargIndex));
                     BType memberAccessExprType = tupleTypedVararg ?
-                            ((BTupleType) varargType).members.get(varargIndex).type
+                            ((BTupleType) varargType).getTupleTypes().get(varargIndex)
                             : ((BArrayType) varargType).eType;
                     args.add(addConversionExprIfRequired(ASTBuilderUtil.createMemberAccessExprNode(memberAccessExprType,
                              varargRef, indexExpr), param.type));

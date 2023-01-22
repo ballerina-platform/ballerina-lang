@@ -1431,31 +1431,31 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangSimpleVariable> memberTypes = new ArrayList<>(tupleTypeNode.memberTypeNodes.size());
+        List<BLangSimpleVariable> members = new ArrayList<>(tupleTypeNode.members.size());
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE,
                 Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
         SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
         boolean hasUndefinedMember = false;
-        for (BLangSimpleVariable memTypeNode : tupleTypeNode.memberTypeNodes) {
-            BType bType = memTypeNode.getBType();
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
+            BType bType = member.getBType();
             if (bType == null) {
-                symbolEnter.defineNode(memTypeNode, tupleEnv);
+                symbolEnter.defineNode(member, tupleEnv);
             } else if (bType == symTable.noType) {
-                memTypeNode.setBType(null);
-                symbolEnter.defineNode(memTypeNode, tupleEnv);
+                member.setBType(null);
+                symbolEnter.defineNode(member, tupleEnv);
             }
-            if (memTypeNode.getBType() == symTable.noType) {
+            if (member.getBType() == symTable.noType) {
                 hasUndefinedMember = true;
             }
-            memberTypes.add(memTypeNode);
+            members.add(member);
         }
         // If at least one member is undefined, return noType as the type.
         if (hasUndefinedMember) {
             return symTable.noType;
         }
         List<BTupleMember> tupleMembers = new ArrayList<>();
-        memberTypes.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
+        members.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
                 new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
                         member.symbol.owner, member.pos, SOURCE))));
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
