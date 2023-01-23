@@ -65,9 +65,6 @@ public class TypedescValueImpl implements  TypedescValue {
         this.type = new BTypedescType(describingType);
         this.describingType = describingType;
         this.closures = closures;
-        if (describingType instanceof BAnnotatableType) {
-            this.annotations = (MapValue) ((BAnnotatableType) describingType).getAnnotations();
-        }
     }
 
     @Deprecated

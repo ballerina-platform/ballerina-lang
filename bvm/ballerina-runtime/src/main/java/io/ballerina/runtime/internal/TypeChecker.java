@@ -585,10 +585,6 @@ public class TypeChecker {
      * @return the annotation value if present, nil else
      */
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
-        MapValue annotMap = typedescValue.getAnnotations();
-        if (annotMap != null) {
-            return annotMap.get(annotTag);
-        }
         Type describingType = typedescValue.getDescribingType();
         if (!(describingType instanceof BAnnotatableType)) {
             return null;
