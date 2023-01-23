@@ -386,5 +386,15 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
             this.actionNode = clientResourceAccessActionNode;
         }
+
+        @Override
+        protected void visitSyntaxNode(Node node) {
+            NonTerminalNode parent = node.parent();
+            if (parent == null) {
+                return;
+            }
+            
+            node.parent().accept(this);
+        }
     }
 }
