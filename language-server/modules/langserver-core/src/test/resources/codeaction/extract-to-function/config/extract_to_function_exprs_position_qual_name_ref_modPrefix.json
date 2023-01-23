@@ -4,6 +4,7 @@
     "character": 22
   },
   "source": "extract_to_function_exprs_qual_name_ref.bal",
+  "description": "Extract to function for expressions, cursor in the module prefix inside the qualified name reference",
   "expected": [
     {
       "title": "Extract to function",
@@ -36,8 +37,18 @@
           "newText": "extracted()"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_qual_name_ref.bal",
+          {
+            "line": 3,
+            "character": 19
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor in the module prefix inside the qualified name reference"
+  ]
 }

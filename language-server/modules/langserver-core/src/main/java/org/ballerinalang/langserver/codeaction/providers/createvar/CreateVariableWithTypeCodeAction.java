@@ -137,13 +137,17 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         List<Integer> renamePositions = new ArrayList<>();
         List<String> types = getPossibleTypes(typeDescriptor, context);
         Position pos = range.getStart();
+        List<Position> varRenamePositions = new ArrayList<>();
         for (String type : types) {
             Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+            renamePositions.add(type.length() + 1);
+            varRenamePositions.add(new Position(insertPos.getLine(),
+                    insertPos.getCharacter() + type.length() + 1));
         }
         return new CreateVariableCodeAction.CreateVariableOut(name, types, edits,
-                importsAcceptor.getNewImportTextEdits(), renamePositions);
+                importsAcceptor.getNewImportTextEdits(), renamePositions, varRenamePositions);
     }
 
     /**

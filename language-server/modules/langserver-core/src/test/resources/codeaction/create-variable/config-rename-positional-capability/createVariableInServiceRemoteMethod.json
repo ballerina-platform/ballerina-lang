@@ -1,0 +1,141 @@
+{
+  "position": {
+    "line": 14,
+    "character": 8
+  },
+  "source": "createVariableInServiceMethod.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 8
+            },
+            "end": {
+              "line": 14,
+              "character": 8
+            }
+          },
+          "newText": "int|error intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 28
+            },
+            "end": {
+              "line": 14,
+              "character": 28
+            }
+          },
+          "newText": "\n        if intWithError is int {\n\n        }"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableInServiceMethod.bal",
+          {
+            "line": 14,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 8
+            },
+            "end": {
+              "line": 14,
+              "character": 8
+            }
+          },
+          "newText": "int intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 8
+            },
+            "end": {
+              "line": 14,
+              "character": 8
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 42
+            },
+            "end": {
+              "line": 13,
+              "character": 42
+            }
+          },
+          "newText": " returns error?"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableInServiceMethod.bal",
+          {
+            "line": 14,
+            "character": 12
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 8
+            },
+            "end": {
+              "line": 14,
+              "character": 8
+            }
+          },
+          "newText": "int|error intWithError = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableInServiceMethod.bal",
+          {
+            "line": 14,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
