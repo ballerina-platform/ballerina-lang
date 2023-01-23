@@ -174,6 +174,11 @@ public class RecordVariableReferenceTest {
 //    }
 
     @Test
+    public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
+        BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
                 "-semantics-negative.bal");
