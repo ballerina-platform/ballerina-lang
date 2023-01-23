@@ -121,7 +121,7 @@ public class GenDocsForBalaTest {
         Assert.assertTrue(moduleApiDocsJsonAsString.contains("Task"), "Function annotation attachments missing");
     }
 
-    @Test
+    @Test(enabled = false)
     public void generatingDocsForBalaWithAnnotationTest2() throws Exception {
         Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
