@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 39,
+    "character": 4
+  },
+  "source": "createVariable5.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 39,
+              "character": 4
+            },
+            "end": {
+              "line": 39,
+              "character": 4
+            }
+          },
+          "newText": "stream<record {|anydata...;|}, error> query = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable5.bal",
+          {
+            "line": 39,
+            "character": 42
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

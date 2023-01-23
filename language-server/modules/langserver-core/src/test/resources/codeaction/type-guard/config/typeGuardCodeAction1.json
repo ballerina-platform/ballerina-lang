@@ -23,14 +23,6 @@
           "newText": "int|string|error fooResult = "
         }
       ],
-      "command": {
-        "title": "Rename Variable",
-        "command": "ballerina.action.rename",
-        "arguments": [
-          "typeGuard.bal",
-          62
-        ]
-      },
       "resolvable": false
     }
   ]

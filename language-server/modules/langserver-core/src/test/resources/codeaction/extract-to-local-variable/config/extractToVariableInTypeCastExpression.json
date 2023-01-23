@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d \u003cint\u003efloatVal;\n    "
+          "newText": "int var1 = <int>floatVal;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTypeCastExpression.bal",
+          {
+            "line": 3,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }
