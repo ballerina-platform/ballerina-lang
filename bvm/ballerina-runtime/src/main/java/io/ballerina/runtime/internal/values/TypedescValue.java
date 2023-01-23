@@ -26,5 +26,10 @@ import io.ballerina.runtime.api.values.BTypedesc;
  * @since 1.3.0
  */
 public interface TypedescValue extends RefValue, BTypedesc {
-
+    /**
+     * Returns the annotations specified on this type descriptor.
+     *
+     * @return annotations
+     */
+    MapValue getAnnotations();
 }
