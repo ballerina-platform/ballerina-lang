@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -37,7 +38,7 @@ import java.util.HashMap;
 public class SetNarrowType {
 
     public static BMap setNarrowType(BTypedesc td, BMap value) {
-        RecordType recordType = (RecordType) value.getType();
+        RecordType recordType = (RecordType) TypeUtils.getReferredType(value.getType());
         RecordType newRecordType =
                 TypeCreator.createRecordType("narrowType", recordType.getPackage(), recordType.getTypeFlags(),
                                              recordType.isSealed(), recordType.getTypeFlags());

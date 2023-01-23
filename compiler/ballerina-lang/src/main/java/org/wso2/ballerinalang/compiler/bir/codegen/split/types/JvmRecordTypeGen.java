@@ -154,6 +154,9 @@ public class JvmRecordTypeGen {
         String name = getFullName(recordType);
         mv.visitLdcInsn(Utils.decodeIdentifier(name));
 
+        // Load internal name
+        mv.visitLdcInsn(Utils.decodeIdentifier(internalName));
+
         // Load package path
         // TODO: get it from the type
         String varName = jvmConstantsGen.getModuleConstantVar(recordType.tsymbol.pkgID);

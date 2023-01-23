@@ -1807,4 +1807,189 @@ function testResourceMethodTyping() {
     };
 
     test:assertTrue(result);
+    
+    objectVar = client object {
+        resource function get foo/[int...]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[string...]();
+    };
+    
+    test:assertFalse(result);
+}
+
+// ========================== distinct types ==========================
+
+type ListenerError distinct error;
+
+type ClientError distinct error;
+
+type DistictListenerError distinct ListenerError;
+
+type ErrType error;
+
+distinct error err1 = error("err1");
+distinct error err2 = error("err2");
+ErrType errtype1 = error("errtype1");
+error err3 = error("error!");
+ListenerError listerr1 = error("listerr1");
+ListenerError listerr2 = error("listerr2");
+ClientError clierr1 = error("clierr1");
+distinct ListenerError distlisterr1 = error("distlisterr1");
+distinct ListenerError distlisterr2 = error("distlisterr2");
+distinct ClientError distclierr1 = error("distclierr1");
+
+function testIsExpressionWithDistinctErrors() {
+    distinct error err11 = error("err11");
+    distinct error err21 = error("err21");
+    ErrType errtype11 = error("errtype11");
+    error err31 = error("error1!");
+    ListenerError listerr11 = error("listerr11");
+    ListenerError listerr21 = error("listerr21");
+    ClientError clierr11 = error("clierr11");
+    distinct ListenerError distlisterr11 = error("distlisterr11");
+    distinct ListenerError distlisterr21 = error("distlisterr21");
+    distinct ClientError distclierr11 = error("distclierr11");
+
+    // global variables
+    test:assertEquals(err1 is distinct error, false);
+    test:assertEquals(err1 is ErrType, true);
+    test:assertEquals(err1 is error, true);
+    test:assertEquals(err1 is ListenerError, false);
+    test:assertEquals(err1 is distinct ListenerError, false);
+    test:assertEquals(err1 is DistictListenerError, false);
+
+    test:assertEquals(errtype1 is distinct error, false);
+    test:assertEquals(errtype1 is ErrType, true);
+    test:assertEquals(errtype1 is error, true);
+    test:assertEquals(errtype1 is ListenerError, false);
+    test:assertEquals(errtype1 is distinct ListenerError, false);
+    test:assertEquals(errtype1 is DistictListenerError, false);
+
+    test:assertEquals(err3 is distinct error, false);
+    test:assertEquals(err3 is ErrType, true);
+    test:assertEquals(err3 is error, true);
+    test:assertEquals(err3 is ListenerError, false);
+    test:assertEquals(err3 is distinct ListenerError, false);
+    test:assertEquals(err3 is DistictListenerError, false);
+
+    test:assertEquals(listerr1 is distinct error, false);
+    test:assertEquals(listerr1 is ErrType, true);
+    test:assertEquals(listerr1 is error, true);
+    test:assertEquals(listerr1 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr1 is distinct ListenerError, false);
+    test:assertEquals(listerr1 is ClientError, false);
+    test:assertEquals(listerr1 is distinct ClientError, false);
+    test:assertEquals(listerr1 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr1 is distinct error, false);
+    test:assertEquals(distlisterr1 is ErrType, true);
+    test:assertEquals(distlisterr1 is error, true);
+    test:assertEquals(distlisterr1 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr1 is distinct ListenerError, false);
+    test:assertEquals(distlisterr1 is ClientError, false);
+    test:assertEquals(distlisterr1 is distinct ClientError, false);
+    test:assertEquals(distlisterr1 is DistictListenerError, false);
+
+    // local variables
+    test:assertEquals(err11 is distinct error, false);
+    test:assertEquals(err11 is ErrType, true);
+    test:assertEquals(err11 is error, true);
+    test:assertEquals(err11 is ListenerError, false);
+    test:assertEquals(err11 is distinct ListenerError, false);
+    test:assertEquals(err11 is DistictListenerError, false);
+
+    test:assertEquals(errtype11 is distinct error, false);
+    test:assertEquals(errtype11 is ErrType, true);
+    test:assertEquals(errtype11 is error, true);
+    test:assertEquals(errtype11 is ListenerError, false);
+    test:assertEquals(errtype11 is distinct ListenerError, false);
+    test:assertEquals(errtype11 is DistictListenerError, false);
+
+    test:assertEquals(err31 is distinct error, false);
+    test:assertEquals(err31 is ErrType, true);
+    test:assertEquals(err31 is error, true);
+    test:assertEquals(err31 is ListenerError, false);
+    test:assertEquals(err31 is distinct ListenerError, false);
+    test:assertEquals(err31 is DistictListenerError, false);
+
+    test:assertEquals(listerr11 is distinct error, false);
+    test:assertEquals(listerr11 is ErrType, true);
+    test:assertEquals(listerr11 is error, true);
+    test:assertEquals(listerr11 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr11 is distinct ListenerError, false);
+    test:assertEquals(listerr11 is ClientError, false);
+    test:assertEquals(listerr11 is distinct ClientError, false);
+    test:assertEquals(listerr11 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr11 is distinct error, false);
+    test:assertEquals(distlisterr11 is ErrType, true);
+    test:assertEquals(distlisterr11 is error, true);
+    test:assertEquals(distlisterr11 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr11 is distinct ListenerError, false);
+    test:assertEquals(distlisterr11 is ClientError, false);
+    test:assertEquals(distlisterr11 is distinct ClientError, false);
+    test:assertEquals(distlisterr11 is DistictListenerError, false);
+
+    testIsExpressionWithDistinctErrors2();
+}
+
+function testIsExpressionWithDistinctErrors2() {
+    distinct error err12 = error("err12");
+    distinct error err22 = error("err22");
+    ErrType errtype12 = error("errtype12");
+    error err32 = error("error2!");
+    ListenerError listerr12 = error("listerr12");
+    ListenerError listerr22 = error("listerr22");
+    ClientError clierr12 = error("clierr12");
+    distinct ListenerError distlisterr12 = error("distlisterr12");
+    distinct ListenerError distlisterr22 = error("distlisterr22");
+    distinct ClientError distclierr12 = error("distclierr12");
+
+    test:assertEquals(err12 is distinct error, false);
+    test:assertEquals(err12 is ErrType, true);
+    test:assertEquals(err12 is error, true);
+    test:assertEquals(err12 is ListenerError, false);
+    test:assertEquals(err12 is distinct ListenerError, false);
+    test:assertEquals(err12 is DistictListenerError, false);
+
+    test:assertEquals(errtype12 is distinct error, false);
+    test:assertEquals(errtype12 is ErrType, true);
+    test:assertEquals(errtype12 is error, true);
+    test:assertEquals(errtype12 is ListenerError, false);
+    test:assertEquals(errtype12 is distinct ListenerError, false);
+    test:assertEquals(errtype12 is DistictListenerError, false);
+
+    test:assertEquals(err32 is distinct error, false);
+    test:assertEquals(err32 is ErrType, true);
+    test:assertEquals(err32 is error, true);
+    test:assertEquals(err32 is ListenerError, false);
+    test:assertEquals(err32 is distinct ListenerError, false);
+    test:assertEquals(err32 is DistictListenerError, false);
+
+    test:assertEquals(listerr12 is distinct error, false);
+    test:assertEquals(listerr12 is ErrType, true);
+    test:assertEquals(listerr12 is error, true);
+    test:assertEquals(listerr12 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(listerr12 is distinct ListenerError, false);
+    test:assertEquals(listerr12 is ClientError, false);
+    test:assertEquals(listerr12 is distinct ClientError, false);
+    test:assertEquals(listerr12 is DistictListenerError, false);
+
+    test:assertEquals(distlisterr12 is distinct error, false);
+    test:assertEquals(distlisterr12 is ErrType, true);
+    test:assertEquals(distlisterr12 is error, true);
+    test:assertEquals(distlisterr12 is ListenerError, true);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38130
+    // test:assertEquals(distlisterr12 is distinct ListenerError, false);
+    test:assertEquals(distlisterr12 is ClientError, false);
+    test:assertEquals(distlisterr12 is distinct ClientError, false);
+    test:assertEquals(distlisterr12 is DistictListenerError, false);
 }

@@ -61,11 +61,12 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -112,9 +113,16 @@ import static org.testng.Assert.assertTrue;
  */
 public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static Path tempResourceDir;
     static final PrintStream OUT = System.out;
     private final String dummyContent = "function foo() {\n}";
 
+    @BeforeClass
+    public void setup() throws IOException {
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.resolve("project_no_permission").toFile(),
+                tempResourceDir.resolve("project_no_permission").toFile());
+    }
     @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -188,7 +196,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove read permission
         boolean readable = projectPath.toFile().setReadable(false, true);
@@ -216,7 +224,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove write permission
         boolean writable = projectPath.toFile().setWritable(false, true);
@@ -294,6 +302,13 @@ public class TestBuildProject extends BaseTest {
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
+        }
+        String diagnoticsStr = compilation.diagnosticResult().diagnostics().stream().map(Diagnostic::toString)
+                .distinct().collect(Collectors.joining());
+
+        // Verify the Diagnostic.toString method
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnoticsStr.contains(path), diagnoticsStr);
         }
 
         // Verify paths in jBallerina backend diagnostics
@@ -2261,10 +2276,47 @@ public class TestBuildProject extends BaseTest {
                 PlatformLibraryScope.DEFAULT)));
     }
 
-    @AfterClass (alwaysRun = true)
-    public void reset() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
-        TestUtils.resetPermissions(projectPath);
+    @Test (description = "tests jar resolution with non ballerina packages for Build Project")
+    public void testConflictingJarsInNonBalPackages() {
+        Path dep1Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg1").toAbsolutePath();
+        Path dep2Path = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg2").toAbsolutePath();
+        Path customUserHome = Paths.get("build", "userHome");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg1:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg2:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+
+        Path projectPath = RESOURCE_DIRECTORY.resolve("conflicting_jars_test/platformLibNonBalPkg3");
+        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+        }
+
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
+
+        Assert.assertFalse(emitResult.diagnostics().hasErrors());
+        Assert.assertTrue(emitResult.diagnostics().hasWarnings());
+        Assert.assertEquals(emitResult.diagnostics().warningCount(), 2);
+
+        ArrayList<Diagnostic> diagnostics =
+                new ArrayList<>(emitResult.diagnostics().diagnostics());
+        Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
+                " files. 'native1-1.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'native1-1.0.0.jar'" +
+                " dependency of 'platformlib/pkg1'. Picking 'native1-1.0.1.jar' over 'native1-1.0.0.jar'.");
+        Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
+                " files. 'lib3-2.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'lib3-2.0.0.jar'" +
+                " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

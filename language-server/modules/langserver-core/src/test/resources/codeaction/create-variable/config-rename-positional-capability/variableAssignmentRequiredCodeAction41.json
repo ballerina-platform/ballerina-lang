@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 14,
+    "character": 10
+  },
+  "source": "createVariable6.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 4
+            },
+            "end": {
+              "line": 14,
+              "character": 4
+            }
+          },
+          "newText": "File|error file = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable6.bal",
+          {
+            "line": 14,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

@@ -109,7 +109,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
             ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.DO_BLOCK,
-            ParserRuleContext.FAIL_STATEMENT, ParserRuleContext.BLOCK_STMT, ParserRuleContext.CLIENT_DECLARATION };
+            ParserRuleContext.FAIL_STATEMENT, ParserRuleContext.BLOCK_STMT };
 
     private static final ParserRuleContext[] ASSIGNMENT_STMT_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
@@ -130,7 +130,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.MODULE_TYPE_DEFINITION,
                     ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.MODULE_ENUM_DECLARATION,
-                    ParserRuleContext.IMPORT_DECL, ParserRuleContext.CLIENT_DECLARATION };
+                    ParserRuleContext.IMPORT_DECL };
 
     private static final ParserRuleContext[] FUNC_DEF_START =
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_FIRST_QUALIFIER };
@@ -845,10 +845,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_TOP_LEVEL_SEMICOLON =
             { ParserRuleContext.TOP_LEVEL_NODE, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL =
-            { ParserRuleContext.STRING_LITERAL_TOKEN_AFTER_CLIENT_KEYWORD,
-                    ParserRuleContext.OBJECT_KEYWORD_AFTER_CLIENT_KEYWORD };
-
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -926,7 +922,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case MODULE_ENUM_NAME:
                 case ENUM_MEMBER_NAME:
                 case NAMED_ARG_BINDING_PATTERN:
-                case CLIENT_DECL_PREFIX:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case IMPORT_PREFIX:
@@ -1609,7 +1604,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_RESOURCE_ACCESS_METHOD:
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
             case OPTIONAL_TOP_LEVEL_SEMICOLON:
-            case CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL:
             case GROUPING_KEY_LIST_ELEMENT:
             case GROUPING_KEY_LIST_ELEMENT_END:
                 return true;
@@ -2078,8 +2072,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ACTION_END;
             case OPTIONAL_TOP_LEVEL_SEMICOLON:
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL:
-                return ParserRuleContext.STRING_LITERAL_TOKEN_AFTER_CLIENT_KEYWORD;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -2430,9 +2422,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OPTIONAL_TOP_LEVEL_SEMICOLON:
                 alternativeRules = OPTIONAL_TOP_LEVEL_SEMICOLON;
-                break;
-            case CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL:
-                alternativeRules = CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3301,7 +3290,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX;
             case IMPORT_PREFIX:
             case NAMESPACE_PREFIX:
-            case CLIENT_DECL_PREFIX:
                 return ParserRuleContext.SEMICOLON;
             case VERSION_NUMBER:
             case VERSION_KEYWORD:
@@ -3354,11 +3342,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.SERVICE_DECL) {
                     return ParserRuleContext.ON_KEYWORD;
                 }
-
-                if (parentCtx == ParserRuleContext.CLIENT_DECLARATION) {
-                    return ParserRuleContext.AS_KEYWORD;
-                }
-
                 return ParserRuleContext.COLON; // mapping constructor key
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
@@ -3448,8 +3431,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ANNOTATION_DECL_START;
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XMLNS_KEYWORD;
-            case CLIENT_DECLARATION:
-                return ParserRuleContext.CLIENT_KEYWORD;
             case CONSTANT_EXPRESSION:
                 return ParserRuleContext.CONSTANT_EXPRESSION_START;
             case NAMED_WORKER_DECL:
@@ -3986,8 +3967,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.IMPORT_PREFIX;
                 } else if (parentCtx == ParserRuleContext.XML_NAMESPACE_DECLARATION) {
                     return ParserRuleContext.NAMESPACE_PREFIX;
-                } else if (parentCtx == ParserRuleContext.CLIENT_DECLARATION) {
-                    return ParserRuleContext.CLIENT_DECL_PREFIX;
                 }
                 throw new IllegalStateException("next rule of as keyword found: " + parentCtx);
             case CONTINUE_KEYWORD:
@@ -4023,22 +4002,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 // If we reach here context for object type desc is not started yet, hence start context.
                 startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
                 return ParserRuleContext.OPEN_BRACE;
-            case OBJECT_KEYWORD_AFTER_CLIENT_KEYWORD:
-                // If we reach here context for object type desc is not started yet, hence start context.
-                startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-                startContext(ParserRuleContext.OBJECT_TYPE_DESCRIPTOR);
-                return ParserRuleContext.OBJECT_KEYWORD;
-            case STRING_LITERAL_TOKEN_AFTER_CLIENT_KEYWORD:
-                // If we reach here context for client decl is not started yet, hence start context.
-                startContext(ParserRuleContext.CLIENT_DECLARATION);
-                return ParserRuleContext.STRING_LITERAL_TOKEN;
             case ABSTRACT_KEYWORD:
-                return ParserRuleContext.OBJECT_KEYWORD;
             case CLIENT_KEYWORD:
-                if (getParentContext() == ParserRuleContext.CLIENT_DECLARATION) {
-                    return ParserRuleContext.STRING_LITERAL_TOKEN;
-                }
-
                 return ParserRuleContext.OBJECT_KEYWORD;
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
@@ -4302,7 +4267,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_DESCRIPTOR_IN_NEW_EXPR:
             case BRACED_EXPRESSION:
             case CLIENT_RESOURCE_ACCESS_ACTION:
-            case CLIENT_DECLARATION:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -5106,8 +5070,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
             endContext(); // end record field
             return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
-        } else if (parentCtx == ParserRuleContext.XML_NAMESPACE_DECLARATION ||
-                parentCtx == ParserRuleContext.CLIENT_DECLARATION) {
+        } else if (parentCtx == ParserRuleContext.XML_NAMESPACE_DECLARATION) {
             endContext();
             parentCtx = getParentContext();
             if (parentCtx == ParserRuleContext.COMP_UNIT) {
@@ -5834,7 +5797,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PATH_SEGMENT_IDENT:
             case TYPE_DESCRIPTOR:
             case NAMED_ARG_BINDING_PATTERN:
-            case CLIENT_DECL_PREFIX:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -6251,7 +6213,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case WORKER_KEYWORD:
-            case CLIENT_KEYWORD:
             case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case PARAMETER_KEYWORD:

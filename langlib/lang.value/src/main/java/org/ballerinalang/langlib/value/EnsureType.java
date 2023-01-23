@@ -31,7 +31,7 @@ import io.ballerina.runtime.internal.TypeChecker;
  */
 public class EnsureType {
     public static Object ensureType(Object value, BTypedesc type) {
-        if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
+        if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
         return convert(TypeUtils.getReferredType(type.getDescribingType()), value);

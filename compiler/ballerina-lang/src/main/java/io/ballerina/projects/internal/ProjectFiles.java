@@ -67,7 +67,12 @@ public class ProjectFiles {
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-
+        List<ModuleData> newModules = loadNewGeneratedModules(packageDirPath);
+        if (otherModules.isEmpty()) {
+            otherModules = newModules;
+        } else {
+            otherModules.addAll(newModules);
+        }
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
@@ -76,6 +81,40 @@ public class ProjectFiles {
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
                 ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
+    }
+
+    private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {
+        Path generatedSourceRoot = packageDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+        if (Files.isDirectory(generatedSourceRoot)) {
+            try (Stream<Path> pathStream = Files.walk(generatedSourceRoot, 1)) {
+                return pathStream
+                        .filter(path -> !ProjectConstants.GENERATED_MODULES_ROOT.equals(path.toFile().getName()))
+                        .filter(Files::isDirectory)
+                        .filter(path -> isNewModule(packageDirPath, path))
+                        .filter(path -> {
+                            // validate moduleName
+                            if (!ProjectUtils.validateModuleName(path.toFile().getName())) {
+                                throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                        "Module name can only contain alphanumerics, underscores and periods");
+                            }
+                            if (!ProjectUtils.validateNameLength(path.toFile().getName())) {
+                                throw new ProjectException("Invalid module name : '" + path.getFileName() + "' :\n" +
+                                        "Maximum length of module name is 256 characters");
+                            }
+                            return true;
+                        })
+                        .map(ProjectFiles::loadModule)
+                        .collect(Collectors.toList());
+            } catch (IOException e) {
+                throw new ProjectException(e);
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private static boolean isNewModule(Path packageDirPath, Path path) {
+        Path modulePath = packageDirPath.resolve(ProjectConstants.MODULES_ROOT).resolve(path.toFile().getName());
+        return !Files.exists(modulePath);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -107,22 +146,49 @@ public class ProjectFiles {
         }
     }
 
-    public static ModuleData loadModule(Path moduleDirPath) {
+    private static ModuleData loadModule(Path moduleDirPath) {
         List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
         List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
-        if (Files.isDirectory(testDirPath)) {
-            testSrcDocs = loadTestDocuments(testDirPath);
-        } else {
-            testSrcDocs = Collections.emptyList();
-        }
+        testSrcDocs = Files.isDirectory(testDirPath) ? loadTestDocuments(testDirPath) : Collections.emptyList();
 
+        // If the module is not a newly generated module, explicitly load generated sources
+        if (!ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(
+                moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
+            // Generated sources root for default module
+            Path generatedSourcesRoot = moduleDirPath.resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+            if (ProjectConstants.MODULES_ROOT.equals(Optional.of(
+                    moduleDirPath.toAbsolutePath().getParent()).get().toFile().getName())) {
+                // generated sources root for non-default modules
+                generatedSourcesRoot = Optional.of(Optional.of(Optional.of(moduleDirPath.toAbsolutePath().getParent()).
+                                        get().getParent()).get().resolve(ProjectConstants.GENERATED_MODULES_ROOT))
+                        .get().resolve(Optional.of(moduleDirPath.toFile()).get().getName());
+            }
+            if (Files.isDirectory(generatedSourcesRoot)) {
+                List<DocumentData> generatedDocs = loadDocuments(generatedSourcesRoot);
+                verifyDuplicateNames(srcDocs, generatedDocs, moduleDirPath.toFile().getName(), moduleDirPath);
+                srcDocs.addAll(generatedDocs);
+            }
+        }
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
         List<Path> resources = loadResources(moduleDirPath);
         List<Path> testResources = loadResources(moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
                 resources, testResources);
+    }
+
+    private static void verifyDuplicateNames(List<DocumentData> srcDocs, List<DocumentData> generatedDocs,
+                                             String moduleName, Path modulesDirPath) {
+        for (DocumentData doc : srcDocs) {
+            generatedDocs.forEach(generatedDoc -> {
+                if (doc.name().equals(generatedDoc.name())) {
+                    throw new ProjectException("Source file with a duplicate name '" + doc.name() + "' detected in " +
+                            "both generated and module sources for the module '" + moduleName + "'. Please provide a " +
+                            "unique name for '" + modulesDirPath.resolve(doc.name()) + "'");
+                }
+            });
+        }
     }
 
     public static List<Path> loadResources(Path modulePath) {

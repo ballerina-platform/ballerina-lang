@@ -55,10 +55,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
 import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -258,8 +260,8 @@ public class CodeActionUtil {
                             .map(RecordFieldSymbol::typeDescriptor);
             boolean isConstrainedMap = firstFieldType
                     .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
-                    .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
-                            type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
+                            .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
+                                    type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
             if (isConstrainedMap) {
                 String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
                 typesMap.put(typeBuilder.MAP_TYPE
@@ -295,15 +297,18 @@ public class CodeActionUtil {
                         switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
                             case UNION:
-                                signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
+                                String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.memberTypeDescriptor().signature(), context);
+                                signature = "(" + typeName + ")[]";
                                 break;
                             default:
-                                signature = newArrType.signature();
+                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.signature(), context);
                         }
                         typesMap.put(newArrType, signature);
                     });
         } else {
-            typesMap.put(typeDescriptor, 
+            typesMap.put(typeDescriptor,
                     FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
         return typesMap;
@@ -881,5 +886,22 @@ public class CodeActionUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Add the positional rename command for the code action if the capability is supported.
+     *
+     * @param context        Code action context
+     * @param codeAction     Code action
+     * @param command Title of the command                  
+     * @param renamePosition Position of renaming symbol
+     */
+    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command, 
+                                      Position renamePosition) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(command, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(), renamePosition)));
+        }
     }
 }
