@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +58,7 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
@@ -71,7 +71,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
@@ -102,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_ARRAY_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 
 /**
@@ -157,18 +158,12 @@ public class MainMethodGen {
 
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        if (hasInitFunction) {
-            generateMethodCall(initClass, mv, MODULE_INIT_METHOD,
-                               MethodGenUtils.INIT_FUNCTION_SUFFIX, INIT_FUTURE_VAR);
-        }
-
         if (userMainFunc != null) {
-            generateUserMainFunctionCall(userMainFunc, initClass, mv);
+            loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments, initClass);
         }
-
+        generateMethodCall(initClass, mv, MODULE_EXECUTE_METHOD, MethodGenUtils.EXECUTE_FUNCTION_SUFFIX, INIT_FUTURE_VAR);
 
         if (hasInitFunction) {
-            generateMethodCall(initClass, mv, JvmConstants.MODULE_START_METHOD, "start", START_FUTURE_VAR);
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
@@ -266,21 +261,6 @@ public class MainMethodGen {
         }
     }
 
-    private void generateUserMainFunctionCall(BIRNode.BIRFunction userMainFunc, String initClass, MethodVisitor mv) {
-        int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
-        mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
-
-        // invoke the user's main method
-        genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
-        handleErrorFromFutureValue(mv, MAIN_FUTURE_VAR);
-        // At this point we are done executing all the functions including asyncs
-        boolean isVoidFunction = userMainFunc.type.retType.tag == TypeTags.NIL;
-        if (!isVoidFunction) {
-            genReturn(mv, indexMap, MAIN_FUTURE_VAR);
-        }
-    }
-
     private void storeFuture(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String futureVar) {
         int mainFutureVarIndex = indexMap.addIfNotExists(futureVar, symbolTable.anyType);
         mv.visitVarInsn(ASTORE, mainFutureVarIndex);
@@ -288,7 +268,7 @@ public class MainMethodGen {
     }
 
     private void loadCLIArgsForMain(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
-                                    List<BIRNode.BIRAnnotationAttachment> annotAttachments) {
+                                    List<BIRNode.BIRAnnotationAttachment> annotAttachments, String initClass) {
         mv.visitTypeInsn(NEW , CLI_SPEC);
         mv.visitInsn(DUP);
         // get defaultable arg names from function annotation
@@ -299,6 +279,7 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL , CLI_SPEC , JVM_INIT_METHOD, INIT_CLI_SPEC, false);
         mv.visitMethodInsn(INVOKEVIRTUAL , CLI_SPEC, "getMainArgs", GET_MAIN_ARGS, false);
+        mv.visitFieldInsn(PUTSTATIC, initClass, "mainArgs", OBJECT_ARRAY_PARAMETER);
     }
 
     private void createFunctionInfoArray(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,

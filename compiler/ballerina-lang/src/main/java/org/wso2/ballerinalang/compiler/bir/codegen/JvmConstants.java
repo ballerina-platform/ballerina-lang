@@ -328,6 +328,8 @@ public class JvmConstants {
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
+
+    public static final String MODULE_EXECUTE_METHOD = "$moduleExecute";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";

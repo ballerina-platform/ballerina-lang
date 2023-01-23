@@ -63,6 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuilt
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
@@ -104,13 +105,9 @@ public class InitMethodGen {
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
         }
-        generateLambdaForModuleFunction(cw, MODULE_INIT_METHOD, initClass, jvmCastGen);
+        generateLambdaForModuleFunction(cw, MODULE_EXECUTE_METHOD, initClass, jvmCastGen);
 
-        // generate another lambda for start function as well
-        generateLambdaForModuleFunction(cw, MODULE_START_METHOD, initClass, jvmCastGen);
-
-        MethodVisitor mv = visitFunction(cw, MethodGenUtils
-                .calculateLambdaStopFuncName(pkg.packageID));
+        MethodVisitor mv = visitFunction(cw, MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID));
 
         invokeStopFunction(initClass, mv);
 
@@ -189,24 +186,58 @@ public class InitMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    public void enrichPkgWithInitializers(JvmPackageGen jvmPackageGen, Map<String, BIRFunctionWrapper> birFunctionMap,
+    public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports) {
+                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports, boolean serviceEPAvailable,
+                                          BIRNode.BIRFunction mainFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
                                                                MethodGenUtils.INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
-                jvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(initFunc, pkg.packageID, typeOwnerClass));
 
         BIRNode.BIRFunction startFunc = generateDefaultFunction(moduleImports, pkg, MODULE_START_METHOD,
                                                                 MethodGenUtils.START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
-                jvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
+                JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
+        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc);
+        javaClass.functions.add(execFunc);
+        pkg.functions.add(execFunc);
+        birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
+                JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
+
+    }
+
+    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc) {
+        BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
+                VarScope.FUNCTION, VarKind.RETURN, "");
+        BIROperand retVarRef = new BIROperand(retVar);
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
+        BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0, funcType, null, 0,
+                VIRTUAL);
+        modExecFunc.localVars.add(retVar);
+        addAndGetNextBasicBlock(modExecFunc);
+
+        BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modExecFunc, symbolTable.booleanType);
+        BIROperand boolRef = new BIROperand(boolVal);
+        addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
+
+        if (mainFunc != null) {
+            addCheckedInvocation(modExecFunc, pkg.packageID, "main", retVarRef, boolRef);
+        }
+
+        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
+
+//        if (!serviceEPAvailable && !isBuiltInPackage(pkg.packageID)) {
+//            lastBB = addCheckedInvocation(modExecFunc, PackageID.INTERNAL, "exit", retVarRef, boolRef);
+//        }
+        lastBB.terminator = new BIRTerminator.Return(null);
+        return modExecFunc;
     }
 
     private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,

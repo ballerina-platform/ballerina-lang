@@ -50,6 +50,7 @@ public class MethodGenUtils {
     static final String INIT_FUNCTION_SUFFIX = ".<init>";
     static final String STOP_FUNCTION_SUFFIX = ".<stop>";
     static final String START_FUNCTION_SUFFIX = ".<start>";
+    static final String EXECUTE_FUNCTION_SUFFIX = ".<execute>";
 
     static boolean hasInitFunction(BIRNode.BIRPackage pkg) {
         for (BIRNode.BIRFunction func : pkg.functions) {
