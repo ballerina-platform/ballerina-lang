@@ -53,13 +53,13 @@ public class LocalRecordAnnotationTest {
                 "testMultipleAnnotationsOnLocaRecord",
                 "testAnnotationOnLocalRecord",
                 "testAnnotationOnLocalRecordWithGlobalVariable",
-                "testAnnotationOnLocalRecordWithinLambdaFunction",
-                "testAnnotationOnLocalRecordWithinLambdaFunction1",
                 "testAnnotationOnLocalRecordWithinNestedLambdaFunctions",
                 "testAnnotationOnLocalRecordWithinNestedLambdaFunctions1",
-                "testAnnotationOnLocalRecordWithinNestedLambdaFunctions2",
+                "testAnnotationOnLocalRecordWithinLambdaFunction",
+                "testAnnotationOnLocalRecordWithinLambdaFunction1",
                 "testAnnotationWithMultipleFieldsOnLocalRecord",
-                "testAnnotationOnLocalRecordWithMultipleFields"
+                "testAnnotationOnLocalRecordWithMultipleFields",
+                "testGlobalAnnotationsOnFunctionPointerReturnType"
         };
     }
 
