@@ -445,7 +445,6 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(PUTFIELD, name, ANNOTATIONS_FIELD, GET_MAP_VALUE);
-
         // load super
         mv.visitVarInsn(ALOAD, 0);
         // load type

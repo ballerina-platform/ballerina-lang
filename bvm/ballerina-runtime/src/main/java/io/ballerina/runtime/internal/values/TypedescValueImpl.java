@@ -68,7 +68,6 @@ public class TypedescValueImpl implements  TypedescValue {
         this.closures = closures;
     }
 
-    @Deprecated
     public TypedescValueImpl(Type describingType, MapValue[] closures, MapValue annotations) {
         this(describingType, closures);
         this.annotations = annotations;
@@ -92,7 +91,6 @@ public class TypedescValueImpl implements  TypedescValue {
         return instantiate(s, new BInitialValueEntry[0]);
     }
 
-    @Override
     public MapValue getAnnotations() {
         return annotations;
     }

@@ -802,7 +802,6 @@ public class AnnotationDesugar {
         String funcName = ANNOT_FUNC + UNDERSCORE + annotFuncCount++;
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
         function.setBType(new BInvokableType(Collections.emptyList(), symTable.mapType, null));
-        function.flagSet.add(Flag.PUBLIC);
         BLangBuiltInRefTypeNode anyMapType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         anyMapType.typeKind = TypeKind.MAP;
         anyMapType.pos = pos;

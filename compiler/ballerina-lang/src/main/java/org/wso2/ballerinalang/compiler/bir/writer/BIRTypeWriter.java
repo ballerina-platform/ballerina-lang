@@ -346,7 +346,6 @@ public class BIRTypeWriter implements TypeVisitor {
         } else {
             buff.writeBoolean(false);
         }
-        writeFieldAnnotations(bTupleType.tsymbol);
     }
 
     @Override
@@ -436,23 +435,6 @@ public class BIRTypeWriter implements TypeVisitor {
         writeTypeCpIndex(initializerFunc.type);
 
         writeTypeInclusions(bRecordType.typeInclusions);
-        writeFieldAnnotations(tsymbol);
-    }
-
-    private void writeFieldAnnotations(BTypeSymbol typeSymbol) {
-        if (typeSymbol == null) {
-            buff.writeBoolean(false);
-            return;
-        }
-        BVarSymbol annotations = typeSymbol.annotations;
-        boolean annotationsExist = annotations != null;
-        buff.writeBoolean(annotationsExist);
-        if (annotationsExist) {
-            buff.writeInt(addStringCPEntry(annotations.name.value));
-            buff.writeLong(annotations.flags);
-            writeMarkdownDocAttachment(buff, annotations.markdownDocumentation);
-            writeTypeCpIndex(annotations.type);
-        }
     }
 
     @Override
