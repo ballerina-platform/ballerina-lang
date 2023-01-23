@@ -83,6 +83,14 @@ function testGlobalAnnotationsOnFunctionPointerReturnType() {
     assertEquality({name: "name", age: 10}, <map<anydata>>m4["details"]);
 }
 
+function testTupleMemberAnnotations1() returns [@annotOne {value: "foo"} int, @details {name: "name", age: gVar3} int] {
+    return [1, 1];
+}
+
+function testTupleMemberAnnotations2() returns [@annotOne {value: gVar1} @annotTwo {value: gVar2} int] {
+    return [1];
+}
+
 string gVar2 = "baz";
 int gVar3 = 10;
 
