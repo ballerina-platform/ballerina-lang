@@ -409,11 +409,6 @@ types:
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
-      - id: has_annotations
-        type: u1
-      - id: annotations_cp_index
-        type: s4
-        if: has_annotations != 0
   tuple_member:
       seq:
         - id: name_cp_index
@@ -487,11 +482,6 @@ types:
         type: s4
         repeat: expr
         repeat-expr: type_inclusions_count
-      - id: has_annotations
-        type: u1
-      - id: annotations_cp_index
-        type: s4
-        if: has_annotations != 0
   record_field:
     seq:
       - id: name_cp_index
