@@ -457,7 +457,7 @@ public class AnnotationDesugar {
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
-            if (typeDef.isBuiltinTypeDef) {
+            if (typeDef.isBuiltinTypeDef || typeDef.flagSet.contains(Flag.ANONYMOUS)) {
                 continue;
             }
             PackageID pkgID = typeDef.symbol.pkgID;

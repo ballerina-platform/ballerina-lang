@@ -410,7 +410,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void desugarFieldAnnotations(BSymbol owner, BTypeSymbol typeSymbol, List<BLangSimpleVariable> fields,
                                          Location pos) {
-        if (owner.getKind() != SymbolKind.PACKAGE) {
+        if (Symbols.isFlagOn(typeSymbol.flags, Flags.ANONYMOUS) || owner.getKind() != SymbolKind.PACKAGE) {
             owner = getOwner(env);
             BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(fields, pos, env.enclPkg, env,
                                                                                           typeSymbol.pkgID, owner);
