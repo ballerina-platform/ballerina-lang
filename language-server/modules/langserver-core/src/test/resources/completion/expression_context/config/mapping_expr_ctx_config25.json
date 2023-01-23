@@ -36,7 +36,7 @@
       "detail": "Employee",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}},\nsalary: ${2:0}",
+      "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}},\nsalary: ${3:0}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -53,6 +53,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -74,10 +75,10 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
-    private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module objectModule = new Module("testorg", "values.objects", "1");
+    private static final Module recordModule = new Module("testorg", "values.records", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
-    private static final BString intAnnotation = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+    private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
     private static final BError constraintError =
             ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
 
@@ -130,7 +131,7 @@ public class Values {
     }
 
     public static BArray getParameters(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
@@ -155,7 +156,7 @@ public class Values {
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
-        ObjectType objectType = object.getType();
+        ObjectType objectType = (ObjectType) object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         if (funcType.isPresent()) {
@@ -195,7 +196,7 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
                 size));
@@ -358,7 +359,7 @@ public class Values {
     public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Array");
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
             Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
@@ -405,7 +406,7 @@ public class Values {
     }
 
     public static Object validateFunctionParameterFromObject(BObject object) {
-        ObjectType type = object.getType();
+        ObjectType type = (ObjectType) object.getType();
         for (MethodType methodType : type.getMethods()) {
             if (methodType.getName() == "testFunction") {
                 return validateFunctionType(methodType.getType());
@@ -443,4 +444,21 @@ public class Values {
         return ValueCreator.createTupleValue(tupleType, elements);
     }
 
+    public static Boolean checkInlineRecordAnnotations(BTypedesc typedesc, BTypedesc constraint) {
+        Type describingType = typedesc.getDescribingType();
+        if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
+                ((ReferenceType) describingType).getReferredType().getTag() == TypeTags.INTERSECTION_TAG) {
+            describingType = ((IntersectionType)
+                    ((ReferenceType) describingType).getReferredType()).getConstituentTypes().get(0);
+        }
+        if (!(describingType instanceof AnnotatableType)) {
+            throw ErrorCreator.createError(StringUtils.fromString("Invalid type found."));
+        }
+        Object annotation = ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString("$field$.title"));
+        if (annotation == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
+        }
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
+        return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+    }
 }

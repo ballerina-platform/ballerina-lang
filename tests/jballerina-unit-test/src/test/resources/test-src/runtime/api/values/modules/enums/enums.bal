@@ -22,7 +22,40 @@ enum Status {
     CLOSE
 }
 
+enum Language {
+    ENG = "English",
+    TL = "Tamil",
+    SI = "Sinhala"
+}
+
+enum Race {
+    ENG = "English",
+    TL = "Tamil",
+    SI = "Sinhala"
+}
+
+const R = "RED";
+const G = "GREEN";
+const B = "BLUE";
+
+type Color R|G|B;
+
 public function validateAPI() {
+    testEnumArray();
+    testFiniteTypeGetName();
+}
+
+function testFiniteTypeGetName() {
+    testFiniteTypeUnionElements(Language, ["ENG", "TL", "SI"]);
+    testFiniteTypeUnionElements(Race, ["ENG", "TL", "SI"]);
+    testFiniteTypeUnionElements(Color, ["R", "G", "B"]);
+}
+
+function testFiniteTypeUnionElements(typedesc<anydata> t, string[] elements) = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Enums"
+} external;
+
+function testEnumArray() {
     Status[] enumArray = createEnumArray("Status");
     addToEnumArray(enumArray, "OPEN");
     test:assertEquals(enumArray.pop(), OPEN);

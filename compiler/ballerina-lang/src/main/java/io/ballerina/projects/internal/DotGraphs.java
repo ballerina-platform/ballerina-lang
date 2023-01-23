@@ -28,6 +28,7 @@ import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
@@ -44,17 +45,36 @@ public class DotGraphs {
 
     public static String serializeResolvedPackageDependencyGraph(
             DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
-        return serializeDependencyNodeGraph(toDependencyNodeGraph(dependencyGraph));
-    }
-
-    public static String serializeDependencyNodeGraph(DependencyGraph<DependencyNode> dependencyGraph) {
-        return serializeDependencyNodeGraph(dependencyGraph, getGraphName(dependencyGraph));
+        return serializeDependencyNodeGraph(toDependencyNodeGraph(dependencyGraph), Collections.emptyList());
     }
 
     public static String serializeDependencyNodeGraph(DependencyGraph<DependencyNode> dependencyGraph,
-                                                      String graphName) {
+                                                      Collection<DependencyNode> unresolvedNodes) {
+        return serializeDependencyNodeGraph(dependencyGraph, getGraphName(dependencyGraph), unresolvedNodes);
+    }
+
+    public static String serializeDependencyNodeGraph(DependencyGraph<DependencyNode> dependencyGraph,
+                                                      Collection<DependencyNode> unresolvedNodes,
+                                                      Collection<DependencyNode> missingDirectDeps) {
+        return serializeDependencyNodeGraph(
+                dependencyGraph, getGraphName(dependencyGraph), unresolvedNodes, missingDirectDeps);
+    }
+
+    public static String serializeDependencyNodeGraph(DependencyGraph<DependencyNode> dependencyGraph,
+                                                      String graphName, Collection<DependencyNode> unresolvedNodes) {
+        return serializeDependencyNodeGraph(dependencyGraph, graphName, unresolvedNodes, Collections.emptyList());
+    }
+
+    public static String serializeDependencyNodeGraph(DependencyGraph<DependencyNode> dependencyGraph,
+                                                      String graphName, Collection<DependencyNode> unresolvedNodes,
+                                                      Collection<DependencyNode> missingDirectDeps) {
 
         PackageVersionContainer<DependencyNode> pkgContainer = new PackageVersionContainer<>();
+        for (DependencyNode missingDirectDep : missingDirectDeps) {
+            PackageDescriptor pkgDesc = missingDirectDep.pkgDesc();
+            pkgContainer.add(pkgDesc.org(), pkgDesc.name(), pkgDesc.version(), missingDirectDep);
+        }
+
         for (DependencyNode depNode : dependencyGraph.getNodes()) {
             PackageDescriptor pkgDesc = depNode.pkgDesc();
             if (pkgDesc.isLangLibPackage()) {
@@ -70,14 +90,21 @@ public class DotGraphs {
 
         // First getting the sorted list to produce the ordered list of edges
         PackageContainer<DependencyNode> visitedNodes = new PackageContainer<>();
-        List<DependencyNode> sortedList = dependencyGraph.toTopologicallySortedList();
+        List<DependencyNode> sortedList = new ArrayList<>(dependencyGraph.toTopologicallySortedList());
+        for (DependencyNode missingDirectDep : missingDirectDeps) {
+            sortedList.add(sortedList.indexOf(dependencyGraph.getRoot()), missingDirectDep);
+        }
+
         for (int i = sortedList.size() - 1; i >= 0; i--) {
             DependencyNode depNode = sortedList.get(i);
             if (depNode.pkgDesc().isLangLibPackage()) {
                 continue;
             }
-
-            for (DependencyNode directDep : dependencyGraph.getDirectDependencies(depNode)) {
+            Collection<DependencyNode> directDependencies = dependencyGraph.getDirectDependencies(depNode);
+            if (depNode.equals(dependencyGraph.getRoot())) {
+                directDependencies.addAll(missingDirectDeps);
+            }
+            for (DependencyNode directDep : directDependencies) {
                 if (directDep.pkgDesc().isLangLibPackage()) {
                     continue;
                 }
@@ -88,7 +115,7 @@ public class DotGraphs {
                 continue;
             }
             visitedNodes.add(depNode.pkgDesc().org(), depNode.pkgDesc().name(), depNode);
-            nodes.add(getNodeLine(depNode, pkgContainer));
+            nodes.add(getNodeLine(depNode, pkgContainer, unresolvedNodes.contains(depNode)));
         }
 
         return firstLine + nodes.toString() + edges.toString() + lastLine;
@@ -112,7 +139,7 @@ public class DotGraphs {
     }
 
     private static String getNodeLabelInEdge(PackageDescriptor pkgDesc) {
-        return getNodeLabel(pkgDesc) + ":\"" + pkgDesc.version() + "\"";
+        return getNodeLabel(pkgDesc) + (pkgDesc.version() != null ? ":\"" + pkgDesc.version() + "\"" : "");
     }
 
     private static String getNodeLabel(PackageDescriptor pkgDesc) {
@@ -120,7 +147,7 @@ public class DotGraphs {
     }
 
     private static String getNodeLine(DependencyNode depNode,
-                                      PackageVersionContainer<DependencyNode> pkgContainer) {
+                                      PackageVersionContainer<DependencyNode> pkgContainer, boolean isUnresolved) {
         StringJoiner attrs = new StringJoiner(",", getNodeLabel(depNode.pkgDesc()) + " [", "];");
         String labelAttr = getNodeLabelAttr(depNode, pkgContainer);
         if (depNode.scope() == PackageDependencyScope.TEST_ONLY) {
@@ -130,6 +157,9 @@ public class DotGraphs {
         }
         if (depNode.errorNode()) {
             attrs.add(getErrorNodeLine());
+        } else if (isUnresolved) {
+            attrs.add(getUnresolvedNodeLine());
+            attrs.add(addColorLine("grey"));
         }
         attrs.add(labelAttr);
         return attrs.toString();
@@ -142,7 +172,9 @@ public class DotGraphs {
         List<DependencyNode> sortedDepNodes = sortVersions(unSortedDepNodes);
         StringJoiner labelAttr = new StringJoiner(" | ", "label=\"", "\"");
         for (DependencyNode sortedDepNode : sortedDepNodes) {
-            labelAttr.add("<" + sortedDepNode.pkgDesc().version() + "> " + sortedDepNode.pkgDesc());
+            String version = sortedDepNode.pkgDesc().version() == null ?
+                    "" : "<" + sortedDepNode.pkgDesc().version() + "> ";
+            labelAttr.add(version + sortedDepNode.pkgDesc());
         }
         return labelAttr.toString();
     }
@@ -192,6 +224,14 @@ public class DotGraphs {
 
     private static String getErrorNodeLine() {
         return "error=\"true\"";
+    }
+
+    private static String getUnresolvedNodeLine() {
+        return "unresolved=\"true\"";
+    }
+
+    private static String addColorLine(String color) {
+        return "color=\"" + color + "\"";
     }
 
     private static DependencyGraph<DependencyNode> toDependencyNodeGraph(

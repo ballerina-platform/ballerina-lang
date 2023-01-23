@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.test.runtime.Main.getClassLoader;
+import static org.ballerinalang.test.runtime.BTestMain.getClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FUNC_NAME_PREFIX;
@@ -112,7 +112,11 @@ public class FunctionMock {
         String version;
 
         if (Thread.currentThread().getStackTrace().length >= 5) {
-            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+            String classname = Thread.currentThread().getStackTrace()[4].getClassName();
+            if (classname.contains("/")) {
+                classname = classname.replaceAll("/", ".");
+            }
+            String[] projectInfo = classname.split(Pattern.quote("."));
             // Set project info
             try {
                 orgName = projectInfo[0];
@@ -170,7 +174,7 @@ public class FunctionMock {
 
         return mockMethod;
     }
-
+    //Identify the class with the mockMethod(method within call)
     private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
                                            String packageName, String version, ClassLoader classLoader)
             throws ClassNotFoundException {

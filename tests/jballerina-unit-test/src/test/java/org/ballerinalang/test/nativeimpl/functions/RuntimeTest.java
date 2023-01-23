@@ -54,9 +54,9 @@ public class RuntimeTest {
         BArray returns = (BArray) val;
         Assert.assertEquals(returns.size(), 5);
         Assert.assertEquals(returns.get(0).toString(), "{callableName:externGetStackTrace, moduleName:ballerina.lang" +
-                ".runtime.0, fileName:runtime.bal, lineNumber:92}");
+                ".runtime.0, fileName:runtime.bal, lineNumber:121}");
         Assert.assertEquals(returns.get(1).toString(), "{callableName:getStackTrace, moduleName:ballerina.lang" +
-                ".runtime.0, fileName:runtime.bal, lineNumber:82}");
+                ".runtime.0, fileName:runtime.bal, lineNumber:111}");
         Assert.assertEquals(returns.get(2).toString(), "{callableName:level2Function, moduleName:null, " +
                 "fileName:runtime-error.bal, lineNumber:12}");
         Assert.assertEquals(returns.get(3).toString(), "{callableName:level1Function, moduleName:null, " +

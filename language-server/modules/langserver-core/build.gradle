@@ -83,8 +83,6 @@ dependencies {
     testCompile 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
-    
-    testRuntime project(':project-api-test-artifact:idl-client-gen-plugin')
 }
 
 description = 'Ballerina - Language server - Core'

@@ -42,7 +42,6 @@ public class ProjectConstants {
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
-    public static final String IDL_CLIENTS_JSON = "idl-clients.json";
     public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
@@ -80,7 +79,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
-    public static final String IDL_CACHE_FILE = "idl-plugin-cache.json";
 
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";

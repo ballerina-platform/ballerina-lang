@@ -29,7 +29,6 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -40,7 +39,6 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -298,13 +296,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
      * Returns module compilation from the file path provided.
      *
      * @param filePath file path of the document
+     * @param isSourceChange True if the given file's source is changed
      * @return {@link ModuleCompilation}
      */
-    @Override
-    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, boolean isSourceChange) {
         // Get Project and Lock
         Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (projectPair.isEmpty()) {
+        if (projectPair.isEmpty() || (projectPair.get().crashed() && !isSourceChange)) {
             return Optional.empty();
         }
 
@@ -312,6 +310,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Lock lock = projectPair.get().lockAndGet();
         try {
             PackageCompilation compilation = projectPair.get().project().currentPackage().getCompilation();
+            if (projectPair.get().crashed) {
+                projectPair.get().setCrashed(false);
+            }
             if (compilation.diagnosticResult().diagnostics().stream()
                     .anyMatch(diagnostic -> 
                             Arrays.asList(DiagnosticErrorCode.BAD_SAD_FROM_COMPILER.diagnosticId(), 
@@ -325,6 +326,17 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             // Unlock Project Instance
             lock.unlock();
         }
+    }
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param filePath file path of the document
+     * @return {@link ModuleCompilation}
+     */
+    @Override
+    public Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath) {
+        return waitAndGetPackageCompilation(filePath, false);
     }
 
     @Override
@@ -566,9 +578,14 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                     // If inside a tests folder, get parent
                     parent = parent.getParent();
                 }
-                if (ProjectConstants.MODULES_ROOT.equals(parent.getParent().getFileName().toString())) {
-                    // If inside a module folder, get parent
+                if (ProjectConstants.MODULES_ROOT.equals(parent.getParent().getFileName().toString()) ||
+                        ProjectConstants.GENERATED_MODULES_ROOT.equals(parent.getParent().getFileName().toString())) {
+                    // If inside a modules or generated folder, get parent of parent
                     parent = parent.getParent().getParent();
+                }
+                if (ProjectConstants.GENERATED_MODULES_ROOT.equals(parent.getFileName().toString())) {
+                    // If a generated source for a non-default module, get parent of parent
+                    parent = parent.getParent();
                 }
                 return projectPair(parent);
             }
@@ -597,11 +614,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return projectPair(filePath.getParent());
         } else if (isModuleChange) {
             Path projectRoot;
-            if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString())) {
-                // If it is **/projectRoot/modules
+            if (ProjectConstants.MODULES_ROOT.equals(filePath.getFileName().toString()) ||
+                    ProjectConstants.GENERATED_MODULES_ROOT.equals(filePath.getFileName().toString())) {
+                // If it is **/projectRoot/modules OR **/projectRoot/generated
                 projectRoot = filePath.getParent();
             } else {
-                // If it is **/projectRoot/modules/mod2
+                // If it is **/projectRoot/modules/mod2 OR **/projectRoot/generated/mod2
                 projectRoot = filePath.getParent().getParent();
             }
             return projectPair(projectRoot);
@@ -996,10 +1014,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             }
 
             // Update file
-            Document updatedDoc = document.get().modify().withContent(content).apply();
-
-            // Update project instance
-            projectPair.setProject(updatedDoc.module().project());
+            if (document.isPresent()) {
+                Document updatedDoc = document.get().modify().withContent(content).apply();
+                // Update project instance
+                projectPair.setProject(updatedDoc.module().project());
+            }
         } finally {
             // Unlock Project Instance
             lock.unlock();
@@ -1031,24 +1050,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    @Override
-    public Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project) {
-        Optional<ProjectPair> projectPair = projectPair(projectRoot(filePath));
-        if (projectPair.isEmpty()) {
-            return Optional.empty();
-        }
-
-        // Lock Project Instance
-        Lock lock = projectPair.get().lockAndGet();
-        try {
-            return Optional.of(project.currentPackage()
-                    .runIDLGeneratorPlugins(ResolutionOptions.builder().setOffline(false).build()));
-        } finally {
-            // Unlock Project Instance
-            lock.unlock();
-        }
-    }
-    
     // ============================================================================================================== //
 
     private Path computeProjectRoot(Path path) {
@@ -1301,6 +1302,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         // fails when physical file is deleted from the disk
         boolean isModuleChange = filePath.toFile().isDirectory() &&
                 filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
+                filePath.getParent().endsWith(ProjectConstants.GENERATED_MODULES_ROOT) ||
                 (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
                         !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
 

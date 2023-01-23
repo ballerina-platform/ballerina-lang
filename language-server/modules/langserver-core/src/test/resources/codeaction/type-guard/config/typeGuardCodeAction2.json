@@ -36,14 +36,6 @@
           "newText": "\n    if bar is error {\n\n    }"
         }
       ],
-      "command": {
-        "title": "Rename Variable",
-        "command": "ballerina.action.rename",
-        "arguments": [
-          "typeGuard.bal",
-          63
-        ]
-      },
       "resolvable": false
     }
   ]
