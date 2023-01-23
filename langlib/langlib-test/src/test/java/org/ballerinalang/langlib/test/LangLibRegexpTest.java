@@ -45,6 +45,7 @@ public class LangLibRegexpTest {
     @AfterClass
     public void tearDown() {
         compileResult = null;
+        negativeTests = null;
     }
 
     @Test(dataProvider = "testRegexLangLibFunctionList")
@@ -76,8 +77,8 @@ public class LangLibRegexpTest {
     public void testNegativeRegexp(String functionName, int startIndex, int length) {
         Object returns = BRunUtil.invoke(negativeTests, functionName);
         Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"invalid start index '" + startIndex + "' provided in string of " +
-                        "length '" + length + "', for regular expression find operation.\")");
+                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0 or greater than input length " +
+                        "'" + length + "'\")");
     }
 
     @DataProvider(name = "negativeRegexpFindIndexProvider")
