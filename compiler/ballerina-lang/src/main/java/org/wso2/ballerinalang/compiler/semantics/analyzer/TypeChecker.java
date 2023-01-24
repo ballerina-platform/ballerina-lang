@@ -1543,7 +1543,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return true;
             }
 
-            if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 dlog.error(pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName);
                 return true;

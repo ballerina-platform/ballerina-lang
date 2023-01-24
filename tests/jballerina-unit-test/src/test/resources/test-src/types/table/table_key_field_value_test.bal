@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/uuid;
+
 type Row1 record {
     readonly int k;
     int value;
@@ -465,6 +467,15 @@ function testKeyCollision() {
         map<string> msg = {"message":"a value found for key '[{\"a\":1}]'"};
         assertEqual(msg, err.detail());
     }
+}
+
+type Department record {|
+    readonly string deptNo = uuid:createType4AsString();
+    string deptName;
+|};
+
+function testDefaultFieldKey() {
+    table<Department> key(deptNo) departments = table [];
 }
 
 function assertEqual(any expected, any actual) {
