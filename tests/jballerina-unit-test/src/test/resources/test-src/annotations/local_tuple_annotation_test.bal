@@ -71,7 +71,7 @@ function() returns [int] x = function() returns [@annotOne {value: "foo"} int] {
 function() returns [int] x2 = function() returns [@annotOne {value: gVar1} @annotTwo {value: gVar2} int] {return [1];};
 function() returns [int, int] x3 = function() returns [@annotOne {value: gVar1} int, @details {name: "name", age: gVar3} int] {return [1, 1];};
 
-function testGlobalAnnotationsOnFunctionPointerReturnType() {
+function testTupleAnnotationsOnFunctionPointerReturnType() {
     map<any> m1 = getLocalTupleAnnotations(typeof x(), "$field$.0");
     map<any> m2 = getLocalTupleAnnotations(typeof x2(), "$field$.0");
     map<any> m3 = getLocalTupleAnnotations(typeof x3(), "$field$.0");
@@ -89,6 +89,16 @@ function testTupleMemberAnnotations1() returns [@annotOne {value: "foo"} int, @d
 
 function testTupleMemberAnnotations2() returns [@annotOne {value: gVar1} @annotTwo {value: gVar2} int] {
     return [1];
+}
+
+function testTupleMemberAnnotations() {
+    map<any> m1 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.0");
+    map<any> m2 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.1");
+    map<any> m3 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations2(), "$field$.0");
+    assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    assertEquality({name: "name", age: 10}, <map<anydata>>m2["details"]);
+    assertEquality({value: "bar"}, <map<anydata>>m3["annotOne"]);
+    assertEquality({value: "baz"}, <map<anydata>>m3["annotTwo"]);
 }
 
 string gVar2 = "baz";
