@@ -326,13 +326,12 @@ public class TypeConverter {
     }
 
     private static boolean isStringConvertibleToXmlType(Object inputValue) {
-        if (TypeChecker.getType(inputValue).getTag() == TypeTags.STRING_TAG) {
-            try {
-                XmlFactory.parse(((BString) inputValue).getValue());
-            } catch (BError e) {
-                return false;
-            }
-        } else {
+        if (TypeChecker.getType(inputValue).getTag() != TypeTags.STRING_TAG) {
+            return false;
+        }
+        try {
+            XmlFactory.parse(((BString) inputValue).getValue());
+        } catch (BError e) {
             return false;
         }
         return true;
