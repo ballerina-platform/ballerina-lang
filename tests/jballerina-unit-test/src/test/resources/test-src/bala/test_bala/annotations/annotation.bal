@@ -33,10 +33,21 @@ function testAnnotOnRecordFields() {
     assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
 }
 
+function testAnnotOnTupleFields() {
+    map<any> m = getLocalTupleAnnotations(typeof foo:testAnnotationsOnLocalTupleFields(), "$field$.0");
+    assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+}
+
 function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
 @java:Method {
     'class: "org/ballerinalang/test/annotations/LocalRecordAnnotationTest",
     name: "getLocalRecordAnnotations"
+} external;
+
+function getLocalTupleAnnotations(typedesc<any> obj, string annotName) returns map<any> =
+@java:Method {
+    'class: "org/ballerinalang/test/annotations/LocalTupleAnnotationTest",
+    name: "getLocalTupleAnnotations"
 } external;
 
 function assertEquality(anydata expected, anydata actual) {

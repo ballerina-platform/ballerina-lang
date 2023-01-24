@@ -32,3 +32,7 @@ public function testAnnotationsOnLocalRecordFields() returns record {string x; s
     record {@annotOne {value: "10"} string x; string y;} r = {x : "", y: ""};
     return r;
 }
+
+public function testAnnotationsOnLocalTupleFields() returns [@annotOne {value: "10"} string] {
+    return [""];
+}

@@ -76,6 +76,11 @@ public class AnnotationTests {
         BRunUtil.invoke(result, "testAnnotOnRecordFields");
     }
 
+    @Test
+    public void testAnnotationsOnTupleFields() {
+        BRunUtil.invoke(result, "testAnnotOnTupleFields");
+    }
+
     @Test(description = "Test the deprecated construct from external module")
     public void testDeprecation() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/annotations/deprecation_annotation.bal");
