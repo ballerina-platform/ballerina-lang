@@ -1,41 +1,41 @@
 {
   "position": {
-    "line": 1,
-    "character": 32
+    "line": 11,
+    "character": 31
   },
-  "source": "template_expression/source/regex_template_expression_source7.bal",
+  "source": "template_expression/source/regex_template_expression_source11.bal",
   "description": "",
   "items": [
     {
-      "label": "*",
+      "label": "m",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "*",
-      "insertText": "*",
+      "filterText": "m",
+      "insertText": "m",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "+",
+      "label": "s",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "+",
-      "insertText": "+",
+      "filterText": "s",
+      "insertText": "s",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "?",
+      "label": "i",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "?",
-      "insertText": "?",
+      "filterText": "i",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "{}",
+      "label": "x",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "{}",
-      "insertText": "{${1}}",
+      "filterText": "x",
+      "insertText": "x",
       "insertTextFormat": "Snippet"
     }
   ]

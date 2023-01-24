@@ -1,0 +1,26 @@
+{
+  "position": {
+    "line": 8,
+    "character": 30
+  },
+  "source": "template_expression/source/regex_template_expression_source11.bal",
+  "description": "",
+  "items": [
+    {
+      "label": ":",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "i:",
+      "insertText": "i:",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "-",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "i-",
+      "insertText": "i-",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

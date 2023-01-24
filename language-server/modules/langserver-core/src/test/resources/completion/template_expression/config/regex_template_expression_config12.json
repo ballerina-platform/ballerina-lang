@@ -1,0 +1,66 @@
+{
+  "position": {
+    "line": 11,
+    "character": 33
+  },
+  "source": "template_expression/source/regex_template_expression_source9.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "L",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "L",
+      "insertText": "L",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "M",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "M",
+      "insertText": "M",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "N",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "N",
+      "insertText": "N",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "S",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "S",
+      "insertText": "S",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "P",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "P",
+      "insertText": "P",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Z",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "Z",
+      "insertText": "Z",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "C",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "C",
+      "insertText": "C",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

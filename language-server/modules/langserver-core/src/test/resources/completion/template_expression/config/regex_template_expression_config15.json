@@ -1,49 +1,49 @@
 {
   "position": {
-    "line": 1,
-    "character": 43
+    "line": 20,
+    "character": 31
   },
-  "source": "template_expression/source/regex_template_expression_source8.bal",
+  "source": "template_expression/source/regex_template_expression_source9.bal",
   "description": "",
   "items": [
     {
-      "label": "*",
+      "label": "u",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "*",
-      "insertText": "*",
+      "filterText": "Lu",
+      "insertText": "Lu",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "+",
+      "label": "l",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "+",
-      "insertText": "+",
+      "filterText": "Ll",
+      "insertText": "Ll",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "?",
+      "label": "t",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "?",
-      "insertText": "?",
+      "filterText": "Lt",
+      "insertText": "Lt",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "{}",
+      "label": "m",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "{}",
-      "insertText": "{${1}}",
+      "filterText": "Lm",
+      "insertText": "Lm",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "$",
+      "label": "o",
       "kind": "Snippet",
       "detail": "Snippet",
-      "filterText": "$",
-      "insertText": "$",
+      "filterText": "Lo",
+      "insertText": "Lo",
       "insertTextFormat": "Snippet"
     }
   ]
