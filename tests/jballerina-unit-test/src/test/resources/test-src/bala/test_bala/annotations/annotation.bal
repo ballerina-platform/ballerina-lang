@@ -31,11 +31,16 @@ function testAnnotOnBoundMethod() {
 function testAnnotOnRecordFields() {
     map<any> m = getLocalRecordAnnotations(typeof foo:testAnnotationsOnLocalRecordFields(), "$field$.x");
     assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getLocalRecordAnnotations(typeof foo:testRecordFieldAnnotationsOnReturnType(), "$field$.x");
+    assertEquality({value : "100"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+
 }
 
 function testAnnotOnTupleFields() {
     map<any> m = getLocalTupleAnnotations(typeof foo:testAnnotationsOnLocalTupleFields(), "$field$.0");
     assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getLocalTupleAnnotations(typeof foo:testTupleFieldAnnotationsOnReturnType(), "$field$.0");
+    assertEquality({value : "100"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
 }
 
 function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
