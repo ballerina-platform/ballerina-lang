@@ -410,7 +410,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void desugarFieldAnnotations(BSymbol owner, BTypeSymbol typeSymbol, List<BLangSimpleVariable> fields,
                                          Location pos) {
-        if (Symbols.isFlagOn(typeSymbol.flags, Flags.ANONYMOUS) || owner.getKind() != SymbolKind.PACKAGE) {
+        if (owner.getKind() != SymbolKind.PACKAGE) {
             owner = getOwner(env);
             BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(fields, pos, env.enclPkg, env,
                                                                                           typeSymbol.pkgID, owner);
@@ -907,9 +907,13 @@ public class ClosureGenerator extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
-                                                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                                                                    (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 keyValueField.key.expr = rewriteExpr(keyValueField.key.expr);
                 keyValueField.valueExpr = rewriteExpr(keyValueField.valueExpr);
+            } else if (field.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                                                              (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                spreadOpField.expr = rewriteExpr(spreadOpField.expr);
             }
         }
         result = recordLiteral;
