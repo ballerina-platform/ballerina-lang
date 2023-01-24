@@ -2737,9 +2737,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             Map<BVarSymbol, BType.NarrowedTypes> existingNarrowedTypeInfo = ifNode.expr.narrowedTypeInfo;
             for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry : data.narrowedTypeInfo.entrySet()) {
                 BVarSymbol key = entry.getKey();
-                if (!existingNarrowedTypeInfo.containsKey(key)) {
-                    existingNarrowedTypeInfo.put(key, entry.getValue());
-                } else {
+                if (existingNarrowedTypeInfo.containsKey(key)) {
                     BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
                     BUnionType unionType =
                             BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
