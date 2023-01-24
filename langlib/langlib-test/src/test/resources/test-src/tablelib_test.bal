@@ -1328,6 +1328,86 @@ function testTableIterationAfterPut4() {
     assertEquals(length, 218);
 }
 
+function testRemoveAllFromReadOnlyKeylessTable1() {
+    table<record {|string name;|}> readonlyStudents = table [
+        {name: "Jo"},
+        {name: "Sam"}
+    ].cloneReadOnly();
+    error? err = trap readonlyStudents.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+
+    table<Customer> readonlyCustomers = table [
+        {id: 1, firstName: "Harry", lastName: "Potter"},
+        {id: 2, firstName: "Hermione", lastName: "Granger"}
+    ].cloneReadOnly();
+    err = trap readonlyCustomers.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+}
+
+function testRemoveAllFromReadOnlyKeylessTable2() {
+    KeylessPersonTable readonlyPersons = table [
+        {name: "Harry", age: 14},
+        {name: "Hermione", age: 28}
+    ].cloneReadOnly();
+    error? err = trap readonlyPersons.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+}
+
+function testRemoveAllFromReadOnlyKeyedTable1() {
+    table<record {|readonly string name;|}> key(name) readonlyStudents = table key(name) [
+        {name: "Jo"},
+        {name: "Sam"}
+    ].cloneReadOnly();
+    error? err = trap readonlyStudents.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+
+    table<Customer> readonlyCustomers = table key(id) [
+        {id: 1, firstName: "Harry", lastName: "Potter"},
+        {id: 2, firstName: "Hermione", lastName: "Granger"}
+    ].cloneReadOnly();
+    err = trap readonlyCustomers.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+}
+
+function testRemoveAllFromReadOnlyKeyedTable2() {
+    CustomerTable readonlyCustomers = table key(id) [
+        {id: 1, firstName: "Harry", lastName: "Potter"},
+        {id: 2, firstName: "Hermione", lastName: "Granger"}
+    ].cloneReadOnly();
+    error? err = trap readonlyCustomers.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
+        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
+        <string> checkpanic err.detail()["message"]);
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {

@@ -592,4 +592,19 @@ public class LangLibTableTest {
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut3");
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut4");
     }
+
+    @Test(dataProvider = "functionsToTestRemoveAllFromReadonlyTables")
+    public void testRemoveAllFromReadonlyTables(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestRemoveAllFromReadonlyTables() {
+        return new String[] {
+                "testRemoveAllFromReadOnlyKeylessTable1",
+                "testRemoveAllFromReadOnlyKeylessTable2",
+                "testRemoveAllFromReadOnlyKeyedTable1",
+                "testRemoveAllFromReadOnlyKeyedTable2"
+        };
+    }
 }
