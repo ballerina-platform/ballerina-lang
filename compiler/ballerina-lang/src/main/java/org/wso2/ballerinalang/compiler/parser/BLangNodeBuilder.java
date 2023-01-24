@@ -76,6 +76,8 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -322,6 +324,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPa
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -4052,6 +4056,59 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             orderKey.isAscending = true;
         }
         return orderKey;
+    }
+
+    @Override
+    public BLangNode transform(GroupByClauseNode groupByClauseNode) {
+        BLangGroupByClause groupByClause = (BLangGroupByClause) TreeBuilder.createGroupByClauseNode();
+        groupByClause.pos = getPosition(groupByClauseNode);
+
+        for (Node node : groupByClauseNode.groupingKey()) {
+            BLangGroupingKey groupingKeyNode = (BLangGroupingKey) TreeBuilder.createGroupingKeyNode();
+            groupingKeyNode.pos = getPosition(node);
+            if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                groupingKeyNode.variableRef = getGroupingKeySimpleVarRef((SimpleNameReferenceNode) node);
+            } else {
+                groupingKeyNode.variableDef = (BLangSimpleVariableDef) node.apply(this);
+            }
+            groupByClause.addGroupingKey(groupingKeyNode);
+        }
+        return groupByClause;
+    }
+
+    public BLangSimpleVarRef getGroupingKeySimpleVarRef(SimpleNameReferenceNode groupingKeySimpleVarRefNode) {
+        BLangIdentifier key = createIdentifier(groupingKeySimpleVarRefNode.name());
+        key.setLiteral(false);
+
+        BLangSimpleVarRef groupingVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        groupingVarRef.pos = getPosition(groupingKeySimpleVarRefNode);
+        groupingVarRef.variableName = key;
+        groupingVarRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        return groupingVarRef;
+    }
+
+    @Override
+    public BLangNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDesc = groupingKeyVarDeclarationNode.typeDescriptor();
+        Location variablePos = getPosition(groupingKeyVarDeclarationNode);
+        BLangVariable variable = getBLangVariableNode(groupingKeyVarDeclarationNode.simpleBindingPattern(),
+                variablePos);
+        BLangExpression expr = createExpression(groupingKeyVarDeclarationNode.expression());
+        return getVariableDefinition(typeDesc, variable, variablePos, expr);
+    }
+
+    private BLangSimpleVariableDef getVariableDefinition(TypeDescriptorNode typeDesc, BLangVariable variable,
+                                                         Location variablePos, BLangExpression expr) {
+        BLangSimpleVariableDef variableDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        variableDef.pos = variable.pos = variablePos;
+        variable.setInitialExpression(expr);
+        variableDef.setVariable(variable);
+        variable.isDeclaredWithVar = isDeclaredWithVar(typeDesc);
+        if (!variable.isDeclaredWithVar) {
+            variable.setTypeNode(createTypeNode(typeDesc));
+        }
+        return variableDef;
     }
 
     @Override
