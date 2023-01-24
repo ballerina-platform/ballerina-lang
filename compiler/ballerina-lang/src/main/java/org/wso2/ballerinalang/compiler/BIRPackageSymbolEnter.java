@@ -1236,7 +1236,6 @@ public class BIRPackageSymbolEnter {
 
             // Read the type flags to identify if type reference types are nullable.
             int typeFlags = inputStream.readInt();
-
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);

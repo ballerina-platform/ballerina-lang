@@ -1993,6 +1993,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             addTypeDependency(tsymbol, Types.getReferredType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
+            for (BLangAnnotationAttachment annotationAttachment : field.annAttachments) {
+                analyzeNode(annotationAttachment.expr, env);
+            }
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
     }
@@ -2035,7 +2038,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        tupleTypeNode.members.forEach(member -> analyzeNode(member, env));
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
+            analyzeNode(member, env);
+            for (BLangAnnotationAttachment annotationAttachment : member.annAttachments) {
+                analyzeNode(annotationAttachment.expr, env);
+            }
+        }
     }
 
     @Override

@@ -374,7 +374,7 @@ public class Desugar extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
     private ClosureDesugar closureDesugar;
-    private ParameterDesugar parameterDesugar;
+    private ClosureGenerator closureGenerator;
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
@@ -451,7 +451,7 @@ public class Desugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.closureDesugar = ClosureDesugar.getInstance(context);
-        this.parameterDesugar = ParameterDesugar.getInstance(context);
+        this.closureGenerator = ClosureGenerator.getInstance(context);
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
@@ -778,7 +778,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // create closures for default values
-        parameterDesugar.visit(pkgNode);
+        closureGenerator.visit(pkgNode);
 
         // Initialize the annotation map
         annotationDesugar.initializeAnnotationMap(pkgNode);
@@ -832,6 +832,10 @@ public class Desugar extends BLangNodeVisitor {
             if (!function.flagSet.contains(Flag.LAMBDA) || function.name.value.contains(MockDesugar.MOCK_FUNCTION)) {
                 pkgNode.functions.set(i, rewrite(pkgNode.functions.get(i), env));
             }
+        }
+
+        for (BLangLambdaFunction lambdaFunction : pkgNode.lambdaFunctions) {
+            rewrite(lambdaFunction, lambdaFunction.capturedClosureEnv);
         }
 
         // Invoke closure desugar.
