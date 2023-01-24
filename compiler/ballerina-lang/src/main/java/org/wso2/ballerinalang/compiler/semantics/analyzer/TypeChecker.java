@@ -6033,6 +6033,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
+    public void visit(BLangGroupByClause node, AnalyzerData data) {
+
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, AnalyzerData data) {
+
+    }
+
+    @Override
     public void visit(BLangDo doNode, AnalyzerData data) {
         if (doNode.onFailClause != null) {
             doNode.onFailClause.accept(this, data);
