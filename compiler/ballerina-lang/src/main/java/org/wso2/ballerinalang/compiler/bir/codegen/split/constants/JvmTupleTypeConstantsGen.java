@@ -59,14 +59,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmTupleTypeConstantsGen {
 
     private final String tupleVarConstantsClass;
-    private final List<String> funcNames;
-    private final Queue<TypeNamePair> queue;
     private final Map<BTupleType, String> tupleTypeVarMap;
     private final ClassWriter cw;
     private MethodVisitor mv;
     private JvmTupleTypeGen jvmTupleTypeGen;
-    private int tupleTypeConstCount;
-    private int methodCount;
+    private final List<String> funcNames = new ArrayList<>();
+    private final Queue<TypeNamePair> queue = new LinkedList<>();
+    private int tupleTypeConstCount = 0;
+    private int methodCount = 1;
     private int constantIndex = 0;
 
     public JvmTupleTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
@@ -75,11 +75,7 @@ public class JvmTupleTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, tupleVarConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD, "()V", null, null);
-        funcNames = new ArrayList<>();
-        queue = new LinkedList<>();
         tupleTypeVarMap = new TreeMap<>(bTypeHashComparator);
-        tupleTypeConstCount = 0;
-        methodCount = 1;
     }
 
     public void setJvmTupleTypeGen(JvmTupleTypeGen jvmTupleTypeGen) {

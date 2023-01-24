@@ -61,10 +61,10 @@ public class JvmArrayTypeConstantsGen {
     private MethodVisitor mv;
     private final Map<BArrayType, String> arrayTypeVarMap;
     private JvmArrayTypeGen jvmArrayTypeGen;
-    private final List<String> funcNames;
     private final Types types;
-    private int arrayTypeVarCount;
-    private int methodCount;
+    private final List<String> funcNames = new ArrayList<>();
+    private int arrayTypeVarCount = 0;
+    private int methodCount = 1;
     private int constantIndex = 0;
 
     public JvmArrayTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator, Types types) {
@@ -74,10 +74,7 @@ public class JvmArrayTypeConstantsGen {
         generateConstantsClassInit(cw, arrayConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD, "()V", null, null);
         this.arrayTypeVarMap = new TreeMap<>(bTypeHashComparator);
-        this.funcNames = new ArrayList<>();
         this.types = types;
-        arrayTypeVarCount = 0;
-        methodCount = 1;
     }
 
     public void setJvmArrayTypeGen(JvmArrayTypeGen jvmArrayTypeGen) {

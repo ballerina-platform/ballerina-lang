@@ -59,10 +59,10 @@ public class JvmErrorTypeConstantsGen {
     private JvmErrorTypeGen jvmErrorTypeGen;
     private final ClassWriter cw;
     private MethodVisitor mv;
-    private final List<String> funcNames;
     private final Map<BErrorType, String> errorTypeVarMap;
-    private int errorTypeCount;
-    private int methodCount;
+    private final List<String> funcNames = new ArrayList<>();
+    private int errorTypeCount = 0;
+    private int methodCount = 1;
     private int constantIndex = 0;
 
     public JvmErrorTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
@@ -71,10 +71,7 @@ public class JvmErrorTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, errorVarConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ERROR_TYPE_INIT_METHOD, "()V", null, null);
-        funcNames = new ArrayList<>();
         errorTypeVarMap = new TreeMap<>(bTypeHashComparator);
-        errorTypeCount = 0;
-        methodCount = 1;
     }
 
     public void setJvmErrorTypeGen(JvmErrorTypeGen jvmErrorTypeGen) {

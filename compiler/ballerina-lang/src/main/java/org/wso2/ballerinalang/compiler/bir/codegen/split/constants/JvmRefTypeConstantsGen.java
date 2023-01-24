@@ -58,10 +58,10 @@ public class JvmRefTypeConstantsGen {
     private JvmRefTypeGen jvmRefTypeGen;
     private final ClassWriter cw;
     private MethodVisitor mv;
-    private final List<String> funcNames;
     private final Map<BTypeReferenceType, String> typeRefVarMap;
-    private int typeDefCount;
-    private int methodCount;
+    private final List<String> funcNames = new ArrayList<>();
+    private int typeDefCount = 0;
+    private int methodCount = 1;
 
     public JvmRefTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         typeRefVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
@@ -69,10 +69,7 @@ public class JvmRefTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, typeRefVarConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD, "()V", null, null);
-        funcNames = new ArrayList<>();
         typeRefVarMap = new TreeMap<>(bTypeHashComparator);
-        typeDefCount = 0;
-        methodCount = 1;
     }
 
     public void setJvmRefTypeGen(JvmRefTypeGen jvmRefTypeGen) {

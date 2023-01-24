@@ -59,14 +59,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmUnionTypeConstantsGen {
 
     private final String unionVarConstantsClass;
-    private final List<String> funcNames;
-    private final Queue<TypeNamePair> queue;
     private final Map<BUnionType, String> unionTypeVarMap;
     private final ClassWriter cw;
     private MethodVisitor mv;
     private JvmUnionTypeGen jvmUnionTypeGen;
-    private int unionTypeVarCount;
-    private int methodCount;
+    private final List<String> funcNames = new ArrayList<>();
+    private final Queue<TypeNamePair> queue = new LinkedList<>();
+    private int unionTypeVarCount = 0;
+    private int methodCount = 1;
     private int constantIndex = 0;
 
     /**
@@ -78,11 +78,7 @@ public class JvmUnionTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, unionVarConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_UNION_TYPE_INIT_METHOD, "()V", null, null);
-        funcNames = new ArrayList<>();
-        queue = new LinkedList<>();
         unionTypeVarMap = new TreeMap<>(bTypeHashComparator);
-        unionTypeVarCount = 0;
-        methodCount = 1;
     }
 
     public void setJvmUnionTypeGen(JvmUnionTypeGen jvmUnionTypeGen) {
