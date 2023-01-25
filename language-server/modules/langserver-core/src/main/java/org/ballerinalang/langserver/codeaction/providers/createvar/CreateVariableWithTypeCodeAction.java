@@ -101,7 +101,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         }
 
         LineRange actionLineRange = actionNode.get().lineRange();
-        if (actionNode.get().parent().kind() == SyntaxKind.CHECK_ACTION
+        if (actionNode.get().parent().kind() == SyntaxKind.CHECK_EXPRESSION
                 || actionNode.get().parent().kind() == SyntaxKind.CHECK_ACTION) {
             actionLineRange = actionNode.get().parent().lineRange();
         }
