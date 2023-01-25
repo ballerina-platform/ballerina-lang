@@ -61,19 +61,19 @@ public class FunctionCallExpressionTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {25, 88, TypeDescKind.FUNCTION},
-                {38, 15, TypeDescKind.TYPE_REFERENCE},
-                {43, 13, TypeDescKind.INT},
-                {44, 25, TypeDescKind.INT},
-                {45, 34, TypeDescKind.INT},
-                {53, 36, TypeDescKind.STRING},
-                {63, 51, TypeDescKind.TYPE_REFERENCE},
-                {79, 63, TypeDescKind.TYPE_REFERENCE},
-                {97, 28, TypeDescKind.INT},
+                {24, 88, TypeDescKind.FUNCTION},
+                {37, 15, TypeDescKind.TYPE_REFERENCE},
+                {42, 13, TypeDescKind.INT},
+                {43, 25, TypeDescKind.INT},
+                {44, 34, TypeDescKind.INT},
+                {52, 36, TypeDescKind.STRING},
+                {62, 51, TypeDescKind.TYPE_REFERENCE},
+                {78, 63, TypeDescKind.TYPE_REFERENCE},
+                {96, 28, TypeDescKind.INT},
+                {97, 16, TypeDescKind.INT},
                 {98, 16, TypeDescKind.INT},
-                {99, 16, TypeDescKind.INT},
-                {101, 34, TypeDescKind.UNION},
-                {102, 24, TypeDescKind.INT},
+                {100, 34, TypeDescKind.UNION},
+                {101, 24, TypeDescKind.INT},
         };
     }
 }

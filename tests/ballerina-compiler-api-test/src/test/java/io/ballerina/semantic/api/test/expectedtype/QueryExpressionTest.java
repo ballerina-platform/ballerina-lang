@@ -60,10 +60,10 @@ public class QueryExpressionTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {22, 28, TypeDescKind.INT},
-                {30, 9, TypeDescKind.STRING},
-                {35, 9, TypeDescKind.UNION},
-                {40, 24, TypeDescKind.UNION},
+                {21, 28, TypeDescKind.INT},
+                {29, 9, TypeDescKind.STRING},
+                {34, 9, TypeDescKind.UNION},
+                {39, 24, TypeDescKind.UNION},
         };
     }
 }

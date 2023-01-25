@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 public function queryExpressionTest1() {
     int[] nums = [1, 2, 3, 4];
 

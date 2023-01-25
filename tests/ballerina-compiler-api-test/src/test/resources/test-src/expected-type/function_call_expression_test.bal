@@ -16,7 +16,6 @@
 
 public function functionTest() {
     int i = 3;
-
     string s = "s";
 
     function (int i, string s) returns int testFunc2 = function(int i, string s) returns int {

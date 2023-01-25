@@ -403,7 +403,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             } catch (IllegalStateException e) {
                 break;
             }
-            // To handle the cases related to ExternalTreeNodeList
+            // To handle the cases related to ExternalTreeNodeList.
             if (typeSymbol != null && typeSymbol.isPresent()) {
                 break;
             }

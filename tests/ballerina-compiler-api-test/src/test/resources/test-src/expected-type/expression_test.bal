@@ -16,7 +16,7 @@
 
 function add(int x, int y) returns int {
     int sum = x + y;
-    // `return` statement returns a value.
+    return sum;
 }
 
 function foo() {
@@ -38,13 +38,11 @@ public function main() {
 
 class Cl1 {
     function init(int arg1, string arg2) {
-
     }
 }
 
 class Cl2 {
     function init(string arg1, string arg2) {
-
     }
 }
 
