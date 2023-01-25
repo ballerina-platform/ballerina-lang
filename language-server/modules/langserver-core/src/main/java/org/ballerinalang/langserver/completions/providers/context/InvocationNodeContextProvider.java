@@ -99,8 +99,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     } else if (right.hasDefaultValue()) {
                         sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
                     } else {
-                        sortText = SortingUtil.genSortText(1) +
-                                SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
                     }
                 } else {
                     sortText = SortingUtil.genSortText(1) +
