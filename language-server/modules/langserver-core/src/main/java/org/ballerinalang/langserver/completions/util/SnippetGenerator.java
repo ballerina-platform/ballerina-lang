@@ -1316,6 +1316,28 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get string Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStringSnippet() {
+        String snippet = "string `${1}`";
+        return new SnippetBlock(ItemResolverConstants.STRING_TEMP, ItemResolverConstants.STRING_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get xml Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getXmlSnippet() {
+        String snippet = "xml `${1}`";
+        return new SnippetBlock(ItemResolverConstants.XML_TEMP, ItemResolverConstants.XML_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Paranthesis Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
