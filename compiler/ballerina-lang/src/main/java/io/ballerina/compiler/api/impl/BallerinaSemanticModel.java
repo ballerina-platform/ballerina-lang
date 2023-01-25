@@ -142,8 +142,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         Map<Name, List<Scope.ScopeEntry>> scopeSymbols = symbolResolver.getAllVisibleInScopeSymbols(symbolEnv);
 
         Location cursorPos = new BLangDiagnosticLocation(compilationUnit.name,
-                                                                        position.line(), position.line(),
-                                                                        position.offset(), position.offset());
+                                                         position.line(), position.line(),
+                                                         position.offset(), position.offset());
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
@@ -386,33 +386,31 @@ public class BallerinaSemanticModel implements SemanticModel {
         return this.bLangPackage.getDiagnostics();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<TypeSymbol> expectedType(Document sourceDocument, LinePosition linePosition) {
-        Optional<TypeSymbol> typeSymbol;
-        TypeSymbol expectedTypeSymbol;
+        Optional<TypeSymbol> typeSymbol = null;
         BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
         SyntaxTree syntaxTree = sourceDocument.syntaxTree();
-        Node node = findNode(linePosition, syntaxTree);
+        Node node = findInnerMostNode(linePosition, syntaxTree);
         ExpectedTypeFinder expectedTypeFinder = new ExpectedTypeFinder(this, compilationUnit,
                 this.compilerContext, linePosition, sourceDocument);
-        try {
-            do {
+        while (node != null) {
+            try {
                 typeSymbol = node.apply(expectedTypeFinder);
-                // To handle the cases related to ExternalTreeNodeList
-                if (typeSymbol == null || typeSymbol.isEmpty()) {
-                    expectedTypeSymbol = null;
-                } else {
-                    expectedTypeSymbol = typeSymbol.get();
-                }
-
-                node = node.parent();
-            } while (expectedTypeSymbol == null && node != null);
-
-        } catch (IllegalStateException e) {
-            typeSymbol = Optional.empty();
+            } catch (IllegalStateException e) {
+                break;
+            }
+            // To handle the cases related to ExternalTreeNodeList
+            if (typeSymbol != null && typeSymbol.isPresent()) {
+                break;
+            }
+            node = node.parent();
         }
 
-        return typeSymbol;
+        return typeSymbol == null ? Optional.empty() : typeSymbol;
     }
 
     // Private helper methods for the public APIs above.
@@ -653,7 +651,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         return symbol.getKind() == SymbolKind.PACKAGE && ((BPackageSymbol) symbol).compUnit.getValue().equals(compUnit);
     }
 
-    private static NonTerminalNode findNode(LinePosition linePosition, SyntaxTree syntaxTree) {
+    private static NonTerminalNode findInnerMostNode(LinePosition linePosition, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
         int start = textDocument.textPositionFrom(linePosition);
         int end = textDocument.textPositionFrom(linePosition);
