@@ -150,6 +150,7 @@ public abstract class CompletionTest extends AbstractLSTest {
         TestConfig updatedConfig = new TestConfig();
         updatedConfig.setPosition(testConfig.getPosition());
         updatedConfig.setSource(testConfig.getSource());
+        updatedConfig.setDescription(testConfig.getDescription());
 
         List<CompletionItem> results = new ArrayList<>();
         List<CompletionItem> copyOfResultList = new ArrayList<>(responseItemList);
@@ -234,7 +235,7 @@ public abstract class CompletionTest extends AbstractLSTest {
         }
 
         public String getDescription() {
-            return description;
+            return description == null ? "" : description;
         }
 
         public void setDescription(String description) {

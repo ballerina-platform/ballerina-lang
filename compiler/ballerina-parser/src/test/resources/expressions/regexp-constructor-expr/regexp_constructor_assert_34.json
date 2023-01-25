@@ -125,8 +125,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "^"
+                                          "kind": "BITWISE_XOR_TOKEN"
                                         }
                                       ]
                                     }
@@ -221,8 +220,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "$"
+                                          "kind": "DOLLAR_TOKEN"
                                         }
                                       ]
                                     }
@@ -317,8 +315,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "\\"
+                                          "kind": "BACK_SLASH_TOKEN"
                                         }
                                       ]
                                     }
@@ -413,8 +410,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "."
+                                          "kind": "DOT_TOKEN"
                                         }
                                       ]
                                     }
@@ -509,8 +505,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "*"
+                                          "kind": "ASTERISK_TOKEN"
                                         }
                                       ]
                                     }
@@ -605,8 +600,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -701,8 +695,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "?"
+                                          "kind": "QUESTION_MARK_TOKEN"
                                         }
                                       ]
                                     }
@@ -797,8 +790,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "("
+                                          "kind": "OPEN_PAREN_TOKEN"
                                         }
                                       ]
                                     }
@@ -893,8 +885,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": ")"
+                                          "kind": "CLOSE_PAREN_TOKEN"
                                         }
                                       ]
                                     }
@@ -989,8 +980,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "["
+                                          "kind": "OPEN_BRACKET_TOKEN"
                                         }
                                       ]
                                     }
@@ -1085,8 +1075,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "]"
+                                          "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                       ]
                                     }
@@ -1181,8 +1170,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "{"
+                                          "kind": "OPEN_BRACE_TOKEN"
                                         }
                                       ]
                                     }
@@ -1277,8 +1265,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "}"
+                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }
@@ -1373,8 +1360,7 @@
                                           "kind": "BACK_SLASH_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_SYNTAX_CHAR",
-                                          "value": "|"
+                                          "kind": "PIPE_TOKEN"
                                         }
                                       ]
                                     }

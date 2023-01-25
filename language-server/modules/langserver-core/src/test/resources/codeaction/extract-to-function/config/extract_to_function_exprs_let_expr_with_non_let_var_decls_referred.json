@@ -4,6 +4,7 @@
     "character": 22
   },
   "source": "extract_to_function_exprs_let_expr_with_non_let_var_decls_referred.bal",
+  "description": "Extract to function for expressions, cursor inside the let keyword of unary let expression and the let expression's expression includes params, constants, local vars and module vars",
   "expected": [
     {
       "title": "Extract to function",
@@ -36,8 +37,18 @@
           "newText": "extracted(moduleVar, param, localVar1)"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_let_expr_with_non_let_var_decls_referred.bal",
+          {
+            "line": 5,
+            "character": 20
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside the let keyword of unary let expression and the let expression's expression includes params, constants, local vars and module vars"
+  ]
 }

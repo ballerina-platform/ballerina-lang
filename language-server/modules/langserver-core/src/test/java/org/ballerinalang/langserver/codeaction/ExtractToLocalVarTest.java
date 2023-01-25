@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -23,10 +25,15 @@ import java.io.IOException;
 
 /**
  * Test cases for Extract to Variable code action.
- * 
+ *
  * @since 2201.2.1
  */
 public class ExtractToLocalVarTest extends AbstractCodeActionTest {
+
+    @Override
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
+    }
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
@@ -74,7 +81,8 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInFieldAccessInReturnStmt.json"},
                 {"extractToVariableInFieldAccessInAssignmentStmt.json"},
                 {"extractToVariableInObjectField.json"},
-                {"extractToVariableInXmlnsDecl.json"}
+                {"extractToVariableInXmlnsDecl.json"},
+                {"extractToVariableInvalidExpressionStatement.json"}
         };
     }
 
@@ -95,12 +103,10 @@ public class ExtractToLocalVarTest extends AbstractCodeActionTest {
                 {"extractToVariableInQNameRefNegative.json"},
                 {"extractToVariableInModLevelDeclNegative.json"},
                 {"extractToVariableInModLevelDeclNegative2.json"},
-                {"extractToVariableInStartActionNegative.json"},
-                {"extractToVariableInClientDeclNegative.json"},
-                {"extractToVariableInModuleClientDeclNegative.json"}
+                {"extractToVariableInStartActionNegative.json"}
         };
     }
-    
+
     @Override
     public String getResourceDir() {
         return "extract-to-local-variable";

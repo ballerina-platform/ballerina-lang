@@ -958,40 +958,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createClientDeclarationNode(
-            STNode annotations,
-            STNode clientKeyword,
-            STNode clientUri,
-            STNode asKeyword,
-            STNode clientPrefix,
-            STNode semicolonToken) {
-
-        return new STClientDeclarationNode(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    public static STNode createModuleClientDeclarationNode(
-            STNode annotations,
-            STNode clientKeyword,
-            STNode clientUri,
-            STNode asKeyword,
-            STNode clientPrefix,
-            STNode semicolonToken) {
-
-        return new STModuleClientDeclarationNode(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
     public static STNode createFunctionBodyBlockNode(
             STNode openBraceToken,
             STNode namedWorkerDeclarator,
@@ -2703,6 +2669,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 commaToken,
                 mostTimesMatchedDigit,
                 closeBraceToken);
+    }
+  
+    public static STNode createMemberTypeDescriptorNode(
+            STNode annotations,
+            STNode typeDescriptor) {
+
+        return new STMemberTypeDescriptorNode(
+                annotations,
+                typeDescriptor);
     }
 }
 

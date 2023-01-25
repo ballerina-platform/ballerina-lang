@@ -71,9 +71,13 @@ public class CompletionUtil {
         CompletionTriggerKind triggerKind = contextSupport ? 
                 ctx.getCompletionParams().getContext().getTriggerKind() : null;
         if (triggerKind == CompletionTriggerKind.TriggerCharacter
-                && triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
+                && (triggerCharacter.equals(SyntaxKind.GT_TOKEN.stringValue())
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.RIGHT_ARROW_TOKEN
                 && ctx.getTokenAtCursor().kind() != SyntaxKind.SYNC_SEND_TOKEN
+                || triggerCharacter.equals(SyntaxKind.BACK_SLASH_TOKEN.stringValue()) 
+                && ctx.getNodeAtCursor().kind() != SyntaxKind.RE_LITERAL_CHAR_DOT_OR_ESCAPE
+                || triggerCharacter.equals(SyntaxKind.QUESTION_MARK_TOKEN.stringValue()) 
+                && ctx.getNodeAtCursor().kind() != SyntaxKind.RE_FLAG_EXPR)
                 || isWithinComment(ctx)) {
             return Collections.emptyList();
         }

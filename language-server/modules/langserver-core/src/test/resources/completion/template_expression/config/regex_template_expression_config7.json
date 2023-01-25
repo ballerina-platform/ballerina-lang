@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 1,
+    "character": 32
+  },
+  "source": "template_expression/source/regex_template_expression_source7.bal",
+  "items": [
+    {
+      "label": "()",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "()",
+      "insertText": "(${1})",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "[]",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "[]",
+      "insertText": "[${1}]",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

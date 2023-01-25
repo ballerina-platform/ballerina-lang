@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -208,7 +207,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -1915,8 +1913,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangType memberTypeNode : tupleTypeNode.memberTypeNodes) {
-            analyzeNode(memberTypeNode, env);
+        for (BLangType memberType : tupleTypeNode.getMemberTypeNodes()) {
+            analyzeNode(memberType, env);
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
@@ -2010,15 +2008,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (childIndex != null) {
             analyzeNode(childIndex, env);
         }
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclaration) {
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclarationStatement) {
-        analyzeNode(clientDeclarationStatement.clientDeclaration, env);
     }
 
     @Override
@@ -2290,7 +2279,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
                 BTupleType tupleType = (BTupleType) varArgType;
-                List<BType> memberTypes = tupleType.tupleTypes;
+                List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
                 boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
@@ -2445,7 +2434,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BTupleType tupleType = (BTupleType) varArgType;
 
-        for (BType type : tupleType.tupleTypes) {
+        for (BType type : tupleType.getTupleTypes()) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            type, pos);
         }
@@ -3130,7 +3119,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isDefinedOutsideLock(Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isDefinedOutsideLock(Name name, long symTag, SymbolEnv currentEnv) {
         if (Names.IGNORE == name ||
                 symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
             return false;
@@ -3171,7 +3160,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                currentEnv);
     }
 
-    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, long symTag, SymbolEnv currentEnv) {
         BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
         if (symbol != symTable.notFoundSymbol &&
                 (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
@@ -4172,7 +4161,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BTupleType bTupleType) {
-            for (BType memType : bTupleType.tupleTypes) {
+            for (BType memType : bTupleType.getTupleTypes()) {
                 visitType(memType);
             }
 

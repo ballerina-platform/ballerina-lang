@@ -39,11 +39,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -71,6 +73,7 @@ public class TestProcessor {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String TEST_EXECUTE_FILE_PREFIX = "test_execute-generated_";
     private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
@@ -148,7 +151,7 @@ public class TestProcessor {
         String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
                 module.descriptor().packageName().toString(), module.descriptor().org().value(),
-                module.descriptor().version().toString());
+                module.descriptor().version().toString(), getExecutePath(module));
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
@@ -162,10 +165,9 @@ public class TestProcessor {
             testSuite.addTestExecutionDependencies(jarPaths);
         }
 
+        // TODO: Remove redundancy in addUtilityFunctions
         addUtilityFunctions(module, testSuite);
         populateMockFunctionNamesMap(module, testSuite);
-        processAnnotations(module, testSuite);
-        testSuite.sort();
         return testSuite;
     }
 
@@ -564,5 +566,28 @@ public class TestProcessor {
 
         String fieldName = ((BasicLiteralNode) fieldNameNode).literalToken().text();
         return fieldName.substring(1, fieldName.length() - 1);
+    }
+
+    /**
+     * Get the execution path string from {@code Module}.
+     *
+     * @param module Module
+     * @return String
+     */
+    private String getExecutePath(Module module) {
+        String executePath = "";
+        if (isSingleFileProject(module.project())) {
+            executePath = Optional.of(module.project().sourceRoot().getFileName()).get().toString();
+            return FileUtils.getFileNameWithoutExtension(executePath);
+        }
+        for (DocumentId docId : module.testDocumentIds()) {
+            if (module.document(docId).name().startsWith(
+                    ProjectConstants.TEST_DIR_NAME + "/" + TEST_EXECUTE_FILE_PREFIX)) {
+                executePath = module.document(docId).name().replace("/", ProjectConstants.DOT);
+                return FileUtils.getFileNameWithoutExtension(executePath);
+            }
+        }
+        //TODO: Throw an exception for not generating the test execution file. Currently, this handles at BTestRunner
+        return executePath;
     }
 }

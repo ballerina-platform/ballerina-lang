@@ -86,6 +86,7 @@ import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -108,6 +109,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CAST_B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_ARRAY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_TYPE_IMPL_INIT;
@@ -115,6 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT_WRAPPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_VALUE_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_CLASS_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
@@ -213,11 +216,15 @@ public class JvmValueGen {
     void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.forEach(optionalTypeDef -> {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            if (optionalTypeDef.type.tag == TypeTags.TYPEREFDESC) {
+                return;
+            }
+            BType bType = optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
-            if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                BObjectType objectType = (BObjectType) bType;
+            if (optionalTypeDef.type.tag == TypeTags.OBJECT &&
+                    Symbols.isFlagOn(optionalTypeDef.type.tsymbol.flags, Flags.CLASS)) {
+                BObjectType objectType = (BObjectType) optionalTypeDef.type;
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
@@ -245,7 +252,11 @@ public class JvmValueGen {
         }
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
+        FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
+        fv.visitEnd();
+
         this.createTypeDescConstructor(cw);
+        this.createTypeDescConstructorWithAnnotations(cw, className);
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
@@ -419,6 +430,32 @@ public class JvmValueGen {
         mv.visitVarInsn(ALOAD, 2);
         // invoke `super(type)`;
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, descriptor, false);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
+
+        String descriptor = TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
+        mv.visitCode();
+
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitFieldInsn(PUTFIELD, name, ANNOTATIONS_FIELD, GET_MAP_VALUE);
+        // load super
+        mv.visitVarInsn(ALOAD, 0);
+        // load type
+        mv.visitVarInsn(ALOAD, 1);
+        // load closures
+        mv.visitVarInsn(ALOAD, 2);
+        // load annotations
+        mv.visitVarInsn(ALOAD, 3);
+        // invoke `super(type)`;
+        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
+                           false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
