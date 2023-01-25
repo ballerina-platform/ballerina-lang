@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
@@ -42,7 +43,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -81,17 +81,22 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             super.sort(context, node, completionItems);
             return;
         }
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> parameterSymbol = node.apply(resolver);
-        if (parameterSymbol.isEmpty()) {
-            super.sort(context, node, completionItems);
-            return;
+
+        Optional<TypeSymbol> parameterSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            parameterSymbol = context.currentSemanticModel().get().expectedType(context.currentDocument().get(),
+                    LinePosition.from(context.getCursorPosition().getLine(),
+                            context.getCursorPosition().getCharacter()));
         }
+        
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 String sortText = SortingUtil.genSortText(1) +
                         SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
                 completionItem.getCompletionItem().setSortText(sortText);
+            } else if (parameterSymbol.isEmpty()) {
+                completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                        SortingUtil.toRank(context, completionItem)));
             } else {
                 completionItem.getCompletionItem().setSortText(
                         SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));

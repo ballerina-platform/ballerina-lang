@@ -17,17 +17,20 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Document;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.ArrayList;
@@ -44,10 +47,13 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
     private boolean isContextTypeCaptured = false;
-    private TypeSymbol contextType;
+    private Optional<TypeSymbol> contextType = Optional.empty();;
     private boolean isCapturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
     private final CompletionParams completionParams;
+    private final Position cursorPosition;
+    private final Optional<Document> document;
+    private final Optional<SemanticModel> semanticModel;
 
     public BallerinaCompletionContextImpl(CompletionContext context, LanguageServerContext serverContext,
                                           CompletionParams completionParams) {
@@ -58,6 +64,9 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
                 context.getCursorPosition(),
                 serverContext);
         this.completionParams = completionParams;
+        this.semanticModel = context.currentSemanticModel();
+        this.document = context.currentDocument();
+        this.cursorPosition = context.getCursorPosition();
     }
 
     public BallerinaCompletionContextImpl(CompletionContext context,
@@ -72,6 +81,9 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
                 serverContext,
                 cancelChecker);
         this.completionParams = completionParams;
+        this.semanticModel = context.currentSemanticModel();
+        this.document = context.currentDocument();
+        this.cursorPosition = context.getCursorPosition();
     }
 
     @Override
@@ -112,22 +124,13 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
 
     @Override
     public Optional<TypeSymbol> getContextType() {
-        if (!this.isContextTypeCaptured) {
+        if (!this.isContextTypeCaptured && semanticModel.isPresent() && this.document.isPresent()) {
             this.isContextTypeCaptured = true;
-            NonTerminalNode node = getNodeAtCursor();
-            do {
-                ContextTypeResolver contextTypeResolver = new ContextTypeResolver(this);
-                Optional<TypeSymbol> typeSymbol = node.apply(contextTypeResolver);
-                if (typeSymbol == null || typeSymbol.isEmpty()) {
-                    this.contextType = null;
-                } else {
-                    this.contextType = typeSymbol.get();
-                }
-                node = node.parent();
-            } while (this.contextType == null && node != null);
+            this.contextType = semanticModel.get().expectedType(this.document.get(),
+                    LinePosition.from(this.cursorPosition.getLine(), this.cursorPosition.getCharacter()));
         }
 
-        return Optional.ofNullable(this.contextType);
+        return this.contextType;
     }
 
     @Override
