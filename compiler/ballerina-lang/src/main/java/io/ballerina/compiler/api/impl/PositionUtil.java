@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -93,5 +94,33 @@ class PositionUtil {
                 || ((startLine == cursorLine && endLine > cursorLine)
                 || (startLine == endLine && startLine == cursorLine)
                 && startColumn <= cursorColumn);
+    }
+
+    static boolean isPosWithinRange(LinePosition position, LineRange enclRange) {
+        int posLine = position.line();
+        int posOffset = position.offset();
+
+        int enclStartLine = enclRange.startLine().line();
+        int enclEndLine = enclRange.endLine().line();
+        int enclStartOffset = enclRange.startLine().offset();
+        int enclEndOffset = enclRange.endLine().offset();
+
+        return (posLine == enclStartLine && posOffset  >= enclStartOffset || posLine > enclStartLine)
+                && (posLine == enclEndLine && posOffset <= enclEndOffset || posLine < enclEndLine);
+    }
+
+    static boolean isWithinParenthesis(LinePosition linePosition, Token openParen, Token closedParen) {
+
+        int posLine = linePosition.line();
+        int posOffset = linePosition.offset();
+        int openLine = openParen.lineRange().startLine().line();
+        int openOffset = openParen.lineRange().startLine().offset();
+        int closeLine = closedParen.lineRange().startLine().line();
+        int closeOffset = closedParen.lineRange().endLine().offset();
+
+        return (!openParen.isMissing())
+                && (posLine == openLine && posOffset >= openOffset || posLine > openLine)
+                && (!closedParen.isMissing())
+                && (closeLine == posLine && posOffset <= closeOffset || posLine < closeLine);
     }
 }
