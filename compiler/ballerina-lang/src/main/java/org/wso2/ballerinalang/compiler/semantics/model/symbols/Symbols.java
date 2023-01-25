@@ -223,7 +223,7 @@ public class Symbols {
     }
 
     public static BVarSymbol createVarSymbolForTupleMember(BType type) {
-        return new BVarSymbol(null, null, null, type, null, null, null);
+        return new BVarSymbol(0, null, null, type, null, null, null);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
