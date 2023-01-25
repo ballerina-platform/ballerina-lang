@@ -225,7 +225,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         if (module.isPresent()) {
             String fqPrefix = "";
             ModuleID id = module.get().id();
-            if (!(ProjectConstants.ANON_ORG.equals(id.orgName())) && !isLangAnnotationModule(id)) {
+            if (!ProjectConstants.ANON_ORG.equals(id.orgName()) && !isLangAnnotationModule(id)) {
                 fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
             }
             String moduleQualifiedName = fqPrefix + (symbol.getName().isPresent() ? symbol.getName().get()
