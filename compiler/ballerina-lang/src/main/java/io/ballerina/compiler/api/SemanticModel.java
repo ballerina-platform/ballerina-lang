@@ -216,7 +216,7 @@ public interface SemanticModel {
      * Get the expected type for a given position.
      *
      * @param sourceDocument The source file document in which to look up the position
-     * @param linePosition linePosition to get expected type
+     * @param linePosition line position to get the expected type
      * @return the type symbol if available, if not, returns empty
      */
 

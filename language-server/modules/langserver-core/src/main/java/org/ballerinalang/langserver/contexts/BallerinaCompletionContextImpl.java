@@ -47,7 +47,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     private Token tokenAtCursor;
     private NonTerminalNode nodeAtCursor;
     private boolean isContextTypeCaptured = false;
-    private Optional<TypeSymbol> contextType;
+    private Optional<TypeSymbol> contextType = Optional.empty();;
     private boolean isCapturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
     private final CompletionParams completionParams;
@@ -125,6 +125,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
     @Override
     public Optional<TypeSymbol> getContextType() {
         if (!this.isContextTypeCaptured && semanticModel.isPresent() && this.document.isPresent()) {
+            this.isContextTypeCaptured = true;
             this.contextType = semanticModel.get().expectedType(this.document.get(),
                     LinePosition.from(this.cursorPosition.getLine(), this.cursorPosition.getCharacter()));
         }

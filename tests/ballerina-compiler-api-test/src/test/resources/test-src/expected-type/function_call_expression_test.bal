@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,6 @@
 
 public function functionTest() {
     int i = 3;
-
     string s = "s";
 
     function (int i, string s) returns int testFunc2 = function(int i, string s) returns int {

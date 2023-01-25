@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,10 +60,10 @@ public class QueryExpressionTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {22, 28, TypeDescKind.INT},
-                {30, 9, TypeDescKind.STRING},
-                {35, 9, TypeDescKind.UNION},
-                {40, 24, TypeDescKind.UNION},
+                {21, 28, TypeDescKind.INT},
+                {29, 9, TypeDescKind.STRING},
+                {34, 9, TypeDescKind.UNION},
+                {39, 24, TypeDescKind.UNION},
         };
     }
 }

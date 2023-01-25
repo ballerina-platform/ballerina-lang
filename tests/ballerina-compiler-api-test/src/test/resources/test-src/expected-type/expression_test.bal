@@ -1,4 +1,4 @@
-// Copyright (c) 2022 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
 
 function add(int x, int y) returns int {
     int sum = x + y;
-    // `return` statement returns a value.
+    return sum;
 }
 
 function foo() {
@@ -38,13 +38,11 @@ public function main() {
 
 class Cl1 {
     function init(int arg1, string arg2) {
-
     }
 }
 
 class Cl2 {
     function init(string arg1, string arg2) {
-
     }
 }
 
