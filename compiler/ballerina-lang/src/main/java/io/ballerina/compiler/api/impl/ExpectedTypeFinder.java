@@ -185,7 +185,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) annotationRef;
             Predicate<Symbol> qNamePredicate =
                     predicate.and(symbol -> symbol.getName().get().equals(qNameRef.identifier().text()));
-            annotationSymbol = getTypeFromQNameReference(qNameRef, qNamePredicate);
+            annotationSymbol = getQNameReferenceSymbol(qNameRef, qNamePredicate);
         } else if (annotationRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             annotationSymbol = findSymbolByName(((SimpleNameReferenceNode) annotationRef).name().text(), predicate);
         } else {
@@ -233,20 +233,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(ObjectFieldNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
-            return Optional.empty();
-        }
-
         return getExpectedType(bLangNode);
     }
 
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
-            return Optional.empty();
-        }
-
         return getTypeFromBType(bLangNode.getBType());
     }
 
@@ -258,10 +250,6 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
-            return Optional.empty();
-        }
-
         return getExpectedType(bLangNode);
     }
 
@@ -357,7 +345,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(QualifiedNameReferenceNode node) {
-        // Added to prevent from the case module1:$missingNode returns a expectedType ("string")
+        // Added to prevent from the case module1:$missingNode returns a expectedType ("string").
         if (node.identifier().isMissing()) {
             return Optional.empty();
         }
@@ -434,12 +422,12 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
     }
 
-    public Optional<TypeSymbol> transform(MatchClauseNode matchClauseNode) {
-        return matchClauseNode.parent().apply(this);
+    public Optional<TypeSymbol> transform(MatchClauseNode node) {
+        return node.parent().apply(this);
     }
 
-    public Optional<TypeSymbol> transform(MatchStatementNode matchStatementNode) {
-        return this.semanticModel.typeOf(matchStatementNode.condition());
+    public Optional<TypeSymbol> transform(MatchStatementNode node) {
+        return this.semanticModel.typeOf(node.condition());
     }
 
     @Override
@@ -753,16 +741,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(SelectClauseNode node) {
         BLangNode bLangNode = nodeFinder.lookup(bLangCompilationUnit, node.lineRange());
-        if (bLangNode == null) {
+        if (!(bLangNode instanceof BLangSelectClause)) {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangSelectClause) {
-            BType expectedType = ((BLangExpression) ((BLangSelectClause) bLangNode).getExpression()).expectedType;
-            return getTypeFromBType(expectedType);
-        }
+        BType expectedType = ((BLangExpression) ((BLangSelectClause) bLangNode).getExpression()).expectedType;
+        return getTypeFromBType(expectedType);
 
-        return Optional.empty();
     }
 
     private Optional<TypeSymbol> visit(Node node) {
@@ -974,13 +959,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 .orElseGet(ArrayList::new);
     }
 
-    private Optional<Symbol> getTypeFromQNameReference(QualifiedNameReferenceNode node, Predicate<Symbol> predicate) {
-        List<Symbol> moduleContent = getModuleSymbols(node, predicate);
-        if (moduleContent.size() != 1) {
+    private Optional<Symbol> getQNameReferenceSymbol(QualifiedNameReferenceNode node, Predicate<Symbol> predicate) {
+        List<Symbol> moduleSymbols = getModuleSymbols(node, predicate);
+        if (moduleSymbols.size() != 1) {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(moduleContent.get(0));
+        return Optional.ofNullable(moduleSymbols.get(0));
     }
 
     /**

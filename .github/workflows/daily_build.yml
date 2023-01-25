@@ -32,13 +32,13 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Setup GraalVM
-          uses: graalvm/setup-graalvm@v1
-          with:
-            version: '22.2.0'
-            java-version: '11'
-            components: 'native-image'
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            set-java-home: 'false'
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.2.0'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          set-java-home: 'false'
 
       - name: Build with Gradle
         run: |
