@@ -24,6 +24,8 @@ public annotation ArrayConstraints Array on type, record field;
 
 public annotation X on type;
 
+public annotation Y on type;
+
 type IntConstraints record {|
     int minValue?;
 |};
@@ -213,6 +215,9 @@ type JSON json;
 @X
 type Byte byte;
 
+@Y
+type TupleRef Tuple;
+
 function validateTypeAnnotations() {
     typedesc<any> anyTd = Nil;
     test:assertTrue(anyTd.@X is true);
@@ -236,6 +241,12 @@ function validateTypeAnnotations() {
 
     anyTd = Tuple;
     test:assertTrue(anyTd.@X is true);
+    test:assertTrue(Tuple.@X is true);
+
+    anyTd = TupleRef;
+    test:assertTrue(anyTd.@Y is true);
+    test:assertTrue(TupleRef.@Y is true);
+    test:assertTrue(TupleRef.@X is ());
     test:assertTrue(Tuple.@X is true);
 
     anyTd = Map;

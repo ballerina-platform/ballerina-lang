@@ -4871,6 +4871,22 @@
           "type": "Token"
         }
       ]
+    },
+    {
+      "name": "MemberTypeDescriptorNode",
+      "base": "Node",
+      "kind": "MEMBER_TYPE_DESC",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "AnnotationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "typeDescriptor",
+          "type": "TypeDescriptorNode"
+        }
+      ]
     }
   ]
 }
