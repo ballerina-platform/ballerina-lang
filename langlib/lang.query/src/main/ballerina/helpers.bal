@@ -64,6 +64,10 @@ function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
     return new _OrderByFunction(orderFunc);
 }
 
+function createGroupByFunction(string[] keys, string[] nonGroupingKeys) returns _StreamFunction {
+    return new _GroupByFunction(keys, nonGroupingKeys);
+}
+
 function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
         returns _StreamFunction {
     return new _SelectFunction(selectFunc);
