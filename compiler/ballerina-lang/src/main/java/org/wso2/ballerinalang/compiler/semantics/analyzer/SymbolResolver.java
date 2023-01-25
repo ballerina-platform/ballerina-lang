@@ -67,7 +67,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -1431,34 +1430,23 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangSimpleVariable> members = new ArrayList<>(tupleTypeNode.members.size());
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE,
-                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+        List<BType> memberTypes = new ArrayList<>();
+        for (BLangType memTypeNode : tupleTypeNode.memberTypeNodes) {
+            BType type = resolveTypeNode(memTypeNode, data, data.env);
+
+            // If at least one member is undefined, return noType as the type.
+            if (type == symTable.noType) {
+                return symTable.noType;
+            }
+
+            memberTypes.add(type);
+        }
+
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
                 data.env.scope.owner, tupleTypeNode.pos, SOURCE);
-        SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(tupleTypeNode, new Scope(tupleTypeSymbol), data.env);
-        boolean hasUndefinedMember = false;
-        for (BLangSimpleVariable member : tupleTypeNode.members) {
-            BType bType = member.getBType();
-            if (bType == null) {
-                symbolEnter.defineNode(member, tupleEnv);
-            } else if (bType == symTable.noType) {
-                member.setBType(null);
-                symbolEnter.defineNode(member, tupleEnv);
-            }
-            if (member.getBType() == symTable.noType) {
-                hasUndefinedMember = true;
-            }
-            members.add(member);
-        }
-        // If at least one member is undefined, return noType as the type.
-        if (hasUndefinedMember) {
-            return symTable.noType;
-        }
-        List<BTupleMember> tupleMembers = new ArrayList<>();
-        members.forEach(member -> tupleMembers.add(new BTupleMember(member.getBType(),
-                new BVarSymbol(member.getBType().flags, member.symbol.name, member.symbol.pkgID, member.getBType(),
-                        member.symbol.owner, member.pos, SOURCE))));
-        BTupleType tupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
+
+        BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
 
         if (tupleTypeNode.restParamType != null) {
@@ -1470,7 +1458,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             markParameterizedType(tupleType, tupleType.restType);
         }
 
-        markParameterizedType(tupleType, tupleType.getTupleTypes());
+        markParameterizedType(tupleType, memberTypes);
 
         return tupleType;
     }
@@ -1668,19 +1656,17 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     userDefinedTypeNode.symbol = tSymbol;
                     return tSymbol.type;
                 }
-            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && (env.node.getKind() == NodeKind.FUNCTION_TYPE
-                    || env.node.getKind() == NodeKind.TUPLE_TYPE_NODE)) {
+            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION_TYPE) {
                 SymbolEnv symbolEnv = env;
                 BLangFunction func = null;
                 BLangFunctionTypeNode funcTypeNode = null;
                 ParameterizedTypeInfo parameterizedTypeInfo = null;
                 while ((symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE ||
-                        symbolEnv.node.getKind() == NodeKind.FUNCTION ||
-                        symbolEnv.node.getKind() == NodeKind.TUPLE_TYPE_NODE) && parameterizedTypeInfo == null) {
+                        symbolEnv.node.getKind() == NodeKind.FUNCTION) && parameterizedTypeInfo == null) {
                     if (symbolEnv.node.getKind() == NodeKind.FUNCTION_TYPE) {
                         funcTypeNode = (BLangFunctionTypeNode) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(funcTypeNode.params, data, tempSymbol);
-                    } else if (symbolEnv.node.getKind() == NodeKind.FUNCTION) {
+                    } else {
                         func = (BLangFunction) symbolEnv.node;
                         parameterizedTypeInfo = getTypedescParamValueType(func.requiredParams, data, tempSymbol);
                     }
@@ -1692,10 +1678,10 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 if (paramValType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
-                BSymbol bSymbol = null;
+                BSymbol bSymbol;
                 if (func != null) {
                     bSymbol = func.symbol;
-                } else if (funcTypeNode != null) {
+                } else {
                     bSymbol = funcTypeNode.getBType().tsymbol;
                 }
 

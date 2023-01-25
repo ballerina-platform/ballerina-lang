@@ -985,7 +985,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        lookupNodes(tupleTypeNode.members);
+        lookupNodes(tupleTypeNode.memberTypeNodes);
         lookupNode(tupleTypeNode.restParamType);
     }
 

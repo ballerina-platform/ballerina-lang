@@ -274,37 +274,28 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "ARRAY_TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "myType"
-                                            }
-                                          ]
-                                        },
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "myType"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
                                         {
-                                          "kind": "LIST",
+                                          "kind": "ARRAY_DIMENSION",
                                           "children": [
                                             {
-                                              "kind": "ARRAY_DIMENSION",
-                                              "children": [
-                                                {
-                                                  "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "CLOSE_BRACKET_TOKEN"
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         }

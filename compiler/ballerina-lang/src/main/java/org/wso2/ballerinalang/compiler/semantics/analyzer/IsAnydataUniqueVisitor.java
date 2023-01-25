@@ -203,8 +203,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (!visited.add(type)) {
             return isAnydata;
         }
-        for (BType memberType : type.getTupleTypes()) {
-            if (!visit(memberType)) {
+        for (BType member : type.tupleTypes) {
+            if (!visit(member)) {
                 type.isAnyData = false;
                 return false;
             }

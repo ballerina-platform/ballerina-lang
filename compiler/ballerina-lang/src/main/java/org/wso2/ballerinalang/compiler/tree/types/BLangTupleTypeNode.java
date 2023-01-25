@@ -22,14 +22,13 @@ import org.ballerinalang.model.tree.types.TupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * {@code BLangTupleTypeNode} represents a tuple type node in Ballerina
+ * {@code BLangUnionTypeNode} represents a tuple type node in Ballerina
  * <p>
  * e.g. [int, float , string]
  *
@@ -38,19 +37,12 @@ import java.util.stream.Collectors;
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     // BLangNodes
-    public List<BLangSimpleVariable> members = new ArrayList<>();
+    public List<BLangType> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 
     @Override
-    public List<BLangSimpleVariable> getMemberNodes() {
-        return members;
-    }
-
-    @Override
     public List<BLangType> getMemberTypeNodes() {
-        List<BLangType> types = new ArrayList<>();
-        members.forEach(member -> types.add(member.typeNode));
-        return types;
+        return memberTypeNodes;
     }
 
     @Override
@@ -80,7 +72,7 @@ public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     @Override
     public String toString() {
-        return "[" + members.stream().map(BLangSimpleVariable::toString).collect(Collectors.joining(","))
+        return "[" + memberTypeNodes.stream().map(BLangType::toString).collect(Collectors.joining(","))
                 + ((restParamType != null) ? "," + restParamType.toString() + "...]" : "]");
     }
 }

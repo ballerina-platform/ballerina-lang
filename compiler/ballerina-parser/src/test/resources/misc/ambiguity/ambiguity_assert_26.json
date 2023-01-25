@@ -267,34 +267,25 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
+                                      "kind": "UNION_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "UNION_TYPE_DESC",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "FooRec"
-                                                }
-                                              ]
-                                            },
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "FooRec"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "PIPE_TOKEN"
+                                        },
+                                        {
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
                                             {
-                                              "kind": "PIPE_TOKEN"
-                                            },
-                                            {
-                                              "kind": "INT_TYPE_DESC",
-                                              "children": [
-                                                {
-                                                  "kind": "INT_KEYWORD"
-                                                }
-                                              ]
+                                              "kind": "INT_KEYWORD"
                                             }
                                           ]
                                         }

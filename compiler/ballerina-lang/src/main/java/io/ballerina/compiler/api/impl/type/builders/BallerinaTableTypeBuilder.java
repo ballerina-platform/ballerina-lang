@@ -31,14 +31,12 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -158,14 +156,12 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             return checkKeyConstraintBType(keyTypes.get(0), rowType);
         }
 
-        List<BTupleMember> tupleMembers = new ArrayList<>();
+        List<BType> tupleMemberTypes = new ArrayList<>();
         for (TypeSymbol keyType : keyTypes) {
-            BType constraintType = checkKeyConstraintBType(keyType, rowType);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(constraintType);
-            tupleMembers.add(new BTupleMember(constraintType, varSymbol));
+            tupleMemberTypes.add(checkKeyConstraintBType(keyType, rowType));
         }
 
-        return new BTupleType(tupleMembers);
+        return new BTupleType(tupleMemberTypes);
     }
 
     private BType checkKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {

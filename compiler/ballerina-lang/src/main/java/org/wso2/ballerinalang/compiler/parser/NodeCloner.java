@@ -1844,7 +1844,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTupleTypeNode clone = new BLangTupleTypeNode();
         source.cloneRef = clone;
-        clone.members = cloneList(source.members);
+        clone.memberTypeNodes = cloneList(source.memberTypeNodes);
         clone.restParamType = clone(source.restParamType);
         cloneBLangType(source, clone);
     }

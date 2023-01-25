@@ -401,7 +401,7 @@ types:
       - id: tuple_types_count
         type: s4
       - id: tuple_type_cp_index
-        type: tuple_member
+        type: s4
         repeat: expr
         repeat-expr: tuple_types_count
       - id: has_rest_type
@@ -409,16 +409,6 @@ types:
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
-  tuple_member:
-      seq:
-        - id: name_cp_index
-          type: s4
-        - id: flags
-          type: s8
-        - id: type_cp_index
-          type: s4
-        - id: annotation_attachments_content
-          type: annotation_attachments_content
   type_intersection:
     seq:
       - id: constituent_types_count
@@ -492,8 +482,6 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
-      - id: annotation_attachments_content
-        type: annotation_attachments_content
   record_init_function:
     seq:
       - id: name_cp_index

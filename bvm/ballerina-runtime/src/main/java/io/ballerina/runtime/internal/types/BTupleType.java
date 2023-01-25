@@ -17,7 +17,6 @@
 
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
@@ -38,7 +37,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.995.0
  */
-public class BTupleType extends BAnnotatableType implements TupleType {
+public class BTupleType extends BType implements TupleType {
 
     private List<Type> tupleTypes;
     private Type restType;
@@ -291,10 +290,5 @@ public class BTupleType extends BAnnotatableType implements TupleType {
     @Override
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
-    }
-
-    @Override
-    public String getAnnotationKey() {
-        return Utils.decodeIdentifier(this.typeName);
     }
 }

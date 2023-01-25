@@ -96,25 +96,15 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_TYPE_DESC"
-                                              ]
-                                            }
+                                          "diagnostics": [
+                                            "ERROR_MISSING_TYPE_DESC"
                                           ]
                                         }
                                       ]
@@ -135,22 +125,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "MEMBER_TYPE_DESC",
+                                      "kind": "SINGLETON_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "SINGLETON_TYPE_DESC",
+                                          "kind": "BOOLEAN_LITERAL",
                                           "children": [
                                             {
-                                              "kind": "BOOLEAN_LITERAL",
-                                              "children": [
-                                                {
-                                                  "kind": "FALSE_KEYWORD"
-                                                }
-                                              ]
+                                              "kind": "FALSE_KEYWORD"
                                             }
                                           ]
                                         }

@@ -308,37 +308,28 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "ARRAY_TYPE_DESC",
+                                      "kind": "SIMPLE_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "Foo"
-                                            }
-                                          ]
-                                        },
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "Foo"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
                                         {
-                                          "kind": "LIST",
+                                          "kind": "ARRAY_DIMENSION",
                                           "children": [
                                             {
-                                              "kind": "ARRAY_DIMENSION",
-                                              "children": [
-                                                {
-                                                  "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "CLOSE_BRACKET_TOKEN"
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         }
@@ -356,20 +347,11 @@
                                   ]
                                 },
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "LIST",
-                                      "children": []
-                                    },
-                                    {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "Bar"
-                                        }
-                                      ]
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "Bar"
                                     }
                                   ]
                                 }
@@ -544,37 +526,28 @@
                                       "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
+                                          "kind": "ARRAY_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "ARRAY_TYPE_DESC",
+                                              "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [
                                                 {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "Foo"
-                                                    }
-                                                  ]
-                                                },
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "Foo"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "LIST",
+                                              "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "ARRAY_DIMENSION",
                                                   "children": [
                                                     {
-                                                      "kind": "ARRAY_DIMENSION",
-                                                      "children": [
-                                                        {
-                                                          "kind": "OPEN_BRACKET_TOKEN"
-                                                        },
-                                                        {
-                                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                                        }
-                                                      ]
+                                                      "kind": "OPEN_BRACKET_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACKET_TOKEN"
                                                     }
                                                   ]
                                                 }
@@ -592,20 +565,11 @@
                                           ]
                                         },
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "Bar"
-                                                }
-                                              ]
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "Bar"
                                             }
                                           ]
                                         }

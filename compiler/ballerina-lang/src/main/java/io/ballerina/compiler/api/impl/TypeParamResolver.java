@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -216,16 +215,15 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        List<BTupleMember> newTupleMembers = new ArrayList<>();
+        List<BType> newTupleTypes = new ArrayList<>();
 
-        List<BTupleMember> tupleMembers = typeInSymbol.getMembers();
+        List<BType> tupleTypes = typeInSymbol.tupleTypes;
         boolean areAllSameType = true;
 
-        for (BTupleMember tupleMember : tupleMembers) {
-            BType newType = resolve(tupleMember.type, boundType);
-            areAllSameType &= newType == tupleMember.type;
-            BVarSymbol varSymbol = createNewVarSymbol(tupleMember.symbol, newType);
-            newTupleMembers.add(new BTupleMember(newType, varSymbol));
+        for (BType type : tupleTypes) {
+            BType newType = resolve(type, boundType);
+            areAllSameType &= newType == type;
+            newTupleTypes.add(newType);
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
@@ -234,7 +232,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
+        return new BTupleType(typeInSymbol.tsymbol, newTupleTypes, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 

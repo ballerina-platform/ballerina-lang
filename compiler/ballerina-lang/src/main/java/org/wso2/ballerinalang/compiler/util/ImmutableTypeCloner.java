@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -51,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -404,7 +402,7 @@ public class ImmutableTypeCloner {
                                                               Names names, Set<BType> unresolvedTypes,
                                                               BTupleType type) {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
-        List<BTupleMember> origTupleMembers = type.getMembers();
+        List<BType> origTupleMemTypes = type.tupleTypes;
 
         Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, pkgId, type);
         if (immutableType.isPresent()) {
@@ -414,11 +412,11 @@ public class ImmutableTypeCloner {
                     type, new BTupleType(origTupleTypeSymbol), symTable));
         }
 
-        List<BTupleMember> immutableMemTypes = new ArrayList<>(origTupleMembers.size());
+        List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
         BTupleType tupleEffectiveImmutableType =
                 (BTupleType) Types.getImmutableType(symTable, pkgId, type).get().effectiveType;
         tupleEffectiveImmutableType.isCyclic = type.isCyclic;
-        tupleEffectiveImmutableType.setMembers(immutableMemTypes);
+        tupleEffectiveImmutableType.setMemberTypes(immutableMemTypes);
 
         String originalTypeName = origTupleTypeSymbol == null ? "" : origTupleTypeSymbol.name.getValue();
         Name origTupleTypeSymbolName = Names.EMPTY;
@@ -428,19 +426,16 @@ public class ImmutableTypeCloner {
             tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
         }
 
-        for (BTupleMember origTupleMemType : origTupleMembers) {
-            if (types.isInherentlyImmutableType(origTupleMemType.type)) {
+        for (BType origTupleMemType : origTupleMemTypes) {
+            if (types.isInherentlyImmutableType(origTupleMemType)) {
                 tupleEffectiveImmutableType.addMembers(origTupleMemType);
                 continue;
             }
-            if (!types.isSelectivelyImmutableType(origTupleMemType.type, unresolvedTypes, pkgId)) {
+            if (!types.isSelectivelyImmutableType(origTupleMemType, unresolvedTypes, pkgId)) {
                 continue;
             }
-            BType newType = getImmutableType(pos, types, origTupleMemType.type, env,
-                    pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
-            BTupleMember member = new BTupleMember(newType, varSymbol);
-            tupleEffectiveImmutableType.addMembers(member);
+            tupleEffectiveImmutableType.addMembers(getImmutableType(pos, types, origTupleMemType, env,
+                    pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes));
         }
 
         if (type.restType != null) {

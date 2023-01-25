@@ -115,20 +115,11 @@
                                           "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "MEMBER_TYPE_DESC",
+                                              "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                },
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "a"
-                                                    }
-                                                  ]
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "a"
                                                 }
                                               ]
                                             }

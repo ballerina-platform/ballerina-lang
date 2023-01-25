@@ -807,19 +807,10 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "MEMBER_TYPE_DESC",
+                          "kind": "INT_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "INT_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "INT_KEYWORD"
-                                }
-                              ]
+                              "kind": "INT_KEYWORD"
                             }
                           ]
                         },
@@ -833,19 +824,10 @@
                           ]
                         },
                         {
-                          "kind": "MEMBER_TYPE_DESC",
+                          "kind": "STRING_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "LIST",
-                              "children": []
-                            },
-                            {
-                              "kind": "STRING_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "STRING_KEYWORD"
-                                }
-                              ]
+                              "kind": "STRING_KEYWORD"
                             }
                           ]
                         }
@@ -960,19 +942,10 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "MEMBER_TYPE_DESC",
+                              "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "INT_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "INT_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "INT_KEYWORD"
                                 }
                               ]
                             },
@@ -2384,19 +2357,10 @@
                                       "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
+                                          "kind": "INT_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "INT_TYPE_DESC",
-                                              "children": [
-                                                {
-                                                  "kind": "INT_KEYWORD"
-                                                }
-                                              ]
+                                              "kind": "INT_KEYWORD"
                                             }
                                           ]
                                         },
@@ -2410,19 +2374,10 @@
                                           ]
                                         },
                                         {
-                                          "kind": "MEMBER_TYPE_DESC",
+                                          "kind": "STRING_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "LIST",
-                                              "children": []
-                                            },
-                                            {
-                                              "kind": "STRING_TYPE_DESC",
-                                              "children": [
-                                                {
-                                                  "kind": "STRING_KEYWORD"
-                                                }
-                                              ]
+                                              "kind": "STRING_KEYWORD"
                                             }
                                           ]
                                         }
@@ -2542,19 +2497,10 @@
                                           "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "MEMBER_TYPE_DESC",
+                                              "kind": "INT_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                },
-                                                {
-                                                  "kind": "INT_TYPE_DESC",
-                                                  "children": [
-                                                    {
-                                                      "kind": "INT_KEYWORD"
-                                                    }
-                                                  ]
+                                                  "kind": "INT_KEYWORD"
                                                 }
                                               ]
                                             },

@@ -91,19 +91,10 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "MEMBER_TYPE_DESC",
+                              "kind": "INT_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "INT_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "INT_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "INT_KEYWORD"
                                 }
                               ]
                             },
@@ -117,23 +108,14 @@
                               ]
                             },
                             {
-                              "kind": "MEMBER_TYPE_DESC",
+                              "kind": "STRING_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "STRING_TYPE_DESC",
-                                  "children": [
+                                  "kind": "STRING_KEYWORD",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "STRING_KEYWORD",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
                                 }
@@ -148,19 +130,10 @@
                               ]
                             },
                             {
-                              "kind": "MEMBER_TYPE_DESC",
+                              "kind": "FLOAT_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "FLOAT_TYPE_DESC",
-                                  "children": [
-                                    {
-                                      "kind": "FLOAT_KEYWORD"
-                                    }
-                                  ]
+                                  "kind": "FLOAT_KEYWORD"
                                 }
                               ]
                             }
