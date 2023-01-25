@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 6,
+    "character": 4
+  },
+  "source": "createVariableForOptionalFieldAccess1.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 4
+            }
+          },
+          "newText": "int? unionResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableForOptionalFieldAccess1.bal",
+          {
+            "line": 6,
+            "character": 9
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

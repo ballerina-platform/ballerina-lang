@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
  * @since v0.964.0
  */
 public class CommandConstants {
+
     public static final String UNDEFINED_MODULE = "undefined module";
     public static final String UNDEFINED_FUNCTION = "undefined function";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
@@ -78,7 +79,7 @@ public class CommandConstants {
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import module '%s'";
-    
+
     public static final String CHANGE_MODULE_PREFIX_TITLE = "Change module prefix to '%s'";
 
     public static final String CREATE_VARIABLE_TITLE = "Create variable";
@@ -110,7 +111,7 @@ public class CommandConstants {
     public static final String ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE = "Add type cast to '%s'";
 
     public static final String CHANGE_VAR_TYPE_TITLE = "Change variable '%s' type to '%s'";
-    
+
     public static final String CHANGE_CONST_TYPE_TITLE = "Change constant '%s' type to '%s'";
 
     public static final String CHANGE_PARAM_TYPE_TITLE = "Change parameter '%s' type to '%s'";
@@ -134,7 +135,7 @@ public class CommandConstants {
     public static final String IMPLEMENT_FUNCS_TITLE = "Implement method '%s'";
 
     public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize all imports";
-    
+
     public static final String REMOVE_ALL_UNUSED_IMPORTS = "Remove all unused imports";
 
     public static final String REMOVE_UNUSED_IMPORT = "Remove unused import '%s'";
@@ -142,18 +143,18 @@ public class CommandConstants {
     public static final String REMOVE_REDECLARED_IMPORT = "Remove re-declared import '%s'";
 
     public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
-    
+
     public static final String CONVERT_FUNCTION_TO_PUBLIC = "Convert to public function";
-    
+
     public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
 
     public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
 
-    public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION = 
+    public static final String CONVERT_MODULE_VAR_TO_LISTENER_DECLARATION =
             "Convert module variable '%s' to listener declaration";
 
     public static final String CONVERT_TO_READONLY_CLONE = "Convert to Readonly Clone";
-    
+
     public static final String ADD_EXPLICIT_RETURN_STATEMENT = "Add Explicit Return Statement";
 
     public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
@@ -181,7 +182,16 @@ public class CommandConstants {
     public static final String GENERATE_MODULE_FOR_CLIENT_DECLARATION_TITLE = "Generate module for client declaration";
 
     public static final String FILL_REQUIRED_FIELDS = "Fill '%s' required fields";
-    
+
     public static final String CHANGE_TO_SUBTYPE_OF_RAW_TEMPLATE_TITLE = "Convert to '%s' template";
-    
+
+    public static final String RENAME_COMMAND = "ballerina.action.rename";
+
+    public static final String POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
+
+    public static final String RENAME_COMMAND_TITLE_FOR_VARIABLE = "Rename variable";
+
+    public static final String RENAME_COMMAND_TITLE_FOR_CONSTANT = "Rename constant";
+
+    public static final String RENAME_COMMAND_TITLE_FOR_FUNCTION = "Rename function";
 }

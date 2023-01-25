@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_if_else_stmt_with_if_and_else.bal",
+  "description": "Extract to function for if else statements, checks when if and else both blocks present",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(boolean bool) returns int {\n    int localVar \u003d 10;\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted(boolean bool) returns int {\n    int localVar = 10;\n    return localVar;\n}"
         },
         {
           "range": {
@@ -39,10 +40,21 @@
               "character": 22
             }
           },
-          "newText": "int localVar \u003d extracted(bool);"
+          "newText": "int localVar = extracted(bool);"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_if_else_stmt_with_if_and_else.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for if else statements, checks when if and else both blocks present"
+  ]
 }

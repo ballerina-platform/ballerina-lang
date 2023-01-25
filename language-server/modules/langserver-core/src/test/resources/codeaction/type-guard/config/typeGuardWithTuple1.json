@@ -36,14 +36,6 @@
           "newText": "\n    if tuple is [int, string...] {\n\n    }"
         }
       ],
-      "command": {
-        "title": "Rename Variable",
-        "command": "ballerina.action.rename",
-        "arguments": [
-          "typeGuardWithTuple1.bal",
-          52
-        ]
-      },
       "resolvable": false
     }
   ]

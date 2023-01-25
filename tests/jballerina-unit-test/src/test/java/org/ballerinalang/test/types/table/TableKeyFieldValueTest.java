@@ -18,9 +18,11 @@
 
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,6 +34,8 @@ import org.testng.annotations.Test;
  */
 public class TableKeyFieldValueTest {
     private CompileResult result;
+    private static final String DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE = "using default values of " +
+            "record fields for table key fields is not yet supported";
 
     @BeforeClass
     public void setup() {
@@ -67,5 +71,29 @@ public class TableKeyFieldValueTest {
                 "testGroupExprAsKeyValue",
                 "testKeyCollision"
         };
+    }
+
+    @Test
+    public void testDuplicateKeysInTableConstructorExpr() {
+        CompileResult negativeResult = BCompileUtil
+                .compile("test-src/types/table/table_key_field_value_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                50, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                55, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                60, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                65, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                70, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                75, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                76, 9);
+        BAssertUtil.validateError(negativeResult, index++, DEFAULT_VALUES_FOR_TABLE_KEY_NOT_SUPPORTED_ERROR_MESSAGE,
+                77, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
