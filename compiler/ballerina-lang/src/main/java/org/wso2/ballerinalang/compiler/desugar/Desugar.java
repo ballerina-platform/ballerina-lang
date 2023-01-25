@@ -3859,21 +3859,30 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempCastVarRef = ASTBuilderUtil.createVariableRef(pos,
                 tempCastVarDef.var.symbol);
         blockStmt.addStatement(tempCastVarDef);
-        BLangExpression condition = createConditionForListMemberPattern(0, bindingPatterns.get(0),
-                tempCastVarDef, blockStmt, memberTupleTypes.get(0), pos);
-
-        for (int i = 1; i < bindingPatterns.size(); i++) {
-            BLangExpression memberPatternCondition = createConditionForListMemberPattern(i,
-                    bindingPatterns.get(i), tempCastVarDef, blockStmt, memberTupleTypes.get(i), pos);
-
-            condition = ASTBuilderUtil.createBinaryExpr(pos, condition, memberPatternCondition,
-                    symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
-                            .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType,
-                                    symTable.booleanType));
-        }
 
         BLangBlockStmt tempBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
         tempBlockStmt.addStatement(successResult);
+        
+        if (!bindingPatterns.isEmpty()) {
+            BLangExpression condition = createConditionForListMemberPattern(0, bindingPatterns.get(0),
+                    tempCastVarDef, blockStmt, memberTupleTypes.get(0), pos);
+
+            for (int i = 1; i < bindingPatterns.size(); i++) {
+                BLangExpression memberPatternCondition = createConditionForListMemberPattern(i,
+                        bindingPatterns.get(i), tempCastVarDef, blockStmt, memberTupleTypes.get(i), pos);
+
+                condition = ASTBuilderUtil.createBinaryExpr(pos, condition, memberPatternCondition,
+                        symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
+                                .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType,
+                                        symTable.booleanType));
+            }
+
+            BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
+            blockStmt.addStatement(ifStmtForMatchPatterns);
+        } else {
+            blockStmt.addStatement(tempBlockStmt);
+        }
+        
         if (listBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = listBindingPattern.restBindingPattern;
             BLangSimpleVarRef restBindingPatternVarRef =
@@ -3883,10 +3892,6 @@ public class Desugar extends BLangNodeVisitor {
                             new ArrayList<>(Arrays.asList(new BLangLiteral((long) bindingPatterns.size(),
                                     symTable.intType))), null, pos)));
         }
-
-        BLangIf ifStmtForMatchPatterns = ASTBuilderUtil.createIfElseStmt(pos, condition, tempBlockStmt, null);
-        blockStmt.addStatement(ifStmtForMatchPatterns);
-
         BLangStatementExpression statementExpression = ASTBuilderUtil.createStatementExpression(blockStmt,
                 resultVarRef);
         statementExpression.setBType(symTable.booleanType);
