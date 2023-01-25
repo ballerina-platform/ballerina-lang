@@ -1229,7 +1229,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                       AnalyzerData data) {
         if (tableConstructorExpr.tableKeySpecifier != null) {
             if (!(validateTableKeyValue(getTableKeyNameList(tableConstructorExpr.
-                    tableKeySpecifier), tableConstructorExpr.recordLiteralList, data))) {
+                    tableKeySpecifier), tableConstructorExpr.recordLiteralList, tableType.constraint, data))) {
                 data.resultType = symTable.semanticError;
                 return true;
             }
@@ -1459,28 +1459,38 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                          List<BLangRecordLiteral> recordLiterals, AnalyzerData data) {
         List<String> fieldNameList = tableType.fieldNameList;
         if (!fieldNameList.isEmpty()) {
-            return validateTableKeyValue(fieldNameList, recordLiterals, data);
+            return validateTableKeyValue(fieldNameList, recordLiterals, tableType.constraint, data);
         }
         return true;
     }
 
-    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames,
-                                                           List<BLangRecordLiteral> recordLiterals, AnalyzerData data) {
-
-        for (String fieldName : keySpecifierFieldNames) {
-            for (BLangRecordLiteral recordLiteral : recordLiterals) {
-                BLangExpression recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+    private boolean validateTableKeyValue(List<String> keySpecifierFieldNames, List<BLangRecordLiteral> rows,
+                                          BType constraint, AnalyzerData data) {
+        for (BLangRecordLiteral row : rows) {
+            for (String fieldName : keySpecifierFieldNames) {
+                BField field = types.getTableConstraintField(constraint, fieldName);
+                BLangExpression recordKeyValueField = getRecordKeyValueField(row, fieldName);
                 if (recordKeyValueField != null && isConstExpression(recordKeyValueField)) {
                     continue;
                 }
 
-                dlog.error(recordLiteral.pos,
-                        DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                if (recordKeyValueField == null && isFieldWithDefaultValue(field)) {
+                    dlog.error(row.pos,
+                            DiagnosticErrorCode.UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER);
+                } else {
+                    dlog.error(row.pos,
+                            DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
+                }
                 data.resultType = symTable.semanticError;
             }
         }
 
         return data.resultType != symTable.semanticError;
+    }
+
+    private boolean isFieldWithDefaultValue(BField field) {
+        long flags = field.symbol.flags;
+        return !Symbols.isFlagOn(flags, Flags.REQUIRED) && !Symbols.isFlagOn(flags, Flags.OPTIONAL);
     }
 
     private boolean isConstExpression(BLangExpression expression) {
@@ -1543,7 +1553,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return true;
             }
 
-            if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 dlog.error(pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName);
                 return true;
