@@ -235,9 +235,7 @@ public class Symbols {
     }
 
     public static BVarSymbol createVarSymbolForTupleMember(BType type) {
-        BTypeSymbol tsymbol = type.tsymbol;
-        return new BVarSymbol(type.flags, tsymbol.name, tsymbol.pkgID, type, tsymbol.owner,
-                tsymbol.pos, tsymbol.origin);
+        return new BVarSymbol(0, null, null, type, null, null, null);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
