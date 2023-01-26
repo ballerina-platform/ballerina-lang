@@ -48,10 +48,10 @@ public class Messages {
             "module by the name: ";
 
     private static final String CANT_ALLOW_BOTH_MODULE_AND_FILE_OPTIONS =
-            "too many options: either use module option or file option";
+            "using '--module' and '--file' options at the same time is not allowed in selective formatting.";
 
     private static final String CANT_ALLOW_MODULE_OR_FILE_OPTIONS =
-            "too many options: single file projects cannot accept module or file option";
+            "the '--module' and '--file' options are not allowed in single file projects";
 
     private static final String NO_CHANGES = "no changes.";
 
