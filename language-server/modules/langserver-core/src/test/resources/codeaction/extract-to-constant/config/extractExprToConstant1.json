@@ -36,6 +36,17 @@
           "newText": "CONST"
         }
       ],
+      "command": {
+        "title": "Rename constant",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConstant.bal",
+          {
+            "line": 8,
+            "character": 18
+          }
+        ]
+      },
       "resolvable": false
     }
   ]

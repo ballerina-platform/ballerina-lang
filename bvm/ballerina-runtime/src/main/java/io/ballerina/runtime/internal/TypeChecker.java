@@ -584,14 +584,6 @@ public class TypeChecker {
      * @param annotTag          The annot-tag-reference
      * @return the annotation value if present, nil else
      */
-    public static Object getAnnotValue(TypedescValue typedescValue, String annotTag) {
-        Type describingType = typedescValue.getDescribingType();
-        if (!(describingType instanceof BAnnotatableType)) {
-            return null;
-        }
-        return ((BAnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
-    }
-
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
         Type describingType = typedescValue.getDescribingType();
         if (!(describingType instanceof BAnnotatableType)) {
@@ -1875,16 +1867,16 @@ public class TypeChecker {
             return Optional.empty();
         }
 
-        List<Type> lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).resourcePathType.getTupleTypes();
-        List<Type> rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).resourcePathType.getTupleTypes();
+        Type[] lhsFuncResourcePathTypes = ((BResourceMethodType) lhsFunc).pathSegmentTypes;
+        Type[] rhsFuncResourcePathTypes = ((BResourceMethodType) matchingFunc).pathSegmentTypes;
 
-        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.size();
-        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.size()) {
+        int lhsFuncResourcePathTypesSize = lhsFuncResourcePathTypes.length;
+        if (lhsFuncResourcePathTypesSize != rhsFuncResourcePathTypes.length) {
             return Optional.empty();
         }
 
         for (int i = 0; i < lhsFuncResourcePathTypesSize; i++) {
-            if (!checkIsType(lhsFuncResourcePathTypes.get(i), rhsFuncResourcePathTypes.get(i))) {
+            if (!checkIsType(lhsFuncResourcePathTypes[i], rhsFuncResourcePathTypes[i])) {
                 return Optional.empty();
             }
         }

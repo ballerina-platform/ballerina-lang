@@ -370,7 +370,7 @@
       "label": "fs",
       "kind": "Variable",
       "detail": "future<string>",
-      "sortText": "B",
+      "sortText": "D",
       "insertText": "fs",
       "insertTextFormat": "Snippet"
     },
@@ -386,7 +386,7 @@
       "label": "fs2",
       "kind": "Variable",
       "detail": "future<string>",
-      "sortText": "B",
+      "sortText": "D",
       "insertText": "fs2",
       "insertTextFormat": "Snippet"
     },

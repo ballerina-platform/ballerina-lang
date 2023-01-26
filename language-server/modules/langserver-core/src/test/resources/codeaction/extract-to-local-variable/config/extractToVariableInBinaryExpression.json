@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d length * width;\n    "
+          "newText": "int var1 = length * width;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInBinaryExpression.bal",
+          {
+            "line": 2,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

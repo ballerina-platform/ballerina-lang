@@ -56,10 +56,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.StringJoiner;
 import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
@@ -78,6 +79,7 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
+import static io.ballerina.cli.utils.NativeUtils.getURLList;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
@@ -105,8 +107,25 @@ public class RunNativeImageTestTask implements Task {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    private static class StreamGobbler extends Thread {
+        private InputStream inputStream;
+        private PrintStream printStream;
+
+        public StreamGobbler(InputStream inputStream, PrintStream printStream) {
+            this.inputStream = inputStream;
+            this.printStream = printStream;
+        }
+
+        @Override
+        public void run() {
+            Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8);
+            while (sc.hasNextLine()) {
+                printStream.println(sc.nextLine());
+            }
+        }
+    }
+
     private final PrintStream out;
-    private final PrintStream err;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -117,12 +136,11 @@ public class RunNativeImageTestTask implements Task {
 
     TestReport testReport;
 
-    public RunNativeImageTestTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
+    public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
                                   Map<String, Module> modules, boolean listGroups) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
-        this.err = err;
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -224,20 +242,6 @@ public class RunNativeImageTestTask implements Task {
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
         return cw.toByteArray();
-    }
-
-    private static List<URL> getURLList(List<String> jarFilePaths) {
-        List<URL> urlList = new ArrayList<>();
-
-        for (String jarFilePath : jarFilePaths) {
-            try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
-            } catch (MalformedURLException e) {
-                // This path cannot get executed
-                throw new RuntimeException("Failed to create classloader with all jar files", e);
-            }
-        }
-        return urlList;
     }
 
     //Get all mocked functions in a class
@@ -359,6 +363,7 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
+        int accumulatedTestResult = 0;
         //Execute each testsuite within list one by one
         for (Map<String, TestSuite> testSuiteMap : testSuiteMapEntries) {
             try {
@@ -396,7 +401,9 @@ public class RunNativeImageTestTask implements Task {
                 int testResult = 1;
                 try {
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
-
+                    if (testResult != 0) {
+                        accumulatedTestResult = testResult;
+                    }
                     if (report) {
                         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
                             String moduleName = testSuiteEntry.getKey();
@@ -416,11 +423,6 @@ public class RunNativeImageTestTask implements Task {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-
-                if (testResult != 0) {
-                    TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("there are test failures");
-                }
             }
         }
         if (report && hasTests) {
@@ -430,6 +432,11 @@ public class RunNativeImageTestTask implements Task {
                 TestUtils.cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while generating test report:", e);
             }
+        }
+
+        if (accumulatedTestResult != 0) {
+            TestUtils.cleanTempCache(project, cachesRoot);
+            throw createLauncherException("there are test failures");
         }
 
 
@@ -452,7 +459,7 @@ public class RunNativeImageTestTask implements Task {
         try {
             if (nativeImageCommand == null) {
                 throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                        "environment variable\nHINT: to install GraalVM follow the below link\n" +
+                        "environment variable\nHINT: To install GraalVM, follow the link: " +
                         "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
             }
             nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator
@@ -490,11 +497,12 @@ public class RunNativeImageTestTask implements Task {
 
 
         // set name and path
-        nativeArgs.add("-H:Name=" + packageName);
-        nativeArgs.add("-H:Path=" + nativeTargetPath);
+        nativeArgs.add("-H:Name=" + addQuotationMarkToString(packageName));
+        nativeArgs.add("-H:Path=" + convertWinPathToUnixFormat(addQuotationMarkToString(nativeTargetPath.toString())));
 
         // native-image configs
-        nativeArgs.add("-H:ReflectionConfigurationFiles=" + nativeConfigPath.resolve("reflect-config.json"));
+        nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
+                    nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
@@ -505,11 +513,12 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException("error while generating the necessary graalvm argument file", e);
         }
 
-        ProcessBuilder builder = new ProcessBuilder();
+        ProcessBuilder builder = (new ProcessBuilder()).redirectErrorStream(true);
         builder.command(cmdArgs.toArray(new String[0]));
         Process process = builder.start();
-        IOUtils.copy(process.getInputStream(), out);
-        IOUtils.copy(process.getErrorStream(), err);
+        StreamGobbler outputGobbler =
+                new StreamGobbler(process.getInputStream(), out);
+        outputGobbler.start();
 
         if (process.waitFor() == 0) {
             cmdArgs = new ArrayList<>();
@@ -530,13 +539,26 @@ public class RunNativeImageTestTask implements Task {
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();
-            IOUtils.copy(process.getInputStream(), out);
-            IOUtils.copy(process.getErrorStream(), err);
+            outputGobbler =
+                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler.start();
             return process.waitFor();
         } else {
             return 1;
         }
     }
+
+    private String addQuotationMarkToString(String word) {
+        return "\"" + word + "\"";
+    }
+
+    private String convertWinPathToUnixFormat(String path) {
+        if (OS.contains("win")) {
+            path = path.replace("\\", "/");
+        }
+        return path;
+    }
+
 
     private void validateResourcesWithinJar(Map<String, TestSuite> testSuiteMap, String packageName)
             throws IOException {
@@ -573,6 +595,8 @@ public class RunNativeImageTestTask implements Task {
 
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+        dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
+                        .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().forEach(classPath::add);
