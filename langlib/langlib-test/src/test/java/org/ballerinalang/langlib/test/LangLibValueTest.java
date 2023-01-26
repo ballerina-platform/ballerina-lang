@@ -440,7 +440,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeWithTypeReferences" },
                 { "testFromJsonWithTypeNestedRecordsNegative" },
                 { "testFromJsonWithTypeOnRegExp" },
-                { "testFromJsonWithTypeOnRegExpNegative" }
+                { "testFromJsonWithTypeOnRegExpNegative" },
+                {"testFromJsonWithTypeToUnionOfTypeReference"}
         };
     }
 
