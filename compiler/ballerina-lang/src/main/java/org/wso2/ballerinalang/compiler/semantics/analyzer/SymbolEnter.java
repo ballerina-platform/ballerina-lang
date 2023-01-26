@@ -2721,15 +2721,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                     break;
                 }
 
-                int possibleTypeTag = Types.getReferredType(possibleTypes.get(0)).tag;
+                BType possibleType = Types.getReferredType(possibleTypes.get(0));
+                int possibleTypeTag = possibleType.tag;
                 if (possibleTypeTag == TypeTags.RECORD) {
-                    recordVarType = (BRecordType) possibleTypes.get(0);
+                    recordVarType = (BRecordType) possibleType;
                     break;
                 }
 
                 if (possibleTypeTag == TypeTags.MAP) {
                     recordVarType = createSameTypedFieldsRecordType(recordVar,
-                            ((BMapType) possibleTypes.get(0)).constraint, env);
+                            ((BMapType) possibleType).constraint, env);
                     break;
                 }
 
