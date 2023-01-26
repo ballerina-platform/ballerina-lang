@@ -2426,7 +2426,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         BSymbol symbol = ((BLangVariableReference) varRef).symbol;
-        if (this.possibleFailureReached) {
+        if (this.possibleFailureReached && this.uninitializedVars.containsKey(symbol)) {
             this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
         } else {
             this.uninitializedVars.remove(symbol);

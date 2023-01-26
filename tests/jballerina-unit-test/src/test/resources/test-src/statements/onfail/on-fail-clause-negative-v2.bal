@@ -195,3 +195,21 @@ function testUnInitVars7() {
 function getErrorOrNil() returns error? {
     return getError();
 }
+
+function testUnInitVars8(int[] data) returns string {
+    string str1 = "";
+    string str2;
+    foreach var i in data {
+        if(i < 0) {
+            check getErrorOrNil();
+            str1 = "partial init";
+            str2 = "partial init";
+        }
+    } on fail {
+        str1 += "-> error caught. Hence value returning";
+        return str1;
+    }
+    str2 += "-> reached end";
+    return str1;
+}
+
