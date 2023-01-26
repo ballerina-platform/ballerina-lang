@@ -104,10 +104,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_JAVA_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
@@ -120,7 +122,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.OBJECT_ARRAY_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
@@ -216,12 +217,12 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.TRANSACTION);
     }
 
-    private static boolean isLangModule(PackageID moduleId) {
+    public static boolean isLangModule(PackageID moduleId) {
 
         if (!BALLERINA.equals(moduleId.orgName.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 || moduleId.name.equals(Names.JAVA);
+        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 || moduleId.name.value.equals(ENCODED_JAVA_MODULE);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
@@ -415,13 +416,10 @@ public class JvmPackageGen {
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
-                if (mainFunc != null) {
-                    mainMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
-                }
+                initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports, jvmCastGen);
 
                 generateLockForVariable(cw);
-                visitMainArgsField(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
                 ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
@@ -452,10 +450,6 @@ public class JvmPackageGen {
         });
     }
 
-    private static void visitMainArgsField(ClassWriter cw) {
-        FieldVisitor fv = cw.visitField(ACC_PUBLIC | ACC_STATIC, "mainArgs", OBJECT_ARRAY_PARAMETER, null, null);
-        fv.visitEnd();
-    }
 
     private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {
         dependentModuleArray.addAll(dependentModules);
@@ -824,7 +818,7 @@ public class JvmPackageGen {
     private BIRNode.BIRFunction getMainFunc(List<BIRNode.BIRFunction> funcs) {
         BIRNode.BIRFunction userMainFunc = null;
         for (BIRNode.BIRFunction func : funcs) {
-            if (func != null && func.name.value.equals("main")) {
+            if (func != null && func.name.value.equals(MAIN_METHOD)) {
                 userMainFunc = func;
                 break;
             }

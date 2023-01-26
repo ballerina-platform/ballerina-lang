@@ -330,6 +330,7 @@ public class JvmConstants {
     public static final String MODULE_STOP_METHOD = "$moduleStop";
 
     public static final String MODULE_EXECUTE_METHOD = "$moduleExecute";
+    public static final String MAIN_METHOD = "main";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";
@@ -340,6 +341,7 @@ public class JvmConstants {
     public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final String ENCODED_JAVA_MODULE = "jballerina$0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
