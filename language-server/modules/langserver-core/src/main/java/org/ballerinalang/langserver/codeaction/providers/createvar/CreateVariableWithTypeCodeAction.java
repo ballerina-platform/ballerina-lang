@@ -155,6 +155,7 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         for (String type : types) {
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
+            renamePositions.add(type.length() + 1);
         }
         return new CreateVariableCodeAction.CreateVariableOut(name, types, edits,
                 importsAcceptor.getNewImportTextEdits(), renamePositions);
