@@ -384,10 +384,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return expr.getBType();
         }
 
-//        if (expType.tag == TypeTags.INTERSECTION) {
-//            expType = ((BIntersectionType) expType).effectiveType;
-//        }
-
         SymbolEnv prevEnv = data.env;
         BType preExpType = data.expType;
         DiagnosticCode preDiagCode = data.diagCode;
@@ -399,11 +395,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         expr.expectedType = expType;
 
         expr.accept(this, data);
-//
-//        BType resultRefType = Types.getReferredType(data.resultType);
-//        if (resultRefType.tag == TypeTags.INTERSECTION) {
-//            data.resultType = ((BIntersectionType) resultRefType).effectiveType;
-//        }
 
         expr.setTypeCheckedType(data.resultType);
         expr.typeChecked = data.isTypeChecked;
@@ -7925,7 +7916,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return true;
         }
 
-        targetType = Types.getEffectiveType(Types.getReferredType(targetType));
+        targetType = Types.getReferredType(targetType);
         int tag = targetType.tag;
 
         if (tag == TypeTags.OBJECT) {
@@ -7937,7 +7928,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-            memberType = Types.getEffectiveType(Types.getReferredType(memberType));
+            memberType = Types.getReferredType(memberType);
             if (memberType.tag == TypeTags.OBJECT && isAllObjectsObjectType((BObjectType) memberType)) {
                 return false;
             }

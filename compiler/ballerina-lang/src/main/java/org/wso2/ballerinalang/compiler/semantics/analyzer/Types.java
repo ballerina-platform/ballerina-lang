@@ -1921,45 +1921,20 @@ public class Types {
             collectionType = constraint;
             constraint = getReferredType(((BXMLType) collectionType).constraint);
         }
+
         switch (constraint.tag) {
             case TypeTags.XML_ELEMENT:
-                return symTable.xmlElementType;
             case TypeTags.XML_COMMENT:
-                return symTable.xmlCommentType;
             case TypeTags.XML_TEXT:
-                return symTable.xmlTextType;
             case TypeTags.XML_PI:
-                return symTable.xmlPIType;
             case TypeTags.NEVER:
-                return symTable.neverType;
-            case TypeTags.INTERSECTION:
-                return getReferredType(((BIntersectionType) constraint).getEffectiveType());
+                return constraint;
             case TypeTags.UNION:
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                 Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                if (collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)) {
-                    return symTable.xmlType;
-                } else {
-                    LinkedHashSet<BType> collectionTypesInSymTable = new LinkedHashSet<>();
-                    for (BType subType : collectionTypes) {
-                        switch (subType.tag) {
-                            case TypeTags.XML_ELEMENT:
-                                collectionTypesInSymTable.add(symTable.xmlElementType);
-                                break;
-                            case TypeTags.XML_COMMENT:
-                                collectionTypesInSymTable.add(symTable.xmlCommentType);
-                                break;
-                            case TypeTags.XML_TEXT:
-                                collectionTypesInSymTable.add(symTable.xmlTextType);
-                                break;
-                            case TypeTags.XML_PI:
-                                collectionTypesInSymTable.add(symTable.xmlPIType);
-                                break;
-                        }
-                    }
-                    return BUnionType.create(null, collectionTypesInSymTable);
-                }
+                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)?
+                        collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
         }
