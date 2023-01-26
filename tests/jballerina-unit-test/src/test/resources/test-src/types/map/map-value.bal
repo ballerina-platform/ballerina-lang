@@ -1,14 +1,6 @@
-public type Animal Mat;
+public type Animals Map;
 
-public type Mat map<string>;
-
-function testUpdateMapValue() {
-    Animal animals = {};
-    foreach var [name, age] in [["animal1", "Cat"], ["animal2", "Dog"]] {
-        animals[name] = age;
-    }
-    assertEquality({"animal1":"Cat", "animal2":"Dog"}, animals);
-}
+public type Map map<string>;
 
 function testMapWithAny() returns (string) {
     map<any> animals;
@@ -84,6 +76,14 @@ function testEcho(string value)returns (string) {
 function testEchoAny(any value)returns (string) {
     string stringVal = <string> value;
     return stringVal;
+}
+
+function testUpdateMapValue() {
+    Animals animals = {};
+    foreach var [name, age] in [["animal1", "Cat"], ["animal2", "Dog"]] {
+        animals[name] = age;
+    }
+    assertEquality({"animal1":"Cat", "animal2":"Dog"}, animals);
 }
 
 function assertEquality(anydata expected, anydata  actual) {

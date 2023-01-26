@@ -150,17 +150,16 @@ public class MapUtils {
             case TypeTags.MAP_TAG:
                 handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
                 mapValue.put(fieldName, value);
-                break;
+                return;
             case TypeTags.RECORD_TYPE_TAG:
                 if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
                     mapValue.put(fieldName, value);
-                } else {
-                    mapValue.remove(fieldName);
+                    return;
                 }
-                break;
+                mapValue.remove(fieldName);
+                return;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 updateMapValue(((BTypeReferenceType) mapType).getReferredType(), mapValue, fieldName, value);
-                break;
         }
     }
 }
