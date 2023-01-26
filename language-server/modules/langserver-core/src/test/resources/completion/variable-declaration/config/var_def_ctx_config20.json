@@ -4,6 +4,7 @@
     "character": 17
   },
   "source": "variable-declaration/source/var_def_ctx_source20.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -502,25 +503,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getStr",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "F",
-      "filterText": "getStr",
-      "insertText": "getStr",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "getStr(int a)",
       "kind": "Function",
       "detail": "string",
@@ -538,21 +520,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "main",
-      "kind": "Variable",
-      "detail": "error?",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `error?`   \n  \n"
-        }
-      },
-      "sortText": "F",
-      "filterText": "main",
-      "insertText": "main",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "main()",
@@ -597,21 +564,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getInt",
-      "kind": "Variable",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "F",
-      "filterText": "getInt",
-      "insertText": "getInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getInt()",
       "kind": "Function",
       "detail": "int",
@@ -627,21 +579,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getStr2",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "F",
-      "filterText": "getStr2",
-      "insertText": "getStr2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getStr2()",
       "kind": "Function",
       "detail": "string",
@@ -654,15 +591,6 @@
       "sortText": "G",
       "filterText": "getStr2",
       "insertText": "getStr2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function (..) {..}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "T",
-      "filterText": "function",
-      "insertText": "function (int i) returns string {\n    return \"\";\n}",
       "insertTextFormat": "Snippet"
     },
     {

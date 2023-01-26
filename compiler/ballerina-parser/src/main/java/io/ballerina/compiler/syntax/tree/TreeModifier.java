@@ -3620,6 +3620,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
+  
+    public MemberTypeDescriptorNode transform(
+            MemberTypeDescriptorNode memberTypeDescriptorNode) {
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(memberTypeDescriptorNode.annotations());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(memberTypeDescriptorNode.typeDescriptor());
+        return memberTypeDescriptorNode.modify(
+                annotations,
+                typeDescriptor);
+    }
 
     // Tokens
 

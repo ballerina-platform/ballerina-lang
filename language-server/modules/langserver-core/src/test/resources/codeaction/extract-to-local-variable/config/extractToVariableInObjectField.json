@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d 40;\n    "
+          "newText": "int var1 = 40;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInFieldAccess.bal",
+          {
+            "line": 12,
+            "character": 22
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

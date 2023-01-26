@@ -220,7 +220,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceFunctionCallEdit), context.fileUri(),
                 CodeActionKind.RefactorExtract);
-
+        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
+                replaceFuncCallStartPos);
         return List.of(codeAction);
     }
 
@@ -386,7 +387,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 replaceFunctionCall);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
                 List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-
+        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
+                replaceEdit.getRange().getStart());
         return List.of(codeAction);
     }
 
@@ -623,11 +625,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     }
 
     private static class ArgListsHolder {
+
         private List<String> extractFunctionArgs;
         private List<String> replaceFunctionCallArgs;
     }
 
     static class ExtractToFunctionTypeFinder extends NodeVisitor {
+
         List<String> symbolNamesList;
         Map<String, NonTerminalNode> nodeList = new LinkedHashMap<>();
 
