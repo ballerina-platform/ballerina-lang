@@ -217,12 +217,15 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
             lhsType = lhsSymbol
                     .map(symbol -> ((RecordFieldSymbol) symbol).typeDescriptor());
         }
+        
+        if (rhsNode == null || lhsNode == null) {
+            return Optional.empty();
+        }
 
         rhsSymbol = semanticModel.symbol(rhsNode);
         rhsType = semanticModel.typeOf(rhsNode);
 
         if (rhsSymbol.isEmpty() || lhsSymbol.isEmpty() || lhsType.isEmpty() || rhsType.isEmpty()
-                || rhsNode == null
                 || rhsSymbol.get().kind() != SymbolKind.VARIABLE && rhsSymbol.get().kind() != SymbolKind.PARAMETER) {
             return Optional.empty();
         }

@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -78,6 +79,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -443,18 +445,38 @@ public class BIRPackageSymbolEnter {
 
                     int resourcePathCount = dataInStream.readInt();
                     List<Name> resourcePath = new ArrayList<>(resourcePathCount);
+                    List<Location> resourcePathSegmentPosList = new ArrayList<>(resourcePathCount);
+                    List<BType> pathSegmentTypeList = new ArrayList<>(resourcePathCount);
                     for (int i = 0; i < resourcePathCount; i++) {
                         resourcePath.add(names.fromString(getStringCPEntryValue(dataInStream)));
+                        resourcePathSegmentPosList.add(readPosition(dataInStream));
+                        pathSegmentTypeList.add(readBType(dataInStream));
                     }
 
                     Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
-                    BTupleType resourcePathType = (BTupleType) readBType(dataInStream);
                     
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName), 
-                            invokableSymbol, funcType, resourcePath, accessor, pathParams, restPathParam,
-                            resourcePathType, symTable.builtinPos);
-                    
-                    ((BStructureTypeSymbol) attachedType.tsymbol).attachedFuncs.add(resourceFunction);
+                            invokableSymbol, funcType, accessor, pathParams, restPathParam, symTable.builtinPos);
+
+                    // If it is a resource function, attached type should be an object
+                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
+                    BResourcePathSegmentSymbol parentResource = null;
+                    for (int i = 0; i < resourcePathCount; i++) {
+                        Name resourcePathSymbolName = resourcePath.get(i);
+                        BType resourcePathSegmentType = pathSegmentTypeList.get(i);
+
+                        BResourcePathSegmentSymbol pathSym = Symbols.createResourcePathSegmentSymbol(
+                                resourcePathSymbolName, env.pkgSymbol.pkgID, resourcePathSegmentType, objectTypeSymbol,
+                                resourcePathSegmentPosList.get(i), parentResource, resourceFunction, COMPILED_SOURCE);
+
+                        objectTypeSymbol.resourcePathSegmentScope.define(pathSym.name, pathSym);
+                        pathSegmentSymbols.add(pathSym);
+                        parentResource = pathSym;
+                    }
+
+                    resourceFunction.pathSegmentSymbols = pathSegmentSymbols;
+                    objectTypeSymbol.attachedFuncs.add(resourceFunction);
                 } else {
                     BAttachedFunction attachedFunc =
                             new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType,
@@ -1005,8 +1027,8 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType t : tupleType.tupleTypes) {
-                    populateParameterizedType(t, paramsMap, invSymbol);
+                for (BType tupleMemberType : tupleType.getTupleTypes()) {
+                    populateParameterizedType(tupleMemberType, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
                 break;
@@ -1214,7 +1236,6 @@ public class BIRPackageSymbolEnter {
 
             // Read the type flags to identify if type reference types are nullable.
             int typeFlags = inputStream.readInt();
-
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
@@ -1285,6 +1306,8 @@ public class BIRPackageSymbolEnter {
                                                               recordSymbol.pkgID, fieldType,
                                                               recordSymbol.scope.owner, symTable.builtinPos,
                                                               COMPILED_SOURCE);
+
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
 
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
@@ -1567,14 +1590,25 @@ public class BIRPackageSymbolEnter {
                                                                            Names.EMPTY, env.pkgSymbol.pkgID, null,
                                                                            env.pkgSymbol.owner, symTable.builtinPos,
                                                                            COMPILED_SOURCE);
-                    BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
-                    bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    List<BTupleMember> tupleMembers = new ArrayList<>(tupleMemberCount);
+                    BSymbol tupleOwner = tupleTypeSymbol.owner;
+                    PackageID tuplePkg = tupleTypeSymbol.pkgID;
+
                     for (int i = 0; i < tupleMemberCount; i++) {
-                        tupleMemberTypes.add(readTypeFromCp());
+                        String index = getStringCPEntryValue(inputStream);
+                        long fieldFlags = inputStream.readLong();
+
+                        BType memberType = readTypeFromCp();
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(index), tuplePkg,
+                                memberType, tupleOwner, symTable.builtinPos, COMPILED_SOURCE);
+
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
+
+                        tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
-                    bTupleType.tupleTypes = tupleMemberTypes;
+                    BTupleType bTupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
+                    bTupleType.flags = flags;
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();

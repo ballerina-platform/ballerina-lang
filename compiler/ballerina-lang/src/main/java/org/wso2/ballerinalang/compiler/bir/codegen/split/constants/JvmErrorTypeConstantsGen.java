@@ -42,6 +42,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR_TYPE_POPULATE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ERROR_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
@@ -55,12 +56,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmErrorTypeConstantsGen {
 
     private final String errorVarConstantsClass;
-    private int constantIndex = 0;
     private JvmErrorTypeGen jvmErrorTypeGen;
     private final ClassWriter cw;
     private MethodVisitor mv;
-    private final List<String> funcNames;
     private final Map<BErrorType, String> errorTypeVarMap;
+    private final List<String> funcNames = new ArrayList<>();
+    private int errorTypeCount = 0;
+    private int methodCount = 1;
+    private int constantIndex = 0;
 
     public JvmErrorTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         errorVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
@@ -68,7 +71,6 @@ public class JvmErrorTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, errorVarConstantsClass);
         mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ERROR_TYPE_INIT_METHOD, "()V", null, null);
-        funcNames = new ArrayList<>();
         errorTypeVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
@@ -87,10 +89,37 @@ public class JvmErrorTypeConstantsGen {
 
     private String generateBErrorInits(BErrorType type) {
         String varName = JvmConstants.ERROR_TYPE_VAR_PREFIX + constantIndex++;
+        if (errorTypeCount % MAX_CONSTANTS_PER_METHOD == 0 && errorTypeCount != 0) {
+            mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
+                    B_ERROR_TYPE_INIT_METHOD + methodCount, "()V", false);
+            genMethodReturn(mv);
+            mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_INIT_METHOD + methodCount++, "()V",
+                    null, null);
+        }
         visitBErrorField(varName);
-        createBErrorType(mv, type, varName);
+        createBErrorType(type, varName);
         genPopulateMethod(type, varName);
+        errorTypeCount++;
         return varName;
+    }
+
+    private void visitErrorTypePopulateInitMethod() {
+        int populateFuncCount = 0;
+        int populateInitMethodCount = 1;
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ERROR_TYPE_POPULATE_METHOD,
+                "()V", null, null);
+        for (String funcName : funcNames) {
+            if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
+                mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass,
+                        B_ERROR_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                genMethodReturn(mv);
+                mv = cw.visitMethod(ACC_STATIC, B_ERROR_TYPE_POPULATE_METHOD + populateInitMethodCount++,
+                        "()V", null, null);
+            }
+            mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, funcName, "()V", false);
+            populateFuncCount++;
+        }
+        genMethodReturn(mv);
     }
 
     private void genPopulateMethod(BErrorType type, String varName) {
@@ -103,10 +132,10 @@ public class JvmErrorTypeConstantsGen {
         genMethodReturn(methodVisitor);
     }
 
-    private void createBErrorType(MethodVisitor mv, BErrorType errorType, String varName) {
+    private void createBErrorType(BErrorType errorType, String varName) {
         jvmErrorTypeGen.createErrorType(mv, errorType, errorType.tsymbol.name.value);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, errorVarConstantsClass, varName,
-                          GET_ERROR_TYPE_IMPL);
+                GET_ERROR_TYPE_IMPL);
     }
 
     private void visitBErrorField(String varName) {
@@ -116,16 +145,12 @@ public class JvmErrorTypeConstantsGen {
 
     public void generateGetBErrorType(MethodVisitor mv, String varName) {
         mv.visitFieldInsn(GETSTATIC, errorVarConstantsClass, varName,
-                          GET_ERROR_TYPE_IMPL);
+                GET_ERROR_TYPE_IMPL);
     }
 
     public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ERROR_TYPE_POPULATE_METHOD, "()V", null, null);
-        for (String funcName : funcNames) {
-            mv.visitMethodInsn(INVOKESTATIC, errorVarConstantsClass, funcName, "()V", false);
-        }
-        genMethodReturn(mv);
+        visitErrorTypePopulateInitMethod();
         cw.visitEnd();
         jarEntries.put(errorVarConstantsClass + ".class", cw.toByteArray());
     }

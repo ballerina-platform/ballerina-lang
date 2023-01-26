@@ -184,3 +184,10 @@ function testListConstructorSpreadOp() {
     int[] y2 = [...x2, 4];
     int[] y3 = [...y1, 5];
 }
+
+function testRegexpExp() {
+    string:RegExp r1 = re `[a-z]`;
+    string:RegExp r2 = re `((c)(d))`;
+    string:RegExp r3 = re `[bB].tt[a-z]*`;
+    string:RegExp r4 = re `[bB].${r3}`;
+}

@@ -15,3 +15,11 @@ function testRemoteMethodCallAction2() {
 function testResourceAccessAction() {
     'client->/["path3"]();
 }
+
+function testRemoteMethodCallWithCheck() returns error? {
+    check 'client->/path3;
+}
+
+function testRemoteMethodCallWithCheck2() returns error? {
+    check 'client->/path4/["pathParam"];
+}

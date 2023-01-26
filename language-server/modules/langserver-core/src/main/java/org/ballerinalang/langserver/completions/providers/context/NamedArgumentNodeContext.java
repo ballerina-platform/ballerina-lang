@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -29,7 +30,6 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -96,9 +96,12 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     @Override
     public void sort(BallerinaCompletionContext context, NamedArgumentNode node,
                      List<LSCompletionItem> completionItems) {
-
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> typeSymbol = node.apply(resolver);
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (typeSymbol.isEmpty()) {
             super.sort(context, node, completionItems);
@@ -114,8 +117,12 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
                                                              NamedArgumentNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> type = node.apply(typeResolver);
+        Optional<TypeSymbol> type = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            type = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (type.isEmpty()) {
             return completionItems;
         }
