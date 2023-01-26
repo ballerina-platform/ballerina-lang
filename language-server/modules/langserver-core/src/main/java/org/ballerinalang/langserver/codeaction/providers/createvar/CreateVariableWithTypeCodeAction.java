@@ -253,14 +253,19 @@ public class CreateVariableWithTypeCodeAction extends CreateVariableCodeAction {
         Optional<ModuleSymbol> module = symbol.getModule();
         if (module.isPresent()) {
             String fqPrefix = "";
-            if (!(ProjectConstants.ANON_ORG.equals(module.get().id().orgName()))) {
-                ModuleID id = module.get().id();
+            ModuleID id = module.get().id();
+            if (!ProjectConstants.ANON_ORG.equals(id.orgName()) && !isLangAnnotationModule(id)) {
                 fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
             }
-            String moduleQualifiedName = fqPrefix + (symbol.getName().isPresent() ? symbol.getName().get() : "");
+            String moduleQualifiedName = fqPrefix + (symbol.getName().isPresent() ? symbol.getName().get()
+                    : getRawType(symbol, context).signature());
             return FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), moduleQualifiedName, context);
         }
         return symbol.signature();
+    }
+
+    private boolean isLangAnnotationModule(ModuleID moduleID) {
+        return moduleID.orgName().equals("ballerina") && moduleID.moduleName().equals("lang.annotations");
     }
 
     private TypeSymbol getRawType(TypeSymbol typeSymbol, CodeActionContext context) {
