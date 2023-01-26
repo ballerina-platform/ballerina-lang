@@ -37,20 +37,20 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TY
  */
 public class Find {
 
-    public static BArray find(BRegexpValue regExp, BString str, int startIndex) {
+    public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        if (matcher.find(startIndex)) {
+        if (matcher.find((int) startIndex)) {
             return RegexUtil.getGroupZeroAsSpan(matcher);
         }
         return null;
     }
 
-    public static BArray findGroups(BRegexpValue regExp, BString str, int startIndex) {
+    public static BArray findGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region(startIndex, str.length());
+        matcher.region((int) startIndex, str.length());
         if (matcher.find()) {
             resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
             if (matcher.groupCount() != 0) {
@@ -66,11 +66,11 @@ public class Find {
         return resultArray;
     }
 
-    public static BArray findAll(BRegexpValue regExp, BString str, int startIndex) {
+    public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region(startIndex, str.length());
+        matcher.region((int) startIndex, str.length());
         while (matcher.find()) {
             resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
         }
@@ -80,10 +80,10 @@ public class Find {
         return resultArray;
     }
 
-    public static BArray findAllGroups(BRegexpValue regExp, BString str, int startIndex) {
+    public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        matcher.region(startIndex, str.length());
+        matcher.region((int) startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
             BArray group = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
@@ -97,11 +97,21 @@ public class Find {
         return groupArray;
     }
 
-    private static void checkIndexWithinRange(BString str, int startIndex) {
+    private static void checkIndexWithinRange(BString str, long startIndex) {
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+
         int strLength = str.length();
-        if (startIndex < 0 || strLength <= startIndex) {
+        if (startIndex < 0) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, strLength);
+                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
+        }
+
+        if (strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }
     }
 }

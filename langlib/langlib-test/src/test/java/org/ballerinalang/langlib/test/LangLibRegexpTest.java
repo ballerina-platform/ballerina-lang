@@ -74,23 +74,36 @@ public class LangLibRegexpTest {
     }
 
     @Test(dataProvider = "negativeRegexpFindIndexProvider")
-    public void testNegativeRegexp(String functionName, int startIndex, int length) {
+    public void testNegativeRegexp(String functionName) {
         Object returns = BRunUtil.invoke(negativeTests, functionName);
         Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0 or greater than input length " +
-                        "'" + length + "'\")");
+                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0\")");
     }
 
     @DataProvider(name = "negativeRegexpFindIndexProvider")
     private Object[][] negativeRegexpFindIndexes() {
         return new Object[][] {
-                {"testNegativeIndexFind", -3, 5},
+                {"testNegativeIndexFind"},
+                {"testNegativeIndexFindAll"},
+                {"testNegativeIndexFindGroups"},
+                {"testNegativeIndexFindAllGroups"},
+        };
+    }
+
+    @Test(dataProvider = "invalidRegexpFindIndexProvider")
+    public void testInvalidRegexp(String functionName, int startIndex, int length) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                "error(\"IndexOutOfRange\",message=\"start index '" + startIndex + "' cannot be greater than input " +
+                        "length '" + length + "'\")");
+    }
+
+    @DataProvider(name = "invalidRegexpFindIndexProvider")
+    private Object[][] invalidRegexpFindIndexes() {
+        return new Object[][] {
                 {"testInvalidIndexFind", 12, 5},
-                {"testNegativeIndexFindAll", -8, 51},
                 {"testInvalidIndexFindAll", 112, 63},
-                {"testNegativeIndexFindGroups", -3, 52},
                 {"testInvalidIndexFindGroups", 97, 52},
-                {"testNegativeIndexFindAllGroups", -4, 31},
                 {"testInvalidIndexFindAllGroups", 123, 31},
         };
     }
