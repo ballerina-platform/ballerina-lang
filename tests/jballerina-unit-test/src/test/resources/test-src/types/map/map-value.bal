@@ -1,3 +1,15 @@
+public type Animal Mat;
+
+public type Mat map<string>;
+
+function testUpdateMapValue() {
+    Animal animals = {};
+    foreach var [name, age] in [["animal1", "Cat"], ["animal2", "Dog"]] {
+        animals[name] = age;
+    }
+    assertEquality({"animal1":"Cat", "animal2":"Dog"}, animals);
+}
+
 function testMapWithAny() returns (string) {
     map<any> animals;
     animals = {"animal1":"Lion", "animal2":"Cat", "animal3":"Leopard", "animal4":"Dog"};
@@ -72,4 +84,11 @@ function testEcho(string value)returns (string) {
 function testEchoAny(any value)returns (string) {
     string stringVal = <string> value;
     return stringVal;
+}
+
+function assertEquality(anydata expected, anydata  actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
