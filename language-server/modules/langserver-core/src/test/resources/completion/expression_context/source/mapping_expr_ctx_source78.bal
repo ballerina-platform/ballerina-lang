@@ -1,16 +1,21 @@
+public type KeyStore record {|
+    string path;
+    string password;
+|};
+
 public type Key record {|
     string privateKey;
     string pubicCert;
 |};
 
 public type SecureSocket record {|
-    Key key;
+    KeyStore|Key key;
     string protocol;
     string auth?;
 |};
 
 public type Config record {|
-    SecureSocket secureSocket?;
+    SecureSocket? secureSocket = ();
     int timeout = 60;
     string 'version = "2.0";
 |};
