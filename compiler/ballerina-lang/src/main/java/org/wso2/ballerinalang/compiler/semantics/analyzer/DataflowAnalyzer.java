@@ -878,8 +878,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.visitingOnFailStmt = true;
         }
         BranchResult doResult = analyzeBranch(blockStmt, env);
-        analyzeOnFailBranch(onFailClause, doResult);
         this.uninitializedVars = doResult.uninitializedVars;
+        analyzeOnFailBranch(onFailClause, doResult);
         this.visitingOnFailStmt = prevVisitingOnFailStmt;
     }
 

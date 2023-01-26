@@ -75,6 +75,7 @@ public class OnFailClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt2' may not have been initialized", 140, 5);
         BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 141, 5);
         BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 159, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'k' may not have been initialized", 174, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

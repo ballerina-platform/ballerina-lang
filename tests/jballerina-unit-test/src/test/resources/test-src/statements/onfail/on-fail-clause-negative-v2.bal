@@ -158,3 +158,40 @@ public function testUnInitVars5() {
     resultInt2 += 1;
     resultInt3 += 1;
 }
+
+function testUnInitVars6() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = 1;
+        check getErrorOrNil();
+        k = 1;
+    } on fail {
+        i += 1;
+        j += 1;
+        k += 1;
+    }
+}
+
+function testUnInitVars7() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = 1;
+        check getErrorOrNil();
+        k = 1;
+    } on fail {
+        k = -1;
+    }
+    i += 1;
+    j += 1;
+    k += 1;
+}
+
+function getErrorOrNil() returns error? {
+    return getError();
+}
