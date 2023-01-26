@@ -731,7 +731,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public MultiKeyWrapper() {
                 super();
                 List<Type> keyTypes = new ArrayList<>();
-                Type constraintType = TypeUtils.getReferredType(type.getConstrainedType());
+                Type constraintType = TypeUtils.getReferredType(tableType.getConstrainedType());
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
                     Arrays.stream(fieldNames)

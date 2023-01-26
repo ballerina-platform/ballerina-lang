@@ -2956,12 +2956,10 @@ public class TypeChecker {
 
     private static boolean checkValueEquals(Object lhsValue, Object rhsValue, List<ValuePair> checkedValues,
                                             Type lhsValType, Type rhsValType) {
+        lhsValType = TypeUtils.getReferredType(lhsValType);
+        rhsValType = TypeUtils.getReferredType(rhsValType);
         int lhsValTypeTag = lhsValType.getTag();
         int rhsValTypeTag = rhsValType.getTag();
-        if (rhsValTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            rhsValType = TypeUtils.getReferredType(rhsValType);
-            rhsValTypeTag = rhsValType.getTag();
-        }
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:

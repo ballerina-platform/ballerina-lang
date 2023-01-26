@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -65,7 +66,7 @@ public class TableUtils {
             }
 
             RefValue refValue = (RefValue) obj;
-            Type refType = refValue.getType();
+            Type refType = TypeUtils.getReferredType(refValue.getType());
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
                 for (Object entry : mapValue.entrySet()) {
