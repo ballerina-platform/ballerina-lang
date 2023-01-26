@@ -62,17 +62,8 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public String toString() {
         String stringRep;
-        // To handle recursive map types.
-        if (this.resolvingToString) {
-            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-                return this.tsymbol.toString();
-            }
-            return "...";
-        }
-        this.resolvingToString = true;
-        if (constraint == null) {
-            stringRep = super.toString() + "<" + ">";
-        } else if (constraint.tag == TypeTags.ANY) {
+
+        if (constraint.tag == TypeTags.ANY) {
             stringRep = super.toString();
         } else {
             stringRep = super.toString() + "<" + constraint + ">";
