@@ -818,6 +818,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
             case "SPREAD_MEMBER":
                 return SyntaxKind.SPREAD_MEMBER;
+            case "MEMBER_TYPE_DESC":
+                return SyntaxKind.MEMBER_TYPE_DESC;
             default:
                 return getActionKind(kind);
         }

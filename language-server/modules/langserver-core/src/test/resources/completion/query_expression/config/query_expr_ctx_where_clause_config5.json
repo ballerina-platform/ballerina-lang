@@ -4,6 +4,7 @@
     "character": 30
   },
   "source": "query_expression/source/query_expr_ctx_where_clause_source5.bal",
+  "description": "",
   "items": [
     {
       "label": "let",
@@ -618,30 +619,6 @@
           "newText": "import test/local_project1;\n"
         }
       ]
-    },
-    {
-      "label": "testFunction",
-      "kind": "Variable",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "BB",
-      "filterText": "testFunction",
-      "insertText": "testFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function (..) {..}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "BP",
-      "filterText": "function",
-      "insertText": "function (int[] a) returns int {\n    return 0;\n}",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "ballerina/lang.regexp",

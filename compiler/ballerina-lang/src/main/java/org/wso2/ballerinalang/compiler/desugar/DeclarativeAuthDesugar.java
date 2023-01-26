@@ -34,9 +34,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -163,8 +163,8 @@ public class DeclarativeAuthDesugar {
                     pos, symTable.stringType, resourceNode.methodName.value);
 
             ArrayList<BLangExpression> pathLiterals = new ArrayList<>();
-            for (BLangIdentifier path : resourceNode.resourcePath) {
-                pathLiterals.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, path.value));
+            for (BLangResourcePathSegment pathSegment : resourceNode.resourcePathSegments) {
+                pathLiterals.add(ASTBuilderUtil.createLiteral(pos, symTable.stringType, pathSegment.name.value));
             }
             BLangListConstructorExpr.BLangArrayLiteral resourcePathLiteral = ASTBuilderUtil.createEmptyArrayLiteral(
                     pos, (BArrayType) symTable.stringArrayType);

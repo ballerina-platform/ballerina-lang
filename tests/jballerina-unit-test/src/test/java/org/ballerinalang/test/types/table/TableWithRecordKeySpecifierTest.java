@@ -21,6 +21,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -65,6 +66,24 @@ public class TableWithRecordKeySpecifierTest {
     @Test(description = "Test Table with var type")
     public void testTableWithVarType() {
         BRunUtil.invoke(result, "runTableTestcasesWithVarType");
+    }
+
+    @Test(description = "Test table with default record fields as key fields",
+            dataProvider = "tableWithDefaultableRecordFieldAsKeyFieldTestFunctions")
+    public void testTableWithDefaultValueFieldAsKeyField(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] tableWithDefaultableRecordFieldAsKeyFieldTestFunctions() {
+        return new String[] {
+                "testDefaultValueFieldAsKeyField",
+                "testDefaultValueFieldAsKeyField2",
+                "testDefaultValueFieldAsKeyField3",
+                "testDefaultValueFieldAsKeyField4",
+                "testDefaultValueFieldAsKeyField5",
+                "testDefaultValueFieldAsKeyField6"
+        };
     }
 
     @AfterClass

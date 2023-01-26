@@ -355,7 +355,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.resource.access.segment.is.not.allowed.after.rest.segment"),
     ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0681", "error.invalid.token.in.reg.exp"),
     ERROR_INVALID_FLAG_IN_REG_EXP("BCE0682", "error.invalid.flag.in.reg.exp"),
-    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp")
+    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
+    ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
+            "error.annotations.not.allowed.for.tuple.rest.descriptor")
     ;
 
     String diagnosticId;

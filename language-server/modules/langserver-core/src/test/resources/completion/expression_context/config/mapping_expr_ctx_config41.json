@@ -18,7 +18,7 @@
       "label": "rec3Field2",
       "kind": "Field",
       "detail": "Rec3.rec3Field2",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "rec3Field2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "rec3Field2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "F",
+      "sortText": "AB",
       "insertText": "rec3Field2",
       "insertTextFormat": "Snippet"
     },
