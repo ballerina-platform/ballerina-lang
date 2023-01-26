@@ -128,7 +128,8 @@ public enum RuntimeErrors implements DiagnosticCode {
     INVALID_UTF_8_BYTE_ARRAY_VALUE("invalid.utf8.byte.array.value", "RUNTIME_0100"),
     INCOMPATIBLE_ARGUMENTS("incompatible.arguments", "RUNTIME_0101"),
     DECIMAL_VALUE_OUT_OF_RANGE("decimal.value.out.of.range", "RUNTIME_0102"),
-    INVALID_REGEXP_FIND_INDEX("regexp.match.string.index.out.of.range", "RUNTIME_0103"),
+    NEGATIVE_REGEXP_FIND_INDEX("negative.regexp.match.string.index", "RUNTIME_0103"),
+    INVALID_REGEXP_FIND_INDEX("regexp.match.string.index.out.of.range", "RUNTIME_0104"),
     EMPTY_STRING("regexp.empty.string", "RUNTIME_0104"),
     EMPTY_REGEXP("empty.regexp", "RUNTIME_0105");
 
