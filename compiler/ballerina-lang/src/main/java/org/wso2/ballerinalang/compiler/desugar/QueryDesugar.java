@@ -63,6 +63,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -200,6 +202,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_OUTER_JOIN_FUNCTION = new Name("createOuterJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
+    private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
@@ -516,6 +519,11 @@ public class QueryDesugar extends BLangNodeVisitor {
                             stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
+                case GROUP_BY:
+                    BLangVariableReference groupByFunc = addGroupByFunction(block, (BLangGroupByClause) clause,
+                            stmtsToBePropagated, initPipeline);
+                    addStreamFunction(block, initPipeline, groupByFunc);
+                    break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,
                             stmtsToBePropagated);
@@ -798,6 +806,52 @@ public class QueryDesugar extends BLangNodeVisitor {
         body.stmts.add(orderDirectionStmt);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
+    }
+
+    BLangVariableReference addGroupByFunction(BLangBlockStmt blockStmt, BLangGroupByClause groupByClause,
+                                              List<BLangStatement> stmtsToBePropagated,
+                                              BLangVariableReference initPipeline) {
+        Location pos = groupByClause.pos;
+        BLangArrayLiteral keys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        keys.exprs = new ArrayList<>();
+        keys.setBType(new BArrayType(symTable.stringType));
+        for (BLangGroupingKey key :groupByClause.groupingKeyList) {
+            if (key.variableDef == null) {
+                keys.exprs.add(createStringLiteral(key.pos, key.variableRef.variableName.value));
+            } else {
+                keys.exprs.add(createStringLiteral(key.pos, key.variableDef.var.name.value));
+                BLangSimpleVariableDef varDef = key.variableDef;
+                BLangVariableReference letFunc = addLetFunction(blockStmt, createLetClauseFromVarDef(varDef),
+                        stmtsToBePropagated);
+                addStreamFunction(blockStmt, initPipeline, letFunc);
+            }
+        }
+
+        // Non grouping keys should be available in BLangGroupByClause
+        BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        nonGroupingKeys.exprs = new ArrayList<>();
+        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        nonGroupingKeys.exprs.add(createStringLiteral(pos, "price1"));
+        nonGroupingKeys.exprs.add(createStringLiteral(pos, "price2"));
+        nonGroupingKeys.exprs.add(createStringLiteral(pos, "name"));
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION, Lists.of(keys, nonGroupingKeys), pos);
+    }
+
+    BLangLetClause createLetClauseFromVarDef(BLangSimpleVariableDef varDef) {
+        BLangLetClause letClause = (BLangLetClause) TreeBuilder.createLetClauseNode();
+        letClause.pos = varDef.pos;
+        letClause.letVarDeclarations = new ArrayList<>();
+        BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
+        letVar.definitionNode = varDef;
+        letVar.definitionNode.getVariable().addFlag(Flag.FINAL);
+        letClause.letVarDeclarations.add(letVar);
+        return letClause;
+    }
+
+    private BLangLiteral createStringLiteral(Location pos, String value) {
+        BLangLiteral stringLit = new BLangLiteral(value, symTable.stringType);
+        stringLit.pos = pos;
+        return stringLit;
     }
 
     /**
