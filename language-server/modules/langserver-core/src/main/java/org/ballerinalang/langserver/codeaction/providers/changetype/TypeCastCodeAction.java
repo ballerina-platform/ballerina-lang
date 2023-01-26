@@ -203,9 +203,14 @@ public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
     }
 
     private Optional<TypeSymbol> findNumericType(TypeSymbol typeSymbol) {
-        if (typeSymbol.typeKind() != TypeDescKind.UNION && isNumeric(typeSymbol)) {
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().filter(this::isNumeric).findFirst();
+        }
+
+        if (isNumeric(typeSymbol)) {
             return Optional.of(typeSymbol);
         }
-        return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().filter(this::isNumeric).findFirst();
+        
+        return Optional.empty();
     }
 }

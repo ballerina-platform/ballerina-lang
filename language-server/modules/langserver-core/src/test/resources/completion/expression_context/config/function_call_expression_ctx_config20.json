@@ -470,7 +470,7 @@
       "label": "host = ...",
       "kind": "Snippet",
       "detail": "host = \"\"",
-      "sortText": "AR",
+      "sortText": "AA",
       "filterText": "host",
       "insertText": "host = ${1:\"\"}",
       "insertTextFormat": "Snippet"
@@ -479,7 +479,7 @@
       "label": "port = ...",
       "kind": "Snippet",
       "detail": "port = 0",
-      "sortText": "AR",
+      "sortText": "AA",
       "filterText": "port",
       "insertText": "port = ${1:0}",
       "insertTextFormat": "Snippet"

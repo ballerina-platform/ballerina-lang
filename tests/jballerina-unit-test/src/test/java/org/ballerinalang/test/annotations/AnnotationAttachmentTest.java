@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -555,6 +556,15 @@ public class AnnotationAttachmentTest {
         keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "s2");
         Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
+    }
+
+    @Test
+    public void testAnnotOnTupleMember() {
+        BLangTupleTypeNode tp = (BLangTupleTypeNode) getTypeDefinition(
+                compileResult.getAST().getTypeDefinitions(), "Tp").getTypeNode();
+        BLangSimpleVariable m1 = tp.getMemberNodes().get(0);
+        Assert.assertEquals(m1.annAttachments.size(), 1);
+        Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v30");
     }
 
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {

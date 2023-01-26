@@ -105,8 +105,6 @@ public class TypeSymbolTest {
                 {35, 4, FUTURE, "future<string>"},
                 {36, 4, FUTURE, "future<any|error>"},
                 {40, 4, INT, "int"},
-                {42, 5, INT, "int"},
-                {42, 10, STRING, "string"},
                 {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
@@ -190,6 +188,19 @@ public class TypeSymbolTest {
         assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
         assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
         assertEquals(constant.signature(), "FOO");
+    }
+
+    @Test(dataProvider = "TupleTypeMemberPosProvider")
+    public void testTupleMemberTypes(int line, int col, TypeDescKind typeKind, String signature) {
+        assertBasicsAndGetType(line, col, typeKind, signature);
+    }
+
+    @DataProvider(name = "TupleTypeMemberPosProvider")
+    public Object[][] getTupleTypePosition() {
+        return new Object[][]{
+                {42, 5, INT, "int"},
+                {42, 10, STRING, "string"}
+        };
     }
 
     // private utils
