@@ -7,7 +7,7 @@ SYNOPSIS
        bal persist <command>
 
 DESCRIPTION
-       Perform operations on Ballerina Persistent Layer such as initialize
+       Perform operations on the Ballerina Persistent Layer. This can be used to initialize
        the persistence layer, generate Ballerina client for the model definition file,
        generate SQL schema and execute against the Database.
 
@@ -19,7 +19,7 @@ BALLERINA COMMANDS
        The below is a list of available subcommands:
 
        init            Initialize the persistence layer in the Ballerina project.
-       generate        Generate client objects for the model definition file inside persist directory.
+       generate        Generate client objects for the model definition file in the persist directory.
        push            Generate SQL script for entities defined in the model definition file and execute the script against the Database.
 
 Use 'bal persist <command> --help' for more information on a specific command.
