@@ -666,7 +666,7 @@ class _GroupByFunction {
                 f = check pf.process();
             }
             self.groupedStream = self.convertToStream(self.tbl);
-            self.printStream(self.groupedStream);
+            // self.printStream(self.groupedStream);
         }
 
         stream<_Frame> s = <stream<_Frame>>self.groupedStream;

@@ -6604,8 +6604,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangGroupByClause node, AnalyzerData data) {
-
+    public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
+        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            if (groupingKey.variableRef != null) {
+                checkExpr(groupingKey.variableRef, groupByClause.env, data);
+            } else {
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                        data.commonAnalyzerData);
+            }
+        }
     }
 
     @Override
