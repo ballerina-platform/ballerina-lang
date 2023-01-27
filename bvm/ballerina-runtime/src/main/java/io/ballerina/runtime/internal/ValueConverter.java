@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.AnydataType;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -59,9 +60,9 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 
 /**
- * Responsible for performing conversion of values at runtime.
+ * Responsible for performing the conversion of values between subtypes of {@link AnydataType} at runtime.
  *
- * @since 2201.4.0
+ * @since 2201.5.0
  */
 public class ValueConverter {
 

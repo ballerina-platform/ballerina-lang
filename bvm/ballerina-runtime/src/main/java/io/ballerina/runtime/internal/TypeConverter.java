@@ -53,6 +53,7 @@ import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
+import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
 import java.util.HashMap;
@@ -1168,13 +1169,17 @@ public class TypeConverter {
     }
 
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
+        if (value instanceof TableValue && ((TableValue<?, ?>) value).getType().getTag() == TypeTags.TABLE_TAG) {
+            return ((TableValue<?, ?>) value).getType();
+        }
+
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
                 !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
             return TypeCreator.createArrayType(type);
         }
 
-        if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
-                !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
+        if (value instanceof MapValue && ((MapValue<?, ?>) value).getType().getTag() == TypeTags.MAP_TAG &&
+                !isDeepConversionRequiredForMap(((MapValue<?, ?>) value).getType())) {
             return TypeCreator.createMapType(type);
         }
 
