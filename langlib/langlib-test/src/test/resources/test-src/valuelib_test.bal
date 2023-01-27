@@ -2776,6 +2776,48 @@ function testCloneWithTypeRecordWithXMLField() {
     assertEquality(ss is Student4, true);
 }
 
+type ArrayOnRecordField record {
+    anydata[] value;
+};
+
+function testCloneWithTypeTableToAnydata() {
+    table<record {readonly int 'key; string value;}> key('key) tableVal = table key('key) [
+        {'key: 1, value: "foo"}
+        ];
+    anydata tableValCloned = checkpanic tableVal.cloneWithType();
+    test:assertValueEqual(tableValCloned, table key('key) [{"key":1,"value":"foo"}]);
+
+    anydata rec = {
+        value: [
+            (),
+            true,
+            123,
+            123.45,
+            123.45d,
+            "s3cr3t",
+            xml `<book>The Lost World</book>`,
+            {foo: "bar"},
+            table [
+                {'key: 1, value: "foo"}
+                ]
+        ]
+    };
+    ArrayOnRecordField recCloned = checkpanic rec.cloneWithType();
+    test:assertValueEqual(recCloned, <ArrayOnRecordField>{
+        "value": [
+            (),
+            true,
+            123,
+            123.45,
+            123.45d,
+            "s3cr3t",
+            xml `<book>The Lost World</book>`,
+            {"foo": "bar"},
+            table [{"key": 1, "value": "foo"}]
+        ]
+    });
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {
