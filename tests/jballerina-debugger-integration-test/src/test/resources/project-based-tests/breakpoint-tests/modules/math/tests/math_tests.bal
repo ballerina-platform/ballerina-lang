@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 @test:Config {}
 function testFunction() {
     string welcomeMsg = joinStrings();
