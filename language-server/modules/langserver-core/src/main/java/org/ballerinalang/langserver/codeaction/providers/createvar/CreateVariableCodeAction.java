@@ -156,7 +156,6 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<TextEdit> edits = new ArrayList<>();
         List<Integer> renamePositions = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
-        Position pos = range.getStart();
         Position insertPos = range.getStart();
         for (String type : types) {
             String edit = type + " " + name + " = ";
