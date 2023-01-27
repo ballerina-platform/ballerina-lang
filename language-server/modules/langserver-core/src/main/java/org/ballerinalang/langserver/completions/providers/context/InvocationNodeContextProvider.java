@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
-import org.ballerinalang.langserver.common.utils.RecordUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -50,6 +49,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -89,8 +89,22 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         }
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
-                String sortText = SortingUtil.genSortText(1) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                NamedArgCompletionItem argCompletionItem = (NamedArgCompletionItem) completionItem;
+                Either<ParameterSymbol, RecordFieldSymbol> symbol = argCompletionItem.getParameterSymbol();
+                String sortText;
+                if (symbol.isRight()) {
+                    RecordFieldSymbol right = symbol.getRight();
+                    if (right.isOptional()) {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(3);
+                    } else if (right.hasDefaultValue()) {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
+                    } else {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
+                    }
+                } else {
+                    sortText = SortingUtil.genSortText(1) +
+                            SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                }
                 completionItem.getCompletionItem().setSortText(sortText);
             } else {
                 completionItem.getCompletionItem().setSortText(
@@ -132,18 +146,17 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = RecordUtil
-                        .getMandatoryRecordFields(includedRecordType);
-                recordFields.forEach(recordFieldSymbol -> {
-                    Optional<String> fieldName = recordFieldSymbol.getName();
-                    if (fieldName.isEmpty() || fieldName.get().isEmpty() || 
+                Map<String, RecordFieldSymbol> fieldSymbolMap = includedRecordType.fieldDescriptors();
+                fieldSymbolMap.forEach((key, value) -> {
+                    Optional<String> fieldName = value.getName();
+                    if (fieldName.isEmpty() || fieldName.get().isEmpty() ||
                             existingNamedArgs.contains(fieldName.get())) {
                         return;
                     }
-                    TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
+                    TypeSymbol fieldType = value.typeDescriptor();
                     CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
                     completionItems.add(
-                            new NamedArgCompletionItem(context, completionItem, Either.forRight(recordFieldSymbol)));
+                            new NamedArgCompletionItem(context, completionItem, Either.forRight(value)));
                 });
             }
         }
