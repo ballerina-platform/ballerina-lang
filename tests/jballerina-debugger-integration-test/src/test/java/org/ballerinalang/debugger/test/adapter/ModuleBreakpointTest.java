@@ -93,8 +93,8 @@ public class ModuleBreakpointTest extends BaseTestCase {
                 .resolve("math")
                 .resolve("add.bal");
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 19));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 20));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 21));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 22));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleSrcPath, 22));
 
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
