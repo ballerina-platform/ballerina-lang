@@ -544,6 +544,45 @@ function getTable() returns table<Row9> key(k) {
                   {k: re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??)|)|^|PQ?`, value: 17}];
 }
 
+type Row10 record {
+    readonly string:RegExp|string k;
+    int value;
+};
+
+type RegExpTable table<Row10> key(k);
+
+function testKeyCollisionWithStringAndRegExpAsKeyValues() {
+    table<Row10> key(k) tbl = table [
+       {k: re `AB*(?:[a-f])`, value: 17}
+    ];
+
+    tbl.add({k: string `AB*(?:[a-f])`, value: 17});
+    var tbl2 = table key(k) [{ k: re `AB*(?:[a-f])`, value: 17 },
+                             {k: string `AB*(?:[a-f])`, value: 17}];
+    assertEqual(tbl, tbl2);
+
+    Row10 row = {k: re `AB*(?:[a-f])`, value: 17};
+    assertEqual(row, tbl.get(re `AB*(?:[a-f])`));
+
+    RegExpTable tbl3 = table [
+       {k: re `AB*(?:[a-f])`, value: 17},
+       {k: string `AB*(?:[a-f])`, value: 17}
+    ];
+    assertEqual(tbl, tbl3);
+
+    table<Row10> key(k) tbl4 = table [
+       {k: re `AB*(?:[a-f])`, value: 17},
+       {k: "AB*(?:[a-f])", value: 17}
+    ];
+    assertEqual(tbl, tbl4);
+
+    RegExpTable tbl5 = table [
+       {k: re `AB*(?:[a-f])`, value: 17}
+    ];
+    tbl5.add({k: "AB*(?:[a-f])", value: 17});
+    assertEqual(tbl, tbl5);
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

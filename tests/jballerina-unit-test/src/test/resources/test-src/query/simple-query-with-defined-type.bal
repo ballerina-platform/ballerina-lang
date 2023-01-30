@@ -700,8 +700,8 @@ function testNestedQueryExprWithRegExp() {
     string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
     int v = 1;
     string:RegExp[] arr2 = from var re in (from string:RegExp reg in arr1
-                                            where reg != re `B${v + 1}`
-                                            select reg)
+            where reg != re `B${v + 1}`
+            select reg)
         let string:RegExp a = re `A`
         where re != re `A`
         select re `${re.toString() + a.toString()}`;
@@ -717,8 +717,10 @@ function testJoinedQueryExprWithRegExp() {
         on re1 equals re2
         let string:RegExp a = re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
         select re1.toString() + a.toString();
-    assertEquality(true, ["AAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
-                 "BAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"] == arr3);
+    assertEquality(true, [
+        "AAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        "BAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+    ] == arr3);
 }
 
 function assertEquality(any|error expected, any|error actual) {
