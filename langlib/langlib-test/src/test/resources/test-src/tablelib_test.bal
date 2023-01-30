@@ -1337,8 +1337,7 @@ function testRemoveAllFromReadOnlyKeylessTable1() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 
     table<Customer> readonlyCustomers = table [
@@ -1349,8 +1348,7 @@ function testRemoveAllFromReadOnlyKeylessTable1() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 }
 
@@ -1363,8 +1361,7 @@ function testRemoveAllFromReadOnlyKeylessTable2() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 }
 
@@ -1377,8 +1374,7 @@ function testRemoveAllFromReadOnlyKeyedTable1() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 
     table<Customer> readonlyCustomers = table key(id) [
@@ -1389,8 +1385,7 @@ function testRemoveAllFromReadOnlyKeyedTable1() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 }
 
@@ -1403,8 +1398,7 @@ function testRemoveAllFromReadOnlyKeyedTable2() {
     assertTrue(err is error);
     if err is error {
         assertEquals("{ballerina/lang.table}InvalidUpdate", err.message());
-        assertEquals("Failed to remove all from table: {\"message\":\"modification not allowed on readonly value\"}",
-        <string> checkpanic err.detail()["message"]);
+        assertEquals("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
     }
 }
 
