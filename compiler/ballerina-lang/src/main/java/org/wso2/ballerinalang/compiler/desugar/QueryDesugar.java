@@ -826,13 +826,12 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
         }
 
-        // Non grouping keys should be available in BLangGroupByClause
         BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         nonGroupingKeys.exprs = new ArrayList<>();
         nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
-        nonGroupingKeys.exprs.add(createStringLiteral(pos, "price1"));
-        nonGroupingKeys.exprs.add(createStringLiteral(pos, "price2"));
-        nonGroupingKeys.exprs.add(createStringLiteral(pos, "name"));
+        for (Name nonGroupingKey : groupByClause.nonGroupingKeys) {
+            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey.value));
+        }
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION, Lists.of(keys, nonGroupingKeys), pos);
     }
 
