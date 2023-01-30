@@ -222,7 +222,8 @@ public class JvmPackageGen {
         if (!BALLERINA.equals(moduleId.orgName.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 || moduleId.name.value.equals(ENCODED_JAVA_MODULE);
+        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 ||
+                moduleId.name.value.equals(ENCODED_JAVA_MODULE);
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {

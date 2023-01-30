@@ -153,8 +153,8 @@ public class MainMethodGen {
         genShutdownHook(mv, initClass);
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MethodGenUtils.EXECUTE_FUNCTION_SUFFIX, INIT_FUTURE_VAR,
-                userMainFunc);
+        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MethodGenUtils.EXECUTE_FUNCTION_SUFFIX,
+                INIT_FUTURE_VAR, userMainFunc);
         if (hasInitFunction) {
             setListenerFound(mv, serviceEPAvailable);
         }

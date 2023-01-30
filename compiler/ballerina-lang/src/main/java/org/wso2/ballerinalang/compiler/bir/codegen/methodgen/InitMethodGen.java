@@ -120,8 +120,8 @@ public class InitMethodGen {
         }
     }
 
-    public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen, BIRNode.BIRFunction mainFunc) {
-
+    public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
+                                                       BIRNode.BIRFunction mainFunc) {
         MethodVisitor mv = visitFunction(cw, "$lambda$" + JvmConstants.MODULE_EXECUTE_METHOD + "$");
         mv.visitCode();
         String methodDesc;
@@ -132,7 +132,7 @@ public class InitMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        if(mainFunc !=null) {
+        if (mainFunc != null) {
 
             BType returnType = mainFunc.type.retType;
             List<BType> paramTypes = mainFunc.type.paramTypes;
@@ -212,11 +212,11 @@ public class InitMethodGen {
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
-                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports, boolean serviceEPAvailable,
-                                          BIRNode.BIRFunction mainFunc) {
+                                          BIRNode.BIRPackage pkg, List<PackageID> moduleImports,
+                                          boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
-                                                               MethodGenUtils.INIT_FUNCTION_SUFFIX);
+                MethodGenUtils.INIT_FUNCTION_SUFFIX);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_INIT_METHOD,
@@ -237,22 +237,24 @@ public class InitMethodGen {
 
     }
 
-    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc) {
+    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
+                                                        BIRNode.BIRFunction mainFunc) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
         List<BIROperand> mainArgs = new ArrayList<>();
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0, funcType, null, 0,
-                VIRTUAL);
+        BIRNode.BIRFunction modExecFunc =
+                new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0, funcType, null, 0, VIRTUAL);
         if (mainFunc != null) {
             funcType.paramTypes = mainFunc.type.paramTypes;
             modExecFunc.parameters = mainFunc.parameters;
             modExecFunc.requiredParams = mainFunc.requiredParams;
             modExecFunc.argsCount = modExecFunc.parameters.size();
-            for (BIRNode.BIRFunctionParameter parameter: mainFunc.parameters) {
-                BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, parameter.type, new Name("%param" + parameter.jvmVarName),
-                        VarScope.FUNCTION, VarKind.ARG, "");
+            for (BIRNode.BIRFunctionParameter parameter : mainFunc.parameters) {
+                BIRNode.BIRVariableDcl paramVar =
+                        new BIRNode.BIRVariableDcl(null, parameter.type, new Name("%param" + parameter.jvmVarName),
+                                VarScope.FUNCTION, VarKind.ARG, "");
                 BIROperand paramVarRef = new BIROperand(paramVar);
                 modExecFunc.localVars.add(paramVar);
                 mainArgs.add(paramVarRef);
@@ -267,10 +269,12 @@ public class InitMethodGen {
 
         if (mainFunc != null) {
             injectDefaultArgs(pkg.packageID, mainArgs, mainFunc.parameters, modExecFunc, boolRef);
-            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs, mainFunc.annotAttachments);
+            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
+                    mainFunc.annotAttachments);
         }
 
-        BIRNode.BIRBasicBlock lastBB = addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
+        BIRNode.BIRBasicBlock lastBB =
+                addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
         if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
             lastBB = addCheckedInvocation(modExecFunc, PackageID.INTERNAL, "exit", retVarRef, boolRef);
@@ -279,20 +283,24 @@ public class InitMethodGen {
         return modExecFunc;
     }
 
-    private void injectDefaultArgs(PackageID modId, List<BIROperand> mainArgs, List<BIRNode.BIRFunctionParameter> parameters, BIRNode.BIRFunction modExecFunc, BIROperand boolRef) {
-        for(int i = 0 ; i < parameters.size(); i ++) {
+    private void injectDefaultArgs(PackageID modId, List<BIROperand> mainArgs,
+                                   List<BIRNode.BIRFunctionParameter> parameters, BIRNode.BIRFunction modExecFunc,
+                                   BIROperand boolRef) {
+        for (int i = 0; i < parameters.size(); i++) {
             BIRNode.BIRFunctionParameter parameter = parameters.get(i);
             if (parameter.hasDefaultExpr) {
                 BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
-                BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, mainArgs.get(i));
+                BIRNonTerminator.TypeTest typeTest =
+                        new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, mainArgs.get(i));
                 lastBB.instructions.add(typeTest);
 
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
 
-                trueBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, new Name("$main_" + parameter.metaVarName),
-                        Collections.emptyList(), mainArgs.get(i), falseBB, Collections.emptyList(), Collections.emptySet());
+                trueBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
+                        new Name("$main_" + parameter.metaVarName), Collections.emptyList(), mainArgs.get(i), falseBB,
+                        Collections.emptyList(), Collections.emptySet());
             }
         }
 
@@ -343,32 +351,35 @@ public class InitMethodGen {
         return new Name(varIdPrefix + nextVarId);
     }
 
-    private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId, String initFuncName,
-                                                               BIROperand retVar, BIROperand boolRef, List<BIROperand> args,
-                                                               List<BIRNode.BIRAnnotationAttachment> calleeAnnotAttachments) {
-            BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
-            BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-            // TODO remove once lang.annotation is fixed
-            if (isBuiltInPackage(modId)) {
-                lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
-                        new Name(initFuncName), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
-                return nextBB;
-            }
-            lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, new Name(initFuncName),
-                    args, retVar, nextBB, calleeAnnotAttachments, Collections.emptySet());
+    private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId,
+                                                               String initFuncName,
+                                                               BIROperand retVar, BIROperand boolRef,
+                                                               List<BIROperand> args,
+                                                               List<BIRNode.BIRAnnotationAttachment>
+                                                                       calleeAnnotAttachments) {
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
+        // TODO remove once lang.annotation is fixed
+        if (isBuiltInPackage(modId)) {
+            lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
+                    new Name(initFuncName), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
+            return nextBB;
+        }
+        lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, new Name(initFuncName),
+                args, retVar, nextBB, calleeAnnotAttachments, Collections.emptySet());
 
-            BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
-                    retVar);
-            nextBB.instructions.add(typeTest);
+        BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
+                retVar);
+        nextBB.instructions.add(typeTest);
 
-            BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
-            BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
-            retBB.terminator = new BIRTerminator.Return(null);
-            trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
+        BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
+        BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
+        retBB.terminator = new BIRTerminator.Return(null);
+        trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
 
-            BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
-            nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
-            return falseBB;
+        BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
+        nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
+        return falseBB;
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocation(BIRNode.BIRFunction func, PackageID modId, String initFuncName,
