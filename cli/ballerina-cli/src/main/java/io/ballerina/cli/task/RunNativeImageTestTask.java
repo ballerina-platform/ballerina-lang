@@ -521,6 +521,7 @@ public class RunNativeImageTestTask implements Task {
         outputGobbler.start();
 
         if (process.waitFor() == 0) {
+            outputGobbler.join();
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
@@ -542,7 +543,9 @@ public class RunNativeImageTestTask implements Task {
             outputGobbler =
                     new StreamGobbler(process.getInputStream(), out);
             outputGobbler.start();
-            return process.waitFor();
+            int exitCode = process.waitFor();
+            outputGobbler.join();
+            return exitCode;
         } else {
             return 1;
         }
