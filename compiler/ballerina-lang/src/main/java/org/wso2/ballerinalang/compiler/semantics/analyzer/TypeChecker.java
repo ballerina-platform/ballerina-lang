@@ -6035,13 +6035,32 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
         groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        Set<Name> groupingKeys = new HashSet<>();
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             if (groupingKey.variableRef != null) {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
+                groupingKeys.add(new Name(groupingKey.variableRef.variableName.value));
             } else {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
                         data.commonAnalyzerData);
+                groupingKeys.add(new Name(groupingKey.variableDef.var.name.value));
             }
+        }
+        groupByClause.nonGroupingKeys = new HashSet<>();
+        findNonGroupingKeys(groupByClause.env, groupingKeys, groupByClause.nonGroupingKeys);
+    }
+
+    private void findNonGroupingKeys(SymbolEnv env, Set<Name> groupingKeys, Set<Name> nonGroupingKeys) {
+        while (true) {
+            for (Name name : env.scope.entries.keySet()) {
+                if (!groupingKeys.contains(name)) {
+                    nonGroupingKeys.add(name);
+                }
+            }
+            if (env.node.getKind() == NodeKind.FROM) {
+                break;
+            }
+            env = env.enclEnv;
         }
     }
 

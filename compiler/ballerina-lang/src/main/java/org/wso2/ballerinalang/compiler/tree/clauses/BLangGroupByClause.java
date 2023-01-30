@@ -24,9 +24,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -41,6 +44,8 @@ public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
 
     // Semantic Data
     public SymbolEnv env;
+
+    public Set<Name> nonGroupingKeys = new HashSet<>();
 
     public BLangGroupByClause() {
     }
@@ -81,6 +86,6 @@ public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
         for (BLangGroupingKey groupingKey : groupingKeyList) {
             declarations.add(groupingKey.toString());
         }
-        return "group by " + declarations.toString();
+        return "group by " + declarations;
     }
 }
