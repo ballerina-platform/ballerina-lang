@@ -30,7 +30,6 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
-import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
