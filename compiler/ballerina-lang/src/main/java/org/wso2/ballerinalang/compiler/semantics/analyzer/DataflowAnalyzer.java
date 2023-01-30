@@ -1342,10 +1342,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (reAtomQuantifier.quantifier != null) {
             BLangReQuantifier reQuantifier = reAtomQuantifier.quantifier;
             regexpHash = regexpHash + hash(reQuantifier.quantifier);
-            if (reQuantifier.nonGreedyChar == null) {
-                return regexpHash;
+            if (reQuantifier.nonGreedyChar != null) {
+                return regexpHash + hash(reQuantifier.nonGreedyChar);
             }
-            return regexpHash + hash(reQuantifier.nonGreedyChar);
         }
         return regexpHash;
     }
@@ -1379,9 +1378,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         BLangReFlagExpression flagExpr = (BLangReFlagExpression) reCapturingGroup.flagExpr;
         regexpHash = regexpHash + hash(flagExpr.questionMark) + hash(flagExpr.colon);
-        if (flagExpr.flagsOnOff == null) {
-            return regexpHash;
-        }
         return regexpHash + hash(flagExpr.flagsOnOff.flags);
     }
 
