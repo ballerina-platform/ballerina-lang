@@ -111,7 +111,9 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'int', found 'string[]'", 574, 13);
         validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string'", 583, 12);
         validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string[]'", 586, 17);
-        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+        int warnCount = 2;
+        Assert.assertEquals(compileResult.getWarnCount(), warnCount);
+        Assert.assertEquals(compileResult.getErrorCount(), index - warnCount);
     }
 
     @Test
