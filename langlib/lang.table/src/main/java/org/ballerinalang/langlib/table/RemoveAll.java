@@ -31,11 +31,6 @@ import io.ballerina.runtime.api.values.BTable;
 public class RemoveAll {
 
     public static void removeAll(BTable tbl) {
-        try {
-            tbl.clear();
-        } catch (BError e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                    StringUtils.fromString("Failed to remove all from table: " + e.getDetails()));
-        }
+        tbl.clear();
     }
 }

@@ -35,11 +35,6 @@ public class RemoveAll {
     public static void removeAll(BMap<?, ?> m) {
         checkIsMapOnlyOperation(m.getType(), "removeAll()");
         validateRecord(m);
-        try {
-            m.clear();
-        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                           StringUtils.fromString("Failed to clear map: " + e.getDetail()));
-        }
+        m.clear();
     }
 }
