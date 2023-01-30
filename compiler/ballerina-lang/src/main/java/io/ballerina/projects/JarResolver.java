@@ -289,9 +289,9 @@ public class JarResolver {
         }
 
         // TODO use the ClassLoader.getPlatformClassLoader() here
+        // Temp : Remove parent classLoader
         return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
-                        ClassLoader.getSystemClassLoader())
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]))
         );
     }
 

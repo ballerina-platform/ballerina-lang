@@ -30,10 +30,12 @@ import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -332,6 +334,10 @@ public class RunTestsTask implements Task {
         dependencies.removeAll(jarList);
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        // Temp : Override dependencies
+        dependencies = ProjectUtils.testDependencies().stream().map(JarLibrary::path).collect(Collectors.toList());
+        dependencies.add(jBallerinaBackend.runtimeLibrary().path());
+
         dependencies.stream().map(Path::toString).forEach(classPath::add);
         return classPath.toString();
     }
