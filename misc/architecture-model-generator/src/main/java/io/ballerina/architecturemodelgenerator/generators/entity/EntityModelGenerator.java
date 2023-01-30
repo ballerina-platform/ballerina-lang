@@ -22,6 +22,7 @@ import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.CardinalityValue;
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
 import io.ballerina.architecturemodelgenerator.generators.ModelGenerator;
+import io.ballerina.architecturemodelgenerator.generators.entity.nodevisitors.TypeDefinitionNodeVisitor;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.entity.Association;
 import io.ballerina.architecturemodelgenerator.model.entity.Attribute;
@@ -38,6 +39,18 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.MappingFieldNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LineRange;
 
@@ -67,6 +80,14 @@ public class EntityModelGenerator extends ModelGenerator {
     }
 
     public Map<String, Entity> generate() {
+        Map<String, RecordTypeDescriptorNode> recordTypeDescNodes = new HashMap<>();
+        for (DocumentId documentId : getModule().documentIds()) {
+            SyntaxTree syntaxTree = getModule().document(documentId).syntaxTree();
+            TypeDefinitionNodeVisitor typeDefNodeVisitor = new TypeDefinitionNodeVisitor();
+            syntaxTree.rootNode().accept(typeDefNodeVisitor);
+            recordTypeDescNodes = typeDefNodeVisitor.getRecordTypeDescNodes();
+        }
+
         List<Symbol> symbols = getSemanticModel().moduleSymbols();
         for (Symbol symbol : symbols) {
             if (symbol.kind().equals(SymbolKind.TYPE_DEFINITION)) {
@@ -74,7 +95,9 @@ public class EntityModelGenerator extends ModelGenerator {
                 if (typeDefinitionSymbol.typeDescriptor() instanceof RecordTypeSymbol) {
                     String entityName = getEntityName(typeDefinitionSymbol.moduleQualifiedName());
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeDefinitionSymbol.typeDescriptor();
-                    this.types.put(entityName, getType(recordTypeSymbol, entityName,
+                    RecordTypeDescriptorNode recordTypeDescNode = typeDefinitionSymbol.getName().isPresent() ?
+                            recordTypeDescNodes.get(typeDefinitionSymbol.getName().get()) : null;
+                    this.types.put(entityName, getType(recordTypeSymbol, recordTypeDescNode, entityName,
                             getElementLocation(typeDefinitionSymbol), false));
                 }
             }
@@ -82,19 +105,26 @@ public class EntityModelGenerator extends ModelGenerator {
         return types;
     }
 
-    private Entity getType(RecordTypeSymbol recordTypeSymbol, String entityName, ElementLocation elementLocation,
-                           boolean isAnonymous) {
+    private Entity getType(RecordTypeSymbol recordTypeSymbol, RecordTypeDescriptorNode recordTypeDescNode,
+                           String entityName, ElementLocation elementLocation, boolean isAnonymous) {
         List<Attribute> attributeList = new ArrayList<>();
         List<String> inclusionList = new ArrayList<>();
         Map<String, RecordFieldSymbol> recordFieldSymbolMap =
                 getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
         for (RecordFieldSymbol recordFieldSymbol : recordFieldSymbolMap.values()) {
-            attributeList.add(getAttribute(recordFieldSymbol, entityName));
+            RecordFieldNode recordFieldNode = null;
+            if (recordFieldSymbol.getName().isPresent() && recordTypeDescNode != null) {
+                recordFieldNode = (RecordFieldNode) recordTypeDescNode.fields().stream()
+                        .filter(node -> ((RecordFieldNode) node).fieldName().text().equals(recordFieldSymbol.getName()
+                                .get())).findFirst().orElse(null);
+            }
+            attributeList.add(getAttribute(recordFieldSymbol, recordFieldNode, entityName));
         }
         return new Entity(attributeList, inclusionList, elementLocation, isAnonymous);
     }
 
-    private Attribute getAttribute(RecordFieldSymbol recordFieldSymbol, String entityName) {
+    private Attribute getAttribute(RecordFieldSymbol recordFieldSymbol, RecordFieldNode recordFieldNode,
+                                   String entityName) {
         TypeDescKind fieldTypeDescKind = recordFieldSymbol.typeDescriptor().typeKind();
         TypeSymbol fieldTypeSymbol = recordFieldSymbol.typeDescriptor();
 
@@ -110,7 +140,8 @@ public class EntityModelGenerator extends ModelGenerator {
         if (fieldTypeDescKind.equals(TypeDescKind.RECORD)) {
             RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) fieldTypeSymbol;
             fieldType = TypeDescKind.RECORD.getName();
-            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
+            RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) recordFieldNode.typeName();
+            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, recordTypeDescNode, inlineRecordName,
                     getElementLocation(recordFieldSymbol), true));
             String associateCardinality = optional ? CardinalityValue.ZERO_OR_ONE.getValue() :
                     CardinalityValue.ONE_AND_ONLY_ONE.getValue();
@@ -122,18 +153,20 @@ public class EntityModelGenerator extends ModelGenerator {
             RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) ((ArrayTypeSymbol)
                     fieldTypeSymbol).memberTypeDescriptor();
             fieldType = TypeDescKind.RECORD.getName() + ARRAY;
-            String associateCardinality = optional ? CardinalityValue.ZERO_OR_MANY.getValue() :
-                    CardinalityValue.ONE_OR_MANY.getValue();
-            Association association = new Association(inlineRecordName, new Association.Cardinality(
-                    CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
-            associations = new LinkedList<>(List.of(association));
-            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, inlineRecordName,
+            RecordTypeDescriptorNode recordTypeDescNode =
+                    (RecordTypeDescriptorNode) ((ArrayTypeDescriptorNode) recordFieldNode.typeName()).memberTypeDesc();
+            this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, recordTypeDescNode, inlineRecordName,
                     getElementLocation(recordFieldSymbol), true));
-
+            List<String> associateCardinalities = getArrayAssociateCardinalities(recordFieldNode);
+            List<Association> associationsTemp = new LinkedList<>();
+            associateCardinalities.forEach(associationCardinality -> {
+                Association association = new Association(inlineRecordName, new Association.Cardinality(
+                        CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associationCardinality));
+                associationsTemp.add(association);
+            });
+            associations = associationsTemp;
         } else {
-            associations =
-                    getAssociations(recordFieldSymbol.typeDescriptor(), entityName, optional, nillable);
-
+            associations = getAssociations(fieldTypeSymbol, recordFieldNode, entityName, optional, nillable);
         }
         // todo: address when union types has anonymous records
         return new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
@@ -222,15 +255,53 @@ public class EntityModelGenerator extends ModelGenerator {
 
     private String getAssociateCardinality(boolean isArray, boolean isOptional, boolean isNillable) {
         // todo: double check
-        if (isArray && !isOptional && !isNillable) {
-            return CardinalityValue.ONE_OR_MANY.getValue();
-        } else if (isArray) {
+        if (isArray) {
             return CardinalityValue.ZERO_OR_MANY.getValue();
-        } else if (isOptional || isNillable) {
-            return CardinalityValue.ZERO_OR_ONE.getValue();
         } else {
-            return CardinalityValue.ONE_AND_ONLY_ONE.getValue();
+            if (isOptional || isNillable) {
+                return CardinalityValue.ZERO_OR_ONE.getValue();
+            } else {
+                return CardinalityValue.ONE_AND_ONLY_ONE.getValue();
+            }
         }
+    }
+
+    private List<String> getArrayAssociateCardinalities(RecordFieldNode recordFieldNode) {
+        List<String> associateCardinalities = new LinkedList<>();
+        if (recordFieldNode != null && recordFieldNode.metadata().isPresent()) {
+            for (AnnotationNode annotationNode : recordFieldNode.metadata().get().annotations()) {
+                if (annotationNode.annotReference().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+                    QualifiedNameReferenceNode annotRef =  (QualifiedNameReferenceNode) annotationNode.annotReference();
+                    if (annotRef.modulePrefix().text().equals("constraint") &&
+                            annotRef.identifier().text().equals("Array") && annotationNode.annotValue().isPresent()) {
+                        String minLength = "0";
+                        String maxLength = "m";
+                        for (MappingFieldNode annotValField : annotationNode.annotValue().get().fields()) {
+                            if (((SpecificFieldNode) annotValField).fieldName().kind()
+                                    .equals(SyntaxKind.IDENTIFIER_TOKEN) &&
+                                    ((SpecificFieldNode) annotValField).valueExpr().isPresent() &&
+                                    ((SpecificFieldNode) annotValField).valueExpr().get().kind()
+                                            .equals(SyntaxKind.NUMERIC_LITERAL)) {
+                                if (((IdentifierToken) ((SpecificFieldNode) annotValField).fieldName()).text()
+                                        .equals("minLength")) {
+                                    minLength = ((BasicLiteralNode) ((SpecificFieldNode) annotValField)
+                                            .valueExpr().get()).literalToken().text();
+                                } else if (((IdentifierToken) ((SpecificFieldNode) annotValField).fieldName()).text()
+                                        .equals("maxLength")) {
+                                    maxLength = ((BasicLiteralNode) ((SpecificFieldNode) annotValField)
+                                            .valueExpr().get()).literalToken().text();
+                                }
+                            }
+                        }
+                        associateCardinalities.add(CardinalityValue.CUSTOM.getCustomValue(minLength, maxLength));
+                    }
+                }
+            }
+        }
+        if (associateCardinalities.size() > 0) {
+            return associateCardinalities;
+        }
+        return new LinkedList<>(List.of(CardinalityValue.ZERO_OR_MANY.getValue()));
     }
 
     /**
@@ -262,7 +333,7 @@ public class EntityModelGenerator extends ModelGenerator {
         boolean isNullableAssociate = memberTypeDescriptors.stream().anyMatch(m -> m instanceof NilTypeSymbol);
         for (TypeSymbol typeSymbol : memberTypeDescriptors) {
             if (!(typeSymbol instanceof NilTypeSymbol)) {
-                List<Association> associations = getAssociations(typeSymbol, entityName,
+                List<Association> associations = getAssociations(typeSymbol, null, entityName,
                         isRequired, isNullableAssociate);
                 unionTypeAssociations.addAll(associations);
             }
@@ -292,8 +363,8 @@ public class EntityModelGenerator extends ModelGenerator {
         return referenceType;
     }
 
-    private List<Association> getAssociations(TypeSymbol fieldTypeDescriptor, String entityName, boolean optional,
-                                              boolean isNillable) {
+    private List<Association> getAssociations(TypeSymbol fieldTypeDescriptor, RecordFieldNode recordFieldNode,
+                                              String entityName, boolean optional, boolean isNillable) {
 
         List<Association> associations = new ArrayList<>();
         if (fieldTypeDescriptor instanceof TypeReferenceTypeSymbol) {
@@ -311,10 +382,13 @@ public class EntityModelGenerator extends ModelGenerator {
             if (arrayTypeSymbol.memberTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
                 String associate = getAssociateEntityName((TypeReferenceTypeSymbol)
                         arrayTypeSymbol.memberTypeDescriptor(), entityName).replace(ARRAY, "");
-                Association.Cardinality cardinality = new Association.Cardinality(
-                        getSelfCardinality(arrayTypeSymbol, entityName),
-                        getAssociateCardinality(true, optional, isNillable));
-                associations.add(new Association(associate, cardinality));
+                List<String> associateCardinalities = getArrayAssociateCardinalities(recordFieldNode);
+                associateCardinalities.forEach(associationCardinality -> {
+                    Association.Cardinality cardinality = new Association.Cardinality(
+                            getSelfCardinality(arrayTypeSymbol, entityName),
+                            associationCardinality);
+                    associations.add(new Association(associate, cardinality));
+                });
             }
         }
         return associations;

@@ -75,7 +75,8 @@ public class ProjectDesignConstants {
         ONE("1"),
         ONE_AND_ONLY_ONE("1-1"),
         ONE_OR_MANY("1-m"),
-        MANY("m");
+        MANY("m"),
+        CUSTOM();
 
         private final String cardinalityValue;
 
@@ -83,8 +84,16 @@ public class ProjectDesignConstants {
             this.cardinalityValue = cardinalityValue;
         }
 
+        CardinalityValue() {
+            this.cardinalityValue = "";
+        }
+
         public String getValue() {
             return this.cardinalityValue;
+        }
+
+        public String getCustomValue(String min, String max) {
+            return min + "-" + max;
         }
     }
 
