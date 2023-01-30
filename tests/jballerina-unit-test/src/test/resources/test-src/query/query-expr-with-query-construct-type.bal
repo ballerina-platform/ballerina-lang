@@ -1402,8 +1402,11 @@ function testQueryExprConstructingTableWithRegExp() {
         select {
             rec: reg
         };
-    table<Row> key(rec) tbl = table [{rec: re `A`}, {rec: re `C`}];
-    assertEqual(tbl,res);
+    table<Row> key(rec) tbl = table [
+        {rec: re `A`},
+        {rec: re `C`}
+    ];
+    assertEqual(tbl, res);
 
     table<Row> key(rec)|error res2 = table key(rec) from var reg in [re `A`, re `B`, re `A`]
         where reg != re `B`
@@ -1453,8 +1456,8 @@ function testNestedQueryExprConstructingTableWithRegExp() {
     string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
     int v = 1;
     table<Row> res = table key() from var re in (from string:RegExp reg in arr1
-                                            where reg != re `B${v + 1}`
-                                            select reg)
+            where reg != re `B${v + 1}`
+            select reg)
         let string:RegExp a = re `A`
         where re != re `A`
         select {
@@ -1473,8 +1476,10 @@ function testJoinedQueryExprConstructingMapWithRegExp() {
         on re1 equals re2
         let string:RegExp a = re `AB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
         select [re1.toString() + "1", re1.toString() + a.toString()];
-    assertEqual({A1: "AAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
-           B1:"BAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"}, arr3);
+    assertEqual({
+        A1: "AAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        B1: "BAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+    }, arr3);
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {

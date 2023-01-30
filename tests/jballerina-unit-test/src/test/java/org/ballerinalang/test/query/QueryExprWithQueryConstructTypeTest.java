@@ -398,13 +398,13 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructingQueryExprWithStringSubtypes");
     }
 
-    @Test(dataProvider = "dataToTestQueryExprWithQueryConstructTyp")
-    public void testQueryExprWithQueryConstructType(String functionName) {
+    @Test(dataProvider = "dataToTestQueryExprWithQueryConstructTypWithRegExp")
+    public void testQueryExprWithQueryConstructTypeWithRegExp(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
-    public Object[] dataToTestQueryExprWithQueryConstructTyp() {
+    public Object[] dataToTestQueryExprWithQueryConstructTypWithRegExp() {
         return new Object[]{
                 "testQueryExprConstructingTableWithRegExp",
                 "testQueryExprConstructingMapWithRegExp",

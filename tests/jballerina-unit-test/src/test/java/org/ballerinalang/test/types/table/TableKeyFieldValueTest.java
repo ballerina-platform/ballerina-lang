@@ -66,7 +66,8 @@ public class TableKeyFieldValueTest {
                 "testConditionalExprAsKeyValue",
                 "testGroupExprAsKeyValue",
                 "testKeyCollision",
-                "testRegExpAsKeyValue"
+                "testRegExpAsKeyValue",
+                "testKeyCollisionWithStringAndRegExpAsKeyValues"
         };
     }
 }
