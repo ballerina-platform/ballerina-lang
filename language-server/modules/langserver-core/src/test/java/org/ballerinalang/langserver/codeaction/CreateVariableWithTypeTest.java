@@ -51,7 +51,9 @@ public class CreateVariableWithTypeTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"type_infer_for_remote_method_call_config1.json"},
                 {"type_infer_for_remote_method_call_config2.json"},
-                {"type_infer_for_resource_action_config.json"}
+                {"type_infer_for_resource_action_config.json"},
+                {"type_infer_for_resource_action_with_check1.json"},
+                {"type_infer_for_resource_action_with_check2.json"}
         };
     }
 

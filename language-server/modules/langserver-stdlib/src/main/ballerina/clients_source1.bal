@@ -69,6 +69,15 @@ public client class Client {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "delete"
     } external;
+    
+    # Sample resource function with multiple target types with java interoperability
+    #
+    # + targetType - Response or `anydata`, which is expected to be returned after data binding
+    # + return - The Response or the ClientError
+    resource function get path4/[string pathParam](TargetType targetType = <>) returns targetType|json|ClientError|error = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "get"
+    } external;
 }
 
 # Represents a response.

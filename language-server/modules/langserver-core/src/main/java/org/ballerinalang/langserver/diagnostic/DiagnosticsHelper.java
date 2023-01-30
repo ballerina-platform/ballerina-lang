@@ -19,12 +19,14 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
@@ -177,7 +179,7 @@ public class DiagnosticsHelper {
     }
 
     public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
-        WorkspaceManager workspace = context.workspace();
+        BallerinaWorkspaceManager workspace = (BallerinaWorkspaceManager) context.workspace();
         Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>();
 
         Optional<Project> project = workspace.project(context.filePath());
@@ -187,13 +189,13 @@ public class DiagnosticsHelper {
         // NOTE: We are not using `project.sourceRoot()` since it provides the single file project uses a temp path and
         // IDE requires the original path.
         Path projectRoot = workspace.projectRoot(context.filePath());
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectRoot = projectRoot.getParent();
-        }
-        PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
+        Path originalPath = project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
+                ? projectRoot.getParent() : projectRoot;
+        Optional<PackageCompilation> compilationResult = workspace.waitAndGetPackageCompilation(context.filePath(),
+                context.operation() == LSContextOperation.TXT_DID_CHANGE);
         // We do not send the internal diagnostics
-        diagnosticMap.putAll(
-                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot, workspace));
+        compilationResult.ifPresent(compilation -> diagnosticMap.putAll(
+                toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), originalPath, workspace)));
         return diagnosticMap;
     }
 

@@ -59,6 +59,7 @@ public class ProjectDesignConstants {
     public static final String CLIENT_ANNOTATION = "choreo:Client";
     public static final String ID = "id";
     public static final String LABEL = "label";
+    public static final String MODULES = "modules";
     public static final String SERVICE_ID = "serviceId";
     public static final String ARRAY = "[]";
     public static final String LISTENER = ":Listener";
