@@ -33,52 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FromClauseNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
-import io.ballerina.compiler.syntax.tree.MatchClauseNode;
-import io.ballerina.compiler.syntax.tree.MatchStatementNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SelectClauseNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.WaitActionNode;
-import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -208,19 +163,18 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField &&
-                ((BLangRecordLiteral.BLangRecordVarNameField) bLangNode).symbol != null &&
-                node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
-            BLangExpression bLangExpression = ((BLangRecordLiteral.BLangRecordVarNameField) bLangNode)
-                    .impConversionExpr;
-            if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
-                BType bType = bLangExpression.getBType();
-                return getTypeFromBType(bType);
-            }
-        }
-
         if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField) {
-            elementType = getTypeFromBType(((BLangRecordLiteral.BLangRecordVarNameField) bLangNode).symbol.getType());
+            BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral =
+                                                        (BLangRecordLiteral.BLangRecordVarNameField) bLangNode;
+            if (bLangNodeRecLiteral.symbol != null && node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
+                BLangExpression bLangExpression = bLangNodeRecLiteral.impConversionExpr;
+                if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
+                    BType bType = bLangExpression.getBType();
+                    return getTypeFromBType(bType);
+                }
+
+                elementType = getTypeFromBType(bLangNodeRecLiteral.symbol.getType());
+            }
         }
 
         if (elementType.isPresent()) {
@@ -321,7 +275,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
-        if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
+        Token openParen = node.openParenToken();
+        Token closeParen = node.closeParenToken();
+        if (!isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
             return getExpectedTypeFromFunction(bLangInvocation);
         }
 
@@ -336,7 +293,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
-        if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
+        Token openParen = node.openParenToken();
+        Token closeParen = node.closeParenToken();
+        if (!isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
             return getExpectedTypeFromFunction(bLangInvocation);
         }
 
@@ -444,10 +404,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         ParenthesizedArgList parenthesizedArgList = node.parenthesizedArgList();
         // Check the cursor position in within the parenthesis.
-        if (isWithinParenthesis(linePosition, parenthesizedArgList.openParenToken(),
-              parenthesizedArgList.closeParenToken()) && bLangNode instanceof BLangTypeInit
-              && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
-              && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
+        Token openParen = parenthesizedArgList.openParenToken();
+        Token closeParen = parenthesizedArgList.closeParenToken();
+        if (!isParenMissing(openParen, closeParen) &&
+            isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange()) &&
+            bLangNode instanceof BLangTypeInit &&
+            ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation &&
+            (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
             if (params.size() == 0) {
@@ -480,11 +443,13 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
+        // TODO Fix casting
         Optional<ParenthesizedArgList> parenthesizedArgList = node.parenthesizedArgList();
+        Token openParen = parenthesizedArgList.get().openParenToken();
+        Token closeParen = parenthesizedArgList.get().closeParenToken();
         // Check if the line position is within the parameter context.
-        if (parenthesizedArgList.isPresent() && isWithinParenthesis(linePosition,
-                parenthesizedArgList.get().openParenToken(),
-                parenthesizedArgList.get().closeParenToken())) {
+        if (parenthesizedArgList.isPresent() && !isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
             if (bLangNode instanceof BLangTypeInit) {
                 BLangInvocation initInvocation = (BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation;
                 if (initInvocation.symbol == null) {
@@ -580,7 +545,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (bLangNode instanceof BLangInvocation.BLangActionInvocation) {
             BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
                     nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
-            if (isWithinParenthesis(linePosition, node.openParenToken(), node.closeParenToken())) {
+            Token openParen = node.openParenToken();
+            Token closeParen = node.closeParenToken();
+            if (!isParenMissing(openParen, closeParen) &&
+                    isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
                 if (bLangActionInvocation.argExprs.size() == 0) {
                     return getTypeFromBType(((BInvokableSymbol) bLangActionInvocation.symbol).
                             getParameters().get(0).getType());
@@ -617,7 +585,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BArrayType bArrayType = (BArrayType) ((BallerinaArrayTypeSymbol) extractedType.get()).getBType();
-        if (isWithinParenthesis(linePosition, node.openBracket(), node.closeBracket()) &&
+        Token openParen = node.openBracket();
+        Token closeParen = node.closeBracket();
+        if (!isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange()) &&
                 (bArrayType.eType != null && bArrayType.eType.getKind() != TypeKind.OTHER)) {
             return Optional.of(typesFactory.getTypeDescriptor(bArrayType.eType));
         }
@@ -678,8 +649,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         if (bLangNode.getKind() == ERROR_CONSTRUCTOR_EXPRESSION) {
-            if (isWithinParenthesis(linePosition, node.openParenToken(),
-                    node.closeParenToken())) {
+            Token openParen = node.openParenToken();
+            Token closeParen = node.closeParenToken();
+            if (!isParenMissing(openParen, closeParen) &&
+                    isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
                 return Optional.of(typesFactory.getTypeDescriptor(((BErrorType)
                         ((BLangErrorConstructorExpr) bLangNode).expectedType).detailType));
             }
@@ -704,8 +677,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         BLangTableConstructorExpr bLangTableConstructorExpr = (BLangTableConstructorExpr) bLangNode;
         if (node.keySpecifier().isPresent() &&
-                isWithinParenthesis(linePosition, node.keySpecifier().get().openParenToken(),
-                        node.keySpecifier().get().closeParenToken())) {
+                isWithinParenthesis(linePosition, node.keySpecifier().get().openParenToken().lineRange(),
+                        node.keySpecifier().get().closeParenToken().lineRange())) {
             BType expectedType = bLangTableConstructorExpr.expectedType;
             if (expectedType instanceof BTableType) {
                 return Optional.of(typesFactory.getTypeDescriptor(Objects.
@@ -718,7 +691,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                         requireNonNullElse(((BTableType) referredType).constraint, expectedType)));
             }
 
-        } else if (isWithinParenthesis(linePosition, node.openBracket(), node.closeBracket())) {
+        }
+        Token openParen = node.openBracket();
+        Token closeParen = node.closeBracket();
+        if (!isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), node.closeBracket().lineRange())) {
             if (!((bLangTableConstructorExpr.expectedType) instanceof BTypeReferenceType)) {
                 BType constraint = ((BTableType) bLangTableConstructorExpr.expectedType).constraint;
                 return getTypeFromBType(constraint);
@@ -1067,5 +1044,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return getExpectedType((bLangInvocation.argExprs.get(argumentIndex)));
         }
 
+    }
+
+    private boolean isParenMissing(Token openParen, Token closedParen) {
+        return openParen.isMissing() || closedParen.isMissing();
     }
 }
