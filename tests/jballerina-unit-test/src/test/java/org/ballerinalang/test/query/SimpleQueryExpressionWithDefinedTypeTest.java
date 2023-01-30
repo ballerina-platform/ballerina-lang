@@ -368,13 +368,13 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BRunUtil.invoke(result, "testUsingAnIntersectionTypeInQueryExpr");
     }
 
-    @Test(dataProvider = "dataToTestQueryExpr")
-    public void testQueryExpr(String functionName) {
+    @Test(dataProvider = "dataToTestQueryExprWithRegExp")
+    public void testQueryExprWithRegExp(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
-    public Object[] dataToTestQueryExpr() {
+    public Object[] dataToTestQueryExprWithRegExp() {
         return new Object[]{
                 "testQueryExprWithRegExp",
                 "testQueryExprWithRegExpWithInterpolations",
