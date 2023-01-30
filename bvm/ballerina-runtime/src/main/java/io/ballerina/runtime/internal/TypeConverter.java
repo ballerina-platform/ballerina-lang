@@ -28,9 +28,11 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
@@ -48,14 +50,13 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValue;
-import io.ballerina.runtime.internal.values.TableValueImpl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -298,7 +299,8 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.TABLE_TAG:
-                if (isConvertibleToTableType(inputValue, ((BTableType) targetType))) {
+                if (isConvertibleToTableType(inputValue, ((BTableType) targetType), unresolvedValues, varName,
+                        errors, allowNumericConversion)) {
                     return targetType;
                 }
                 break;
@@ -524,11 +526,63 @@ public class TypeConverter {
         }
     }
 
-    private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType) {
-        if (!(sourceValue instanceof TableValueImpl || sourceValue instanceof ArrayValueImpl)) {
+    private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType,
+                                                    Set<TypeValuePair> unresolvedValues, String varName,
+                                                    List<String> errors, boolean allowNumericConversion) {
+        Type constrainedType = tableType.getConstrainedType();
+        if (!isValidTableConstraint(constrainedType)) {
+            // this condition may not be necessary if the compiler has already checked this
             return false;
         }
-        return isValidTableConstraint(tableType.getConstrainedType());
+
+        int initialErrorCount;
+        String elementIndex;
+        Type convertibleType;
+        boolean returnVal = true;
+        int sourceTypeReferredTypeTag = TypeUtils.getReferredType(TypeChecker.getType(sourceValue)).getTag();
+        switch (sourceTypeReferredTypeTag) {
+            case TypeTags.TABLE_TAG:
+                Collection<?> bTableValues = ((BTable<?, ?>) sourceValue).values();
+                for (int i = 0; i < bTableValues.size(); i++) {
+                    initialErrorCount = errors.size();
+                    elementIndex = getElementIndex(varName, i);
+                    Object bTableValue = bTableValues.iterator().next();
+                    convertibleType = getConvertibleType(bTableValue, constrainedType, elementIndex,
+                            unresolvedValues, errors, allowNumericConversion);
+                    if (convertibleType == null) {
+                        addErrorMessage(errors.size() - initialErrorCount, errors, "table element '" +
+                                elementIndex + "' should be of type '" + constrainedType + "', found '" +
+                                getShortSourceValue(bTableValue) + "'");
+                        if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                            return false;
+                        }
+                        returnVal = false;
+                    }
+                }
+                return returnVal;
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.TUPLE_TAG:
+                BArray array = (BArray) sourceValue;
+                for (int i = 0; i < array.size(); i++) {
+                    initialErrorCount = errors.size();
+                    elementIndex = getElementIndex(varName, i);
+                    convertibleType = getConvertibleType(array.get(i), constrainedType, elementIndex,
+                            unresolvedValues, errors, allowNumericConversion);
+                    if (convertibleType == null) {
+                        addErrorMessage(errors.size() - initialErrorCount, errors, "list element '" +
+                                elementIndex + "' should be of type '" + constrainedType + "', found '" +
+                                getShortSourceValue(array.get(i)) + "'");
+                        if (errors.size() >= MAX_CONVERSION_ERROR_COUNT + 1) {
+                            return false;
+                        }
+                        returnVal = false;
+                    }
+                }
+                return returnVal;
+            default:
+                return false;
+
+        }
     }
 
     private static boolean isValidTableConstraint(Type tableConstrainedType) {
