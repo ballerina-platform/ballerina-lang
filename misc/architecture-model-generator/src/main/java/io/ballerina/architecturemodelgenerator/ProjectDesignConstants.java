@@ -65,6 +65,12 @@ public class ProjectDesignConstants {
     public static final String LISTENER = ":Listener";
     public static final String CLIENT = ":Client";
 
+    // Entity Model Generator Related Consts
+    public static final String CONSTRAINT_KEYWORD = "constraint";
+    public static final String CONSTRAINT_ARRAY = "Array";
+    public static final String MIN_LENGTH_FIELD = "minLength";
+    public static final String MAX_LENGTH_FIELD = "maxLength";
+
     /**
      * Enum for cardinality types.
      */

@@ -64,7 +64,11 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ARRAY;
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.COLON;
+import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.CONSTRAINT_ARRAY;
+import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.CONSTRAINT_KEYWORD;
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.FORWARD_SLASH;
+import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.MAX_LENGTH_FIELD;
+import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.MIN_LENGTH_FIELD;
 
 /**
  * Build entity model to represent relationship between records.
@@ -272,10 +276,11 @@ public class EntityModelGenerator extends ModelGenerator {
             for (AnnotationNode annotationNode : recordFieldNode.metadata().get().annotations()) {
                 if (annotationNode.annotReference().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
                     QualifiedNameReferenceNode annotRef =  (QualifiedNameReferenceNode) annotationNode.annotReference();
-                    if (annotRef.modulePrefix().text().equals("constraint") &&
-                            annotRef.identifier().text().equals("Array") && annotationNode.annotValue().isPresent()) {
-                        String minLength = "0";
-                        String maxLength = "m";
+                    if (annotRef.modulePrefix().text().equals(CONSTRAINT_KEYWORD) &&
+                            annotRef.identifier().text().equals(CONSTRAINT_ARRAY) &&
+                            annotationNode.annotValue().isPresent()) {
+                        String minLength = CardinalityValue.ZERO.getValue();
+                        String maxLength = CardinalityValue.MANY.getValue();
                         for (MappingFieldNode annotValField : annotationNode.annotValue().get().fields()) {
                             if (((SpecificFieldNode) annotValField).fieldName().kind()
                                     .equals(SyntaxKind.IDENTIFIER_TOKEN) &&
@@ -283,11 +288,11 @@ public class EntityModelGenerator extends ModelGenerator {
                                     ((SpecificFieldNode) annotValField).valueExpr().get().kind()
                                             .equals(SyntaxKind.NUMERIC_LITERAL)) {
                                 if (((IdentifierToken) ((SpecificFieldNode) annotValField).fieldName()).text()
-                                        .equals("minLength")) {
+                                        .equals(MIN_LENGTH_FIELD)) {
                                     minLength = ((BasicLiteralNode) ((SpecificFieldNode) annotValField)
                                             .valueExpr().get()).literalToken().text();
                                 } else if (((IdentifierToken) ((SpecificFieldNode) annotValField).fieldName()).text()
-                                        .equals("maxLength")) {
+                                        .equals(MAX_LENGTH_FIELD)) {
                                     maxLength = ((BasicLiteralNode) ((SpecificFieldNode) annotValField)
                                             .valueExpr().get()).literalToken().text();
                                 }
