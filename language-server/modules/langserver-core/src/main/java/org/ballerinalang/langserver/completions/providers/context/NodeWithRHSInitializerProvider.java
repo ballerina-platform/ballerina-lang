@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -141,13 +142,23 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         if (contextType.isEmpty()) {
             return completionItems;
         }
-        TypeSymbol rawType = CommonUtil.getRawType(contextType.get());
-        if (rawType.typeKind() == TypeDescKind.STREAM) {
-            LSCompletionItem implicitNewCompletionItem = this.getImplicitNewCItemForStreamType(rawType, context);
+        TypeSymbol typeSymbol = CommonUtil.getRawType(contextType.get());
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            Optional<TypeSymbol> memberType = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                    .map(CommonUtil::getRawType)
+                    .filter(type -> type.typeKind() == TypeDescKind.STREAM || type.kind() == SymbolKind.CLASS)
+                    .findFirst();
+            if (memberType.isEmpty()) {
+                return completionItems;
+            }
+            typeSymbol = memberType.get();
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.STREAM) {
+            LSCompletionItem implicitNewCompletionItem = this.getImplicitNewCItemForStreamType(typeSymbol, context);
             completionItems.add(implicitNewCompletionItem);
-        } else if (rawType.kind() == SymbolKind.CLASS) {
+        } else if (typeSymbol.kind() == SymbolKind.CLASS) {
             LSCompletionItem implicitNewCompletionItem =
-                    this.getImplicitNewCItemForClass((ClassSymbol) rawType, context);
+                    this.getImplicitNewCItemForClass((ClassSymbol) typeSymbol, context);
             completionItems.add(implicitNewCompletionItem);
         }
 
