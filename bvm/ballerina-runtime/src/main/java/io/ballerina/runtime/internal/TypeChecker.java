@@ -2307,53 +2307,8 @@ public class TypeChecker {
                 }
                 return false;
             case TypeTags.UNION_TAG:
-                if (allowNumericConversion) {
-                    List<Type> compatibleTypesWithNumConversion = new ArrayList<>();
-                    List<Type> compatibleTypesWithoutNumConversion = new ArrayList<>();
-                    for (Type type : ((BUnionType) targetType).getMemberTypes()) {
-                        List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
-                        tempList.addAll(unresolvedValues);
-
-                        if (checkIsLikeType(null, sourceValue, type, tempList, false, varName)) {
-                            compatibleTypesWithoutNumConversion.add(type);
-                        }
-
-                        if (checkIsLikeType(null, sourceValue, type, unresolvedValues, true, varName)) {
-                            compatibleTypesWithNumConversion.add(type);
-                        }
-                    }
-                    // Conversion should only be possible to one other numeric type.
-                    return !compatibleTypesWithNumConversion.isEmpty() &&
-                            compatibleTypesWithNumConversion.size() - compatibleTypesWithoutNumConversion.size() <= 1;
-                } else {
-                    if (errors == null) {
-                        for (Type type : ((BUnionType) targetType).getMemberTypes()) {
-                            if (checkIsLikeType(null, sourceValue, type, unresolvedValues, false, varName)) {
-                                return true;
-                            }
-                        }
-                    } else {
-                        int initialErrorCount;
-                        errors.add(ERROR_MESSAGE_UNION_START);
-                        int initialErrorListSize = errors.size();
-                        for (Type type : ((BUnionType) targetType).getMemberTypes()) {
-                            initialErrorCount = errors.size();
-                            if (checkIsLikeType(errors, sourceValue, type, unresolvedValues, false, varName)) {
-                                errors.subList(initialErrorListSize - 1, errors.size()).clear();
-                                return true;
-                            }
-                            if (initialErrorCount != errors.size()) {
-                                errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
-                            }
-                        }
-                        int currentErrorListSize = errors.size();
-                        errors.remove(currentErrorListSize - 1);
-                        if (initialErrorListSize != currentErrorListSize) {
-                            errors.add(ERROR_MESSAGE_UNION_END);
-                        }
-                    }
-                }
-                return false;
+                return checkIsLikeUnionType(errors, sourceValue, (BUnionType) targetType, unresolvedValues,
+                        allowNumericConversion, varName);
             case TypeTags.INTERSECTION_TAG:
                 return checkIsLikeOnValue(errors, sourceValue, sourceType,
                         ((BIntersectionType) targetType).getEffectiveType(), unresolvedValues, allowNumericConversion,
@@ -2367,28 +2322,78 @@ public class TypeChecker {
         }
     }
 
+    private static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, BUnionType targetType,
+                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion,
+                                                String varName) {
+        if (allowNumericConversion) {
+            List<Type> compatibleTypesWithNumConversion = new ArrayList<>();
+            List<Type> compatibleTypesWithoutNumConversion = new ArrayList<>();
+            for (Type type : targetType.getMemberTypes()) {
+                List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
+                tempList.addAll(unresolvedValues);
+
+                if (checkIsLikeType(null, sourceValue, type, tempList, false, varName)) {
+                    compatibleTypesWithoutNumConversion.add(type);
+                }
+
+                if (checkIsLikeType(null, sourceValue, type, unresolvedValues, true, varName)) {
+                    compatibleTypesWithNumConversion.add(type);
+                }
+            }
+            // Conversion should only be possible to one other numeric type.
+            return !compatibleTypesWithNumConversion.isEmpty() &&
+                    compatibleTypesWithNumConversion.size() - compatibleTypesWithoutNumConversion.size() <= 1;
+        } else {
+            return checkIsLikeUnionType(errors, sourceValue, targetType, unresolvedValues, varName);
+        }
+    }
+
+    private static boolean checkIsLikeUnionType(List<String> errors, Object sourceValue, BUnionType targetType,
+                                                List<TypeValuePair> unresolvedValues, String varName) {
+        if (errors == null) {
+            for (Type type : targetType.getMemberTypes()) {
+                if (checkIsLikeType(null, sourceValue, type, unresolvedValues, false, varName)) {
+                    return true;
+                }
+            }
+        } else {
+            int initialErrorCount;
+            errors.add(ERROR_MESSAGE_UNION_START);
+            int initialErrorListSize = errors.size();
+            for (Type type : targetType.getMemberTypes()) {
+                initialErrorCount = errors.size();
+                if (checkIsLikeType(errors, sourceValue, type, unresolvedValues, false, varName)) {
+                    errors.subList(initialErrorListSize - 1, errors.size()).clear();
+                    return true;
+                }
+                if (initialErrorCount != errors.size()) {
+                    errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
+                }
+            }
+            int currentErrorListSize = errors.size();
+            errors.remove(currentErrorListSize - 1);
+            if (initialErrorListSize != currentErrorListSize) {
+                errors.add(ERROR_MESSAGE_UNION_END);
+            }
+        }
+        return false;
+    }
+
     private static XmlNodeType getXmlNodeType(Type type) {
-        XmlNodeType nodeType = null;
         switch (type.getTag()) {
             case TypeTags.XML_ELEMENT_TAG:
-                nodeType = XmlNodeType.ELEMENT;
-                break;
+                return XmlNodeType.ELEMENT;
             case TypeTags.XML_COMMENT_TAG:
-                nodeType = XmlNodeType.COMMENT;
-                break;
+                return XmlNodeType.COMMENT;
             case TypeTags.XML_PI_TAG:
-                nodeType = XmlNodeType.PI;
-                break;
+                return XmlNodeType.PI;
             case TypeTags.XML_TEXT_TAG:
-                nodeType = XmlNodeType.TEXT;
-                break;
+                return XmlNodeType.TEXT;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                nodeType = getXmlNodeType(((ReferenceType) type).getReferredType());
-                break;
+                return getXmlNodeType(((ReferenceType) type).getReferredType());
             default:
                 return null;
         }
-        return nodeType;
     }
 
     private static boolean checkIsLikeXmlValueSingleton(XmlValue xmlSource, Type targetType) {

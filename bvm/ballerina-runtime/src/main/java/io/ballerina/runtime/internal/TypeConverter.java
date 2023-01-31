@@ -349,40 +349,48 @@ public class TypeConverter {
                                                            boolean allowNumericConversion) {
         List<Type> memberTypes = targetUnionType.getMemberTypes();
         if (TypeChecker.isStructuredType(getType(inputValue))) {
-            int initialErrorCount;
-            errors.add(ERROR_MESSAGE_UNION_START);
-            int initialErrorListSize = errors.size();
-            int currentErrorListSize = initialErrorListSize;
-            for (Type memType : memberTypes) {
-                initialErrorCount = errors.size();
-                Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                        unresolvedValues, errors, allowNumericConversion);
-                currentErrorListSize = errors.size();
-                if (convertibleTypeInUnion != null) {
-                    errors.subList(initialErrorListSize - 1, currentErrorListSize).clear();
-                    return convertibleTypeInUnion;
-                }
-                if (initialErrorCount != currentErrorListSize) {
-                    errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
-                }
+            return getConvertibleStructuredTypeInUnion(inputValue, varName, errors,
+                    unresolvedValues, allowNumericConversion, memberTypes);
+        }
+
+        for (Type memType : memberTypes) {
+            if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                return memType;
             }
-            errors.remove(errors.size() - 1);
-            if (initialErrorListSize != currentErrorListSize) {
-                errors.add(ERROR_MESSAGE_UNION_END);
+        }
+        for (Type memType : memberTypes) {
+            Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
+                    unresolvedValues, errors, allowNumericConversion);
+            if (convertibleTypeInUnion != null) {
+                return convertibleTypeInUnion;
             }
-        } else {
-            for (Type memType : memberTypes) {
-                if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                    return memType;
-                }
+        }
+        return null;
+    }
+
+    private static Type getConvertibleStructuredTypeInUnion(Object inputValue, String varName, List<String> errors,
+                                                            Set<TypeValuePair> unresolvedValues,
+                                                            boolean allowNumericConversion, List<Type> memberTypes) {
+        int initialErrorCount;
+        errors.add(ERROR_MESSAGE_UNION_START);
+        int initialErrorListSize = errors.size();
+        int currentErrorListSize = initialErrorListSize;
+        for (Type memType : memberTypes) {
+            initialErrorCount = errors.size();
+            Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
+                    unresolvedValues, errors, allowNumericConversion);
+            currentErrorListSize = errors.size();
+            if (convertibleTypeInUnion != null) {
+                errors.subList(initialErrorListSize - 1, currentErrorListSize).clear();
+                return convertibleTypeInUnion;
             }
-            for (Type memType : memberTypes) {
-                Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
-                        unresolvedValues, errors, allowNumericConversion);
-                if (convertibleTypeInUnion != null) {
-                    return convertibleTypeInUnion;
-                }
+            if (initialErrorCount != currentErrorListSize) {
+                errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
             }
+        }
+        errors.remove(errors.size() - 1);
+        if (initialErrorListSize != currentErrorListSize) {
+            errors.add(ERROR_MESSAGE_UNION_END);
         }
         return null;
     }
