@@ -58,6 +58,7 @@ import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -568,10 +569,11 @@ public class TypeConverter {
         switch (sourceTypeReferredTypeTag) {
             case TypeTags.TABLE_TAG:
                 Collection<?> bTableValues = ((BTable<?, ?>) sourceValue).values();
+                Iterator<?> bTableIterator = bTableValues.iterator();
                 for (int i = 0; i < bTableValues.size(); i++) {
                     initialErrorCount = errors.size();
                     elementIndex = getElementIndex(varName, i);
-                    Object bTableValue = bTableValues.iterator().next();
+                    Object bTableValue = bTableIterator.next();
                     convertibleType = getConvertibleType(bTableValue, constrainedType, elementIndex,
                             unresolvedValues, errors, allowNumericConversion);
                     if (convertibleType == null) {
