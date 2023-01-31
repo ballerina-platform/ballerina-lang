@@ -699,47 +699,45 @@ public class ImmutableTypeCloner {
                                                                      BUnionType type, BType originalType) {
         BTypeSymbol origBuiltInUnionTypeSymbol = type.tsymbol;
 
-        LinkedHashSet<BType> originalMemberList = type.getMemberTypes();
         Optional<BIntersectionType> immutableTypeOptional = Types.getImmutableType(symTable, pkgId, type);
         if (immutableTypeOptional.isPresent()) {
             return immutableTypeOptional.get();
         }
 
+        BUnionType effectiveType;
         if (type.tag == TypeTags.JSON) {
-            defineImmutableJsonType(env, pkgId, owner, symTable, names, (BJSONType) type, originalType);
+            effectiveType = defineImmutableJsonType(env, pkgId, owner, names, (BJSONType) type);
         } else {
-            defineImmutableAnydataType(env, pkgId, owner, symTable, names, (BAnydataType) type, originalType);
+            effectiveType = defineImmutableAnydataType(env, pkgId, owner, names, (BAnydataType) type);
         }
 
+        BIntersectionType immutableBuiltInUnionIntersectionType =
+                createImmutableIntersectionType(pkgId, owner, originalType, effectiveType, symTable);
+        Types.addImmutableType(symTable, pkgId, type, immutableBuiltInUnionIntersectionType);
+
         return handleImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
-                                        unresolvedTypes, type, origBuiltInUnionTypeSymbol, originalMemberList);
+                                        unresolvedTypes, type, origBuiltInUnionTypeSymbol, type.getMemberTypes());
     }
 
-    private static void defineImmutableAnydataType(SymbolEnv env, PackageID pkgId, BSymbol owner, SymbolTable symTable,
-                                                   Names names, BAnydataType type, BType originalType) {
+    private static BAnydataType defineImmutableAnydataType(SymbolEnv env, PackageID pkgId, BSymbol owner, Names names,
+                                                           BAnydataType type) {
         BTypeSymbol immutableAnydataTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
 
-        BAnydataType immutableAnydataType;
         if (immutableAnydataTSymbol != null) {
-            immutableAnydataType =
+            BAnydataType immutableAnydataType =
                     new BAnydataType(immutableAnydataTSymbol,
                                      immutableAnydataTSymbol.name, type.flags | Flags.READONLY,
                                      type.isNullable());
             immutableAnydataTSymbol.type = immutableAnydataType;
-        } else {
-            immutableAnydataType =
-                    new BAnydataType(immutableAnydataTSymbol,
-                                     getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
-                                     type.flags | Flags.READONLY, type.isNullable());
+            return immutableAnydataType;
         }
-
-        BIntersectionType immutableAnydataIntersectionType =
-                createImmutableIntersectionType(pkgId, owner, originalType, immutableAnydataType, symTable);
-        Types.addImmutableType(symTable, pkgId, type, immutableAnydataIntersectionType);
+         return new BAnydataType(immutableAnydataTSymbol,
+                                 getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
+                                 type.flags | Flags.READONLY, type.isNullable());
     }
 
-    private static void defineImmutableJsonType(SymbolEnv env, PackageID pkgId, BSymbol owner, SymbolTable symTable,
-                                                Names names, BJSONType type, BType originalType) {
+    private static BJSONType defineImmutableJsonType(SymbolEnv env, PackageID pkgId, BSymbol owner, Names names,
+                                                     BJSONType type) {
         BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, type.tsymbol, env, pkgId, owner);
         BJSONType immutableJsonType = new BJSONType(immutableJsonTSymbol,
                                                     type.isNullable(),
@@ -747,12 +745,7 @@ public class ImmutableTypeCloner {
         if (immutableJsonTSymbol != null) {
             immutableJsonTSymbol.type = immutableJsonType;
         }
-
-        BIntersectionType immutableJsonIntersectionType = createImmutableIntersectionType(pkgId, owner,
-                                                                                          originalType,
-                                                                                          immutableJsonType,
-                                                                                          symTable);
-        Types.addImmutableType(symTable, pkgId, type, immutableJsonIntersectionType);
+        return immutableJsonType;
     }
 
     private static BIntersectionType handleImmutableUnionType(Location pos, Types types, SymbolEnv env, PackageID pkgId,
