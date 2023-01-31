@@ -99,6 +99,9 @@ public class TypeConverter {
 
     public static final byte MAX_CONVERSION_ERROR_COUNT = 20;
     public static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
+    static final String ERROR_MESSAGE_UNION_START = "{";
+    static final String ERROR_MESSAGE_UNION_END = "}";
+    static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";
 
     public static Object convertValues(Type targetType, Object inputValue) {
         Type inputType = TypeChecker.getType(inputValue);
@@ -346,12 +349,26 @@ public class TypeConverter {
                                                            boolean allowNumericConversion) {
         List<Type> memberTypes = targetUnionType.getMemberTypes();
         if (TypeChecker.isStructuredType(getType(inputValue))) {
+            int initialErrorCount;
+            errors.add(ERROR_MESSAGE_UNION_START);
+            int initialErrorListSize = errors.size();
+            int currentErrorListSize = initialErrorListSize;
             for (Type memType : memberTypes) {
+                initialErrorCount = errors.size();
                 Type convertibleTypeInUnion = getConvertibleType(inputValue, memType, varName,
                         unresolvedValues, errors, allowNumericConversion);
+                currentErrorListSize = errors.size();
                 if (convertibleTypeInUnion != null) {
+                    errors.subList(initialErrorListSize - 1, currentErrorListSize).clear();
                     return convertibleTypeInUnion;
                 }
+                if (initialErrorCount != currentErrorListSize) {
+                    errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
+                }
+            }
+            errors.remove(errors.size() - 1);
+            if (initialErrorListSize != currentErrorListSize) {
+                errors.add(ERROR_MESSAGE_UNION_END);
             }
         } else {
             for (Type memType : memberTypes) {

@@ -2310,16 +2310,16 @@ public class TypeChecker {
                         List<TypeValuePair> tempList = new ArrayList<>(unresolvedValues.size());
                         tempList.addAll(unresolvedValues);
 
-                        if (checkIsLikeType(errors, sourceValue, type, tempList, false, varName)) {
+                        if (checkIsLikeType(null, sourceValue, type, tempList, false, varName)) {
                             compatibleTypesWithoutNumConversion.add(type);
                         }
 
-                        if (checkIsLikeType(errors, sourceValue, type, unresolvedValues, true, varName)) {
+                        if (checkIsLikeType(null, sourceValue, type, unresolvedValues, true, varName)) {
                             compatibleTypesWithNumConversion.add(type);
                         }
                     }
                     // Conversion should only be possible to one other numeric type.
-                    return compatibleTypesWithNumConversion.size() != 0 &&
+                    return !compatibleTypesWithNumConversion.isEmpty() &&
                             compatibleTypesWithNumConversion.size() - compatibleTypesWithoutNumConversion.size() <= 1;
                 } else {
                     for (Type type : ((BUnionType) targetType).getMemberTypes()) {
