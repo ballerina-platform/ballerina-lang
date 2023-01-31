@@ -161,6 +161,7 @@ public class LangLibrary {
             case TYPEDESC:
             case XML:
             case TABLE:
+            case REGEXP:
                 return typeKind.typeName();
             default:
                 return LANG_VALUE;
