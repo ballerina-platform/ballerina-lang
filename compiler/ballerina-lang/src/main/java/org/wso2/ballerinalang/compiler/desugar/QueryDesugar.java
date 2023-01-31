@@ -829,10 +829,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         nonGroupingKeys.exprs = new ArrayList<>();
         nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
-        for (Name nonGroupingKey : groupByClause.nonGroupingKeys) {
-            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey.value));
+        for (String nonGroupingKey : groupByClause.nonGroupingKeys) {
+            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
         }
-        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION, Lists.of(keys, nonGroupingKeys), pos);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION,
+                Lists.of(keys, nonGroupingKeys), pos);
     }
 
     BLangLetClause createLetClauseFromVarDef(BLangSimpleVariableDef varDef) {

@@ -6077,8 +6077,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.prevEnvs.push(data.env);
         }
         typeCheckerData.queryFinalClauses.push(queryExpr.getSelectClause());
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
 
         BType actualType = resolveQueryType(typeCheckerData.queryEnvs.peek(),
                 ((BLangSelectClause) typeCheckerData.queryFinalClauses.peek()).expression,
@@ -6450,8 +6452,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         BLangDoClause doClause = queryAction.getDoClause();
         typeCheckerData.queryFinalClauses.push(doClause);
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
@@ -6489,6 +6493,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, data.commonAnalyzerData.queryEnvs.peek());
         data.commonAnalyzerData.breakToParallelQueryEnv = prevBreakToParallelEnv;
+        for (Name variable : fromEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
     }
 
     @Override
@@ -6528,6 +6535,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.commonAnalyzerData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, data.commonAnalyzerData);
+        }
+        for (Name variable : letEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
         }
     }
 
@@ -6606,33 +6616,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
         groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
-        Set<Name> groupingKeys = new HashSet<>();
+        Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            String variable;
             if (groupingKey.variableRef != null) {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
-                groupingKeys.add(new Name(groupingKey.variableRef.variableName.value));
+                variable = groupingKey.variableRef.variableName.value;
             } else {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
                         data.commonAnalyzerData);
-                groupingKeys.add(new Name(groupingKey.variableDef.var.name.value));
+                variable = groupingKey.variableDef.var.name.value;
+                data.queryVariables.add(variable);
             }
+            nonGroupingKeys.remove(variable);
         }
-        groupByClause.nonGroupingKeys = new HashSet<>();
-        findNonGroupingKeys(groupByClause.env, groupingKeys, groupByClause.nonGroupingKeys);
-    }
-
-    private void findNonGroupingKeys(SymbolEnv env, Set<Name> groupingKeys, Set<Name> nonGroupingKeys) {
-        while (true) {
-            for (Name name : env.scope.entries.keySet()) {
-                if (!groupingKeys.contains(name)) {
-                    nonGroupingKeys.add(name);
-                }
-            }
-            if (env.node.getKind() == NodeKind.FROM) {
-                break;
-            }
-            env = env.enclEnv;
-        }
+        groupByClause.nonGroupingKeys = nonGroupingKeys;
     }
 
     @Override
@@ -10128,5 +10126,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType;
         BType resultType;
         boolean isResourceAccessPathSegments = false;
+
+        Set<String> queryVariables;
     }
 }
