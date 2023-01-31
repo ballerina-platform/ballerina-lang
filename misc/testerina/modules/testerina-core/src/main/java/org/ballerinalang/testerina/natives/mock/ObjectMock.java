@@ -357,7 +357,7 @@ public class ObjectMock {
     private static boolean validateUnionValue(Object returnVal, UnionType functionReturnType) {
         List<Type> memberTypes = functionReturnType.getMemberTypes();
         for (Type memberType : memberTypes) {
-            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+            if (TypeUtils.getReferredType(memberType).getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
                 if (validateParameterizedValue(returnVal, ((ParameterizedType) memberType))) {
                     return true;
                 }
@@ -380,8 +380,8 @@ public class ObjectMock {
     private static boolean validateStreamValue(Object returnVal, StreamType streamType) {
         Type sourceType = TypeUtils.getReferredType(getType(returnVal));
         if (sourceType.getTag() == TypeTags.STREAM_TAG) {
-            Type targetConstrainedType = streamType.getConstrainedType();
-            Type targetCompletionType = streamType.getCompletionType();
+            Type targetConstrainedType = TypeUtils.getReferredType(streamType.getConstrainedType());
+            Type targetCompletionType = TypeUtils.getReferredType(streamType.getCompletionType());
             // Update the target stream constrained type if it is a parameterized type
             if (targetConstrainedType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
                 targetConstrainedType = ((ParameterizedType) targetConstrainedType).getParamValueType();
@@ -410,7 +410,8 @@ public class ObjectMock {
             String functionName, Object returnVal, MethodType[] attachedFunctions) {
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
-                Type functionReturnType = attachedFunction.getType().getReturnParameterType();
+                Type functionReturnType = TypeUtils.getReferredType(
+                        attachedFunction.getType().getReturnParameterType());
                 switch (functionReturnType.getTag()) {
                     case TypeTags.UNION_TAG:
                         return validateUnionValue(returnVal, (UnionType) functionReturnType);

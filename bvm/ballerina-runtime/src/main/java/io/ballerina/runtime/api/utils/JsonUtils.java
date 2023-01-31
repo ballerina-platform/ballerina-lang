@@ -302,6 +302,7 @@ public class JsonUtils {
     private static Object getJsonObject(Object value, List<TypeValuePair> unresolvedValues, Type jsonType,
                                     Type sourceType) {
         Object newValue;
+        sourceType = TypeUtils.getReferredType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -317,7 +318,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = ((TableType) sourceType).getConstrainedType();
+                Type constrainedType = TypeUtils.getReferredType(((TableType) sourceType).getConstrainedType());
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
@@ -331,10 +332,6 @@ public class JsonUtils {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
                 newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
-                break;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                newValue = getJsonObject(value, unresolvedValues, jsonType,
-                        ((ReferenceType) sourceType).getReferredType());
                 break;
             case TypeTags.ERROR_TAG:
             default:

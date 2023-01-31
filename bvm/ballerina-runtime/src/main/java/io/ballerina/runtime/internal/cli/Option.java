@@ -196,7 +196,7 @@ public class Option {
     }
 
     private boolean isSupportedArrayType(BString key, Type fieldType) {
-        if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getReferredType(fieldType).getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
             Type elementType = TypeUtils.getReferredType(bArray.getElementType());
             if (CliUtil.isSupportedType(elementType.getTag())) {
@@ -230,7 +230,7 @@ public class Option {
     }
 
     private boolean isABoolean(Type fieldType) {
-        return fieldType.getTag() == TypeTags.BOOLEAN_TAG;
+        return TypeUtils.getReferredType(fieldType).getTag() == TypeTags.BOOLEAN_TAG;
     }
 
     private void processNamedArg(String arg, BString paramName) {

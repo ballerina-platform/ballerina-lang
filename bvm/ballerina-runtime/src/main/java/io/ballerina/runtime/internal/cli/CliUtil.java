@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -46,7 +47,7 @@ public class CliUtil {
     }
 
     static Object getBValueWithUnionValue(Type type, String value, String parameterName) {
-        if (type.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getReferredType(type).getTag() == TypeTags.UNION_TAG) {
             return getUnionValue(type, value, parameterName);
         }
         return getBValue(type, value, parameterName);
@@ -63,7 +64,7 @@ public class CliUtil {
     }
 
     static Object getBValue(Type type, String value, String parameterName) {
-        switch (type.getTag()) {
+        switch (TypeUtils.getReferredType(type).getTag()) {
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
@@ -86,7 +87,7 @@ public class CliUtil {
     }
 
     static boolean isUnionWithNil(Type fieldType) {
-        if (fieldType.getTag() == TypeTags.UNION_TAG) {
+        if (TypeUtils.getReferredType(fieldType).getTag() == TypeTags.UNION_TAG) {
             List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
             if (isUnionWithNil(unionMemberTypes)) {
                 return true;

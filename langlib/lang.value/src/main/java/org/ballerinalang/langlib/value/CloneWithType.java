@@ -148,6 +148,7 @@ public class CloneWithType {
 
     private static Object getConvertedObject(BRefValue value, Type sourceType, Type targetType,
                                              List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        sourceType = TypeUtils.getReferredType(sourceType);
         switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -164,9 +165,6 @@ public class CloneWithType {
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.ERROR_TAG:
                 return value.copy(new HashMap<>());
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getConvertedObject(value, ((ReferenceType) sourceType).getReferredType(), targetType,
-                        unresolvedValues, t);
             default:
                 // should never reach here
                 throw createConversionError(value, targetType);

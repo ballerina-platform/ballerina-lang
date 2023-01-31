@@ -78,7 +78,7 @@ public class CliSpec {
         while (argIndex < operandArgs.size() && opIndex < operands.length) {
             Operand curOperand = operands[opIndex++];
             Type typeOp = curOperand.type;
-            if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
+            if (TypeUtils.getReferredType(typeOp).getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType);
                 Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
@@ -121,7 +121,7 @@ public class CliSpec {
     }
 
     private boolean isSupportedArrayType(Type opType) {
-        if (opType.getTag() == TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getReferredType(opType).getTag() == TypeTags.ARRAY_TAG) {
             Type elementType = TypeUtils.getReferredType(((ArrayType) opType).getElementType());
             return CliUtil.isSupportedType(elementType.getTag());
         }
@@ -129,7 +129,7 @@ public class CliSpec {
     }
 
     private static Object getDefaultBValue(Type type) {
-        switch (type.getTag()) {
+        switch (TypeUtils.getReferredType(type).getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
@@ -144,7 +144,8 @@ public class CliSpec {
 
     private int getElementCount(Operand[] operands, int opIndex) {
         int count = 0;
-        while (opIndex < operands.length && operands[opIndex++].type.getTag() != TypeTags.RECORD_TYPE_TAG) {
+        while (opIndex < operands.length && 
+                TypeUtils.getReferredType(operands[opIndex++].type).getTag() != TypeTags.RECORD_TYPE_TAG) {
             count++;
         }
         return count;

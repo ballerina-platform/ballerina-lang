@@ -70,20 +70,18 @@ public class ArrayUtils {
     }
 
     public static GetFunction getElementAccessFunction(Type arrType, String funcName) {
-        switch (arrType.getTag()) {
+        switch (TypeUtils.getReferredType(arrType).getTag()) {
             case TypeTags.ARRAY_TAG:
                 return BArray::get;
             case TypeTags.TUPLE_TAG:
                 return BArray::getRefValue;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getElementAccessFunction(TypeUtils.getReferredType(arrType), funcName);
             default:
                 throw createOpNotSupportedError(arrType, funcName);
         }
     }
 
     public static void checkIsArrayOnlyOperation(Type arrType, String op) {
-        if (arrType.getTag() != TypeTags.ARRAY_TAG) {
+        if (TypeUtils.getReferredType(arrType).getTag() != TypeTags.ARRAY_TAG) {
             throw createOpNotSupportedError(arrType, op);
         }
     }

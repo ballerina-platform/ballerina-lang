@@ -270,7 +270,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         String errMessage = "";
-        switch (getType().getTag()) {
+        switch (getReferredType(getType()).getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
                 errMessage = "Invalid update of record field: ";
                 break;

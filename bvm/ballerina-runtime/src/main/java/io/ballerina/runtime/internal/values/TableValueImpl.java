@@ -715,7 +715,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public DefaultKeyWrapper() {
                 if (fieldNames.length == 1) {
                     keyType = getTableConstraintField(tableType.getConstrainedType(), fieldNames[0]);
-                    if (keyType != null && keyType.getTag() == TypeTags.INT_TAG) {
+                    if (keyType != null && TypeUtils.getReferredType(keyType).getTag() == TypeTags.INT_TAG) {
                         nextKeySupported = true;
                     }
                 }

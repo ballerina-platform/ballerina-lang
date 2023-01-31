@@ -234,7 +234,10 @@ public class JsonInternalUtils {
         if (!(json instanceof RefValue)) {
             return false;
         }
-        return ((RefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
+
+        Type type = TypeUtils.getReferredType(((RefValue) json).getType());
+        int typeTag = type.getTag();
+        return typeTag == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -268,7 +271,7 @@ public class JsonInternalUtils {
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
-        Type mapConstraint = mapType.getConstrainedType();
+        Type mapConstraint = TypeUtils.getReferredType(mapType.getConstrainedType());
         if (mapConstraint == null || mapConstraint.getTag() == TypeTags.ANY_TAG ||
                 mapConstraint.getTag() == TypeTags.JSON_TAG) {
             ((MapValueImpl<BString, Object>) json).forEach(map::put);
@@ -319,6 +322,7 @@ public class JsonInternalUtils {
     }
 
     public static Object convertJSON(Object jsonValue, Type targetType) {
+        targetType = TypeUtils.getReferredType(targetType);
         Type matchingType;
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
@@ -365,8 +369,6 @@ public class JsonInternalUtils {
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
                 return jsonToMap(jsonValue, (BMapType) targetType);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return convertJSON(jsonValue, ((BTypeReferenceType) targetType).getReferredType());
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;

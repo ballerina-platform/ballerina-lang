@@ -206,7 +206,7 @@ public class StringUtils {
             ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
-                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
+                        TypeUtils.getReferredType(func.getType().getReturnType()).getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
@@ -277,7 +277,7 @@ public class StringUtils {
             ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
-                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
+                        TypeUtils.getReferredType(func.getType().getReturnType()).getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }

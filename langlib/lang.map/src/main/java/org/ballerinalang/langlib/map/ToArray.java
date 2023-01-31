@@ -65,7 +65,7 @@ public class ToArray {
         Collection values = m.values();
         int size = values.size();
         int i = 0;
-        switch (arrElemType.getTag()) {
+        switch (TypeUtils.getReferredType(arrElemType).getTag()) {
             case TypeTags.INT_TAG:
                 long[] intArr = new long[size];
                 for (Object val : values) {

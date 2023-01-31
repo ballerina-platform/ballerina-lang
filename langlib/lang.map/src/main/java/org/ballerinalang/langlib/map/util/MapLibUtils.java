@@ -51,13 +51,12 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class MapLibUtils {
 
     public static Type getFieldType(Type mapType, String funcName) {
+        mapType = TypeUtils.getReferredType(mapType);
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 return ((MapType) mapType).getConstrainedType();
             case TypeTags.RECORD_TYPE_TAG:
                 return getCommonTypeForRecordField((RecordType) mapType);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getFieldType(((ReferenceType) mapType).getReferredType(), funcName);
             default:
                 throw createOpNotSupportedError(mapType, funcName);
         }

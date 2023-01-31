@@ -77,7 +77,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.is
 public class ConfigValueCreator {
 
     public Object createValue(TomlNode tomlValue, Type type) {
-        if (isSimpleType(type.getTag())) {
+        if (isSimpleType(TypeUtils.getReferredType(type).getTag())) {
             return createPrimitiveValue(tomlValue, type);
         }
         return createStructuredValue(tomlValue, type);
@@ -139,7 +139,7 @@ public class ConfigValueCreator {
             Object value;
             Type type = Utils.getTupleElementType(tupleTypes, i, tupleType);
             TomlValueNode valueNode = elements.get(i);
-            if (isSimpleType(type.getTag())) {
+            if (isSimpleType(TypeUtils.getReferredType(type).getTag())) {
                 value = createBalValue(type, valueNode);
             } else {
                 value = createStructuredValue(valueNode, type);
@@ -257,6 +257,7 @@ public class ConfigValueCreator {
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
         RecordType recordType;
         String recordName;
+        type = TypeUtils.getReferredType(type);
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordName = type.getName();
             recordType = (RecordType) type;
@@ -273,7 +274,7 @@ public class ConfigValueCreator {
             if (field == null) {
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = TypeUtils.getReferredType(field.getFieldType());
+            Type fieldType = field.getFieldType();
             Object objectValue = createValue(value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
@@ -334,7 +335,7 @@ public class ConfigValueCreator {
 
     private Object createBalValue(Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        switch (type.getTag()) {
+        switch (TypeUtils.getReferredType(type).getTag()) {
             case TypeTags.BYTE_TAG:
                 return ((Long) tomlValue).intValue();
             case TypeTags.DECIMAL_TAG:

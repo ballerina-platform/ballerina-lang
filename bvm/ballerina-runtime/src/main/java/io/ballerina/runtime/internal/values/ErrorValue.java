@@ -148,7 +148,7 @@ public class ErrorValue extends BError implements RefValue {
                 sj.add(key + "=null");
             } else {
                 Type type = TypeChecker.getType(value);
-                switch (type.getTag()) {
+                switch (TypeUtils.getReferredType(type).getTag()) {
                     case TypeTags.STRING_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_ELEMENT_TAG:

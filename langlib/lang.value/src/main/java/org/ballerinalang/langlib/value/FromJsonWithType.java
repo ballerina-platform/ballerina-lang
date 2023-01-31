@@ -169,6 +169,8 @@ public class FromJsonWithType {
                 return true;
             }
             return isRegExpType(referredType);
+        } else if (targetType.getTag() == TypeTags.INTERSECTION_TAG) {
+            return isRegExpType(((IntersectionType) targetType).getEffectiveType());
         }
         return false;
     }

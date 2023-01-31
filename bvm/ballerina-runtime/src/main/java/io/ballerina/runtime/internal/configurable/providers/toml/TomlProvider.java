@@ -949,7 +949,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateByteValue(String variableName, Type type, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
-        if (type.getTag() == TypeTags.BYTE_TAG) {
+        if (getEffectiveType(type).getTag() == TypeTags.BYTE_TAG) {
             int value = ((Long) tomlValue).intValue();
             if (!isByteLiteral(value)) {
                 invalidTomlLines.add(tomlValueNode.location().lineRange());

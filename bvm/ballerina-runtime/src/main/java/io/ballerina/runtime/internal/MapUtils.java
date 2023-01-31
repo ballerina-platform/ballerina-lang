@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -48,7 +49,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        Type mapType = mapValue.getType();
+        Type mapType = TypeUtils.getReferredType(mapValue.getType());
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
                 handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
@@ -127,10 +128,8 @@ public class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        int tag = type.getTag();
-        if (tag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            return containsNilType(((BTypeReferenceType) type).getReferredType());
-        } else if (tag == TypeTags.UNION_TAG) {
+        int tag = TypeUtils.getReferredType(type).getTag();
+        if (tag == TypeTags.UNION_TAG) {
             List<Type> memTypes = ((BUnionType) type).getMemberTypes();
             for (Type memType : memTypes) {
                 if (containsNilType(memType)) {
@@ -147,7 +146,7 @@ public class MapUtils {
     }
 
     public static void checkIsMapOnlyOperation(Type mapType, String op) {
-        switch (mapType.getTag()) {
+        switch (TypeUtils.getReferredType(mapType).getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:

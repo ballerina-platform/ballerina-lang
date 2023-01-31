@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
@@ -33,7 +34,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 public class GetCompletionType {
 
     public static BTypedesc getCompletionType(BTypedesc td) {
-        Type type = td.getDescribingType();
+        Type type = TypeUtils.getReferredType(td.getDescribingType());
         if (type.getTag() == TypeTags.STREAM_TAG) {
             return ValueCreator.createTypedescValue(((StreamType) type).getCompletionType());
         }

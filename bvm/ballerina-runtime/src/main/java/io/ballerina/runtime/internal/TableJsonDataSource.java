@@ -105,7 +105,7 @@ public class TableJsonDataSource implements JsonDataSource {
         public Object transform(BMap<?, ?> record) {
             MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             for (Map.Entry entry : record.entrySet()) {
-                Type type = TypeUtils.getReferredType(TypeChecker.getType(entry.getValue()));
+                Type type = TypeChecker.getType(entry.getValue());
                 BString keyName = StringUtils.fromString(entry.getKey().toString());
                 constructJsonData(record, objNode, keyName, type);
             }
@@ -116,6 +116,7 @@ public class TableJsonDataSource implements JsonDataSource {
 
     private static void constructJsonData(BMap<?, ?> record, MapValue<BString, Object> jsonObject,
                                           BString key, Type type) {
+        type = TypeUtils.getReferredType(type);
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
                 jsonObject.put(key, record.getStringValue(key));
@@ -152,7 +153,7 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.RECORD_TYPE_TAG:
                 MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
                 for (Map.Entry entry : record.getMapValue(key).entrySet()) {
-                    Type internalType = TypeUtils.getReferredType(TypeChecker.getType(entry.getValue()));
+                    Type internalType = TypeChecker.getType(entry.getValue());
                     BString internalKeyName = StringUtils.fromString(entry.getKey().toString());
                     constructJsonData(record.getMapValue(key), jsonData, internalKeyName, internalType);
                 }

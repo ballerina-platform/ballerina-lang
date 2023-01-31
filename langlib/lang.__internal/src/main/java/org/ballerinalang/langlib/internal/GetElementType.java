@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 
@@ -46,6 +47,7 @@ public class GetElementType {
     }
 
     private static BTypedesc getElementTypeDescValue(Type type) {
+        type = TypeUtils.getReferredType(type);
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
                 return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
@@ -56,8 +58,6 @@ public class GetElementType {
                 // this is reached only for immutable values
                 return getElementTypeDescValue(
                         ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getElementTypeDescValue(((ReferenceType) type).getReferredType());
             default:
                 return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
         }
