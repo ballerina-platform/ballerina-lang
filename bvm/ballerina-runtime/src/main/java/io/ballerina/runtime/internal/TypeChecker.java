@@ -721,6 +721,9 @@ public class TypeChecker {
 
     private static boolean checkIsType(Object sourceVal, Type sourceType, Type targetType,
                                        List<TypePair> unresolvedTypes) {
+        sourceType = getReferredType(sourceType);
+        targetType = getReferredType(targetType);
+        
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
@@ -740,16 +743,6 @@ public class TypeChecker {
         // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
             return checkIsType(sourceType, targetType);
-        }
-
-        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            targetType = getReferredType(targetType);
-            targetTypeTag = targetType.getTag();
-        }
-
-        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
-            targetType = ((BIntersectionType) targetType).getEffectiveType();
-            targetTypeTag = targetType.getTag();
         }
 
         if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
@@ -784,7 +777,6 @@ public class TypeChecker {
     }
 
     private static boolean checkIsRecursiveType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        targetType = TypeUtils.getReferredType(targetType);
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
