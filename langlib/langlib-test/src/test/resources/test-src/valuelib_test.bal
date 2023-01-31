@@ -1827,6 +1827,50 @@ function testConvertJsonToNestedRecordsWithErrors() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
+type NumberArray int[]|float[];
+
+type StringCharArray string[]|string:Char[];
+
+type NumberOrStringCharArray NumberArray|StringCharArray;
+
+type RecordWithArrayAsAField record {|
+    NumberOrStringCharArray arr;
+|};
+
+type RecordWithNumberArrayAsAField record {|
+    NumberArray arr;
+|};
+
+function testUnionNestedTypeConversionErrors() {
+    json j = {"arr": [1, 1.2, "a", "aa"]};
+    RecordWithArrayAsAField|RecordWithNumberArrayAsAField|error result = j.cloneWithType();
+    assert(result is error, true);
+    error err = <error>result;
+    string errMsg = "'map<json>' value cannot be converted to '(RecordWithArrayAsAField|RecordWithNumberArrayAsAField)': " +
+    "\n\t\teither" +
+    "\n\t\t  either" +
+    "\n\t\t    array element 'arr[2]' should be of type 'int', found '\"a\"'" +
+    "\n\t\t    array element 'arr[3]' should be of type 'int', found '\"aa\"'" +
+    "\n\t\t  or" +
+    "\n\t\t    array element 'arr[2]' should be of type 'float', found '\"a\"'" +
+    "\n\t\t    array element 'arr[3]' should be of type 'float', found '\"aa\"'" +
+    "\n\t\t  or" +
+    "\n\t\t    array element 'arr[0]' should be of type 'string', found '1'" +
+    "\n\t\t    array element 'arr[1]' should be of type 'string', found '1.2'" +
+    "\n\t\t  or" +
+    "\n\t\t    array element 'arr[0]' should be of type 'lang.string:Char', found '1'" +
+    "\n\t\t    array element 'arr[1]' should be of type 'lang.string:Char', found '1.2'" +
+    "\n\t\t    array element 'arr[3]' should be of type 'lang.string:Char', found '\"aa\"'" +
+    "\n\t\tor" +
+    "\n\t\t  either" +
+    "\n\t\t    array element 'arr[2]' should be of type 'int', found '\"a\"'" +
+    "\n\t\t    array element 'arr[3]' should be of type 'int', found '\"aa\"'" +
+    "\n\t\t  or" +
+    "\n\t\t...";
+    assert(<string>checkpanic err.detail()["message"], errMsg);
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+}
+
 type Journey record {|
     map<int> destinations;
     boolean[] enjoyable;
