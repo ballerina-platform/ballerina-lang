@@ -77,6 +77,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GRACEFUL_EXIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
@@ -382,7 +383,7 @@ public class InitMethodGen {
         jiMethodCall.args =  new ArrayList<>();
         jiMethodCall.varArgExist = false;
         jiMethodCall.jClassName = LAUNCH_UTILS;
-        jiMethodCall.jMethodVMSig = "()V";
+        jiMethodCall.jMethodVMSig = GRACEFUL_EXIT_METHOD;
         jiMethodCall.name = "graceFulExit";
         jiMethodCall.invocationType = INVOKESTATIC;
         jiMethodCall.thenBB = nextBB;
