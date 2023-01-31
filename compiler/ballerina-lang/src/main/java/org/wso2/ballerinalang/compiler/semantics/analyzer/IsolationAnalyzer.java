@@ -1913,8 +1913,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangType memberTypeNode : tupleTypeNode.memberTypeNodes) {
-            analyzeNode(memberTypeNode, env);
+        for (BLangType memberType : tupleTypeNode.getMemberTypeNodes()) {
+            analyzeNode(memberType, env);
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
@@ -2279,7 +2279,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
                 BTupleType tupleType = (BTupleType) varArgType;
-                List<BType> memberTypes = tupleType.tupleTypes;
+                List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
                 boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
@@ -2434,7 +2434,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BTupleType tupleType = (BTupleType) varArgType;
 
-        for (BType type : tupleType.tupleTypes) {
+        for (BType type : tupleType.getTupleTypes()) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            type, pos);
         }
@@ -4161,7 +4161,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BTupleType bTupleType) {
-            for (BType memType : bTupleType.tupleTypes) {
+            for (BType memType : bTupleType.getTupleTypes()) {
                 visitType(memType);
             }
 

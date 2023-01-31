@@ -725,8 +725,8 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangConstPattern source) {
         BLangConstPattern clone = new BLangConstPattern();
         source.cloneRef = clone;
+        clone.expr = clone(source.expr);
         clone.matchExpr = clone(source.matchExpr);
-        clone.setExpression(source.getExpresion());
     }
 
     @Override
@@ -1844,7 +1844,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTupleTypeNode clone = new BLangTupleTypeNode();
         source.cloneRef = clone;
-        clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        clone.members = cloneList(source.members);
         clone.restParamType = clone(source.restParamType);
         cloneBLangType(source, clone);
     }

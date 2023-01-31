@@ -33,7 +33,6 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
-import io.ballerina.projects.internal.PackageResolutionDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -417,7 +416,7 @@ public class PackageResolution {
                                 .map(dependency -> dependency.packageInstance().descriptor().toString())
                                 .collect(Collectors.joining(" -> ")) + "''",
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
-                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                         rootPackageContext.descriptor().name().toString());
                 diagnosticList.add(diagnostic);
             }
@@ -438,7 +437,7 @@ public class PackageResolution {
                                             + desc.version().toString())
                                     .collect(Collectors.joining(" -> ")) + "''",
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
-                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                    PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                             resolvedPackage.descriptor().name().toString());
                     diagnosticList.add(diagnostic);
                 }

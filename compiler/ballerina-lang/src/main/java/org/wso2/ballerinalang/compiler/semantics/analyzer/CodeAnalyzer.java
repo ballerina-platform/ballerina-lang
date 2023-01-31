@@ -1626,7 +1626,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) symbolType;
-                tupleType.tupleTypes.forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
+                tupleType.getTupleTypes().forEach(t -> checkForExportableType(t.tsymbol, pos, visitedSymbols));
                 if (tupleType.restType != null) {
                     checkForExportableType(tupleType.restType.tsymbol, pos, visitedSymbols);
                 }
@@ -3097,7 +3097,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
+        tupleTypeNode.members.forEach(member -> analyzeNode(member, data));
         analyzeTypeNode(tupleTypeNode.restParamType, data);
     }
 

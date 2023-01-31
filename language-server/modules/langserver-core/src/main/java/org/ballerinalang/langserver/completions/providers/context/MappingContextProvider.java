@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -30,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
@@ -41,7 +43,6 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.SpreadFieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -103,8 +104,13 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
 
     protected List<RawTypeSymbolWrapper<RecordTypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
                                                                               Node node) {
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
+        Optional<TypeSymbol> resolvedType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            resolvedType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (resolvedType.isEmpty()) {
             return Collections.emptyList();
         }
@@ -201,19 +207,25 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
      */
     private List<LSCompletionItem> getSpreadFieldCompletionItemsForMap(MappingConstructorExpressionNode node,
                                                                        BallerinaCompletionContext context) {
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
 
-        if (resolvedType.isEmpty() || resolvedType.get().typeKind() != TypeDescKind.MAP) {
+        if (context.currentSemanticModel().isEmpty() || context.currentDocument().isEmpty()) {
             return Collections.emptyList();
         }
-        Predicate<Symbol> symbolFilter = this.getVariableFilter().or(symbol -> (symbol.kind() == FUNCTION));
+
+        LinePosition linePosition = node.location().lineRange().endLine();
+        Optional<TypeSymbol> resolvedType = context.currentSemanticModel().get()
+                .expectedType(context.currentDocument().get(), linePosition);
+        if (resolvedType.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Predicate<Symbol> symbolFilter = this.getVariableFilter();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbolFilter.and(symbol -> {
                     Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    return typeDescriptor.isPresent() && typeDescriptor.get().subtypeOf(resolvedType.get())
-                            && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP
-                            || CommonUtil.getRawType(typeDescriptor.get()).typeKind() != TypeDescKind.RECORD);
+                    return typeDescriptor.isPresent() 
+                            && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP 
+                            && ((MapTypeSymbol) typeDescriptor.get()).typeParam().subtypeOf(resolvedType.get())
+                            );
                 })).collect(Collectors.toList());
 
         return getSpreadFieldCompletionItemList(visibleSymbols, context);

@@ -46,7 +46,7 @@ public class BRegexpType extends BType {
 
     @Override
     public TypeKind getKind() {
-        return TypeKind.ANYDATA;
+        return TypeKind.REGEXP;
     }
 
     @Override

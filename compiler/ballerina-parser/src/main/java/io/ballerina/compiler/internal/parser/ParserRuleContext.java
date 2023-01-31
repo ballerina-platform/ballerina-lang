@@ -730,6 +730,8 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ANNOTATION_DECL_START("annotation-declaration-start"),
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
+    TUPLE_MEMBERS("tuple-members"),
+    TUPLE_MEMBER("tuple-member"),
     ;
 
     private String value;

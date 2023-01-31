@@ -113,6 +113,7 @@ import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
@@ -802,7 +803,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
-                    bLangPathSegment = 
+                    bLangPathSegment =
                             TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT);
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
@@ -821,7 +822,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     bLangPathSegment.pos = bLangPathSegment.name.pos;
                     break;
                 default:
-                    bLangPathSegment = 
+                    bLangPathSegment =
                             TreeBuilder.createResourcePathSegmentNode(NodeKind.RESOURCE_PATH_IDENTIFIER_SEGMENT);
                     bLangPathSegment.name = createIdentifier((Token) pathSegment);
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
@@ -1102,11 +1103,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
-                tupleTypeNode.memberTypeNodes.add(createTypeNode(node));
+                MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
+                BLangSimpleVariable member = createSimpleVar(Optional.empty(), memberNode.typeDescriptor(),
+                        memberNode.annotations());
+                member.setName(this.createIdentifier(member.typeNode.getPosition(), String.valueOf(i)));
+                member.addFlag(Flag.FIELD);
+                member.pos = getPositionWithoutMetadata(memberNode);
+                tupleTypeNode.members.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);
-
         return tupleTypeNode;
     }
 
