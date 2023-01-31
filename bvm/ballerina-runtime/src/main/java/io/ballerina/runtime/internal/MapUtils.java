@@ -48,21 +48,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        Type mapType = mapValue.getType();
-        switch (mapType.getTag()) {
-            case TypeTags.MAP_TAG:
-                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
-                mapValue.put(fieldName, value);
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType,
-                        false)) {
-                    mapValue.put(fieldName, value);
-                } else {
-                    mapValue.remove(fieldName);
-                }
-                break;
-        }
+        updateMapValue(mapValue.getType(), mapValue, fieldName, value);
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
@@ -154,6 +140,25 @@ public class MapUtils {
                 return;
             default:
                 throw createOpNotSupportedError(mapType, op);
+        }
+    }
+
+    private static void updateMapValue(Type mapType, MapValue<BString, Object> mapValue, BString fieldName,
+                                       Object value) {
+        switch (mapType.getTag()) {
+            case TypeTags.MAP_TAG:
+                handleInherentTypeViolatingMapUpdate(value, (BMapType) mapType);
+                mapValue.put(fieldName, value);
+                return;
+            case TypeTags.RECORD_TYPE_TAG:
+                if (handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType, false)) {
+                    mapValue.put(fieldName, value);
+                    return;
+                }
+                mapValue.remove(fieldName);
+                return;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                updateMapValue(((BTypeReferenceType) mapType).getReferredType(), mapValue, fieldName, value);
         }
     }
 }

@@ -14,23 +14,45 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/module1 as mod;
-import ballerina/lang.'object as lang;
-
 public listener Listener test = ;
+
+
+public type KeyStore record {|
+    string path;
+    string password;
+|};
+
+public type Key record {|
+    string privateKey;
+    string pubicCert;
+|};
+
+public type SecureSocket record {|
+    KeyStore|Key key;
+    string protocol;
+    string auth?;
+|};
+
+public type Config record {|
+    SecureSocket? secureSocket = ();
+    int timeout = 60;
+    string 'version = "2.0";
+|};
 
 public class Listener {
 
-    *lang:Listener;
-
     private int port = 0;
+
+    public function init(int port, *Config config) returns error? {
+
+    }
 
     public function 'start() returns error? {
         return self.startEndpoint();
     }
 
     public function gracefulStop() returns error? {
-        return self.gracefulStop();
+        return ();
     }
 
     public function immediateStop() returns error? {
@@ -38,34 +60,26 @@ public class Listener {
         return err;
     }
 
-    public function attach(service s, string? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
         return self.register(s, name);
     }
 
-    public function __detach(service s) returns error? {
-        return self.detach(s);
-    }
-
-    public function init(int port) {
+    public function detach(service object {} s) returns error? {
+        return ();
     }
 
     public function initEndpoint() returns error? {
         return ();
     }
 
-    function register(service s, string? name) returns error? {
+    function register(service object {} s, string[]|string? name) returns error? {
         return ();
     }
 
     function startEndpoint() returns error? {
         return ();
     }
+}
 
-    function gracefulStop() returns error? {
-        return ();
-    }
+public listener Listener li = new (9090, secureSocket = {'key: {}});
 
-    function detach(service s) returns error? {
-        return ();
-    }
-};
