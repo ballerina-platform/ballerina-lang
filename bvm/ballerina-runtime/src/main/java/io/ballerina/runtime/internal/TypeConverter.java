@@ -97,8 +97,8 @@ public class TypeConverter {
     private static final String POSITIVE_INFINITY = "Infinity";
     private static final String NEGATIVE_INFINITY = "-Infinity";
 
-    public static final byte MAX_CONVERSION_ERROR_COUNT = 20;
-    public static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
+    static final byte MAX_CONVERSION_ERROR_COUNT = 20;
+    static final byte MAX_DISPLAYED_SOURCE_VALUE_LENGTH = 20;
     static final String ERROR_MESSAGE_UNION_START = "{";
     static final String ERROR_MESSAGE_UNION_END = "}";
     static final String ERROR_MESSAGE_UNION_SEPARATOR = "or";

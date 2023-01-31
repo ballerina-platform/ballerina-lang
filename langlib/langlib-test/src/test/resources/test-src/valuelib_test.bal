@@ -1765,12 +1765,12 @@ string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' i
         "\n\t\tfield 'man3.man.height' cannot be added to the closed record 'Person5'" +
         "\n\t\tfield 'man3.department' in record 'Boss' should be of type 'string', found '4'" +
         "\n\t\tfield 'intern.name' in record 'Student1' should be of type 'string', found '12'" +
-        "\n\t\tfield 'intern.fruit.color' in record 'Apple' should be of type 'string', found '4'" +
-        "\n\t\tmissing required field 'intern.fruit.colour' of type 'string' in record 'Orange'" +
-        "\n\t\tfield 'intern.fruit.color' cannot be added to the closed record 'Orange'" +
-        "\n\t\tfield 'intern.fruit.amount' cannot be added to the closed record 'Orange'" +
-        "\n\t\tmissing required field 'intern.fruit.taste' of type 'string' in record 'Mango'" +
-        "\n\t\tfield 'intern.fruit.amount' in record 'Mango' should be of type 'int', found '\"five\"'" +
+        "\n\t\teither" +
+        "\n\t\t  field 'intern.fruit.color' in record 'Apple' should be of type 'string', found '4'" +
+        "\n\t\tor" +
+        "\n\t\t  missing required field 'intern.fruit.colour' of type 'string' in record 'Orange'" +
+        "\n\t\t  field 'intern.fruit.color' cannot be added to the closed record 'Orange'" +
+        "\n\t\t  field 'intern.fruit.amount' cannot be added to the closed record 'Orange'" +
         "\n\t\t...";
 
 type Organization record {
@@ -1814,12 +1814,15 @@ function testConvertJsonToNestedRecordsWithErrors() {
     assert(result is error, true);
     err = <error> result;
     string errMsg = "'map<json>' value cannot be converted to 'Bazz': " +
-    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'User'" +
-    "\n\t\tfield 'x[2].login' in record 'User' should be of type 'string', found '4'" +
-    "\n\t\tmissing required field 'x[2].name' of type 'string' in record 'Organization'" +
-    "\n\t\tmissing required field 'x[2].id' of type 'string' in record 'Organization'" +
-    "\n\t\tfield 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
-    "\n\t\tmissing required field 'x[2].orgName' of type 'string' in record 'Repository'";
+    "\n\t\teither" +
+    "\n\t\t  missing required field 'x[2].id' of type 'string' in record 'User'" +
+    "\n\t\t  field 'x[2].login' in record 'User' should be of type 'string', found '4'" +
+    "\n\t\tor" +
+    "\n\t\t  missing required field 'x[2].name' of type 'string' in record 'Organization'" +
+    "\n\t\t  missing required field 'x[2].id' of type 'string' in record 'Organization'" +
+    "\n\t\t  field 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
+    "\n\t\tor" +
+    "\n\t\t  missing required field 'x[2].orgName' of type 'string' in record 'Repository'";
     assert(<string> checkpanic err.detail()["message"], errMsg);
     assert(err.message(), "{ballerina/lang.value}ConversionError");
 }

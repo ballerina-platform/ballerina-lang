@@ -124,6 +124,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
+import static io.ballerina.runtime.internal.CloneUtils.getErrorMessage;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_SEPARATOR;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_START;
 
 /**
  * Responsible for performing runtime type checking.
@@ -2322,9 +2326,30 @@ public class TypeChecker {
                     return !compatibleTypesWithNumConversion.isEmpty() &&
                             compatibleTypesWithNumConversion.size() - compatibleTypesWithoutNumConversion.size() <= 1;
                 } else {
-                    for (Type type : ((BUnionType) targetType).getMemberTypes()) {
-                        if (checkIsLikeType(errors, sourceValue, type, unresolvedValues, false, varName)) {
-                            return true;
+                    if (errors == null) {
+                        for (Type type : ((BUnionType) targetType).getMemberTypes()) {
+                            if (checkIsLikeType(null, sourceValue, type, unresolvedValues, false, varName)) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        int initialErrorCount;
+                        errors.add(ERROR_MESSAGE_UNION_START);
+                        int initialErrorListSize = errors.size();
+                        for (Type type : ((BUnionType) targetType).getMemberTypes()) {
+                            initialErrorCount = errors.size();
+                            if (checkIsLikeType(errors, sourceValue, type, unresolvedValues, false, varName)) {
+                                errors.subList(initialErrorListSize - 1, errors.size()).clear();
+                                return true;
+                            }
+                            if (initialErrorCount != errors.size()) {
+                                errors.add(ERROR_MESSAGE_UNION_SEPARATOR);
+                            }
+                        }
+                        int currentErrorListSize = errors.size();
+                        errors.remove(currentErrorListSize - 1);
+                        if (initialErrorListSize != currentErrorListSize) {
+                            errors.add(ERROR_MESSAGE_UNION_END);
                         }
                     }
                 }
@@ -3648,15 +3673,7 @@ public class TypeChecker {
         if ((errors == null) || (errors.isEmpty())) {
             return ErrorUtils.createTypeCastError(value, targetType);
         } else {
-            if (errors.size() == MAX_TYPECAST_ERROR_COUNT + 1) {
-                errors.remove(MAX_TYPECAST_ERROR_COUNT);
-                errors.add("...");
-            }
-            StringBuilder errorMsg = new StringBuilder();
-            for (String error : errors) {
-                errorMsg.append("\n\t\t").append(error);
-            }
-            return ErrorUtils.createTypeCastError(value, targetType, errorMsg.toString());
+            return ErrorUtils.createTypeCastError(value, targetType, getErrorMessage(errors, MAX_TYPECAST_ERROR_COUNT));
         }
     }
 

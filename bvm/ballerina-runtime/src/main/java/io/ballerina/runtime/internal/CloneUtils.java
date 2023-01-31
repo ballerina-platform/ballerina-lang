@@ -37,8 +37,8 @@ import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_C
  */
 public class CloneUtils {
 
-    private static final String NEWLINE_WITH_TABS = "\n\t\t";
-    private static final String TWO_SPACES = "  ";
+    static final String NEWLINE_WITH_TABS = "\n\t\t";
+    static final String TWO_SPACES = "  ";
 
     private CloneUtils() {}
 
@@ -86,14 +86,14 @@ public class CloneUtils {
         if (errors.isEmpty()) {
             return ErrorUtils.createConversionError(value, targetType);
         }
-        return ErrorUtils.createConversionError(value, targetType, getErrorMessage(errors));
+        return ErrorUtils.createConversionError(value, targetType, getErrorMessage(errors, MAX_CONVERSION_ERROR_COUNT));
     }
 
-    private static String getErrorMessage(List<String> errors) {
+    static String getErrorMessage(List<String> errors, int maxErrorCount) {
         StringBuilder errorMsg = new StringBuilder();
         int totalErrorCount = errors.size();
         int tabs = 0;
-        for (int i = 0; i < Math.min(totalErrorCount, MAX_CONVERSION_ERROR_COUNT); i++) {
+        for (int i = 0; i < Math.min(totalErrorCount, maxErrorCount); i++) {
             String err = errors.get(i);
             // intentionally comparing whether the two String objects are the same
             if (err == ERROR_MESSAGE_UNION_START) {
@@ -107,7 +107,7 @@ public class CloneUtils {
                 errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs)).append(err);
             }
         }
-        if (totalErrorCount > MAX_CONVERSION_ERROR_COUNT) {
+        if (totalErrorCount > maxErrorCount) {
             errorMsg.append(NEWLINE_WITH_TABS + "...");
         }
         return errorMsg.toString();
