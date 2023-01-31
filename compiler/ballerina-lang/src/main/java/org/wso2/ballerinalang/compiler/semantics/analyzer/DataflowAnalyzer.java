@@ -900,13 +900,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // and remove from `uninitializedVars` map if initialized in on-fail branch
             BranchResult onFailResult = analyzeBranch(onFailClause, env);
             Set<BSymbol> symbols = new HashSet<>();
-            for (BSymbol varRef: doResult.uninitializedVars.keySet()) {
-                InitStatus status = onFailResult.uninitializedVars.get(varRef);
-                if (status == null) {
-                    symbols.add(varRef);
+            for (Map.Entry<BSymbol, InitStatus> varRef : doResult.uninitializedVars.entrySet()) {
+                InitStatus status = onFailResult.uninitializedVars.get(varRef.getKey());
+                if (status == null && varRef.getValue() != InitStatus.UN_INIT) {
+                    symbols.add(varRef.getKey());
                 }
             }
-            for (BSymbol symbol: symbols) {
+            for (BSymbol symbol : symbols) {
                 doResult.uninitializedVars.remove(symbol);
             }
         }

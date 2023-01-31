@@ -213,3 +213,28 @@ function testUnInitVars8(int[] data) returns string {
     return str1;
 }
 
+function testUnInitVars9() {
+    string str1;
+    string str2;
+    do {
+    } on fail {
+        str1 = "-> error caught. Hence value returning";
+        str2 = "-> error caught. Hence value returning";
+    }
+    str1 += "-> reached end";
+    str2 += "-> reached end";
+}
+
+function testUnInitVars10() {
+    string str1;
+    string str2;
+    do {
+        check getErrorOrNil();
+        str2 = "partial init";
+    } on fail {
+        str1 = "partial init";
+        str2 = "-> error caught. Hence value returning";
+    }
+    str1 += "-> reached end";
+    str2 += "-> reached end";
+}
