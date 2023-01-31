@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -66,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuilt
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
@@ -104,7 +107,7 @@ public class InitMethodGen {
      * @param depMods   dependent module list
      */
     public void generateLambdaForPackageInits(ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                              List<PackageID> depMods, JvmCastGen jvmCastGen) {
+                                              List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
         if (!MethodGenUtils.hasInitFunction(pkg)) {
             return;
@@ -268,7 +271,7 @@ public class InitMethodGen {
         addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
 
         if (mainFunc != null) {
-            injectDefaultArgs(pkg.packageID, mainArgs, mainFunc.parameters, modExecFunc, boolRef);
+            injectDefaultArgs(pkg.packageID, mainArgs, mainFunc, modExecFunc, boolRef);
             addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
                     mainFunc.annotAttachments);
         }
@@ -277,30 +280,32 @@ public class InitMethodGen {
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
         if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addCheckedInvocation(modExecFunc, PackageID.INTERNAL, "exit", retVarRef, boolRef);
+            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
     }
 
     private void injectDefaultArgs(PackageID modId, List<BIROperand> mainArgs,
-                                   List<BIRNode.BIRFunctionParameter> parameters, BIRNode.BIRFunction modExecFunc,
+                                   BIRNode.BIRFunction mainFunc, BIRNode.BIRFunction modExecFunc,
                                    BIROperand boolRef) {
-        for (int i = 0; i < parameters.size(); i++) {
-            BIRNode.BIRFunctionParameter parameter = parameters.get(i);
+        for (int i = 0; i < mainFunc.parameters.size(); i++) {
+            BIRNode.BIRFunctionParameter parameter = mainFunc.parameters.get(i);
             if (parameter.hasDefaultExpr) {
                 BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
+                BIROperand argOperand = mainArgs.get(i);
                 BIRNonTerminator.TypeTest typeTest =
-                        new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, mainArgs.get(i));
+                        new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
                 lastBB.instructions.add(typeTest);
 
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
-
-                trueBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
-                        new Name("$main_" + parameter.metaVarName), Collections.emptyList(), mainArgs.get(i), falseBB,
-                        Collections.emptyList(), Collections.emptySet());
+                Name defaultFuncName =
+                        ((BInvokableTypeSymbol) mainFunc.type.tsymbol).defaultValues.get(parameter.metaVarName).name;
+                trueBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, defaultFuncName,
+                        Collections.emptyList(), argOperand, falseBB, Collections.emptyList(),
+                        Collections.emptySet());
             }
         }
 
@@ -349,6 +354,39 @@ public class InitMethodGen {
         String varIdPrefix = "%";
         nextVarId += 1;
         return new Name(varIdPrefix + nextVarId);
+    }
+
+    private BIRNode.BIRBasicBlock addCheckedInvocationForExitCall(BIRNode.BIRFunction func, BIROperand retVar,
+                                                                  BIROperand boolRef) {
+        BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
+
+        lastBB.terminator = getExitMethodCall(nextBB);
+
+        BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
+                retVar);
+        nextBB.instructions.add(typeTest);
+
+        BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
+        BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
+        retBB.terminator = new BIRTerminator.Return(null);
+        trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
+
+        BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
+        nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
+        return falseBB;
+    }
+
+    private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB) {
+        JIMethodCall jiMethodCall = new JIMethodCall(null);
+        jiMethodCall.args =  new ArrayList<>();
+        jiMethodCall.varArgExist = false;
+        jiMethodCall.jClassName = LAUNCH_UTILS;
+        jiMethodCall.jMethodVMSig = "()V";
+        jiMethodCall.name = "graceFulExit";
+        jiMethodCall.invocationType = INVOKESTATIC;
+        jiMethodCall.thenBB = nextBB;
+        return jiMethodCall;
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocationWithArgs(BIRNode.BIRFunction func, PackageID modId,

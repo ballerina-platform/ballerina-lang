@@ -142,4 +142,9 @@ public class LaunchUtils {
         }
         return null;
     }
+
+    public static void graceFulExit() {
+        Runtime.getRuntime().exit(0);
+    }
+
 }

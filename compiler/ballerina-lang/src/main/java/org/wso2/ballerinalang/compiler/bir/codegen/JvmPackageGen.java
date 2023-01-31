@@ -408,17 +408,11 @@ public class JvmPackageGen {
                     }
                 }
 
-                String mainClass = "";
-                if (mainFunc != null) {
-                    mainClass = getModuleLevelClassName(module.packageID, JvmCodeGenUtil
-                            .cleanupPathSeparators(mainFunc.pos.lineRange().filePath()));
-                }
-
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc);
-                initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports, jvmCastGen);
+                initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
