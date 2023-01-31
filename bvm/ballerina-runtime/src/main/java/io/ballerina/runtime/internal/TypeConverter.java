@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -244,8 +243,9 @@ public class TypeConverter {
                 return TypeChecker.isUnsigned16LiteralValue(val);
             case TypeTags.UNSIGNED8_INT_TAG:
                 return TypeChecker.isUnsigned8LiteralValue(val);
+            default:
+                return false;
         }
-        return false;
     }
 
     static boolean isConvertibleToChar(Object value) {
@@ -537,34 +537,14 @@ public class TypeConverter {
         }
     }
 
-    public static boolean isIntegerSubtypeAndConvertible(Object inputValue, Type targetType) {
-        targetType = TypeUtils.getReferredType(targetType);
-        Type inputValueType = TypeChecker.getType(inputValue);
-        if (!TypeTags.isIntegerTypeTag(inputValueType.getTag()) && inputValueType.getTag() != TypeTags.BYTE_TAG) {
-            return false;
-        }
-        if (targetType.getTag() == TypeTags.INT_TAG) {
-            return true;
-        } else if (targetType.getTag() == TypeTags.BYTE_TAG) {
-            return isConvertibleToByte(inputValue);
-        } else {
-            return isConvertibleToIntSubType(inputValue, targetType);
-        }
-    }
-
     private static boolean isConvertibleToTableType(Object sourceValue, BTableType tableType,
                                                     Set<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowNumericConversion) {
-        Type constrainedType = tableType.getConstrainedType();
-        if (!isValidTableConstraint(constrainedType)) {
-            // this condition may not be necessary if the compiler has already checked this
-            return false;
-        }
-
         int initialErrorCount;
         String elementIndex;
         Type convertibleType;
         boolean returnVal = true;
+        Type constrainedType = tableType.getConstrainedType();
         int sourceTypeReferredTypeTag = TypeUtils.getReferredType(TypeChecker.getType(sourceValue)).getTag();
         switch (sourceTypeReferredTypeTag) {
             case TypeTags.TABLE_TAG:
@@ -609,20 +589,6 @@ public class TypeConverter {
             default:
                 return false;
 
-        }
-    }
-
-    private static boolean isValidTableConstraint(Type tableConstrainedType) {
-        switch (tableConstrainedType.getTag()) {
-            case TypeTags.RECORD_TYPE_TAG:
-            case TypeTags.MAP_TAG:
-                return true;
-            case TypeTags.INTERSECTION_TAG:
-                return isValidTableConstraint(((BIntersectionType) tableConstrainedType).getEffectiveType());
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return isValidTableConstraint(((ReferenceType) tableConstrainedType).getReferredType());
-            default:
-                return false;
         }
     }
 
@@ -758,15 +724,6 @@ public class TypeConverter {
         } else {
             return varName + "[" + index + "]";
         }
-    }
-
-    public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
-        for (Type type : convertibleTypes) {
-            if (!TypeTags.isIntegerTypeTag(type.getTag()) && type.getTag() != TypeTags.BYTE_TAG) {
-                return false;
-            }
-        }
-        return true;
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {
@@ -1013,9 +970,7 @@ public class TypeConverter {
     }
 
     public static BXml stringToXml(String value) throws BError {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<root>").append(value).append("</root>");
-        BXml item = XmlUtils.parse(sb.toString());
+        BXml item = XmlUtils.parse("<root>" + value + "</root>");
         return item.children();
     }
 
