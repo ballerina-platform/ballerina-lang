@@ -542,6 +542,73 @@ function testJsonMapAccess() returns error? {
     assertEquals("key '__' not found in JSON mapping", <string> checkpanic err.detail()["message"]);
 }
 
+type JType json;
+
+type Foo record {
+    json j;
+    JType k;
+    json|JType l;
+    json|map<json> m;
+};
+
+type Bar record {
+    json j?;
+    Foo foo?;
+};
+
+function testJsonFieldAccess() returns error? {
+    Bar rec = {j: "1", foo: {j: {k: "3", l: {m: 4}}, k: {k: "5", l: {m: 6}}, l: {k: "7", l: {m: 8}},
+               m: {k: "9", l: {m: 10}}}};
+
+    json val = check rec.foo?.j.k;
+    assertEquals("3", val);
+
+    string val2 = check rec.foo?.j.k;
+    assertEquals("3", val2);
+
+    var val3 = check rec.foo?.j.l;
+    assertEquals({"m": 4}, val3);
+
+    int val4 = check rec.foo?.j.l.m;
+    assertEquals(4, val4);
+
+    json val5 = check rec.foo?.k.k;
+    assertEquals("5", val5);
+
+    string val6 = check rec.foo?.k.k;
+    assertEquals("5", val6);
+
+    var val7 = check rec.foo?.k.l;
+    assertEquals({"m": 6}, val7);
+
+    int val8 = check rec.foo?.k.l.m;
+    assertEquals(6, val8);
+
+    json val9 = check rec.foo?.l.k;
+    assertEquals("7", val9);
+
+    string val10 = check rec.foo?.l.k;
+    assertEquals("7", val10);
+
+    var val11 = check rec.foo?.l.l;
+    assertEquals({"m": 8}, val11);
+
+    int val12 = check rec.foo?.l.l.m;
+    assertEquals(8, val12);
+
+    json val13 = check rec.foo?.m.k;
+    assertEquals("9", val13);
+
+    string val14 = check rec.foo?.m.k;
+    assertEquals("9", val14);
+
+    var val15 = check rec.foo?.m.l;
+    assertEquals({"m": 10}, val15);
+
+    int val16 = check rec.foo?.m.l.m;
+    assertEquals(10, val16);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(boolean actual) {
