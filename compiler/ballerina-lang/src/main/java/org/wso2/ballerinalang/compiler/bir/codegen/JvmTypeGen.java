@@ -698,7 +698,8 @@ public class JvmTypeGen {
             return;
         }
 
-        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS)) {
+        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
+        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS) && samePackage) {
             jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
         } else {
             String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
