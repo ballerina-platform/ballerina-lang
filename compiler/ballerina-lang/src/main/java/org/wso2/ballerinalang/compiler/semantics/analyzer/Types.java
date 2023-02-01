@@ -1118,7 +1118,7 @@ public class Types {
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
                     .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                            Symbols.createVarSymbolForTupleMember(f.type))).forEach(fieldTypes::add);
+                            Symbols.createVarSymbolForTupleMember(f.symbol))).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -4797,15 +4797,17 @@ public class Types {
             return originalType;
         }
 
-        List<BType> originalTupleTypes = new ArrayList<>(originalType.getTupleTypes());
+        List<BTupleMember> originalTupleTypes = new ArrayList<>(originalType.getMembers());
         List<BType> typesToRemove = new ArrayList<>(typeToRemove.getTupleTypes());
         if (originalTupleTypes.size() < typesToRemove.size()) {
             return originalType;
         }
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (int i = 0; i < originalTupleTypes.size(); i++) {
-            BType type = getRemainingMatchExprType(originalTupleTypes.get(i), typesToRemove.get(i), env);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
+            BTupleMember member = originalTupleTypes.get(i);
+            BType type = getRemainingMatchExprType(member.type, typesToRemove.get(i), env);
+            BVarSymbol varSymbol = new BVarSymbol(type.flags, member.symbol.name, member.symbol.pkgID, type, null,
+                    member.symbol.pos, member.symbol.origin);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         if (typeToRemove.restType == null) {
@@ -4815,8 +4817,10 @@ public class Types {
             return originalType;
         }
         for (int i = typesToRemove.size(); i < originalTupleTypes.size(); i++) {
-            BType type = getRemainingMatchExprType(originalTupleTypes.get(i), typeToRemove.restType, env);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+            BTupleMember member = originalTupleTypes.get(i);
+            BType type = getRemainingMatchExprType(member.type, typeToRemove.restType, env);
+            BVarSymbol varSymbol = new BVarSymbol(member.symbol.flags, member.symbol.name, member.symbol.pkgID, type,
+                    null, member.symbol.pos, member.symbol.origin);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         return new BTupleType(tupleTypes);
@@ -4825,9 +4829,9 @@ public class Types {
     private BType getRemainingType(BTupleType originalType, BArrayType typeToRemove, SymbolEnv env) {
         BType eType = typeToRemove.eType;
         List<BTupleMember> tupleTypes = new ArrayList<>();
-        for (BType tupleMemberType : originalType.getTupleTypes()) {
-            BType type = getRemainingMatchExprType(tupleMemberType, eType, env);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+        for (BTupleMember tupleMember : originalType.getMembers()) {
+            BType type = getRemainingMatchExprType(tupleMember.type, eType, env);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type, tupleMember.symbol.pos);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
@@ -5335,7 +5339,7 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(intersectionType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(intersectionType, intersectionContext.pos);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 

@@ -235,9 +235,29 @@ public class Symbols {
     }
 
     public static BVarSymbol createVarSymbolForTupleMember(BType type) {
-        BTypeSymbol tsymbol = type.tsymbol;
-        return new BVarSymbol(type.flags, tsymbol.name, tsymbol.pkgID, type, tsymbol.owner,
-                tsymbol.pos, tsymbol.origin);
+        return new BVarSymbol(0, Names.EMPTY, null, type, null, null, SymbolOrigin.VIRTUAL);
+    }
+
+    public static BVarSymbol createVarSymbolForTupleMember(BType type, Location pos) {
+        return new BVarSymbol(0, Names.EMPTY, null, type, null, pos, SymbolOrigin.VIRTUAL);
+    }
+
+    public static BVarSymbol createVarSymbolForTupleMember(BType type, BSymbol owner, Location pos) {
+        return new BVarSymbol(0, Names.EMPTY, owner.pkgID, type, owner, pos, SymbolOrigin.VIRTUAL);
+    }
+
+    public static BVarSymbol createVarSymbolForTupleMember(BSymbol symbol) {
+        return new BVarSymbol(symbol.flags, Names.EMPTY, symbol.pkgID, symbol.type, symbol.owner, symbol.pos,
+                symbol.origin);
+    }
+
+    public static BVarSymbol createVarSymbolForTupleMember(BSymbol symbol, BSymbol owner) {
+        return new BVarSymbol(symbol.flags, Names.EMPTY, symbol.pkgID, symbol.type, owner, symbol.pos,
+                symbol.origin);
+    }
+
+    public static BVarSymbol createVarSymbolForTupleMember(BSymbol symbol, BSymbol owner, SymbolOrigin origin) {
+        return new BVarSymbol(symbol.flags, Names.EMPTY , null, symbol.type, owner, symbol.pos, origin);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {

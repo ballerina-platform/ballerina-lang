@@ -1999,10 +1999,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (resolvedTypeNodes.tag) {
             case TypeTags.TUPLE:
                 BTupleType definedTupleType = (BTupleType) resolvedTypeNodes;
-                for (BType member : definedTupleType.getTupleTypes()) {
-                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(member);
-                    if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member, varSymbol))) {
-                        return constructDependencyListError(typeDef, member);
+                for (BTupleMember member : definedTupleType.getMembers()) {
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(member.symbol);
+                    if (!((BTupleType) newTypeNode).addMembers(new BTupleMember(member.type, varSymbol))) {
+                        return constructDependencyListError(typeDef, member.type);
                     }
                 }
                 if (!((BTupleType) newTypeNode).addRestType(definedTupleType.restType)) {
@@ -2518,7 +2518,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 } else if (possibleType.tag == TypeTags.ARRAY) {
                                     memberTypes.add(((BArrayType) possibleType).eType);
                                 } else {
-                                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(referredType);
+                                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(varNode.symbol);
                                     members.add(new BTupleMember(referredType, varSymbol));
                                 }
                             }

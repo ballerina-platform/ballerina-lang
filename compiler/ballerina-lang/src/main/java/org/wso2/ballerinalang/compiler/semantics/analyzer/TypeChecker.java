@@ -1678,7 +1678,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BType fieldType = tableConstraintField.type;
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(fieldType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(tableConstraintField.symbol);
             memTypes.add(new BTupleMember(fieldType, varSymbol));
         }
 
@@ -3773,7 +3773,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BTupleType resourcePathType = new BTupleType(new ArrayList<>());
         if (pathSegmentCount > 0 && lastPathSegmentSym.kind != SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             for (BResourcePathSegmentSymbol s : pathSegmentSymbols.subList(0, pathSegmentCount)) {
-                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(s.type);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(s, resourcePathType.tsymbol, VIRTUAL);
                 resourcePathType.addMembers(new BTupleMember(s.type, varSymbol));
             }
         }

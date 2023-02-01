@@ -957,35 +957,40 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         List<BLangExpression> memberExprs = ((BLangListConstructorExpr) expr).exprs;
         List<BTupleMember> tupleTypes = new ArrayList<>(constValueList.size());
 
+        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                env.scope.owner, pos, VIRTUAL);
+
         for (int i = 0; i < memberExprs.size(); i++) {
             BLangExpression memberExpr = memberExprs.get(i);
             BLangConstantValue memberConstValue = constValueList.get(i);
 
             if (memberExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BSymbol memberSymbol = ((BLangSimpleVarRef) memberExpr).symbol;
                 BType type = ((BLangSimpleVarRef) memberExpr).symbol.type;
                 int tag = type.tag;
 
                 if (tag == TypeTags.FINITE) {
                     // https://github.com/ballerina-platform/ballerina-lang/issues/35127
-                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberSymbol, tupleTypeSymbol);
                     tupleTypes.add(new BTupleMember(type, varSymbol));
                     continue;
                 }
 
                 if (tag == TypeTags.INTERSECTION) {
                     memberConstValue.type = type;
-                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+                    BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberSymbol, tupleTypeSymbol);
                     tupleTypes.add(new BTupleMember(type, varSymbol));
                     continue;
                 }
             }
 
-            BType newType = checkType(memberExpr, constantSymbol, memberConstValue.value, memberConstValue.type, pos,
-                                      env);
+            BType newType = checkType(memberExpr, constantSymbol, memberConstValue.value, memberConstValue.type,
+                    pos, env);
             if (newType == null) {
                 return null;
             }
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType, tupleTypeSymbol, memberExpr.pos);
             tupleTypes.add(new BTupleMember(newType, varSymbol));
 
             if (newType.tag != TypeTags.FINITE) {
@@ -995,10 +1000,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                                             ((BIntersectionType) newType).effectiveType : newType);
             }
         }
-
-        BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                               Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-                                                               env.scope.owner, pos, VIRTUAL);
 
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types, new BTupleType(tupleTypeSymbol, tupleTypes),
                                                                 env, symTable, anonymousModelHelper, names,

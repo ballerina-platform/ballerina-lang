@@ -50,6 +50,10 @@ public class BTupleType extends BType implements TupleType {
         this.members = members;
     }
 
+    public BTupleType() {
+        super(TypeTags.TUPLE, null);
+    }
+
     public BTupleType(BTypeSymbol tsymbol, List<BTupleMember> members) {
         super(TypeTags.TUPLE, tsymbol);
         this.members = members;

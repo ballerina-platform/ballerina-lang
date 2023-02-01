@@ -428,17 +428,18 @@ public class ImmutableTypeCloner {
             tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
         }
 
-        for (BTupleMember origTupleMemType : origTupleMembers) {
-            if (types.isInherentlyImmutableType(origTupleMemType.type)) {
-                tupleEffectiveImmutableType.addMembers(origTupleMemType);
+        for (BTupleMember origTupleMem : origTupleMembers) {
+            if (types.isInherentlyImmutableType(origTupleMem.type)) {
+                tupleEffectiveImmutableType.addMembers(origTupleMem);
                 continue;
             }
-            if (!types.isSelectivelyImmutableType(origTupleMemType.type, unresolvedTypes, pkgId)) {
+            if (!types.isSelectivelyImmutableType(origTupleMem.type, unresolvedTypes, pkgId)) {
                 continue;
             }
-            BType newType = getImmutableType(pos, types, origTupleMemType.type, env,
+            BType newType = getImmutableType(pos, types, origTupleMem.type, env,
                     pkgId, owner, symTable, anonymousModelHelper, names, unresolvedTypes);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(newType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(origTupleMem.symbol,
+                    tupleEffectiveImmutableType.tsymbol, VIRTUAL);
             BTupleMember member = new BTupleMember(newType, varSymbol);
             tupleEffectiveImmutableType.addMembers(member);
         }

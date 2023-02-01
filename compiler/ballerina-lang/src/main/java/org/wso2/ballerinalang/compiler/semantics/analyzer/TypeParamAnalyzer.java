@@ -562,7 +562,7 @@ public class TypeParamAnalyzer {
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
                         .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                                Symbols.createVarSymbolForTupleMember(f.type))).forEach(members::add);
+                                Symbols.createVarSymbolForTupleMember(f.type, f.pos))).forEach(members::add);
                 if (members.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, members.get(0).type, env, resolvedTypes, result);
                 } else {

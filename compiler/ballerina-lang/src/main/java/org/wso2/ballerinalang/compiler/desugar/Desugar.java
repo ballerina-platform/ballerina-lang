@@ -4469,7 +4469,7 @@ public class Desugar extends BLangNodeVisitor {
         List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
         BType restType = ((BRecordType) restBindingPattern.getBType()).restFieldType;
         BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(restType);
-        BVarSymbol stringVarSymbol = new BVarSymbol(0, null, null,
+        BVarSymbol stringVarSymbol = new BVarSymbol(0, Names.EMPTY, null,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(
                 new BTupleMember(symTable.stringType, stringVarSymbol),
@@ -9507,10 +9507,11 @@ public class Desugar extends BLangNodeVisitor {
             BLangTupleVariable tupleVariable = (BLangTupleVariable) bindingPatternVariable;
             List<BTupleMember> memberTypes = new ArrayList<>();
             for (int i = 0; i < tupleVariable.memberVariables.size(); i++) {
-                BType member = getStructuredBindingPatternType(tupleVariable.memberVariables.get(i));
-                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(member);
+                BLangVariable memVar = tupleVariable.memberVariables.get(i);
+                BType memberType = getStructuredBindingPatternType(memVar);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memVar.symbol, null, VIRTUAL);
                 memberTypes.add(
-                        new BTupleMember(member, varSymbol));
+                        new BTupleMember(memberType, varSymbol));
             }
             BTupleType tupleType = new BTupleType(memberTypes);
             if (tupleVariable.restVariable != null) {

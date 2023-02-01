@@ -70,16 +70,15 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
 
     @Override
     public TupleTypeSymbol build() {
+        BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null,
+                symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.VIRTUAL);
         List<BTupleMember> memberTypes = new ArrayList<>();
         for (TypeSymbol memberType : this.memberTypes) {
             BType type = getMemberType(memberType);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type, tupleSymbol, symTable.builtinPos);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
-
-        BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
-                symTable.rootPkgSymbol.pkgID, null,
-                symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
 
         BTupleType tupleType = new BTupleType(tupleSymbol, memberTypes);
         tupleSymbol.type = tupleType;
