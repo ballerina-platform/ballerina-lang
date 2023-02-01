@@ -267,10 +267,12 @@ public class EntityModelGenerator extends ModelGenerator {
     }
 
     private String getAssociateCardinality(boolean isArray, boolean isOptional, boolean isNillable) {
-        // todo: double check
+        // If the associate entity is an array regardless of its value being optional or null, the cardinality is 0-m
         if (isArray) {
             return CardinalityValue.ZERO_OR_MANY.getValue();
         } else {
+            // If the associate entity is not an array, the cardinality is 0-1 if the value is optional or nillable as
+            // in both cases the value of the associate entity can be empty or present once
             if (isOptional || isNillable) {
                 return CardinalityValue.ZERO_OR_ONE.getValue();
             } else {
