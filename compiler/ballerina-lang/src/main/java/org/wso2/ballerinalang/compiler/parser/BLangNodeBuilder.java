@@ -2457,7 +2457,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RAW_TEMPLATE_EXPRESSION:
                 return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case REGEX_TEMPLATE_EXPRESSION:
-                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode),
+                        expressionNode.startBacktick(), expressionNode.endBacktick());
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -5478,11 +5479,16 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return literal;
     }
 
-    private BLangNode createRegExpTemplateLiteral(NodeList<Node> reSequences, Location location) {
+    private BLangNode createRegExpTemplateLiteral(NodeList<Node> reSequences, Location location, Token startBackTick,
+                                                  Token endBackTick) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
+        
+        Location reDisjunctionPos = reSequences.size() > 0 ? getPosition(reSequences.get(0),
+                reSequences.get(reSequences.size() - 1)) : getPosition(startBackTick, endBackTick);
+
         regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences,
-                getPosition(reSequences.get(0), reSequences.get(reSequences.size() - 1)));
+                reDisjunctionPos);
         regExpTemplateLiteral.pos = location;
         return regExpTemplateLiteral;
     }
