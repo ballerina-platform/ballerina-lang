@@ -5481,7 +5481,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangNode createRegExpTemplateLiteral(NodeList<Node> reSequences, Location location) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
-        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences, location);
+        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences,
+                getPosition(reSequences.get(0), reSequences.get(reSequences.size() - 1)));
         regExpTemplateLiteral.pos = location;
         return regExpTemplateLiteral;
     }
