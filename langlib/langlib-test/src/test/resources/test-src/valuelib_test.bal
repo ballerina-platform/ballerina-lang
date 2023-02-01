@@ -2878,33 +2878,195 @@ type Table2 table<map<string>>;
 
 type UnionTable Table1|Table2;
 
+type UnionTable2 UnionTable & readonly;
+
+type NewEmployee record {
+   	readonly string name;
+   	int salary;
+};
+
+type OldEmployee record {|
+   	readonly string name;
+   	int salary;
+|};
+
+type NewestEmployeee table<NewEmployee> key(name);
+
 function testCloneWithTypeToUnionOfTypeReference() {
     anydata[] arrValue = ["let", 3];
 
-    BoundAssertion|error t1 = arrValue.cloneWithType(); 
+    BoundAssertion|error t1 = arrValue.cloneWithType();
     assertFalse(t1 is error);
     assertEquality(t1, <BoundAssertion> ["let", 3]);
 
-    Assertion|BoundAssertion|error t2 = arrValue.cloneWithType(); 
+    Assertion|BoundAssertion|error t2 = arrValue.cloneWithType();
     assertFalse(t2 is error);
     assertTrue(t2 is BoundAssertion);
     assertEquality(t2, <BoundAssertion> ["let", 3]);
 
-    UnionTuple|error t3 = arrValue.cloneWithType(); 
+    UnionTuple|error t3 = arrValue.cloneWithType();
     assertFalse(t3 is error);
     assertTrue(t3 is BoundAssertion);
     assertEquality(t3, <BoundAssertion> ["let", 3]);
 
     table<map<anydata>> tab = table [{a: "a", b: "b"}];
-    Table1|Table2|error t4 = tab.cloneWithType(); 
+    Table1|Table2|error t4 = tab.cloneWithType();
     assertFalse(t4 is error);
     assertTrue(t4 is Table2);
     assertEquality(t4, <Table2> table [{a: "a", b: "b"}]);
 
-    UnionTable|error t5 = tab.cloneWithType(); 
+    UnionTable|error t5 = tab.cloneWithType();
     assertFalse(t5 is error);
     assertTrue(t5 is Table2);
     assertEquality(t5, <Table2> table [{a: "a", b: "b"}]);
+
+    map<json>[] tab2 = [{a: "a", b: "b"}];
+    UnionTable2|error t10 = tab2.cloneWithType();
+    assertTrue(t10 is UnionTable2);
+    assertEquality(t10, <UnionTable2> table [{a: "a", b: "b"}]);
+
+    table<map<json>> tab3 = table [{a: "a", b: "b"}];
+    UnionTable2|error t11 = tab3.cloneWithType();
+    assertTrue(t11 is UnionTable2);
+    assertEquality(t11, <UnionTable2> table [{a: "a", b: "b"}]);
+
+    [record {|string name; int salary;|}, OldEmployee, NewEmployee, map<anydata>...] listResult = [
+   	    { name: "John", salary: 100 },
+   	    { name: "Jane", salary: 200 },
+        { name: "Jean", salary: 300 },
+        { name: "Joe", salary: 400 }
+   	];
+
+    table<OldEmployee> key(name) oldEmployees = checkpanic listResult.cloneWithType();
+    assertEquality(oldEmployees, <table<OldEmployee> key(name)> table [
+   	    { name: "John", salary: 100 },
+   	    { name: "Jane", salary: 200 },
+        { name: "Jean", salary: 300 },
+        { name: "Joe", salary: 400 }
+   	]);
+
+    NewestEmployeee newestEmployees = checkpanic listResult.cloneWithType();
+    assertEquality(newestEmployees, <NewestEmployeee> table [
+   	    { name: "John", salary: 100 },
+   	    { name: "Jane", salary: 200 },
+        { name: "Jean", salary: 300 },
+        { name: "Joe", salary: 400 }
+   	]);
+}
+
+function testCloneWithTypeToTableNegative() {
+    table<map<anydata>> tab = table [{a: true, b: 10, c:(), d: "10", e: false}];
+    Table1|Table2|error t1 = tab.cloneWithType();
+    assertTrue(t1 is error);
+    string errMsgPrefix = "'table<map<anydata>>' value cannot be converted to '(Table1|Table2)': ";
+    string errMsgSuffix = "\n\t\t{" +
+    "\n\t\t  map field '[0].a' should be of type 'int', found 'true'" +
+    "\n\t\t  map field '[0].c' should be of type 'int', found '()'" +
+    "\n\t\t  map field '[0].d' should be of type 'int', found '\"10\"'" +
+    "\n\t\t  map field '[0].e' should be of type 'int', found 'false'" +
+    "\n\t\tor" +
+    "\n\t\t  map field '[0].a' should be of type 'string', found 'true'" +
+    "\n\t\t  map field '[0].b' should be of type 'string', found '10'" +
+    "\n\t\t  map field '[0].c' should be of type 'string', found '()'" +
+    "\n\t\t  map field '[0].e' should be of type 'string', found 'false'" +
+    "\n\t\t}";
+    string errMsg = errMsgPrefix + errMsgSuffix;
+    if (t1 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t1.message());
+        assertEquality(errMsg, <string> checkpanic t1.detail()["message"]);
+    }
+
+    UnionTable|error t2 = tab.cloneWithType();
+    assertTrue(t2 is error);
+    if (t2 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t2.message());
+        assertEquality(errMsg, <string> checkpanic t2.detail()["message"]);
+    }
+
+    map<json>[] tab2 = [{a: true, b: 10, c:(), d: "10", e: false}];
+    UnionTable2|error t3 = tab2.cloneWithType();
+    if (t3 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t3.message());
+        assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
+        <string> checkpanic t3.detail()["message"]);
+    }
+
+    table<map<anydata>> tab3 = table [{a: true}, {b: 10}, {c:()}, {d: "10", e: false}];
+    Table1|Table2|error t4 = tab3.cloneWithType();
+    assertTrue(t4 is error);
+    errMsgSuffix = "\n\t\t{" +
+    "\n\t\t  map field '[0].a' should be of type 'int', found 'true'" +
+    "\n\t\t  map field '[2].c' should be of type 'int', found '()'" +
+    "\n\t\t  map field '[3].d' should be of type 'int', found '\"10\"'" +
+    "\n\t\t  map field '[3].e' should be of type 'int', found 'false'" +
+    "\n\t\tor" +
+    "\n\t\t  map field '[0].a' should be of type 'string', found 'true'" +
+    "\n\t\t  map field '[1].b' should be of type 'string', found '10'" +
+    "\n\t\t  map field '[2].c' should be of type 'string', found '()'" +
+    "\n\t\t  map field '[3].e' should be of type 'string', found 'false'" +
+    "\n\t\t}";
+    errMsg = errMsgPrefix + errMsgSuffix;
+    if (t4 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t4.message());
+        assertEquality(errMsg, <string> checkpanic t4.detail()["message"]);
+    }
+
+    UnionTable|error t5 = tab3.cloneWithType();
+    assertTrue(t5 is error);
+    if (t5 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t5.message());
+        assertEquality(errMsg, <string> checkpanic t5.detail()["message"]);
+    }
+
+    map<json>[] tab4 = [{a: true}, {b: 10, c:()}, {d: "10", e: false}];
+    UnionTable2|error t6 = tab4.cloneWithType();
+    errMsgSuffix = "\n\t\t{" +
+    "\n\t\t  map field '[0].a' should be of type 'int', found 'true'" +
+    "\n\t\t  map field '[1].c' should be of type 'int', found '()'" +
+    "\n\t\t  map field '[2].d' should be of type 'int', found '\"10\"'" +
+    "\n\t\t  map field '[2].e' should be of type 'int', found 'false'" +
+    "\n\t\tor" +
+    "\n\t\t  map field '[0].a' should be of type 'string', found 'true'" +
+    "\n\t\t  map field '[1].b' should be of type 'string', found '10'" +
+    "\n\t\t  map field '[1].c' should be of type 'string', found '()'" +
+    "\n\t\t  map field '[2].e' should be of type 'string', found 'false'" +
+    "\n\t\t}";
+    if (t6 is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", t6.message());
+        assertEquality("'map<json>[]' value cannot be converted to 'UnionTable2': " + errMsgSuffix,
+        <string> checkpanic t6.detail()["message"]);
+    }
+
+    [record {string name; int salary;}, OldEmployee, NewEmployee, map<anydata>...] listResult = [
+   	    { name: "John", salary: 100, "age": 20 },
+   	    { name: "Jane", salary: 200 },
+        { name: "Jean", salary: 300, "qualified": true},
+        { name: 11, salary: 300, "qualified": true},
+        { salary: 300}
+   	];
+
+    table<OldEmployee> key(name)|error oldEmployees = listResult.cloneWithType();
+    errMsg = "'[record {| string name; int salary; anydata...; |},OldEmployee,NewEmployee,map<anydata>...]' value " +
+    "cannot be converted to 'table<OldEmployee> key(name)': " +
+    "\n\t\tfield '[0].age' cannot be added to the closed record 'OldEmployee'" +
+    "\n\t\tfield '[2].qualified' cannot be added to the closed record 'OldEmployee'" +
+    "\n\t\tfield '[3].name' in record 'OldEmployee' should be of type 'string', found '11'" +
+    "\n\t\tfield '[3].qualified' cannot be added to the closed record 'OldEmployee'" +
+    "\n\t\tmissing required field '[4].name' of type 'string' in record 'OldEmployee'";
+    if (oldEmployees is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", oldEmployees.message());
+        assertEquality(errMsg, <string> checkpanic oldEmployees.detail()["message"]);
+    }
+
+    NewestEmployeee|error newestEmployees = listResult.cloneWithType();
+    errMsg = "'[record {| string name; int salary; anydata...; |},OldEmployee,NewEmployee,map<anydata>...]' value " +
+    "cannot be converted to 'NewestEmployeee': " +
+    "\n\t\tfield '[3].name' in record 'NewEmployee' should be of type 'string', found '11'" +
+    "\n\t\tmissing required field '[4].name' of type 'string' in record 'NewEmployee'";
+    if (newestEmployees is error) {
+        assertEquality("{ballerina/lang.value}ConversionError", newestEmployees.message());
+        assertEquality(errMsg, <string> checkpanic newestEmployees.detail()["message"]);
+    }
 }
 
 /////////////////////////// Tests for `toJson()` ///////////////////////////
