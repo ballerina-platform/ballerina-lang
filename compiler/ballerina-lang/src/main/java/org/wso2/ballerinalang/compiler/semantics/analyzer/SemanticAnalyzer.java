@@ -3075,8 +3075,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     assignTypesToMemberPatterns(matchPatterns.get(i), members.get(i).type, data);
                     BLangMatchPattern pattern = matchPatterns.get(i);
                     BType type = pattern.getBType();
-                    BVarSymbol varSymbol = new BVarSymbol(0, Names.EMPTY, pattern.scope.owner.pkgID, type, null,
-                            pattern.pos, pattern.scope.owner.origin);
+                    BVarSymbol varSymbol = new BVarSymbol(0, Names.EMPTY, null, type, null,
+                            pattern.pos, null);
                     newMembers.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType tupleType = new BTupleType(newMembers);
