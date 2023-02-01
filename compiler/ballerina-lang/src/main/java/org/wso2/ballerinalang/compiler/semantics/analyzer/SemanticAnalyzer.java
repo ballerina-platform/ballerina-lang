@@ -1617,7 +1617,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         List<BTupleMember> members = new ArrayList<>(varNode.memberVariables.size());
         for (BLangVariable memberVariable : varNode.memberVariables) {
             BType type = getTupleMemberType(memberVariable);
-            BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(0, Names.EMPTY, null, type, null, memberVariable.pos, SOURCE);
             members.add(new BTupleMember(type, varSymbol));
         }
 
@@ -2930,7 +2930,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 for (BLangMatchPattern memberMatchPattern : listMatchPattern.matchPatterns) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
                     BType type = memberMatchPattern.getBType();
-                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null, type, null, null, null);
+                    BVarSymbol varSymbol = new BVarSymbol(type.flags, Names.EMPTY, env.enclPkg.packageID, type, null,
+                            memberMatchPattern.pos, memberMatchPattern.scope.owner.origin);
                     members.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType matchPatternType = new BTupleType(members);
@@ -3072,9 +3073,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 List<BTupleMember> newMembers = new ArrayList<>();
                 for (int i = 0; i < matchPatterns.size(); i++) {
                     assignTypesToMemberPatterns(matchPatterns.get(i), members.get(i).type, data);
-                    BType type = matchPatterns.get(i).getBType();
-                    BVarSymbol varSymbol = new BVarSymbol(type.flags, null, null,
-                            type, null, null, null);
+                    BLangMatchPattern pattern = matchPatterns.get(i);
+                    BType type = pattern.getBType();
+                    BVarSymbol varSymbol = new BVarSymbol(0, Names.EMPTY, pattern.scope.owner.pkgID, type, null,
+                            pattern.pos, pattern.scope.owner.origin);
                     newMembers.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType tupleType = new BTupleType(newMembers);

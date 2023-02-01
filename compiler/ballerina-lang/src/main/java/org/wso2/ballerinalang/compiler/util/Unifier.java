@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -250,7 +251,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType member = tupleTypes.get(i);
             BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);
-            BVarSymbol varSymbol = new BVarSymbol(newMem.flags, null, null, newMem, null, null, null);
+            BVarSymbol varSymbol = new BVarSymbol(newMem.flags, Names.EMPTY, null, newMem, null,
+                    null, SymbolOrigin.VIRTUAL);
             members.add(new BTupleMember(newMem, varSymbol));
 
             if (isSemanticErrorInInvocation(newMem)) {
@@ -281,7 +283,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             return expType != null ? expType : originalType;
         }
 
-        BTupleType type = new BTupleType(null, members);
+        BTupleType type = new BTupleType(members);
         type.restType = newRestType;
         setFlags(type, originalType.flags);
         return type;
