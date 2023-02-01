@@ -136,11 +136,19 @@ public class ExpressionTypeTestNew {
         assertEquals(memberType.typeKind(), STRING);
     }
 
-    @Test
-    public void testRegexpTemplateLiteralExpr() {
-        TypeSymbol type = getExprType(362, 14, 362, 28);
+    @Test(dataProvider = "RegexpTemplateLiteralPosProvider")
+    public void testRegexpTemplateLiteralExpr(int sLine, int sCol, int eLine, int eCol) {
+        TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), REGEXP);
+    }
+
+    @DataProvider(name = "RegexpTemplateLiteralPosProvider")
+    private Object[][] getRegexpTemplateLiteralPos() {
+        return new Object[][] {
+                {362, 14, 362, 28},
+                {363, 14, 363, 19},
+        };
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")
@@ -622,6 +630,8 @@ public class ExpressionTypeTestNew {
     private TypeSymbol getExprType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.typeOf(LineRange.from("expressions_test.bal", start, end)).get();
+        Optional<TypeSymbol> typeSymbol = model.typeOf(LineRange.from("expressions_test.bal", start, end));
+        assertTrue(typeSymbol.isPresent());
+        return typeSymbol.get();
     }
 }
