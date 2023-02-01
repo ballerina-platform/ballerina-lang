@@ -2931,7 +2931,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     evaluateMatchPatternsTypeAccordingToMatchGuard(memberMatchPattern, env);
                     BType type = memberMatchPattern.getBType();
                     BVarSymbol varSymbol = new BVarSymbol(type.flags, Names.EMPTY, env.enclPkg.packageID, type, null,
-                            memberMatchPattern.pos, memberMatchPattern.scope.owner.origin);
+                            memberMatchPattern.pos, SOURCE);
                     members.add(new BTupleMember(type, varSymbol));
                 }
                 BTupleType matchPatternType = new BTupleType(members);
