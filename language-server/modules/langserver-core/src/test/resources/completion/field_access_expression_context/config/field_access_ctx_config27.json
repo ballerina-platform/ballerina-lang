@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the minimum of one or more int values.\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "min",
       "insertText": "min(${1})",
       "insertTextFormat": "Snippet",
@@ -34,7 +34,7 @@
           "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `n` and all of parameter `ns`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "max",
       "insertText": "max(${1})",
       "insertTextFormat": "Snippet",
@@ -53,7 +53,7 @@
           "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns sum of zero or more int values.\n  \n  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "sum",
       "insertText": "sum(${1})",
       "insertTextFormat": "Snippet",
@@ -72,7 +72,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -91,7 +91,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -110,7 +110,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
@@ -129,7 +129,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
@@ -148,7 +148,7 @@
           "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the absolute value of an int value.\n  \n  \n  \n**Return** `int`   \n- absolute value of parameter `n`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "abs",
       "insertText": "abs()",
       "insertTextFormat": "Snippet"
@@ -163,7 +163,7 @@
           "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns representation of an integer as hexdecimal string.\n\nThere is no `0x` prefix. Lowercase letters a-f are used.\nNegative numbers will have a `-` prefix. No sign for\nnon-negative numbers.\n  \n  \n  \n**Return** `string`   \n- hexadecimal string representation of int value  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toHexString",
       "insertText": "toHexString()",
       "insertTextFormat": "Snippet"
@@ -178,7 +178,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
@@ -193,7 +193,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
@@ -208,7 +208,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
@@ -223,7 +223,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
@@ -238,7 +238,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
@@ -253,7 +253,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
@@ -268,7 +268,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"

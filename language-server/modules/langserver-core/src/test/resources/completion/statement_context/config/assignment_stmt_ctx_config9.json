@@ -4,6 +4,7 @@
     "character": 28
   },
   "source": "statement_context/source/assignment_stmt_ctx_source9.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -441,13 +442,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new(string url)",
+      "label": "new(string proxyHost, int proxyPort)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` proxyHost  \n- `int` proxyPort"
         }
       },
       "sortText": "G",

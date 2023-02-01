@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -40,7 +41,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -239,8 +239,14 @@ public class ErrorConstructorExpressionNodeContext extends
         if (semanticModel.isEmpty()) {
             return completionItems;
         }
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> detailTypeDesc = node.apply(resolver);
+
+        Optional<TypeSymbol> detailTypeDesc = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            detailTypeDesc = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (detailTypeDesc.isEmpty()) {
             return completionItems;
         }

@@ -79,15 +79,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmBStringConstantsGen {
 
     private final Map<String, Integer> bStringVarIndexMap;
-
     private final String stringConstantsClass;
-
     private final String surrogatesMethodsClass;
-
     private final Map<String, int[]> highSurrogatesMap = new HashMap<>();
-
     private final Map<String, Map<String, String>> largeStringVarMap = new HashMap<>();
-
     private int bStringConstantIndex = 0;
 
     public JvmBStringConstantsGen(PackageID module) {
