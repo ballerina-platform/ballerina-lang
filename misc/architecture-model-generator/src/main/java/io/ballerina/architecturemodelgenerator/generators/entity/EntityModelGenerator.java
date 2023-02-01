@@ -109,7 +109,7 @@ public class EntityModelGenerator extends ModelGenerator {
         return types;
     }
 
-    private Entity getType(RecordTypeSymbol recordTypeSymbol, RecordTypeDescriptorNode recordTypeDescNode,
+    private Entity getType(RecordTypeSymbol recordTypeSymbol, RecordTypeDescriptorNode recordNode,
                            String entityName, ElementLocation elementLocation, boolean isAnonymous) {
         List<Attribute> attributeList = new ArrayList<>();
         List<String> inclusionList = new ArrayList<>();
@@ -117,8 +117,8 @@ public class EntityModelGenerator extends ModelGenerator {
                 getOriginalFieldMap(recordTypeSymbol, inclusionList, entityName);
         for (RecordFieldSymbol recordFieldSymbol : recordFieldSymbolMap.values()) {
             RecordFieldNode recordFieldNode = null;
-            if (recordFieldSymbol.getName().isPresent() && recordTypeDescNode != null) {
-                recordFieldNode = (RecordFieldNode) recordTypeDescNode.fields().stream()
+            if (recordFieldSymbol.getName().isPresent() && recordNode != null) {
+                recordFieldNode = (RecordFieldNode) recordNode.fields().stream()
                         .filter(node -> ((RecordFieldNode) node).fieldName().text().equals(recordFieldSymbol.getName()
                                 .get())).findFirst().orElse(null);
             }
@@ -153,10 +153,10 @@ public class EntityModelGenerator extends ModelGenerator {
                     CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
             associations = new LinkedList<>(List.of(association));
         } else if (fieldTypeDescKind.equals(TypeDescKind.ARRAY) &&
-                ((ArrayTypeSymbol) fieldTypeSymbol).memberTypeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
-            RecordTypeSymbol inlineRecordTypeSymbol = (RecordTypeSymbol) ((ArrayTypeSymbol)
-                    fieldTypeSymbol).memberTypeDescriptor();
-            fieldType = TypeDescKind.RECORD.getName() + ARRAY;
+                getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol) != null) {
+            RecordTypeSymbol inlineRecordTypeSymbol = getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol);
+            int arraySize = ((ArrayTypeDescriptorNode) recordFieldNode.typeName()).dimensions().size();
+            fieldType = TypeDescKind.RECORD.getName() + ARRAY.repeat(arraySize);
             RecordTypeDescriptorNode recordTypeDescNode =
                     (RecordTypeDescriptorNode) ((ArrayTypeDescriptorNode) recordFieldNode.typeName()).memberTypeDesc();
             this.types.put(inlineRecordName, getType(inlineRecordTypeSymbol, recordTypeDescNode, inlineRecordName,
@@ -175,6 +175,15 @@ public class EntityModelGenerator extends ModelGenerator {
         // todo: address when union types has anonymous records
         return new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
                 getElementLocation(recordFieldSymbol));
+    }
+
+    private RecordTypeSymbol getInlineRecordTypeSymbol(ArrayTypeSymbol arrayTypeSymbol) {
+        if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
+            return (RecordTypeSymbol) arrayTypeSymbol.memberTypeDescriptor();
+        } else if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.ARRAY)) {
+            return getInlineRecordTypeSymbol((ArrayTypeSymbol) arrayTypeSymbol.memberTypeDescriptor());
+        }
+        return null;
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
@@ -394,6 +403,9 @@ public class EntityModelGenerator extends ModelGenerator {
                             associationCardinality);
                     associations.add(new Association(associate, cardinality));
                 });
+            } else {
+                associations.addAll(getAssociations(arrayTypeSymbol.memberTypeDescriptor(), recordFieldNode,
+                        entityName, optional, isNillable));
             }
         }
         return associations;
