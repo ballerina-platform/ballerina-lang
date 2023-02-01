@@ -107,4 +107,22 @@ public class LangLibRegexpTest {
                 {"testInvalidIndexFindAllGroups", 123, 31},
         };
     }
+
+    @Test(dataProvider = "longRegexpFindIndexProvider")
+    public void testLongIndexRegexp(String functionName, long startIndex) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                String.format("error(\"{ballerina/lang.regexp}RegularExpressionOperationError\",message=\"index " +
+                        "number too large: %,d\")", startIndex));
+    }
+
+    @DataProvider(name = "longRegexpFindIndexProvider")
+    private Object[][] longRegexpFindIndexes() {
+        return new Object[][] {
+                {"testLongIndexFind", 68719476704L},
+                {"testLongIndexFindAll", 137438953408L},
+                {"testLongIndexFindGroups", 274877906816L},
+                {"testLongIndexFindAllGroups", 549755813632L},
+        };
+    }
 }
