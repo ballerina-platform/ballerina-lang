@@ -60,6 +60,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ARRAY;
@@ -153,8 +154,9 @@ public class EntityModelGenerator extends ModelGenerator {
                     CardinalityValue.ONE_AND_ONLY_ONE.getValue(), associateCardinality));
             associations = new LinkedList<>(List.of(association));
         } else if (fieldTypeDescKind.equals(TypeDescKind.ARRAY) &&
-                getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol) != null) {
-            RecordTypeSymbol inlineRecordTypeSymbol = getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol);
+                getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol).isPresent()) {
+            RecordTypeSymbol inlineRecordTypeSymbol =
+                    getInlineRecordTypeSymbol((ArrayTypeSymbol) fieldTypeSymbol).get();
             int arraySize = ((ArrayTypeDescriptorNode) recordFieldNode.typeName()).dimensions().size();
             fieldType = TypeDescKind.RECORD.getName() + ARRAY.repeat(arraySize);
             RecordTypeDescriptorNode recordTypeDescNode =
@@ -177,13 +179,13 @@ public class EntityModelGenerator extends ModelGenerator {
                 getElementLocation(recordFieldSymbol));
     }
 
-    private RecordTypeSymbol getInlineRecordTypeSymbol(ArrayTypeSymbol arrayTypeSymbol) {
+    private Optional<RecordTypeSymbol> getInlineRecordTypeSymbol(ArrayTypeSymbol arrayTypeSymbol) {
         if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.RECORD)) {
-            return (RecordTypeSymbol) arrayTypeSymbol.memberTypeDescriptor();
+            return Optional.of((RecordTypeSymbol) arrayTypeSymbol.memberTypeDescriptor());
         } else if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.ARRAY)) {
             return getInlineRecordTypeSymbol((ArrayTypeSymbol) arrayTypeSymbol.memberTypeDescriptor());
         }
-        return null;
+        return Optional.empty();
     }
 
     private Map<String, RecordFieldSymbol> getOriginalFieldMap(
