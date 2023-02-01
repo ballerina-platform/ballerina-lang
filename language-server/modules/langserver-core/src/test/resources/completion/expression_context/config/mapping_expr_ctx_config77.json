@@ -4,7 +4,7 @@
     "character": 66
   },
   "source": "expression_context/source/mapping_expr_ctx_source77.bal",
-  "description": "",
+  "description": "Tests completion in binding pattern context of a record typed named argument",
   "items": [
     {
       "label": "readonly",
