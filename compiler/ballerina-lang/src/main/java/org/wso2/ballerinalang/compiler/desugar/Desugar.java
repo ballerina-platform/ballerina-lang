@@ -9758,7 +9758,9 @@ public class Desugar extends BLangNodeVisitor {
             if (this.safeNavigationAssignment != null) {
                 this.safeNavigationAssignment.expr = addConversionExprIfRequired(accessExpr, tempResultVar.getBType());
             }
-            return;
+            if (Types.getReferredType(originalType).tag != TypeTags.JSON) {
+                return;
+            }
         }
 
         /*
