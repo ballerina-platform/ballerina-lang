@@ -131,7 +131,8 @@ public enum RuntimeErrors implements DiagnosticCode {
     NEGATIVE_REGEXP_FIND_INDEX("negative.regexp.match.string.index", "RUNTIME_0103"),
     INVALID_REGEXP_FIND_INDEX("regexp.match.string.index.out.of.range", "RUNTIME_0104"),
     EMPTY_STRING("regexp.empty.string", "RUNTIME_0104"),
-    EMPTY_REGEXP("empty.regexp", "RUNTIME_0105");
+    EMPTY_REGEXP("empty.regexp", "RUNTIME_0105"),
+    REGEXP_INVALID_PATTERN("regexp.invalid.pattern", "RUNTIME_0106");
 
     private String errorMsgKey;
     private String errorCode;
