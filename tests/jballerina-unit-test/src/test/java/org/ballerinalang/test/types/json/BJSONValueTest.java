@@ -574,6 +574,11 @@ public class BJSONValueTest {
         BRunUtil.invoke(compileResult, "testJsonLaxErrorLifting");
     }
 
+    @Test
+    public void testJsonFieldAccess() {
+        BRunUtil.invoke(compileResult, "testJsonFieldAccess");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
