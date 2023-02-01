@@ -4,7 +4,7 @@
     "character": 71
   },
   "source": "expression_context/source/mapping_expr_ctx_source78.bal",
-  "description": "",
+  "description": "Tests completion in the value expression of a specific field in a record typed named argument",
   "items": [
     {
       "label": "readonly",
