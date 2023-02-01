@@ -24,3 +24,9 @@ function testModulePublicAndPrivateTypes() {
         test:assertEquals(timeZone.getInt({year:1, month: 2, day: 3}), 6);
     }
 }
+
+function testAnonymousDistinctErrorTypes() {
+    error err = error("");
+    boolean ans = err is test_module:InvalidDocumentError;
+    test_module:InvalidDocumentError|error err2 = trap <test_module:InvalidDocumentError>err;
+}
