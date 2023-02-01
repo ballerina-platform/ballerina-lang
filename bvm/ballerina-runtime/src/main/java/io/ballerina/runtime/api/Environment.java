@@ -120,12 +120,4 @@ public class Environment {
         return strand.getProperty(key);
     }
 
-    /**
-     * Returns whether the scheduler is immortal with listeners.
-     *
-     * @return true if the scheduler is immortal.
-     */
-    public boolean isImmortal() {
-        return this.strand.scheduler.isImmortal();
-    }
 }

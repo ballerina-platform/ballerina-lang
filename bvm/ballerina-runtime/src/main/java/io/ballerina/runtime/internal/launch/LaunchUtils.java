@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.launch;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
@@ -144,10 +143,5 @@ public class LaunchUtils {
         return null;
     }
 
-    public static void graceFulExit(Environment env) {
-        if (!env.isImmortal()) {
-            Runtime.getRuntime().exit(0);
-        }
-    }
 
 }

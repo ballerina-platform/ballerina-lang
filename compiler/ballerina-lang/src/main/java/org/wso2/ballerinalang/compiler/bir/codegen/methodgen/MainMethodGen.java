@@ -153,14 +153,13 @@ public class MainMethodGen {
         genShutdownHook(mv, initClass);
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MethodGenUtils.EXECUTE_FUNCTION_SUFFIX,
-                INIT_FUTURE_VAR, userMainFunc);
+        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MAIN_METHOD, INIT_FUTURE_VAR, userMainFunc);
         if (hasInitFunction) {
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
         if (!serviceEPAvailable) {
-            generateExitRuntime(mv);
+            JvmCodeGenUtil.generateExitRuntime(mv);
         }
 
         mv.visitLabel(tryCatchEnd);
@@ -385,13 +384,6 @@ public class MainMethodGen {
     private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
         mv.visitLdcInsn(isServiceEPAvailable);
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
-    }
-
-    private void generateExitRuntime(MethodVisitor mv) {
-        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime",
-                           GET_RUNTIME, false);
-        mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "exit", "(I)V", false);
     }
 
     private void handleErrorFromFutureValue(MethodVisitor mv, String futureVar) {

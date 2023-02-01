@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
@@ -30,7 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInternalCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -59,27 +60,33 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
+import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GRACEFUL_EXIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -233,7 +240,7 @@ public class InitMethodGen {
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
-        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc);
+        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, typeOwnerClass);
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
@@ -242,7 +249,7 @@ public class InitMethodGen {
     }
 
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
-                                                        BIRNode.BIRFunction mainFunc) {
+                                                        BIRNode.BIRFunction mainFunc, String typeOwnerClass) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
@@ -281,7 +288,7 @@ public class InitMethodGen {
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
         if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
-            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef);
+            lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
         return modExecFunc;
@@ -358,11 +365,11 @@ public class InitMethodGen {
     }
 
     private BIRNode.BIRBasicBlock addCheckedInvocationForExitCall(BIRNode.BIRFunction func, BIROperand retVar,
-                                                                  BIROperand boolRef) {
+                                                                  BIROperand boolRef, String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
 
-        lastBB.terminator = getExitMethodCall(nextBB);
+        lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
 
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                 retVar);
@@ -378,11 +385,11 @@ public class InitMethodGen {
         return falseBB;
     }
 
-    private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB) {
-        JIMethodCall jiMethodCall = new JIMethodCall(null);
+    private static JInternalCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
+        JInternalCall jiMethodCall = new JInternalCall(null);
         jiMethodCall.args =  new ArrayList<>();
         jiMethodCall.varArgExist = false;
-        jiMethodCall.jClassName = LAUNCH_UTILS;
+        jiMethodCall.jClassName = typeOwnerClass;
         jiMethodCall.jMethodVMSig = GRACEFUL_EXIT_METHOD;
         jiMethodCall.name = "graceFulExit";
         jiMethodCall.invocationType = INVOKESTATIC;
@@ -448,4 +455,18 @@ public class InitMethodGen {
         return nextId++;
     }
 
+    public void generateGraceFulExitMethod(ClassWriter cw, BIRNode.BIRPackage module, String moduleClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "graceFulExit", SET_STRAND, null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "isImmortal", "()Z", false);
+        Label ifLabel = new Label();
+        mv.visitJumpInsn(IFNE, ifLabel);
+        JvmCodeGenUtil.generateExitRuntime(mv);
+        mv.visitLabel(ifLabel);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(2, 1);
+        mv.visitEnd();
+    }
 }

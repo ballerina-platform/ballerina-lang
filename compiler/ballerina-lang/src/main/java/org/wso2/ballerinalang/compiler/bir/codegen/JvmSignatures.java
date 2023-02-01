@@ -480,7 +480,7 @@ public class JvmSignatures {
     public static final String CREATE_RE_FLAG_ON_OFF = "(L" + B_STRING_VALUE + ";)L" + REG_EXP_FLAG_ON_OFF + ";";
     public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
             + REG_EXP_QUANTIFIER + ";";
-    public static final String GRACEFUL_EXIT_METHOD = "(L" + BAL_ENV + ";)V";
+    public static final String GRACEFUL_EXIT_METHOD = "(L" + STRAND_CLASS + ";)V";
 
     private JvmSignatures() {
     }
