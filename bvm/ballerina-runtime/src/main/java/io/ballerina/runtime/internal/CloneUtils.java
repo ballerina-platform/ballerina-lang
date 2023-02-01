@@ -97,9 +97,9 @@ public class CloneUtils {
             String err = errors.get(i);
             // intentionally comparing whether the two String objects are the same
             if (err == ERROR_MESSAGE_UNION_START) {
-                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs++)).append("either");
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs++)).append(ERROR_MESSAGE_UNION_START);
             } else if (err == ERROR_MESSAGE_UNION_END) {
-                --tabs;
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(--tabs)).append(ERROR_MESSAGE_UNION_END);
             } else if (err == ERROR_MESSAGE_UNION_SEPARATOR) {
                 errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs - 1))
                         .append(ERROR_MESSAGE_UNION_SEPARATOR);

@@ -1765,7 +1765,7 @@ string errorMsgContent = "\n\t\tmissing required field 'grade' of type 'float' i
         "\n\t\tfield 'man3.man.height' cannot be added to the closed record 'Person5'" +
         "\n\t\tfield 'man3.department' in record 'Boss' should be of type 'string', found '4'" +
         "\n\t\tfield 'intern.name' in record 'Student1' should be of type 'string', found '12'" +
-        "\n\t\teither" +
+        "\n\t\t{" +
         "\n\t\t  field 'intern.fruit.color' in record 'Apple' should be of type 'string', found '4'" +
         "\n\t\tor" +
         "\n\t\t  missing required field 'intern.fruit.colour' of type 'string' in record 'Orange'" +
@@ -1814,7 +1814,7 @@ function testConvertJsonToNestedRecordsWithErrors() {
     assert(result is error, true);
     err = <error> result;
     string errMsg = "'map<json>' value cannot be converted to 'Bazz': " +
-    "\n\t\teither" +
+    "\n\t\t{" +
     "\n\t\t  missing required field 'x[2].id' of type 'string' in record 'User'" +
     "\n\t\t  field 'x[2].login' in record 'User' should be of type 'string', found '4'" +
     "\n\t\tor" +
@@ -1822,7 +1822,7 @@ function testConvertJsonToNestedRecordsWithErrors() {
     "\n\t\t  missing required field 'x[2].id' of type 'string' in record 'Organization'" +
     "\n\t\t  field 'x[2].login' in record 'Organization' should be of type 'string', found '4'" +
     "\n\t\tor" +
-    "\n\t\t  missing required field 'x[2].orgName' of type 'string' in record 'Repository'";
+    "\n\t\t  missing required field 'x[2].orgName' of type 'string' in record 'Repository'\n\t\t}";
     assert(<string> checkpanic err.detail()["message"], errMsg);
     assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
@@ -1847,8 +1847,8 @@ function testUnionNestedTypeConversionErrors() {
     assert(result is error, true);
     error err = <error>result;
     string errMsg = "'map<json>' value cannot be converted to '(RecordWithArrayAsAField|RecordWithNumberArrayAsAField)': " +
-    "\n\t\teither" +
-    "\n\t\t  either" +
+    "\n\t\t{" +
+    "\n\t\t  {" +
     "\n\t\t    array element 'arr[2]' should be of type 'int', found '\"a\"'" +
     "\n\t\t    array element 'arr[3]' should be of type 'int', found '\"aa\"'" +
     "\n\t\t  or" +
@@ -1861,8 +1861,9 @@ function testUnionNestedTypeConversionErrors() {
     "\n\t\t    array element 'arr[0]' should be of type 'lang.string:Char', found '1'" +
     "\n\t\t    array element 'arr[1]' should be of type 'lang.string:Char', found '1.2'" +
     "\n\t\t    array element 'arr[3]' should be of type 'lang.string:Char', found '\"aa\"'" +
+    "\n\t\t  }" +
     "\n\t\tor" +
-    "\n\t\t  either" +
+    "\n\t\t  {" +
     "\n\t\t    array element 'arr[2]' should be of type 'int', found '\"a\"'" +
     "\n\t\t    array element 'arr[3]' should be of type 'int', found '\"aa\"'" +
     "\n\t\t  or" +
