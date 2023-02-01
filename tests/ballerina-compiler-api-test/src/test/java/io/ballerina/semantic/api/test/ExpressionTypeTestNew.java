@@ -52,6 +52,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.REGEXP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
@@ -133,6 +134,13 @@ public class ExpressionTypeTestNew {
 
         TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
         assertEquals(memberType.typeKind(), STRING);
+    }
+
+    @Test
+    public void testRegexpTemplateLiteralExpr() {
+        TypeSymbol type = getExprType(362, 14, 362, 28);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), REGEXP);
     }
 
     @Test(dataProvider = "TupleLiteralPosProvider")

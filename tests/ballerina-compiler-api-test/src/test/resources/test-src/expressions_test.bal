@@ -358,3 +358,7 @@ function fooFn() returns future<int> {
 function barFn() returns int {
     return 10;
 }
+
+function testRegexp() {
+    var reg = re `[a-z0-9]+`;
+}
