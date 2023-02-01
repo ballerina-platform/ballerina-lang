@@ -238,10 +238,6 @@ public class Symbols {
         return new BVarSymbol(0, Names.EMPTY, null, type, null, null, SymbolOrigin.VIRTUAL);
     }
 
-    public static BVarSymbol createVarSymbolForTupleMember(BType type, Location pos) {
-        return new BVarSymbol(0, Names.EMPTY, null, type, null, pos, SymbolOrigin.VIRTUAL);
-    }
-
     public static BVarSymbol createVarSymbolForTupleMember(BType type, BSymbol owner, Location pos) {
         return new BVarSymbol(0, Names.EMPTY, owner.pkgID, type, owner, pos, SymbolOrigin.VIRTUAL);
     }

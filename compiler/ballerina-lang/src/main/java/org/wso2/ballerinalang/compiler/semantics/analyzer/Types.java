@@ -4831,7 +4831,7 @@ public class Types {
         List<BTupleMember> tupleTypes = new ArrayList<>();
         for (BTupleMember tupleMember : originalType.getMembers()) {
             BType type = getRemainingMatchExprType(tupleMember.type, eType, env);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type, tupleMember.symbol.pos);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type, null, tupleMember.symbol.pos);
             tupleTypes.add(new BTupleMember(type, varSymbol));
         }
         BTupleType remainingType = new BTupleType(tupleTypes);
@@ -5339,7 +5339,8 @@ public class Types {
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(intersectionType, intersectionContext.pos);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(intersectionType, null,
+                    intersectionContext.pos);
             tupleMemberTypes.add(new BTupleMember(intersectionType, varSymbol));
         }
 
