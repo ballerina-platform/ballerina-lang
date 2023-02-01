@@ -95,7 +95,7 @@ public class MapUtils {
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                                             fieldName, recType));
+                                                             fieldName, mapValue.getType()));
             }
 
             // If it can be updated, use it.
@@ -110,9 +110,8 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                           BLangExceptionHelper.getErrorDetails(
-                                                      RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, BLangExceptionHelper.getErrorDetails(
+                    RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, mapValue.getType()));
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
