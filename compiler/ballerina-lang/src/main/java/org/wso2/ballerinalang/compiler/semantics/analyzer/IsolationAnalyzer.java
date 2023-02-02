@@ -293,6 +293,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
     private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
+    private List<BLangVariable> moduleLevelVariables = null;
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -336,7 +337,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
-        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
+        this.moduleLevelVariables = pkgNode.globalVars;
+        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(this.moduleLevelVariables);
         populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
         List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
         populateNonPublicIsolatedInferableClasses(classDefinitions);
@@ -364,7 +366,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        for (BLangVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : this.moduleLevelVariables) {
             analyzeNode(globalVar, pkgEnv);
         }
 
@@ -372,6 +374,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         logServiceIsolationHints(classDefinitions);
         this.arrowFunctionTempSymbolMap.clear();
         this.isolationInferenceInfoMap.clear();
+        this.moduleLevelVariables = null;
 
         for (BLangTestablePackage testablePkg : pkgNode.testablePkgs) {
             visit((BLangPackage) testablePkg);
@@ -2629,7 +2632,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case LIST_CONSTRUCTOR_EXPR:
                 for (BLangExpression expr : ((BLangListConstructorExpr) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
+                            logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2639,8 +2644,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case TABLE_CONSTRUCTOR_EXPR:
                 for (BLangRecordLiteral mappingConstr : ((BLangTableConstructorExpr) expression).recordLiteralList) {
-                    if (isIsolatedExpression(mappingConstr, logErrors, visitRestOnError, nonIsolatedExpressions) ||
-                            logErrors || visitRestOnError) {
+                    if (isIsolatedExpression(mappingConstr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                             inferring, publiclyExposedObjectTypes, classDefinitions,
+                                             unresolvedSymbols) ||
+                            logErrors ||
+                            visitRestOnError) {
                         continue;
                     }
 
@@ -2655,14 +2663,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                         BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                         if (key.computedKey) {
-                            if (!isIsolatedExpression(key.expr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
+                            if (!isIsolatedExpression(key.expr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                                      inferring, publiclyExposedObjectTypes, classDefinitions,
+                                                      unresolvedSymbols) &&
                                     !logErrors && !visitRestOnError) {
                                 return false;
                             }
                         }
 
                         if (isIsolatedExpression(keyValueField.valueExpr, logErrors, visitRestOnError,
-                                                 nonIsolatedExpressions) || logErrors || visitRestOnError) {
+                                                 nonIsolatedExpressions, inferring,
+                                                 publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
+                                logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
@@ -2670,7 +2682,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
                         if (isIsolatedExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
-                                                 logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                                                 logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                                 publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
                                 logErrors || visitRestOnError) {
                             continue;
                         }
@@ -2678,7 +2691,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
 
                     if (isIsolatedExpression((BLangRecordLiteral.BLangRecordVarNameField) field, logErrors,
-                                             visitRestOnError, nonIsolatedExpressions) || logErrors ||
+                                             visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
+                            logErrors ||
                                              visitRestOnError) {
                         continue;
                     }
@@ -2689,7 +2704,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 BLangXMLCommentLiteral commentLiteral = (BLangXMLCommentLiteral) expression;
 
                 for (BLangExpression textFragment : commentLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                             inferring, publiclyExposedObjectTypes, classDefinitions,
+                                             unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2702,12 +2719,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
                 return isIsolatedExpression(commentLiteralConcatExpr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case XML_TEXT_LITERAL:
                 BLangXMLTextLiteral textLiteral = (BLangXMLTextLiteral) expression;
 
                 for (BLangExpression textFragment : textLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                             inferring, publiclyExposedObjectTypes, classDefinitions,
+                                             unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2719,12 +2739,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (textLiteralConcatExpr == null) {
                     return true;
                 }
-                return isIsolatedExpression(textLiteralConcatExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
+                return isIsolatedExpression(textLiteralConcatExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                            inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols);
             case XML_PI_LITERAL:
                 BLangXMLProcInsLiteral procInsLiteral = (BLangXMLProcInsLiteral) expression;
 
                 for (BLangExpression dataFragment : procInsLiteral.dataFragments) {
-                    if (isIsolatedExpression(dataFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(dataFragment, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                             inferring, publiclyExposedObjectTypes, classDefinitions,
+                                             unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2737,10 +2760,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
                 return isIsolatedExpression(procInsLiteralConcatExpr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case XML_ELEMENT_LITERAL:
                 for (BLangExpression child : ((BLangXMLElementLiteral) expression).children) {
-                    if (isIsolatedExpression(child, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
+                    if (isIsolatedExpression(child, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
+                            logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2750,7 +2776,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case XML_SEQUENCE_LITERAL:
                 for (BLangExpression xmlItem : ((BLangXMLSequenceLiteral) expression).xmlItems) {
-                    if (isIsolatedExpression(xmlItem, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(xmlItem, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2760,7 +2787,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case RAW_TEMPLATE_LITERAL:
                 for (BLangExpression insertion : ((BLangRawTemplateLiteral) expression).insertions) {
-                    if (isIsolatedExpression(insertion, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(insertion, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2770,7 +2798,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case STRING_TEMPLATE_LITERAL:
                 for (BLangExpression expr : ((BLangStringTemplateLiteral) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
+                            logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2780,43 +2810,53 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case TYPE_CONVERSION_EXPR:
                 return isIsolatedExpression(((BLangTypeConversionExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case CHECK_EXPR:
             case CHECK_PANIC_EXPR:
                 return isIsolatedExpression(((BLangCheckedExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case TRAP_EXPR:
                 return isIsolatedExpression(((BLangTrapExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case TERNARY_EXPR:
                 BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
 
-                if (!isIsolatedExpression(ternaryExpr.expr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
+                if (!isIsolatedExpression(ternaryExpr.expr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                          inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
+                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                          inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
+                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                            inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols);
             case ELVIS_EXPR:
                 BLangElvisExpr elvisExpr = (BLangElvisExpr) expression;
 
-                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
+                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                          inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
+                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                            inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols);
             case LET_EXPR:
                 return isIsolatedExpression(((BLangLetExpression) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case GROUP_EXPR:
                 return isIsolatedExpression(((BLangGroupExpr) expression).expression, logErrors, visitRestOnError,
-                                            nonIsolatedExpressions);
+                                            nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                            classDefinitions, unresolvedSymbols);
             case TYPE_INIT_EXPR:
                 BLangTypeInit typeInitExpr = (BLangTypeInit) expression;
 
@@ -2853,7 +2893,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
 
-                return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedExpressions);
+                return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedExpressions,
+                                            inferring, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols);
             } else if (isIsolated(invocationSymbol.type.flags) ||
                     (inferring && this.isolationInferenceInfoMap.containsKey(invocationSymbol) &&
                             inferFunctionIsolation(invocationSymbol,
@@ -2865,7 +2906,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 if (calledOnExpr != null &&
                         (requiredArgs.isEmpty() || calledOnExpr != requiredArgs.get(0)) &&
-                        (!isIsolatedExpression(calledOnExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
+                        (!isIsolatedExpression(calledOnExpr, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                               inferring, publiclyExposedObjectTypes,
+                                               classDefinitions, unresolvedSymbols) &&
                                 !logErrors && !visitRestOnError)) {
                     return false;
                 }
@@ -2873,13 +2916,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression requiredArg : requiredArgs) {
                     if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                         if (isIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr, logErrors,
-                                visitRestOnError, nonIsolatedExpressions) || logErrors || visitRestOnError) {
+                                visitRestOnError, nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                                 classDefinitions, unresolvedSymbols) ||
+                                logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(requiredArg, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(requiredArg, logErrors, visitRestOnError, nonIsolatedExpressions,
+                                             inferring, publiclyExposedObjectTypes,
+                                             classDefinitions, unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2889,14 +2936,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression restArg : invocation.restArgs) {
                     if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
                         if (isIsolatedExpression(((BLangRestArgsExpression) restArg).expr, logErrors, visitRestOnError,
-                                                 nonIsolatedExpressions)
+                                                 nonIsolatedExpressions, inferring, publiclyExposedObjectTypes,
+                                                 classDefinitions, unresolvedSymbols)
                                 || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(restArg, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                    if (isIsolatedExpression(restArg, logErrors, visitRestOnError, nonIsolatedExpressions, inferring,
+                                             publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -3800,6 +3849,30 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         } else if (Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
             // Listeners aren't allowed as isolated variables.
             return false;
+        } else {
+            // Module-level variable
+            BLangVariable variable = null;
+            for (BLangVariable moduleLevelVariable : this.moduleLevelVariables) {
+                if (symbol == moduleLevelVariable.symbol) {
+                    variable = moduleLevelVariable;
+                    break;
+                }
+            }
+
+            if (variable != null) {
+                BLangExpression expr = variable.expr;
+                if (expr != null) {
+                    if (!isIsolatedExpression(expr, false, false, new ArrayList<>(),
+                                              true, publiclyExposedObjectTypes, classDefinitions,
+                                              unresolvedSymbols)) {
+                        return false;
+                    }
+                } else {
+                    // module-no-init-var-decl cannot be isolated, so we infer them to be non-isolated irrespective of
+                    // whether the initialization expression in the init function is isolated.
+                    return false;
+                }
+            }
         }
 
         for (LockInfo lockInfo : inferenceInfo.accessedLockInfo) {
