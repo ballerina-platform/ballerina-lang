@@ -1606,7 +1606,7 @@ public class JvmInstructionGen {
 
         this.mv.visitTypeInsn(NEW, TABLE_VALUE_IMPL);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadType(this.mv, JvmCodeGenUtil.getReferredType(inst.type));
+        jvmTypeGen.loadType(this.mv, inst.type);
         this.loadVar(inst.dataOp.variableDcl);
         this.loadVar(inst.keyColOp.variableDcl);
         this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, JVM_INIT_METHOD, INIT_TABLE_VALUE_IMPL, false);
