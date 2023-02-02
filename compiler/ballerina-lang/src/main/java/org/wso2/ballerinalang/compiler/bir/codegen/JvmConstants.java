@@ -423,8 +423,8 @@ public class JvmConstants {
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
 
     public static final int MAX_MEMBERS_PER_METHOD = 100;
-    public static final int MAX_TYPES_PER_METHOD = 3;
-    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
+    public static final int MAX_TYPES_PER_METHOD = 100;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
