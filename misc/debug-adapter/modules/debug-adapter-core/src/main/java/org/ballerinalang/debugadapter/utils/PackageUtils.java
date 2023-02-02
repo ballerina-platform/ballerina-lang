@@ -314,13 +314,17 @@ public class PackageUtils {
      */
     private static String getFullModuleName(Document document) {
         String packageNamePart = encodeModuleName(document.module().moduleName().packageName().value());
-        if (document.module().testDocumentIds().contains(document.documentId())) {
-            // all the generated java classes for Ballerina test sources ends with "$test" postfix
-            packageNamePart = packageNamePart + TEST_PKG_POSTFIX;
-        }
 
         String moduleNamePart = document.module().moduleName().moduleNamePart();
-        return moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) : packageNamePart;
+        String moduleName = moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) :
+                packageNamePart;
+
+        if (document.module().testDocumentIds().contains(document.documentId())) {
+            // all the generated java classes for Ballerina test sources ends with "$test" postfix
+            moduleName = moduleName + TEST_PKG_POSTFIX;
+        }
+
+        return moduleName;
     }
 
     private static String replaceSeparators(String path) {

@@ -60,7 +60,8 @@ public class ListenerDeclarationTest {
     @DataProvider(name = "LinePosProvider")
     public Object[][] getLinePos() {
         return new Object[][]{
-                {19, 32, TypeDescKind.TYPE_REFERENCE},
+                {16, 32, TypeDescKind.TYPE_REFERENCE},
+                {83, 64, TypeDescKind.UNION},
         };
     }
 }
