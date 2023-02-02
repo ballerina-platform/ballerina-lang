@@ -283,7 +283,7 @@ public class RunNativeImageTestTask implements Task {
         coverage = project.buildOptions().codeCoverage();
 
         if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported by Ballerina native test");
+            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
 
         if (report) {
