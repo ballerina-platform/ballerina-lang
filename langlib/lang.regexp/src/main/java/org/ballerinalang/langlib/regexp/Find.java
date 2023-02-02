@@ -120,7 +120,7 @@ public class Find {
             return RegexUtil.getMatcher(regExp, str);
         } catch (Exception e) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.valueOf("Invalid regexp expression"));
+                    RuntimeErrors.REGEXP_INVALID_PATTERN, regExp.toString());
         }
     }
 
