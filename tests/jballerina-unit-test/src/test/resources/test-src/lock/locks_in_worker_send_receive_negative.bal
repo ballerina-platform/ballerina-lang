@@ -25,3 +25,30 @@ public function main() {
         }
     }
 }
+
+public function test() {
+    worker A {
+        lock {
+        int num = 10;
+
+        num -> B;
+
+        string msg = <- B;
+        io:println(string `Received string "${msg}" from worker B`);
+
+        }
+
+    }
+
+    worker B {
+        lock {
+            int num;
+
+            num = <- A;
+            io:println(string `Received integer "${num}" from worker A`);
+
+            string msg = "Hello";
+            msg -> A;
+        }
+    }
+}

@@ -138,7 +138,7 @@ public class LocksInMainTest {
     public void testWorkerSendReceiveInLockNegativeCases() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/lock/locks_in_worker_send_receive_negative.bal");
-        assertEquals(compileResult.getErrorCount(), 2);
+        assertEquals(compileResult.getErrorCount(), 6);
         BAssertUtil.validateError(compileResult, 0, "using send action not allowed in lock statement",
                 11, 13);
         BAssertUtil.validateError(compileResult, 1, "using receive action not allowed in lock statement",
