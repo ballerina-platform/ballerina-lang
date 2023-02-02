@@ -41,8 +41,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -97,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -1746,6 +1749,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
+        if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+            BType elementType = ((BSequenceType) symbol.type).elementType;
+            bLangSimpleVarRef.expectedType = bLangSimpleVarRef.symbol.type =
+                    new BTupleType(null, new ArrayList<>(0), elementType, 0);
+            bLangSimpleVarRef.setBType(bLangSimpleVarRef.symbol.type);
+        }
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
         BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
@@ -1933,7 +1942,24 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        listConstructorExpr.exprs.forEach(this::acceptNode);
+        List<BLangExpression> exprs = listConstructorExpr.exprs;
+        exprs.forEach(this::acceptNode);
+        checkListConstructorWithSequenceVariable(exprs);
+    }
+
+    private void checkListConstructorWithSequenceVariable(List<BLangExpression> exprs) {
+        if (exprs.size() != 1) {
+            return;
+        }
+        BLangExpression expr = exprs.get(0);
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (((BLangSimpleVarRef) expr).symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+            BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+            spreadOpExpr.setExpression(expr);
+            spreadOpExpr.pos = expr.pos;
+            exprs.clear();
+            exprs.add(spreadOpExpr);
+        }
     }
 
     @Override

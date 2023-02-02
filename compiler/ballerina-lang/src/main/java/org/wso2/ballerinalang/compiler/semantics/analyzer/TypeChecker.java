@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSequenceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -77,6 +78,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
@@ -2220,7 +2222,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             checkExpr(e, expType, data);
             if (inferredTupleDetails.restMemberTypes.isEmpty()) {
-                inferredTupleDetails.fixedMemberTypes.add(data.resultType);
+                if (data.resultType.tag == TypeTags.SEQUENCE) {
+                    inferredTupleDetails.restMemberTypes.add(((BSequenceType) data.resultType).elementType);
+                } else {
+                    inferredTupleDetails.fixedMemberTypes.add(data.resultType);
+                }
             } else {
                 inferredTupleDetails.restMemberTypes.add(data.resultType);
             }
@@ -2868,6 +2874,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
+            } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+                varRefExpr.symbol = symbol;
+                actualType = symbol.type;
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
@@ -6615,7 +6624,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
-        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        SymbolEnv groupByEnv = SymbolEnv.createTypeNarrowedEnv(groupByClause, data.commonAnalyzerData.queryEnvs.pop());
+        groupByClause.env = groupByEnv;
+        data.commonAnalyzerData.queryEnvs.push(groupByEnv);
         Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
@@ -6631,6 +6642,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             nonGroupingKeys.remove(variable);
         }
         groupByClause.nonGroupingKeys = nonGroupingKeys;
+        for (String var : nonGroupingKeys) {
+            Name name = new Name(var);
+            BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
+            // TODO:
+            // Crete BVarSymbol with new flag to identify sequence symbol
+            BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
+                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+            groupByEnv.scope.define(name, sequenceSymbol);
+        }
     }
 
     @Override
