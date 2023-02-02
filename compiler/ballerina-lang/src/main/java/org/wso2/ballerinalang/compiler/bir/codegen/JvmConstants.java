@@ -252,6 +252,7 @@ public class JvmConstants {
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
+    public static final String ANNOTATIONS_FIELD = "$annotations";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
 

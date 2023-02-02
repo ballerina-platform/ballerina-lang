@@ -187,10 +187,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "a"
                                                             }
                                                           ]
@@ -201,10 +201,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "b"
                                                             }
                                                           ]
@@ -228,10 +228,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "F"
                                                             }
                                                           ]
@@ -242,10 +242,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "G"
                                                             }
                                                           ]
@@ -372,6 +372,20 @@
                                               "kind": "QUESTION_MARK_TOKEN"
                                             },
                                             {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
                                               "kind": "COLON_TOKEN"
                                             }
                                           ]
@@ -389,10 +403,10 @@
                                                       "kind": "RE_ATOM_QUANTIFIER",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_ESCAPE",
+                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "A"
                                                             }
                                                           ]
@@ -533,23 +547,44 @@
                                                       "children": [
                                                         {
                                                           "kind": "RE_FLAGS_VALUE",
-                                                          "value": "i"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
                                                           "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "a"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": ")"
+                                                          "value": "i",
+                                                          "trailingMinutiae": [
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "hasDiagnostics": true,
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "RE_FLAGS_VALUE",
+                                                                    "hasDiagnostics": true,
+                                                                    "diagnostics": [
+                                                                      "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                                    ],
+                                                                    "value": "a"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "hasDiagnostics": true,
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "RE_FLAGS_VALUE",
+                                                                    "hasDiagnostics": true,
+                                                                    "diagnostics": [
+                                                                      "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                                    ],
+                                                                    "value": ")"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     }
@@ -683,45 +718,70 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "QUESTION_MARK_TOKEN"
+                                              "kind": "QUESTION_MARK_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "b"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "RE_FLAGS_ON_OFF",
-                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "RE_FLAGS",
-                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "LIST",
-                                                      "hasDiagnostics": true,
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "a"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": "b"
-                                                        },
-                                                        {
-                                                          "kind": "RE_FLAGS_VALUE",
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                          ],
-                                                          "value": ")"
-                                                        }
-                                                      ]
+                                                      "children": []
                                                     }
                                                   ]
                                                 }

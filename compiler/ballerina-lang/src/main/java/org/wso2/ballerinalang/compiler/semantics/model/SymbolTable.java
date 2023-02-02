@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -128,8 +130,9 @@ public class SymbolTable {
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-
-    public final BType tupleType = new BTupleType(Lists.of(noType));
+    BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+            noType, null, null, SymbolOrigin.VIRTUAL);
+    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);

@@ -1748,70 +1748,6 @@
       ]
     },
     {
-      "name": "ClientDeclarationNode",
-      "base": "StatementNode",
-      "kind": "CLIENT_DECLARATION",
-      "attributes": [
-        {
-          "name": "annotations",
-          "type": "AnnotationNode",
-          "occurrences": "MULTIPLE"
-        },
-        {
-          "name": "clientKeyword",
-          "type": "Token"
-        },
-        {
-          "name": "clientUri",
-          "type": "BasicLiteralNode"
-        },
-        {
-          "name": "asKeyword",
-          "type": "Token"
-        },
-        {
-          "name": "clientPrefix",
-          "type": "IdentifierToken"
-        },
-        {
-          "name": "semicolonToken",
-          "type": "Token"
-        }
-      ]
-    },
-    {
-      "name": "ModuleClientDeclarationNode",
-      "base": "ModuleMemberDeclarationNode",
-      "kind": "MODULE_CLIENT_DECLARATION",
-      "attributes": [
-        {
-          "name": "annotations",
-          "type": "AnnotationNode",
-          "occurrences": "MULTIPLE"
-        },
-        {
-          "name": "clientKeyword",
-          "type": "Token"
-        },
-        {
-          "name": "clientUri",
-          "type": "BasicLiteralNode"
-        },
-        {
-          "name": "asKeyword",
-          "type": "Token"
-        },
-        {
-          "name": "clientPrefix",
-          "type": "IdentifierToken"
-        },
-        {
-          "name": "semicolonToken",
-          "type": "Token"
-        }
-      ]
-    },
-    {
       "name": "FunctionBodyBlockNode",
       "base": "FunctionBodyNode",
       "kind": "FUNCTION_BODY_BLOCK",
@@ -4576,7 +4512,7 @@
     {
       "name": "ReAtomCharOrEscapeNode",
       "base": "Node",
-      "kind": "RE_CHAR_ESCAPE",
+      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
       "attributes": [
         {
           "name": "reAtomCharOrEscape",
@@ -4933,6 +4869,22 @@
         {
           "name": "closeBraceToken",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "MemberTypeDescriptorNode",
+      "base": "Node",
+      "kind": "MEMBER_TYPE_DESC",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "AnnotationNode",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "typeDescriptor",
+          "type": "TypeDescriptorNode"
         }
       ]
     }

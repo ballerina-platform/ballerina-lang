@@ -295,6 +295,10 @@ public enum Color2 {
     BLUE
 }
 
+annotation v30 on field;
+
+type Tp [@v30 int, string];
+
 public const annotation record {| int increment = 1; |} v29 on source type;
 
 @v29 {
@@ -303,4 +307,3 @@ public const annotation record {| int increment = 1; |} v29 on source type;
 type Qux record {|
     int x;
 |};
-

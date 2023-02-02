@@ -92,7 +92,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
     private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE 
+        if (nodeAtCursor.kind() == SyntaxKind.RE_LITERAL_CHAR_DOT_OR_ESCAPE
                 && nodeAtCursor.toSourceCode().equals(SyntaxKind.BACK_SLASH_TOKEN.stringValue())) {
             // Eg: re `\<cursor>`
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DIGIT.get()));

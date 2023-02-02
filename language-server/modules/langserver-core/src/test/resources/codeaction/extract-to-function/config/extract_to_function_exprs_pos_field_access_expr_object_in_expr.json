@@ -4,6 +4,7 @@
     "character": 24
   },
   "source": "extract_to_function_exprs_field_access_expr.bal",
+  "description": "Extract to function for expressions, cursor inside the expression of the field access expression of an Object",
   "expected": [
     {
       "title": "Extract to function",
@@ -36,8 +37,18 @@
           "newText": "extracted(kamal)"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_field_access_expr.bal",
+          {
+            "line": 24,
+            "character": 22
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside the expression of the field access expression of an Object"
+  ]
 }

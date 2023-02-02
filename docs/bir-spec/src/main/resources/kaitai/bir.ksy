@@ -401,7 +401,7 @@ types:
       - id: tuple_types_count
         type: s4
       - id: tuple_type_cp_index
-        type: s4
+        type: tuple_member
         repeat: expr
         repeat-expr: tuple_types_count
       - id: has_rest_type
@@ -409,6 +409,16 @@ types:
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
+  tuple_member:
+      seq:
+        - id: name_cp_index
+          type: s4
+        - id: flags
+          type: s8
+        - id: type_cp_index
+          type: s4
+        - id: annotation_attachments_content
+          type: annotation_attachments_content
   type_intersection:
     seq:
       - id: constituent_types_count
@@ -482,6 +492,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   record_init_function:
     seq:
       - id: name_cp_index
@@ -893,15 +905,21 @@ types:
       - id: rest_path_param
         type: path_param
         if: has_rest_path_param == 1
-      - id: resource_path_count
+      - id: resource_path_segment_count
         type: s4
-      - id: resource_path_segment_cp_index
-        type: s4  
+      - id: resource_path_segments
+        type: resource_path_segment
         repeat: expr
-        repeat-expr: resource_path_count
+        repeat-expr: resource_path_segment_count
       - id: resource_accessor
         type: s4
-      - id: resource_path_type_cp_index
+  resource_path_segment:
+    seq:
+      - id: resource_path_segment_cp_index
+        type: s4  
+      - id: resource_path_segment_pos
+        type: position  
+      - id: resource_path_segment_type
         type: s4
   path_param:
     seq:
