@@ -148,6 +148,8 @@ public class ExpressionTypeTestNew {
         return new Object[][] {
                 {362, 14, 362, 28},
                 {363, 14, 363, 19},
+                {364, 14, 364, 20},
+                {365, 14, 365, 26},
         };
     }
 

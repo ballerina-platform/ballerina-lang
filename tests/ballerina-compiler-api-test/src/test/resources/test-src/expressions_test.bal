@@ -362,4 +362,6 @@ function barFn() returns int {
 function testRegexp() {
     var reA = re `[a-z0-9]+`;
     var reB = re ``;
+    var reC = re `a`;
+    var reD = re `[a|b]+c`;
 }
