@@ -497,7 +497,7 @@ public class JvmTerminatorGen {
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
                 return;
             case J_INTERNAL_METHOD_CALL:
-                this.genJInternalMethodCall((JInternalCall)terminator, localVarOffset);
+                this.genJInternalMethodCall((JInternalCall) terminator, localVarOffset);
         }
     }
 

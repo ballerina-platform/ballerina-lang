@@ -40,11 +40,14 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -240,7 +243,7 @@ public class InitMethodGen {
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
-        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, typeOwnerClass);
+        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg.packageID, serviceEPAvailable, mainFunc, typeOwnerClass);
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
@@ -248,7 +251,7 @@ public class InitMethodGen {
 
     }
 
-    private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
+    private BIRNode.BIRFunction generateExecuteFunction(PackageID packageID, boolean serviceEPAvailable,
                                                         BIRNode.BIRFunction mainFunc, String typeOwnerClass) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
@@ -276,18 +279,18 @@ public class InitMethodGen {
 
         BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modExecFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
-        addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
+        addCheckedInvocation(modExecFunc, packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
 
         if (mainFunc != null) {
-            injectDefaultArgs(pkg.packageID, mainArgs, mainFunc, modExecFunc, boolRef);
-            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
+            injectDefaultArgs(packageID, mainArgs, mainFunc, modExecFunc, boolRef);
+            addCheckedInvocationWithArgs(modExecFunc, packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
                     mainFunc.annotAttachments);
         }
 
         BIRNode.BIRBasicBlock lastBB =
-                addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
+                addCheckedInvocation(modExecFunc, packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
-        if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
+        if (!serviceEPAvailable && !JvmPackageGen.isLangModule(packageID)) {
             lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
         }
         lastBB.terminator = new BIRTerminator.Return(null);
@@ -309,14 +312,28 @@ public class InitMethodGen {
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
-                Name defaultFuncName =
-                        ((BInvokableTypeSymbol) mainFunc.type.tsymbol).defaultValues.get(parameter.metaVarName).name;
-                trueBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, defaultFuncName,
-                        Collections.emptyList(), argOperand, falseBB, Collections.emptyList(),
-                        Collections.emptySet());
+                BInvokableSymbol defaultFunc =
+                        ((BInvokableTypeSymbol) mainFunc.type.tsymbol).defaultValues.get(parameter.metaVarName);
+                trueBB.terminator = getFPCallForDefaultParameter(modId, defaultFunc, argOperand, falseBB, modExecFunc);
             }
         }
 
+    }
+
+    private BIRTerminator.FPCall getFPCallForDefaultParameter(PackageID pkgID, BInvokableSymbol defaultFunc,
+                                                              BIROperand argOperand, BIRNode.BIRBasicBlock thenBB,
+                                                              BIRNode.BIRFunction modExecFunc) {
+        BIRNode.BIRVariableDcl tempVarDcl =
+                new BIRNode.BIRGlobalVariableDcl(defaultFunc.pos, defaultFunc.flags, defaultFunc.type, pkgID,
+                        defaultFunc.name, defaultFunc.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
+                        defaultFunc.name.getValue(),
+                        defaultFunc.origin.toBIROrigin());
+        modExecFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
+        return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, tempVarRef, new ArrayList<>(), argOperand, false,
+                false, thenBB, null, workerDerivative);
     }
 
     private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,
