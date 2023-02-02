@@ -1118,7 +1118,8 @@ public class Types {
             sourceTableType.fieldNameList.stream()
                     .map(f -> getTableConstraintField(sourceTableType.constraint, f))
                     .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
-                            Symbols.createVarSymbolForTupleMember(f.symbol))).forEach(fieldTypes::add);
+                            Symbols.createVarSymbolForTupleMember(f.symbol, null, f.symbol.origin)))
+                    .forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0).type, targetTableType.keyTypeConstraint, unresolvedTypes);
             }

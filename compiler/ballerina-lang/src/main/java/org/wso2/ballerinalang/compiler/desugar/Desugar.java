@@ -4470,7 +4470,7 @@ public class Desugar extends BLangNodeVisitor {
         Location restPatternPos = restBindingPattern.pos;
         List<String> keysToRemove = getKeysToRemove(mappingBindingPattern);
         BType restType = ((BRecordType) restBindingPattern.getBType()).restFieldType;
-        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(restType);
+        BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(restType, null, null);
         BVarSymbol stringVarSymbol = new BVarSymbol(0, Names.EMPTY, env.enclPkg.packageID,
                 symTable.stringType, null, symTable.builtinPos, VIRTUAL);
         BMapType entriesType = new BMapType(TypeTags.MAP, new BTupleType(Arrays.asList(

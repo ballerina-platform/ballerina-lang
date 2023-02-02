@@ -1688,7 +1688,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BType fieldType = tableConstraintField.type;
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(tableConstraintField.symbol);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(tableConstraintField.symbol, null,
+                    tableConstraintField.symbol.origin);
             memTypes.add(new BTupleMember(fieldType, varSymbol));
         }
 
@@ -6230,7 +6231,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         symTable.semanticError, null, symTable.builtinPos, SymbolOrigin.VIRTUAL);
                 memberTypeList.add(new BTupleMember(symTable.stringType, stringVarSymbol));
                 BType memberType = ((BMapType) type).getConstraint();
-                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType, null, null);
                 memberTypeList.add(new BTupleMember(memberType, varSymbol));
                 BTupleType newExpType = new BTupleType(null, memberTypeList);
                 selectType = checkExpr(selectExp, env, newExpType, data);
@@ -7705,7 +7706,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType paramType = paramTypes.get(j);
                 BVarSymbol nonRestParam = nonRestParams.get(j);
                 Name paramName = nonRestParam.name;
-                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(paramType);
+                BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(paramType, null, null);
                 tupleMembers.add(new BTupleMember(paramType, varSymbol));
                 boolean required = requiredParams.contains(nonRestParam);
                 fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
