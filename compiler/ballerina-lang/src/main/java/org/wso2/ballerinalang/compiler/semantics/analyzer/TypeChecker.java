@@ -6645,8 +6645,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (String var : nonGroupingKeys) {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
-            // TODO:
-            // Crete BVarSymbol with new flag to identify sequence symbol
             BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
                     new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
             groupByEnv.scope.define(name, sequenceSymbol);

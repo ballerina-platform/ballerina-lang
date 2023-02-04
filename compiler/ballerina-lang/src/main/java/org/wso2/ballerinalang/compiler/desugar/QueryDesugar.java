@@ -1749,7 +1749,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+        if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
             BType elementType = ((BSequenceType) symbol.type).elementType;
             bLangSimpleVarRef.expectedType = bLangSimpleVarRef.symbol.type =
                     new BTupleType(null, new ArrayList<>(0), elementType, 0);

@@ -19,6 +19,11 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+/**
+ * Represents type for sequence variable.
+ *
+ * @since 2201.5.0
+ */
 public class BSequenceType extends BType {
     public BType elementType;
     public BSequenceType(BType elementType) {
