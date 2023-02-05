@@ -162,6 +162,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                 }
+            } catch (RuntimeException e) {
+                // Ignore as semantic API calls cannot break the ST JSON creation.
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
                 // Ignore as semantic API calls cannot break the ST JSON creation.
