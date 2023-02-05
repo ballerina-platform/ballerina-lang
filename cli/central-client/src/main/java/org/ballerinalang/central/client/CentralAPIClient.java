@@ -768,12 +768,7 @@ public class CentralAPIClient {
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         // TODO: update this client initiation with default timeouts after fixing central/connectors API.
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .proxy(this.proxy)
-                .build();
+        OkHttpClient client = this.getClient(60);
 
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(CONNECTORS);
@@ -823,7 +818,7 @@ public class CentralAPIClient {
     public JsonObject getConnector(String id, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
-        OkHttpClient client = this.getClient();
+        OkHttpClient client = this.getClient(60);
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
@@ -868,7 +863,7 @@ public class CentralAPIClient {
     public JsonObject getConnector(ConnectorInfo connector, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
-        OkHttpClient client = this.getClient();
+        OkHttpClient client = this.getClient(60);
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
@@ -913,6 +908,20 @@ public class CentralAPIClient {
         return new OkHttpClient.Builder()
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
+                .proxy(this.proxy)
+                .build();
+    }
+
+    /**
+     * Gets new http client with read and connect timeouts.
+     *
+     * @return the client
+     */
+    protected OkHttpClient getClient(int timeout) {
+        return new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .readTimeout(timeout, TimeUnit.SECONDS)
                 .proxy(this.proxy)
                 .build();
     }
@@ -1010,13 +1019,7 @@ public class CentralAPIClient {
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
         // TODO: update this client initiation with default timeouts after fixing central/triggers API.
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .connectTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .proxy(this.proxy)
-                .build();
-
+        OkHttpClient client = this.getClient(60);
         try {
             HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(TRIGGERS);
             for (Map.Entry<String, String> param : params.entrySet()) {
@@ -1065,7 +1068,7 @@ public class CentralAPIClient {
     public JsonObject getTrigger(String id, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
         Optional<ResponseBody> body = Optional.empty();
-        OkHttpClient client = this.getClient();
+        OkHttpClient client = this.getClient(60);
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
