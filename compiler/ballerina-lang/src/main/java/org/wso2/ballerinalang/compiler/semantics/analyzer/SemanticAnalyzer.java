@@ -4537,10 +4537,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     data.commonAnalyzerData);
 
             if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
-                if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
-                    constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
-                    return;
-                }
                 checkAnnotConstantExpression(annAttachmentNode.expr);
             }
         }
