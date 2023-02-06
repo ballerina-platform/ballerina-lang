@@ -20,7 +20,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction getRegExp() returns regexp:RegExp {\n    return re `a`;\n}"
+          "newText": "\n\nfunction getRegExp() returns regexp:RegExp {\n    return re ``;\n}"
         }
       ],
       "resolvable": true,
