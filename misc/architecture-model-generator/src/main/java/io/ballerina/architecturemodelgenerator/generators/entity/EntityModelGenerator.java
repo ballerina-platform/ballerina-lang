@@ -119,9 +119,10 @@ public class EntityModelGenerator extends ModelGenerator {
         for (RecordFieldSymbol recordFieldSymbol : recordFieldSymbolMap.values()) {
             RecordFieldNode recordFieldNode = null;
             if (recordFieldSymbol.getName().isPresent() && recordNode != null) {
-                recordFieldNode = (RecordFieldNode) recordNode.fields().stream()
-                        .filter(node -> ((RecordFieldNode) node).fieldName().text().equals(recordFieldSymbol.getName()
-                                .get())).findFirst().orElse(null);
+                recordFieldNode = (RecordFieldNode) recordNode.fields().stream().filter(node ->
+                        node.kind().equals(SyntaxKind.RECORD_FIELD) &&
+                                ((RecordFieldNode) node).fieldName().text().equals(recordFieldSymbol.getName().get()))
+                        .findFirst().orElse(null);
             }
             attributeList.add(getAttribute(recordFieldSymbol, recordFieldNode, entityName));
         }
