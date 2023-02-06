@@ -30,6 +30,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -75,6 +76,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -211,7 +213,11 @@ public class CodeActionUtil {
         if (semanticModel.isEmpty()) {
             return Collections.emptyMap();
         }
-        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
+
+        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$") 
+            || typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE && 
+                ((TypeReferenceTypeSymbol) typeDescriptor).getName().isPresent() 
+                && ((TypeReferenceTypeSymbol) typeDescriptor).getName().get().equals("regexp")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
 

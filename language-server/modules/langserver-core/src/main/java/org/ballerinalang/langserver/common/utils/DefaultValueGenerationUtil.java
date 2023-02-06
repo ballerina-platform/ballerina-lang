@@ -108,6 +108,9 @@ public class DefaultValueGenerationUtil {
             case ERROR:
                 defaultValue = "error(\"\")";
                 break;
+            case REGEXP:
+                defaultValue = "re ``";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     defaultValue = Integer.toString(0);
@@ -154,6 +157,7 @@ public class DefaultValueGenerationUtil {
         }
 
         TypeSymbol rawType = CommonUtil.getRawType(bType);
+        rawType = CommonUtil.getRawType(rawType); // when field type is string:RegExp
         TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
             case TUPLE:

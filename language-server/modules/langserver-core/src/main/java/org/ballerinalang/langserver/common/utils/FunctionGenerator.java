@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
  * Function generator utilities.
  */
 public class FunctionGenerator {
+    
+    public static final Pattern TYPE_WITH_MODULE_PREFIX_PATTERN = Pattern.compile(":([\\w]+)$");
 
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
@@ -48,7 +50,19 @@ public class FunctionGenerator {
      */
     public static String generateTypeSignature(ImportsAcceptor importsAcceptor,
                                                TypeSymbol typeDescriptor, DocumentServiceContext context) {
-        return processModuleIDsInText(importsAcceptor, typeDescriptor.signature(), context);
+        String text = typeDescriptor.signature();
+        String newText = processModuleIDsInText(importsAcceptor, text, context);
+        if (text.equals(newText) && typeDescriptor.getModule().isPresent()) {
+            Matcher match = TYPE_WITH_MODULE_PREFIX_PATTERN.matcher(text);
+            if (match.find()) {
+                ModuleID moduleId = typeDescriptor.getModule().get().id();
+                String typeWithFullyQualifiedNamePrefix = moduleId + match.group(0);
+                newText = processModuleIDsInText(importsAcceptor, typeWithFullyQualifiedNamePrefix, context);
+            } else {
+                return text;
+            }
+        }
+        return newText;
     }
 
     /**
