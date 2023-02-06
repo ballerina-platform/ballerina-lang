@@ -127,3 +127,15 @@ public class Cl2 {
 
     }
 }
+
+const THREE = 3;
+
+public const annotation record {| int[] arr; |} AnnotWithList on type;
+
+@AnnotWithList {
+    arr: [1, 2, THREE]
+}
+public type TypeWithListInAnnots record {|
+    int a;
+    int b;
+|};
