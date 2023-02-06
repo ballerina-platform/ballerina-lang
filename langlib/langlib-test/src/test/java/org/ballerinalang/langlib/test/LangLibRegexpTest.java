@@ -125,4 +125,20 @@ public class LangLibRegexpTest {
                 {"testLongIndexFindAllGroups", 549755813632L},
         };
     }
+
+    @Test(dataProvider = "invalidRegexpPatternSyntaxProvider")
+    public void testInvalidRegexpPatternSyntax(String functionName) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina}RegularExpressionParsingError\",message=\"invalid" +
+                " regexp pattern\")");
+    }
+
+    @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
+    private Object[][] getInvalidRegexpPatternSyntax() {
+        return new Object[][] {
+                {"testInvalidRegexpPatternSyntax1"},
+                {"testInvalidRegexpPatternSyntax2"},
+                {"testInvalidRegexpPatternSyntax3"},
+        };
+    }
 }

@@ -76,3 +76,18 @@ public function testLongIndexFindAllGroups() returns error? {
     string:RegExp r = re `(([0-9A-Z]u)+(ful))`;
     _ = check (trap r.findAllGroups("rubble, trouble, bubble, hubble", 549755813632));
 }
+
+public function testInvalidRegexpPatternSyntax1() returns error? {
+    string:RegExp x = re `([(a{1})-(z)])`;
+    _ = check (trap x.findAll(":A{1,2}})").toBalString());
+}
+
+public function testInvalidRegexpPatternSyntax2() returns error? {
+    string:RegExp x = re `(?i-s:[[A\\sB\WC\Dd\\]\])`;
+    _ = check (trap x.findAll(":*1*7").toBalString());
+}
+
+public function testInvalidRegexpPatternSyntax3() returns error? {
+    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    _ = check (trap x.findAll(":*A*a").toBalString());
+}
