@@ -22,8 +22,10 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
@@ -134,7 +136,7 @@ public class LangLibFunctionTest {
 
     @Test
     public void testSingletonLangLib1() {
-        Symbol symbol = getSymbol(73, 4);
+        Symbol symbol = getSymbol(75, 4);
         TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
         UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
         List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
@@ -150,7 +152,7 @@ public class LangLibFunctionTest {
 
     @Test
     public void testSingletonLangLib2() {
-        Symbol symbol = getSymbol(75, 4);
+        Symbol symbol = getSymbol(77, 4);
         TypeReferenceTypeSymbol typeRefTypeSymbol = (TypeReferenceTypeSymbol) symbol;
         UnionTypeSymbol unionSymbol = (UnionTypeSymbol) typeRefTypeSymbol.typeDescriptor();
         List<TypeSymbol> memberTypeDescriptors = unionSymbol.memberTypeDescriptors();
@@ -251,11 +253,11 @@ public class LangLibFunctionTest {
                 {68, 8, XML, expFunctions},
                 {69, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), elementFuncs.stream())
                         .collect(Collectors.toList())},
-                {77, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
+                {79, 31, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), piFuncs.stream())
                         .collect(Collectors.toList())},
-                {78, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
+                {80, 17, TYPE_REFERENCE, Stream.concat(expFunctions.stream(), commentFuncs.stream())
                         .collect(Collectors.toList())},
-                {79, 14, TYPE_REFERENCE, expFunctions},
+                {81, 14, TYPE_REFERENCE, expFunctions},
         };
     }
 
@@ -400,8 +402,19 @@ public class LangLibFunctionTest {
     }
 
     @Test
+    public void testIntersectionOfReadonlyAndObjectType() {
+        Symbol symbol = getSymbol(73, 41);
+        assertEquals(symbol.kind(), SymbolKind.VARIABLE);
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), INTERSECTION);
+        
+        List<String> expFunctions = Collections.emptyList();
+        assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
+    }
+    
+    @Test
     public void testAllErrorMemberUnionType() {
-        Symbol symbol = getSymbol(81, 8);
+        Symbol symbol = getSymbol(83, 8);
         TypeSymbol typeSymbol = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(typeSymbol.typeKind(), TYPE_REFERENCE);
 
