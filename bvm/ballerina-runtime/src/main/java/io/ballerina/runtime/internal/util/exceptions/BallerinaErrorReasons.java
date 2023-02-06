@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
@@ -123,6 +124,9 @@ public class BallerinaErrorReasons {
     public static final String REG_EXP_PARSING_ERROR_IDENTIFIER = "RegularExpressionParsingError";
     public static final BString REG_EXP_PARSING_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat(REG_EXP_PARSING_ERROR_IDENTIFIER));
+
+    public static final BString ZERO_STEP_RANGE_ERROR = getModulePrefixedReason(INT_LANG_LIB,
+            "ZeroStepInRange");
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
