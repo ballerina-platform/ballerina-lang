@@ -5483,7 +5483,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                                   Token endBackTick) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
-        
         Location reDisjunctionPos = getPosition(startBackTick, endBackTick);
         regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences,
                 reDisjunctionPos);

@@ -146,10 +146,10 @@ public class ExpressionTypeTestNew {
     @DataProvider(name = "RegexpTemplateLiteralPosProvider")
     private Object[][] getRegexpTemplateLiteralPos() {
         return new Object[][] {
-                {362, 14, 362, 28},
-                {363, 14, 363, 19},
-                {364, 14, 364, 20},
-                {365, 14, 365, 26},
+                {362, 8, 362, 22},
+                {363, 8, 363, 13},
+                {364, 8, 364, 14},
+                {365, 8, 365, 20},
         };
     }
 
