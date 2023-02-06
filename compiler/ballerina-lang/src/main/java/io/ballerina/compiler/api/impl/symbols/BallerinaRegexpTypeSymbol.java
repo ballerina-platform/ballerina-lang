@@ -19,11 +19,16 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RegexpTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.Optional;
 
 /**
  * Represents an RegExp type descriptor.
@@ -32,13 +37,26 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BallerinaRegexpTypeSymbol extends AbstractTypeSymbol implements RegexpTypeSymbol {
 
+    private ModuleSymbol module;
+
     public BallerinaRegexpTypeSymbol(CompilerContext context, BRegexpType regexpType) {
         super(context, TypeDescKind.REGEXP, regexpType);
     }
 
     @Override
     public String signature() {
-        return "regexp:" + Names.REGEXP;
+        return "regexp:" + Names.STRING_REGEXP;
+    }
+
+    @Override
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module == null) {
+            SymbolTable symTable = SymbolTable.getInstance(this.context);
+            SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
+            this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langRegexpModuleSymbol,
+                    symTable.langRegexpModuleSymbol.getOriginalName().value);
+        }
+        return Optional.of(this.module);
     }
 
     @Override
