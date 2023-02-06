@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -233,7 +235,21 @@ public class JvmDesugarPhase {
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
             }
+            encodeDefaultFunctionName(function.type, encodedVsInitialIds);
             encodeWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void encodeDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value,
+                    encodedVsInitialIds));
+            defaultFunc.originalName = Names.fromString(encodeFunctionIdentifier(defaultFunc.originalName.value,
+                    encodedVsInitialIds));
         }
     }
 
