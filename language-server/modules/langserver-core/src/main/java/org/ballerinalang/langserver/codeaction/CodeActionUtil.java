@@ -76,7 +76,6 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -214,9 +213,9 @@ public class CodeActionUtil {
             return Collections.emptyMap();
         }
 
-        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$") 
-            || typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE && 
-                ((TypeReferenceTypeSymbol) typeDescriptor).getName().isPresent() 
+        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")
+                || typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE &&
+                ((TypeReferenceTypeSymbol) typeDescriptor).getName().isPresent()
                 && ((TypeReferenceTypeSymbol) typeDescriptor).getName().get().equals("regexp")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
@@ -911,10 +910,10 @@ public class CodeActionUtil {
      *
      * @param context        Code action context
      * @param codeAction     Code action
-     * @param command Title of the command                  
+     * @param command        Title of the command
      * @param renamePosition Position of renaming symbol
      */
-    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command, 
+    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command,
                                       Position renamePosition) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
