@@ -238,12 +238,18 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
         |}?;
     };
 } {
-    int direction = externalGetStepDirection(step);
+    int direction = getStepDirection(step);
     internal:__IntRange intRange = new (rangeStart, rangeEnd + direction, step);
     return intRange;
 }
 
-isolated function externalGetStepDirection(int step) returns int = @java:Method {
-    'class: "org.ballerinalang.langlib.integer.Step",
-    name: "getStepDirection"
-} external;
+isolated function getStepDirection(int step) returns int {
+    if (step == 0) {
+        panic error("step cannot be 0");
+    }
+
+    if (step > 0) {
+        return -1;
+    }
+    return 1;
+}
