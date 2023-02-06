@@ -241,3 +241,51 @@ function testRestParameterType() returns boolean {
 //    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
 //    return (fName, married, age);
 //}
+
+type EmployeeDetails record {|
+    string emp\:name;
+    int id;
+|};
+
+type ProductDetails record {|
+    string x\:code = "default";
+    int quantity;
+|};
+
+function testRecordFieldBindingPatternsWithIdentifierEscapes() {
+    EmployeeDetails empDetails = {
+        emp\:name: "Joy",
+        id: 12
+    };
+    string emp\:name;
+    int id;
+    {emp\:name, id} = empDetails;
+    assertEquality("Joy", emp\:name);
+    assertEquality(12, id);
+
+    ProductDetails prodDetails = {quantity: 1234};
+    ProductDetails {x\:code, quantity} = prodDetails;
+    prodDetails = {x\:code: "featured", quantity: 12345};
+    {x\:code, quantity} = prodDetails;
+    assertEquality("featured", x\:code);
+    assertEquality(12345, quantity);
+
+    [EmployeeDetails, ProductDetails] details = [{id: 234, emp\:name: "Amy"}, {x\:code: "basic", quantity: 324}];
+    string a;
+    int b;
+    int c;
+    string d;
+    [{emp\:name: a, id: b}, {quantity: c, x\:code: d}] = details;
+    assertEquality("Amy", a);
+    assertEquality(234, b);
+    assertEquality(324, c);
+    assertEquality("basic", d);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
+}

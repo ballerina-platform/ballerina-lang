@@ -680,6 +680,34 @@ function testRecordDefinitionWithOptionalFields9() {
    assertEquality(t1.toString(), "{\"x\":1}");
 }
 
+type EmployeeDetails record {|
+    string emp\:name;
+|};
+
+type ProductDetails record {|
+    string x\:code = "default";
+    int quantity;
+|};
+
+function testRecordFieldBindingPatternsWithIdentifierEscapes() {
+    EmployeeDetails empDetails = {
+        emp\:name: "Jo"
+    };
+    var {emp\:name} = empDetails;
+    assertEquality("Jo", emp\:name);
+
+    ProductDetails prodDetails = {quantity: 1234};
+    ProductDetails {x\:code, quantity} = prodDetails;
+    assertEquality("default", x\:code);
+    assertEquality(1234, quantity);
+
+    [EmployeeDetails, ProductDetails] details = [{emp\:name: "Amy"}, {x\:code: "basic", quantity: 324}];
+    var [{emp\:name: a}, {x\:code: b, quantity: c}] = details;
+    assertEquality("Amy", a);
+    assertEquality("basic", b);
+    assertEquality(324, c);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 const ASSERTION_ERROR_REASON = "AssertionError";
