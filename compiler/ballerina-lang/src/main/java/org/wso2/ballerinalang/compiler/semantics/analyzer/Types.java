@@ -3584,7 +3584,7 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.UNION && ((BUnionType) source).isCyclic) {
+        if (isJsonAnydataOrUserDefinedUnion(source) && ((BUnionType) source).isCyclic) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
         }
@@ -3592,7 +3592,7 @@ public class Types {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
-        if (source.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
+        if (isJsonAnydataOrUserDefinedUnion(source)) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
@@ -3700,6 +3700,11 @@ public class Types {
 
         unresolvedTypes.add(pair);
         return true;
+    }
+
+    private boolean isJsonAnydataOrUserDefinedUnion(BType type) {
+        int tag = type.tag;
+        return tag == TypeTags.UNION || tag == TypeTags.JSON || tag == TypeTags.ANYDATA;
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {
