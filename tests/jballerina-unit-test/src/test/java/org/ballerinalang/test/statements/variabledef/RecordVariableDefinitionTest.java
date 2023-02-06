@@ -421,6 +421,11 @@ public class RecordVariableDefinitionTest {
     }
 
     @Test
+    public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
+        BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
     public void testReadOnlyRecordWithMappingBindingPattern() {
         BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInVarDecl");
     }
