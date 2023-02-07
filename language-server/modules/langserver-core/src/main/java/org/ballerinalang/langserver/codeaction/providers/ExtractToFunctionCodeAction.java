@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -385,7 +384,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 return Collections.emptyList();
             }
 
-            Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get(), 
+            Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get(),
                     matchedCodeActionNode);
 
             if (argLists.isEmpty()) {
@@ -429,7 +428,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             String key = extractableNode.toSourceCode().strip();
             Optional<List<Symbol>> varAndParamSymbolsWithinRange =
                     getVarAndParamSymbolsWithinRangeForExprs(extractableNode.lineRange(), context);
-            Optional<ArgListsHolder> argListsHolder = getArgLists(context, 
+            Optional<ArgListsHolder> argListsHolder = getArgLists(context,
                     varAndParamSymbolsWithinRange.get(), extractableNode);
             textEditMap.put(key,
                     getTextEdits(context, extractableNode, newLineAtEnd,
@@ -462,7 +461,8 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
     }
 
-    private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node, ExpressionNodeValidator nodeValidator) {
+    private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node, 
+                                                             ExpressionNodeValidator nodeValidator) {
         // Identify the sub-expressions to be extracted
         List<NonTerminalNode> nodeList = new ArrayList<>();
         while (node != null && !isExtractableExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
@@ -539,12 +539,18 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                                                             CodeActionContext context) {
         List<Symbol> varAndParamSymbols =
                 getVisibleSymbols(context, PositionUtil.toPosition(matchedLineRange.endLine())).stream()
-                        .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
-                        .filter(symbol -> symbol.getLocation().get().lineRange().filePath().equals(matchedLineRange.filePath()))
-                        .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
-                                .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
-                                                .getRangeFromLineRange(location.lineRange()),
-                                        PositionUtil.toRange(matchedLineRange))))
+                        .filter(symbol -> 
+                                symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
+                        .filter(symbol -> 
+                                symbol.getLocation().get().lineRange().filePath().equals(matchedLineRange.filePath()))
+                        .filter(symbol -> 
+                                context.currentSemanticModel().get()
+                                        .references(symbol)
+                                        .stream()
+                                        .anyMatch(location -> 
+                                                PositionUtil.isRangeWithinRange(
+                                                        PositionUtil.getRangeFromLineRange(location.lineRange()), 
+                                                        PositionUtil.toRange(matchedLineRange))))
                         .collect(Collectors.toList());
 
         if (varAndParamSymbols.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
@@ -780,7 +786,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         @Override
         public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-            
+
         }
 
         @Override
