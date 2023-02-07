@@ -44,13 +44,17 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
         description = "A CLI tool for generating Ballerina bindings for Java APIs.")
 public class BindgenCommand implements BLauncherCmd {
 
-    private PrintStream outStream;
-    private PrintStream outError;
-    private boolean exitWhenFinish;
+    private final PrintStream outStream;
+    private final PrintStream outError;
+    private final boolean exitWhenFinish;
     private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
         this(System.out, System.err);
+    }
+
+    public BindgenCommand(PrintStream out, PrintStream err) {
+        this(out, err, true);
     }
 
     public BindgenCommand(PrintStream out, PrintStream err, boolean exitWhenFinish) {
@@ -61,37 +65,53 @@ public class BindgenCommand implements BLauncherCmd {
         BindgenUtils.setErrStream(err);
     }
 
-    public BindgenCommand(PrintStream out, PrintStream err) {
-        this.outStream = out;
-        this.outError = err;
-        this.exitWhenFinish = true;
-        BindgenUtils.setOutStream(out);
-        BindgenUtils.setErrStream(err);
-    }
-
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-cp", "--classpath"},
             description = "One or more comma-delimited classpaths for obtaining the jar files required for\n" +
                     "generating the Ballerina bindings.")
     private String classPath;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-mvn", "--maven"},
             description = "A maven dependency with colon delimited groupId, artifactId and version.")
     private String mavenDependency;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-o", "--output"},
             description = "Generate all bindings inside the specified directory. This option could be " +
                     "used to generate mappings inside a single module."
     )
     private String outputPath;
 
+    @SuppressWarnings("unused")
     @CommandLine.Option(names = {"--public"},
             description = "Set the visibility modifier of Ballerina bindings to public."
     )
     private boolean publicFlag;
 
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types"},
+            description = "Generate bindings with optional(i.e. nillable) types for parameter and return types."
+    )
+    private boolean optionalTypesFlag;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types-param"},
+            description = "Generate bindings with optional(i.e. nillable) types for parameter types."
+    )
+    private boolean optionalTypesParamFlag;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"--with-optional-types-return"},
+            description = "Generate bindings with optional(i.e. nillable) types for return types."
+    )
+    private boolean optionalTypesReturnFlag;
+
+    @SuppressWarnings("unused")
     @CommandLine.Parameters
     private List<String> classNames;
 
@@ -132,6 +152,24 @@ public class BindgenCommand implements BLauncherCmd {
 
         if (publicFlag) {
             bindingsGenerator.setPublic();
+        }
+
+        if (optionalTypesFlag && (optionalTypesParamFlag || optionalTypesReturnFlag)) {
+            setOutError("cannot use '--with-optional-types' option with '--with-optional-types-param' or " +
+                    "'--with-optional-types-return' options at the same time");
+            exitWithCode(1, this.exitWhenFinish);
+            return;
+        }
+
+        if (optionalTypesFlag) {
+            bindingsGenerator.setOptionalTypesFlag();
+        }
+
+        if (optionalTypesParamFlag) {
+            bindingsGenerator.setOptionalTypesParamFlag();
+        }
+        if (optionalTypesReturnFlag) {
+            bindingsGenerator.setOptionalTypesReturnFlag();
         }
 
         Project project = null;

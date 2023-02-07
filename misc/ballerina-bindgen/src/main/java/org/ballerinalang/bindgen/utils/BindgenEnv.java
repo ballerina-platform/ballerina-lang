@@ -39,12 +39,24 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
  */
 public class BindgenEnv {
 
-    private boolean modulesFlag = false; // Stores if the bindings are mapped as Java package per Ballerina module
-    private boolean publicFlag = false; // Stores if the public flag is enabled for the binding generation
-    private String outputPath; // Output path of the bindings generated
-    private String packageName; // Ballerina project's current package name
-    private Path projectRoot; // Ballerina project root
-    private TomlDocument tomlDocument; // TomlDocument object representing the Ballerina.toml file
+    // Stores if the bindings are mapped as Java package per Ballerina module
+    private boolean modulesFlag = false;
+    // Stores if the public flag is enabled for the binding generation
+    private boolean publicFlag = false;
+    // Stores if the optional types flag is enabled for the binding generation
+    private boolean optionalTypesFlag = false;
+    // Stores if the optional types flag is enabled for the parameter binding generation
+    private boolean optionalTypesParamFlag = false;
+    // Stores if the optional types flag is enabled for the return binding generation
+    private boolean optionalTypesReturnFlag = false;
+    // Output path of the bindings generated
+    private String outputPath;
+    // Ballerina project's current package name
+    private String packageName;
+    // Ballerina project root
+    private Path projectRoot;
+    // TomlDocument object representing the Ballerina.toml file
+    private TomlDocument tomlDocument;
 
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
@@ -139,7 +151,7 @@ public class BindgenEnv {
     /**
      * Set an alias name for a fully qualified class name.
      *
-     * @param alias the alias name
+     * @param alias     the alias name
      * @param className the fully qualified class name
      */
     public void setAlias(String alias, String className) {
@@ -221,5 +233,17 @@ public class BindgenEnv {
      */
     void setFailedMethodGens(String errorMsg) {
         this.failedMethodGens.add(errorMsg);
+    }
+
+    public void setOptionalTypesFlag(boolean value) {
+        this.optionalTypesFlag = value;
+    }
+
+    public void setOptionalTypesParamFlag(boolean value) {
+        this.optionalTypesParamFlag = value;
+    }
+
+    public void setOptionalTypesReturnFlag(boolean value) {
+        this.optionalTypesReturnFlag = value;
     }
 }

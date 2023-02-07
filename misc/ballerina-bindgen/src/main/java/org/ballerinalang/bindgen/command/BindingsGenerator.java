@@ -62,10 +62,10 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
-    private PrintStream errStream;
-    private PrintStream outStream;
+    private final PrintStream errStream;
+    private final PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
-    private Path userDir = Paths.get(System.getProperty(USER_DIR));
+    private final Path userDir = Paths.get(System.getProperty(USER_DIR));
 
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
@@ -304,5 +304,17 @@ public class BindingsGenerator {
 
     void setProject(Project project) {
         this.env.setProject(project);
+    }
+
+    public void setOptionalTypesFlag() {
+        this.env.setOptionalTypesFlag(true);
+    }
+
+    public void setOptionalTypesParamFlag() {
+        this.env.setOptionalTypesParamFlag(true);
+    }
+
+    public void setOptionalTypesReturnFlag() {
+        this.env.setOptionalTypesReturnFlag(true);
     }
 }
