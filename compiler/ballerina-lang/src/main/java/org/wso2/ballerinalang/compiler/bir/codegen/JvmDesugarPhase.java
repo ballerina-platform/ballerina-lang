@@ -352,7 +352,8 @@ public class JvmDesugarPhase {
         }
     }
 
-    private static void replaceEncodedDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type,
+                                                          HashMap<String, String> encodedVsInitialIds) {
         BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
         if (typeSymbol == null) {
             return;
