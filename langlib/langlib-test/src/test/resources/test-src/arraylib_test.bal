@@ -1805,3 +1805,39 @@ function testPushWithErrorConstructorExpr() {
     assertTrue(e is Error);
     assertValueEquality("e2", e.message());
 }
+
+function testReduceWithRestArgs() {
+    int[] arr = [100, 200];
+    [function (int i, int j) returns int, int] x = [function(int i, int j) returns int {
+            return i + j;
+        }, 1];
+
+    var res = array:reduce(arr, ...x);
+    assertValueEquality(301, res);
+
+    int res2 = array:reduce(arr, ...x);
+    assertValueEquality(301, res2);
+
+    int res3 = array:reduce(arr, ...[function(int i, int j) returns int {
+            return i + j;
+        }, 1]);
+    assertValueEquality(301, res3);
+
+    var res4 = arr.reduce(...x);
+    assertValueEquality(301, res4);
+
+    int res5 = arr.reduce(...x);
+    assertValueEquality(301, res5);
+
+    int res6 = arr.reduce(...[function(int i, int j) returns int {
+            return i + j;
+        }, 1]);
+    assertValueEquality(301, res6);
+
+    function (int i, int j) returns int func = function(int i, int j) returns int {
+        return i + j;
+    };
+    int val = 1;
+    int res7 = arr.reduce(...[func, val]);
+    assertValueEquality(301, res7);
+}
