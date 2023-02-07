@@ -783,7 +783,7 @@ public class ClientResourceAccessActionNegativeTest {
                 "incompatible types: expected 'CustomRecord', found '[int,int,int]'",
                 93, 58);
         validateError(clientResourceParamsNegative, index++,
-                "incompatible types: expected 'CustomIntegerType', found '[int,int,int]'",
+                "incompatible types: expected 'int', found '[int,int,int]'",
                 94, 66);
         Assert.assertEquals(clientResourceParamsNegative.getErrorCount(), index);
     }

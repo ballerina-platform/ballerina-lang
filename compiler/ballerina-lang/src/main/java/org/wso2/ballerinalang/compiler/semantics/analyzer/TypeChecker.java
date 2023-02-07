@@ -1672,8 +1672,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
                                                     AnalyzerData data) {
-        BType referredBType = Types.getReferredType(bType);
-        int tag = referredBType.tag;
+        int tag = bType.tag;
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
             int errorCount = this.dlog.errorCount();
@@ -1682,7 +1681,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
-            for (BType memberType : ((BUnionType) referredBType).getMemberTypes()) {
+            for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (memberType == symTable.semanticError) {
                     if (!erroredExpType) {
                         erroredExpType = true;
@@ -1733,6 +1732,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor, data);
         }
 
+        if (tag == TypeTags.TYPEREFDESC) {
+            BType refType = Types.getReferredType(bType);
+            BType compatibleType = checkListConstructorCompatibility(refType, listConstructor, data);
+            return compatibleType == refType ? bType : compatibleType;
+        }
+
+        if (tag == TypeTags.INTERSECTION) {
+            return checkListConstructorCompatibility(((BIntersectionType) bType).effectiveType, listConstructor, data);
+        }
+        
         BType possibleType = getListConstructorCompatibleNonUnionType(bType, data);
 
         switch (possibleType.tag) {
@@ -1840,23 +1849,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
-        type = Types.getReferredType(type);
-        switch (type.tag) {
+        BType referredType = Types.getReferredType(type);
+        switch (referredType.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
             case TypeTags.READONLY:
             case TypeTags.TYPEDESC:
                 return type;
             case TypeTags.JSON:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayJsonType :
+                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayJsonType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayJsonType,
                                 data.env, symTable, anonymousModelHelper, names);
             case TypeTags.ANYDATA:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAnydataType :
+                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAnydataType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAnydataType,
                                 data.env, symTable, anonymousModelHelper, names);
             case TypeTags.ANY:
-                return !Symbols.isFlagOn(type.flags, Flags.READONLY) ? symTable.arrayAllType :
+                return !Symbols.isFlagOn(referredType.flags, Flags.READONLY) ? symTable.arrayAllType :
                         ImmutableTypeCloner.getEffectiveImmutableType(null, types, symTable.arrayAllType, data.env,
                                                                       symTable, anonymousModelHelper, names);
         }
