@@ -697,9 +697,8 @@ public class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, GET_ERROR_TYPE);
             return;
         }
-
-        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
-        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS) && samePackage) {
+        
+        if (Symbols.isFlagOn(errorType.flags, Flags.ANONYMOUS)) {
             jvmConstantsGen.generateGetBErrorType(mv, jvmConstantsGen.getTypeConstantsVar(errorType, symbolTable));
         } else {
             String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
