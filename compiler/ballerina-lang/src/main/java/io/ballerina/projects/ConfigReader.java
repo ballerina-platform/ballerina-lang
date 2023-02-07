@@ -101,7 +101,7 @@ public class ConfigReader {
                         if (description.startsWith("\"") && description.endsWith("\"")) {
                             description = description.substring(1, description.length() - 1);
                         }
-                        configVariables.add(new ConfigVariable(varSymbol.name.value, varSymbol.type,
+                        configVariables.add(new ConfigVariable(varSymbol.name.value.replace("\\", ""), varSymbol.type,
                                 Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                     }
                 }

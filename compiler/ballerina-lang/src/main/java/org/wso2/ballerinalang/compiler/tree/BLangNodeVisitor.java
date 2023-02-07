@@ -1060,6 +1060,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
     
+    public void visit(BLangResourcePathSegment resourcePathSegment) {
+        throw new AssertionError();
+    }
+    
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
         throw new AssertionError();
     }

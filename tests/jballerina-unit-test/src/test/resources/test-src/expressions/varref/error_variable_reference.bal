@@ -315,6 +315,25 @@ public function testNoErrorReasonGiven() returns string? {
 //     return [r, message, i];
 // }
 
+type ReadOnlyIntersectionError readonly & error<record { string[2] info; }>;
+
+// function testErrorDestructureWithErrorDeclaredWithReadOnlyIntersection() {
+//     ReadOnlyIntersectionError e = error("Sample Error", info = ["Detail Info 1", "Detail Info 2"]);
+//     string message;
+//     error? cause;
+//     string info1;
+//     string info2;
+//     error ReadOnlyIntersectionError (message, cause, info = [info1, info2]) = e;
+//     assertEquality(e.message(), message);
+//     assertTrue(cause is ());
+//     assertEquality("Detail Info 1", info1);
+//     assertEquality("Detail Info 2", info2);
+// }
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
