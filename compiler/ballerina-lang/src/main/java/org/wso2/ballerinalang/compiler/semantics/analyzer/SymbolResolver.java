@@ -158,6 +158,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Types types;
 
     private final SymbolEnter symbolEnter;
+    private final TypeResolver typeResolver;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
@@ -182,6 +183,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.typeResolver = TypeResolver.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
@@ -1589,6 +1591,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     @Override
     public BType transform(BLangUserDefinedType userDefinedTypeNode, AnalyzerData data) {
+        String name = userDefinedTypeNode.typeName.value;
+        BType type;
+
         // 1) Resolve the package scope using the package alias.
         //    If the package alias is not empty or null, then find the package scope,
         //    if not use the current package scope.
@@ -1723,7 +1728,14 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             referenceType.tsymbol.flags |= symbol.type.flags;
             return referenceType;
         }
-        return symbol.type;
+
+        type = symbol.type;
+        if (type.getKind() != TypeKind.OTHER) {
+            return type;
+        }
+
+        type = typeResolver.validateModuleLevelDef(name, env);
+        return type != null ? type : symbol.type;
     }
 
     public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,

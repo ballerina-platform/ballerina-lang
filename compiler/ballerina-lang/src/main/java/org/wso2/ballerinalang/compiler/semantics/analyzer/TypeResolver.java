@@ -79,6 +79,8 @@ public class TypeResolver {
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private BLangPackage pkgNode;
 
+    private Map<String, BLangNode> modTable = new LinkedHashMap<>();
+
     public TypeResolver(CompilerContext context) {
         context.put(TYPE_RESOLVER_KEY, this);
 
@@ -109,11 +111,9 @@ public class TypeResolver {
 
     public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv, BLangPackage pkgNode) {
         this.pkgNode = pkgNode;
-        Map<String, BLangNode> modTable = new LinkedHashMap<>();
         for (BLangNode typeAndClassDef : moduleDefs) {
             modTable.put(symEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
-        modTable = Collections.unmodifiableMap(modTable);
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
@@ -133,6 +133,7 @@ public class TypeResolver {
                 }
             }
         }
+        modTable.clear();
     }
 
     private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {
@@ -145,6 +146,11 @@ public class TypeResolver {
         // Resolve the class fields
         for (BLangSimpleVariable field : classDefinition.fields) {
             resolveTypeDesc(pkgEnv, modTable, null, 0, field.typeNode);
+        }
+
+        // Resolve the type reference
+        for (BLangType type : classDefinition.typeRefs) {
+            resolveTypeDesc(pkgEnv, modTable, null, 0, type);
         }
 
         // Define the class fields
@@ -363,6 +369,25 @@ public class TypeResolver {
             case INTERSECTION:
                 updateIsCyclicFlag(((BIntersectionType) type).getEffectiveType());
                 break;
+        }
+    }
+
+    public BType validateModuleLevelDef(String name, SymbolEnv symEnv) {
+        BLangNode moduleLevelDef = modTable.get(name);
+        if (moduleLevelDef == null) {
+            return null;
+        }
+        SymbolEnv env = symEnv.enclEnv != null ? symEnv.enclEnv:symEnv;
+        if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
+            BType resolvedType = resolveTypeDefinition(env, modTable, typeDefinition, -1);
+//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition); // temporary disable due to intersections
+            return resolvedType;
+        } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
+            BLangConstant constant = (BLangConstant) moduleLevelDef;
+            return resolveTypeDefinition(env, modTable, constant.associatedTypeDefinition, -1);
+        } else {
+            return extracted(symEnv, modTable, (BLangClassDefinition) moduleLevelDef);
         }
     }
 
@@ -771,6 +796,10 @@ public class TypeResolver {
 
         for (BLangSimpleVariable field : td.fields) {
             resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, field.typeNode);
+        }
+
+        for (BLangType type : td.typeRefs) {
+            resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, type);
         }
 
         symResolver.validateDistinctType(td, objectType);
@@ -1281,7 +1310,7 @@ public class TypeResolver {
 
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
-            dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, td.typeName);
+//            dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, td.typeName);
             return null;
         }
 
@@ -1647,7 +1676,7 @@ public class TypeResolver {
         }
         // We may have already defined error intersection
         if (!isErrorIntersection || symEnter.lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
-            symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol);
+            symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol, env);
         }
 //        }
     }
