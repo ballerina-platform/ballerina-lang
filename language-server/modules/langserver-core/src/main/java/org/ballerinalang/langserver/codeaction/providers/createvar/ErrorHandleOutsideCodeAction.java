@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
     public static final String NAME = "Error Handle Outside";
-    public static final int UNION_ERROR_CHAR_OFFSET = 6;
 
     /**
      * {@inheritDoc}
@@ -133,13 +132,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
 
-        int lengthtDiff = typeWithError.length() - typeWithoutError.length();
+        int lengthDiff = typeWithError.length() - typeWithoutError.length();
 
         Position varRenamePosition = createVarTextEdits.varRenamePosition.get(0);
-        varRenamePosition.setCharacter(varRenamePosition.getCharacter() - lengthtDiff);
+        varRenamePosition.setCharacter(varRenamePosition.getCharacter() - lengthDiff);
 
         Integer renamePos = createVarTextEdits.renamePositions.get(0);
-        createVarTextEdits.renamePositions.add(0, renamePos - lengthtDiff);
+        createVarTextEdits.renamePositions.add(0, renamePos - lengthDiff);
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
