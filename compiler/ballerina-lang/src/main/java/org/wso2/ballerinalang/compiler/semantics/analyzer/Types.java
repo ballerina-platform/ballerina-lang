@@ -1293,7 +1293,7 @@ public class Types {
     private boolean checkAllTupleMembersBelongNoType(List<BType> tupleTypes) {
         boolean isNoType = false;
         for (BType type : tupleTypes) {
-            memberType = getReferredType(memberType);
+            type = getReferredType(type);
             switch (type.tag) {
                 case TypeTags.NONE:
                     isNoType = true;

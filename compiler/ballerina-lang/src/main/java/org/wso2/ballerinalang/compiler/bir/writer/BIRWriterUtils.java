@@ -220,17 +220,14 @@ public class BIRWriterUtils {
     }
 
     public static BIRNode.ConstValue getBIRConstantVal(BLangConstantValue constValue) {
-        int tag = constValue.type.tag;
-        if (tag == TypeTags.INTERSECTION) {
-            constValue.type = ((BIntersectionType) constValue.type).effectiveType;
-            tag = constValue.type.tag;
-        }
+        BType type = constValue.type;
+        int tag = Types.getReferredType(type).tag;
 
         if (tag == TypeTags.RECORD) {
             Map<String, BIRNode.ConstValue> mapConstVal = new HashMap<>();
             ((Map<String, BLangConstantValue>) constValue.value)
                     .forEach((key, value) -> mapConstVal.put(key, getBIRConstantVal(value)));
-            return new BIRNode.ConstValue(mapConstVal, ((BRecordType) constValue.type).getIntersectionType().get());
+            return new BIRNode.ConstValue(mapConstVal, type);
         }
 
         if (tag == TypeTags.TUPLE) {
@@ -239,7 +236,7 @@ public class BIRWriterUtils {
             for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
-            return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+            return new BIRNode.ConstValue(tupleConstVal, type);
         }
 
         return new BIRNode.ConstValue(constValue.value, constValue.type);
