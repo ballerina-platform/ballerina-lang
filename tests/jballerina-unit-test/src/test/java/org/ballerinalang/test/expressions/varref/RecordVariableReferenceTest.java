@@ -174,9 +174,19 @@ public class RecordVariableReferenceTest {
 //    }
 
     @Test
+    public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
+        BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
+    public void testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() {
+        BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment");
+    }
+
+    @Test
     public void testRecordVariablesSemanticsNegative() {
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
-                "-semantics-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/record-variable-reference-semantics-negative.bal");
         final String undefinedSymbol = "undefined symbol ";
 
         int i = -1;
@@ -223,6 +233,11 @@ public class RecordVariableReferenceTest {
                 "invalid field binding pattern; can only bind required fields", 237, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 243, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                                  "incompatible types: expected 'string[] & readonly', found '(int[] & readonly)'",
+                                  255, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                                  "incompatible types: expected 'int[] & readonly', found 'int[]'", 265, 9);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
