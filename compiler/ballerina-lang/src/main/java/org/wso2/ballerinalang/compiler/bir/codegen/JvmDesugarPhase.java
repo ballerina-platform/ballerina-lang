@@ -337,7 +337,20 @@ public class JvmDesugarPhase {
                 }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
+            replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
             replaceEncodedWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = Names.fromString(getInitialIdString(defaultFunc.name.value, encodedVsInitialIds));
+            defaultFunc.originalName =
+                    Names.fromString(getInitialIdString(defaultFunc.originalName.value, encodedVsInitialIds));
         }
     }
 
