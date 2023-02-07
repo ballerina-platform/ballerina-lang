@@ -106,7 +106,8 @@ public class PackageCompilation {
             return compilation;
         }
         // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
+        if (compilation.compilationOptions().withCodeGenerators()
+                || compilation.compilationOptions().withCodeModifiers()) {
             return compilation;
         }
 
