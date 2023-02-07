@@ -63,7 +63,7 @@ public class ConditionalExprResolver {
 
         STNode firstOrLastChild =
                 leftMost ? parentNode.childInBucket(0) : parentNode.childInBucket(parentNode.bucketCount() - 1);
-        if (firstOrLastChild != null && SyntaxUtils.isNonTerminalNode(firstOrLastChild)) {
+        if (SyntaxUtils.isNonTerminalNode(firstOrLastChild)) {
             return getQualifiedNameRefNode(firstOrLastChild, leftMost);
         }
 
