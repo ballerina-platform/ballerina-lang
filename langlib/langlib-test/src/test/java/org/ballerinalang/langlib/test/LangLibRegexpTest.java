@@ -95,7 +95,7 @@ public class LangLibRegexpTest {
         Object returns = BRunUtil.invoke(negativeTests, functionName);
         Assert.assertEquals(returns.toString(),
                 "error(\"IndexOutOfRange\",message=\"start index '" + startIndex + "' cannot be greater than input " +
-                        "length '" + length + "'\")");
+                        "string length '" + length + "'\")");
     }
 
     @DataProvider(name = "invalidRegexpFindIndexProvider")
