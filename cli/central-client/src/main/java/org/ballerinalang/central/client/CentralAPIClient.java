@@ -476,11 +476,14 @@ public class CentralAPIClient {
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
-                Optional<String> isDeprecated = Optional.ofNullable(packagePullResponse.header(IS_DEPRECATED));
+                Optional<String> deprecationFlag = Optional.ofNullable(packagePullResponse.header(IS_DEPRECATED));
                 Optional<String> deprecationMsg = Optional.ofNullable(packagePullResponse.header(DEPRECATE_MESSAGE));
 
-                if (!isBuild && isDeprecated.isPresent() && Boolean.parseBoolean(isDeprecated.get())) {
-                    outStream.println("WARNING: " + packageSignature + " is deprecated due to " + deprecationMsg.get());
+                boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
+                String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
+                if (!isBuild && isDeprecated) {
+                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated due to : "
+                            + deprecationMessage);
                 }
 
                 if (balaUrl.isPresent() && balaFileName.isPresent()) {
@@ -499,6 +502,7 @@ public class CentralAPIClient {
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
+                                isDeprecated ? deprecationMessage : null,
                                 balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
                         return;
                     } else {

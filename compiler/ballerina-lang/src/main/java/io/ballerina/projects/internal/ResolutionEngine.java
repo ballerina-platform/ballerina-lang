@@ -203,16 +203,6 @@ public class ResolutionEngine {
                         scope, resolutionType);
             }
             resolvedDeps.add(new DependencyNode(resolvedPkgDesc, scope, resolutionType));
-            // Add diagnostics for deprecated packages
-            if (Optional.ofNullable(resolvedPkgDesc.getDeprecated()).orElse(false)) {
-                String deprecationMsg = Optional.ofNullable(resolvedPkgDesc.getDeprecationMsg()).orElse("");
-                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), resolvedPkgDesc.toString() +
-                        " is deprecated due to " + deprecationMsg, DiagnosticSeverity.WARNING);
-                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
-                        diagnosticInfo, this.rootPkgDesc.name().toString());
-                this.diagnostics.add(diagnostic);
-            }
         }
         if (resolutionOptions.dumpRawGraphs() || resolutionOptions.dumpGraph()) {
             HashSet<DependencyNode> unresolvedNodes = new HashSet<>(graphBuilder.getAllDependencies());

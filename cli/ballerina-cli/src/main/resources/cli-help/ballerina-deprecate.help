@@ -18,7 +18,7 @@ DESCRIPTION
 
 
 OPTIONS
-       -m <msg>, --message=<msg>
+       --message=<msg>
            Use the given <msg> as the deprecation message
        -- undo
            Undeprecate a deprecated package

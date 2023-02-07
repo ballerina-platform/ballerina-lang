@@ -255,6 +255,7 @@ public class RemotePackageRepository implements PackageRepository {
 
         // Resolve all the requests locally
         Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
+        List<PackageMetadataResponse> deprecatedPackages = new ArrayList<>();
         if (options.offline()) {
             return cachedPackages;
         }
@@ -264,6 +265,12 @@ public class RemotePackageRepository implements PackageRepository {
             if (response.packageLoadRequest().packageLockingMode().equals(PackageLockingMode.HARD)
                     && response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
                 updatedRequests.remove(response.packageLoadRequest());
+            }
+            if (response.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+                Optional<Package> pkg = fileSystemRepo.getPackage(response.packageLoadRequest(), options);
+                if (pkg.isPresent() && pkg.get().descriptor().getDeprecated()) {
+                    deprecatedPackages.add(response);
+                }
             }
         }
         // Resolve the requests from remote repository if there are unresolved requests
@@ -278,7 +285,7 @@ public class RemotePackageRepository implements PackageRepository {
                         fromPackageResolutionResponse(updatedRequests, packageResolutionResponse);
                 // Merge central requests and local requests
                 // Here we will pick the latest package from remote or local
-                return mergeResolution(remotePackages, cachedPackages);
+                return mergeResolution(remotePackages, cachedPackages, deprecatedPackages);
 
             } catch (ConnectionErrorException e) {
                 // ignore connect to remote repo failure
@@ -292,8 +299,8 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     private Collection<PackageMetadataResponse> mergeResolution(
-            Collection<PackageMetadataResponse> remoteResolution,
-            Collection<PackageMetadataResponse> filesystem) {
+            Collection<PackageMetadataResponse> remoteResolution, Collection<PackageMetadataResponse> filesystem,
+            List<PackageMetadataResponse> deprecatedPackages) {
         List<PackageMetadataResponse> mergedResults = new ArrayList<>(
                 Stream.of(filesystem, remoteResolution)
                         .flatMap(Collection::stream).collect(Collectors.toMap(
@@ -302,6 +309,10 @@ public class RemotePackageRepository implements PackageRepository {
                             if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                                 return x;
                             } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                return y;
+                            } else if (
+                                    (deprecatedPackages.contains(x) ^ y.resolvedDescriptor().getDeprecated())) {
+                                fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
                                 return y;
                             } else if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
                                     .equals(y.resolvedDescriptor().version())) {

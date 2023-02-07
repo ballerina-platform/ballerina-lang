@@ -27,14 +27,14 @@ import java.io.IOException;
 /**
  * Deprecate command tests.
  *
- * @since 2201.4.0
+ * @since 2201.5.0
  */
-public class DeprecationCommandTest extends BaseCommandTest {
+public class DeprecateCommandTest extends BaseCommandTest {
 
     @Test(description = "Test deprecate without package version")
     public void testDeprecationWithoutVersion() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack", "-m", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack", "-message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -46,7 +46,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid org name")
     public void testDeprecationWithInvalidOrg() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:0.1.0", "-m", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:0.1.0", "-message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -59,7 +59,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid package name")
     public void testDeprecationWithInvalidPackageName() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/dep-pack:0.1.0", "-m", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/dep-pack:0.1.0", "-message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -73,7 +73,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid version")
     public void testDeprecationWithInvalidVersion() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx", "-m", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx", "-message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -85,7 +85,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with unused flags")
     public void testDeprecationWithUnusedFlags() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:0.1.0", "--undo", "-m", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:0.1.0", "--undo", "-message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -106,8 +106,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test deprecate command with argument and a help")
-    public void testSearchCommandArgAndHelp() throws IOException {
-        // Test if no arguments was passed in
+    public void testDeprecateCommandArgAndHelp() throws IOException {
         String[] args = { "sample2", "--help" };
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
         new CommandLine(deprecationCommand).parseArgs(args);
@@ -117,8 +116,7 @@ public class DeprecationCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test deprecate command with help flag")
-    public void testSearchCommandWithHelp() throws IOException {
-        // Test if no arguments was passed in
+    public void testDeprecateCommandWithHelp() throws IOException {
         String[] args = { "-h" };
         DeprecateCommand deprecateCommand = new DeprecateCommand(printStream, printStream, false);
         new CommandLine(deprecateCommand).parseArgs(args);

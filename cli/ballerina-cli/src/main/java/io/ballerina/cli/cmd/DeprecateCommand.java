@@ -33,15 +33,12 @@ import java.util.List;
 import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
-import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
-import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
-import static io.ballerina.projects.util.ProjectUtils.validatePackageVersion;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
  * This class represents the "bal deprecate" command.
  *
- * @since 2201.4.0
+ * @since 2201.5.0
  */
 @CommandLine.Command(name = DEPRECATE_COMMAND, description = "deprecate a package in Ballerina Central")
 public class DeprecateCommand implements BLauncherCmd {
@@ -62,7 +59,7 @@ public class DeprecateCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--debug", hidden = true)
     private String debugPort;
 
-    @CommandLine.Option(names = {"--message", "-m"})
+    @CommandLine.Option(names = {"--message"})
     private String deprecationMsg;
 
     @CommandLine.Option(names = {"--undo"})
@@ -113,31 +110,10 @@ public class DeprecateCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-        String packageSignature = packageValue.split(":")[0];
-        if (!validateOrgName(packageSignature.split("/")[0])) {
-            CommandUtil.printError(errStream, "invalid package organization. Only alphanumerics and underscores" +
-                            " are allowed in organization name. Provide a valid package organization. ",
-                    USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        if (!validatePackageName(packageSignature.split("/")[1])) {
-            CommandUtil.printError(errStream, "invalid package name. Only alphanumerics, underscores and " +
-                            "periods are allowed in a package name and the maximum length is 256 characters. " +
-                            "Provide a valid package name.",
-                    USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        if (!validatePackageVersion(packageValue.split(":")[1])) {
-            CommandUtil.printError(errStream, "invalid package. Provide a valid package version.",
-                    USAGE_TEXT, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-        // Skip --includes flag if it is set without code coverage
+
+        // Skip --message flag if it is set with undo option
         if (deprecationMsg != null && undoFlag) {
-            this.outStream.println("warning: ignoring --message (-m) flag since this is an undo request");
+            this.outStream.println("warning: ignoring --message flag since this is an undo request");
         }
         deprecateInCentral(packageValue);
 
