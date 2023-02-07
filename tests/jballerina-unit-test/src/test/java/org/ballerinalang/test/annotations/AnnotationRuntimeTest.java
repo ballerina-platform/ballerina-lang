@@ -178,24 +178,34 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue((Boolean) annotValue);
     }
 
+    @Test
     public void testRecordTypeAnnotationReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
         BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 
+    @Test
     public void testAnnotOnBoundMethod() {
         BRunUtil.invoke(resultOne, "testAnnotOnBoundMethod");
+    }
+
+    @Test
+    public void testListExprInConstAnnot() {
+        BRunUtil.invoke(resultOne, "testListExprInConstAnnot");
     }
 }
