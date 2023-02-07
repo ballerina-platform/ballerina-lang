@@ -52,6 +52,7 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
      */
     @Override
     public int priority() {
+
         return 997;
     }
 
@@ -69,7 +70,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
                                            CodeActionContext context) {
 
         Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
-        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION) {
+        if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.UNION
+                || isUnionCompErrorTyped((UnionTypeSymbol) typeDescriptor.get())) {
             return Collections.emptyList();
         }
 
@@ -91,12 +93,14 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
         addRenamePopup(context, edits, createVarTextEdits.edits.get(0), codeAction,
-                createVarTextEdits.renamePositions.get(0));
+                createVarTextEdits.renamePositions.get(0), createVarTextEdits.varRenamePosition.get(0),
+                createVarTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 
     @Override
     public String getName() {
+
         return NAME;
     }
 }

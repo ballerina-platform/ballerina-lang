@@ -40,8 +40,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -117,17 +119,18 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
         }
         for (String type : types) {
-            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
+            String typeName = FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), type, context);
+            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(typeName)) {
                 // Skip suggesting same type
                 continue;
             }
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), type));
+            edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), typeName));
             String commandTitle;
             if (variableNode.get().kind() == SyntaxKind.CONST_DECLARATION) {
-                commandTitle = String.format(CommandConstants.CHANGE_CONST_TYPE_TITLE, variableName.get(), type);
+                commandTitle = String.format(CommandConstants.CHANGE_CONST_TYPE_TITLE, variableName.get(), typeName);
             } else {
-                commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
+                commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), typeName);
             }
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));

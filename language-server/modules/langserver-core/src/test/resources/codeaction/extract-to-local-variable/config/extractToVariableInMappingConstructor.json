@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "Person var1 \u003d {name: \"Anne\", age: 10};\n    "
+          "newText": "Person var1 = {name: \"Anne\", age: 10};\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInMappingConstructor.bal",
+          {
+            "line": 7,
+            "character": 16
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

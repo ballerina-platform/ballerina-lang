@@ -378,6 +378,11 @@ public class TupleVariableDefinitionTest {
         BRunUtil.invoke(result, "testTupleVarDefWithRestBPContainsErrorBPWithRestBP");
     }
 
+    @Test
+    public void testReadOnlyListWithListBindingPatternInVarDecl() {
+        BRunUtil.invoke(result, "testReadOnlyListWithListBindingPatternInVarDecl");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BArray returns) {
         Assert.assertEquals(returns.size(), 3);
 
@@ -439,6 +444,12 @@ public class TupleVariableDefinitionTest {
                 "but found 'Ints'", 128, 5);
         BAssertUtil.validateError(resultNegative, ++i, "invalid list binding pattern: expected an array or a tuple, " +
                 "but found 'IntsOrStrings'", 129, 5);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected '[(string[] & readonly)," +
+                "string]', found 'ReadOnlyTuple'", 136, 44);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 140, 9);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 143, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

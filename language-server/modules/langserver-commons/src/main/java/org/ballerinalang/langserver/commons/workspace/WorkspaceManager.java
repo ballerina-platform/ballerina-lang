@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.commons.workspace;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.IDLClientGeneratorResult;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.PackageCompilation;
@@ -236,12 +235,4 @@ public interface WorkspaceManager {
      */
     String uriScheme();
 
-    /**
-     * Run IDLGenerator plugins.
-     * 
-     * @param filePath filepath.
-     * @param project project.
-     * @return {@link IDLClientGeneratorResult}
-     */
-    Optional<IDLClientGeneratorResult> waitAndRunIDLGeneratorPlugins(Path filePath, Project project);
 }

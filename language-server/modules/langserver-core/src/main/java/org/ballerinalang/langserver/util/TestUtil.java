@@ -39,8 +39,10 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.PackageCompone
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageConfigSchemaRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
+import org.eclipse.lsp4j.CodeActionCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
+import org.eclipse.lsp4j.CodeActionResolveSupportCapabilities;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.CompletionContext;
@@ -873,9 +875,17 @@ public class TestUtil {
 
                 textDocumentClientCapabilities.setCompletion(completionCapabilities);
                 textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
+                // Code action capabilities
+                CodeActionResolveSupportCapabilities resolveSupportCapabilities = 
+                        new CodeActionResolveSupportCapabilities(List.of("edit"));
+                CodeActionCapabilities codeActionCapabilities = new CodeActionCapabilities();
+                codeActionCapabilities.setResolveSupport(resolveSupportCapabilities);
+                textDocumentClientCapabilities.setCodeAction(codeActionCapabilities);
+                // Folding range capabilities
                 FoldingRangeCapabilities foldingRangeCapabilities = new FoldingRangeCapabilities();
                 foldingRangeCapabilities.setLineFoldingOnly(true);
                 textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
+                // Rename capabilities
                 RenameCapabilities renameCapabilities = new RenameCapabilities();
                 renameCapabilities.setPrepareSupport(true);
                 renameCapabilities.setHonorsChangeAnnotations(true);
@@ -900,7 +910,6 @@ public class TestUtil {
             Map<String, Object> initializationOptions = new HashMap<>();
             initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
             initializationOptions.put(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, true);
-            initializationOptions.put(InitializationOptions.KEY_RENAME_SUPPORT, true);
             if (!initOptions.isEmpty()) {
                 initializationOptions.putAll(initOptions);
             }

@@ -34,6 +34,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -244,6 +245,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -320,6 +328,7 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
+                .setEnableCache(enableCache)
                 .build();
 
         if (targetDir != null) {

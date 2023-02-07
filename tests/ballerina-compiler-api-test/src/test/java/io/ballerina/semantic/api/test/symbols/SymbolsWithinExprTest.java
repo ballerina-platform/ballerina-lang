@@ -193,8 +193,7 @@ public class SymbolsWithinExprTest {
         };
     }
 
-    // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32802
-    @Test(enabled = false)
+    @Test
     public void testAnnotTagRef() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(69, 27));
 

@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -302,5 +303,36 @@ public class NodeParserLineRangeTest {
         LinePosition expectedEndPos = LinePosition.from(0, 19);
         LineRange expectedLineRange = LineRange.from(null, expectedStartPos, expectedEndPos);
         Assert.assertEquals(intermediateClause.lineRange(), expectedLineRange);
+    }
+
+    @Test
+    public void testParseLetVarDeclaration() {
+        String letVarDeclTxt = "int a = 5";
+
+        LetVariableDeclarationNode letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, false);
+        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
+        Assert.assertFalse(letVarDecl.hasDiagnostics());
+
+        LineRange expectedLineRange = LineRange.from(
+                null, LinePosition.from(0, 0), LinePosition.from(0, 9));
+        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
+
+        letVarDeclTxt = "@a {m: 5} @b T b = getValue()";
+
+        letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, false);
+        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
+        Assert.assertFalse(letVarDecl.hasDiagnostics());
+        
+        expectedLineRange = LineRange.from(null, LinePosition.from(0, 0), LinePosition.from(0, 29));
+        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
+
+        letVarDeclTxt = "@a {m: 5} @b var b = c->getValue()";
+
+        letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, true);
+        Assert.assertEquals(letVarDecl.kind(), SyntaxKind.LET_VAR_DECL);
+        Assert.assertFalse(letVarDecl.hasDiagnostics());
+
+        expectedLineRange = LineRange.from(null, LinePosition.from(0, 0), LinePosition.from(0, 34));
+        Assert.assertEquals(letVarDecl.lineRange(), expectedLineRange);
     }
 }

@@ -4,13 +4,42 @@
     "character": 4
   },
   "source": "package_plugin_user_with_codeactions_1/main.bal",
+  "description": "Test compiler plugin code actions",
   "expected": [
     {
       "title": "Introduce Variable",
-      "command": {
-        "title": "Introduce Variable",
-        "command": "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR",
-        "arguments": [
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 12,
+              "character": 0
+            }
+          },
+          "newText": "import lstest/package_comp_plugin_with_codeactions as foo;\n\npublic function main() {\n   foo:doSomething();\n   \n   // Var assignment is required below\n   int myVar = createInt();\n}\n\nfunction createInt() returns int {\n    return 1;\n}\n"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.CompilerPluginCodeActionExtension",
+        "codeActionName": "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR",
+        "fileUri": "package_plugin_user_with_codeactions_1/main.bal",
+        "range": {
+          "start": {
+            "line": 6,
+            "character": 4
+          },
+          "end": {
+            "line": 6,
+            "character": 4
+          }
+        },
+        "actionData": [
           {
             "key": "node.range",
             "value": {
@@ -34,3 +63,4 @@
     }
   ]
 }
+

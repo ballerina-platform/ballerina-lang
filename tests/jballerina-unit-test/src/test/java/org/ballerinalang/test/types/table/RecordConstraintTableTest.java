@@ -43,14 +43,26 @@ public class RecordConstraintTableTest {
 
     @Test
     public void testDuplicateKeysInTableConstructorExpr() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
-        BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
-                23, 5);
-        BAssertUtil.validateError(negativeResult, 2, "duplicate key found in table row key('m') : ' {AAA: DDDD}'",
-                36, 7);
-        BAssertUtil.validateError(negativeResult, 3, "duplicate key found in table row key('idNum') : 'idNum'",
-                46, 9);
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('name') : 'AAA'", 18, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('id, name') : '13, Foo'", 23, 5);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table " +
+                "row key('m') : ' {AAA: DDDD}'", 36, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
+                44, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('idNum') : 'idNum'",
+                52, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('idNum, name') : 'idNum, Jo'", 60, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('idNum, name') : 'idNum, Jo'", 68, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table row key('m')" +
+                " : ' {AAA: DDDD}'", 83, 9);
+        BAssertUtil.validateError(negativeResult, index++, "duplicate key found in table" +
+                " row key('m, age') : ' {AAA: DDDD}, 11'", 97, 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test(description = "Test global table constructor expr")

@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 1,
+    "character": 46
+  },
+  "source": "template_expression/source/regex_template_expression_source6.bal",
+  "items": [
+    {
+      "label": "m",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "m",
+      "insertText": "m",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "s",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "i",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "x",
+      "insertText": "x",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -309,14 +309,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
     }
 
-    public void visit(STClientDeclarationNode clientDeclarationNode) {
-        visitSyntaxNode(clientDeclarationNode);
-    }
-
-    public void visit(STModuleClientDeclarationNode moduleClientDeclarationNode) {
-        visitSyntaxNode(moduleClientDeclarationNode);
-    }
-
     public void visit(STFunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -927,6 +919,10 @@ public abstract class STNodeVisitor {
 
     public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
+    }
+  
+    public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
     }
 
     // STNodeList
