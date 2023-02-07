@@ -65,7 +65,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import static java.util.Objects.hash;
 
@@ -75,14 +74,12 @@ import static java.util.Objects.hash;
  * @since 2.0.0
  */
 public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
-    private Map<BType, Integer> visited;
-    private Stack<BType> visiting;
-    private Set<BType> unresolvedTypes;
-    private Map<BType, Integer> cache;
+    private final Map<BType, Integer> visited;
+    private final Set<BType> unresolvedTypes;
+    private final Map<BType, Integer> cache;
 
     public TypeHashVisitor() {
         visited = new HashMap<>();
-        visiting = new Stack<>();
         unresolvedTypes = new HashSet<>();
         cache = new HashMap<>();
     }
@@ -94,7 +91,6 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
 
     @Override
     public void reset() {
-        visiting.clear();
         visited.clear();
         unresolvedTypes.clear();
     }
@@ -559,13 +555,11 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (unresolvedTypes.contains(type)) {
             return true;
         }
-        visiting.push(type);
         unresolvedTypes.add(type);
         return false;
     }
 
     private Integer addToVisited(BType type, Integer hash) {
-        assert visiting.pop() == type;
         visited.put(type, hash);
         return hash;
     }
