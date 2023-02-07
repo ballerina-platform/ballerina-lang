@@ -7109,14 +7109,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             restType = data.resultType;
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
+            checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
             if (mappingTypeRestArg != null) {
-                LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
-                restTypes.add(listTypeRestArg);
-                restTypes.add(mappingTypeRestArg);
-                BType actualType = BUnionType.create(null, restTypes);
-                checkTypeParamExpr(vararg, actualType, iExpr.langLibInvocation, data);
-            } else {
-                checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
+                checkTypeParamExpr(vararg, mappingTypeRestArg, iExpr.langLibInvocation, data);
             }
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
@@ -7323,7 +7318,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             types.checkType(arg.pos, inferredType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
-        checkExpr(arg, expectedType, data);
+        if (arg.getKind() == NodeKind.REST_ARGS_EXPR) {
+            // Need to infer the type with noType for rest args.
+            checkExpr(arg, symTable.noType, data);
+        } else {
+            checkExpr(arg, expectedType, data);
+        }
         typeParamAnalyzer.checkForTypeParamsInArg(arg, pos, arg.getBType(), data.env, expectedType);
     }
 
