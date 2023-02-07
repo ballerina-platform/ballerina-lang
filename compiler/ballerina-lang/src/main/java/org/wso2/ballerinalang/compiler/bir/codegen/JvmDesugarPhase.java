@@ -248,8 +248,6 @@ public class JvmDesugarPhase {
         for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
             defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value,
                     encodedVsInitialIds));
-            defaultFunc.originalName = Names.fromString(encodeFunctionIdentifier(defaultFunc.originalName.value,
-                    encodedVsInitialIds));
         }
     }
 
@@ -342,15 +340,14 @@ public class JvmDesugarPhase {
         }
     }
 
-    private static void replaceEncodedDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type,
+                                                          HashMap<String, String> encodedVsInitialIds) {
         BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
         if (typeSymbol == null) {
             return;
         }
         for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
             defaultFunc.name = Names.fromString(getInitialIdString(defaultFunc.name.value, encodedVsInitialIds));
-            defaultFunc.originalName =
-                    Names.fromString(getInitialIdString(defaultFunc.originalName.value, encodedVsInitialIds));
         }
     }
 
