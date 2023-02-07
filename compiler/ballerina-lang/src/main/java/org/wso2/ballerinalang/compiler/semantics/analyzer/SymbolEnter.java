@@ -443,7 +443,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean runTypeResolver = true;
         if (runTypeResolver) {
-            SymbolEnv prevEnv = this.env;
+//            SymbolEnv prevEnv = this.env;
             this.env = pkgEnv;
             typeResolver.defineBTypes(typeAndClassDefs/*typeAndClassDefsCloned*/, pkgEnv, pkgNode);
 //            this.env = prevEnv;
@@ -453,7 +453,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way
-//        pkgEnv.logErrors = true;
+        pkgEnv.logErrors = true;
 
         // Sort type definitions with precedence, before defining their members.
 //        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
@@ -479,8 +479,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
-//        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
-//        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
+        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
+        defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));

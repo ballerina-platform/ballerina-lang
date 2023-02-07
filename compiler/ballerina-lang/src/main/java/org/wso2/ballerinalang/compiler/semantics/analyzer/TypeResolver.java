@@ -1021,8 +1021,15 @@ public class TypeResolver {
             memberTypes.add(resolvedType);
         }
 
+        flattenMemberTypes(memberTypes);
         symResolver.markParameterizedType(unionType, memberTypes);
         return unionType;
+    }
+
+    private void flattenMemberTypes(LinkedHashSet<BType> memberTypes) {
+        LinkedHashSet<BType> flatMemberTypes = BUnionType.toFlatTypeSet(memberTypes);
+        memberTypes.clear();
+        memberTypes.addAll(flatMemberTypes);
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
@@ -1337,6 +1344,9 @@ public class TypeResolver {
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals.
+         replaceUnaryExprWithNumericLiteral(td);
+
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : td.valueSpace) {
 //            TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
@@ -1350,6 +1360,25 @@ public class TypeResolver {
         finiteTypeSymbol.type = finiteType;
         td.setBType(finiteType);
         return finiteType;
+    }
+
+    private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
+        BLangExpression value;
+        NodeKind valueKind;
+        for(int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+            value = finiteTypeNode.valueSpace.get(i);
+            valueKind = value.getKind();
+
+            if (valueKind == NodeKind.UNARY_EXPR) {
+                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
+                if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    // Replacing unary expression with numeric literal type for + and - numeric values
+                    BLangNumericLiteral newNumericLiteral =
+                            Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
+                    finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+                }
+            }
+        }
     }
 
     private BType blangTypeUpdate(BLangExpression expression) {
@@ -1430,7 +1459,7 @@ public class TypeResolver {
         BType error = td.error != null ?
                 resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.error) : symTable.nilType;
         // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
+        if (constraintType == symTable.noType || constraintType == null) {
             return symTable.noType;
         }
 

@@ -1064,9 +1064,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return false;
         }
         Set<Flag> flags = new HashSet<>();
-        flags.add(Flag.REQUIRED); // All the fields in constant mapping types should be required fields.
+//        flags.add(Flag.REQUIRED); // All the fields in constant mapping types should be required fields.
 
-        BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , keyValueType,
+        BVarSymbol fieldSymbol = new BVarSymbol(recordSymbol.flags, fieldName, recordSymbol.pkgID , keyValueType,
                 recordSymbol, symTable.builtinPos, VIRTUAL);
         fields.put(fieldName.value, new BField(fieldName, null, fieldSymbol));
         return true;
@@ -1081,7 +1081,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                                                      SymbolOrigin origin, AnalyzerData data) {
         SymbolEnv env = data.env;
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(Flags.ANONYMOUS,
+                Symbols.createRecordSymbol(data.constantSymbol.flags,
                         names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
                         pkgID, null, env.scope.owner, location, origin);
 
@@ -1447,9 +1447,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return;
                 }
                 Name fieldName = names.fromString(key);
-                Set<Flag> flags = new HashSet<>();
-                flags.add(Flag.REQUIRED);
-                BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), fieldName, recordSymbol.pkgID , validFieldType,
+//                Set<Flag> flags = new HashSet<>();
+//                flags.add(Flag.REQUIRED);
+                BVarSymbol fieldSymbol = new BVarSymbol(field.symbol.flags, fieldName, recordSymbol.pkgID , validFieldType,
                         recordSymbol, symTable.builtinPos, VIRTUAL);
                 validatedFields.put(key, new BField(fieldName, null, fieldSymbol));
             }
@@ -2297,7 +2297,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         private void updateBlangExprType(BLangExpression expression, AnalyzerData data) {
             BType expressionType = expression.getBType();
             if (expressionType.tag == TypeTags.FINITE) {
-                expression.setBType(data.expType);
+                expressionType = ((BFiniteType) expressionType).getValueSpace().iterator().next().getBType();
+                expression.setBType(expressionType);
                 types.setImplicitCastExpr(expression, data.expType, expressionType);
                 return;
             }
@@ -2391,9 +2392,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             for (String key : recordType.getFields().keySet()) {
                 if (key.equals(targetKey)) {
                     BType type = recordType.getFields().get(key).type;
-                    if (type.tag == TypeTags.FINITE) {
-                        return ((BFiniteType) type).getValueSpace().iterator().next().getBType();
-                    }
+//                    if (type.tag == TypeTags.FINITE) {
+//                        return ((BFiniteType) type).getValueSpace().iterator().next().getBType();
+//                    }
                     return type;
                 }
             }

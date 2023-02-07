@@ -401,7 +401,7 @@ public class BUnionType extends BType implements UnionType {
         return this.memberTypes.iterator();
     }
 
-    private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
+    public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
                     BType refType = getReferredType(type);

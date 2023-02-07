@@ -360,8 +360,6 @@ public class LangLibStringTest {
                 35, 36);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
                 36, 13);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                38, 36);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
                 39, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
@@ -388,8 +386,6 @@ public class LangLibStringTest {
                 54, 34);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
                 55, 13);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                57, 34);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
                 58, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
@@ -416,8 +412,6 @@ public class LangLibStringTest {
                 73, 38);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
                 74, 13);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                76, 35);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
                 77, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
