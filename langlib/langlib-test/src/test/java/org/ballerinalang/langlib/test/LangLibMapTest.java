@@ -213,7 +213,8 @@ public class LangLibMapTest {
                 "testOpenRecordToArray",
                 "testMapOfUnionToArray",
                 "testRecordWithSameTypeFieldsToArray",
-                "testReadOnlyMapFilter"
+                "testReadOnlyMapFilter",
+                "testReduceWithRestArgs"
         };
     }
 }

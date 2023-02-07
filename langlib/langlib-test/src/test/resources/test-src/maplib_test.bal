@@ -320,3 +320,39 @@ function testReadOnlyMapFilter() {
     });
     assertFalse(passed.isReadOnly());
 }
+
+function testReduceWithRestArgs() {
+    map<int> m = {a: 100, b: 200};
+    [function (int i, int j) returns int, int] x = [function(int i, int j) returns int {
+            return i + j;
+        }, 1];
+
+    var res = map:reduce(m, ...x);
+    assert(301, res);
+
+    int res2 = map:reduce(m, ...x);
+    assert(301, res2);
+
+    int res3 = map:reduce(m, ...[function(int i, int j) returns int {
+            return i + j;
+        }, 1]);
+    assert(301, res3);
+
+    var res4 = m.reduce(...x);
+    assert(301, res4);
+
+    int res5 = m.reduce(...x);
+    assert(301, res5);
+
+    int res6 = m.reduce(...[function(int i, int j) returns int {
+            return i + j;
+        }, 1]);
+    assert(301, res6);
+
+    function (int i, int j) returns int func = function(int i, int j) returns int {
+        return i + j;
+    };
+    int val = 1;
+    int res7 = m.reduce(...[func, val]);
+    assert(301, res7);
+}
