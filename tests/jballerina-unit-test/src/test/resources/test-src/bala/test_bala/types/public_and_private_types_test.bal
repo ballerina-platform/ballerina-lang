@@ -35,6 +35,25 @@ function testAnonymousDistinctErrorTypes() {
     test:assertTrue(err2 is error);
     test:assertFalse(err2 is test_module:InvalidDocumentError);
 
-    DistinctError err5 = error DistinctError("err5");
-    test:assertFalse(err5 is test_module:InvalidDocumentError);
+    test_module:InvalidDocumentError err3 = error("err3", errors = []);
+    test_module:PayloadBindingError err4 = error("err4", errors = ());
+    test_module:RequestError err5 = error test_module:RequestError("err5");
+    test_module:ClientError err6 = error("err6");
+    error<record {| test_module:ErrorDetail[]? errors; |}> err7 = error("err7", errors = []);
+    test:assertTrue(err3 is error);
+    test:assertTrue(err4 is error);
+    test:assertFalse(err3 is test_module:PayloadBindingError);
+    test:assertFalse(err4 is test_module:InvalidDocumentError);
+    test:assertFalse(err4 is DistinctError);
+    test:assertTrue(err3 is test_module:RequestError);
+    test:assertTrue(err3 is test_module:ClientError);
+    test:assertFalse(err4 is test_module:RequestError);
+    test:assertTrue(err3 is error<record {| test_module:ErrorDetail[]? errors; |}>);
+    test:assertFalse(err5 is test_module:PayloadBindingError);
+    test:assertFalse(err6 is test_module:PayloadBindingError);
+    test:assertFalse(err7 is test_module:InvalidDocumentError);
+    test:assertTrue(err3 is (test_module:RequestError & error<record {| test_module:ErrorDetail[]? errors; |}>));
+
+    DistinctError err8 = error DistinctError("err8");
+    test:assertFalse(err8 is test_module:InvalidDocumentError);
 }
