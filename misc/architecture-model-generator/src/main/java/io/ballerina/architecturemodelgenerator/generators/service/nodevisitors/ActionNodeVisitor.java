@@ -48,6 +48,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collection;
@@ -68,14 +69,15 @@ import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.
  * @since 2201.2.2
  */
 public class ActionNodeVisitor extends NodeVisitor {
-
+    private final PackageCompilation packageCompilation;
     private final SemanticModel semanticModel;
     private final Package currentPackage;
     private final List<Interaction> interactionList = new LinkedList<>();
     private final String filePath;
 
-    public ActionNodeVisitor(SemanticModel semanticModel, Package currentPackage, String filePath) {
-
+    public ActionNodeVisitor(PackageCompilation packageCompilation, SemanticModel semanticModel,
+                             Package currentPackage, String filePath) {
+        this.packageCompilation = packageCompilation;
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
         this.filePath = filePath;
@@ -197,13 +199,13 @@ public class ActionNodeVisitor extends NodeVisitor {
                         NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode())
                                 .findNode(location.get().textRange());
                         if (!node.isMissing()) {
-                            SemanticModel nextSemanticModel = module.getCompilation().getSemanticModel();
+                            SemanticModel nextSemanticModel = packageCompilation.getSemanticModel(module.moduleId());
                             if (node instanceof FunctionDefinitionNode) {
                                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                                 String referencedFunctionName = functionDefinitionNode.functionName().text();
                                 if (methodName.equals(referencedFunctionName)) {
-                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(nextSemanticModel,
-                                            currentPackage, this.filePath);
+                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(packageCompilation,
+                                            nextSemanticModel, currentPackage, this.filePath);
                                     functionDefinitionNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
                                 }
@@ -211,8 +213,8 @@ public class ActionNodeVisitor extends NodeVisitor {
                                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                                 String referencedFunctionName = methodDeclarationNode.methodName().text();
                                 if (methodName.equals(referencedFunctionName)) {
-                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(nextSemanticModel,
-                                            currentPackage, this.filePath);
+                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(packageCompilation,
+                                            nextSemanticModel, currentPackage, this.filePath);
                                     methodDeclarationNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
                                 }

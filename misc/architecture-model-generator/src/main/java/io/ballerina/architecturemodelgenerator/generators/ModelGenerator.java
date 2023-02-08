@@ -21,6 +21,7 @@ package io.ballerina.architecturemodelgenerator.generators;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.PackageCompilation;
 
 import java.nio.file.Path;
 
@@ -30,13 +31,14 @@ import java.nio.file.Path;
  * @since 2201.4.0
  */
 public abstract class ModelGenerator {
+    private final PackageCompilation packageCompilation;
     private final SemanticModel semanticModel;
     private final Module module;
     private final Path moduleRootPath;
 
-    public ModelGenerator(SemanticModel semanticModel, Module module) {
-
-        this.semanticModel = semanticModel;
+    public ModelGenerator(PackageCompilation packageCompilation, Module module) {
+        this.packageCompilation = packageCompilation;
+        this.semanticModel = packageCompilation.getSemanticModel(module.moduleId());
         this.module = module;
         Path moduleRootPath = module.project().sourceRoot().toAbsolutePath();
         if (module.moduleName().moduleNamePart() != null) {
@@ -44,6 +46,10 @@ public abstract class ModelGenerator {
                     .resolve(module.moduleName().moduleNamePart());
         }
         this.moduleRootPath = moduleRootPath;
+    }
+
+    public PackageCompilation getPackageCompilation() {
+        return this.packageCompilation;
     }
 
     public SemanticModel getSemanticModel() {

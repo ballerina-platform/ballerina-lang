@@ -59,6 +59,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 
@@ -80,8 +81,8 @@ import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.
  * @since 2201.2.2
  */
 public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
-
     private final String serviceId;
+    private final PackageCompilation packageCompilation;
     private final SemanticModel semanticModel;
     private final SyntaxTree syntaxTree;
     private final Package currentPackage;
@@ -90,9 +91,11 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
     private final List<Dependency> dependencies = new LinkedList<>();
     private final String filePath;
 
-    public ServiceMemberFunctionNodeVisitor(String serviceId, SemanticModel semanticModel, SyntaxTree syntaxTree,
+    public ServiceMemberFunctionNodeVisitor(String serviceId, PackageCompilation packageCompilation,
+                                            SemanticModel semanticModel, SyntaxTree syntaxTree,
                                             Package currentPackage, String filePath) {
         this.serviceId = serviceId;
+        this.packageCompilation = packageCompilation;
         this.semanticModel = semanticModel;
         this.syntaxTree = syntaxTree;
         this.currentPackage = currentPackage;
@@ -142,7 +145,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
                 ActionNodeVisitor actionNodeVisitor =
-                        new ActionNodeVisitor(semanticModel, currentPackage, filePath);
+                        new ActionNodeVisitor(packageCompilation, semanticModel, currentPackage, filePath);
                 functionDefinitionNode.accept(actionNodeVisitor);
 
                 ResourceId resourceId = new ResourceId(this.serviceId, method, resourcePath);
@@ -164,7 +167,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                     List<String> returnTypes = getReturnTypes(functionDefinitionNode);
 
                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(
-                            semanticModel, currentPackage, filePath);
+                            packageCompilation, semanticModel, currentPackage, filePath);
                     functionDefinitionNode.accept(actionNodeVisitor);
 
                     RemoteFunction remoteFunction = new RemoteFunction(name, parameterList, returnTypes,

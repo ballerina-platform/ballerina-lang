@@ -46,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -62,15 +63,16 @@ import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.LIS
  * @since 2201.2.2
  */
 public class ServiceDeclarationNodeVisitor extends NodeVisitor {
-
+    private final PackageCompilation packageCompilation;
     private final SemanticModel semanticModel;
     private final SyntaxTree syntaxTree;
     private final Package currentPackage;
     private final List<Service> services = new LinkedList<>();
     private final Path filePath;
 
-    public ServiceDeclarationNodeVisitor(SemanticModel semanticModel, SyntaxTree syntaxTree, Package currentPackage,
-                                         Path filePath) {
+    public ServiceDeclarationNodeVisitor(PackageCompilation packageCompilation, SemanticModel semanticModel,
+                                         SyntaxTree syntaxTree, Package currentPackage, Path filePath) {
+        this.packageCompilation = packageCompilation;
         this.semanticModel = semanticModel;
         this.syntaxTree = syntaxTree;
         this.currentPackage = currentPackage;
@@ -103,7 +105,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
                 serviceNameBuilder.substring(1) : serviceNameBuilder.toString();
 
         ServiceMemberFunctionNodeVisitor serviceMemberFunctionNodeVisitor =
-                new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(),
+                new ServiceMemberFunctionNodeVisitor(serviceAnnotation.getId(), packageCompilation,
                         semanticModel, syntaxTree, currentPackage, filePath.toString());
         serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         services.add(new Service(serviceName.trim(), serviceAnnotation.getId(),
