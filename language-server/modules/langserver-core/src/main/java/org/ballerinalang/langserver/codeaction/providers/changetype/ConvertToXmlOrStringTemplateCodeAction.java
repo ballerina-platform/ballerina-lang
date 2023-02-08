@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -69,7 +70,6 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
 
         Set<String> typeSet = new HashSet<>();
         if (typeSymbol.isPresent()) {
-            Optional<String> name = typeSymbol.get().getName();
             if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol.get();
                 Types types = context.currentSemanticModel().get().types();
@@ -86,7 +86,7 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                 typeSet.add("string");
             } else if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
                 typeSet.add("xml");
-            } else if (name.isPresent() && name.get().equals("RegExp")) {
+            } else if (isRegexTemplate(typeSymbol.get())) {
                 typeSet.add("re");
             }
         }
@@ -106,6 +106,14 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
         });
 
         return codeActions;
+    }
+
+    private boolean isRegexTemplate(TypeSymbol typeSymbol) {
+        typeSymbol = CommonUtil.getRawType(typeSymbol);
+        if (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            typeSymbol = CommonUtil.getRawType(typeSymbol);
+        }
+        return typeSymbol.typeKind() == TypeDescKind.REGEXP;
     }
 
     @Override
