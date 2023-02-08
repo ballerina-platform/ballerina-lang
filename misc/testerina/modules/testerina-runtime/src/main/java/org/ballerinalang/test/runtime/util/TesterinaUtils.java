@@ -94,10 +94,10 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite,
-                                    ClassLoader classLoader, TestArguments args) throws RuntimeException {
+    public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
+                                    TestArguments args, String[] cliArgs) throws RuntimeException {
         try {
-            execute(testSuite, classLoader, args);
+            execute(testSuite, classLoader, args, cliArgs);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
 //            if (testRunner.getTesterinaReport().isFailure()) {
 //                throw new RuntimeException("there are test failures");
@@ -112,7 +112,7 @@ public class TesterinaUtils {
         }
     }
 
-    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args) {
+    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, String[] cliArgs) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -153,13 +153,13 @@ public class TesterinaUtils {
         startTrapSignalHandler();
 
         // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args);
+        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args, cliArgs);
         // Call module stop and test stop function
         stopSuite(scheduler, initClazz);
     }
 
     private static void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz,
-                            Class<?> configClazz, Class<?> testExecuteClazz, TestArguments args) {
+                            Class<?> configClazz, Class<?> testExecuteClazz, TestArguments args, String[] cliArgs) {
         TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
         TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
         TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
@@ -168,7 +168,7 @@ public class TesterinaUtils {
         // properly.
 
         Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class},
-                new Object[]{new String[]{}, getConfigPaths(suite), null});
+                new Object[]{cliArgs, getConfigPaths(suite), null});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("configurable initialization for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);

@@ -54,6 +54,7 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,8 @@ public class BTestMain {
 
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
                                 new TestArguments(args[0], packageName, moduleName,
-                                        args[2], args[3], args[4], args[5], args[6], args[7], args[8]));
+                                        args[2], args[3], args[4], args[5], args[6], args[7],
+                                        args[8]), Arrays.copyOfRange(args, 9, args.length));
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -141,10 +143,10 @@ public class BTestMain {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                     TestArguments args) {
+                                     TestArguments args, String[] cliArgs) {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
+            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, cliArgs);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {

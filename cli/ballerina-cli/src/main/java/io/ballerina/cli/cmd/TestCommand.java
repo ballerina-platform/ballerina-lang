@@ -40,7 +40,9 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
@@ -58,6 +60,7 @@ public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
+    private Path projectPath;
     private final boolean exitWhenFinish;
 
     public TestCommand() {
@@ -116,12 +119,12 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Parameters (arity = "0..1")
-    private final Path projectPath;
+    @CommandLine.Parameters(description = "program arguments")
+    private List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -150,10 +153,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--tests", description = "Test functions to be executed")
+    @CommandLine.Option(names = "--tests", description = "test functions to be executed")
     private String testList;
 
-    @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
+    @CommandLine.Option(names = "--rerun-failed", description = "rerun failed tests.")
     private boolean rerunTests;
 
     @CommandLine.Option(names = "--includes", hidden = true,
@@ -169,10 +172,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "print all intermediate graphs created in the " +
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
@@ -191,6 +194,24 @@ public class TestCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        String[] cliArgs = new String[0];
+        if (!argList.isEmpty()) {
+            if (!argList.get(0).equals("--")) {
+                this.projectPath = Paths.get(argList.get(0));
+                if (argList.size() > 1 && !argList.get(1).equals("--")) {
+                    CommandUtil.printError(this.errStream,
+                            "unmatched command argument found: " + argList.get(1), testCmd, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                if (argList.size() > 2 && argList.get(1).equals("--")) {
+                    cliArgs = argList.subList(2, argList.size()).toArray(new String[0]);
+                }
+            } else if (argList.size() > 1 && argList.get(0).equals("--")) {
+                    cliArgs = argList.subList(1, argList.size()).toArray(new String[0]);
+            }
         }
 
         if (sticky == null) {
@@ -301,7 +322,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                        includes, coverageFormat, moduleMap, listGroups, cliArgs), project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat, moduleMap, listGroups),
                         !project.buildOptions().nativeImage())

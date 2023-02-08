@@ -103,7 +103,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
         testLog1.waitForText(5000);
-        testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
 
         // Testing `bal test` command error log for configurables
         String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
@@ -114,6 +114,46 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/testErrorProject");
         errorLog.waitForText(5000);
+    }
+
+    @Test
+    public void testBallerinaTestAPIWithConfigurableCliArgs() throws BallerinaTestException {
+        LogLeecher testLog1 = new LogLeecher("5 passing");
+        LogLeecher testLog2 = new LogLeecher("5 passing");
+        bMainInstance.runMain("test", new String[]{"cliConfigPkg", "--", "-CintVar=40", "-CfloatVar=4.5",
+                            "-CstringVar=main test", "-CbooleanVar=true", "-CxmlVal=<book>The Lost Symbol</book>",
+                            "-CtestInt=30", "-CtestFloat=5.6", "-CtestString=cli arg", "-CtestBoolean=false"},
+                null, new String[]{}, new LogLeecher[]{testLog1, testLog2},
+                testFileLocation + "/testProject");
+        testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
+    }
+
+    @Test
+    public void testBallerinaTestAPIWithInvalidConfigurableCliArgs() throws BallerinaTestException {
+        LogLeecher errorLeecher1 = new LogLeecher("[intVar=test] configurable variable 'intVar' is " +
+                "expected to be of type 'int', but found 'test'", ERROR);
+        LogLeecher errorLeecher2 = new LogLeecher("[floatVar=test1] configurable variable 'floatVar' is " +
+                "expected to be of type 'float', but found 'test1'",
+                ERROR);
+        LogLeecher errorLeecher3 = new LogLeecher("value not provided for required configurable " +
+                "variable 'booleanVar'", ERROR);
+        LogLeecher errorLeecher4 = new LogLeecher("error: [xmlVal=<book>The Lost Symbol] " +
+                "configurable variable 'xmlVal' is expected to be of type " +
+                "'xml<((lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text) " +
+                "& readonly)>', but found '<book>The Lost Symbol'", ERROR);
+
+        bMainInstance.runMain("test", new String[]{"cliConfigPkg", "--", "-CintVar=test",
+                            "-CfloatVar=test1", "-CstringVar=main test", "-CxmlVal=<book>The Lost Symbol",
+                            "-CtestInt=30", "-CtestFloat=5.6", "-CtestString=cli arg", "-CtestBoolean=false"},
+                null, new String[]{},
+                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4},
+                testFileLocation + "/testProject");
+        errorLeecher1.waitForText(5000);
+        errorLeecher2.waitForText(5000);
+        errorLeecher3.waitForText(5000);
+        errorLeecher4.waitForText(5000);
+
     }
 
     @Test
