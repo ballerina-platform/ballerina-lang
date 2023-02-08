@@ -7049,7 +7049,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr, data);
 
-        if (langLibPackageID && !iExpr.argExprs.isEmpty()) {
+        if (langLibPackageID && !iExpr.argExprs.isEmpty() && iExpr.argExprs.get(0).getBType() != null) {
             checkInvalidImmutableValueUpdate(iExpr, iExpr.argExprs.get(0).getBType(), funcSymbol, data);
         }
     }

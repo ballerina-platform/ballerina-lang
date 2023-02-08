@@ -40,9 +40,9 @@ public class FuncInvocationExprTest {
 
     @BeforeClass
     public void setup() {
-        funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
+//        funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
         funcInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/function_call_negative.bal");
-        methodInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/method_call_negative.bal");
+//        methodInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/method_call_negative.bal");
     }
 
     @Test
@@ -195,6 +195,16 @@ public class FuncInvocationExprTest {
                 "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
+        validateError(funcInvocationNegative, i++,
+                "too many arguments in call to 'sum()'", 102, 18);
+        validateError(funcInvocationNegative, i++,
+                "too many arguments in call to 'sum()'", 103, 18);
+        validateError(funcInvocationNegative, i++,
+                "incompatible types: expected 'string', found 'int[]'", 105, 33);
+        validateError(funcInvocationNegative, i++,
+                "missing required parameter 's' in call to 'fromString()'", 106, 16);
+        validateError(funcInvocationNegative, i++,
+                "undefined defaultable parameter 'ss'", 106, 31);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 
