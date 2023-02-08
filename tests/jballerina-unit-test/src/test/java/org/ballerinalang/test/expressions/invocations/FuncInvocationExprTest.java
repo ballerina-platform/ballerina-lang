@@ -40,9 +40,9 @@ public class FuncInvocationExprTest {
 
     @BeforeClass
     public void setup() {
-//        funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
+        funcInvocationExpResult = BCompileUtil.compile("test-src/expressions/invocations/function-invocation-expr.bal");
         funcInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/function_call_negative.bal");
-//        methodInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/method_call_negative.bal");
+        methodInvocationNegative = BCompileUtil.compile("test-src/expressions/invocations/method_call_negative.bal");
     }
 
     @Test
