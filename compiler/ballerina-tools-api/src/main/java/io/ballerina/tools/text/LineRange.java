@@ -39,11 +39,19 @@ public class LineRange {
         return new LineRange(fileName, startLine, endLine);
     }
 
+    /**
+     * @deprecated This method will be removed in a later release. Use `fileName()` instead.
+     */
     @Deprecated
     public String filePath() {
         return fileName;
     }
 
+    /**
+     * Get the file name.
+     *
+     * @return file name
+     */
     public String fileName() {
         return fileName;
     }
