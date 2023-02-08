@@ -52,23 +52,11 @@ public class PackageResolutionResponse {
 
         private String deprecateMessage;
 
-        public Package(String orgName, String name, String version, List<Dependency> dependencies,
-                       Boolean isDeprecated, String deprecateMessage) {
-            this.org = orgName;
-            this.name = name;
-            this.version = version;
-            this.dependencyGraph = dependencies;
-            this.isDeprecated = isDeprecated;
-            this.deprecateMessage = deprecateMessage;
-        }
-
         public Package(String orgName, String name, String version, List<Dependency> dependencies) {
             this.org = orgName;
             this.name = name;
             this.version = version;
             this.dependencyGraph = dependencies;
-            this.isDeprecated = false;
-            this.deprecateMessage = "";
         }
 
         public String org() {

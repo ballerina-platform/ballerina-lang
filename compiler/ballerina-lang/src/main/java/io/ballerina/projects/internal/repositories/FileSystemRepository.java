@@ -122,7 +122,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
     void updateDeprecatedStatusForPackage(PackageDescriptor descriptor) {
         Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
                 descriptor.version().value().toString());
-        if (Files.exists(balaPath)) {
+        if (balaPath != null && Files.exists(balaPath)) {
             Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
             if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
                 FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());

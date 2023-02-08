@@ -66,7 +66,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
  */
 public class Utils {
 
-    public static final String DEPRECATED_META_FILE_NAME = "deprecated-package.txt";
+    public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
 
     private Utils() {
     }

@@ -307,18 +307,39 @@ public class RemotePackageRepository implements PackageRepository {
                         PackageMetadataResponse::packageLoadRequest, Function.identity(),
                         (PackageMetadataResponse x, PackageMetadataResponse y) -> {
                             if (y.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                // filesystem response is resolved &  remote response is unresolved
                                 return x;
                             } else if (x.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                                // filesystem response is unresolved &  remote response is resolved
                                 return y;
-                            } else if (
-                                    (deprecatedPackages.contains(x) ^ y.resolvedDescriptor().getDeprecated())) {
-                                fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
-                                return y;
-                            } else if (getLatest(x.resolvedDescriptor().version(), y.resolvedDescriptor().version())
-                                    .equals(y.resolvedDescriptor().version())) {
-                                return y;
+                            } else if (x.resolvedDescriptor().version().equals(y.resolvedDescriptor().version())) {
+                                // Both responses have the same version and there is a mismatch in deprecated status,
+                                // we need to update the deprecated status in the file system repo
+                                // to match the remote repo as it is the most up to date.
+                                if (deprecatedPackages != null && y.resolvedDescriptor() != null &&
+                                        deprecatedPackages.contains(x) ^ y.resolvedDescriptor().getDeprecated()) {
+                                    fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                                }
+                                return x;
                             }
-                            return x;
+                            // x not deprecate & y not deprecate
+                            //      - x is the latest : return x (this will not happen in real)
+                            //      - y is the latest : return y
+                            // x not deprecated & y deprecated
+                            //      - x is the latest : outdated. return y
+                            //      - y is the latest : return y
+                            // x deprecated & y not deprecated
+                            //      - x is the latest : outdated. return y
+                            //      - y is the latest : return y
+                            // x deprecated & y deprecated
+                            //      - x is the latest : not possible
+                            //      - y is the latest : return y
+
+                            // If the equivalent package is available in the file system repo,
+                            // try to update the deprecated status.
+                            // Because if available in cache, it won't be pulled.
+                            fileSystemRepo.updateDeprecatedStatusForPackage(y.resolvedDescriptor());
+                            return y;
                         })).values());
         return mergedResults;
     }

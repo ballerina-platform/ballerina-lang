@@ -286,7 +286,7 @@ public class BalaFiles {
             setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
             return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
         }
-        // Load `deprecate.txt`
+        // Load `deprecated.txt`
         Path deprecateFilePath = balrPath.resolve(DEPRECATED_META_FILE_NAME);
         if (Files.exists(deprecateFilePath)) {
             StringBuilder fileContents = new StringBuilder();
