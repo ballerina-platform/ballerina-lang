@@ -69,6 +69,7 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
 
         Set<String> typeSet = new HashSet<>();
         if (typeSymbol.isPresent()) {
+            Optional<String> name = typeSymbol.get().getName();
             if (typeSymbol.get().typeKind() == TypeDescKind.UNION) {
                 UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol.get();
                 Types types = context.currentSemanticModel().get().types();
@@ -78,14 +79,19 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                 if (unionTypeSymbol.memberTypeDescriptors().contains(types.XML)) {
                     typeSet.add("xml");
                 }
+                if (unionTypeSymbol.memberTypeDescriptors().contains(types.REGEX)) {
+                    typeSet.add("re");
+                }
             } else if (typeSymbol.get().typeKind() == TypeDescKind.STRING) {
                 typeSet.add("string");
             } else if (typeSymbol.get().typeKind() == TypeDescKind.XML) {
                 typeSet.add("xml");
+            } else if (name.isPresent() && name.get().equals("RegExp")) {
+                typeSet.add("re");
             }
         }
         if (typeSet.isEmpty()) {
-            typeSet.addAll(Set.of("string", "xml"));
+            typeSet.addAll(Set.of("string", "xml", "re"));
         }
 
         List<CodeAction> codeActions = new ArrayList<>();
