@@ -197,11 +197,12 @@ public class ActionNodeVisitor extends NodeVisitor {
                         NonTerminalNode node = ((ModulePartNode) syntaxTree.rootNode())
                                 .findNode(location.get().textRange());
                         if (!node.isMissing()) {
+                            SemanticModel nextSemanticModel = module.getCompilation().getSemanticModel();
                             if (node instanceof FunctionDefinitionNode) {
                                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                                 String referencedFunctionName = functionDefinitionNode.functionName().text();
                                 if (methodName.equals(referencedFunctionName)) {
-                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel,
+                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(nextSemanticModel,
                                             currentPackage, this.filePath);
                                     functionDefinitionNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
@@ -210,7 +211,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                                 String referencedFunctionName = methodDeclarationNode.methodName().text();
                                 if (methodName.equals(referencedFunctionName)) {
-                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(semanticModel,
+                                    ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(nextSemanticModel,
                                             currentPackage, this.filePath);
                                     methodDeclarationNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
