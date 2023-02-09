@@ -192,7 +192,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableWithCheck3.json"},
                 {"createVariableWithCheck4.json"},
                 {"createVariableWithCheck5.json"},
-                {"createVariableWithCheck6.json"}
+                {"createVariableWithCheck6.json"},
+                {"createVariableWithCheck7.json"}
         };
     }
 
