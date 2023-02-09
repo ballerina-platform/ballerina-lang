@@ -285,10 +285,6 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(List<String> errors, Object sourceVal, Type sourceType, Type targetType) {
-        if (targetType.getTag() == TypeTags.NULL_TAG) {
-            return sourceVal == null;
-        }
-
         if (checkIsType(sourceVal, sourceType, targetType, null)) {
             return true;
         }
