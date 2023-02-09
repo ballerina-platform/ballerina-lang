@@ -509,6 +509,29 @@ public function testOuterJoin() {
     assertEquality(null, ordered_names[2]);
 }
 
+public function testJoinClauseWithLargeList() returns boolean {
+    int mismatchedChar = getCommonList("t");
+    int matchedChar = getCommonList("a");
+    
+    boolean testPassed = true;
+    testPassed = testPassed && mismatchedChar == 0;
+    testPassed = testPassed && matchedChar == 10000;
+    return testPassed;
+}
+
+function getCommonList(string character) returns int {
+    string[] barList = ["a", "b", "c"];
+    string[] fooList = [];
+    foreach int i in 1 ... 10000 {
+        fooList.push(character);
+    }
+
+    string[] commonList = from string a in fooList
+            join string b in barList on a equals b
+            select a;
+    return commonList.length();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
