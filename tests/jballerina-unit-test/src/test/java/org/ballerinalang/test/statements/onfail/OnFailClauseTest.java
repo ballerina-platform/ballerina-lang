@@ -66,6 +66,17 @@ public class OnFailClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "this function must return a result", 32, 1);
         BAssertUtil.validateError(negativeResult, i++, "this function must return a result", 48, 1);
         BAssertUtil.validateError(negativeResult, i++, "this function must return a result", 66, 1);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt' may not have been initialized", 92, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt2' may not have been initialized", 106, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 107, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt1' may not have been initialized", 121, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt2' may not have been initialized", 122, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 123, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt2' may not have been initialized", 140, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 141, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'resultInt3' may not have been initialized", 159, 5);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'k' may not have been initialized", 174, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'str2' may not have been initialized", 212, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

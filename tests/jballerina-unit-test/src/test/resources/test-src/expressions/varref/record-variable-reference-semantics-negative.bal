@@ -242,3 +242,25 @@ function testMappingBindingPatternWithMap() {
     string? foo;
     {a: foo} = stringMap;
 }
+
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignmentNegative1() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    string[] & readonly x;
+    string y;
+    {x, y} = f1; // error
+}
+
+function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignmentNegative2() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    int[] & readonly x;
+    string y;
+    {x, y} = f1;
+
+    int[] arr = [];
+    x = arr; // error
+}

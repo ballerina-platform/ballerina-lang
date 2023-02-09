@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 68,
+    "character": 4
+  },
+  "source": "createVariable5.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'record {|string firstName; string lastName; string deptAccess; int age;|}[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 68,
+              "character": 4
+            },
+            "end": {
+              "line": 68,
+              "character": 4
+            }
+          },
+          "newText": "record {|string firstName; string lastName; string deptAccess; int age;|}[] listResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable5.bal",
+          {
+            "line": 68,
+            "character": 80
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

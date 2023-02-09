@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_foreach_stmt_with_range_expr.bal",
+  "description": "Extract to function for foreach statement, checks when action-or-expr is an range-expr",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "extracted(localVar);"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_foreach_stmt_with_range_expr.bal",
+          {
+            "line": 2,
+            "character": 4
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for foreach statement, checks when action-or-expr is an range-expr"
+  ]
 }

@@ -117,6 +117,7 @@ import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.MatchGuardNode;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
@@ -602,6 +603,16 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withFieldName(fieldName)
                 .withQuestionMarkToken(questionMarkToken)
                 .withSemicolonToken(semicolonToken)
+                .apply();
+    }
+
+    @Override
+    public MemberTypeDescriptorNode transform(MemberTypeDescriptorNode member) {
+        NodeList<AnnotationNode> annotations = formatNodeList(member.annotations(), 1, 0, 1, 0);
+        TypeDescriptorNode type = formatNode(member.typeDescriptor(), env.trailingWS, env.trailingNL);
+        return member.modify()
+                .withAnnotations(annotations)
+                .withTypeDescriptor(type)
                 .apply();
     }
 

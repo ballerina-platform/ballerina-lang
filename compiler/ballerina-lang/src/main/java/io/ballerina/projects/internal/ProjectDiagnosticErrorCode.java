@@ -35,7 +35,8 @@ public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
     PACKAGE_NOT_FOUND("BCE5005", "package.not.found"),
     MISSING_PKG_INFO_IN_BALLERINA_TOML("BCE5006", "missing.package.info"),
     MODULE_NOT_FOUND("BCE5100", "module.not.found"),
-    UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type")
+    UNSUPPORTED_COMPILER_PLUGIN_TYPE("BCE5200", "unsupported.compiler.plugin.type"),
+    CONFLICTING_PLATFORM_JAR_FILES("BCE5300", "conflicting.platform.jars.type"),
     ;
 
     private final String diagnosticId;

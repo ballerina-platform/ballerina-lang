@@ -235,6 +235,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_ADD_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN_FROM_STRING;
@@ -2094,7 +2095,7 @@ public class JvmInstructionGen {
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
         } else {
-            generateNewTypedescCreate(newTypeDesc.type, closureVars);
+            generateNewTypedescCreate(newTypeDesc.type, closureVars, newTypeDesc.annotations);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
@@ -2108,7 +2109,7 @@ public class JvmInstructionGen {
                 type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
     }
 
-    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
+    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
         BType type = JvmCodeGenUtil.getReferredType(btype);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
@@ -2127,8 +2128,13 @@ public class JvmInstructionGen {
             this.loadVar(closureVar.variableDcl);
             mv.visitInsn(AASTORE);
         }
-
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+        if (annotations != null) {
+            this.loadVar(annotations.variableDcl);
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
+                                    false);
+        } else {
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+        }
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {

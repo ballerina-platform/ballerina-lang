@@ -278,6 +278,8 @@ public class CloneWithType {
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),
                                     unresolvedValues, t);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertArray(array, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
             default:
                 break;
         }
@@ -287,6 +289,10 @@ public class CloneWithType {
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
                                        List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return convertTable(bTable, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
+        }
+
         TableType tableType = (TableType) targetType;
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;
