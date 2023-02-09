@@ -357,7 +357,7 @@ public class JvmDesugarPhase {
             return;
         }
         for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
-            defaultFunc.name = Names.fromString(getInitialIdString(defaultFunc.name.value, encodedVsInitialIds));
+            defaultFunc.name = getInitialIdString(defaultFunc.name, encodedVsInitialIds);
         }
     }
 
