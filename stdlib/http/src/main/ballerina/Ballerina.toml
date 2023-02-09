@@ -14,8 +14,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
-    version = "6.3.42"
-    path = "./lib/org.wso2.transport.http.netty-6.3.42.jar"
+    version = "6.3.43"
+    path = "./lib/org.wso2.transport.http.netty-6.3.43.jar"
     groupId = "org.wso2.transport.http"
     modules = ["http"]
 
@@ -83,6 +83,13 @@ target = "java8"
     modules = ["http"]
 
     [[platform.libraries]]
+    artifactId = "netty-transport-native-unix-common"
+    version = "4.1.86.Final"
+    path = "./lib/netty-transport-native-unix-common-4.1.86.Final.jar"
+    groupId = "io.netty"
+    modules = ["http"]
+
+    [[platform.libraries]]
     artifactId = "commons-pool"
     version = "1.5.6.wso2v1"
     path = "./lib/commons-pool-1.5.6.wso2v1.jar"
@@ -112,50 +119,50 @@ target = "java8"
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-classes"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-classes-2.0.52.Final.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-classes-2.0.54.Final.jar"
     groupId = "io.netty"
     modules = ["http"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final.jar"
     groupId = "io.netty"
     modules = ["http"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::windows-x86_64"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-windows-x86_64.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final-windows-x86_64.jar"
     groupId = "io.netty"
     modules = ["http"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-aarch_64"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-linux-aarch_64.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final-linux-aarch_64.jar"
     groupId = "io.netty"
     modules = ["http"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::linux-x86_64"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-linux-x86_64.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final-linux-x86_64.jar"
     groupId = "io.netty"
     modules = ["http"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-aarch_64"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-osx-aarch_64.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final-osx-aarch_64.jar"
     groupId = "io.netty"
     modules = ["http"]
     
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::osx-x86_64"
-    version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-osx-x86_64.jar"
+    version = "2.0.54.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.54.Final-osx-x86_64.jar"
     groupId = "io.netty"
     modules = ["http"]
 
