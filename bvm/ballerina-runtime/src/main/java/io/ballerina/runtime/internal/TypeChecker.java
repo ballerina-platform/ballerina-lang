@@ -2438,7 +2438,7 @@ public class TypeChecker {
                         unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
-                BArrayType arrayType = (BArrayType) arr.getType();
+                BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(arr.getType());
                 switch (TypeUtils.getReferredType(arrayType.getElementType()).getTag()) {
                     case TypeTags.INT_TAG:
                     case TypeTags.FLOAT_TAG:

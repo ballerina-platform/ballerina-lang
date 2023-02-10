@@ -234,10 +234,10 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 243, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                                  "incompatible types: expected 'string[] & readonly', found '(int[] & readonly)'",
+                                  "incompatible types: expected '(string[] & readonly)', found '(int[] & readonly)'",
                                   255, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                                  "incompatible types: expected 'int[] & readonly', found 'int[]'", 265, 9);
+                                  "incompatible types: expected '(int[] & readonly)', found 'int[]'", 265, 9);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

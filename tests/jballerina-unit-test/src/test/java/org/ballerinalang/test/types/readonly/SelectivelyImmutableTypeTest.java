@@ -184,7 +184,7 @@ public class SelectivelyImmutableTypeTest {
                       372, 22);
         validateError(result, index++, "incompatible types: expected '(string|error)', found '(json & readonly)'", 375,
                       22);
-        validateError(result, index++, "incompatible types: expected 'json & readonly', found '(anydata & readonly)'"
+        validateError(result, index++, "incompatible types: expected '(json & readonly)', found '(anydata & readonly)'"
                 , 384, 25);
         validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found 'MyJson[]'", 403, 29);
         validateError(result, index++, "incompatible types: expected '(MyJson & readonly)[]', found 'json[]'", 405, 31);

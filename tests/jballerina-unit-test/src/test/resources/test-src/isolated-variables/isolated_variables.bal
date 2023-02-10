@@ -25,7 +25,7 @@ isolated record {
     boolean[] j;
 } c = {
     i: x,
-    j: getBooleanArray(<int[2]> getIntArray())
+    j: getBooleanArray(<int[]> getIntArray())
 };
 
 isolated object {

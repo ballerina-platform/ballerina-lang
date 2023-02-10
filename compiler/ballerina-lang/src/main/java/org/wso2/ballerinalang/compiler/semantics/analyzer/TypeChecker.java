@@ -1683,7 +1683,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
                                                     AnalyzerData data) {
-        int tag = bType.tag;
+        BType refType = Types.getReferredType(bType);
+        BType compatibleType = checkListConstructorCompatibility(refType, bType, listConstructor, data);
+        return compatibleType == refType ? bType : compatibleType;
+    }
+    
+    private BType checkListConstructorCompatibility(BType referredType, BType originalType,
+                                                    BLangListConstructorExpr listConstructor, AnalyzerData data) {
+        int tag = referredType.tag;
         if (tag == TypeTags.UNION) {
             boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
             int errorCount = this.dlog.errorCount();
@@ -1692,7 +1699,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             List<BType> compatibleTypes = new ArrayList<>();
             boolean erroredExpType = false;
-            for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+            for (BType memberType : ((BUnionType) referredType).getMemberTypes()) {
                 if (memberType == symTable.semanticError) {
                     if (!erroredExpType) {
                         erroredExpType = true;
@@ -1743,17 +1750,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return checkListConstructorCompatibility(compatibleTypes.get(0), listConstructor, data);
         }
 
-        if (tag == TypeTags.TYPEREFDESC) {
-            BType refType = Types.getReferredType(bType);
-            BType compatibleType = checkListConstructorCompatibility(refType, listConstructor, data);
-            return compatibleType == refType ? bType : compatibleType;
-        }
-
-        if (tag == TypeTags.INTERSECTION) {
-            return checkListConstructorCompatibility(((BIntersectionType) bType).effectiveType, listConstructor, data);
-        }
-        
-        BType possibleType = getListConstructorCompatibleNonUnionType(bType, data);
+        BType possibleType = getListConstructorCompatibleNonUnionType(referredType, data);
 
         switch (possibleType.tag) {
             case TypeTags.ARRAY:
@@ -1808,11 +1805,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             exprToLog = nodeCloner.cloneNode(listConstructor);
         }
 
-        if (bType == symTable.semanticError) {
+        if (referredType == symTable.semanticError) {
             // Ignore the return value, we only need to visit the expressions.
             getInferredTupleType(exprToLog, symTable.semanticError, data);
         } else {
-            dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, bType,
+            dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, originalType,
                     getInferredTupleType(exprToLog, symTable.noType, data));
         }
 

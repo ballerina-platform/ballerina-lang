@@ -113,7 +113,8 @@ public class MapUtils {
     }
 
     private static boolean containsNilType(Type type) {
-        int tag = TypeUtils.getReferredType(type).getTag();
+        type = TypeUtils.getReferredType(type);
+        int tag = type.getTag();
         if (tag == TypeTags.UNION_TAG) {
             List<Type> memTypes = ((BUnionType) type).getMemberTypes();
             for (Type memType : memTypes) {
@@ -122,7 +123,7 @@ public class MapUtils {
                 }
             }
         }
-        return type.getTag() == TypeTags.NULL_TAG;
+        return tag == TypeTags.NULL_TAG;
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {
