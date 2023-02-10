@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_braced_expr.bal",
+  "description": "Extract to function for expressions, braced expressions",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param) returns boolean {\n    return param \u003d\u003d 0;\n}"
+          "newText": "\n\nfunction extracted(int param) returns boolean {\n    return param == 0;\n}"
         },
         {
           "range": {
@@ -41,8 +42,19 @@
           },
           "newText": "extracted(param)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_braced_expr.bal",
+          {
+            "line": 1,
+            "character": 7
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, braced expressions"
+  ]
 }

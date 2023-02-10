@@ -1,5 +1,22 @@
+// Copyright (c) 2019, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/lang.'int as ints;
 import ballerina/jballerina.java;
+import ballerina/test;
 
 int lockWithinLockInt1 = 0;
 
@@ -8,6 +25,16 @@ string lockWithinLockString1 = "";
 byte[] blobValue = [];
 
 boolean boolValue = false;
+
+function resetlockWithinLockInt1() {
+    lock {
+        lockWithinLockInt1 = 0;
+    }
+}
+
+function testLockWithinLock() {
+    test:assertEquals(lockWithinLock(), [77, "second sample value"]);
+}
 
 function lockWithinLock() returns [int, string] {
     lock {
@@ -33,8 +60,12 @@ function makeAsync() returns (int) {
     return 6;
 }
 
+function testLockWithinLockInWorkers() {
+    test:assertEquals(lockWithinLockInWorkers(), [66, "sample output"]);
+}
+
 function lockWithinLockInWorkers() returns [int, string] {
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w1 {
         lock {
             lockWithinLockInt1 = 90;
@@ -47,7 +78,7 @@ function lockWithinLockInWorkers() returns [int, string] {
         }
     }
 
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w2 {
         sleep(20);
         lock {
@@ -63,8 +94,14 @@ function lockWithinLockInWorkers() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testLockInsideWhileLoop() {
+    test:assertEquals(lockInsideWhileLoop(), 56);
+}
+
 function lockInsideWhileLoop() returns (int) {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w2 {
         sleep(10);
         lock {
@@ -77,7 +114,7 @@ function lockInsideWhileLoop() returns (int) {
         lock {
             lockWithinLockInt1 = lockWithinLockInt1 + 1;
         }
-        i = i +1;
+        i = i + 1;
         sleep(10);
     }
     return lockWithinLockInt1;
@@ -86,7 +123,7 @@ function lockInsideWhileLoop() returns (int) {
 function convertStringToInt() {
     lock {
         sleep(50);
-        lockWithinLockInt1 = lockWithinLockInt1 +1;
+        lockWithinLockInt1 = lockWithinLockInt1 + 1;
         lockWithinLockString1 = "hello";
         int ddd;
         var result = ints:fromString(lockWithinLockString1);
@@ -98,8 +135,14 @@ function convertStringToInt() {
     }
 }
 
+function testThrowErrorInsideLock() {
+    test:assertEquals(throwErrorInsideLock(), [51, "second worker string"]);
+}
+
 function throwErrorInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w1 {
         lock {
             convertStringToInt();
@@ -112,6 +155,10 @@ function throwErrorInsideLock() returns [int, string] {
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
     }
     error? waitResult = trap wait w1;
+    test:assertTrue(waitResult is error);
+    if (waitResult is error) {
+        test:assertEquals(waitResult.message(), "{ballerina/lang.int}NumberParsingError");
+    }
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
@@ -121,8 +168,15 @@ function errorPanicInsideLock() {
     }
 }
 
+function testThrowErrorInsideLockInsideTrap() {
+    test:assertEquals(throwErrorInsideLockInsideTryFinally(), [53,
+    "worker 2 sets the string value after try catch finally"]);
+}
+
 function throwErrorInsideLockInsideTryFinally() returns [int, string] {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w2 {
         sleep(10);
         lock {
@@ -144,8 +198,15 @@ function throwErrorInsideLockInsideTryFinally() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testThrowErrorInsideTryCatchFinallyInsideLock() {
+    test:assertEquals(throwErrorInsideTryCatchFinallyInsideLock(), [53,
+    "worker 2 sets the string after try catch finally inside lock"]);
+}
+
 function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w2 {
         sleep(10);
         lock {
@@ -170,8 +231,16 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testThrowErrorInsideTryFinallyInsideLock() {
+    test:assertEquals(throwErrorInsideTryFinallyInsideLock(), [552, "worker 2 sets the string after try finally"]);
+}
+
 function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    lock {
+        lockWithinLockInt1 = 500;
+    }
+
+    @strand {thread: "any"}
     worker w1 {
         lock {
             sleep(50);
@@ -192,15 +261,25 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
     }
 
     sleep(10);
+    error? w1Result = trap wait w1;
+    test:assertTrue(w1Result is error);
     lock {
         lockWithinLockString1 = "worker 2 sets the string after try finally";
         lockWithinLockInt1 = lockWithinLockInt1 + 50;
     }
-    return [lockWithinLockInt1, lockWithinLockString1];
+    lock {
+        return [lockWithinLockInt1, lockWithinLockString1];
+    }
+}
+
+function testThrowErrorInsideLockInsideTryCatch() {
+    test:assertEquals(throwErrorInsideLockInsideTryCatch(), [52, "worker 2 sets the string value after try catch"]);
 }
 
 function throwErrorInsideLockInsideTryCatch() returns [int, string] {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w2 {
         sleep(10);
         lock {
@@ -219,8 +298,15 @@ function throwErrorInsideLockInsideTryCatch() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testThrowErrorInsideTryCatchInsideLock() {
+    test:assertEquals(throwErrorInsideTryCatchInsideLock(), [52,
+    "worker 2 sets the string after try catch inside lock"]);
+}
+
 function throwErrorInsideTryCatchInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    resetlockWithinLockInt1();
+
+    @strand {thread: "any"}
     worker w2 {
         sleep(10);
         lock {
@@ -242,9 +328,12 @@ function throwErrorInsideTryCatchInsideLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testLockWithinLockInWorkersForBlobAndBoolean() {
+    test:assertEquals(lockWithinLockInWorkersForBlobAndBoolean(), [true, "sample blob output".toBytes()]);
+}
 
 function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w1 {
         lock {
             boolValue = true;
@@ -257,7 +346,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
         }
     }
 
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w2 {
         sleep(20);
         lock {
@@ -274,13 +363,19 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
     return [boolValue, blobValue];
 }
 
+function testReturnInsideLock() {
+    test:assertEquals(returnInsideLock(), [88, "changed value11"]);
+}
+
 function returnInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w1 {
-        string value = returnInsideLockPart();
+        test:assertEquals(returnInsideLockPart(), "value1");
     }
 
     sleep(10);
+    wait w1;
+
     lock {
         if (lockWithinLockInt1 == 44) {
             lockWithinLockString1 = "changed value11";
@@ -301,8 +396,12 @@ function returnInsideLockPart() returns (string) {
     }
 }
 
+function testBreakInsideLock() {
+    test:assertEquals(breakInsideLock(), [657, "lock value inside second worker after while"]);
+}
+
 function breakInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w1 {
         int i = 0;
         while (i < 3) {
@@ -329,8 +428,12 @@ function breakInsideLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function testNextInsideLock() {
+    test:assertEquals(nextInsideLock(), [657, "lock value inside second worker after while"]);
+}
+
 function nextInsideLock() returns [int, string] {
-    @strand{thread:"any"}
+    @strand {thread: "any"}
     worker w1 {
         int i = 0;
         while (i < 1) {

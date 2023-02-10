@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_block_stmt_inside_block.bal",
+  "description": "Extract to function for block statements, checks extraction inside the block",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 10;\n    localVar +\u003d 1;\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar = 10;\n    localVar += 1;\n    return localVar;\n}"
         },
         {
           "range": {
@@ -39,10 +40,21 @@
               "character": 22
             }
           },
-          "newText": "int localVar \u003d extracted();"
+          "newText": "int localVar = extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_block_stmt_inside_block.bal",
+          {
+            "line": 2,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for block statements, checks extraction inside the block"
+  ]
 }

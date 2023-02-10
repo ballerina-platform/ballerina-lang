@@ -52,22 +52,8 @@ public class ProjectPaths {
             if (hasBallerinaToml(filepath) || hasPackageJson(filepath)) {
                 return filepath;
             }
-            if (isModulesRoot(filepath)) {
-                return findProjectRoot(filepath).orElseThrow();
-            }
-            if (isGeneratedModulesRoot(filepath)) {
-                return findProjectRoot(filepath).orElseThrow();
-            }
-            if (isAModuleRoot(filepath)) {
-                return findProjectRoot(filepath).orElseThrow();
-            }
-            if (isAGeneratedModuleRoot(filepath)) {
-                return findProjectRoot(filepath).orElseThrow();
-            }
-            if (isAModuleTestsRoot(filepath)) {
-                return findProjectRoot(filepath).orElseThrow();
-            }
-            if (isAGeneratedModuleTestsRoot(filepath)) {
+            if (isModulesRoot(filepath) || isGeneratedModulesRoot(filepath) || isAModuleRoot(filepath) ||
+                    isAGeneratedModuleRoot(filepath) || isAModuleTestsRoot(filepath)) {
                 return findProjectRoot(filepath).orElseThrow();
             }
             throw new ProjectException("provided directory does not belong to a Ballerina package: " + filepath);
@@ -97,7 +83,11 @@ public class ProjectPaths {
 
             // check if the file is a source file in the default module
             if (isDefaultModuleSrcFile(absFilePath)) {
-                return absFilePath.getParent();
+                Path parentPath = absFilePath.getParent();
+                if (ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(parentPath).get().toFile().getName())) {
+                    parentPath = parentPath.getParent();
+                }
+                return parentPath;
             }
             // check if the file is a test file in the default module
             if (isDefaultModuleTestFile(absFilePath)) {
@@ -115,19 +105,6 @@ public class ProjectPaths {
                 Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
                 return modulesRoot.getParent();
             }
-
-            // check if the file is a source file in a non-default module
-            if (isGeneratedModuleSrcFile(filepath)) {
-                Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
-                return modulesRoot.getParent();
-            }
-            // check if the file is a test file in a non-default module
-            if (isGeneratedModuleTestFile(filepath)) {
-                Path testsRoot = Optional.of(absFilePath.getParent()).get();
-                Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
-                return modulesRoot.getParent();
-            }
-
         } else {
             // check if the file is a source file in a bala project
             if (isBalaProjectSrcFile(filepath)) {
@@ -137,6 +114,20 @@ public class ProjectPaths {
         }
 
         throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
+    }
+
+    private static boolean isAGeneratedModuleRoot(Path filepath) {
+        Path absFilePath = filepath.toAbsolutePath().normalize();
+        Optional<Path> projectRoot = findProjectRoot(absFilePath);
+        if (projectRoot.isPresent()) {
+            Path fileName = absFilePath.getFileName();
+            if (fileName != null) {
+                Path generatedModuleRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT).
+                        resolve(fileName);
+                return generatedModuleRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
+            }
+        }
+        return false;
     }
 
     private static boolean isModulesRoot(Path filepath) {
@@ -153,8 +144,8 @@ public class ProjectPaths {
         Path absFilePath = filepath.toAbsolutePath().normalize();
         Optional<Path> projectRoot = findProjectRoot(absFilePath);
         if (projectRoot.isPresent()) {
-            Path modulesRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
-            return modulesRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
+            Path generatedModulesRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT);
+            return generatedModulesRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
         }
         return false;
     }
@@ -184,26 +175,6 @@ public class ProjectPaths {
         return false;
     }
 
-    private static boolean isAGeneratedModuleTestsRoot(Path filepath) {
-        Path absFilePath = filepath.toAbsolutePath().normalize();
-        Optional<Path> projectRoot = findProjectRoot(filepath);
-        if (projectRoot.isPresent()) {
-            Path fileName = absFilePath.getFileName();
-            if (fileName != null) {
-                if (fileName.toString().equals(ProjectConstants.TEST_DIR_NAME)) {
-                    Path parent = filepath.getParent();
-                    if (parent != null) {
-                        // Check if it is the root of a generated module
-                        Path moduleRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(
-                                Optional.of(parent.getFileName()).get());
-                        return moduleRoot.toAbsolutePath().normalize().toString().equals(parent.toString());
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     private static boolean isAModuleRoot(Path filepath) {
         Path absFilePath = filepath.toAbsolutePath().normalize();
         Optional<Path> projectRoot = findProjectRoot(absFilePath);
@@ -211,19 +182,6 @@ public class ProjectPaths {
             Path fileName = absFilePath.getFileName();
             if (fileName != null) {
                 Path moduleRoot = projectRoot.get().resolve(ProjectConstants.MODULES_ROOT).resolve(fileName);
-                return moduleRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
-            }
-        }
-        return false;
-    }
-
-    private static boolean isAGeneratedModuleRoot(Path filepath) {
-        Path absFilePath = filepath.toAbsolutePath().normalize();
-        Optional<Path> projectRoot = findProjectRoot(absFilePath);
-        if (projectRoot.isPresent()) {
-            Path fileName = absFilePath.getFileName();
-            if (fileName != null) {
-                Path moduleRoot = projectRoot.get().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(fileName);
                 return moduleRoot.toAbsolutePath().normalize().toString().equals(absFilePath.toString());
             }
         }
@@ -295,15 +253,6 @@ public class ProjectPaths {
             return false;
         }
 
-        // check if the filepath is a source filepath in a generated module
-        if (isGeneratedModuleSrcFile(filepath)) {
-            return false;
-        }
-        // check if the filepath is a test filepath in a generated module
-        if (isGeneratedModuleTestFile(filepath)) {
-            return false;
-        }
-
         if (isBalaProjectSrcFile(filepath)) {
             return false;
         }
@@ -312,8 +261,11 @@ public class ProjectPaths {
     }
 
     static boolean isDefaultModuleSrcFile(Path filePath) {
-        Path absFilePath = filePath.toAbsolutePath().normalize();
-        return hasBallerinaToml(Optional.of(absFilePath.getParent()).get());
+        Path parentPath = filePath.toAbsolutePath().normalize().getParent();
+        if (ProjectConstants.GENERATED_MODULES_ROOT.equals(Optional.of(parentPath).get().toFile().getName())) {
+            parentPath = parentPath.getParent();
+        }
+        return hasBallerinaToml(Optional.of(parentPath).get());
     }
 
     static boolean isDefaultModuleTestFile(Path filePath) {
@@ -329,17 +281,11 @@ public class ProjectPaths {
 
     static boolean isNonDefaultModuleSrcFile(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
+        // modulesRoot is equivalent to generatedSourcesRoot in file structure
         Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
         Path projectRoot = modulesRoot.getParent();
-        return ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName())
-                && hasBallerinaToml(projectRoot);
-    }
-
-    private static boolean isGeneratedModuleSrcFile(Path filePath) {
-        Path absFilePath = filePath.toAbsolutePath().normalize();
-        Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
-        Path projectRoot = modulesRoot.getParent();
-        return ProjectConstants.GENERATED_MODULES_ROOT.equals(modulesRoot.toFile().getName())
+        return (ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName()) ||
+                ProjectConstants.GENERATED_MODULES_ROOT.equals(modulesRoot.toFile().getName()))
                 && hasBallerinaToml(projectRoot);
     }
 
@@ -360,18 +306,6 @@ public class ProjectPaths {
         Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
         Path projectRoot = modulesRoot.getParent();
         return ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName())
-                && hasBallerinaToml(projectRoot);
-    }
-
-    private static boolean isGeneratedModuleTestFile(Path filePath) {
-        Path absFilePath = filePath.toAbsolutePath().normalize();
-        Path testsRoot = Optional.of(absFilePath.getParent()).get();
-        if (!ProjectConstants.TEST_DIR_NAME.equals(testsRoot.toFile().getName())) {
-            return false;
-        }
-        Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
-        Path projectRoot = modulesRoot.getParent();
-        return ProjectConstants.GENERATED_MODULES_ROOT.equals(modulesRoot.toFile().getName())
                 && hasBallerinaToml(projectRoot);
     }
 

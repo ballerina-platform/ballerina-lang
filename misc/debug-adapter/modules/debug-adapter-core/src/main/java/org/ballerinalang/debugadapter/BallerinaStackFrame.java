@@ -33,7 +33,6 @@ import org.eclipse.lsp4j.debug.StackFrame;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
@@ -81,8 +80,12 @@ public class BallerinaStackFrame {
      * @return as an instance of {@link org.eclipse.lsp4j.debug.StackFrame}
      */
     public Optional<StackFrame> getAsDAPStackFrame() {
-        dapStackFrame = Objects.requireNonNullElse(dapStackFrame, computeDapStackFrame());
-        return Optional.of(dapStackFrame);
+        if (dapStackFrame != null) {
+            return Optional.of(dapStackFrame);
+        }
+
+        dapStackFrame = computeDapStackFrame();
+        return Optional.ofNullable(dapStackFrame);
     }
 
     private StackFrame computeDapStackFrame() {

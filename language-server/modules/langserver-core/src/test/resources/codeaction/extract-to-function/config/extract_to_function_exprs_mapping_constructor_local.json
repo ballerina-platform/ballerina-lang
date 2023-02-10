@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_mapping_constructor.bal",
+  "description": "Extract to function for expressions, mapping constructor inside function block",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "extracted()"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_mapping_constructor.bal",
+          {
+            "line": 13,
+            "character": 22
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, mapping constructor inside function block"
+  ]
 }

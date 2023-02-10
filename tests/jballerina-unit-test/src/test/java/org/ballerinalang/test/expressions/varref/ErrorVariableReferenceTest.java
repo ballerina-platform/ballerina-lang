@@ -223,6 +223,12 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns.get(2).toString(), "1");
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/38726
+    @Test(enabled = false)
+    public void testErrorDestructureWithErrorDeclaredWithReadOnlyIntersection() {
+        BRunUtil.invoke(result, "testErrorDestructureWithErrorDeclaredWithReadOnlyIntersection");
+    }
+
     @Test
     public void testErrorVariablesSemanticsNegative() {
         CompileResult resultNegative = BCompileUtil.compile(
