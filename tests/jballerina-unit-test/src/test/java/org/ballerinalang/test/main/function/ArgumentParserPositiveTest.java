@@ -93,12 +93,22 @@ public class ArgumentParserPositiveTest {
     }
 
     @Test()
-    public void testNoNamedArg() {
+    public void testDefaultableNamedArgs() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
-        String output = runMain(compileResult, new String[]{"1", "true"});
-        Assert.assertEquals(output, "1 true world: default",
-                            "string args with no named args parsed as invalid args");
+        String output = runMain(compileResult, new String[] {"1"});
+        Assert.assertEquals(output, "value : 1, string arg : default, int arg : 1, float arg : 2.0, " +
+                        "decimal arg : 1E+100, byte arg : 34",
+                "string args with no named args parsed as invalid args");
+    }
+
+    @Test()
+    public void testDefaultableNamedArgsWithFunctions() {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_defaultable_param_func.bal");
+        String output = runMain(compileResult, new String[] {"1"});
+        Assert.assertEquals(output, "1, a: 6, b: 11, c: 22",
+                "string args with no named args parsed as invalid args");
     }
 
     @Test

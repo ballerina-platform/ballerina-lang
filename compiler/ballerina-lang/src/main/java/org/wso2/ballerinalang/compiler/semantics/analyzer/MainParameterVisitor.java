@@ -85,6 +85,7 @@ public class MainParameterVisitor {
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:
+            case TypeTags.BYTE:
                 return true;
             case TypeTags.BOOLEAN:
                 return option;

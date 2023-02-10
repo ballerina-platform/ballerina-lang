@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -304,9 +305,18 @@ public class InitMethodGen {
             if (parameter.hasDefaultExpr) {
                 BIRNode.BIRBasicBlock lastBB = modExecFunc.basicBlocks.get(modExecFunc.basicBlocks.size() - 1);
                 BIROperand argOperand = mainArgs.get(i);
-                BIRNonTerminator.TypeTest typeTest =
-                        new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
-                lastBB.instructions.add(typeTest);
+                switch (parameter.type.tag) {
+                    case TypeTags.INT:
+                    case TypeTags.FLOAT:
+                    case TypeTags.DECIMAL:
+                    case TypeTags.BYTE:
+                        injectEqualsCheck(modExecFunc, boolRef, parameter.type, lastBB, argOperand);
+                        break;
+                    default:
+                        BIRNonTerminator.TypeTest typeTest =
+                                new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
+                        lastBB.instructions.add(typeTest);
+                }
 
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
@@ -318,6 +328,18 @@ public class InitMethodGen {
             }
         }
 
+    }
+
+    private void injectEqualsCheck(BIRNode.BIRFunction modExecFunc, BIROperand boolRef, BType type,
+                                   BIRNode.BIRBasicBlock lastBB, BIROperand argOperand) {
+        BIRNode.BIRVariableDcl defaultVal = addAndGetNextVar(modExecFunc, type);
+        BIROperand defaultRef = new BIROperand(defaultVal);
+        BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(null, 0, type, defaultRef);
+        BIRNonTerminator.BinaryOp equals =
+                new BIRNonTerminator.BinaryOp(null, InstructionKind.EQUAL, null, boolRef, argOperand,
+                        defaultRef);
+        lastBB.instructions.add(constantLoad);
+        lastBB.instructions.add(equals);
     }
 
     private BIRTerminator.FPCall getFPCallForDefaultParameter(BInvokableSymbol defaultFunc, BIROperand argOperand,
@@ -410,7 +432,7 @@ public class InitMethodGen {
 
     private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
         JIMethodCall jiMethodCall = new JIMethodCall(null);
-        jiMethodCall.args =  new ArrayList<>();
+        jiMethodCall.args = new ArrayList<>();
         jiMethodCall.varArgExist = false;
         jiMethodCall.jClassName = typeOwnerClass;
         jiMethodCall.jMethodVMSig = GRACEFUL_EXIT_METHOD;
