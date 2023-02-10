@@ -65,7 +65,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         }
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length());
+            enabled = enabled, dependsOnCount = config.dependsOn.length(), config = config);
         return true;
     }
     return false;
