@@ -311,7 +311,6 @@ public class RegExpParser extends AbstractParser {
             case "S":
             case "w":
             case "W":
-            case "-":
                 return true;
             default:
                 return false;
