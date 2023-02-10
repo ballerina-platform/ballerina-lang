@@ -68,6 +68,8 @@ public class CliUtil {
                 return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
                 return getIntegerValue(value, parameterName);
+            case TypeTags.BYTE_TAG:
+                return getByteValue(value, parameterName);
             case TypeTags.FLOAT_TAG:
                 return getFloatValue(value, parameterName);
             case TypeTags.DECIMAL_TAG:
@@ -77,6 +79,14 @@ public class CliUtil {
                                                                               "'boolean' is expected without a value"));
             default:
                 throw getUnsupportedTypeException(type);
+        }
+    }
+
+    private static Object getByteValue(String argument, String parameterName) {
+        try {
+            return TypeConverter.stringToInt(argument);
+        } catch (NumberFormatException e) {
+            throw getInvalidArgumentError(argument, parameterName, "byte");
         }
     }
 

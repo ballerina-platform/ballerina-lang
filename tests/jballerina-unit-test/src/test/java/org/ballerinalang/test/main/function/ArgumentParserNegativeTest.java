@@ -38,7 +38,7 @@ public class ArgumentParserNegativeTest {
     public void testTooManyArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1", "Hello World"});
+        BRunUtil.runMain(compileResult, "1", "Hello World");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -46,7 +46,7 @@ public class ArgumentParserNegativeTest {
     public void testInsufficientArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1"});
+        BRunUtil.runMain(compileResult, "1");
     }
 
     @Test(description = "Test passing undefined parameters to the main function",
@@ -55,7 +55,7 @@ public class ArgumentParserNegativeTest {
     public void testIncorrectArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"-j=1"});
+        BRunUtil.runMain(compileResult, "-j=1");
     }
 
     @Test(dataProvider = "intValues")
@@ -63,7 +63,7 @@ public class ArgumentParserNegativeTest {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                        + "test_main_with_int_param.bal");
-            BRunUtil.runMain(compileResult, new String[]{arg});
+            BRunUtil.runMain(compileResult, arg);
         } catch (RuntimeException e) {
             Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
                     "' for parameter 'i', expected integer value");
@@ -75,7 +75,7 @@ public class ArgumentParserNegativeTest {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                     + "test_main_with_float_param.bal");
-            BRunUtil.runMain(compileResult, new String[]{arg});
+            BRunUtil.runMain(compileResult, arg);
         } catch (RuntimeException e) {
             Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
                     "' for parameter 'f', expected float value");
@@ -100,15 +100,15 @@ public class ArgumentParserNegativeTest {
         String argument = "5.5s";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        BRunUtil.runMain(compileResult, new String[]{"10", argument});
+        BRunUtil.runMain(compileResult, "10", argument);
     }
 
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = "error: all operand arguments are not matched")
     public void testInvalidArgsWithDefaultableParams() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
-                                                                   + "test_main_with_defaultable_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not", "yes"});
+                + "test_main_with_defaultable_param.bal");
+        BRunUtil.runMain(compileResult, "1", "true", "1", "2.3", "4e5", "6", "hi", "hello");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -117,7 +117,7 @@ public class ArgumentParserNegativeTest {
         String argument = "[true, \"hi\", 5]";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_array_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, argument);
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -126,7 +126,7 @@ public class ArgumentParserNegativeTest {
         String argument = "5, 1, hi.there";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_float_array_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, argument);
     }
 
     @DataProvider(name = "intValues")
