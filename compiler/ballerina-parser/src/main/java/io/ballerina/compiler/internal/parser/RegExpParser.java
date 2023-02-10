@@ -196,7 +196,7 @@ public class RegExpParser extends AbstractParser {
                 // "BITWISE_XOR_TOKEN" syntax kind is used here to mock the flow for a ReSyntaxChar and give the
                 // diagnostic, instead of having a separate syntax kind to represent ReSyntaxChar.
                 STNode syntaxChar = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.BITWISE_XOR_TOKEN,
-                        DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR);
+                        DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR);
                 syntaxChar = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(syntaxChar, consume());
                 return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
         }
@@ -311,6 +311,7 @@ public class RegExpParser extends AbstractParser {
             case "S":
             case "w":
             case "W":
+            case "-":
                 return true;
             default:
                 return false;
