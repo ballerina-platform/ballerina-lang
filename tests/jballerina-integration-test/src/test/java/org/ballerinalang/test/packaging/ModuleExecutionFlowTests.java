@@ -321,7 +321,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         Path projectPath =
                 Paths.get("src", "test", "resources", "packaging", "module_init_worker_dynamic_listener_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
-                 LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
         LogLeecher mainLeecher =
                 new LogLeecher("main function invoked for 'current' module", LogLeecher.LeecherType.INFO);
         LogLeecher workerLeecher = new LogLeecher("executing worker 'w1'", LogLeecher.LeecherType.INFO);

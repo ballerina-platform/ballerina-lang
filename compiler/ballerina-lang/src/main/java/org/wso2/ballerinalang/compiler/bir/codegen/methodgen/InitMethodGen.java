@@ -75,6 +75,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_ARG_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
@@ -415,7 +416,7 @@ public class InitMethodGen {
         jiMethodCall.varArgExist = false;
         jiMethodCall.jClassName = typeOwnerClass;
         jiMethodCall.jMethodVMSig = GRACEFUL_EXIT_METHOD;
-        jiMethodCall.name = "graceFulExit";
+        jiMethodCall.name = GRACEFUL_EXIT_METHOD_NAME;
         jiMethodCall.invocationType = INVOKESTATIC;
         jiMethodCall.thenBB = nextBB;
         return jiMethodCall;
@@ -479,8 +480,8 @@ public class InitMethodGen {
         return nextId++;
     }
 
-    public void generateGraceFulExitMethod(ClassWriter cw, BIRNode.BIRPackage module, String moduleClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "graceFulExit", SET_STRAND, null, null);
+    public void generateGracefulExitMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, GRACEFUL_EXIT_METHOD_NAME, SET_STRAND, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);

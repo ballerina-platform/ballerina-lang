@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Java method invocation call for internal runtime invocation modeled as BIR terminator.
  *
- * @since 2201.4.0
+ * @since 2201.5.0
  */
 public class JInternalCall extends JTerminator {
 

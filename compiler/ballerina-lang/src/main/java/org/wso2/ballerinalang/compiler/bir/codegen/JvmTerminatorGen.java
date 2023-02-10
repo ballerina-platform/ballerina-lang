@@ -498,6 +498,10 @@ public class JvmTerminatorGen {
                 return;
             case J_INTERNAL_METHOD_CALL:
                 this.genJInternalMethodCall((JInternalCall) terminator, localVarOffset);
+                return;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
+                        terminator);
         }
     }
 

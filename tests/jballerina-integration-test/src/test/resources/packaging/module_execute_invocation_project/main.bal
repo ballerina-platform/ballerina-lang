@@ -55,5 +55,3 @@ public class Listener {
         io:println("Calling immediateStop for " + self.name);
     }
 }
-
-

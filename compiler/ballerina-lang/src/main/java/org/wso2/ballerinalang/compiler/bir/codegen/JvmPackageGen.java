@@ -413,7 +413,7 @@ public class JvmPackageGen {
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
-                initMethodGen.generateGraceFulExitMethod(cw, module, moduleClass);
+                initMethodGen.generateGracefulExitMethod(cw);
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
@@ -445,7 +445,6 @@ public class JvmPackageGen {
             jarEntries.put(moduleClass + ".class", bytes);
         });
     }
-
 
     private List<PackageID> flattenModuleImports(Set<PackageID> dependentModuleArray) {
         dependentModuleArray.addAll(dependentModules);
@@ -821,6 +820,7 @@ public class JvmPackageGen {
         }
         return userMainFunc;
     }
+
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {
         if (packageSymbol.bir != null && packageSymbol.bir.isListenerAvailable) {
             return true;
