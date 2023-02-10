@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,41 +16,24 @@
 
 import ballerina/test;
 
-// Tests skipping of dependsOn functions when a test func fails.
-
-int j = 0;
-
-// This test should pass
 @test:Config {}
-public function test1() {
-    j = j+1;
+function testFunction1() {
+    test:assertTrue(true);
 }
 
-// This test should fail and the consecutive depends on tests will be skipped
+// This test is disabled
 @test:Config {
-    dependsOn: [test1]
+    dependsOn: [testFunction1],
+    enable: false
 }
-public function test2() {
-    int i = 12/0;
+function testDisableFunction2() {
+    test:assertTrue(false, "This test should not run");
 }
 
+// Test without enable attribute. This should run.
 @test:Config {
-    dependsOn: [test2]
+    dependsOn: [testDisableFunction2]
 }
-public function test3() {
-    j = j+1;
-}
-
-@test:Config {
-    dependsOn: [test3]
-}
-public function test4() {
-    j = j+1;
-}
-
-// This test should pass
-@test:Config {}
-public function test5() {
-    j = j+1;
-    test:assertEquals(j, 2);
+function testFunction3() {
+    test:assertFalse(false, "This test should not run");
 }
