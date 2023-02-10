@@ -357,7 +357,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
     ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
             "error.annotations.not.allowed.for.tuple.rest.descriptor"),
-    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char"),
+    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char")
     ;
 
     String diagnosticId;
