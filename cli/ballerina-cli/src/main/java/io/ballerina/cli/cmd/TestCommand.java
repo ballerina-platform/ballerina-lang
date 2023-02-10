@@ -183,7 +183,7 @@ public class TestCommand implements BLauncherCmd {
     private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--offline]\n" +
-            "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
+            "                   [(--key=value)...] [<ballerina-file> | <package-path>]";
 
     public void execute() {
         long start = 0;
