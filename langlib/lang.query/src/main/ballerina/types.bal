@@ -341,7 +341,7 @@ class _InnerJoinFunction {
     function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
     error? failureAtJoin = ();
-    stream<_Frame>? joinedFrameStream;
+    stream<_Frame>? joinedFramesStream;
 
     function init(
             _StreamPipeline pipelineToJoin,
@@ -350,7 +350,7 @@ class _InnerJoinFunction {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
         self.prevFunc = ();
-        self.joinedFrameStream = ();
+        self.joinedFramesStream = ();
 
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
@@ -373,7 +373,7 @@ class _InnerJoinFunction {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        if (self.joinedFrameStream is ()) {
+        if (self.joinedFramesStream is ()) {
             function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
             _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
             _StreamFunction pf = <_StreamFunction>self.prevFunc;
@@ -403,9 +403,9 @@ class _InnerJoinFunction {
                 }
                 lhsFrame = pf.process();
             }
-            self.joinedFrameStream = joinedFrames.toStream();
+            self.joinedFramesStream = joinedFrames.toStream();
         }
-        stream<_Frame> s = <stream<_Frame>>self.joinedFrameStream;
+        stream<_Frame> s = <stream<_Frame>>self.joinedFramesStream;
         record {|_Frame value;|}|error? f = s.next();
         if (f is record {|_Frame value;|}) {
             return f.value;
@@ -414,7 +414,7 @@ class _InnerJoinFunction {
     }
 
     public function reset() {
-        self.joinedFrameStream = ();
+        self.joinedFramesStream = ();
         _StreamFunction? pf = self.prevFunc;
         if (pf is _StreamFunction) {
             pf.reset();
