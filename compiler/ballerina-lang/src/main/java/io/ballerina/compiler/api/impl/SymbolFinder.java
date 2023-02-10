@@ -1736,9 +1736,16 @@ class SymbolFinder extends BaseVisitor {
         for (int i = 0; i < pathExprs.size(); i++) {
             BLangExpression expr = pathExprs.get(i);
             BResourcePathSegmentSymbol pathSymbol = pathSegSymbols.get(i);
-            if (expr.getKind() == NodeKind.LITERAL &&
-                    pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT) {
-                setEnclosingNode(pathSymbol, expr.pos);
+
+            if (pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+                // Return since the path segment is a rest-param segment
+                return;
+            }
+
+            if (expr.getKind() == NodeKind.LITERAL
+                    && pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT
+                    && setEnclosingNode(pathSymbol, expr.pos)) {
+                return;
             }
         }
 
