@@ -24,8 +24,6 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-
 /**
  * Test class for program execution order tests.
  *
@@ -173,22 +171,6 @@ public class ModuleExecutionFlowTests {
                 "\tat testorg.start_stop_failing_project:start(basic.bal:35)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
-    }
-
-    @Test
-    public void testModuleInitWithBusyWorkerTerminating() {
-        CompileResult compileResult =
-                BCompileUtil.compileWithoutInitInvocation("test-src/execution/module_init_worker_no_listener_project");
-        ExitDetails output = run(compileResult, new String[] {});
-        String separator = System.lineSeparator();
-        String expectedConsoleString1 = "Initializing module 'current'" + separator +
-                "executing worker 'w1'" + separator +
-                "main function invoked for 'current' module";
-        String expectedConsoleString2 = "Initializing module 'current'" + separator +
-                "main function invoked for 'current' module" + separator +
-                "executing worker 'w1'";
-        Assert.assertTrue(Arrays.asList(expectedConsoleString1, expectedConsoleString2).contains(output.consoleOutput),
-                "evaluated to invalid value");
     }
 
     private ExitDetails run(CompileResult compileResult, String[] args) {

@@ -419,9 +419,7 @@ public class Scheduler {
                     // (number of started stands - finished stands) = 0, all the work is done
                     assert runnableList.isEmpty();
 
-                    if (!immortal) {
-                        poison();
-                    }
+                    gracefulExit();
                 }
                 break;
             default:
@@ -565,7 +563,9 @@ public class Scheduler {
         return poolSize;
     }
 
-    public boolean isImmortal() {
-        return this.immortal;
+    public void gracefulExit() {
+        if (!this.immortal) {
+            this.poison();
+        }
     }
 }

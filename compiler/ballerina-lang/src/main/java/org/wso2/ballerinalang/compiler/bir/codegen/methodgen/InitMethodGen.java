@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInternalCall;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
@@ -410,8 +410,8 @@ public class InitMethodGen {
         return falseBB;
     }
 
-    private static JInternalCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
-        JInternalCall jiMethodCall = new JInternalCall(null);
+    private static JIMethodCall getExitMethodCall(BIRNode.BIRBasicBlock nextBB, String typeOwnerClass) {
+        JIMethodCall jiMethodCall = new JIMethodCall(null);
         jiMethodCall.args =  new ArrayList<>();
         jiMethodCall.varArgExist = false;
         jiMethodCall.jClassName = typeOwnerClass;
@@ -419,6 +419,7 @@ public class InitMethodGen {
         jiMethodCall.name = GRACEFUL_EXIT_METHOD_NAME;
         jiMethodCall.invocationType = INVOKESTATIC;
         jiMethodCall.thenBB = nextBB;
+        jiMethodCall.isInternal = true;
         return jiMethodCall;
     }
 
@@ -485,13 +486,9 @@ public class InitMethodGen {
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "isImmortal", "()Z", false);
-        Label ifLabel = new Label();
-        mv.visitJumpInsn(IFNE, ifLabel);
-        JvmCodeGenUtil.generateExitRuntime(mv);
-        mv.visitLabel(ifLabel);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(2, 1);
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 }

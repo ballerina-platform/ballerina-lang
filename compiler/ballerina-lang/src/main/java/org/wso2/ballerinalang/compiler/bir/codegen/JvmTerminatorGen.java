@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInternalCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTerminator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -496,41 +495,10 @@ public class JvmTerminatorGen {
             case JI_CONSTRUCTOR_CALL:
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
                 return;
-            case J_INTERNAL_METHOD_CALL:
-                this.genJInternalMethodCall((JInternalCall) terminator, localVarOffset);
-                return;
             default:
                 throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
                         terminator);
         }
-    }
-
-    private void genJInternalMethodCall(JInternalCall callIns, int localVarOffset) {
-        // Load function parameters of the target Java method to the stack.
-        Label blockedOnExternLabel = new Label();
-        Label notBlockedOnExternLabel = new Label();
-
-        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
-        this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
-
-        this.mv.visitLabel(blockedOnExternLabel);
-        boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
-
-        int argIndex = 0;
-
-        String jMethodVMSig = callIns.jMethodVMSig;
-        this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
-
-        int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
-        while (argIndex < argsCount) {
-            BIROperand arg = callIns.args.get(argIndex);
-            this.loadVar(arg.variableDcl);
-            argIndex += 1;
-        }
-        String jClassName = callIns.jClassName;
-        String jMethodName = callIns.name;
-        this.mv.visitMethodInsn(callIns.invocationType, jClassName, jMethodName, jMethodVMSig, isInterface);
-        this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
     private void genJCallTerm(JavaMethodCall callIns, BType attachedType, int localVarOffset) {
@@ -642,8 +610,10 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             // load the current Module
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
-                               INIT_BAL_ENV, false);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
+        }
+        if (callIns.isInternal) {
+            this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
