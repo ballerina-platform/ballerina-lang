@@ -156,17 +156,17 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
-            // If modules from the current package are being processed
-            // we do an overall check on the diagnostics of the package
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 if (packageCompilation.diagnosticResult().hasErrors()) {
-                    moduleDiagnostics.addAll(packageCompilation.diagnosticResult().diagnostics());
-                    break;
+                    for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                        moduleDiagnostics.add(
+                                new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                    }
+                    continue;
                 }
             }
-
             // We can't generate backend code when one of its dependencies have errors.
-            if (hasNoErrors(moduleDiagnostics)) {
+            if (!this.packageContext.getResolution().diagnosticResult().hasErrors() && !hasErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
@@ -179,19 +179,17 @@ public class JBallerinaBackend extends CompilerBackend {
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
 
-        diagnostics = diagnostics.stream().distinct().collect(Collectors.toList());
-
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
     }
 
-    private boolean hasNoErrors(List<Diagnostic> diagnostics) {
+    private boolean hasErrors(List<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -220,16 +218,19 @@ public class JBallerinaBackend extends CompilerBackend {
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
 
+        ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
         List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion(filePath);
         if (!pluginDiagnostics.isEmpty()) {
-            ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
             diagnostics.addAll(pluginDiagnostics);
-
-            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         }
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+
+        List<Diagnostic> allDiagnostics = new ArrayList<>(diagnostics);
+        jarResolver().diagnosticResult().diagnostics().stream().forEach(
+                diagnostic -> allDiagnostics.add(diagnostic));
 
         // TODO handle the EmitResult properly
-        return new EmitResult(true, diagnosticResult, generatedArtifact);
+        return new EmitResult(true, new DefaultDiagnosticResult(allDiagnostics), generatedArtifact);
     }
 
     private Path emitBala(Path filePath) {
@@ -548,7 +549,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
-                    "environment variable\nHINT: to install GraalVM follow the below link\n" +
+                    "environment variable\nHINT: To install GraalVM, follow the link: " +
                     "https://ballerina.io/learn/build-a-native-executable/#configure-graalvm");
         }
         nativeImageCommand += File.separator + BIN_DIR_NAME + File.separator

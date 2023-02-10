@@ -47,11 +47,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmBallerinaConstantsGen {
 
     private final String constantClass;
-
     private final String moduleInitClass;
-
     private final JvmConstantsGen jvmConstantsGen;
-
     private final BIRNode.BIRPackage module;
 
     public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass,

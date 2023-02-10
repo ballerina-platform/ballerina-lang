@@ -4,6 +4,7 @@
     "character": 11
   },
   "source": "class_def/source/source3.bal",
+  "description": "",
   "items": [
     {
       "label": "final",
@@ -433,15 +434,6 @@
       ]
     },
     {
-      "label": "resource function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "resource_function",
-      "insertText": "resource function ${1:accessor} ${2:path} (${3})${4} {\n\t${5}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "null",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -617,6 +609,15 @@
       "detail": "Typedesc",
       "sortText": "N",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path}(${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

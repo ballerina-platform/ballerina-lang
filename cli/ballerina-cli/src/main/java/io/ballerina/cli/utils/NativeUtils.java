@@ -30,12 +30,20 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -155,15 +163,25 @@ public class NativeUtils {
                     ReflectConfigClass originalTestFileRefConfClz;
                     for (Map.Entry<String, String[]> testFileMockedFunctionMappingEntry :
                             testFileMockedFunctionMapping.entrySet()) {
-                        String moduleNameForTestClz = testFileMockedFunctionMappingEntry.getKey().split("-")[0];
+                        String moduleNameForTestClz = testFileMockedFunctionMappingEntry.getKey().split("/")[0];
                         if (!moduleNameForTestClz.equals(name)) {
                             continue;
                         }
-                        String testFile = testFileMockedFunctionMappingEntry.getKey().split("-")[1];
+                        String testFile = testFileMockedFunctionMappingEntry.getKey().split("/")[1];
                         String[] mockedFunctions = testFileMockedFunctionMappingEntry.getValue();
-                        originalTestFileRefConfClz = new ReflectConfigClass(
-                                getQualifiedClassName(org, moduleNameForTestClz, version, testFile));
+
+                        String qualifiedTestClassName =
+                                getQualifiedClassName(org, moduleNameForTestClz, version, testFile);
+                        Class<?> qualifiedTestClass = validateClassExistance(testSuite, qualifiedTestClassName);
+                        if (qualifiedTestClass == null) {
+                            continue;
+                        }
+                        HashSet<String> methodSet = getMethodSet(qualifiedTestClass);
+                        originalTestFileRefConfClz = new ReflectConfigClass(qualifiedTestClassName);
                         for (int i = 0; i < mockedFunctions.length; i++) {
+                            if (!methodSet.contains(mockedFunctions[i])) {
+                                continue;
+                            }
                             originalTestFileRefConfClz.addReflectConfigClassMethod(
                                     new ReflectConfigClassMethod(mockedFunctions[i]));
                             originalTestFileRefConfClz.setUnsafeAllocated(true);
@@ -208,6 +226,44 @@ public class NativeUtils {
             gson.toJson(classList, writer);
             writer.flush();
         }
+    }
+
+    private static HashSet<String> getMethodSet(Class<?> qualifiedTestClass) {
+        HashSet<String> methodSet = new HashSet<>();
+        for (Method method : qualifiedTestClass.getMethods()) {
+            methodSet.add(method.getName());
+        }
+        return methodSet;
+    }
+
+    private static Class<?> validateClassExistance(TestSuite testSuite, String qualifiedTestClassName) {
+        List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+        ClassLoader classLoader = AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(
+                        getURLList(testExecutionDependencies).toArray(new URL[0]),
+                        ClassLoader.getSystemClassLoader()));
+
+        Class<?> classToCheck;
+        try {
+            classToCheck = classLoader.loadClass(qualifiedTestClassName);
+        } catch (Throwable e) {
+            return null;
+        }
+        return classToCheck;
+    }
+
+    public static List<URL> getURLList(List<String> jarFilePaths) {
+        List<URL> urlList = new ArrayList<>();
+
+        for (String jarFilePath : jarFilePaths) {
+            try {
+                urlList.add(Paths.get(jarFilePath).toUri().toURL());
+            } catch (MalformedURLException e) {
+                // This path cannot get executed
+                throw new RuntimeException("Failed to create classloader with all jar files", e);
+            }
+        }
+        return urlList;
     }
 
     //Create $ORIG_function methods class mapping

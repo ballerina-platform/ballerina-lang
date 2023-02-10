@@ -507,10 +507,4 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 7, 1);
         validateError(compileResult, index, "annotation 'v22' is not allowed on const", line + 2, 5);
     }
-
-    // https://github.com/ballerina-platform/ballerina-lang/issues/38746
-    @Test(enabled = false)
-    public void testInvalidNonConstUnaryExprInConstAnnotAttachment() {
-        validateError(compileResult, 272, "expression is not a constant expression", 943, 17);
-    }
 }

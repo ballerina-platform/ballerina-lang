@@ -316,7 +316,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
     private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
                                                      DocumentableNode documentableNode, AnalyzerData data) {
-        int tag = -1;
+        long tag = -1;
         SymbolEnv env = data.env;
         // Lookup namespace to validate the identifier.
         switch (reference.getType()) {
@@ -362,7 +362,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     private BSymbol resolveFullyQualifiedSymbol(Location location, SymbolEnv env, String packageId,
-                                                String type, String identifier, int tag) {
+                                                String type, String identifier, long tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);
         Name typeName = names.fromString(type);

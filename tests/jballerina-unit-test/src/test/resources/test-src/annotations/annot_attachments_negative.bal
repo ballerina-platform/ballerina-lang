@@ -934,14 +934,3 @@ public enum Color5 {
     ORANGE,
     GREEN
 }
-
-// public const annotation record {| int increment = 1; |} v25 on source type;
-
-// int x = 1;
-
-// @v25 {
-//     increment: -x
-// }
-// type Qux record {|
-//     int x;
-// |};
