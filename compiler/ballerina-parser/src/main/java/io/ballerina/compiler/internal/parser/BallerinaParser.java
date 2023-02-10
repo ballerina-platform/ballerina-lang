@@ -8521,8 +8521,8 @@ public class BallerinaParser extends AbstractParser {
      * Parse array type descriptor.
      * <p>
      * <code>
-     * array-type-descriptor := member-type-descriptor [ [ array-length ] ]
-     * member-type-descriptor := type-descriptor
+     * array-type-descriptor := array-member-type-descriptor [ [ array-length ] ]
+     * array-member-type-descriptor := type-descriptor
      * array-length :=
      * int-literal
      * | constant-reference-expr
@@ -11739,6 +11739,7 @@ public class BallerinaParser extends AbstractParser {
      * tuple-member-type-descriptors := member-type-descriptor (, member-type-descriptor)* [, tuple-rest-descriptor]
      * | [ tuple-rest-descriptor ]
      * <br/><br/>
+     * member-type-descriptor := [annots] type-descriptor
      * tuple-rest-descriptor := type-descriptor ...
      * </code>
      *
@@ -11746,7 +11747,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTupleTypeDesc() {
         STNode openBracket = parseOpenBracket();
-        startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        startContext(ParserRuleContext.TUPLE_MEMBERS);
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode closeBracket = parseCloseBracket();
         endContext();
@@ -11773,23 +11774,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first typedesc, that has no leading comma
-        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-
+        STNode typeDesc = parseTupleMember();
         return parseTupleTypeMembers(typeDesc, typeDescList);
     }
 
-    private STNode parseTupleTypeMembers(STNode typeDesc, List<STNode> typeDescList) {
-        typeDesc = parseComplexTypeDescriptor(typeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
-
-        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
-        if (tupleMemberRhs != null) {
-            typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
-        }
-
+    private STNode parseTupleTypeMembers(STNode firstMember, List<STNode> memberList) {
+        STNode tupleMemberRhs;
         // Parse the remaining type descs
         while (!isEndOfTypeList(peek().kind)) {
-            if (typeDesc.kind == SyntaxKind.REST_TYPE) {
-                typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
+            if (firstMember.kind == SyntaxKind.REST_TYPE) {
+                firstMember = invalidateTypeDescAfterRestDesc(firstMember);
                 break;
             }
 
@@ -11797,25 +11791,32 @@ public class BallerinaParser extends AbstractParser {
             if (tupleMemberRhs == null) {
                 break;
             }
-
-            typeDescList.add(typeDesc);
-            typeDescList.add(tupleMemberRhs);
-            typeDesc = parseMemberDescriptor();
+            memberList.add(firstMember);
+            memberList.add(tupleMemberRhs);
+            firstMember = parseTupleMember();
         }
 
-        typeDescList.add(typeDesc);
-        return STNodeFactory.createNodeList(typeDescList);
+        memberList.add(firstMember);
+        return STNodeFactory.createNodeList(memberList);
     }
 
-    private STNode parseMemberDescriptor() {
+    private STNode parseTupleMember() {
+        STNode annot = parseOptionalAnnotations();
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
+        return createMemberOrRestNode(annot, typeDesc);
+    }
 
+    private STNode createMemberOrRestNode(STNode annot, STNode typeDesc) {
+        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
         if (tupleMemberRhs != null) {
+            if (!((STNodeList) annot).isEmpty()) {
+                typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, annot,
+                        DiagnosticErrorCode.ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR);
+            }
             return STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         }
 
-        return typeDesc;
+        return STNodeFactory.createMemberTypeDescriptorNode(annot, typeDesc);
     }
 
     private STNode invalidateTypeDescAfterRestDesc(STNode restDescriptor) {
@@ -11826,7 +11827,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, tupleMemberRhs, null);
-            restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, parseMemberDescriptor(),
+            restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, parseTupleMember(),
                     DiagnosticErrorCode.ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR);
         }
 
@@ -17391,8 +17392,13 @@ public class BallerinaParser extends AbstractParser {
 
             switch (currentNodeType) {
                 case TUPLE_TYPE_DESC:
+                    member = parseComplexTypeDescriptor(member, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                    member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
+                    return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
+                case MEMBER_TYPE_DESC:
+                case REST_TYPE:
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
                 case LIST_BINDING_PATTERN:
                     // If the member type was figured out as a binding pattern, then parse the
@@ -17500,6 +17506,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescOrExpr(qualifiers);
             case FUNCTION_KEYWORD:
                 return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
+            case AT_TOKEN:
+                return parseTupleMember();
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     reportInvalidQualifierList(qualifiers);
@@ -17570,7 +17578,12 @@ public class BallerinaParser extends AbstractParser {
                     // If the member type was figured out as a list constructor, then parse the
                     // remaining members as list constructor members and be done with it.
                     return parseAsListConstructor(openBracket, memberList, member, isRoot);
+                case REST_TYPE:
+                case MEMBER_TYPE_DESC:
+                    return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
                 case TUPLE_TYPE_DESC:
+                    member = parseComplexTypeDescriptor(member, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                    member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
@@ -17633,6 +17646,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseExpression(false);
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr();
+            case AT_TOKEN:
+                return parseTupleMember();
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     return parseExpression(false);
@@ -17678,7 +17693,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // Treat everything else as tuple type desc
-                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
+                STNode memberTypeDescs = STNodeFactory.createNodeList(getTupleMemberList(members));
                 STNode tupleTypeDesc =
                         STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
                 tupleTypeOrListConst =
@@ -17716,9 +17731,11 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseAsTupleTypeDesc(STNode annots, STNode openBracket, List<STNode> memberList, STNode member,
                                         boolean isRoot) {
-        memberList = getTypeDescList(memberList);
+        memberList = getTupleMemberList(memberList);
+        startContext(ParserRuleContext.TUPLE_MEMBERS);
         STNode tupleTypeMembers = parseTupleTypeMembers(member, memberList);
         STNode closeBracket = parseCloseBracket();
+        endContext();
 
         STNode tupleType = STNodeFactory.createTupleTypeDescriptorNode(openBracket, tupleTypeMembers, closeBracket);
         STNode typeDesc =
@@ -17790,7 +17807,6 @@ public class BallerinaParser extends AbstractParser {
             case ERROR_BINDING_PATTERN:
                 return SyntaxKind.LIST_BINDING_PATTERN;
             case QUALIFIED_NAME_REFERENCE: // a qualified-name-ref can only be a type-ref
-            case REST_TYPE:
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case LIST_CONSTRUCTOR:
             case MAPPING_CONSTRUCTOR:
@@ -17810,6 +17826,10 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LIST_CONSTRUCTOR;
             case INDEXED_EXPRESSION:
                 return SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST;
+            case MEMBER_TYPE_DESC:
+                return SyntaxKind.MEMBER_TYPE_DESC;
+            case REST_TYPE:
+                return SyntaxKind.REST_TYPE;
             default:
                 if (isExpression(memberNode.kind) && !isAllBasicLiterals(memberNode) && !isAmbiguous(memberNode)) {
                     return SyntaxKind.LIST_CONSTRUCTOR;
@@ -17925,8 +17945,8 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
+                startContext(ParserRuleContext.TUPLE_MEMBERS);
+                STNode memberTypeDescs = STNodeFactory.createNodeList(getTupleMemberList(members));
                 STNode tupleTypeDesc =
                         STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
                 endContext(); // end tuple typ-desc
@@ -17941,7 +17961,7 @@ public class BallerinaParser extends AbstractParser {
                 if (!isRoot) {
                     // if this is a member, treat as type-desc.
                     // TODO: handle expression case.
-                    memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
+                    memberTypeDescs = STNodeFactory.createNodeList(getTupleMemberList(members));
                     tupleTypeDesc =
                             STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
                     endContext();
@@ -18953,14 +18973,18 @@ public class BallerinaParser extends AbstractParser {
     }
 
     // ---------------------- Convert ambiguous nodes to a specific node --------------------------
-
-    private List<STNode> getTypeDescList(List<STNode> ambiguousList) {
-        List<STNode> typeDescList = new ArrayList<>();
+    private List<STNode> getTupleMemberList(List<STNode> ambiguousList) {
+        List<STNode> tupleMemberList = new ArrayList<>();
         for (STNode item : ambiguousList) {
-            typeDescList.add(getTypeDescFromExpr(item));
+            if (item.kind == SyntaxKind.COMMA_TOKEN) {
+                tupleMemberList.add(item);
+            } else {
+                tupleMemberList.add(STNodeFactory.createMemberTypeDescriptorNode(STNodeFactory.createEmptyNodeList(),
+                        getTypeDescFromExpr(item)));
+            }
         }
 
-        return typeDescList;
+        return tupleMemberList;
     }
 
     /**
@@ -18998,7 +19022,7 @@ public class BallerinaParser extends AbstractParser {
             case LIST_BP_OR_LIST_CONSTRUCTOR:
             case TUPLE_TYPE_DESC_OR_LIST_CONST:    
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) expression;
-                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(innerList.members));
+                STNode memberTypeDescs = STNodeFactory.createNodeList(getTupleMemberList(innerList.members));
                 return STNodeFactory.createTupleTypeDescriptorNode(innerList.collectionStartToken, memberTypeDescs,
                         innerList.collectionEndToken);
             case BINARY_EXPRESSION:

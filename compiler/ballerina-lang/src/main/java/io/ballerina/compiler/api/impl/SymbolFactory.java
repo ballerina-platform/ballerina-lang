@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaLiteralAttachPoint;
+import io.ballerina.compiler.api.impl.symbols.BallerinaMemberTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
@@ -361,6 +362,17 @@ public class SymbolFactory {
         return symbolBuilder
                 .withTypeDescriptor(typeDescriptor)
                 .build();
+    }
+
+    /**
+     * Create a symbol for a tuple member.
+     *
+     * @param symbol {@link BVarSymbol} to convert
+     * @return {@link BallerinaMemberTypeSymbol} generated
+     */
+    public BallerinaMemberTypeSymbol createTupleMember(BVarSymbol symbol) {
+        TypeSymbol type = typesFactory.getTypeDescriptor(symbol.getType());
+        return new BallerinaMemberTypeSymbol(context, symbol, type);
     }
 
     private boolean isReadonlyIntersectionArrayType(BType type) {

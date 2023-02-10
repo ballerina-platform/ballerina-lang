@@ -4,6 +4,7 @@
     "character": 25
   },
   "source": "expression_context/source/function_call_expression_ctx_source22.bal",
+  "description": "",
   "items": [
     {
       "label": "start",
@@ -505,7 +506,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -521,7 +522,7 @@
       "label": "myJson",
       "kind": "Variable",
       "detail": "json",
-      "sortText": "CD",
+      "sortText": "AD",
       "insertText": "myJson",
       "insertTextFormat": "Snippet"
     },
@@ -535,7 +536,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "CE",
+      "sortText": "AE",
       "filterText": "testPositionalArgs",
       "insertText": "testPositionalArgs()",
       "insertTextFormat": "Snippet"
@@ -588,7 +589,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -604,7 +605,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -612,7 +613,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -628,7 +629,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -636,7 +637,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -652,7 +653,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -684,7 +685,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -692,7 +693,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -700,7 +701,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -716,7 +717,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "AP",
+      "sortText": "CP",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
