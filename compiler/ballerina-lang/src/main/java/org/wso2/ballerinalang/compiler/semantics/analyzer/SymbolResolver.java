@@ -1722,14 +1722,17 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+        type = symbol.type;
+        boolean isCloneableTypeDef = type.tag == TypeTags.UNION && types.isCloneableType((BUnionType) type);
+
+        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)
+                && !isCloneableTypeDef) {
             BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
             referenceType.flags |= symbol.type.flags;
             referenceType.tsymbol.flags |= symbol.type.flags;
             return referenceType;
         }
 
-        type = symbol.type;
         if (type.getKind() != TypeKind.OTHER) {
             return type;
         }

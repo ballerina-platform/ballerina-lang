@@ -1677,8 +1677,9 @@ public class TypeResolver {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                resolvedType = typeDefSymbol.type;
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }

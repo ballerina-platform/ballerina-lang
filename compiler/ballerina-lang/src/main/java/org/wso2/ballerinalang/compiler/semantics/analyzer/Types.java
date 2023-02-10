@@ -7102,4 +7102,15 @@ public class Types {
         result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
         return result;
     }
+
+    public boolean isCloneableType(BUnionType type) {
+        LinkedHashSet<BType> cloneableMemberTypes = symTable.cloneableType.getMemberTypes();
+        Iterator memItr = type.getMemberTypes().iterator();
+        for (BType memberType : cloneableMemberTypes) {
+            if (!memItr.hasNext() || memberType.tag != ((BType) memItr.next()).tag) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

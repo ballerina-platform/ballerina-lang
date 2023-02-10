@@ -1808,7 +1808,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
@@ -2173,7 +2173,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
             if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
                 BSymbol typeDefSymbol = typeDefinition.symbol;
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
                 break;
             } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
