@@ -378,7 +378,7 @@ class _InnerJoinFunction {
             _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
             _StreamFunction pf = <_StreamFunction>self.prevFunc;
             _Frame|error? lhsFrame = pf.process();
-            _Frame[] joinedFrameArr = [];
+            _Frame[] joinedFrames = [];
             error? failureAtJoin = self.failureAtJoin;
 
             if (failureAtJoin is error) {
@@ -399,11 +399,11 @@ class _InnerJoinFunction {
                     foreach var [k, val] in rhsFrame.entries() {
                         joinedFrame[k] = val;
                     }
-                    joinedFrameArr.push(joinedFrame);
+                    joinedFrames.push(joinedFrame);
                 }
                 lhsFrame = pf.process();
             }
-            self.joinedFrameStream = joinedFrameArr.toStream();
+            self.joinedFrameStream = joinedFrames.toStream();
         }
         stream<_Frame> s = <stream<_Frame>>self.joinedFrameStream;
         record {|_Frame value;|}|error? f = s.next();

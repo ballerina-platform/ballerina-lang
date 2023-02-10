@@ -509,14 +509,9 @@ public function testOuterJoin() {
     assertEquality(null, ordered_names[2]);
 }
 
-public function testJoinClauseWithLargeList() returns boolean {
-    int mismatchedChar = getCommonList("t");
-    int matchedChar = getCommonList("a");
-    
-    boolean testPassed = true;
-    testPassed = testPassed && mismatchedChar == 0;
-    testPassed = testPassed && matchedChar == 10000;
-    return testPassed;
+public function testJoinClauseWithLargeList() {
+    assertEquality(0, getCommonList("t"));
+    assertEquality(10000, getCommonList("a"));
 }
 
 function getCommonList(string character) returns int {

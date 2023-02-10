@@ -122,8 +122,7 @@ public class JoinClauseTest {
 
     @Test(description = "Test join clause with a large list")
     public void testJoinClauseWithLargeList() {
-        Object values = BRunUtil.invoke(result, "testJoinClauseWithLargeList");
-        Assert.assertTrue((Boolean) values);
+        BRunUtil.invoke(result, "testJoinClauseWithLargeList");
     }
     
     @Test(description = "Test negative scenarios for query expr with join clause")
