@@ -129,12 +129,13 @@ public class Find {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
-        int strLength = str.length();
+
         if (startIndex < 0) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
         }
 
+        int strLength = str.length();
         if (strLength <= startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
