@@ -182,6 +182,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
+    @CommandLine.Option(names = "--excludes", description = "option to exclude files from code coverage")
+    private String excludes;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -282,6 +285,9 @@ public class TestCommand implements BLauncherCmd {
                 this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
                         "enabled");
             }
+            if (excludes != null) {
+                this.outStream.println("warning: ignoring --excludes flag since code coverage is not enabled");
+            }
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();
@@ -301,7 +307,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                        includes, coverageFormat, moduleMap, listGroups, excludes),
+                        project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat, moduleMap, listGroups),
                         !project.buildOptions().nativeImage())

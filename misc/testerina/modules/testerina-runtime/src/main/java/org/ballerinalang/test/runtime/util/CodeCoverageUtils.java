@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -60,6 +61,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
 
 /**
@@ -91,15 +94,17 @@ public class CodeCoverageUtils {
     /**
      * Util method to extract required class files for code coverage analysis.
      *
-     * @param source      path of testable jar
-     * @param destination path to extract the classes
-     * @param orgName     org name of the project being executed
-     * @param moduleName  name of the module being executed
+     * @param source                path of testable jar
+     * @param destination           path to extract the classes
+     * @param orgName               org name of the project being executed
+     * @param moduleName            name of the module being executed
+     * @param externalExclusionList set of class to be excluded
      * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName,
                                            String moduleName, boolean enableIncludesFilter,
-                                           String includesInCoverage) throws NoSuchFileException {
+                                           String includesInCoverage, Set<String> externalExclusionList)
+                                            throws NoSuchFileException {
         String destJarDir = destination.toString();
         try (JarFile jarFile = new JarFile(source.toFile())) {
             Enumeration<JarEntry> enu = jarFile.entries();
@@ -108,6 +113,11 @@ public class CodeCoverageUtils {
                 File file = new File(destJarDir, entry.getName());
                 if (isRequiredFile(entry.getName(), orgName, enableIncludesFilter,
                         includesInCoverage)) {
+                    String classEntry = entry.getName().replace(".class", "")
+                            .replace(PATH_SEPARATOR, DOT);
+                    if (externalExclusionList != null && externalExclusionList.contains(classEntry)) {
+                        continue;
+                    }
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
                     }

@@ -1,0 +1,8 @@
+[package]
+org = "foo"
+name = "code_cov_exclusion"
+version = "0.1.0"
+
+
+[build-options]
+observabilityIncluded = true

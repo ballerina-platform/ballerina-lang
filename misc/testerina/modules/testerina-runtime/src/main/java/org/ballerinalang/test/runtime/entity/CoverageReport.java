@@ -53,13 +53,17 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.jacoco.core.analysis.ICounter.EMPTY;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
@@ -109,12 +113,13 @@ public class CoverageReport {
     /**
      * Generates the testerina coverage report.
      *
-     * @param jBallerinaBackend JBallerinaBackend
+     * @param jBallerinaBackend  JBallerinaBackend
      * @param includesInCoverage boolean
+     * @param exclusionClassList
      * @throws IOException
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
-                               String reportFormat, Module originalModule)
+                               String reportFormat, Module originalModule, List<String> exclusionClassList)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -130,13 +135,14 @@ public class CoverageReport {
                     jBallerinaBackend, module.packageInstance());
         }
         if (!filteredPathList.isEmpty()) {
-            CoverageBuilder coverageBuilder =
-                    generateTesterinaCoverageReport(orgName, packageName, filteredPathList, originalModule);
+            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName,
+                                                filteredPathList, originalModule, exclusionClassList);
             if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT)) {
                 // Add additional dependency jars for Jacoco Coverage XML if included
                 if (includesInCoverage != null) {
                     List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
-                    addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
+                    addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage,
+                            exclusionClassList);
                     execFileLoader.load(executionDataFile.toFile());
                     final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
                     updatePackageLevelCoverage(xmlCoverageBuilder);
@@ -171,21 +177,23 @@ public class CoverageReport {
     /**
      * Generate the json coverage report for Testerina.
      *
-     * @param orgName          package org name
-     * @param packageName      package name
-     * @param filteredPathList List of the extracted source path
+     * @param orgName            package org name
+     * @param packageName        package name
+     * @param filteredPathList   List of the extracted source path
+     * @param exclusionClassList
      * @return CoverageBuilder
      * @throws IOException
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
                                                             List<Path> filteredPathList,
-                                                            Module originalModule) throws IOException {
+                                                            Module originalModule, List<String> exclusionClassList)
+                                                            throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
-        addCompiledSources(filteredPathList, orgName, packageName);
+        addCompiledSources(filteredPathList, orgName, packageName, exclusionClassList);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
         List<DocumentId> excludedFiles = getGeneratedFilesToExclude(originalModule);
-        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles);
+        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles, exclusionClassList);
         filterGeneratedCoverage(moduleCoverageMap, originalModule);
         return coverageBuilder;
     }
@@ -273,15 +281,16 @@ public class CoverageReport {
         }
     }
 
-    private void addCompiledSources(List<Path> pathList, String orgName, String packageName)
-            throws IOException {
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, List<String>
+            exclusionClassList) throws IOException {
+        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR),
-                            orgName, packageName, false, null);
+                            orgName, packageName, false, null, externalExclusionList);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -293,14 +302,15 @@ public class CoverageReport {
     }
 
     private void addCompiledSources(List<Path> pathList, String orgName, String packageName,
-                                    String includesInCoverage) throws IOException {
+                                    String includesInCoverage, List<String> exclusionClassList) throws IOException {
+        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR), orgName, packageName,
-                            true, includesInCoverage);
+                            true, includesInCoverage, externalExclusionList);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -319,12 +329,13 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap) {
-        createReport(bundleCoverage, moduleCoverageMap, null);
+        createReport(bundleCoverage, moduleCoverageMap, null, null);
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
-                              List<DocumentId> exclusionList) {
+                              List<DocumentId> exclusionList, List<String> exclusionClassList) {
         boolean containsSourceFiles = true;
+        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
 
@@ -354,6 +365,12 @@ public class CoverageReport {
                     // If file is a source bal file
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
+                        String exclusionClassFileName = sourceFileCoverage.getPackageName() + PATH_SEPARATOR +
+                                sourceFileCoverage.getName().replace(BLANG_SRC_FILE_SUFFIX, "");
+                        exclusionClassFileName = exclusionClassFileName.replace(PATH_SEPARATOR, DOT);
+                        if (externalExclusionList.contains(exclusionClassFileName)) {
+                            continue;
+                        }
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
                             // Update coverage for missed lines if covered
                             Optional<List<Integer>> missedLinesList = moduleCoverage.getMissedLinesList(

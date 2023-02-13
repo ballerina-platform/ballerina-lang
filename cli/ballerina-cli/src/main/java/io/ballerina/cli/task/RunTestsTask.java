@@ -66,8 +66,10 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -82,6 +84,7 @@ public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
     private final String includesInCoverage;
+    private final String excludesInCoverage;
     private String groupList;
     private String disableGroupList;
     private boolean report;
@@ -96,7 +99,7 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups)  {
+                        Map<String, Module> modules, boolean listGroups, String excludes)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
@@ -114,6 +117,7 @@ public class RunTestsTask implements Task {
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
         this.listGroups = listGroups;
+        this.excludesInCoverage = excludes;
     }
 
     @Override
@@ -212,7 +216,9 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+                List<String> exclusionClassList = new ArrayList<>();
+                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
+                             exclusionClassList);
 
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
@@ -226,7 +232,7 @@ public class RunTestsTask implements Task {
                     }
                     try {
                         generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
-                                this.coverageReportFormat, this.coverageModules);
+                                this.coverageReportFormat, this.coverageModules, exclusionClassList);
                         generateTesterinaReports(project, testReport, this.out, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
@@ -252,8 +258,8 @@ public class RunTestsTask implements Task {
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
-                            List<String> mockClassNames) throws IOException, InterruptedException,
-            ClassNotFoundException {
+                            List<String> mockClassNames, List<String> exclusionClassList) throws IOException,
+            InterruptedException, ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
@@ -286,6 +292,12 @@ public class RunTestsTask implements Task {
                 agentCommand += ",includes=" + this.includesInCoverage;
             }
 
+            if (!TesterinaConstants.DOT.equals(packageName) && this.excludesInCoverage != null) {
+                List<String> exclusionSourceList = List.of((this.excludesInCoverage).split(","));
+                getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
+                agentCommand += ",excludes=" + String.join(":", exclusionClassList);
+            }
+
             cmdArgs.add(agentCommand);
         }
 
@@ -310,6 +322,59 @@ public class RunTestsTask implements Task {
         Process proc = processBuilder.start();
         return proc.waitFor();
     }
+
+    private void getclassFromSourceFilePath(List<String> sourceFileList, Package currentPackage,
+                                                                            List<String> classFileList) {
+        String sourceRoot = currentPackage.project().sourceRoot().toString();
+        for (String sourceFile : sourceFileList) {
+            validateSourceFilePath(sourceRoot, sourceFile);
+            if (sourceFile.startsWith(sourceRoot)) {
+                sourceFile = sourceFile.replace(sourceRoot + "/", "");
+            } else if (sourceFile.startsWith("./")) {
+                sourceFile = sourceFile.replace("./", "");
+            }
+            String org = currentPackage.packageOrg().toString();
+            String packageName = currentPackage.packageName().toString();
+            String version = currentPackage.packageVersion().toString();
+
+            if (sourceFile.contains(("modules")) || sourceFile.contains(("generated"))) {
+                sourceFile = sourceFile.replace("modules/", "")
+                        .replace("generated/", "");
+            }
+
+
+            if (sourceFile.split("/").length == 2) {
+                String moduleName = sourceFile.split("/")[0];
+                String balFile = sourceFile.split("/")[1].replace(".bal", "");
+                String className = getQualifiedClassName(org, packageName + DOT + moduleName,
+                        version, balFile);
+                classFileList.add(className);
+            } else if (sourceFile.split("/").length == 1) {
+                String balFile = sourceFile.split("/")[0].replace(".bal", "");
+                String className = getQualifiedClassName(org, packageName, version, balFile);
+                classFileList.add(className);
+            }
+        }
+    }
+
+    private void validateSourceFilePath(String projectRootDir, String sourceFileName) {
+        if (sourceFileName.startsWith("./")) {
+            sourceFileName = sourceFileName.replace("./", projectRootDir + "/");
+        }
+
+        if (!sourceFileName.startsWith(projectRootDir)) {
+            throw createLauncherException(sourceFileName + " does not exist within the project. " +
+                    "It can not be used for code coverage exclusion.");
+        }
+
+        File sourceFile = new File(sourceFileName);
+        if (!sourceFile.isFile()) {
+            throw createLauncherException(sourceFileName + " does not exist within the project. " +
+                    "It can not be used for code coverage exclusion.");
+        }
+
+    }
+
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> dependencies = new ArrayList<>();

@@ -50,6 +50,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
             <class name="org.ballerinalang.testerina.test.CodegenCodeCoverageTest"/>
+            <class name="org.ballerinalang.testerina.test.ExcludeFromCodeCoverageTest"/>
         </classes>
     </test>
 </suite>

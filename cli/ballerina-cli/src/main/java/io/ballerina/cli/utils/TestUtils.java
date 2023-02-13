@@ -78,7 +78,7 @@ public class TestUtils {
 
     public static void generateCoverage(Project project, TestReport testReport, JBallerinaBackend jBallerinaBackend,
                                         String includesInCoverage, String coverageReportFormat,
-                                        Map<String, Module> coverageModules)
+                                        Map<String, Module> coverageModules, List<String> exclusionClassList)
             throws IOException {
         // Generate code coverage
         if (!project.buildOptions().codeCoverage()) {
@@ -101,7 +101,7 @@ public class TestUtils {
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
             coverageReport.generateReport(jBallerinaBackend, includesInCoverage, coverageReportFormat,
-                    coverageModules.get(module.moduleName().toString()));
+                    coverageModules.get(module.moduleName().toString()), exclusionClassList);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {

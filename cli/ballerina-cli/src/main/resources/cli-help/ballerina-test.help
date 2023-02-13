@@ -78,6 +78,11 @@ OPTIONS
            is an experimental feature which supports only a limited set of
            functionality.
 
+       --excludes
+            Specify the Ballerina source files to be excluded from code coverage
+            calculation. Multiple source files should be separated with a comma.
+            Source file path can be absolute or relative to the package directory.
+
 
 EXAMPLES
        Run all the test functions in the current package.
@@ -125,3 +130,7 @@ EXAMPLES
        Run the test functions with the code coverage and generate a coverage
        report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml
+
+       Run the tests with the code coverage and exclude files from coverage
+       calculation.
+           $ bal test --code-coverage --excludes=<./Relative src path>/<Absolute src path>
