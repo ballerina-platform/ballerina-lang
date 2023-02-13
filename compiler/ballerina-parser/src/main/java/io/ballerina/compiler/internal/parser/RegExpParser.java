@@ -190,6 +190,13 @@ public class RegExpParser extends AbstractParser {
             case PIPE_TOKEN:
                 return parseReQuoteEscape(backSlash);
             default:
+                if (nextToken.kind == SyntaxKind.RE_LITERAL_CHAR &&
+                        nextToken.text().equals(Character.toString(LexerTerminals.MINUS))) {
+                    STNode minusToken = consume();
+                    return STNodeFactory.createToken(SyntaxKind.ESCAPED_MINUS_TOKEN, minusToken.leadingMinutiae(),
+                            minusToken.trailingMinutiae());
+                }
+
                 if (isReSimpleCharClassCode(nextToken)) {
                     return parseReSimpleCharClassEscape(backSlash);
                 }
