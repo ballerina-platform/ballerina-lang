@@ -622,7 +622,7 @@ public class BMainInstance implements BMain {
             outputGobbler.join();
             String output = baos.toString();
             if (output.endsWith("\n")) {
-                output = output.substring(0,output.length() - 1);
+                output = output.substring(0, output.length() - 1);
             }
             return output;
         } catch (IOException e) {
