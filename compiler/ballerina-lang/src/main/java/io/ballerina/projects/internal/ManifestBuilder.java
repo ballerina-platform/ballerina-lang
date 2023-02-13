@@ -485,6 +485,8 @@ public class ManifestBuilder {
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.ENABLE_CACHE.toString());
         Boolean nativeImage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.NATIVE_IMAGE.toString());
+        Boolean exportComponentModel =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -496,7 +498,8 @@ public class ManifestBuilder {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setEnableCache(enableCache)
-                .setNativeImage(nativeImage);
+                .setNativeImage(nativeImage)
+                .setExportComponentModel(exportComponentModel);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
