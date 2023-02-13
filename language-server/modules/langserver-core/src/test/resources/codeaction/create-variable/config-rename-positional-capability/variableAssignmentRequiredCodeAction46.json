@@ -20,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "regexp:RegExp regexp = "
+          "newText": "regexp:RegExp regExp = "
         },
         {
           "range": {

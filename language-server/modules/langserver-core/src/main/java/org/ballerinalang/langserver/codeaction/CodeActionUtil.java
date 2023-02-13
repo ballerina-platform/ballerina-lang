@@ -213,10 +213,7 @@ public class CodeActionUtil {
             return Collections.emptyMap();
         }
 
-        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")
-                || typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE &&
-                ((TypeReferenceTypeSymbol) typeDescriptor).getName().isPresent()
-                && ((TypeReferenceTypeSymbol) typeDescriptor).getName().get().equals("regexp")) {
+        if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
 

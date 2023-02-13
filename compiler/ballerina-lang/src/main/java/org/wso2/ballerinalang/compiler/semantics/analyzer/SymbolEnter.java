@@ -413,6 +413,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
+        
+        if (REGEXP.equals(pkgNode.packageID)) {
+            definePredeclaredModuleEntry(pkgNode.compUnits, Map.entry(Names.REGEXP, symTable.langRegexpModuleSymbol));
+        }
 
         // Define type definitions.
         this.typePrecedence = 0;
@@ -1143,35 +1147,40 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
-            Name alias = predeclaredModuleEntry.getKey();
-            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
-            int index = 0;
-            ScopeEntry entry = this.env.scope.lookup(alias);
-            if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
-                        new Name(compUnits.get(index++).name)));
-                entry = this.env.scope.lookup(alias);
-            }
-            for (int i = index; i < compUnits.size(); i++) {
-                boolean isUndefinedModule = true;
-                String compUnitName = compUnits.get(i).name;
-                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
-                    isUndefinedModule = false;
-                }
-                while (entry.next != NOT_FOUND_ENTRY) {
-                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
-                        isUndefinedModule = false;
-                        break;
-                    }
-                    entry = entry.next;
-                }
-                if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
-                            new Name(compUnitName)), NOT_FOUND_ENTRY);
-                }
-            }
+            definePredeclaredModuleEntry(compUnits, predeclaredModuleEntry);
         }
         this.env = prevEnv;
+    }
+
+    private void definePredeclaredModuleEntry(List<BLangCompilationUnit> compUnits, 
+                                              Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry) {
+        Name alias = predeclaredModuleEntry.getKey();
+        BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
+        int index = 0;
+        ScopeEntry entry = this.env.scope.lookup(alias);
+        if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
+            this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
+                    new Name(compUnits.get(index++).name)));
+            entry = this.env.scope.lookup(alias);
+        }
+        for (int i = index; i < compUnits.size(); i++) {
+            boolean isUndefinedModule = true;
+            String compUnitName = compUnits.get(i).name;
+            if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
+                isUndefinedModule = false;
+            }
+            while (entry.next != NOT_FOUND_ENTRY) {
+                if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                    isUndefinedModule = false;
+                    break;
+                }
+                entry = entry.next;
+            }
+            if (isUndefinedModule) {
+                entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
+                        new Name(compUnitName)), NOT_FOUND_ENTRY);
+            }
+        }
     }
 
     @Override
@@ -3716,6 +3725,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(REGEXP)) {
             symTable.langRegexpModuleSymbol = packageSymbol;
+            symTable.updateRegExpTypeOwners();
             return;
         }
     }
