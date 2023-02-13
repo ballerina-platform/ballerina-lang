@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
@@ -50,10 +49,8 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
-import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RegExpValue;
-import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -1199,27 +1196,12 @@ public class TypeConverter {
         return (long) Math.rint(sourceVal);
     }
 
-
     private static boolean isFloatWithinIntRange(double doubleValue) {
         return doubleValue < BINT_MAX_VALUE_DOUBLE_RANGE_MAX && doubleValue > BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
     }
 
-    public static Type resolveMatchingTypeForUnion(Object value, Type type) {
-        if (value instanceof TableValue && ((TableValue<?, ?>) value).getType().getTag() == TypeTags.TABLE_TAG) {
-            return ((TableValue<?, ?>) value).getType();
-        }
-
-        if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
-            return TypeCreator.createArrayType(type);
-        }
-
-        if (value instanceof MapValue && ((MapValue<?, ?>) value).getType().getTag() == TypeTags.MAP_TAG &&
-                !isDeepConversionRequiredForMap(((MapValue<?, ?>) value).getType())) {
-            return TypeCreator.createMapType(type);
-        }
-
-        if (value == null && type.isNilable()) {
+    public static Type resolveMatchingTypeForUnion(Object value, Type targetUnionType) {
+        if (value == null && targetUnionType.isNilable()) {
             return PredefinedTypes.TYPE_NULL;
         }
 
@@ -1247,50 +1229,29 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_DECIMAL;
         }
 
-        Type anydataArrayType = new BArrayType(type, type.isReadOnly());
-        if (checkIsLikeType(value, anydataArrayType)) {
-            return anydataArrayType;
-        }
-
         if (checkIsLikeType(value, PredefinedTypes.TYPE_XML)) {
             return PredefinedTypes.TYPE_XML;
         }
 
-        Type anydataMapType = new BMapType(type, type.isReadOnly());
-        if (checkIsLikeType(value, anydataMapType)) {
-            return anydataMapType;
+        boolean readOnlyTargetType = targetUnionType.isReadOnly();
+
+        Type targetTypeArrayType = new BArrayType(targetUnionType, readOnlyTargetType);
+        if (checkIsLikeType(value, targetTypeArrayType)) {
+            return targetTypeArrayType;
+        }
+
+        Type targetTypeMapType = new BMapType(targetUnionType, readOnlyTargetType);
+        if (checkIsLikeType(value, targetTypeMapType)) {
+            return targetTypeMapType;
+        }
+
+        Type targetTypeMapTableType = new BTableType(targetTypeMapType, readOnlyTargetType);
+        if (checkIsLikeType(value, targetTypeMapTableType)) {
+            return targetTypeMapTableType;
         }
 
         //not possible
         return null;
-    }
-
-    private static boolean isDeepConversionRequiredForArray(Type sourceType) {
-        Type elementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
-
-        if (elementType != null) {
-            if (TypeUtils.isValueType(elementType)) {
-                return false;
-            } else if (elementType instanceof BArrayType) {
-                return isDeepConversionRequiredForArray(elementType);
-            }
-            return true;
-        }
-        return true;
-    }
-
-    private static boolean isDeepConversionRequiredForMap(Type sourceType) {
-        Type constrainedType = ((BMapType) sourceType).getConstrainedType();
-
-        if (constrainedType != null) {
-            if (TypeUtils.isValueType(constrainedType)) {
-                return false;
-            } else if (constrainedType instanceof BMapType) {
-                return isDeepConversionRequiredForMap(constrainedType);
-            }
-            return true;
-        }
-        return true;
     }
 
     private TypeConverter() {

@@ -189,6 +189,9 @@ public class ValueConverter {
                         targetTypeField);
             case TypeTags.JSON_TAG:
                 Type matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
+                if (matchingType == null) {
+                    throw createConversionError(map, targetType);
+                }
                 return convert(map, matchingType, unresolvedValues);
             case TypeTags.INTERSECTION_TAG:
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues);

@@ -2833,7 +2833,10 @@ function testCloneWithTypeTableToAnydata() {
         {'key: 1, value: "foo"}
         ];
     anydata tableValCloned = checkpanic tableVal.cloneWithType();
-    test:assertValueEqual(tableValCloned, table key('key) [{"key":1,"value":"foo"}]);
+    test:assertValueEqual(tableValCloned, table [{"key":1,"value":"foo"}]);
+
+    table<record {int 'key; readonly string value;}> key(value) tableVal2 = checkpanic tableValCloned.cloneWithType();
+    test:assertValueEqual(tableVal2, table key(value) [{"key":1,"value":"foo"}]);
 
     anydata rec = {
         value: [
