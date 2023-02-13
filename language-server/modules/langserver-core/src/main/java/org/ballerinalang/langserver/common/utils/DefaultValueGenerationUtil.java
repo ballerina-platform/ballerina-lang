@@ -139,6 +139,9 @@ public class DefaultValueGenerationUtil {
             case SINGLETON:
                 defaultValue = typeSymbol.signature();
                 break;
+            case TYPE_REFERENCE:
+                defaultValue = getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
+                break;
             default:
                 defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
         }
@@ -157,7 +160,6 @@ public class DefaultValueGenerationUtil {
         }
 
         TypeSymbol rawType = CommonUtil.getRawType(bType);
-        rawType = CommonUtil.getRawType(rawType); // when field type is string:RegExp
         TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
             case TUPLE:
@@ -274,7 +276,10 @@ public class DefaultValueGenerationUtil {
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                String rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
+                String rowValue = "";
+                if (rowType.typeKind() != TypeDescKind.TYPE_REFERENCE) {
+                    rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
+                }
                 valueString = "table [" + (isSnippet ?
                         generateSnippetEntry(rowValue, context.incrementAndGetPlaceholderCount()) : rowValue) + "]";
                 break;
@@ -313,6 +318,8 @@ public class DefaultValueGenerationUtil {
                 valueString = isSnippet ?
                         generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 break;
+            case TYPE_REFERENCE:
+                return getDefaultValueForType(CommonUtil.getRawType(bType), isSnippet, context);
             default:
                 Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
                 if (value.isEmpty()) {
