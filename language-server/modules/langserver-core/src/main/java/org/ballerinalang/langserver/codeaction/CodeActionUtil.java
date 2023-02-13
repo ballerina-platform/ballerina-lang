@@ -397,29 +397,31 @@ public class CodeActionUtil {
         if (transitiveBinaryUnion) {
             members.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
         }
+        
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         // Check if a union type with error and one non-error type
         if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && !errorMembers.isEmpty()) {
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList("error"));
+                    String type = errorMembers.get(0).signature();
+                    type = FunctionGenerator.processModuleIDsInText(importsAcceptor, type, context);
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = CodeActionUtil.getPossibleType(bType, edits, context).orElseThrow();
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList(type));
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
         } else {
-            boolean addErrorTypeAtEnd;
+            boolean addErrorTypeAtEnd = false;
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
             if (errorMembers.size() > 1) {
                 // merge all error types into generic `error` type
                 tMembers.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
-            } else {
-                addErrorTypeAtEnd = false;
             }
             List<String> memberTypes = new ArrayList<>();
             for (TypeSymbol tMember : tMembers) {
@@ -430,6 +432,8 @@ public class CodeActionUtil {
             }
             edits.add(new TextEdit(newTextRange, generateIfElseText(varName, spaces, padding, memberTypes)));
         }
+        
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         return edits;
     }
 
