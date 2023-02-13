@@ -314,6 +314,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         this.queryTypeChecker = QueryTypeChecker.getInstance(context);
     }
 
+    public TypeChecker(CompilerContext context, boolean b) {
+        this.names = Names.getInstance(context);
+        this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
+        this.types = Types.getInstance(context);
+        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeNarrower = TypeNarrower.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.unifier = new Unifier();
+        this.queryTypeChecker = null;
+    }
+
     private BType checkExpr(BLangExpression expr, SymbolEnv env, AnalyzerData data) {
         return checkExpr(expr, env, symTable.noType, data);
     }
@@ -1430,16 +1447,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             throw new IllegalStateException(String.format("Duplicate key %s", u));
         };
         return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
-    }
-
-    public boolean validateTableType(BTableType tableType, AnalyzerData data) {
-        BType constraint = Types.getReferredType(tableType.constraint);
-        if (tableType.isTypeInlineDefined && !types.isAssignable(constraint, symTable.mapAllType)) {
-            dlog.error(tableType.constraintPos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
-            data.resultType = symTable.semanticError;
-            return false;
-        }
-        return true;
     }
 
     private boolean validateKeySpecifierInTableConstructor(BTableType tableType,
@@ -5075,35 +5082,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    public SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
-        while (env != null && env.node != node) {
-            env = env.enclEnv;
-        }
-        return env != null && env.enclEnv != null
-                ? env.enclEnv.createClone()
-                : new SymbolEnv(node, null);
-    }
-
-    public SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
-        SymbolEnv clone = env.createClone();
-        while (clone != null && clone.node != node) {
-            clone = clone.enclEnv;
-        }
-        if (clone != null) {
-            clone.enclEnv = getEnvBeforeInputNode(clone.enclEnv, getLastInputNodeFromEnv(clone.enclEnv));
-        } else {
-            clone = new SymbolEnv(node, null);
-        }
-        return clone;
-    }
-
-    public BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
-        while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
-            env = env.enclEnv;
-        }
-        return env != null ? env.node : null;
-    }
-
     public void visit(BLangTransactionalExpr transactionalExpr, AnalyzerData data) {
         data.resultType = types.checkType(transactionalExpr, symTable.booleanType, data.expType);
     }
@@ -6063,7 +6041,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
         // TODO: Change the public methods to private again
         queryTypeChecker.checkQueryType(queryExpr, data);
-
     }
 
     private boolean isWithinQuery(AnalyzerData data) {
@@ -9525,5 +9502,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType;
         BType resultType;
         boolean isResourceAccessPathSegments = false;
+        QueryTypeChecker.AnalyzerData queryData;
     }
 }

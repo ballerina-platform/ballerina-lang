@@ -86,11 +86,10 @@ import java.util.stream.Collectors;
 /**
  * @since 2201.5.0
  */
-public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.AnalyzerData> {
+public class QueryTypeChecker extends TypeChecker {
 
     private static final CompilerContext.Key<QueryTypeChecker> QUERY_TYPE_CHECKER_KEY = new CompilerContext.Key<>();
 
-    private final TypeChecker typeChecker;
     private final Types types;
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -109,6 +108,7 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     public QueryTypeChecker(CompilerContext context) {
+        super(context, true);
         context.put(QUERY_TYPE_CHECKER_KEY, this);
 
         this.names = Names.getInstance(context);
@@ -124,23 +124,27 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
 //        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
 //        this.unifier = new Unifier();
-        this.typeChecker = TypeChecker.getInstance(context);
     }
+
+//    @Override
+//    public void analyzeNode(BLangNode node, AnalyzerData data) {
+//    }
+//
+//    @Override
+//    public void visit(BLangPackage node, AnalyzerData data) {
+//
+//    }
 
     @Override
-    public void analyzeNode(BLangNode node, AnalyzerData data) {
+    public void visit(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
+        checkQueryType(queryExpr, data);
     }
 
-    @Override
-    public void visit(BLangPackage node, AnalyzerData data) {
+    public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
+        AnalyzerData prevData = data.queryData;
+        data.queryData = new AnalyzerData();
 
-    }
-
-    public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData typeCheckerData) {
-        final AnalyzerData data = new AnalyzerData();
-        data.typeCheckerData = typeCheckerData;
-
-        Types.CommonAnalyzerData commonAnalyzerData = typeCheckerData.commonAnalyzerData;
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
         //reset common analyzer data
         boolean prevCheckWithinQueryExpr = commonAnalyzerData.checkWithinQueryExpr;
@@ -156,10 +160,10 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         commonAnalyzerData.letCount = 0;
 
         if (commonAnalyzerData.breakToParallelQueryEnv) {
-            commonAnalyzerData.queryEnvs.push(typeCheckerData.prevEnvs.peek());
+            commonAnalyzerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            commonAnalyzerData.queryEnvs.push(typeCheckerData.env);
-            typeCheckerData.prevEnvs.push(typeCheckerData.env);
+            commonAnalyzerData.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
         }
 
         commonAnalyzerData.queryFinalClauses.push(queryExpr.getSelectClause());
@@ -168,13 +172,13 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
 
         BType actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                 ((BLangSelectClause) commonAnalyzerData.queryFinalClauses.peek()).expression,
-                typeCheckerData.expType, queryExpr, clauses, data);
+                data.expType, queryExpr, clauses, data);
         actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
-                actualType, typeCheckerData.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         commonAnalyzerData.queryFinalClauses.pop();
         commonAnalyzerData.queryEnvs.pop();
         if (!commonAnalyzerData.breakToParallelQueryEnv) {
-            typeCheckerData.prevEnvs.pop();
+            data.prevEnvs.pop();
         }
 
         BType referredActualType = Types.getReferredType(actualType);
@@ -182,8 +186,8 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
             BTableType tableType = (BTableType) referredActualType;
             tableType.constraintPos = queryExpr.pos;
             tableType.isTypeInlineDefined = true;
-            if (!typeChecker.validateTableType(tableType, typeCheckerData)) {
-                typeCheckerData.resultType = symTable.semanticError;
+            if (!validateTableType(tableType, data)) {
+                data.resultType = symTable.semanticError;
                 return;
             }
         }
@@ -194,14 +198,20 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         commonAnalyzerData.queryFinalClauses = prevQueryFinalClauses;
         commonAnalyzerData.letCount = prevLetCount;
 
-        typeCheckerData.resultType = actualType;
+        data.resultType = actualType;
+        data.queryData = prevData;
     }
 
-    public void checkQueryAction(BLangQueryAction queryAction, TypeChecker.AnalyzerData typeCheckerData) {
-        final AnalyzerData data = new AnalyzerData();
-        data.typeCheckerData = typeCheckerData;
+    @Override
+    public void visit(BLangQueryAction queryAction, TypeChecker.AnalyzerData data) {
+        checkQueryAction(queryAction, data);
+    }
 
-        Types.CommonAnalyzerData commonAnalyzerData = typeCheckerData.commonAnalyzerData;
+    public void checkQueryAction(BLangQueryAction queryAction, TypeChecker.AnalyzerData data) {
+        AnalyzerData prevData = data.queryData;
+        data.queryData = new AnalyzerData();
+
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
         //reset common analyzer data
         Stack<BLangNode> prevQueryFinalClauses = commonAnalyzerData.queryFinalClauses;
@@ -211,10 +221,10 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         commonAnalyzerData.letCount = 0;
 
         if (commonAnalyzerData.breakToParallelQueryEnv) {
-            commonAnalyzerData.queryEnvs.push(typeCheckerData.prevEnvs.peek());
+            commonAnalyzerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            commonAnalyzerData.queryEnvs.push(typeCheckerData.env);
-            typeCheckerData.prevEnvs.push(typeCheckerData.env);
+            commonAnalyzerData.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
         }
         BLangDoClause doClause = queryAction.getDoClause();
         commonAnalyzerData.queryFinalClauses.push(doClause);
@@ -224,23 +234,24 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
-                commonAnalyzerData.queryEnvs.peek()), typeCheckerData.prevEnvs, commonAnalyzerData);
+                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
-        typeCheckerData.resultType = types.checkType(doClause.pos, actualType, typeCheckerData.expType,
+        data.resultType = types.checkType(doClause.pos, actualType, data.expType,
                         DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         commonAnalyzerData.queryFinalClauses.pop();
         commonAnalyzerData.queryEnvs.pop();
         if (!commonAnalyzerData.breakToParallelQueryEnv) {
-            typeCheckerData.prevEnvs.pop();
+            data.prevEnvs.pop();
         }
 
         //re-assign common analyzer data
         commonAnalyzerData.queryFinalClauses = prevQueryFinalClauses;
         commonAnalyzerData.letCount = prevLetCount;
+        data.queryData = prevData;
     }
 
     public BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType targetType,
-                                  BLangQueryExpr queryExpr, List<BLangNode> clauses, AnalyzerData data) {
+                                  BLangQueryExpr queryExpr, List<BLangNode> clauses, TypeChecker.AnalyzerData data) {
         List<BType> safeResultTypes = types.getAllTypes(targetType, true).stream()
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
@@ -256,7 +267,7 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         for (BType type : safeResultTypes) {
             solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionNode.getBType(), selectTypes,
-                    resolvedTypes, env, data.typeCheckerData, false);
+                    resolvedTypes, env, data, false);
         }
         if (selectTypes.size() == 1) {
             List<BType> collectionTypes = getCollectionTypes(clauses);
@@ -447,9 +458,8 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     private BType getCompletionType(List<BType> collectionTypes, Types.QueryConstructType queryConstructType,
-                                    AnalyzerData data) {
+                                    TypeChecker.AnalyzerData data) {
         Set<BType> completionTypes = new LinkedHashSet<>();
-        TypeChecker.AnalyzerData typeCheckerData = data.typeCheckerData;
         BType returnType, completionType = null;
         for (BType collectionType : collectionTypes) {
             if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -466,7 +476,7 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
                     break;
                 default:
                     BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
-                            Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), typeCheckerData.env);
+                            Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
                     if (itrSymbol == this.symTable.notFoundSymbol) {
                         return null;
                     }
@@ -489,11 +499,11 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
             }
         }
 
-        Types.CommonAnalyzerData commonAnalyzerData = typeCheckerData.commonAnalyzerData;
-        if (data.queryCompletesEarly) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
+        if (data.queryData.queryCompletesEarly) {
             if (queryConstructType == Types.QueryConstructType.TABLE ||
                     queryConstructType == Types.QueryConstructType.MAP) {
-                completionTypes.addAll(data.completeEarlyErrorList);
+                completionTypes.addAll(data.queryData.completeEarlyErrorList);
             }
         } else if (queryConstructType == Types.QueryConstructType.STREAM) {
             if (commonAnalyzerData.checkWithinQueryExpr) {
@@ -554,17 +564,27 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         return resultType;
     }
 
+    private boolean validateTableType(BTableType tableType, TypeChecker.AnalyzerData data) {
+        BType constraint = Types.getReferredType(tableType.constraint);
+        if (tableType.isTypeInlineDefined && !types.isAssignable(constraint, symTable.mapAllType)) {
+            dlog.error(tableType.constraintPos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
+            data.resultType = symTable.semanticError;
+            return false;
+        }
+        return true;
+    }
+
     private BType checkExpr(BLangExpression expr, SymbolEnv env, TypeChecker.AnalyzerData data) {
         return checkExpr(expr, env, symTable.noType, data);
     }
 
     private BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, TypeChecker.AnalyzerData data) {
-        return typeChecker.checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
+        return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
     @Override
-    public void visit(BLangFromClause fromClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangFromClause fromClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         boolean prevBreakToParallelEnv = commonAnalyzerData.breakToParallelQueryEnv;
         BLangExpression collection = fromClause.collection;
         if (collection.getKind() == NodeKind.QUERY_EXPR ||
@@ -575,7 +595,7 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, commonAnalyzerData.queryEnvs.pop());
         fromClause.env = fromEnv;
         commonAnalyzerData.queryEnvs.push(fromEnv);
-        checkExpr(fromClause.collection, commonAnalyzerData.queryEnvs.peek(), data.typeCheckerData);
+        checkExpr(fromClause.collection, commonAnalyzerData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, commonAnalyzerData.queryEnvs.peek());
@@ -612,8 +632,8 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangJoinClause joinClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangJoinClause joinClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         boolean prevBreakEnv = commonAnalyzerData.breakToParallelQueryEnv;
         BLangExpression collection = joinClause.collection;
         if (collection.getKind() == NodeKind.QUERY_EXPR ||
@@ -624,7 +644,7 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, commonAnalyzerData.queryEnvs.pop());
         joinClause.env = joinEnv;
         commonAnalyzerData.queryEnvs.push(joinEnv);
-        checkExpr(joinClause.collection, commonAnalyzerData.queryEnvs.peek(), data.typeCheckerData);
+        checkExpr(joinClause.collection, commonAnalyzerData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
         if (joinClause.isOuterJoin) {
@@ -644,25 +664,25 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangOnClause onClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangOnClause onClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         BType lhsType, rhsType;
-        BLangNode joinNode = typeChecker.getLastInputNodeFromEnv(commonAnalyzerData.queryEnvs.peek());
+        BLangNode joinNode = getLastInputNodeFromEnv(commonAnalyzerData.queryEnvs.peek());
         // lhsExprEnv should only contain scope entries before join condition.
-        onClause.lhsEnv = typeChecker.getEnvBeforeInputNode(commonAnalyzerData.queryEnvs.peek(), joinNode);
-        lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv, data.typeCheckerData);
+        onClause.lhsEnv = getEnvBeforeInputNode(commonAnalyzerData.queryEnvs.peek(), joinNode);
+        lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv, data);
         // rhsExprEnv should only contain scope entries after join condition.
-        onClause.rhsEnv = typeChecker.getEnvAfterJoinNode(commonAnalyzerData.queryEnvs.peek(), joinNode);
+        onClause.rhsEnv = getEnvAfterJoinNode(commonAnalyzerData.queryEnvs.peek(), joinNode);
         rhsType = checkExpr(onClause.rhsExpr,
-                onClause.rhsEnv != null ? onClause.rhsEnv : commonAnalyzerData.queryEnvs.peek(), data.typeCheckerData);
+                onClause.rhsEnv != null ? onClause.rhsEnv : commonAnalyzerData.queryEnvs.peek(), data);
         if (!types.isAssignable(lhsType, rhsType)) {
             dlog.error(onClause.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
         }
     }
 
     @Override
-    public void visit(BLangLetClause letClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangLetClause letClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(letClause, commonAnalyzerData.queryEnvs.pop());
         letClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
@@ -672,8 +692,8 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangWhereClause whereClause, AnalyzerData data) {
-        whereClause.env = handleFilterClauses(whereClause.expression, data.typeCheckerData);
+    public void visit(BLangWhereClause whereClause, TypeChecker.AnalyzerData data) {
+        whereClause.env = handleFilterClauses(whereClause.expression, data);
     }
 
     private SymbolEnv handleFilterClauses (BLangExpression filterExpression, TypeChecker.AnalyzerData data) {
@@ -691,41 +711,40 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangSelectClause selectClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangSelectClause selectClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, commonAnalyzerData.queryEnvs.pop());
         selectClause.env = selectEnv;
         commonAnalyzerData.queryEnvs.push(selectEnv);
     }
 
     @Override
-    public void visit(BLangDoClause doClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangDoClause doClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(doClause, commonAnalyzerData.queryEnvs.pop());
         doClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
     }
 
     @Override
-    public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
-        Types.CommonAnalyzerData commonAnalyzerData = data.typeCheckerData.commonAnalyzerData;
+    public void visit(BLangOnConflictClause onConflictClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         BType type = checkExpr(onConflictClause.expression, commonAnalyzerData.queryEnvs.peek(),
-                symTable.errorOrNilType, data.typeCheckerData);
+                symTable.errorOrNilType, data);
         if (types.containsErrorType(type)) {
-            data.queryCompletesEarly = true;
-            if (data.completeEarlyErrorList != null) {
+            data.queryData.queryCompletesEarly = true;
+            if (data.queryData.completeEarlyErrorList != null) {
                 BType possibleErrorType = type.tag == TypeTags.UNION ?
                         types.getErrorType((BUnionType) type) :
                         types.getErrorType(BUnionType.create(null, type));
-                data.completeEarlyErrorList.add(possibleErrorType);
+                data.queryData.completeEarlyErrorList.add(possibleErrorType);
             }
         }
     }
 
     @Override
-    public void visit(BLangLimitClause limitClause, AnalyzerData data) {
-        BType exprType = checkExpr(limitClause.expression, data.typeCheckerData.commonAnalyzerData.queryEnvs.peek(),
-                data.typeCheckerData);
+    public void visit(BLangLimitClause limitClause, TypeChecker.AnalyzerData data) {
+        BType exprType = checkExpr(limitClause.expression, data.commonAnalyzerData.queryEnvs.peek(), data);
         if (!types.isAssignable(exprType, symTable.intType)) {
             dlog.error(limitClause.expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.intType, exprType);
@@ -733,11 +752,10 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangOrderByClause orderByClause, AnalyzerData data) {
-        orderByClause.env = data.typeCheckerData.commonAnalyzerData.queryEnvs.peek();
+    public void visit(BLangOrderByClause orderByClause, TypeChecker.AnalyzerData data) {
+        orderByClause.env = data.commonAnalyzerData.queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
-            BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env,
-                    data.typeCheckerData);
+            BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env, data);
             if (!types.isOrderedType(exprType, false)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
@@ -745,19 +763,40 @@ public class QueryTypeChecker extends SimpleBLangNodeAnalyzer<QueryTypeChecker.A
     }
 
     @Override
-    public void visit(BLangDo doNode, AnalyzerData data) {
+    public void visit(BLangDo doNode, TypeChecker.AnalyzerData data) {
         if (doNode.onFailClause != null) {
-            doNode.onFailClause.accept(typeChecker, data.typeCheckerData);
+            doNode.onFailClause.accept(this, data);
         }
     }
 
-//    @Override
-//    public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
-//        typeChecker.visitCheckAndCheckPanicExpr(checkedExpr, data.typeCheckerData);
-//        if (checkedExpr.equivalentErrorTypeList != null) {
-//            data.typeCheckerData.commonAnalyzerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
-//        }
-//    }
+    private SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
+        SymbolEnv clone = env.createClone();
+        while (clone != null && clone.node != node) {
+            clone = clone.enclEnv;
+        }
+        if (clone != null) {
+            clone.enclEnv = getEnvBeforeInputNode(clone.enclEnv, getLastInputNodeFromEnv(clone.enclEnv));
+        } else {
+            clone = new SymbolEnv(node, null);
+        }
+        return clone;
+    }
+
+    private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
+        while (env != null && env.node != node) {
+            env = env.enclEnv;
+        }
+        return env != null && env.enclEnv != null
+                ? env.enclEnv.createClone()
+                : new SymbolEnv(node, null);
+    }
+
+    private BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
+        while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
+            env = env.enclEnv;
+        }
+        return env != null ? env.node : null;
+    }
 
     /**
      * @since 2201.5.0
