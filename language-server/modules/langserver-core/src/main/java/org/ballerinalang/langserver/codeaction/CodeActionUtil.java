@@ -86,6 +86,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -382,23 +383,22 @@ public class CodeActionUtil {
         String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
-        boolean hasError = CodeActionUtil.hasErrorMemberType(unionType);
+        List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
+                .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
-        long errorTypesCount = unionType.memberTypeDescriptors().stream()
-                .map(CommonUtil::getRawType)
-                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
-                .count();
+
         if (members.size() == 1) {
             // Skip type guard
             return edits;
         }
-        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
+        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorMembers.size() == 1;
         if (transitiveBinaryUnion) {
-            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+            members.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
         }
-        // Check is binary union type with error type
-        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
+        // Check if a union type with error and one non-error type
+        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && !errorMembers.isEmpty()) {
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
@@ -414,9 +414,9 @@ public class CodeActionUtil {
         } else {
             boolean addErrorTypeAtEnd;
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
-            if (errorTypesCount > 1) {
+            if (errorMembers.size() > 1) {
                 // merge all error types into generic `error` type
-                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+                tMembers.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
             } else {
                 addErrorTypeAtEnd = false;
