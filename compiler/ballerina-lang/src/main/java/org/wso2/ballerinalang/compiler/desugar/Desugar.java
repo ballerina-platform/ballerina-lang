@@ -1989,7 +1989,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
                     pos, detailTempVarDef.var.symbol);
             List<String> keysToRemove = parentErrorVariable.detail.stream()
-                    .map(detail -> StringEscapeUtils.unescapeJava(detail.key.getValue()))
+                    .map(detail -> detail.key.getValue())
                     .collect(Collectors.toList());
 
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
@@ -1998,7 +1998,7 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
-                    StringEscapeUtils.unescapeJava(parentErrorVariable.restDetail.name.value),
+                    parentErrorVariable.restDetail.name.value,
                     filteredDetail.getBType(),
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
@@ -2231,7 +2231,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression detailEntryVar = createIndexBasedAccessExpr(
                 detailEntry.valueBindingPattern.getBType(),
                 detailEntry.valueBindingPattern.pos,
-                createStringLiteral(detailEntry.key.pos, StringEscapeUtils.unescapeJava(detailEntry.key.value)),
+                createStringLiteral(detailEntry.key.pos, detailEntry.key.value),
                 tempDetailVarSymbol, null);
         if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
@@ -2981,14 +2981,13 @@ public class Desugar extends BLangNodeVisitor {
 
         List<String> extractedKeys = new ArrayList<>();
         for (BLangNamedArgsExpression detail : parentErrorVarRef.detail) {
-            String detailValue = StringEscapeUtils.unescapeJava(detail.name.value);
-            extractedKeys.add(detailValue);
+            extractedKeys.add(detail.name.value);
             BLangVariableReference ref = (BLangVariableReference) detail.expr;
 
             // create a index based access
             BLangExpression detailEntryVar =
                     createIndexBasedAccessExpr(ref.getBType(), ref.pos,
-                                               createStringLiteral(detail.name.pos, detailValue),
+                                               createStringLiteral(detail.name.pos, detail.name.value),
                                                detailTempVarDef.var.symbol, null);
             if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
@@ -6495,7 +6494,7 @@ public class Desugar extends BLangNodeVisitor {
             for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
                 BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
-                        symTable.stringType, namedArg.name.value));
+                        symTable.stringType, StringEscapeUtils.unescapeJava(namedArg.name.value)));
 
                 if (Types.getReferredType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);

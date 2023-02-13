@@ -507,6 +507,12 @@ function testStacktraceWithPanicInsideAnonymousFunction() {
     anonFunction();
 }
 
+function testErrorWithIdentifierEscapesInDetail() {
+    error<record {| int err\:code; |}> e = error("error!", err\:code = 1001);
+    int t = e.detail().get("err:code");
+    assertEquality(t, 1001);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

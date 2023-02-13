@@ -223,10 +223,6 @@ type Baz record {
 
 type BazError error<Baz>;
 
-function testErrorDefinitionWithIdentifierEscapesInDetail() {
-    error<record {| int err\:code; |}> e = error("error!", err\:code = 1001);
-}
-
 type ReadOnlyIntersectionError readonly & error<record { string[2] info; }>;
 
 function testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection() {
