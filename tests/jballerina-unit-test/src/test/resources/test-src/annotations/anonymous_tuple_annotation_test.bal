@@ -45,6 +45,8 @@ function testAnnotationOnTupleFields() {
 }
 
 string gVar0 = "foo";
+
+// This test evaluates the reordering of global variables
 [@details {name: gVar0, age: gVar4} int, @details {name: "name", age: 0} int, string...] g4 =  [1, 2, "hello", "world"];
 
 function testAnnotationOnTupleFields2() {
