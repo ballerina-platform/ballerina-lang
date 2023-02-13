@@ -515,9 +515,17 @@ public class CodeActionUtil {
             }
         }
 
+        // If we are in a method call expression and the expression part already doesn't have a brace, we have to add
+        // braces to prevent the "check" being added to the entire method call expression.
+        if (matchedNode.kind() != SyntaxKind.BRACED_EXPRESSION && 
+                matchedNode.parent().kind() == SyntaxKind.METHOD_CALL) {
+            Position endPos = PositionUtil.toPosition(matchedNode.lineRange().endLine());
+            edits.add(new TextEdit(new Range(pos, pos), "("));
+            edits.add(new TextEdit(new Range(endPos, endPos), ")"));
+        }
+
         // Add `check` expression text edit
-        Position insertPos = new Position(pos.getLine(), pos.getCharacter());
-        edits.add(new TextEdit(new Range(insertPos, insertPos), "check "));
+        edits.add(new TextEdit(new Range(pos, pos), "check "));
 
         // Add parent function return change text edits
         if (!returnText.isEmpty()) {
