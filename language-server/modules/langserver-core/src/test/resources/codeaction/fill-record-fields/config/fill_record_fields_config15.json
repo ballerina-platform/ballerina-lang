@@ -4,7 +4,6 @@
     "character": 19
   },
   "source": "fill_record_fields_source12.bal",
-  "description": "Fill record fields inside remote method calls",
   "expected": [
     {
       "title": "Fill 'Type2' required fields",
