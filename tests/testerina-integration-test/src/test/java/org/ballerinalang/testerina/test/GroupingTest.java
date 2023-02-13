@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -172,7 +172,7 @@ public class GroupingTest extends BaseTestCase {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void afterGroupsWithDisabledTest() throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "after-groups-with-disabled-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,

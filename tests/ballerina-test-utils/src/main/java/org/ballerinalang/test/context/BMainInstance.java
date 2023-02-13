@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -621,6 +621,9 @@ public class BMainInstance implements BMain {
             process.waitFor();
             outputGobbler.join();
             String output = baos.toString();
+            if (output.endsWith("\n")) {
+                output = output.substring(0,output.length() - 1);
+            }
             return output;
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);
