@@ -226,3 +226,24 @@ type BazError error<Baz>;
 function testErrorDefinitionWithIdentifierEscapesInDetail() {
     error<record {| int err\:code; |}> e = error("error!", err\:code = 1001);
 }
+
+type ReadOnlyIntersectionError readonly & error<record { string[2] info; }>;
+
+function testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection() {
+    ReadOnlyIntersectionError e = error("Sample Error", info = ["Detail Info 1", "Detail Info 2"]);
+    var error ReadOnlyIntersectionError(message, cause, info = [info1, info2]) = e;
+    assertEquals(e.message(), message);
+    assertTrue(cause is ());
+    assertEquals("Detail Info 1", info1);
+    assertEquals("Detail Info 2", info2);
+}
+
+function assertTrue(anydata actual) {
+    assertEquals(true, actual);
+}
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected != actual {
+        panic error(string `expected ${expected.toBalString()}, found ${actual.toBalString()}`);
+    }
+}

@@ -227,6 +227,11 @@ public class ErrorVariableDefinitionTest {
     public void testErrorDefinitionWithIdentifierEscapesInDetail() {
         BRunUtil.invoke(result, "testErrorDefinitionWithIdentifierEscapesInDetail");
     }
+    
+    @Test
+    public void testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection() {
+        BRunUtil.invoke(result, "testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection");
+    }
 
     @Test
     public void testNegativeErrorVariables() {

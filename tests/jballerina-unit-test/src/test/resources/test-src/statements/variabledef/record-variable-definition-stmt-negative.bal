@@ -359,3 +359,24 @@ function testRecordDefinitionWithOptionalFieldsNegative1() {
     string? y = "2";
     Topt2 _ = {x, y}; // error
 }
+
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInVarDeclNegative1() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    readonly & record {|
+        string[] x;
+        string y;
+    |} {x, y} = f1; // error
+}
+
+function testReadOnlyRecordWithMappingBindingPatternInVarDeclNegative2() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    ReadOnlyRecord {x, y} = f1;
+
+    int[] a = [];
+    x = a; // error
+}
