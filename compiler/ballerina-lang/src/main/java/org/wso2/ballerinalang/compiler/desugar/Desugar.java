@@ -1989,7 +1989,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef detailVarRef = ASTBuilderUtil.createVariableRef(
                     pos, detailTempVarDef.var.symbol);
             List<String> keysToRemove = parentErrorVariable.detail.stream()
-                    .map(detail -> detail.key.getValue())
+                    .map(detail -> StringEscapeUtils.unescapeJava(detail.key.getValue()))
                     .collect(Collectors.toList());
 
             BLangSimpleVariable filteredDetail = generateRestFilter(detailVarRef, parentErrorVariable.pos, keysToRemove,
@@ -1998,8 +1998,8 @@ public class Desugar extends BLangNodeVisitor {
 
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
-                    parentErrorVariable.restDetail.name.value,
-                                                                filteredDetail.getBType(),
+                    StringEscapeUtils.unescapeJava(parentErrorVariable.restDetail.name.value),
+                    filteredDetail.getBType(),
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
         }
@@ -2231,7 +2231,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression detailEntryVar = createIndexBasedAccessExpr(
                 detailEntry.valueBindingPattern.getBType(),
                 detailEntry.valueBindingPattern.pos,
-                createStringLiteral(detailEntry.key.pos, detailEntry.key.value),
+                createStringLiteral(detailEntry.key.pos, StringEscapeUtils.unescapeJava(detailEntry.key.value)),
                 tempDetailVarSymbol, null);
         if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
             BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
@@ -2981,13 +2981,14 @@ public class Desugar extends BLangNodeVisitor {
 
         List<String> extractedKeys = new ArrayList<>();
         for (BLangNamedArgsExpression detail : parentErrorVarRef.detail) {
-            extractedKeys.add(detail.name.value);
+            String detailValue = StringEscapeUtils.unescapeJava(detail.name.value);
+            extractedKeys.add(detailValue);
             BLangVariableReference ref = (BLangVariableReference) detail.expr;
 
             // create a index based access
             BLangExpression detailEntryVar =
                     createIndexBasedAccessExpr(ref.getBType(), ref.pos,
-                                               createStringLiteral(detail.name.pos, detail.name.value),
+                                               createStringLiteral(detail.name.pos, detailValue),
                                                detailTempVarDef.var.symbol, null);
             if (detailEntryVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 BLangIndexBasedAccess bLangIndexBasedAccess = (BLangIndexBasedAccess) detailEntryVar;
