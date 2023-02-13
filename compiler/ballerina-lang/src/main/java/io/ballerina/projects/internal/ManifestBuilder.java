@@ -477,16 +477,16 @@ public class ManifestBuilder {
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
-        Boolean listConflictedClasses =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
-        String targetDir =
-                getStringFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TARGET_DIR.toString());
-        Boolean enableCache =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.ENABLE_CACHE.toString());
-        Boolean nativeImage =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.NATIVE_IMAGE.toString());
-        Boolean exportComponentModel =
-                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
+        Boolean listConflictedClasses = getBooleanFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
+        String targetDir = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.TARGET_DIR.toString());
+        Boolean enableCache = getBooleanFromBuildOptionsTableNode(tableNode,
+                CompilerOptionName.ENABLE_CACHE.toString());
+        Boolean nativeImage = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.NATIVE_IMAGE.toString());
+        Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
 
         buildOptionsBuilder
                 .setOffline(offline)
