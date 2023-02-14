@@ -2289,12 +2289,12 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                if (sourceTypeTag == TypeTags.XML_TAG) {
+                if (TypeTags.isXMLTypeTag(sourceTypeTag)) {
                     return checkIsLikeXmlValueSingleton((XmlValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
-                if (sourceTypeTag == TypeTags.XML_TAG) {
+                if (TypeTags.isXMLTypeTag(sourceTypeTag)) {
                     return checkIsLikeXMLSequenceType((XmlValue) sourceValue, targetType);
                 }
                 return false;

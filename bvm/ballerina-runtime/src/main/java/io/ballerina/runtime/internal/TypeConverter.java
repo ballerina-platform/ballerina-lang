@@ -322,23 +322,25 @@ public class TypeConverter {
                         unresolvedValues, errors, allowNumericConversion);
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
-                        || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToXmlType(inputValue))) {
+                        || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToTargetXmlType(
+                                inputValue, targetType))) {
                     return targetType;
                 }
         }
         return null;
     }
 
-    private static boolean isStringConvertibleToXmlType(Object inputValue) {
+    private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType) {
         if (TypeChecker.getType(inputValue).getTag() != TypeTags.STRING_TAG) {
             return false;
         }
+        BXml xmlValue;
         try {
-            XmlFactory.parse(((BString) inputValue).getValue());
+            xmlValue = XmlFactory.parse(((BString) inputValue).getValue());
         } catch (BError e) {
             return false;
         }
-        return true;
+        return TypeChecker.checkIsLikeType(xmlValue, targetType);
     }
 
     public static Type getConvertibleTypeInTargetUnionType(Object inputValue, BUnionType targetUnionType,
@@ -1221,19 +1223,15 @@ public class TypeConverter {
             return PredefinedTypes.TYPE_BOOLEAN;
         }
 
-        if (checkIsLikeType(value, PredefinedTypes.TYPE_BYTE)) {
-            return PredefinedTypes.TYPE_BYTE;
-        }
-
         if (checkIsLikeType(value, PredefinedTypes.TYPE_DECIMAL)) {
             return PredefinedTypes.TYPE_DECIMAL;
         }
 
-        if (checkIsLikeType(value, PredefinedTypes.TYPE_XML)) {
-            return PredefinedTypes.TYPE_XML;
-        }
-
         boolean readOnlyTargetType = targetUnionType.isReadOnly();
+
+        if (checkIsLikeType(value, PredefinedTypes.TYPE_XML)) {
+            return readOnlyTargetType ? PredefinedTypes.TYPE_READONLY_XML : PredefinedTypes.TYPE_XML;
+        }
 
         Type targetTypeArrayType = new BArrayType(targetUnionType, readOnlyTargetType);
         if (checkIsLikeType(value, targetTypeArrayType)) {

@@ -130,16 +130,22 @@ public class ValueConverter {
                         throw createConversionError(value, targetType, e.getMessage());
                     }
                 }
-                if (TypeChecker.checkIsType(value, matchingType)) {
-                    newValue = value;
-                    break;
-                }
+
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
+                    String xmlString = value.toString();
                     try {
-                        newValue = XmlFactory.parse(((BString) value).getValue());
+                        newValue = XmlFactory.parse(xmlString);
                     } catch (BError e) {
                         throw createConversionError(value, targetType, e.getMessage());
                     }
+                    if (matchingType.isReadOnly()) {
+                        newValue = CloneUtils.cloneReadOnly(newValue);
+                    }
+                    break;
+                }
+
+                if (TypeChecker.checkIsType(value, matchingType)) {
+                    newValue = CloneUtils.cloneValue(value);
                     break;
                 }
 

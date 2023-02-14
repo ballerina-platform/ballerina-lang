@@ -149,6 +149,7 @@ public class PredefinedTypes {
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
 
+    public static final Type TYPE_READONLY_XML = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_XML);
 
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
