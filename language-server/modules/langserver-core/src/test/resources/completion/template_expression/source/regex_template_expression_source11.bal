@@ -13,4 +13,19 @@ function testReAtom() {
     
     // re `(?i-m<cursor>)`
     string:RegExp r5 = re `(?i-m)`;
+    
+    // re `(?im<cursor>)`
+    string:RegExp r6 = re `(?im)`;
+    
+    // re `(?im-s<cursor>)`
+    string:RegExp r7 = re `(?im-s)`;
+    
+    // re `(?-)`
+    string:RegExp r8 = re `(?-)`;
+    
+    // re `(?-i)`
+    string:RegExp r9 = re `(?-i)`;
+    
+    // re `(?-is)`
+    string:RegExp r10 = re `(?-is)`;
 }
