@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.regexp;
+
 function testLiterals() {
     anydata[] arr = [5, 12.34, 34.5d, true, (), "foo"];
     json j = null;
@@ -29,9 +31,7 @@ function testTemplateExprs() {
 function testStructuralConstructors() {
     string[] arr1 = ["foo", "bar"];
     var arr2 = [10, 20, 30];
-
     [int, string, float] tup = [10, "foo", 12.34];
-
     map<string> m = {"foo": "bar"};
     var m2 = {"City": "Colombo", "Code": 1};
 
@@ -364,4 +364,6 @@ function testRegexp() {
     _ = re ``;
     _ = re `a`;
     _ = re `[a|b]+c`;
+    string:RegExp reg1 = re `a|b`;
+    regexp:RegExp reg2 = re `[a-z]+`;
 }
