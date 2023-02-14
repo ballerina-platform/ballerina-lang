@@ -631,6 +631,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         funcInvocation.setBType(symbol.retType);
         funcInvocation.symbol = symbol;
+        funcInvocation.pos = symbol.pos;
         funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
         funcInvocation.functionPointerInvocation = true;
         return funcInvocation;
