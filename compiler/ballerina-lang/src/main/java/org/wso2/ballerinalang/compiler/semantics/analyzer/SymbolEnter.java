@@ -413,10 +413,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-
-        if (REGEXP.equals(pkgNode.packageID)) {
-            defineRequiredModuleEntry(pkgNode.compUnits, Map.entry(Names.REGEXP, symTable.langRegexpModuleSymbol));
-        }
         
         // Define type definitions.
         this.typePrecedence = 0;
