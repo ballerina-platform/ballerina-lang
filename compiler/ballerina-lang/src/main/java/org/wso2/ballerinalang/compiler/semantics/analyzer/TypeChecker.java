@@ -212,7 +212,7 @@ import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WO
  */
 public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerData> {
 
-    protected static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
+    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
     private static Set<String> listLengthModifierFunctions = new HashSet<>();
     private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
@@ -5716,19 +5716,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
 
-    public BType getXMLTypeFromLiteralKind(BLangExpression childXMLExpressions) {
-        if (childXMLExpressions.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
-            return symTable.xmlElementType;
-        }
-        if (childXMLExpressions.getKind() == NodeKind.XML_TEXT_LITERAL) {
-            return symTable.xmlTextType;
-        }
-        if (childXMLExpressions.getKind() == NodeKind.XML_PI_LITERAL) {
-            return symTable.xmlPIType;
-        }
-        return symTable.xmlCommentType;
-    }
-
     public BType getXMLSequenceType(BType xmlSubType) {
         switch (xmlSubType.tag) {
             case TypeTags.XML_ELEMENT:
@@ -6036,7 +6023,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        // TODO: Change the public methods to private again
         queryTypeChecker.checkQueryType(queryExpr, data);
     }
 
@@ -6354,15 +6340,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
-    }
-
-    public List<BType> getListWithErrorTypes(int count) {
-        List<BType> list = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) {
-            list.add(symTable.semanticError);
-        }
-
-        return list;
     }
 
     private void checkFunctionInvocationExpr(BLangInvocation iExpr, AnalyzerData data) {
@@ -7873,35 +7850,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return xmlTextLiteral;
     }
 
-    private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {
-
-        // Cache the actual type of the field. This will be used in desuagr phase to create safe navigation.
-        accessExpr.originalType = actualType;
-
-        BUnionType unionType = BUnionType.create(null, actualType);
-
-        if (returnsNull(accessExpr)) {
-            unionType.add(symTable.nilType);
-        }
-
-        BType parentType = accessExpr.expr.getBType();
-        if (accessExpr.errorSafeNavigation
-                && (parentType.tag == TypeTags.SEMANTIC_ERROR || (parentType.tag == TypeTags.UNION
-                && ((BUnionType) parentType).getMemberTypes().contains(symTable.errorType)))) {
-            unionType.add(symTable.errorType);
-        }
-
-        // If there's only one member, and the one an only member is:
-        //    a) nilType OR
-        //    b) not-nullable
-        // then return that only member, as the return type.
-        if (unionType.getMemberTypes().size() == 1) {
-            return unionType.getMemberTypes().toArray(new BType[0])[0];
-        }
-
-        return unionType;
-    }
-
     private boolean returnsNull(BLangAccessExpression accessExpr) {
         BType parentType = accessExpr.expr.getBType();
         if (parentType.isNullable() && parentType.tag != TypeTags.JSON) {
@@ -8936,52 +8884,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         Types.getReferredType(currentType), data);
         }
         return actualType;
-    }
-
-    private List<BType> getTypesList(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            return new ArrayList<>(unionType.getMemberTypes());
-        } else {
-            return Lists.of(type);
-        }
-    }
-
-    private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
-        if (encounteredTypes.contains(type)) {
-            return false;
-        }
-        encounteredTypes.add(type);
-
-        switch (type.tag) {
-            case TypeTags.UNION:
-                for (BType bType1 : ((BUnionType) type).getMemberTypes()) {
-                    if (couldHoldTableValues(bType1, encounteredTypes)) {
-                        return true;
-                    }
-                }
-                return false;
-            case TypeTags.MAP:
-                return couldHoldTableValues(((BMapType) type).constraint, encounteredTypes);
-            case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields.values()) {
-                    if (couldHoldTableValues(field.type, encounteredTypes)) {
-                        return true;
-                    }
-                }
-                return !recordType.sealed && couldHoldTableValues(recordType.restFieldType, encounteredTypes);
-            case TypeTags.ARRAY:
-                return couldHoldTableValues(((BArrayType) type).eType, encounteredTypes);
-            case TypeTags.TUPLE:
-                for (BType bType : ((BTupleType) type).getTupleTypes()) {
-                    if (couldHoldTableValues(bType, encounteredTypes)) {
-                        return true;
-                    }
-                }
-                return false;
-        }
-        return false;
     }
 
     private boolean isConstExpr(BLangExpression expression) {

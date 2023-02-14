@@ -574,10 +574,10 @@ public class QueryTypeChecker extends TypeChecker {
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, commonAnalyzerData.queryEnvs.pop());
         fromClause.env = fromEnv;
         commonAnalyzerData.queryEnvs.push(fromEnv);
-        checkExpr(fromClause.collection, commonAnalyzerData.queryEnvs.peek(), data);
+        checkExpr(fromClause.collection, fromEnv, data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
-        handleInputClauseVariables(fromClause, commonAnalyzerData.queryEnvs.peek());
+        handleInputClauseVariables(fromClause, fromEnv);
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakToParallelEnv;
     }
 
@@ -623,7 +623,7 @@ public class QueryTypeChecker extends TypeChecker {
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, commonAnalyzerData.queryEnvs.pop());
         joinClause.env = joinEnv;
         commonAnalyzerData.queryEnvs.push(joinEnv);
-        checkExpr(joinClause.collection, commonAnalyzerData.queryEnvs.peek(), data);
+        checkExpr(joinClause.collection, joinEnv, data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
         if (joinClause.isOuterJoin) {
@@ -634,9 +634,8 @@ public class QueryTypeChecker extends TypeChecker {
             }
             joinClause.varType = types.addNilForNillableAccessType(joinClause.varType);
         }
-        handleInputClauseVariables(joinClause, commonAnalyzerData.queryEnvs.peek());
+        handleInputClauseVariables(joinClause, joinEnv);
         if (joinClause.onClause != null) {
-            // TODO: Convert this to this.OnConflict
             joinClause.onClause.accept(this, data);
         }
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakEnv;
@@ -790,6 +789,5 @@ public class QueryTypeChecker extends TypeChecker {
     public static class AnalyzerData {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
-        HashSet<BType> checkedErrorList = new HashSet<>();
     }
 }
