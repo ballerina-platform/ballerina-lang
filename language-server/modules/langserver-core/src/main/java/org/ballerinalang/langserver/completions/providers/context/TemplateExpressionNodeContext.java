@@ -222,6 +222,9 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         return SortingUtil.genSortText(3);
     }
 
+    /**
+     * Visitor to find the template expression node.
+     * **/
     public static class RegexTemplateNodeFinder extends NodeVisitor {
 
         private TemplateExpressionNode templateExpressionNode = null;

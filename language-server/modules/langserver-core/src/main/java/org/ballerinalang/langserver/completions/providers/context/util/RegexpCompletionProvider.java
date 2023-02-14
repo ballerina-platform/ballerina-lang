@@ -21,6 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Util to generate completions for regexp.
+ *
+ * @since 2201.5.0
+ */
 public class RegexpCompletionProvider {
 
     private static final List<String> wordSeparatorArray = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
