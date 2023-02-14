@@ -8,34 +8,34 @@
   "items": [
     {
       "label": "m",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "m",
       "insertText": "m",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "s",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "s",
       "insertText": "s",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "i",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "i",
-      "insertText": "i",
+      "label": "x",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "x",
+      "insertText": "x",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "x",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "x",
-      "insertText": "x",
+      "label": ":",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": ":",
+      "insertText": ":",
       "insertTextFormat": "Snippet"
     }
   ]

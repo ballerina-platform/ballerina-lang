@@ -8,10 +8,26 @@
   "items": [
     {
       "label": ":",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "m:",
       "insertText": "m:",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "ms",
+      "insertText": "ms",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "mx",
+      "insertText": "mx",
       "insertTextFormat": "Snippet"
     }
   ]

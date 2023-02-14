@@ -7,30 +7,6 @@
   "description": "",
   "items": [
     {
-      "label": "*",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "a*",
-      "insertText": "a*",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "+",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "a+",
-      "insertText": "a+",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "?",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "a?",
-      "insertText": "a?",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "{}",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -39,9 +15,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "*",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a*",
+      "insertText": "a*",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "+",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a+",
+      "insertText": "a+",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a?",
+      "insertText": "a?",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "$",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "a$",
       "insertText": "a$",
       "insertTextFormat": "Snippet"

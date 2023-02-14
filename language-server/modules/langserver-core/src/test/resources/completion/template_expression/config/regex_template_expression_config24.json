@@ -7,35 +7,35 @@
   "description": "",
   "items": [
     {
-      "label": "*",
+      "label": "{}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "abc{}",
+      "insertText": "abc{${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "*",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "abc*",
       "insertText": "abc*",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "+",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "abc+",
       "insertText": "abc+",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "?",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "abc?",
       "insertText": "abc?",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "{}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "abc{}",
-      "insertText": "abc{${1}}",
       "insertTextFormat": "Snippet"
     }
   ]

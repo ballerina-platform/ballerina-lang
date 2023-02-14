@@ -8,200 +8,200 @@
   "items": [
     {
       "label": "d",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "d",
       "insertText": "d",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "D",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "D",
       "insertText": "D",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "s",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "s",
       "insertText": "s",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "S",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "S",
       "insertText": "S",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "w",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "w",
       "insertText": "w",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "W",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "W",
       "insertText": "W",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "r",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "r",
       "insertText": "r",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "n",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "n",
       "insertText": "n",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "t",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "t",
       "insertText": "t",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "^",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "^",
       "insertText": "^",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "$",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "$",
       "insertText": "$",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "\\",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "\\",
       "insertText": "\\",
       "insertTextFormat": "Snippet"
     },
     {
       "label": ".",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": ".",
       "insertText": ".",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "*",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "*",
       "insertText": "*",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "+",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "+",
       "insertText": "+",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "?",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "?",
       "insertText": "?",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "(",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "(",
       "insertText": "(",
       "insertTextFormat": "Snippet"
     },
     {
       "label": ")",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": ")",
       "insertText": ")",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "[",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "[",
       "insertText": "[",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "]",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "]",
       "insertText": "]",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "{",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "{",
       "insertText": "{",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "}",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "}",
       "insertText": "}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "|",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "|",
       "insertText": "|",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "p",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "p",
       "insertText": "p",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "P",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "P",
       "insertText": "P",
       "insertTextFormat": "Snippet"

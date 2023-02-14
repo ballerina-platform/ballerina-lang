@@ -8,8 +8,8 @@
   "items": [
     {
       "label": "$",
-      "kind": "Snippet",
-      "detail": "Snippet",
+      "kind": "Value",
+      "detail": "Value",
       "filterText": "$",
       "insertText": "$",
       "insertTextFormat": "Snippet"

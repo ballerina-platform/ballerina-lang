@@ -7,19 +7,19 @@
   "description": "",
   "items": [
     {
-      "label": "$",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "$",
-      "insertText": "$",
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "?",
+      "insertText": "?",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "?",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "?",
-      "insertText": "?",
+      "label": "$",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "$",
+      "insertText": "$",
       "insertTextFormat": "Snippet"
     }
   ]
