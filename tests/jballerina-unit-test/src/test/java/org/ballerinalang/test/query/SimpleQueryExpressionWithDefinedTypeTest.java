@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -365,6 +366,21 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
     @Test
     public void testUsingAnIntersectionTypeInQueryExpr() {
         BRunUtil.invoke(result, "testUsingAnIntersectionTypeInQueryExpr");
+    }
+
+    @Test(dataProvider = "dataToTestQueryExprWithRegExp")
+    public void testQueryExprWithRegExp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryExprWithRegExp() {
+        return new Object[]{
+                "testQueryExprWithRegExp",
+                "testQueryExprWithRegExpWithInterpolations",
+                "testNestedQueryExprWithRegExp",
+                "testJoinedQueryExprWithRegExp"
+        };
     }
 
     @AfterClass
