@@ -387,8 +387,10 @@ public class JvmPackageGen {
                                        String moduleInitClass, String typesClass,
                                        JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
-                                       boolean serviceEPAvailable, BIRFunction mainFunc) {
-        jvmClassMapping.forEach((moduleClass, javaClass) -> {
+                                       boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
+        jvmClassMapping.entrySet().forEach(entry -> {
+            String moduleClass = entry.getKey();
+            JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
@@ -407,10 +409,10 @@ public class JvmPackageGen {
                 }
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
-                mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
-                initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc);
+                mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass, serviceEPAvailable);
+                initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc, testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
-                initMethodGen.generateGracefulExitMethod(cw);
+                initMethodGen.generateGraceFulExitMethod(cw, module, moduleClass);
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
@@ -764,11 +766,12 @@ public class JvmPackageGen {
         // create imported modules flat list
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
-        BIRFunction mainFunc = getMainFunc(module.functions);
+        BIRFunction mainFunc = getMainFunc(module);
+        BIRFunction testExecuteFunc = getTestExecuteFunc(module);
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
-                flattenedModuleImports, serviceEPAvailable, mainFunc);
+                flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
         JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass
@@ -794,7 +797,7 @@ public class JvmPackageGen {
 
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc);
+                jvmClassMapping, flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
 
         List<BIRNode.BIRFunction> sortedFunctions = new ArrayList<>(module.functions);
         sortedFunctions.sort(NAME_HASH_COMPARATOR);
@@ -807,15 +810,30 @@ public class JvmPackageGen {
         return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
     }
 
-    private BIRNode.BIRFunction getMainFunc(List<BIRNode.BIRFunction> funcs) {
-        BIRNode.BIRFunction userMainFunc = null;
-        for (BIRNode.BIRFunction func : funcs) {
-            if (func != null && func.name.value.equals(MAIN_METHOD)) {
-                userMainFunc = func;
-                break;
+    private BIRFunction getMainFunc(BIRPackage module) {
+        BIRFunction userMainFunc = null;
+        if (module.packageID.skipTests) {
+            for (BIRFunction func : module.functions) {
+                if (func != null && func.name.value.equals(MAIN_METHOD)) {
+                    userMainFunc = func;
+                    break;
+                }
             }
         }
         return userMainFunc;
+    }
+
+    private BIRFunction getTestExecuteFunc(BIRPackage module) {
+        BIRFunction testExecuteFunction = null;
+        if (!module.packageID.skipTests) {
+            for (BIRFunction func : module.functions) {
+                if (func != null && func.name.value.equals("__execute__")) {
+                    testExecuteFunction = func;
+                    break;
+                }
+            }
+        }
+        return testExecuteFunction;
     }
 
     private boolean listenerDeclarationFound(BPackageSymbol packageSymbol) {

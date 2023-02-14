@@ -67,17 +67,13 @@ public class NativeUtils {
 
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
-                                           Map<String, TestSuite> testSuiteMap) throws IOException {
+                                           Map.Entry<String, TestSuite> entry) throws IOException {
         String org = currentPackage.packageOrg().toString();
         String version = currentPackage.packageVersion().toString();
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         List<ReflectConfigClass> classList = new ArrayList<>();
 
-
-
-        for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-            String moduleName = entry.getKey();
             TestSuite testSuite = entry.getValue();
             String name = testSuite.getPackageID();
 
@@ -116,7 +112,7 @@ public class NativeUtils {
                     )
             );
             ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
+                    entry.getValue().getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
             testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
                             TEST_EXEC_FUNCTION,
@@ -135,8 +131,9 @@ public class NativeUtils {
                             }
                     )
             );
+
             //Add classes with $MOCK_function methods (mock function case)
-            if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
+            if (!entry.getValue().getMockFunctionNamesMap().isEmpty()) {
                 ReflectConfigClass functionMockingEntryClz = new ReflectConfigClass(getQualifiedClassName(
                         org, name, version, name.replace(DOT, FILE_NAME_PERIOD_SEPARATOR)));
                 functionMockingEntryClz.setQueryAllDeclaredMethods(true);
@@ -192,12 +189,11 @@ public class NativeUtils {
                     }
                 }
             }
-        }
 
         //Add classes corresponding to ballerina source files
         ReflectConfigClass originalBalFileRefConfClz;
         Map<String, List<String>> mockFunctionClassMapping = new HashMap<>();
-        extractMockFunctionClassMapping(testSuiteMap, mockFunctionClassMapping);
+        extractMockFunctionClassMapping(entry, mockFunctionClassMapping);
         for (Map.Entry<String, List<String>> mockFunctionClassMapEntry : mockFunctionClassMapping.entrySet()) {
             String mockFunctionClass = mockFunctionClassMapEntry.getKey();
             originalBalFileRefConfClz = new ReflectConfigClass(mockFunctionClass);
@@ -218,7 +214,6 @@ public class NativeUtils {
         runtimeEntityTestSuiteRefConfClz.setUnsafeAllocated(true);
 
         classList.add(runtimeEntityTestSuiteRefConfClz);
-
 
         // Write the array to the config file
         try (Writer writer = new FileWriter(nativeConfigPath.resolve("reflect-config.json").toString(),
@@ -267,33 +262,31 @@ public class NativeUtils {
     }
 
     //Create $ORIG_function methods class mapping
-    private static void extractMockFunctionClassMapping(Map<String, TestSuite> testSuiteMap,
+    private static void extractMockFunctionClassMapping(Map.Entry<String, TestSuite> testSuiteEntry,
                                                         Map<String, List<String>> mockFunctionClassMapping) {
-        for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
-            TestSuite suite = testSuiteEntry.getValue();
-            for (Map.Entry<String, String> mockFunctionEntry : suite.getMockFunctionNamesMap().entrySet()) {
-                String key = mockFunctionEntry.getKey();
-                String functionToMockClassName;
-                String functionToMock;
-                if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+        TestSuite suite = testSuiteEntry.getValue();
+        for (Map.Entry<String, String> mockFunctionEntry : suite.getMockFunctionNamesMap().entrySet()) {
+            String key = mockFunctionEntry.getKey();
+            String functionToMockClassName;
+            String functionToMock;
+            if (key.indexOf(MOCK_LEGACY_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
+                functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER) + 1);
+            } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
+                functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
+            } else {
+                if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
                     functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER) + 1);
-                } else if (key.indexOf(MOCK_FN_DELIMITER) == -1) {
+                } else {
                     functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
                     functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
-                } else {
-                    if (key.indexOf(MOCK_FN_DELIMITER) < key.indexOf(MOCK_LEGACY_DELIMITER)) {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_FN_DELIMITER));
-                        functionToMock = key.substring(key.indexOf(MOCK_FN_DELIMITER) + 1);
-                    } else {
-                        functionToMockClassName = key.substring(0, key.indexOf(MOCK_LEGACY_DELIMITER));
-                        functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER) + 1);
-                    }
                 }
-                functionToMock = functionToMock.replaceAll("\\\\", "");
-                mockFunctionClassMapping.computeIfAbsent(functionToMockClassName,
-                        k -> new ArrayList<>()).add("$ORIG_" + functionToMock);
             }
+            functionToMock = functionToMock.replaceAll("\\\\", "");
+            mockFunctionClassMapping.computeIfAbsent(functionToMockClassName,
+                    k -> new ArrayList<>()).add("$ORIG_" + functionToMock);
         }
     }
 
