@@ -866,12 +866,9 @@ public class TypeParamAnalyzer {
         if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType, env.enclPkg.packageID)) {
             return symTable.semanticError;
         }
-
-        BIntersectionType boundIntersectionType =
-                ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
-
-        return boundIntersectionType.effectiveType;
+        
+        return ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
+                matchingBoundNonReadOnlyType, env, symTable, anonymousModelHelper, names, new HashSet<>());
     }
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
