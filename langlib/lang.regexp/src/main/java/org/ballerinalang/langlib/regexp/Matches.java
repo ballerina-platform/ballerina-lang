@@ -21,6 +21,9 @@ package org.ballerinalang.langlib.regexp;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
 
@@ -31,7 +34,12 @@ import java.util.regex.Matcher;
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
-        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        int length = str.length();
+        if (length == 0 || regExp == null) {
+            return null;
+        }
+
+        Matcher matcher = getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         if (matcher.matches()) {
             return RegexUtil.getGroupZeroAsSpan(matcher);
@@ -40,7 +48,12 @@ public class Matches {
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
-        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        int length = str.length();
+        if (length == 0 || regExp == null) {
+            return null;
+        }
+
+        Matcher matcher = getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         BArray resultArray = null;
         if (matcher.matches()) {
@@ -53,7 +66,20 @@ public class Matches {
     }
 
     public static boolean isFullMatch(BRegexpValue regExp, BString str) {
-        Matcher matcher = RegexUtil.getMatcher(regExp, str);
+        if (str.length() == 0 || regExp == null) {
+            return false;
+        }
+
+        Matcher matcher = getMatcher(regExp, str);
         return matcher.matches();
+    }
+
+    private static Matcher getMatcher(BRegexpValue regExp, BString str) {
+        try {
+            return RegexUtil.getMatcher(regExp, str);
+        } catch (Exception e) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+                    RuntimeErrors.REGEXP_INVALID_PATTERN);
+        }
     }
 }

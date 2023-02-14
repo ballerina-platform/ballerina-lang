@@ -20,6 +20,9 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
@@ -37,6 +40,11 @@ public class FromString {
 
     public static Object fromString(BString string) {
         try {
+            if (string.length() == 0) {
+                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+                        RuntimeErrors.EMPTY_STRING);
+            }
+
             return TypeConverter.stringToRegExp(string.getValue());
         } catch (BError bError) {
             return ErrorCreator.createError(ERROR_REASON, bError.getErrorMessage());

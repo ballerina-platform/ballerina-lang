@@ -32,6 +32,7 @@ import io.ballerina.runtime.internal.values.RegExpValue;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Util class used by lang.regexp.
@@ -45,8 +46,12 @@ public class RegexUtil {
     static final BArrayType GROUPS_AS_SPAN_ARRAY_TYPE = new BArrayType(SPAN_AS_TUPLE_TYPE);
 
     static final BArrayType GROUPS_ARRAY_TYPE = new BArrayType(GROUPS_AS_SPAN_ARRAY_TYPE);
-    static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) {
-        return getMatcher(regexpVal, inputStr.getValue());
+    static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) throws Exception {
+        try {
+            return getMatcher(regexpVal, inputStr.getValue());
+        } catch (Exception e) {
+            throw new PatternSyntaxException("Invalid regex syntax", regexpVal.toString(), -1);
+        }
     }
 
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {

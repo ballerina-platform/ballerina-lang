@@ -1050,6 +1050,37 @@ function testLangLibFuncWithNamedArgExpr() {
     }
 }
 
+function testEmptyRegexpFind() {
+    // find
+    regexp:Span? res1 = regexp:find(re = re ``, str = "HelloWorld");
+    assertTrue(res1 is null);
+    regexp:Span? res2 = regexp:find(re = re `World`, str = "");
+    assertTrue(res2 is null);
+    regexp:Span? res3 = regexp:find(re = re ``, str = "");
+    assertTrue(res3 is null);
+    // find all
+    regexp:Span[] res4 = regexp:findAll(re ``, "There once was a king who liked to sing");
+    assertEquality(0, res4.length());
+    regexp:Span[] res5 = regexp:findAll(re `(\w+ing)`, "");
+    assertEquality(0, res5.length());
+    regexp:Span[] res6 = regexp:findAll(re ``, "");
+    assertEquality(0, res6.length());
+    // find groups
+    regexp:Groups? res7 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
+    assertTrue(res7 is null);
+    regexp:Groups? res8 = regexp:findGroups(re `(\w+tt\w+)`, "");
+    assertTrue(res8 is null);
+    regexp:Groups? res9 = regexp:findGroups(re ``, "");
+    assertTrue(res9 is null);
+    // find all groups
+    regexp:Groups[] res10 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
+    assertEquality(0, res10.length());
+    regexp:Groups[] res11 = regexp:findAllGroups(re `(\w+ble)`, "");
+    assertEquality(0, res11.length());
+    regexp:Groups[] res12 = regexp:findAllGroups(re ``, "");
+    assertEquality(0, res12.length());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
