@@ -96,6 +96,7 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 61);
         validateError(negativeResult, index++, "duplicate flag 'x'", 28, 67);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
+        validateError(negativeResult, index++, "invalid char after backslash", 29, 30);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 

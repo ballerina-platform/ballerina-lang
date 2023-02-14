@@ -108,7 +108,7 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable9.bal",
-          398
+          401
         ]
       },
       "resolvable": false
