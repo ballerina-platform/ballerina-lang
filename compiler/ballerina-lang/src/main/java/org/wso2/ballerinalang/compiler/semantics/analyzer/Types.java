@@ -275,7 +275,7 @@ public class Types {
     public boolean isLax(BType type) {
         Set<BType> visited = new HashSet<>();
         int result = isLaxType(type, visited);
-        if (result == 1 || type.tag == TypeTags.XML) {
+        if (result == 1 || type.tag == TypeTags.XML || type.tag == TypeTags.XML_ELEMENT) {
             return true;
         }
         return false;
