@@ -890,8 +890,7 @@ public class BIRPackageSymbolEnter {
         if (referredVarType.tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) referredVarType.tsymbol;
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
-                                             this.env.pkgSymbol.pkgID, referredVarType, enclScope.owner, symTable.builtinPos,
-                                             toOrigin(origin));
+                    this.env.pkgSymbol.pkgID, referredVarType, enclScope.owner, symTable.builtinPos, toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
             if (bInvokableTypeSymbol != null) {

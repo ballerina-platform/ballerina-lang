@@ -1940,7 +1940,7 @@ public class Types {
                 Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                 Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                         ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
-                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes)?
+                return collectionTypes.size() == 4 && builtinXMLConstraintTypes.equals(collectionTypes) ?
                         collectionType : BUnionType.create(null, (LinkedHashSet<BType>) collectionTypes);
             default:
                 return null;
@@ -6524,7 +6524,7 @@ public class Types {
                 return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type), visitedTypeSet);
             case TypeTags.INTERSECTION:
                 visitedTypeSet.add(type);
-                return isNeverTypeOrStructureTypeWithARequiredNeverMember(((BIntersectionType )type).effectiveType, 
+                return isNeverTypeOrStructureTypeWithARequiredNeverMember(((BIntersectionType) type).effectiveType, 
                         visitedTypeSet);
             default:
                 return false;

@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -2821,7 +2820,7 @@ public class TypeChecker {
         Type valueSpaceItemType = getType(valueSpaceItem);
         sourceType = TypeUtils.getReferredType(sourceType);
         int valueSpaceItemTypeTag = TypeUtils.getReferredType(valueSpaceItemType).getTag();
-        if ( valueSpaceItemTypeTag > TypeTags.DECIMAL_TAG) {
+        if (valueSpaceItemTypeTag > TypeTags.DECIMAL_TAG) {
             return valueSpaceItemTypeTag == sourceType.getTag() &&
                     (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
         }

@@ -42,8 +42,6 @@ public class BTableType extends BType implements TableType {
     public boolean isTypeInlineDefined;
     public Location constraintPos;
 
-    private BIntersectionType intersectionType = null;
-
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
         this.constraint = constraint;

@@ -36,8 +36,6 @@ public class BArrayType extends BType implements ArrayType {
 
     public BArrayState state = BArrayState.OPEN;
 
-    private BIntersectionType intersectionType = null;
-
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
         this.eType = elementType;

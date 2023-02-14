@@ -909,7 +909,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return memTypeTag == desiredType.tag
                         || memTypeTag == TypeTags.JSON
                         || memTypeTag == TypeTags.ANYDATA
-                        || memTypeTag == TypeTags.ANY;})) {
+                        || memTypeTag == TypeTags.ANY; })) {
             return desiredType;
         }
 
@@ -4843,7 +4843,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Handle union types in lhs
         BType referredResultType = Types.getReferredType(data.resultType);
         if (referredResultType.tag == TypeTags.UNION) {
-            LinkedHashSet<BType> memberTypes = collectMemberTypes((BUnionType) referredResultType, new LinkedHashSet<>());
+            LinkedHashSet<BType> memberTypes = collectMemberTypes((BUnionType) referredResultType,
+                    new LinkedHashSet<>());
             if (memberTypes.size() == 1) {
                 data.resultType = memberTypes.toArray(new BType[0])[0];
             } else {

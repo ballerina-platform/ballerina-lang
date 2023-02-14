@@ -31,8 +31,6 @@ import org.wso2.ballerinalang.util.Flags;
 public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
     public BType constraint;
 
-    private BIntersectionType intersectionType = null;
-
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
