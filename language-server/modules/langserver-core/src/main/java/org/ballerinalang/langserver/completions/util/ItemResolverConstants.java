@@ -107,6 +107,9 @@ public class ItemResolverConstants {
     public static final String MODULE_TYPE = "Module";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
+    
+    public static final String VALUE_TYPE = "Value";
+    
     public static final String STATEMENT_TYPE = "Statement";
     public static final String NONE = "none";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
