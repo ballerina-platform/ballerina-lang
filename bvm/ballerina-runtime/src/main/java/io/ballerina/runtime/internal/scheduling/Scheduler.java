@@ -564,4 +564,8 @@ public class Scheduler {
         }
         return poolSize;
     }
+
+    public boolean isImmortal() {
+        return this.immortal;
+    }
 }

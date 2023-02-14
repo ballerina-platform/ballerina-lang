@@ -180,6 +180,8 @@ public class JvmConstants {
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
+    public static final String CLI_TEST_ARGS = "io/ballerina/runtime/internal/configurable/providers/cli/CliTestArgs";
+    public static final String TEST_ARGUMENTS = "io/ballerina/runtime/internal/testable/TestArguments";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -328,6 +330,9 @@ public class JvmConstants {
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
+    public static final String MODULE_EXECUTE_METHOD = "$moduleExecute";
+    public static final String TEST_EXECUTE_METHOD = "__execute__";
+    public static final String MAIN_METHOD = "main";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";
@@ -338,6 +343,7 @@ public class JvmConstants {
     public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final String ENCODED_JAVA_MODULE = "jballerina$0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";

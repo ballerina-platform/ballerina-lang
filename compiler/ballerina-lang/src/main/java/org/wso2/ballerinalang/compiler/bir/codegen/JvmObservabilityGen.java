@@ -327,7 +327,7 @@ class JvmObservabilityGen {
         Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
         Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
         PackageID currentPkgId = new PackageID(org, module, module, packageID.version, packageID.sourceFileName,
-                packageID.isTestPkg);
+                packageID.isTestPkg, packageID.skipTests);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {

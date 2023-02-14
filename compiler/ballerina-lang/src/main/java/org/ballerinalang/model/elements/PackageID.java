@@ -104,6 +104,7 @@ public class PackageID {
 
     public final boolean isUnnamed;
     public final boolean isTestPkg;
+    public final boolean skipTests;
     public final Name sourceFileName;
 
     public final List<Name> nameComps;
@@ -121,6 +122,7 @@ public class PackageID {
         isUnnamed = false;
         sourceFileName = null;
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName) {
@@ -132,6 +134,7 @@ public class PackageID {
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     public PackageID(Name orgName, Name name, Name version) {
@@ -144,6 +147,7 @@ public class PackageID {
         isUnnamed = false;
         sourceFileName = null;
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     public PackageID(Name orgName, Name name, Name version, Name sourceFileName) {
@@ -156,10 +160,11 @@ public class PackageID {
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName,
-                     boolean isTestPkg) {
+                     boolean isTestPkg, boolean skipTest) {
         this.orgName = orgName;
         this.name = name;
         this.pkgName = pkgName;
@@ -168,6 +173,7 @@ public class PackageID {
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
         this.isTestPkg = isTestPkg;
+        this.skipTests = skipTest;
     }
 
     private List<Name> createNameComps(Name name) {
@@ -194,6 +200,7 @@ public class PackageID {
         this.isUnnamed = true;
         this.sourceFileName = new Name(sourceFileName);
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     /**
@@ -212,6 +219,7 @@ public class PackageID {
         this.sourceFileName = new Name(sourceFileName);
         this.version = DEFAULT_VERSION;
         this.isTestPkg = false;
+        this.skipTests = true;
     }
 
     public Name getPkgName() {

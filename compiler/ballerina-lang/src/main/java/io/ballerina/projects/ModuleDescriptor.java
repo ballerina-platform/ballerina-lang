@@ -47,7 +47,7 @@ public class ModuleDescriptor implements Comparable<ModuleDescriptor> {
                     new Name(packageDesc.version().toString()), null);
             moduleTestCompilationId = new PackageID(new Name(packageDesc.org().value()),
                     new Name(packageDesc.name().value()), new Name(moduleName.toString()),
-                    new Name(packageDesc.version().toString()), null, true);
+                    new Name(packageDesc.version().toString()), null, true, false);
         }
     }
 

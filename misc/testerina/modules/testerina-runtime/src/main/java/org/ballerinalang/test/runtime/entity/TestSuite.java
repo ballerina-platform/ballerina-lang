@@ -75,7 +75,6 @@ public class TestSuite {
                      String orgName, String version, String executeFilePath) {
         this.packageId = packageId;
         this.testPackageId = testPackageId;
-        this.packageId = packageId;
         this.packageName = packageName;
         this.orgName = orgName;
         this.version = version;

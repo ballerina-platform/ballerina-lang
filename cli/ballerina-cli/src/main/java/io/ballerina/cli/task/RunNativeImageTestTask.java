@@ -78,11 +78,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
 import static io.ballerina.cli.utils.NativeUtils.getURLList;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static java.util.Objects.requireNonNull;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CLASS_EXTENSION;
@@ -318,12 +318,12 @@ public class RunNativeImageTestTask implements Task {
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
 
-        // Create seperate test suite map for each module.
-        List<HashMap<String, TestSuite>> testSuiteMapEntries = new ArrayList<>();
+        // Create separate test suite map for each module.
+        HashMap<String, TestSuite> testSuiteMap = new HashMap<>();
         boolean isMockFunctionExist = false;
         for (ModuleDescriptor moduleDescriptor :
                 project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            HashMap<String, TestSuite> testSuiteMap = new HashMap<>();
+
             Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
@@ -351,56 +351,30 @@ public class RunNativeImageTestTask implements Task {
             String resolvedModuleName =
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
             testSuiteMap.put(resolvedModuleName, suite);
-            testSuiteMapEntries.add(testSuiteMap);
         }
 
-        // If the function mocking does not exist, combine all test suite map entries
-        if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
-            HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
-            while (testSuiteMapEntries.size() > 0) {
-                testSuiteMap.putAll(testSuiteMapEntries.remove(0));
-            }
-            testSuiteMapEntries.add(testSuiteMap);
-        }
+        //Write the testsuite to the disk
+        TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
         int accumulatedTestResult = 0;
         //Execute each testsuite within list one by one
-        for (Map<String, TestSuite> testSuiteMap : testSuiteMapEntries) {
+        for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+            TestSuite testSuite = entry.getValue();
+            String modName = testSuite.getPackageID();
             try {
-                Path nativeConfigPath = target.getNativeConfigPath();
-                createReflectConfig(nativeConfigPath, project.currentPackage(), testSuiteMap);
+                modifyJarForFunctionMock(testSuite, target, modName);
             } catch (IOException e) {
-                throw createLauncherException("error while generating the necessary graalvm reflection config ", e);
+                throw createLauncherException("error occurred while running tests", e);
             }
 
-            // Try to modify jar if the testsuite map contains only one entry
-            if (testSuiteMap.size() == 1) {
-                TestSuite testSuite = testSuiteMap.values().toArray(new TestSuite[0])[0];
-                String moduleName = testSuite.getPackageID();
-                try {
-                    modifyJarForFunctionMock(testSuite, target, moduleName);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while running tests", e);
-                }
+            if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
+                testSuite.removeAllMockFunctions();
             }
-
-
-
-            //Remove all mock function entries from test suites
-            for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
-                TestSuite testSuite = testSuiteEntry.getValue();
-                if (!testSuite.getMockFunctionNamesMap().isEmpty()) {
-                    testSuite.removeAllMockFunctions();
-                }
-            }
-
-            //Write the testsuite to the disk
-            TestUtils.writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
             if (hasTests) {
                 int testResult = 1;
                 try {
-                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
+                    testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, modName, testSuiteMap);
                     if (testResult != 0) {
                         accumulatedTestResult = testResult;
                     }
@@ -425,6 +399,7 @@ public class RunNativeImageTestTask implements Task {
                 }
             }
         }
+
         if (report && hasTests) {
             try {
                 generateTesterinaReports(project, testReport, this.out, target);
@@ -439,7 +414,6 @@ public class RunNativeImageTestTask implements Task {
             throw createLauncherException("there are test failures");
         }
 
-
         // Cleanup temp cache for SingleFileProject
         TestUtils.cleanTempCache(project, cachesRoot);
         if (project.buildOptions().dumpBuildTime()) {
@@ -447,13 +421,13 @@ public class RunNativeImageTestTask implements Task {
         }
     }
 
-    private int runTestSuiteWithNativeImage(Package currentPackage, Target target,
+    private int runTestSuiteWithNativeImage(Package currentPackage, Target target, String moduleName,
                                             Map<String, TestSuite> testSuiteMap)
             throws IOException, InterruptedException {
+        String orgName = currentPackage.packageOrg().toString();
         String packageName = currentPackage.packageName().toString();
         String classPath = getClassPath(testSuiteMap);
 
-        String jacocoAgentJarPath = "";
         String nativeImageCommand = System.getenv("GRAALVM_HOME");
 
         try {
@@ -482,7 +456,9 @@ public class RunNativeImageTestTask implements Task {
         Path nativeTargetPath = target.getNativePath();         // <abs>target/native
 
         // Run native-image command with generated configs
-        cmdArgs.add(TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME);
+        String initClassName = JarResolver.getQualifiedClassName(orgName, moduleName + "$test",
+                currentPackage.packageVersion().toString(), MODULE_INIT_CLASS_NAME);
+        cmdArgs.add(initClassName);
         cmdArgs.add("@" + (nativeConfigPath.resolve("native-image-args.txt")));
         nativeArgs.addAll(Lists.of("-cp", classPath));
 
@@ -495,14 +471,11 @@ public class RunNativeImageTestTask implements Task {
             packageName = (testSuiteMap.values().toArray(new TestSuite[0])[0]).getPackageID();
         }
 
-
         // set name and path
         nativeArgs.add("-H:Name=" + addQuotationMarkToString(packageName));
         nativeArgs.add("-H:Path=" + convertWinPathToUnixFormat(addQuotationMarkToString(nativeTargetPath.toString())));
 
         // native-image configs
-        nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
-                    nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
@@ -529,7 +502,8 @@ public class RunNativeImageTestTask implements Task {
 
             // Test Runner Class arguments
             cmdArgs.add(target.path().toString());                                  // 0
-            cmdArgs.add(jacocoAgentJarPath);
+            cmdArgs.add(packageName);
+            cmdArgs.add(moduleName);
             cmdArgs.add(Boolean.toString(report));
             cmdArgs.add(Boolean.toString(coverage));
             cmdArgs.add(this.groupList != null ? this.groupList : "");
