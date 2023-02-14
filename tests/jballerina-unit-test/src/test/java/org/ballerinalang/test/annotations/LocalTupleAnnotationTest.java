@@ -32,16 +32,16 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Class to test annotation evaluation within anonymous tuple types.
+ * Class to test annotation evaluation within local tuple types.
  *
  * @since 2201.4.0
  */
-public class AnonymousTupleAnnotationTest {
+public class LocalTupleAnnotationTest {
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/annotations/anonymous_tuple_annotation_test.bal");
+        result = BCompileUtil.compile("test-src/annotations/local_tuple_annotation_test.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 
@@ -85,7 +85,7 @@ public class AnonymousTupleAnnotationTest {
         };
     }
 
-    public static BMap getAnonymousTupleAnnotations(TypedescValue typedescValue, BString annotName) {
+    public static BMap getLocalTupleAnnotations(TypedescValue typedescValue, BString annotName) {
         return (BMap) TypeChecker.getAnnotValue(typedescValue, annotName);
     }
 }

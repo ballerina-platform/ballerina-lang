@@ -176,7 +176,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -198,7 +197,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 public class ClosureGenerator extends BLangNodeVisitor {
     private static final CompilerContext.Key<ClosureGenerator> CLOSURE_GENERATOR_KEY = new CompilerContext.Key<>();
     private Queue<BLangSimpleVariableDef> queue;
-    private Queue<BLangSimpleVariableDef> annotationClosureReferences;
+    private List<BLangSimpleVariableDef> annotationClosureReferences;
     private SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
@@ -218,7 +217,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         context.put(CLOSURE_GENERATOR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
-        this.annotationClosureReferences = new LinkedList<>();
+        this.annotationClosureReferences = new ArrayList<>();
         this.symResolver = SymbolResolver.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
     }
@@ -241,7 +240,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annotation -> rewrite(annotation, pkgEnv));
         pkgNode.initFunction = rewrite(pkgNode.initFunction, pkgEnv);
         pkgNode.classDefinitions = rewrite(pkgNode.classDefinitions, pkgEnv);
-        rewrite(pkgNode.globalVars, pkgEnv);
+        pkgNode.globalVars.forEach(globalVar -> rewrite(globalVar, pkgEnv));
         addClosuresToGlobalVariableList(pkgEnv);
         for (int i = 0; i < pkgNode.functions.size(); i++) {
             BLangFunction bLangFunction = pkgNode.functions.get(i);
@@ -411,7 +410,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void desugarFieldAnnotations(BSymbol owner, BTypeSymbol typeSymbol, List<BLangSimpleVariable> fields,
                                          Location pos) {
-        if (owner.getKind() != SymbolKind.PACKAGE || typeSymbol.name == Names.EMPTY) {
+        if (owner.getKind() != SymbolKind.PACKAGE) {
             owner = getOwner(env);
             BLangLambdaFunction lambdaFunction = annotationDesugar.defineFieldAnnotations(fields, pos, env.enclPkg, env,
                                                                                           typeSymbol.pkgID, owner);
@@ -1599,18 +1598,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
     }
 
     private <E extends BLangNode> List<E> rewrite(List<E> nodeList, SymbolEnv env) {
-        Queue<BLangSimpleVariableDef> previousQueue = this.annotationClosureReferences;
-        this.annotationClosureReferences = new LinkedList<>();
-        int size = nodeList.size();
-        for (int i = 0; i < size; i++) {
-            E node = rewrite(nodeList.remove(0), env);
-            Iterator<BLangSimpleVariableDef> iterator = annotationClosureReferences.iterator();
-            while (iterator.hasNext()) {
-                nodeList.add(rewrite((E) annotationClosureReferences.poll().var, env));
-            }
-            nodeList.add(node);
+        for (int i = 0; i < nodeList.size(); i++) {
+            nodeList.set(i, rewrite(nodeList.get(i), env));
         }
-        this.annotationClosureReferences = previousQueue;
         return nodeList;
     }
 
