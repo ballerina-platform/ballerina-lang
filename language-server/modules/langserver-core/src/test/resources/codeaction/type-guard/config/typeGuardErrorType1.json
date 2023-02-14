@@ -33,7 +33,7 @@
               "character": 10
             }
           },
-          "newText": "\n    if barResult is error {\n\n    }"
+          "newText": "\n    if barResult is Foo {\n\n    }"
         }
       ],
       "resolvable": false
