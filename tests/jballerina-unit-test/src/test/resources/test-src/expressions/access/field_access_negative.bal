@@ -376,3 +376,8 @@ function testInvalidBoundMethodAccessWithRemoteMethod(ServiceClass a,
 
     _ = e.ser.fn;
 }
+
+function testInvalidXMLMapFieldAccess() {
+    map<xml> m = {a: xml `foo`};
+    xml x = check m.a; // error
+}

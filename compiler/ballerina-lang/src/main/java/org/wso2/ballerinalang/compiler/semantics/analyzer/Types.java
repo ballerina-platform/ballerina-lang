@@ -288,8 +288,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 return 1;
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
@@ -322,8 +320,6 @@ public class Types {
         }
         switch (type.tag) {
             case TypeTags.JSON:
-            case TypeTags.XML:
-            case TypeTags.XML_ELEMENT:
                 visited.put(type, true);
                 return true;
             case TypeTags.MAP:

@@ -138,6 +138,8 @@ public class FieldAccessTest {
                 "expression", 375, 15);
         validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
                 "expression", 377, 15);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 382, 19);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
