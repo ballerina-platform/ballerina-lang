@@ -587,17 +587,23 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     public BInvokableSymbol createSimpleVariable(BLangFunction function, BLangLambdaFunction lambdaFunction,
                                                  boolean isAnnotationClosure) {
+        Location pos;
+        if (isAnnotationClosure) {
+            pos = env.enclPkg.pos;
+        } else {
+            pos = function.pos;
+        }
         BInvokableSymbol invokableSymbol = function.symbol;
         BType type = function.getBType();
         BInvokableSymbol varSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, invokableSymbol.name,
                                                           invokableSymbol.pkgID, type,
-                                                          invokableSymbol.owner, function.pos, VIRTUAL);
+                                                          invokableSymbol.owner, pos, VIRTUAL);
         varSymbol.params = invokableSymbol.params;
         varSymbol.restParam = invokableSymbol.restParam;
         varSymbol.retType = invokableSymbol.retType;
-        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(function.pos, function.name.value, type,
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(pos, function.name.value, type,
                                                                            lambdaFunction, varSymbol);
-        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(function.pos);
+        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos);
         variableDef.var = simpleVariable;
         variableDef.setBType(type);
         if (isAnnotationClosure) {
@@ -610,7 +616,12 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     public BVarSymbol createSimpleVariable(BInvokableSymbol invokableSymbol, boolean isAnnotationClosure) {
         BType type = invokableSymbol.retType;
-        Location pos = invokableSymbol.pos;
+        Location pos;
+        if (isAnnotationClosure) {
+            pos = env.enclPkg.pos;
+        } else {
+            pos = invokableSymbol.pos;
+        }
         Name name = invokableSymbol.name;
         BVarSymbol varSymbol = new BVarSymbol(0, name, invokableSymbol.originalName, invokableSymbol.pkgID, type,
                                               invokableSymbol.owner, pos, VIRTUAL);
