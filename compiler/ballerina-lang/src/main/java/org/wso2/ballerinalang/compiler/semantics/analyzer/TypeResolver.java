@@ -993,7 +993,7 @@ public class TypeResolver {
     private BType resolveTypeDesc(BLangUnionTypeNode td, SymbolEnv symEnv,
                                   Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
         if (td.defn != null) {
-            td.defn.getMutableType();
+            return td.defn.getMutableType();
         }
 
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
@@ -1233,6 +1233,7 @@ public class TypeResolver {
                 if (mod.get(typeName.value).getKind() == NodeKind.TYPE_DEFINITION) {
                     BTypeDefinition defn = ((BLangTypeDefinition) mod.get(typeName.value)).typeNode.defn;
                     if (defn != null) {
+                        updateIsCyclicFlag(defn.type);
                         return defn.type;
                     }
                 }
