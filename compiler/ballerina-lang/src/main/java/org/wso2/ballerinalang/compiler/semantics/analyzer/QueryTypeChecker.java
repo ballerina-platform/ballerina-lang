@@ -47,9 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
@@ -62,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -108,32 +107,18 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     public QueryTypeChecker(CompilerContext context) {
-        super(context, true);
+        super(context, new CompilerContext.Key<>());
         context.put(QUERY_TYPE_CHECKER_KEY, this);
 
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
-//        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-//        this.nodeCloner = NodeCloner.getInstance(context);
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
-//        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
-//        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-//        this.unifier = new Unifier();
     }
-
-//    @Override
-//    public void analyzeNode(BLangNode node, AnalyzerData data) {
-//    }
-//
-//    @Override
-//    public void visit(BLangPackage node, AnalyzerData data) {
-//
-//    }
 
     @Override
     public void visit(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
@@ -147,9 +132,6 @@ public class QueryTypeChecker extends TypeChecker {
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
         //reset common analyzer data
-        boolean prevCheckWithinQueryExpr = commonAnalyzerData.checkWithinQueryExpr;
-        commonAnalyzerData.checkWithinQueryExpr = false;
-
         HashSet<BType> prevCheckedErrorList = commonAnalyzerData.checkedErrorList;
         commonAnalyzerData.checkedErrorList = new HashSet<>();
 
@@ -193,7 +175,6 @@ public class QueryTypeChecker extends TypeChecker {
         }
 
         //re-assign common analyzer data
-        commonAnalyzerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
         commonAnalyzerData.checkedErrorList = prevCheckedErrorList;
         commonAnalyzerData.queryFinalClauses = prevQueryFinalClauses;
         commonAnalyzerData.letCount = prevLetCount;
@@ -506,9 +487,7 @@ public class QueryTypeChecker extends TypeChecker {
                 completionTypes.addAll(data.queryData.completeEarlyErrorList);
             }
         } else if (queryConstructType == Types.QueryConstructType.STREAM) {
-            if (commonAnalyzerData.checkWithinQueryExpr) {
-                completionTypes.addAll(commonAnalyzerData.checkedErrorList);
-            }
+            completionTypes.addAll(commonAnalyzerData.checkedErrorList);
             if (completionTypes.isEmpty()) {
                 // if there's no completion type at this point,
                 // then () gets added as a valid completion type for streams.
@@ -673,8 +652,7 @@ public class QueryTypeChecker extends TypeChecker {
         lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv, data);
         // rhsExprEnv should only contain scope entries after join condition.
         onClause.rhsEnv = getEnvAfterJoinNode(commonAnalyzerData.queryEnvs.peek(), joinNode);
-        rhsType = checkExpr(onClause.rhsExpr,
-                onClause.rhsEnv != null ? onClause.rhsEnv : commonAnalyzerData.queryEnvs.peek(), data);
+        rhsType = checkExpr(onClause.rhsExpr, onClause.rhsEnv, data);
         if (!types.isAssignable(lhsType, rhsType)) {
             dlog.error(onClause.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
         }
@@ -769,6 +747,14 @@ public class QueryTypeChecker extends TypeChecker {
         }
     }
 
+    @Override
+    public void visit(BLangCheckedExpr checkedExpr, TypeChecker.AnalyzerData data) {
+        visitCheckAndCheckPanicExpr(checkedExpr, data);
+        if (checkedExpr.equivalentErrorTypeList != null) {
+            data.commonAnalyzerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
+    }
+
     private SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
         SymbolEnv clone = env.createClone();
         while (clone != null && clone.node != node) {
@@ -802,9 +788,8 @@ public class QueryTypeChecker extends TypeChecker {
      * @since 2201.5.0
      */
     public static class AnalyzerData {
-        BType expType;
-        TypeChecker.AnalyzerData typeCheckerData;
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
+        HashSet<BType> checkedErrorList = new HashSet<>();
     }
 }

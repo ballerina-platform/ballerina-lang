@@ -7119,7 +7119,6 @@ public class Types {
     public static class CommonAnalyzerData {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
-        boolean checkWithinQueryExpr = false;
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;

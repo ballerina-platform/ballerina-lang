@@ -212,7 +212,7 @@ import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WO
  */
 public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerData> {
 
-    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
+    protected static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
     private static Set<String> listLengthModifierFunctions = new HashSet<>();
     private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
@@ -241,7 +241,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final Types types;
     private final Unifier unifier;
-    private final QueryTypeChecker queryTypeChecker;
+    protected final QueryTypeChecker queryTypeChecker;
 
     static {
         listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);
@@ -314,7 +314,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         this.queryTypeChecker = QueryTypeChecker.getInstance(context);
     }
 
-    public TypeChecker(CompilerContext context, boolean b) {
+    public TypeChecker(CompilerContext context, CompilerContext.Key<TypeChecker> key) {
+        context.put(key, this);
+
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -6024,12 +6026,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
-        Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
-        typeCheckerData.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
-        if (typeCheckerData.checkWithinQueryExpr && checkedExpr.equivalentErrorTypeList != null) {
-            data.commonAnalyzerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
-        }
     }
 
     @Override
@@ -6041,11 +6038,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
         // TODO: Change the public methods to private again
         queryTypeChecker.checkQueryType(queryExpr, data);
-    }
-
-    private boolean isWithinQuery(AnalyzerData data) {
-        return !data.commonAnalyzerData.queryEnvs.isEmpty()
-                && !data.commonAnalyzerData.queryFinalClauses.isEmpty();
     }
 
     @Override
@@ -6064,7 +6056,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         onFailClause.body.stmts.forEach(stmt -> stmt.accept(this, data));
     }
 
-    private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, AnalyzerData data) {
+    protected void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
