@@ -413,11 +413,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-        
-        if (REGEXP.equals(pkgNode.packageID)) {
-            definePredeclaredModuleEntry(pkgNode.compUnits, Map.entry(Names.REGEXP, symTable.langRegexpModuleSymbol));
-        }
 
+        if (REGEXP.equals(pkgNode.packageID)) {
+            defineRequiredModuleEntry(pkgNode.compUnits, Map.entry(Names.REGEXP, symTable.langRegexpModuleSymbol));
+        }
+        
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1147,13 +1147,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
-            definePredeclaredModuleEntry(compUnits, predeclaredModuleEntry);
+            defineRequiredModuleEntry(compUnits, predeclaredModuleEntry);
         }
         this.env = prevEnv;
     }
 
-    private void definePredeclaredModuleEntry(List<BLangCompilationUnit> compUnits, 
-                                              Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry) {
+    private void defineRequiredModuleEntry(List<BLangCompilationUnit> compUnits,
+                                           Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry) {
         Name alias = predeclaredModuleEntry.getKey();
         BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
         int index = 0;
