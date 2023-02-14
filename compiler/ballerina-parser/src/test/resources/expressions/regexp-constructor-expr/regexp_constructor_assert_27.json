@@ -139,7 +139,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_RE_SYNTAX_CHAR"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
                                           "trailingMinutiae": [
                                             {
