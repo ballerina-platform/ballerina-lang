@@ -2828,15 +2828,43 @@ type ArrayOnRecordField record {
     anydata[] value;
 };
 
+type ReadOnlyAnydata anydata & readonly;
+
 function testCloneWithTypeTableToAnydata() {
     table<record {readonly int 'key; string value;}> key('key) tableVal = table key('key) [
         {'key: 1, value: "foo"}
         ];
-    anydata tableValCloned = checkpanic tableVal.cloneWithType();
-    test:assertValueEqual(tableValCloned, table [{"key":1,"value":"foo"}]);
 
+    anydata|(anydata & readonly) tableValCloned = checkpanic tableVal.cloneWithType(anydata);
+    test:assertValueEqual(tableValCloned, table [{"key": 1, "value": "foo"}]);
+    test:assertValueEqual(tableValCloned is readonly, false);
+
+    anydata|(anydata & readonly) tableValCloned2 = checkpanic tableVal.cloneWithType(ReadOnlyAnydata);
+    test:assertValueEqual(tableValCloned2, table [{"key": 1, "value": "foo"}]);
+    test:assertValueEqual(tableValCloned2 is readonly, true);
+
+    any result;
     table<record {int 'key; readonly string value;}> key(value) tableVal2 = checkpanic tableValCloned.cloneWithType();
-    test:assertValueEqual(tableVal2, table key(value) [{"key":1,"value":"foo"}]);
+    test:assertValueEqual(tableVal2, table key(value) [{"key": 1, "value": "foo"}]);
+    result = tableVal2;
+    test:assertValueEqual(result is readonly, false);
+
+    table<record {int 'key; readonly string value;}> key(value) tableVal3 = checkpanic tableValCloned2.cloneWithType();
+    test:assertValueEqual(tableVal3, table key(value) [{"key": 1, "value": "foo"}]);
+    result = tableVal3;
+    test:assertValueEqual(result is readonly, false);
+
+    table<record {int 'key; readonly string value;}> key(value) & readonly tableVal4 =
+        checkpanic tableValCloned.cloneWithType();
+    test:assertValueEqual(tableVal4, table key(value) [{"key": 1, "value": "foo"}]);
+    result = tableVal4;
+    test:assertValueEqual(result is readonly, true);
+
+    table<record {int 'key; readonly string value;}> key(value) & readonly tableVal5 =
+        checkpanic tableValCloned2.cloneWithType();
+    test:assertValueEqual(tableVal5, table key(value) [{"key": 1, "value": "foo"}]);
+    result = tableVal5;
+    test:assertValueEqual(result is readonly, true);
 
     anydata rec = {
         value: [
@@ -2853,6 +2881,7 @@ function testCloneWithTypeTableToAnydata() {
                 ]
         ]
     };
+
     ArrayOnRecordField recCloned = checkpanic rec.cloneWithType();
     test:assertValueEqual(recCloned, <ArrayOnRecordField>{
         "value": [
@@ -2867,6 +2896,25 @@ function testCloneWithTypeTableToAnydata() {
             table [{"key": 1, "value": "foo"}]
         ]
     });
+    result = recCloned;
+    test:assertValueEqual(result is readonly, false);
+
+    ArrayOnRecordField & readonly recCloned2 = checkpanic rec.cloneWithType();
+    test:assertValueEqual(recCloned2, <ArrayOnRecordField>{
+        "value": [
+            (),
+            true,
+            123,
+            123.45,
+            123.45d,
+            "s3cr3t",
+            xml `<book>The Lost World</book>`,
+            {"foo": "bar"},
+            table [{"key": 1, "value": "foo"}]
+        ]
+    });
+    result = recCloned2;
+    test:assertValueEqual(result is readonly, true);
 }
 
 type Assertion [string, string];
