@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -83,6 +84,9 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
         if (this.langLibFunctions == null) {
             if (this.effectiveTypeDescriptor().typeKind() == TypeDescKind.OBJECT) {
                 this.langLibFunctions = this.effectiveTypeDescriptor().langLibMethods();
+            } else if (this.effectiveTypeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) this.effectiveTypeDescriptor();
+                this.langLibFunctions = typeRef.typeDescriptor().langLibMethods();
             } else {
                 LangLibrary langLibrary = LangLibrary.getInstance(this.context);
                 List<FunctionSymbol> functions = langLibrary.getMethods(
