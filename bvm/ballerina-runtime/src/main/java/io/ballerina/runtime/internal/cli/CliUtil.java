@@ -84,7 +84,7 @@ public class CliUtil {
 
     private static Object getByteValue(String argument, String parameterName) {
         try {
-            return TypeConverter.stringToInt(argument);
+            return TypeConverter.stringToByte(argument);
         } catch (NumberFormatException e) {
             throw getInvalidArgumentError(argument, parameterName, "byte");
         }
