@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -115,6 +116,18 @@ public class InnerQueryTest {
     @Test
     public void testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() {
         BRunUtil.invoke(result, "testQueryConstructingTableHavingInnerQueriesWithOnConflictClause");
+    }
+
+    @Test(dataProvider = "dataToTestInnerQueryExpr")
+    public void testInnerQueryExpr(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestInnerQueryExpr() {
+        return new Object[]{
+                "testInnerQueryExprWithLangLibCallsWithArrowFunctions"
+        };
     }
 
     @AfterClass

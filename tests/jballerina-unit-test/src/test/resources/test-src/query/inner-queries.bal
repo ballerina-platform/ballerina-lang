@@ -661,6 +661,32 @@ function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
         on conflict error("Duplicate Key in Outer Query");
 }
 
+function testInnerQueryExprWithLangLibCallsWithArrowFunctions() {
+    int[] idList = [4, 5];
+
+    int[] v1 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        where [40, 50].some(k => k == i * 10)
+        select i + 10;
+    assertEquality(true, v1 == [14]);
+
+    boolean[] v2 = from Person[] personList in (from int id in [4]
+            let string name = personList.filter(person => person.id == id).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v2 == [true]);
+
+    boolean[] v3 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        from Person[] personList in (from int k in [40]
+            let string name = personList.filter(person => person.id == k/10).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v3 == [true]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
