@@ -1,25 +1,26 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
 package org.ballerinalang.stdlib.multipart;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -94,7 +95,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    multipartDataBoundary, inputStream);
+                                                                                multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             ObjectValue bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
@@ -115,7 +116,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/new-sub-type; boundary=" +
-                    multipartDataBoundary, inputStream);
+                                                                                multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             ObjectValue bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
@@ -136,7 +137,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    multipartDataBoundary, inputStream);
+                                                                                multipartDataBoundary, inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             for (MIMEPart mimePart : mimeParts) {
                 testNestedPartContent(mimePart);
@@ -155,7 +156,7 @@ public class MultipartEncoderTest {
      */
     private void testNestedPartContent(MIMEPart mimePart) throws MimeTypeParseException, IOException {
         List<MIMEPart> nestedParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
-                mimePart.readOnce());
+                                                                      mimePart.readOnce());
         Assert.assertEquals(nestedParts.size(), 4);
         ObjectValue ballerinaBodyPart = createEntityObject();
         validateBodyPartContent(nestedParts, ballerinaBodyPart);
@@ -167,7 +168,7 @@ public class MultipartEncoderTest {
         ObjectValue bodyPart = createEntityObject();
         ObjectValue contentDispositionStruct = getContentDispositionStruct();
         MimeUtil.setContentDisposition(contentDispositionStruct, bodyPart,
-                                   "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
+                                       "form-data; name=\"filepart\"; filename=\"file-01.txt\"");
         ObjectValue contentDisposition =
                 (ObjectValue) bodyPart.get(CONTENT_DISPOSITION_FIELD);
         Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD).toString(), "file-01.txt");
@@ -184,7 +185,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    "e3a0b9ad7b4e7cdb", inputStream);
+                                                                                "e3a0b9ad7b4e7cdb", inputStream);
             Assert.assertEquals(mimeParts.size(), 4);
             ObjectValue bodyPart = createEntityObject();
             validateBodyPartContent(mimeParts, bodyPart);
@@ -204,11 +205,11 @@ public class MultipartEncoderTest {
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(inRequestMsg.getHeader(HttpHeaderNames.
-                            CONTENT_TYPE.toString()),
-                    inputStream);
+                                                                                CONTENT_TYPE.toString()),
+                                                                        inputStream);
             Assert.assertEquals(mimeParts.size(), 2);
             List<MIMEPart> childParts = MultipartDecoder.decodeBodyParts(mimeParts.get(1).getContentType(),
-                    mimeParts.get(1).readOnce());
+                                                                         mimeParts.get(1).readOnce());
             Assert.assertEquals(childParts.size(), 2);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
@@ -223,15 +224,37 @@ public class MultipartEncoderTest {
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
         BValue[] returnValues = BRunUtil.invoke(compileResult, "testBase64EncodeByteChannel",
-                                                new Object[]{ byteChannelStruct });
+                                                new Object[]{byteChannelStruct});
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
-                "Invalid return value");
+                           "Invalid return value");
         BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         try {
             Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
         } catch (IOException e) {
             Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test()
+    public void testBoundaryWithQuotes() {
+        String path = "/multipart/boundaryCheck";
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HttpCarbonMessage response = Services.invoke(EP_PORT, inRequestMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
+        try {
+            List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(
+                    "multipart/mixed; boundary=\"------=_Part_0_814051860.1675096572056\"", inputStream);
+            Assert.assertEquals(mimeParts.size(), 1);
+            ObjectValue bodyPart = createEntityObject();
+            EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(0));
+            Object jsonData = EntityBodyHandler.constructJsonDataSource(bodyPart);
+            Assert.assertNotNull(jsonData);
+            Assert.assertEquals(org.ballerinalang.jvm.values.utils.StringUtils.getJsonString(jsonData),
+                                "{\"" + "bodyPart" + "\":\"" + "jsonPart" + "\"}");
+        } catch (MimeTypeParseException e) {
+            log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());
         }
     }
 }

@@ -56,4 +56,20 @@ service test on mockEP {
         }
         checkpanic caller->respond(outResponse);
     }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/boundaryCheck"
+    }
+    resource function multipartOutResponseWithBoundaryQuotes(http:Caller caller, http:Request request) {
+        mime:Entity bodyPart1 = new;
+        bodyPart1.setJson({"bodyPart":"jsonPart"});
+        mime:Entity[] bodyParts = [bodyPart1];
+
+        //Set the body parts to outbound response.
+        http:Response outResponse = new;
+        string contentType = mime:MULTIPART_MIXED + "; boundary=\"------=_Part_0_814051860.1675096572056\"";
+        outResponse.setBodyParts(bodyParts, contentType);
+        checkpanic caller->respond(outResponse);
+    }
 }
