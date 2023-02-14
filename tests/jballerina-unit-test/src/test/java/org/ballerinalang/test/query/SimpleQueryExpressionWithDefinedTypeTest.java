@@ -367,6 +367,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         BRunUtil.invoke(result, "testUsingAnIntersectionTypeInQueryExpr");
     }
 
+    @Test
+    public void testQueryExprWithLangLibCallsWithArrowFunctions() {
+        BRunUtil.invoke(result, "testQueryExprWithLangLibCallsWithArrowFunctions");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
