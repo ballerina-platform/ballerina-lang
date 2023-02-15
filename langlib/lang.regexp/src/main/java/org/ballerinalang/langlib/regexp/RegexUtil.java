@@ -46,7 +46,7 @@ public class RegexUtil {
     static final BArrayType GROUPS_AS_SPAN_ARRAY_TYPE = new BArrayType(SPAN_AS_TUPLE_TYPE);
 
     static final BArrayType GROUPS_ARRAY_TYPE = new BArrayType(GROUPS_AS_SPAN_ARRAY_TYPE);
-    static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) throws Exception {
+    static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) throws PatternSyntaxException {
         try {
             return getMatcher(regexpVal, inputStr.getValue());
         } catch (Exception e) {

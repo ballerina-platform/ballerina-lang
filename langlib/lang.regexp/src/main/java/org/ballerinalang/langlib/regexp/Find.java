@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
 
@@ -118,7 +119,7 @@ public class Find {
     private static Matcher getMatcher(BRegexpValue regExp, BString str) {
         try {
             return RegexUtil.getMatcher(regExp, str);
-        } catch (Exception e) {
+        } catch (PatternSyntaxException e) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
                     RuntimeErrors.REGEXP_INVALID_PATTERN);
         }
