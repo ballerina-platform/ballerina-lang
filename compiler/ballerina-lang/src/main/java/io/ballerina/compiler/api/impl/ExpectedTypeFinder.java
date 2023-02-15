@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaArrayTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.impl.util.SymbolUtils;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -82,6 +83,7 @@ import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -121,6 +123,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -148,8 +151,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     private final NodeFinder nodeFinder;
     private final Document document;
 
-    public  ExpectedTypeFinder(SemanticModel semanticModel, BLangCompilationUnit bLangCompilationUnit,
-                               CompilerContext context, LinePosition linePosition, Document srcDocument) {
+    public ExpectedTypeFinder(SemanticModel semanticModel, BLangCompilationUnit bLangCompilationUnit,
+                              CompilerContext context, LinePosition linePosition, Document srcDocument) {
         this.nodeFinder = new NodeFinder(true);
         this.semanticModel = semanticModel;
         this.bLangCompilationUnit = bLangCompilationUnit;
@@ -445,9 +448,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         ParenthesizedArgList parenthesizedArgList = node.parenthesizedArgList();
         // Check the cursor position in within the parenthesis.
         if (isWithinParenthesis(linePosition, parenthesizedArgList.openParenToken(),
-              parenthesizedArgList.closeParenToken()) && bLangNode instanceof BLangTypeInit
-              && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
-              && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
+                parenthesizedArgList.closeParenToken()) && bLangNode instanceof BLangTypeInit
+                && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
+                && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol 
+                instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
             if (params.size() == 0) {
@@ -497,7 +501,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 if (initInvocation.argExprs.isEmpty()) {
-                    return getParamType(initInvocation);
+                    return getParamType(initInvocation, 0, Collections.emptyList());
                 }
 
                 int argIndex = 0;
@@ -517,6 +521,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         return getExpectedType(bLangNode);
     }
+
     @Override
     public Optional<TypeSymbol> transform(IfElseStatementNode node) {
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
@@ -638,7 +643,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         BType bType = bLangNode.getBType();
         if (bLangNode.getBType().getKind() == TypeKind.MAP) {
-            return  getTypeFromBType(bLangNode.getBType());
+            return getTypeFromBType(bLangNode.getBType());
         }
 
         if (bType.getKind() == TypeKind.OTHER) {
@@ -826,7 +831,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             case USER_DEFINED_TYPE:
                 bType = node.getBType();
                 break;
-            case  VARIABLE:
+            case VARIABLE:
                 if (((BLangSimpleVariable) node).expr != null) {
                     bType = ((BLangSimpleVariable) node).expr.expectedType;
                 }
@@ -908,9 +913,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     private Optional<TypeSymbol> getSymbolType(BSymbol symbol) {
         BType bType = null;
 
-        if (symbol.getKind() == SymbolKind.VARIABLE) {
-            bType = symbol.getType();
-        } else if (symbol.getKind() == SymbolKind.FUNCTION) {
+        if (symbol.getKind() == SymbolKind.VARIABLE || symbol.getKind() == SymbolKind.FUNCTION) {
             bType = symbol.getType();
         }
 
@@ -972,16 +975,34 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
      * Get the TypeSymbol related to first argument in bLangInvocationNode.
      *
      * @param bLangNode bLangInvocationNode related to the function/method
-     * @return  the type symbol if available, if not, returns empty
+     * @return the type symbol if available, if not, returns empty
      */
-    private Optional<TypeSymbol> getParamType(BLangInvocation bLangNode) {
+    private Optional<TypeSymbol> getParamType(BLangInvocation bLangNode, int argumentIndex, List<String> namedArgs) {
         BSymbol symbol = bLangNode.symbol;
         if (symbol == null) {
             return Optional.empty();
         }
 
-        BSymbol paramSymbol = ((BInvokableSymbol) symbol).params.get(0);
-        return getSymbolType(paramSymbol);
+        BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+        int paramsSize = invokableSymbol.params.size();
+        // The function can have required/defaultable parameters or it can have only a rest parameter.
+        if (!invokableSymbol.params.isEmpty() && argumentIndex < paramsSize) {
+            if (namedArgs.isEmpty()) {
+                return getSymbolType(invokableSymbol.params.get(argumentIndex));
+            }
+            // If the function has named arguments, we need to find the next possible named argument.
+            //Skip the first n arguments where n is the number of positional arguments specified by the user.
+            int numOfPositionalArgs = argumentIndex - namedArgs.size();
+            return invokableSymbol.params.subList(numOfPositionalArgs, paramsSize)
+                    .stream().filter(param -> !namedArgs.contains(param.name.value))
+                    .findFirst().flatMap(this::getSymbolType);
+        }
+        if (invokableSymbol.restParam != null) {
+            return getSymbolType(invokableSymbol.restParam)
+                    .filter(type -> type.typeKind() == TypeDescKind.ARRAY)
+                    .map(typeSymbol -> ((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
+        }
+        return Optional.empty();
     }
 
     private UnionTypeSymbol buildUnionOfIterables(TypeSymbol typeSymbol, SemanticModel semanticModel) {
@@ -1037,32 +1058,39 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     private Optional<TypeSymbol> getExpectedTypeFromFunction(BLangInvocation bLangInvocation) {
         int size = bLangInvocation.argExprs.size();
         boolean langLibInvocation = bLangInvocation.langLibInvocation;
+
         if (size == 0 && !langLibInvocation) {
-            return getParamType(bLangInvocation);
-        } else {
-            int argumentIndex = 0;
-            for (BLangNode nodeInst : bLangInvocation.argExprs) {
-                // offset is only considered
-                if (nodeInst.getPosition().lineRange().endLine().offset() < linePosition.offset()) {
-                    argumentIndex += 1;
-                }
-            }
-
-            if (langLibInvocation) {
-                if (bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
-                    return Optional.ofNullable(typesFactory.getTypeDescriptor
-                            (((BArrayType) bLangInvocation.expr.expectedType).eType));
-                }
-
-                if (size == 1) {
-                    return getParamType(bLangInvocation);
-                }
-
-                return getExpectedType(bLangInvocation.argExprs.get(argumentIndex - 1));
-            }
-
-            return getExpectedType((bLangInvocation.argExprs.get(argumentIndex)));
+            return getParamType(bLangInvocation, 0, Collections.emptyList());
         }
 
+        //func(arg1, arg<cursor>, 10)
+        int argumentIndex = 0;
+        List<String> namedArgs = new ArrayList<>();
+        for (BLangNode nodeInst : bLangInvocation.argExprs) {
+            //only offset is considered
+            if (nodeInst.getPosition().lineRange().endLine().offset() < linePosition.offset()) {
+                if (nodeInst.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                    namedArgs.add(((BLangNamedArgsExpression) nodeInst).name.value);
+                }
+                argumentIndex += 1;
+            }
+        }
+
+        if (langLibInvocation) {
+            if (bLangInvocation.expr.getBType().getKind() == TypeKind.ARRAY) {
+                return Optional.ofNullable(typesFactory.getTypeDescriptor
+                        (((BArrayType) bLangInvocation.expr.expectedType).eType));
+            }
+
+            //First argExpr is the expr of the BLangInvocationNode. Therefore, it should not be considered 
+            // and the type of the second arg should be returned
+            return getParamType(bLangInvocation, argumentIndex, namedArgs);
+        }
+
+        BLangExpression bLangExpression = bLangInvocation.argExprs.get(argumentIndex);
+        if (bLangExpression.toString().startsWith("$missingNode$")) {
+            return getParamType(bLangInvocation, argumentIndex, namedArgs);
+        }
+        return getExpectedType(bLangExpression);
     }
 }
