@@ -109,10 +109,10 @@ public class InitMethodGen {
         // generate another lambda for start function as well
         generateLambdaForModuleFunction(cw, MODULE_START_METHOD, initClass, jvmCastGen);
 
-        MethodVisitor mv = visitFunction(cw, MethodGenUtils
-                .calculateLambdaStopFuncName(pkg.packageID));
+        String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
+        MethodVisitor mv = visitFunction(cw, funcName);
 
-        invokeStopFunction(initClass, mv);
+        invokeStopFunction(initClass, mv, funcName);
 
         for (PackageID id : depMods) {
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
@@ -122,7 +122,8 @@ public class InitMethodGen {
 
     private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
                                                  JvmCastGen jvmCastGen) {
-        MethodVisitor mv = visitFunction(cw, "$lambda$" + funcName + "$");
+        String lambdaFuncName = "$lambda$" + funcName + "$";
+        MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
 
         //load strand as first arg
@@ -133,13 +134,13 @@ public class InitMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, JvmSignatures.MODULE_START, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass );
     }
 
     private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
         String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
         MethodVisitor mv = visitFunction(cw, lambdaName);
-        invokeStopFunction(initClass, mv);
+        invokeStopFunction(initClass, mv, lambdaName);
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
@@ -148,7 +149,7 @@ public class InitMethodGen {
         return mv;
     }
 
-    private void invokeStopFunction(String initClass, MethodVisitor mv) {
+    private void invokeStopFunction(String initClass, MethodVisitor mv, String methodName) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
@@ -157,7 +158,7 @@ public class InitMethodGen {
         String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
         mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, JvmSignatures.MODULE_START,
                            false);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, methodName ,initClass);
     }
 
     public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String typeOwnerClass,
@@ -186,7 +187,7 @@ public class InitMethodGen {
 
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT, typeOwnerClass);
     }
 
     public void enrichPkgWithInitializers(JvmPackageGen jvmPackageGen, Map<String, BIRFunctionWrapper> birFunctionMap,

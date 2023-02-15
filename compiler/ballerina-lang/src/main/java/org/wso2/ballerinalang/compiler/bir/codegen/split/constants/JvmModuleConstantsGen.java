@@ -25,6 +25,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
@@ -49,6 +50,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_MODULES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_CONSTANT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MODULE;
@@ -131,8 +133,7 @@ public class JvmModuleConstantsGen {
                                        MODULE_INIT_METHOD_PREFIX + methodCount, "()V", false);
                     mv.visitInsn(RETURN);
                 }
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                JvmCodeGenUtil.visitMethodEnd(mv, MODULE_INIT_METHOD_PREFIX, moduleConstantClass);
             }
         }
         // Visit the previously started module init method if not ended.

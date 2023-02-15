@@ -182,7 +182,7 @@ public class JvmCreateTypeGen {
         jarEntries.put(typesClass + ".class", jvmPackageGen.getBytes(typesCw, module));
     }
 
-    void createTypeConstants(ClassWriter cw) {
+    void createTypeConstants(ClassWriter cw, String moduleInitClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_CONSTANTS_METHOD, "()V", null, null);
         mv.visitCode();
 
@@ -205,13 +205,12 @@ public class JvmCreateTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_POPULATE_METHOD, "()V", false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_CONSTANTS_METHOD, moduleInitClass);
     }
 
     void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
                                    String moduleInitClass, SymbolTable symbolTable) {
-        createTypeConstants(cw);
+        createTypeConstants(cw, moduleInitClass);
         createTypesInstance(cw, typeDefs, moduleInitClass);
         Map<String, String> populateTypeFuncNames = populateTypes(cw, typeDefs, moduleInitClass, symbolTable);
 
@@ -231,8 +230,7 @@ public class JvmCreateTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, typeClassName, funcName, "()V", false);
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPES_METHOD, moduleInitClass);
     }
 
     private void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String moduleInitClass) {
@@ -243,8 +241,7 @@ public class JvmCreateTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, moduleInitClass);
     }
 
     private int createTypesInstanceSplits(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
@@ -293,14 +290,12 @@ public class JvmCreateTypeGen {
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
         }
 
         return methodCount;
@@ -355,8 +350,7 @@ public class JvmCreateTypeGen {
             }
 
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeOwnerClass);
         }
 
         return funcTypeClassMap;
@@ -522,8 +516,7 @@ public class JvmCreateTypeGen {
             mv.visitInsn(ARETURN);
             generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, moduleInitClass);
         }
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, GET_ANON_TYPE_METHOD, anonTypesClass);
     }
 
     void generateGetAnonTypeSplitMethods(ClassWriter cw,  AnonTypeHashInfo anonTypeHashSwitch,
@@ -674,14 +667,12 @@ public class JvmCreateTypeGen {
                     mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod, SET_LINKED_HASH_MAP, false);
                 }
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeClassName);
             }
         }
         if (methodCount != 0 && fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeClassName);
         }
     }
 

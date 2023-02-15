@@ -126,7 +126,8 @@ public class JvmBStringConstantsGen {
 
     private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
         List<String> splitMethodNames = generateSplitGetSurrogateArrayMethod(cw, varName, values);
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, getHighSurrogateMethodName(varName), "()[I", null, null);
+        String highSurrogateMethodName = getHighSurrogateMethodName(varName);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, highSurrogateMethodName, "()[I", null, null);
         mv.visitLdcInsn(values.length);
         mv.visitIntInsn(NEWARRAY, T_INT);
         mv.visitVarInsn(ASTORE, 0);
@@ -137,8 +138,7 @@ public class JvmBStringConstantsGen {
         }
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, highSurrogateMethodName, surrogatesMethodsClass);
     }
 
     private List<String> generateSplitGetSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
@@ -146,9 +146,10 @@ public class JvmBStringConstantsGen {
         MethodVisitor mv = null;
         int indexCount = 0;
         int methodCount = 0;
+        String methodName = getHighSurrogateMethodName(varName);
         for (int i = 0; i < values.length; i++) {
             if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
-                String methodName = getHighSurrogateMethodName(varName) + methodCount++;
+                methodName = methodName + methodCount++;
                 mv = cw.visitMethod(ACC_STATIC, methodName, "([I)V", null,
                         null);
                 methods.add(methodName);
@@ -161,15 +162,13 @@ public class JvmBStringConstantsGen {
             indexCount++;
             if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                JvmCodeGenUtil.visitMethodEnd(mv, methodName, surrogatesMethodsClass);
             }
         }
         // Visit the previously started get surrogate array method if not ended.
         if (indexCount % MAX_STRINGS_PER_METHOD != 0) {
             mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, methodName, surrogatesMethodsClass);
         }
         return methods;
     }

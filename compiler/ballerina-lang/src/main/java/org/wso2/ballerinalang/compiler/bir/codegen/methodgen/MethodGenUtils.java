@@ -74,10 +74,9 @@ public class MethodGenUtils {
                 SCHEDULE_LOCAL, false);
     }
 
-    static void visitReturn(MethodVisitor mv) {
+    static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, funcName, className);
     }
 
     public static String encodeModuleSpecialFuncName(String funcSuffix) {

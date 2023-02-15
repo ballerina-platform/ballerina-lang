@@ -131,8 +131,7 @@ public class JvmObjectCreatorGen {
             generateCreateObjectMethodSplits(cw, objectTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     symbolTable, metadataVarName);
         }
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_OBJECT_VALUE, objectsClass);
     }
 
     private void generateCreateObjectMethodSplits(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefList,

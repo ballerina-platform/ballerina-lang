@@ -182,8 +182,7 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
                            HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, "main", initClass);
     }
 
     private void generateMethodCall(String initClass, MethodVisitor mv,
@@ -470,6 +469,6 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value,
                            JvmCodeGenUtil.getMethodDesc(paramTypes, returnType), false);
         jvmCastGen.addBoxInsn(mv, returnType);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, "$lambda$main$", mainClass);
     }
 }

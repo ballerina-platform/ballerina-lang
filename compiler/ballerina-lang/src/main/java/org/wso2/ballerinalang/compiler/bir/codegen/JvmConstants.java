@@ -383,6 +383,8 @@ public class JvmConstants {
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
+    public static final String INSTANTIATE_FUNCTION = "instantiate";
+
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants

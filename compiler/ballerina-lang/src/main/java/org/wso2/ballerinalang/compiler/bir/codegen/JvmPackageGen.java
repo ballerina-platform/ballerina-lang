@@ -256,8 +256,7 @@ public class JvmPackageGen {
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, JVM_STATIC_INIT_METHOD, className);
     }
 
     private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage,
@@ -407,8 +406,8 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
-                jvmTypeGen.generateGetAnonTypeMethod(cw);
-                jvmTypeGen.generateValueCreatorMethods(cw);
+                jvmTypeGen.generateGetAnonTypeMethod(cw, moduleClass);
+                jvmTypeGen.generateValueCreatorMethods(cw, moduleClass);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -450,7 +449,7 @@ public class JvmPackageGen {
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
-                lambdaGen.generateLambdaMethod(call, cw, name);
+                lambdaGen.generateLambdaMethod(call, cw, name, moduleClass);
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,

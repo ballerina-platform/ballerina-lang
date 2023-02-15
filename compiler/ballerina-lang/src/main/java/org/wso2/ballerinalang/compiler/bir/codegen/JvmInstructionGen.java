@@ -136,6 +136,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -1347,7 +1348,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION,
                                 INSTANTIATE, true);
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
@@ -1525,7 +1526,7 @@ public class JvmInstructionGen {
             this.loadVar(inst.typedescOp.variableDcl);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate", INSTANTIATE, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
     }

@@ -90,8 +90,7 @@ public class JvmAnnotationsGen {
             mv.visitMethodInsn(INVOKESTATIC, annotationsClass, ANNOTATIONS_METHOD_PREFIX + i, "()V", false);
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, ANNOTATIONS_METHOD_PREFIX, annotationsClass);
     }
 
     private int generateAnnotationsLoad(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,
@@ -100,8 +99,8 @@ public class JvmAnnotationsGen {
         MethodVisitor mv;
         String typePkgName = JvmCodeGenUtil.getPackageName(packageID);
 
-        mv = cw.visitMethod(ACC_STATIC, ANNOTATIONS_METHOD_PREFIX + methodCount++,
-                            "()V", null, null);
+        String annotationMethodName = ANNOTATIONS_METHOD_PREFIX + methodCount++;
+        mv = cw.visitMethod(ACC_STATIC, annotationMethodName, "()V", null, null);
         mv.visitCode();
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             if (optionalTypeDef.isBuiltin) {
@@ -116,8 +115,7 @@ public class JvmAnnotationsGen {
         }
         // Visit the previously started string init method if not ended.
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, annotationMethodName, annotationsClass);
         return methodCount;
     }
 

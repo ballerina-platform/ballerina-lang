@@ -828,4 +828,15 @@ public class JvmCodeGenUtil {
     public static String getRefTypeConstantName(BTypeReferenceType type) {
         return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
     }
+
+    public static void visitMethodEnd(MethodVisitor mv, String funcName, String className) {
+        try {
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        } catch (RuntimeException e) {
+            throw new BLangCompilerException(
+                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
+                            Utils.decodeIdentifier(className) + "'", e);
+        }
+    }
 }

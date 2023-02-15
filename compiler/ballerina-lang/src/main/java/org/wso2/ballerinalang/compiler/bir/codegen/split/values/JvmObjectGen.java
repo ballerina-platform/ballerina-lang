@@ -188,15 +188,13 @@ public class JvmObjectGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, className, "get",
                     GET_OBJECT_FOR_STRING, false);
             mv.visitInsn(ARETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, "get", className);
             splitObjectGetMethod(cw, fields, className, jvmCastGen);
             return;
         }
         Label defaultCaseLabel = new Label();
         createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, "get", className);
     }
 
     private void splitObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -284,15 +282,13 @@ public class JvmObjectGen {
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", CHECK_FIELD_UPDATE, false);
         if (!fields.isEmpty()) {
-            callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex,
-                    strKeyVarIndex);
+            callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex, strKeyVarIndex, "set");
             splitObjectSplitMethod(cw, fields, className, jvmCastGen);
             return;
         }
         Label defaultCaseLabel = new Label();
         createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, "set", className);
     }
 
     public void createAndSplitSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields,
@@ -309,25 +305,23 @@ public class JvmObjectGen {
         castToJavaString(mv, fieldNameRegIndex, strKeyVarIndex);
         if (!fields.isEmpty()) {
             callFirstSetMethod(className, mv, selfIndex, fieldNameRegIndex, valueRegIndex,
-                    strKeyVarIndex);
+                    strKeyVarIndex, "setOnInitialization");
             return;
         }
         Label defaultCaseLabel = new Label();
         createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, "setOnInitialization", className);
     }
 
     private void callFirstSetMethod(String className, MethodVisitor mv, int selfIndex, int fieldNameRegIndex,
-                                    int valueRegIndex, int strKeyVarIndex) {
+                                    int valueRegIndex, int strKeyVarIndex, String methodName) {
         mv.visitVarInsn(ALOAD, selfIndex);
         mv.visitVarInsn(ALOAD, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, className, "set", OBJECT_SET, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, methodName, className);
     }
 
     private void splitObjectSplitMethod(ClassWriter cw, Map<String, BField> fields, String className,
@@ -387,14 +381,12 @@ public class JvmObjectGen {
                     mv.visitMethodInsn(INVOKEVIRTUAL, className, setMethod, OBJECT_SET, false);
                     mv.visitInsn(RETURN);
                 }
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                JvmCodeGenUtil.visitMethodEnd(mv, setMethod, className);
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, strKeyVarIndex, "No such field: ");
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            JvmCodeGenUtil.visitMethodEnd(mv, setMethod, className);
         }
     }
 

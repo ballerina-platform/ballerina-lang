@@ -116,7 +116,7 @@ public class ModuleStopMethodGen {
 
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
-        String lambdaName = generateStopDynamicLambdaBody(cw);
+        String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
         generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
@@ -128,15 +128,14 @@ public class ModuleStopMethodGen {
             scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, MODULE_STOP_METHOD, initClass);
     }
 
-    private String generateStopDynamicLambdaBody(ClassWriter cw) {
+    private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
         String lambdaName = "$lambda$stopdynamic";
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
         mv.visitCode();
-        generateCallSchedulerStopDynamicListeners(mv);
+        generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
         return lambdaName;
     }
 
@@ -159,7 +158,7 @@ public class ModuleStopMethodGen {
         mv.visitLabel(labelIf);
     }
 
-    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv) {
+    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv, String lambdaName, String initClass) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(AALOAD);
@@ -171,7 +170,7 @@ public class ModuleStopMethodGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop",
                            SET_STRAND, false);
         mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, lambdaName, initClass);
     }
 
     private void addRuntimeRegistryAsParameter(MethodVisitor mv) {

@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
@@ -101,8 +102,7 @@ public class JvmErrorCreatorGen {
             mv.visitInsn(ARETURN);
             generateCreateErrorMethodSplits(cw, errorTypeDefList, moduleInitClass, typeOwnerClass, symbolTable);
         }
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_ERROR_VALUE, errorsClass);
     }
 
     private void generateCreateErrorMethodSplits(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,

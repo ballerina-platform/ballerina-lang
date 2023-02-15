@@ -242,8 +242,7 @@ public class InteropMethodGen {
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.lineRange().endLine().line() + 1, retLabel);
         termGen.genReturnTerm(returnVarRefIndex, birFunc, -1);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        JvmCodeGenUtil.visitMethodEnd(mv, birFunc.name.value, birFunc.javaField.getDeclaringClassName());
     }
 
     public static void desugarInteropFuncs(JMethodBIRFunction birFunc, InitMethodGen initMethodGen) {
