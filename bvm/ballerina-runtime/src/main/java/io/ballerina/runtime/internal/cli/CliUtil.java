@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -65,8 +66,15 @@ public class CliUtil {
     static Object getBValue(Type type, String value, String parameterName) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
+            case TypeTags.CHAR_STRING_TAG:
                 return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return getIntegerValue(value, parameterName);
             case TypeTags.BYTE_TAG:
                 return getByteValue(value, parameterName);
@@ -74,6 +82,8 @@ public class CliUtil {
                 return getFloatValue(value, parameterName);
             case TypeTags.DECIMAL_TAG:
                 return getDecimalValue(value, parameterName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getBValue(TypeUtils.getReferredType(type), value, parameterName);
             case TypeTags.BOOLEAN_TAG:
                 throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
                                                                               "'boolean' is expected without a value"));
