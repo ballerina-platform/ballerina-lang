@@ -81,6 +81,12 @@ function testRegExpValueWithCharacterClass() {
 
     string:RegExp x7 = re `[\p{sc=Latin}\p{gc=Lu}\p{Lt}\tA\)]??`;
     assertEquality("[\\p{sc=Latin}\\p{gc=Lu}\\p{Lt}\\tA\\)]??", x7.toString());
+    
+    string:RegExp x8 = re `[]`;
+    assertEquality("(?:)", x8.toString());
+    
+    string:RegExp x9 = re `AB[]`;
+    assertEquality("AB", x9.toString());
 }
 
 function testRegExpValueWithCharacterClass2() {
@@ -221,7 +227,7 @@ function testRegExpValueWithCapturingGroups5() {
     assertEquality("(?i:a|b)", x7.toString());
 
     string:RegExp x8 = re `(?im:a|b|[])`;
-    assertEquality("(?im:a|b|[])", x8.toString());
+    assertEquality("(?im:a|b|(?:))", x8.toString());
 
     string:RegExp x9 = re `(?i-m:[0-9])`;
     assertEquality("(?i-m:[0-9])", x9.toString());
@@ -358,7 +364,7 @@ function testComplexRegExpValue2() {
     assertEquality("$[^a-b\\tx-z]+(?i:ab^c[d-f]){12,}", x2.toString());
 
     string:RegExp x3 = re `(x|y)|z|[cde-j]*|(?ms:[^])`;
-    assertEquality("(x|y)|z|[cde-j]*|(?ms:[^])", x3.toString());
+    assertEquality("(x|y)|z|[cde-j]*|(?ms:(?:))", x3.toString());
 
     string:RegExp x4 = re `[^ab-cdk-l]*${val}+|(?:pqr{1,}[a=cdegf\s-\Seg-ijk-])`;
     assertEquality("[^ab-cdk-l]*10+|(?:pqr{1,}[a=cdegf\\s-\\Seg-ijk-])", x4.toString());
