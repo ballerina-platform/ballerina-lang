@@ -26,16 +26,13 @@ import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsolationAnalyzer;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -63,8 +60,6 @@ public class CompilerPhaseRunner {
     private final CodeAnalyzer codeAnalyzer;
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
-    private final CompilerPluginRunner compilerPluginRunner;
-    private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
     private final BIREmitter birEmitter;
@@ -94,8 +89,6 @@ public class CompilerPhaseRunner {
         this.codeAnalyzer = CodeAnalyzer.getInstance(context);
         this.documentationAnalyzer = DocumentationAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
-        this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
-        this.observabilitySymbolCollector = ObservabilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
         this.birEmitter = BIREmitter.getInstance(context);
@@ -133,15 +126,8 @@ public class CompilerPhaseRunner {
 
         documentationAnalyze(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.CONSTANT_PROPAGATION)) {
-            return;
         }
 
-        propagateConstants(pkgNode);
-        if (this.stopCompilation(pkgNode, CompilerPhase.COMPILER_PLUGIN)) {
-            return;
-        }
-
-        annotationProcess(pkgNode);
     }
 
     public void performBirGenPhases(BLangPackage pkgNode) {
@@ -208,10 +194,6 @@ public class CompilerPhaseRunner {
         return this.constantPropagation.perform(pkgNode);
     }
 
-    private BLangPackage annotationProcess(BLangPackage pkgNode) {
-        return this.compilerPluginRunner.runPlugins(pkgNode);
-    }
-
     public BLangPackage desugar(BLangPackage pkgNode) {
         return this.desugar.perform(pkgNode);
     }
@@ -233,7 +215,7 @@ public class CompilerPhaseRunner {
 
     private boolean checkNextPhase(CompilerPhase nextPhase) {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
-                nextPhase == CompilerPhase.COMPILER_PLUGIN || nextPhase == CompilerPhase.DESUGAR ||
+                nextPhase == CompilerPhase.DESUGAR ||
                 nextPhase == CompilerPhase.BIR_GEN;
                 // only added BIR_GEN temporary until we fully support closures for OCE
     }

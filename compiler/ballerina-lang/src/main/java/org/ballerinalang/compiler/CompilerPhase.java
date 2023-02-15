@@ -40,8 +40,6 @@ public enum CompilerPhase {
 
     CONSTANT_PROPAGATION("constantPropagation"),
 
-    COMPILER_PLUGIN("compilerPlugin"),
-
     DESUGAR("desugar"),
 
     BIR_GEN("birGen"),
@@ -68,8 +66,6 @@ public enum CompilerPhase {
                 return DOCUMENTATION_ANALYZE;
             case "constantPropagation":
                 return CONSTANT_PROPAGATION;
-            case "compilerPlugin":
-                return COMPILER_PLUGIN;
             case "desugar":
                 return DESUGAR;
             case "codeGen":
