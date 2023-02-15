@@ -66,8 +66,9 @@ public class CliUtil {
     static Object getBValue(Type type, String value, String parameterName) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
                 return StringUtils.fromString(value);
+            case TypeTags.CHAR_STRING_TAG:
+                return getCharValue(value, parameterName);
             case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
             case TypeTags.SIGNED16_INT_TAG:
@@ -92,10 +93,18 @@ public class CliUtil {
         }
     }
 
+    private static Object getCharValue(String argument, String parameterName) {
+        try {
+            return TypeConverter.stringToChar(StringUtils.fromString(argument));
+        } catch (BError e) {
+            throw getInvalidArgumentError(argument, parameterName, "string:Char");
+        }
+    }
+
     private static Object getByteValue(String argument, String parameterName) {
         try {
             return TypeConverter.stringToByte(argument);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | BError e) {
             throw getInvalidArgumentError(argument, parameterName, "byte");
         }
     }

@@ -129,6 +129,30 @@ public class ArgumentParserNegativeTest {
         BRunUtil.runMain(compileResult, argument);
     }
 
+    @Test
+    public void testInvalidByteArg() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_byte_param.bal");
+            BRunUtil.runMain(compileResult, "256");
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(),
+                    "error: invalid argument '256' for parameter 'i', expected byte value");
+        }
+    }
+
+    @Test
+    public void testInvalidCharArg() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_char_param.bal");
+            BRunUtil.runMain(compileResult, "ABC");
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(),
+                    "error: invalid argument 'ABC' for parameter 'c', expected string:Char value");
+        }
+    }
+
     @DataProvider(name = "intValues")
     public Object[] intValues() {
         return new Object[]{
