@@ -2917,6 +2917,173 @@ function testCloneWithTypeTableToAnydata() {
     test:assertValueEqual(result is readonly, true);
 }
 
+type ReadOnlyXmlElement xml:Element & readonly;
+
+function testConversionsBetweenXml() {
+    // xml to xml
+    xml:Element x1 = xml `<book>The Lost World</book>`;
+    xml:Element x1_cloned1 = checkpanic x1.cloneWithType(xml:Element);
+    test:assertValueEqual(x1_cloned1 == x1, true);
+    test:assertValueEqual(x1_cloned1 === x1, false);
+    xml child_x1 = xml `<author>Sir Arthur Conan Doyle</author>`;
+    x1.setChildren(child_x1);
+    test:assertValueEqual(x1, xml `<book><author>Sir Arthur Conan Doyle</author></book>`);
+    test:assertValueEqual(x1_cloned1, xml `<book>The Lost World</book>`);
+    anydata|(anydata & readonly) x1_cloned_readonly = checkpanic x1.cloneWithType(ReadOnlyXmlElement);
+    test:assertValueEqual(x1_cloned_readonly, xml `<book><author>Sir Arthur Conan Doyle</author></book>`);
+    test:assertValueEqual(x1_cloned_readonly is readonly, true);
+
+    xml x2 = xml `<book>The Lost World</book>`;
+    xml:Element x1_cloned5 = checkpanic x2.cloneWithType();
+    test:assertValueEqual(x1_cloned5, xml `<book>The Lost World</book>`);
+
+    xml:ProcessingInstruction|error x1_cloned6 = x2.cloneWithType();
+    test:assertValueEqual(x1_cloned6 is error, true);
+    if (x1_cloned6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", x1_cloned6.message());
+        test:assertValueEqual("'lang.xml:Element' value cannot be converted to 'lang.xml:ProcessingInstruction'",
+        <string>checkpanic x1_cloned6.detail()["message"]);
+    }
+
+    xml:Element & readonly x3 = xml `<foo>bar</foo>`;
+    xml:Element x3_cloned1_val = checkpanic x3.cloneWithType();
+    anydata x3_cloned1 = x3_cloned1_val;
+    test:assertValueEqual(x3_cloned1 === x3, false);
+    test:assertValueEqual(x3_cloned1 is xml:ProcessingInstruction, false);
+    test:assertValueEqual(x3_cloned1 is xml:Comment, false);
+    test:assertValueEqual(x3_cloned1 is xml:Text, false);
+
+    xml:Element & readonly x3_cloned2_val = checkpanic x3_cloned1.cloneWithType();
+    anydata|(anydata & readonly) x3_cloned2 = x3_cloned2_val;
+    test:assertValueEqual(x3_cloned2 === x3 || x3_cloned2 === x3_cloned1, false);
+    test:assertValueEqual(x3_cloned2 is readonly, true);
+    test:assertValueEqual(x3_cloned2 is xml:ProcessingInstruction, false);
+    test:assertValueEqual(x3_cloned2 is xml:Comment, false);
+    test:assertValueEqual(x3_cloned2 is xml:Text, false);
+
+    // uncomment after fixing https://github.com/ballerina-platform/ballerina-lang/issues/39610
+    // xml x4 = xml `<!--I am a comment-->`;
+    // xml:Comment x4_cloned1_val = checkpanic x4.cloneWithType();
+    // anydata|(anydata & readonly) x4_cloned1 = x4_cloned1_val;
+    // test:assertValueEqual(x4_cloned1 === x4, false);
+    // test:assertValueEqual(x4_cloned1 is xml:ProcessingInstruction, false);
+    // test:assertValueEqual(x4_cloned1 is xml:Element, false);
+    // test:assertValueEqual(x4_cloned1 is xml:Text, false);
+
+    // xml:ProcessingInstruction x5 = xml `<?target data?>`;
+    // xml x5_cloned1 = checkpanic x5.cloneWithType();
+    // test:assertValueEqual(x5_cloned1 === x5, false);
+    // test:assertValueEqual(x5_cloned1 is xml:Comment, false);
+    // test:assertValueEqual(x5_cloned1 is xml:Element, false);
+    // test:assertValueEqual(x5_cloned1 is xml:Text, false);
+    // test:assertValueEqual(x5_cloned1 is xml:ProcessingInstruction, true);
+    // test:assertValueEqual(x5_cloned1 is readonly, false);
+
+    // xml:Text x6 = xml `Hello, world!`;
+    // xml & readonly x6_cloned1_val = checkpanic x6.cloneWithType();
+    // anydata|(anydata & readonly) x6_cloned1 = x6_cloned1_val;
+    // test:assertValueEqual(x6_cloned1 === x6, false);
+    // test:assertValueEqual(x6_cloned1 is xml:Comment, false);
+    // test:assertValueEqual(x6_cloned1 is xml:Element, false);
+    // test:assertValueEqual(x6_cloned1 is xml:ProcessingInstruction, false);
+    // test:assertValueEqual(x6_cloned1 is xml:Text, true);
+    // test:assertValueEqual(x6_cloned1 is readonly, true);
+
+    // xml with anydata
+    anydata & readonly x1_cloned2 = checkpanic x1.cloneWithType();
+    any result = x1_cloned2;
+    test:assertValueEqual(result is readonly, true);
+    anydata x1_cloned3 = checkpanic x1.cloneWithType();
+    result = x1_cloned3;
+    test:assertValueEqual(result is readonly, false);
+    anydata x1_cloned4 = checkpanic x1_cloned2.cloneWithType();
+    result = x1_cloned4;
+    test:assertValueEqual(result is readonly, false);
+
+    anydata val = xml `<book>The Lost World</book>`;
+    anydata|(anydata & readonly) res;
+    xml:Element & readonly val_element_readonly = checkpanic val.cloneWithType();
+    res = val_element_readonly;
+    test:assertValueEqual(res is readonly, true);
+    test:assertValueEqual(val_element_readonly === val, false);
+    (xml:ProcessingInstruction & readonly)|error val_pi_readonly = val.cloneWithType();
+    test:assertValueEqual(val_pi_readonly is error, true);
+    if (val_pi_readonly is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", val_pi_readonly.message());
+        test:assertValueEqual("'lang.xml:Element' value cannot be converted to '(lang.xml:ProcessingInstruction " +
+        "& readonly)'", <string>checkpanic val_pi_readonly.detail()["message"]);
+    }
+
+    anydata|(anydata & readonly) val2 = checkpanic val.cloneWithType(anydata);
+    test:assertValueEqual(val2 is readonly, false);
+    test:assertValueEqual(val2 === val, false);
+    anydata & readonly val2_clone_readonly = checkpanic val.cloneWithType();
+    res = val2_clone_readonly;
+    test:assertValueEqual(res is readonly, true);
+    test:assertValueEqual(val2_clone_readonly == val, true);
+    anydata|(anydata & readonly) val2_2 = checkpanic val2_clone_readonly.cloneWithType(anydata);
+    test:assertValueEqual(val2_2 is readonly, false);
+    test:assertValueEqual(val2_2 === val2_clone_readonly, false);
+    anydata & readonly val2_2_readonly = checkpanic val2_clone_readonly.cloneWithType();
+    res = val2_2_readonly;
+    test:assertValueEqual(res is readonly, true);
+    test:assertValueEqual(res == val2_clone_readonly, true);
+
+    // xml with strings
+    string y1 = string `<book>The Lost World</book>`;
+    string y2 = string `<?target data?>`;
+    string y3 = string `<!--I am a comment-->`;
+    string y4 = string `Hello, world!`;
+    string y5 = "";
+
+    xml y1_val0 = checkpanic y1.cloneWithType();
+    test:assertValueEqual(y1_val0, xml `<book>The Lost World</book>`);
+    xml:Element y1_val1 = checkpanic y1.cloneWithType();
+    test:assertValueEqual(y1_val1, xml `<book>The Lost World</book>`);
+
+    xml:ProcessingInstruction|error y1_val2 = y1.cloneWithType();
+    test:assertValueEqual(y1_val2 is error, true);
+    if (y1_val2 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y1_val2.message());
+        test:assertValueEqual("'string' value cannot be converted to 'lang.xml:ProcessingInstruction'",
+        <string>checkpanic y1_val2.detail()["message"]);
+    }
+
+    xml:Comment|error y1_val3 = y1.cloneWithType();
+    test:assertValueEqual(y1_val3 is error, true);
+    if (y1_val3 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y1_val3.message());
+        test:assertValueEqual("'string' value cannot be converted to 'lang.xml:Comment'",
+        <string>checkpanic y1_val3.detail()["message"]);
+    }
+
+    xml:Text|error y1_val4 = y1.cloneWithType();
+    test:assertValueEqual(y1_val4 is error, true);
+    if (y1_val4 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y1_val4.message());
+        test:assertValueEqual("'string' value cannot be converted to 'lang.xml:Text'",
+        <string>checkpanic y1_val4.detail()["message"]);
+    }
+
+    xml:Element|error y4_val1 = y4.cloneWithType();
+    test:assertValueEqual(y4_val1 is error, true);
+    if (y4_val1 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y4_val1.message());
+        test:assertValueEqual("'string' value cannot be converted to 'lang.xml:Element': \n\t\tstring '\"Hello, world!\"' "
+        + "cannot be converted to 'lang.xml:Element': failed to parse xml: Unexpected character 'H' (code 72) in "
+        + "prolog; expected '<'\n at [row,col {unknown-source}]: [1,1]",
+        <string>checkpanic y4_val1.detail()["message"]);
+    }
+
+    // uncomment after fixing https://github.com/ballerina-platform/ballerina-lang/issues/39610 and add more tests
+    // xml:ProcessingInstruction y2_val1 = checkpanic y2.cloneWithType();
+    // test:assertValueEqual(y2_val1, xml `<?target data?>`);
+    // xml:Comment y3_val1 = checkpanic y3.cloneWithType();
+    // test:assertValueEqual(y3_val1, xml `<!--I am a comment-->`);
+    // xml:Text y4_val1 = checkpanic y4.cloneWithType();
+    // test:assertValueEqual(y4_val1, xml `Hello, world!`);
+}
+
 type Assertion [string, string];
 
 type BoundAssertion ["let", int];
