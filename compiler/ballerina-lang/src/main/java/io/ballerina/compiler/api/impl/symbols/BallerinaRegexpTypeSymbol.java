@@ -38,6 +38,7 @@ import java.util.Optional;
 public class BallerinaRegexpTypeSymbol extends AbstractTypeSymbol implements RegexpTypeSymbol {
 
     private ModuleSymbol module;
+    private boolean moduleEvaluated = false;
 
     public BallerinaRegexpTypeSymbol(CompilerContext context, BRegexpType regexpType) {
         super(context, TypeDescKind.REGEXP, regexpType);
@@ -50,13 +51,14 @@ public class BallerinaRegexpTypeSymbol extends AbstractTypeSymbol implements Reg
 
     @Override
     public Optional<ModuleSymbol> getModule() {
-        if (this.module == null) {
+        if (this.module == null && !this.moduleEvaluated) {
+            this.moduleEvaluated = true;
             SymbolTable symTable = SymbolTable.getInstance(this.context);
             SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
             this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langRegexpModuleSymbol,
                     symTable.langRegexpModuleSymbol.getOriginalName().value);
         }
-        return Optional.of(this.module);
+        return Optional.ofNullable(this.module);
     }
 
     @Override
