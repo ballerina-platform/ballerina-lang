@@ -4,7 +4,7 @@
     "character": 35
   },
   "source": "expression_context/source/new_expr_ctx_source29.bal",
-  "description": "",
+  "description": "Test completion in the new expression context",
   "items": [
     {
       "label": "start",
