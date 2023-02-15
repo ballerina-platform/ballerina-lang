@@ -23,7 +23,6 @@ import io.ballerina.architecturemodelgenerator.generators.entity.EntityModelGene
 import io.ballerina.architecturemodelgenerator.generators.service.ServiceModelGenerator;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 
@@ -52,16 +51,19 @@ public class ComponentModelBuilder {
         currentPackage.modules().forEach(module -> {
             PackageCompilation currentPackageCompilation = packageCompilation == null ?
                     currentPackage.getCompilation() : packageCompilation;
-            SemanticModel currentSemanticModel = currentPackageCompilation.getSemanticModel(module.moduleId());
             if (currentPackageCompilation.diagnosticResult().hasErrors() && !hasDiagnosticErrors.get()) {
                 hasDiagnosticErrors.set(true);
             }
             // todo : Check project diagnostics
-            ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentSemanticModel, module);
-            services.putAll(serviceModelGenerator.generate());
-
-            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentSemanticModel, module);
-            entities.putAll(entityModelGenerator.generate());
+            ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentPackageCompilation, module);
+            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentPackageCompilation, module);
+            try {
+                services.putAll(serviceModelGenerator.generate());
+                entities.putAll(entityModelGenerator.generate());
+            } catch (Exception e) {
+                // Handle exception
+                hasDiagnosticErrors.set(true);
+            }
         });
 
         return new ComponentModel(packageId, services, entities, hasDiagnosticErrors.get());

@@ -27,7 +27,6 @@ import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.entity.Association;
 import io.ballerina.architecturemodelgenerator.model.entity.Attribute;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.NilTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -52,6 +51,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
@@ -80,8 +80,8 @@ public class EntityModelGenerator extends ModelGenerator {
 
     private final Map<String, Entity> types = new HashMap<>();
 
-    public EntityModelGenerator(SemanticModel semanticModel, Module module) {
-        super(semanticModel, module);
+    public EntityModelGenerator(PackageCompilation packageCompilation, Module module) {
+        super(packageCompilation, module);
     }
 
     public Map<String, Entity> generate() {
