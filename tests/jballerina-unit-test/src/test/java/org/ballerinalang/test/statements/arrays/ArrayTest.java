@@ -239,6 +239,11 @@ public class ArrayTest {
         Assert.assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
+    @Test
+    public void testPrintByteArrayInTable() {
+        BRunUtil.invoke(compileResult, "testPrintByteArrayInTable");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/test;
+import ballerina/io;
 
 function testVarArgsArray() {
     validateVarArgs("val0", "val1", "val2");
@@ -254,6 +255,11 @@ function testArrayTupleType() {
     [string[2],int,float[3][4]][][] arr = [];
     typedesc<any> t = typeof arr;
     test:assertEquals("typedesc [string[2],int,float[3][4]][][]", t.toString());
+}
+
+function testPrintByteArrayInTable() {
+    io:println(table [{ id:1, byteArray: base16 `abcd`}]);
+    io:println(table [{ id:1, byteArray: base64 `Cake`}]);
 }
 
 function testUpdatingJsonTupleViaArrayTypedVar() {
