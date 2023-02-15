@@ -90,6 +90,12 @@ public class TypeConverter {
         } else {
             if (TypeTags.INTERSECTION == type.tag && type instanceof BIntersectionType) {
                 BType effectiveType = Types.getReferredType(type);
+                if (TypeTags.isSimpleBasicType(effectiveType.tag)) {
+                    String typeVal = getSimpleType(effectiveType);
+                    typeNode.addProperty(TYPE, typeVal);
+                    return typeNode;
+                }
+                
                 VisitedType visitedType = getVisitedType(effectiveType.toString());
                 if (visitedType != null) {
                     if (visitedType.isCompleted()) {
@@ -282,7 +288,6 @@ public class TypeConverter {
      * @return simple type name as String
      */
     private static String getSimpleType(BType type) {
-        type = Types.getReferredType(type);
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return "integer";
         } else if (TypeTags.isStringTypeTag(type.tag)) {

@@ -597,7 +597,7 @@ public class ImmutableTypeCloner {
         BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(flags,
                                                                     getImmutableTypeName(names,
                                                                             getSymbolFQN(origObjectTSymbol)),
-                                                                    pkgID, null, env.scope.owner, pos, SOURCE);
+                                                                    pkgID, null, env.scope.owner, pos, VIRTUAL);
 
         objectSymbol.scope = new Scope(objectSymbol);
 
