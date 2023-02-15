@@ -323,14 +323,14 @@ public class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
                         || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToTargetXmlType(
-                                inputValue, targetType))) {
+                                inputValue, targetType, errors))) {
                     return targetType;
                 }
         }
         return null;
     }
 
-    private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType) {
+    private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType, List<String> errors) {
         if (TypeChecker.getType(inputValue).getTag() != TypeTags.STRING_TAG) {
             return false;
         }
@@ -338,6 +338,13 @@ public class TypeConverter {
         try {
             xmlValue = XmlFactory.parse(((BString) inputValue).getValue());
         } catch (BError e) {
+            String errMsg = "string '" + getShortSourceValue(inputValue) + "' cannot be converted to '"
+                    + targetType + "'";
+            String errCause = e.getMessage();
+            if (errCause != null) {
+                errMsg += ": " + errCause;
+            }
+            addErrorMessage(0, errors, errMsg);
             return false;
         }
         return TypeChecker.checkIsLikeType(xmlValue, targetType);
