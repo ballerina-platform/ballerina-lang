@@ -209,6 +209,26 @@ function testFindAll() {
     assertEquality(16, resultSpan1_5.startIndex);
     assertEquality(19, resultSpan1_5.endIndex);
     assertEquality("GFG", resultSpan1_5.substring());
+    
+    string str2 = "ABCD";
+    var regExp2 = re `[]`;
+    regexp:Span[]? res2 = regExp2.findAll(str2);
+    assertTrue(res2 is regexp:Span[]);
+    regexp:Span[] resultSpanArr2 = <regexp:Span[]> res2;
+    assertEquality(5, resultSpanArr2.length());
+    
+    string str3 = "ABBAABB";
+    var regExp3 = re `AB[]`;
+    regexp:Span[]? res3 = regExp3.findAll(str3);
+    assertTrue(res3 is regexp:Span[]);
+    regexp:Span[] resultSpanArr3 = <regexp:Span[]> res3;
+    assertEquality(2, resultSpanArr3.length());
+    
+    var regExp4 = re `AB[]B`;
+    regexp:Span[]? res4 = regExp4.findAll(str3);
+    assertTrue(res4 is regexp:Span[]);
+    regexp:Span[] resultSpanArr4 = <regexp:Span[]> res4;
+    assertEquality(2, resultSpanArr4.length());
 }
 
 function testFindAllGroups() {
