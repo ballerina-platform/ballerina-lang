@@ -318,8 +318,8 @@ public class LangLibStringTest {
                 40, 21);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
                 41, 21);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
-                41, 45);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', " +
+                        "found (string & readonly)", 41, 45);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
                 43, 31);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",

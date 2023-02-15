@@ -2388,10 +2388,11 @@ public class TypeChecker {
         Set<XmlNodeType> acceptedNodes = new HashSet<>();
 
         BXmlType target = (BXmlType) targetType;
-        if (TypeUtils.getReferredType(target.constraint).getTag() == TypeTags.UNION_TAG) {
-            getXMLNodeOnUnion((BUnionType) target.constraint, acceptedNodes);
+        Type constraint = TypeUtils.getReferredType(target.constraint);
+        if (constraint.getTag() == TypeTags.UNION_TAG) {
+            getXMLNodeOnUnion((BUnionType) constraint, acceptedNodes);
         } else {
-            acceptedNodes.add(getXmlNodeType(((BXmlType) targetType).constraint));
+            acceptedNodes.add(getXmlNodeType(constraint));
         }
 
         XmlSequence seq = (XmlSequence) xmlSource;
