@@ -24,7 +24,6 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.function.Function;
 
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
@@ -207,20 +205,7 @@ public class PackageCompilation {
             }
         }
         // add plugin diagnostics
-        runPluginCodeAnalysis(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-    }
-
-    private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
-        // only run plugins for build projects
-        if (rootPackageContext.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
-            ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-            for (CompilerPlugin plugin : processorServiceLoader) {
-                List<Diagnostic> pluginDiagnostics = plugin.codeAnalyze(rootPackageContext.project());
-                diagnostics.addAll(pluginDiagnostics);
-                this.pluginDiagnostics.addAll(pluginDiagnostics);
-            }
-        }
     }
 
     private void setCompilerPluginManager(CompilerPluginManager compilerPluginManager) {

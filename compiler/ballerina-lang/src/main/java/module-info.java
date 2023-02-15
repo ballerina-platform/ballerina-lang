@@ -27,7 +27,6 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.tree;
     exports org.wso2.ballerinalang.compiler.tree.types;
     exports org.ballerinalang.compiler;
-    exports org.ballerinalang.compiler.plugins;
     exports org.ballerinalang.model.tree;
     exports org.ballerinalang.model.elements;
     exports org.ballerinalang.util.diagnostic;

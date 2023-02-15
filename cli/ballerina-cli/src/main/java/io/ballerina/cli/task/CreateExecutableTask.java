@@ -29,7 +29,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -152,17 +150,6 @@ public class CreateExecutableTask implements Task {
                     this.out.println("\t" + relativePathToExecutable);
                 }
             }
-        }
-
-        // notify plugin
-        // todo following call has to be refactored after introducing new plugin architecture
-        notifyPlugins(project, target);
-    }
-
-    private void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
         }
     }
 
