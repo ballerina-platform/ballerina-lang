@@ -322,7 +322,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -370,6 +369,8 @@ public class Desugar extends BLangNodeVisitor {
     public static final String XML_INTERNAL_GET_ELEMENTS = "getElements";
     public static final String XML_GET_CONTENT_OF_TEXT = "getContent";
 
+    private static final String RE_CAPTURING_GROUP_PATTERN = "(?:)";
+    
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private final SymbolEnter symbolEnter;
@@ -8582,7 +8583,25 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangReSequence reSequence) {
-        reSequence.termList.forEach(this::rewriteExpr);
+        // if the expr is only `[]` replace it with `(?:)` 
+        boolean desugared = false;
+        if (reSequence.termList.size() == 1 
+                && reSequence.termList.get(0).getKind() == NodeKind.REG_EXP_ATOM_QUANTIFIER) {
+            BLangReAtomQuantifier reAtomQuantifier = ((BLangReAtomQuantifier) reSequence.termList.get(0));
+            if (reAtomQuantifier.atom.getKind() == NodeKind.REG_EXP_CHARACTER_CLASS 
+                    && ((BLangReCharacterClass)((BLangReCharacterClass) reAtomQuantifier.atom)).charSet == null) {
+                    desugared = true;
+                    reAtomQuantifier.atom = createLiteral(
+                            reAtomQuantifier.pos, symTable.stringType, RE_CAPTURING_GROUP_PATTERN);
+                    if (reAtomQuantifier.quantifier == null) {
+                        reAtomQuantifier.quantifier = ASTBuilderUtil.createEmptyQuantifier(
+                                reAtomQuantifier.pos, symTable.anydataType, symTable.stringType);
+                }
+            }
+        }
+        if (!desugared) {
+            reSequence.termList.forEach(this::rewriteExpr);
+        }
         result = reSequence;
     }
 
@@ -8640,7 +8659,8 @@ public class Desugar extends BLangNodeVisitor {
         reCharacterClass.negation = rewriteExpr(reCharacterClass.negation);
         // Create empty charSet.
         if (reCharacterClass.charSet == null) {
-            reCharacterClass.charSet = ASTBuilderUtil.createEmptyCharSet(symTable.anydataType);
+            result = ASTBuilderUtil.createLiteral(reCharacterClass.pos, symTable.stringType, "");
+            return;
         }
         reCharacterClass.charSet = rewriteExpr(reCharacterClass.charSet);
         reCharacterClass.characterClassEnd = rewriteExpr(reCharacterClass.characterClassEnd);
