@@ -134,7 +134,7 @@ public class InitMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, initClass, funcName, JvmSignatures.MODULE_START, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
-        MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass );
+        MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
     }
 
     private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
@@ -158,7 +158,7 @@ public class InitMethodGen {
         String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
         mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, JvmSignatures.MODULE_START,
                            false);
-        MethodGenUtils.visitReturn(mv, methodName ,initClass);
+        MethodGenUtils.visitReturn(mv, methodName, initClass);
     }
 
     public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String typeOwnerClass,

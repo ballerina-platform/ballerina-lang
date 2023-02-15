@@ -265,7 +265,7 @@ public class JvmValueGen {
     }
 
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
-                                         BIRNode.BIRTypeDefinition typeDef, String className) {
+                                         BIRNode.BIRTypeDefinition typeDef, String typeClass) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, INSTANTIATE_FUNCTION, INSTANTIATE, null, null);
         mv.visitCode();
 
@@ -338,7 +338,7 @@ public class JvmValueGen {
                            POPULATE_INITIAL_VALUES, false);
 
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, INSTANTIATE_FUNCTION, className);
+        JvmCodeGenUtil.visitMethodEnd(mv, INSTANTIATE_FUNCTION, typeClass);
     }
 
     public static String getTypeValueClassName(PackageID packageID, String typeName) {

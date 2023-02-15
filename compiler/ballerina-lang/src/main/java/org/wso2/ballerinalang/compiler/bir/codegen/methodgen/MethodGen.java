@@ -18,8 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 
-import io.ballerina.identifier.Utils;
-import io.ballerina.runtime.api.Runtime;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
@@ -277,7 +275,7 @@ public class MethodGen {
         mv.visitVarInsn(ISTORE, invocationVarIndex);
         mv.visitJumpInsn(GOTO, varInitLabel);
 
-//        mv.visitLabel(yieldLabel);
+        mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
