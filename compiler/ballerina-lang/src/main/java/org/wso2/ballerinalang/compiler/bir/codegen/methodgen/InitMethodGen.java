@@ -307,6 +307,12 @@ public class InitMethodGen {
                 BIROperand argOperand = mainArgs.get(i);
                 switch (parameter.type.tag) {
                     case TypeTags.INT:
+                    case TypeTags.SIGNED32_INT:
+                    case TypeTags.SIGNED16_INT:
+                    case TypeTags.SIGNED8_INT:
+                    case TypeTags.UNSIGNED32_INT:
+                    case TypeTags.UNSIGNED16_INT:
+                    case TypeTags.UNSIGNED8_INT:
                     case TypeTags.FLOAT:
                     case TypeTags.DECIMAL:
                     case TypeTags.BYTE:
