@@ -293,7 +293,7 @@ public class TypeChecker {
             return true;
         }
 
-        if (sourceType.getTag() == TypeTags.XML_TAG) {
+        if ((sourceType.getTag() == TypeTags.XML_TAG) && !targetType.isReadOnly()) {
             XmlValue val = (XmlValue) sourceVal;
             if (val.getNodeType() == XmlNodeType.SEQUENCE) {
                 return checkIsLikeOnValue(errors, sourceVal, sourceType, targetType, new ArrayList<>(), false, null);

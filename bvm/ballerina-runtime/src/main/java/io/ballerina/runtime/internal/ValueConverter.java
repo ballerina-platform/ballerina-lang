@@ -144,6 +144,9 @@ public class ValueConverter {
                     break;
                 }
 
+                // can't put the below, above handling xml because for selectively mutable types when the provided value
+                // is readonly, if the target type is non readonly, checkIsType provides true, but we can't just clone
+                // the value as it should be non readonly.
                 if (TypeChecker.checkIsType(value, matchingType)) {
                     newValue = CloneUtils.cloneValue(value);
                     break;
@@ -151,7 +154,7 @@ public class ValueConverter {
 
                 // handle primitive values
                 if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                    // Has to be a numeric conversion.
+                    // has to be a numeric conversion.
                     newValue = TypeConverter.convertValues(matchingType, value);
                     break;
                 }
