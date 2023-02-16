@@ -8,5 +8,6 @@ function foo() {
     x = re `([\t]*)`;
     x = re `([\-d-hM-N\tQ-T])`;
     x = re `([\-])`;
+    x = re `([\\-])`;
     x = re `(x|y|z*)`;
 }
