@@ -110,6 +110,7 @@ public class JvmValueCreatorGen {
         JvmCodeGenUtil.genStrandMetadataField(mv, typeOwnerClass, module.packageID, metaDataVarName,
                 new ScheduleFunctionInfo(varName));
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_STATIC_INIT_METHOD, typeOwnerClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, typeOwnerClass);
+        mv.visitEnd();
     }
 }

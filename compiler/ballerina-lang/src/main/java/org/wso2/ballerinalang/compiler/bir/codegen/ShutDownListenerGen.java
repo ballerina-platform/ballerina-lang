@@ -76,7 +76,8 @@ public class ShutDownListenerGen {
         mv.visitFieldInsn(PUTFIELD, innerClassName , RUNTIME_REGISTRY_VARIABLE,
                 GET_RUNTIME_REGISTRY);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_INIT_METHOD, innerClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
+        mv.visitEnd();
     }
 
     private void genRunMethod(String initClass, String innerClassName, ClassWriter cw) {
@@ -88,6 +89,7 @@ public class ShutDownListenerGen {
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD,
                 INIT_RUNTIME_REGISTRY, false);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, "run", innerClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "run", innerClassName);
+        mv.visitEnd();
     }
 }

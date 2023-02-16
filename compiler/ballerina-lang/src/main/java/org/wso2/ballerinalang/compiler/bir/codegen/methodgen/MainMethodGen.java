@@ -182,7 +182,8 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
                            HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, "main", initClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
+        mv.visitEnd();
     }
 
     private void generateMethodCall(String initClass, MethodVisitor mv,

@@ -205,7 +205,8 @@ public class JvmCreateTypeGen {
         mv.visitMethodInsn(INVOKESTATIC, errorTypeConstantClass, B_ERROR_TYPE_POPULATE_METHOD, "()V", false);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_CONSTANTS_METHOD, moduleInitClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_CONSTANTS_METHOD, moduleInitClass);
+        mv.visitEnd();
     }
 
     void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
@@ -230,7 +231,8 @@ public class JvmCreateTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, typeClassName, funcName, "()V", false);
         }
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPES_METHOD, moduleInitClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPES_METHOD, moduleInitClass);
+        mv.visitEnd();
     }
 
     private void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String moduleInitClass) {
@@ -241,7 +243,8 @@ public class JvmCreateTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
         }
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, moduleInitClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, moduleInitClass);
+        mv.visitEnd();
     }
 
     private int createTypesInstanceSplits(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
@@ -290,12 +293,14 @@ public class JvmCreateTypeGen {
             bTypesCount++;
             if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
+                mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMethodEnd(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_TYPE_INSTANCES_METHOD, typeOwnerClass);
+            mv.visitEnd();
         }
 
         return methodCount;
@@ -350,7 +355,8 @@ public class JvmCreateTypeGen {
             }
 
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeOwnerClass);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeOwnerClass);
+            mv.visitEnd();
         }
 
         return funcTypeClassMap;
@@ -516,7 +522,8 @@ public class JvmCreateTypeGen {
             mv.visitInsn(ARETURN);
             generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, moduleInitClass);
         }
-        JvmCodeGenUtil.visitMethodEnd(mv, GET_ANON_TYPE_METHOD, anonTypesClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_ANON_TYPE_METHOD, anonTypesClass);
+        mv.visitEnd();
     }
 
     void generateGetAnonTypeSplitMethods(ClassWriter cw,  AnonTypeHashInfo anonTypeHashSwitch,
@@ -667,12 +674,14 @@ public class JvmCreateTypeGen {
                     mv.visitMethodInsn(INVOKESTATIC, typeClassName, addFieldMethod, SET_LINKED_HASH_MAP, false);
                 }
                 mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeClassName);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeClassName);
+                mv.visitEnd();
             }
         }
         if (methodCount != 0 && fieldsCount % MAX_FIELDS_PER_SPLIT_METHOD != 0) {
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMethodEnd(mv, methodName, typeClassName);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, typeClassName);
+            mv.visitEnd();
         }
     }
 

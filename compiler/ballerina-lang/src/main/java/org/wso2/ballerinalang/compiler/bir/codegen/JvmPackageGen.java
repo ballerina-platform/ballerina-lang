@@ -256,7 +256,8 @@ public class JvmPackageGen {
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_STATIC_INIT_METHOD, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, className);
+        mv.visitEnd();
     }
 
     private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage,

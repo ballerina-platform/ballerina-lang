@@ -300,7 +300,8 @@ public class MethodGen {
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
 
-        JvmCodeGenUtil.visitMethodEnd(mv, funcName, moduleClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
+        mv.visitEnd();
     }
 
     private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,

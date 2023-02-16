@@ -260,7 +260,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE_METHOD, JvmSignatures.GET_ANON_TYPE, false);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, GET_ANON_TYPE_METHOD, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_ANON_TYPE_METHOD, moduleClass);
+        mv.visitEnd();
     }
 
     // -------------------------------------------------------
@@ -282,7 +283,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, recordsClass, CREATE_RECORD_VALUE, CREATE_RECORD, false);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_RECORD_VALUE, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, moduleClass);
+        mv.visitEnd();
     }
 
     private void generateObjectValueCreateMethod(ClassWriter cw, String moduleClass) {
@@ -295,7 +297,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 5);
         mv.visitMethodInsn(INVOKESTATIC, objectsClass, CREATE_OBJECT_VALUE, CREATE_OBJECT, false);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_OBJECT_VALUE, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_OBJECT_VALUE, moduleClass);
+        mv.visitEnd();
     }
 
     private void generateErrorValueCreateMethod(ClassWriter cw, String moduleClass) {
@@ -309,7 +312,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 4);
         mv.visitMethodInsn(INVOKESTATIC, errorsClass, CREATE_ERROR_VALUE, CREATE_ERROR, false);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_ERROR_VALUE, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_ERROR_VALUE, moduleClass);
+        mv.visitEnd();
     }
 
     private void generateFunctionCallMethod(ClassWriter cw, String moduleClass) {
@@ -320,7 +324,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, functionCallsClass, CALL_FUNCTION, FUNCTION_CALL, false);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CALL_FUNCTION, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CALL_FUNCTION, moduleClass);
+        mv.visitEnd();
     }
 
     public int typeFlag(BType type) {
@@ -762,7 +767,8 @@ public class JvmTypeGen {
     private void generateMethodReturnAndInvoke(MethodVisitor methodVisitor, String className, int arrayIndex,
                                                MethodVisitor mv, String curMethodName) {
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, curMethodName, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, curMethodName, className);
+        mv.visitEnd();
         methodVisitor.visitVarInsn(ALOAD, arrayIndex);
         methodVisitor.visitMethodInsn(INVOKESTATIC, className, curMethodName, SET_TYPE_ARRAY, false);
     }

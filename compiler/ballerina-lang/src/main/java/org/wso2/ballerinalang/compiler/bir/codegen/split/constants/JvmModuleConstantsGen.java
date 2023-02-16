@@ -132,7 +132,8 @@ public class JvmModuleConstantsGen {
                                        MODULE_INIT_METHOD_PREFIX + methodCount, "()V", false);
                     mv.visitInsn(RETURN);
                 }
-                JvmCodeGenUtil.visitMethodEnd(mv, MODULE_INIT_METHOD_PREFIX, moduleConstantClass);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_INIT_METHOD_PREFIX, moduleConstantClass);
+                mv.visitEnd();
             }
         }
         // Visit the previously started module init method if not ended.

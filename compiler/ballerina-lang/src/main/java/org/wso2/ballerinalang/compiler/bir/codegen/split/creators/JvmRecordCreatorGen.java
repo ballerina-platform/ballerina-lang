@@ -115,7 +115,8 @@ public class JvmRecordCreatorGen {
             generateCreateRecordMethodSplits(cw, recordTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     metadataVarName);
         }
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_RECORD_VALUE, recordsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, recordsClass);
+        mv.visitEnd();
     }
 
     private void generateCreateRecordMethodSplits(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefList,

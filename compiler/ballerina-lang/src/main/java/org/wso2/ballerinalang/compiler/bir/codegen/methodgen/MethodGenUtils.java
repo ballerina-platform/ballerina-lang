@@ -76,7 +76,8 @@ public class MethodGenUtils {
 
     static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, funcName, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
+        mv.visitEnd();
     }
 
     public static String encodeModuleSpecialFuncName(String funcSuffix) {

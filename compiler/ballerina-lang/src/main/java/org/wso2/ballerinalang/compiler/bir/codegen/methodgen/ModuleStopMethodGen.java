@@ -128,7 +128,8 @@ public class ModuleStopMethodGen {
             scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, MODULE_STOP_METHOD, initClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_STOP_METHOD, initClass);
+        mv.visitEnd();
     }
 
     private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {

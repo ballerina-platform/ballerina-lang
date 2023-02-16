@@ -102,7 +102,8 @@ public class JvmErrorCreatorGen {
             mv.visitInsn(ARETURN);
             generateCreateErrorMethodSplits(cw, errorTypeDefList, moduleInitClass, typeOwnerClass, symbolTable);
         }
-        JvmCodeGenUtil.visitMethodEnd(mv, CREATE_ERROR_VALUE, errorsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_ERROR_VALUE, errorsClass);
+        mv.visitEnd();
     }
 
     private void generateCreateErrorMethodSplits(ClassWriter cw, List<BIRNode.BIRTypeDefinition> errorTypeDefList,

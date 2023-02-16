@@ -138,7 +138,8 @@ public class JvmBStringConstantsGen {
         }
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, highSurrogateMethodName, surrogatesMethodsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, highSurrogateMethodName, surrogatesMethodsClass);
+        mv.visitEnd();
     }
 
     private List<String> generateSplitGetSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
@@ -162,13 +163,15 @@ public class JvmBStringConstantsGen {
             indexCount++;
             if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
                 mv.visitInsn(RETURN);
-                JvmCodeGenUtil.visitMethodEnd(mv, methodName, surrogatesMethodsClass);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, surrogatesMethodsClass);
+                mv.visitEnd();
             }
         }
         // Visit the previously started get surrogate array method if not ended.
         if (indexCount % MAX_STRINGS_PER_METHOD != 0) {
             mv.visitInsn(RETURN);
-            JvmCodeGenUtil.visitMethodEnd(mv, methodName, surrogatesMethodsClass);
+            JvmCodeGenUtil.visitMaxStackForMethod(mv, methodName, surrogatesMethodsClass);
+            mv.visitEnd();
         }
         return methods;
     }

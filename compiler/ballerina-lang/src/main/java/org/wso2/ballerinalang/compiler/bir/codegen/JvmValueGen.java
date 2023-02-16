@@ -338,7 +338,8 @@ public class JvmValueGen {
                            POPULATE_INITIAL_VALUES, false);
 
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, INSTANTIATE_FUNCTION, typeClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, INSTANTIATE_FUNCTION, typeClass);
+        mv.visitEnd();
     }
 
     public static String getTypeValueClassName(PackageID packageID, String typeName) {
@@ -430,7 +431,8 @@ public class JvmValueGen {
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, descriptor, false);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_INIT_METHOD, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, className);
+        mv.visitEnd();
     }
 
     private void createTypeDescConstructorWithAnnotations(ClassWriter cw, String name) {
@@ -455,7 +457,8 @@ public class JvmValueGen {
                            false);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_INIT_METHOD, name);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, name);
+        mv.visitEnd();
     }
 
     private void createRecordConstructor(ClassWriter cw, String argumentClass, String className) {
@@ -470,7 +473,8 @@ public class JvmValueGen {
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, argumentClass, false);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_INIT_METHOD, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, className);
+        mv.visitEnd();
     }
 
     // TODO: remove this method, logic moved to createInstantiateMethod, see #23012
@@ -518,7 +522,8 @@ public class JvmValueGen {
         mv.visitInsn(POP);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, RECORD_INIT_WRAPPER_NAME, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, RECORD_INIT_WRAPPER_NAME, className);
+        mv.visitEnd();
     }
 
     private void createRecordFields(ClassWriter cw, Map<String, BField> fields) {
@@ -569,7 +574,8 @@ public class JvmValueGen {
         mv.visitVarInsn(ILOAD, sizeVarIndex);
         mv.visitInsn(IRETURN);
 
-        JvmCodeGenUtil.visitMethodEnd(mv, "size", className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "size", className);
+        mv.visitEnd();
     }
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw, String className) {
@@ -584,7 +590,8 @@ public class JvmValueGen {
                            POPULATE_INITIAL_VALUES, false);
 
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, POPULATE_INITIAL_VALUES_METHOD, className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_INITIAL_VALUES_METHOD, className);
+        mv.visitEnd();
     }
 
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
@@ -697,7 +704,8 @@ public class JvmValueGen {
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_STATIC_INIT_METHOD, moduleClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleClass);
+        mv.visitEnd();
     }
 
     private void createRecordClearMethod(ClassWriter cw, String className) {
@@ -708,6 +716,7 @@ public class JvmValueGen {
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
         mv.visitInsn(ATHROW);
-        JvmCodeGenUtil.visitMethodEnd(mv, "clear", className);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "clear", className);
+        mv.visitEnd();
     }
 }

@@ -99,7 +99,8 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, "()V", false);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, JVM_INIT_METHOD, innerClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
+        mv.visitEnd();
 
         generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
 
@@ -131,7 +132,8 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables", INIT_CONFIGURABLES, false);
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, CONFIGURE_INIT, innerClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CONFIGURE_INIT, innerClassName);
+        mv.visitEnd();
     }
 
     private void generateInvokeConfiguration(MethodVisitor mv, PackageID id) {
@@ -193,7 +195,8 @@ public class ConfigMethodGen {
         }
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ARETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, POPULATE_CONFIG_DATA_METHOD, innerClassName);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_CONFIG_DATA_METHOD, innerClassName);
+        mv.visitEnd();
     }
 
     private String getOneBasedLocationString(BIRNode.BIRPackage module, Location location) {

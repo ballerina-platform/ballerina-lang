@@ -90,7 +90,8 @@ public class JvmAnnotationsGen {
             mv.visitMethodInsn(INVOKESTATIC, annotationsClass, ANNOTATIONS_METHOD_PREFIX + i, "()V", false);
         }
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, ANNOTATIONS_METHOD_PREFIX, annotationsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, ANNOTATIONS_METHOD_PREFIX, annotationsClass);
+        mv.visitEnd();
     }
 
     private int generateAnnotationsLoad(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,
@@ -115,7 +116,8 @@ public class JvmAnnotationsGen {
         }
         // Visit the previously started string init method if not ended.
         mv.visitInsn(RETURN);
-        JvmCodeGenUtil.visitMethodEnd(mv, annotationMethodName, annotationsClass);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, annotationMethodName, annotationsClass);
+        mv.visitEnd();
         return methodCount;
     }
 
