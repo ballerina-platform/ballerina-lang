@@ -46,16 +46,21 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.FORWARD_SLASH;
 import static io.ballerina.architecturemodelgenerator.ProjectDesignConstants.TYPE_MAP;
@@ -74,17 +79,31 @@ public class ActionNodeVisitor extends NodeVisitor {
     private final Package currentPackage;
     private final List<Interaction> interactionList = new LinkedList<>();
     private final String filePath;
+    private final Set<NameReferenceNode> visitedFunctionNames = new HashSet<>();
+    private final String modulePrefix;
 
     public ActionNodeVisitor(PackageCompilation packageCompilation, SemanticModel semanticModel,
                              Package currentPackage, String filePath) {
+        this(packageCompilation, semanticModel, currentPackage, filePath, new HashSet<>(), null);
+    }
+
+    public ActionNodeVisitor(PackageCompilation packageCompilation, SemanticModel semanticModel,
+                             Package currentPackage, String filePath, Set<NameReferenceNode> visitedFunctionNames,
+                             String modulePrefix) {
         this.packageCompilation = packageCompilation;
         this.semanticModel = semanticModel;
         this.currentPackage = currentPackage;
         this.filePath = filePath;
+        this.visitedFunctionNames.addAll(visitedFunctionNames);
+        this.modulePrefix = modulePrefix;
     }
 
     public List<Interaction> getInteractionList() {
         return interactionList;
+    }
+
+    public Set<NameReferenceNode> getVisitedFunctionNames() {
+        return visitedFunctionNames;
     }
 
     @Override
@@ -154,11 +173,13 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        if ((functionCallExpressionNode.functionName() instanceof SimpleNameReferenceNode ||
+                functionCallExpressionNode.functionName() instanceof QualifiedNameReferenceNode) &&
+                isNodeAlreadyVisited(functionCallExpressionNode.functionName())) {
 
-        if (functionCallExpressionNode.functionName() instanceof SimpleNameReferenceNode) {
-            String methodName = ((SimpleNameReferenceNode) functionCallExpressionNode.functionName()).name().text();
+            visitedFunctionNames.add(functionCallExpressionNode.functionName());
             Optional<Symbol> symbol = semanticModel.symbol(functionCallExpressionNode.functionName());
-            symbol.ifPresent(value -> findInteractions(methodName, value));
+            symbol.ifPresent(value -> findInteractions(functionCallExpressionNode.functionName(), value));
             if (!functionCallExpressionNode.arguments().isEmpty()) {
                 functionCallExpressionNode.arguments().forEach(arg -> {
                     arg.accept(this);
@@ -170,11 +191,12 @@ public class ActionNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        if (methodCallExpressionNode.methodName() instanceof SimpleNameReferenceNode &&
+                isNodeAlreadyVisited(methodCallExpressionNode.methodName())) {
 
-        if (methodCallExpressionNode.methodName() instanceof SimpleNameReferenceNode) {
-            String methodName = ((SimpleNameReferenceNode) methodCallExpressionNode.methodName()).name().text();
+            visitedFunctionNames.add(methodCallExpressionNode.methodName());
             Optional<Symbol> symbol = semanticModel.symbol(methodCallExpressionNode.methodName());
-            symbol.ifPresent(value -> findInteractions(methodName, value));
+            symbol.ifPresent(value -> findInteractions(methodCallExpressionNode.methodName(), value));
             if (!methodCallExpressionNode.arguments().isEmpty()) {
                 methodCallExpressionNode.arguments().forEach(arg -> {
                     arg.accept(this);
@@ -184,7 +206,7 @@ public class ActionNodeVisitor extends NodeVisitor {
         // todo : Other combinations
     }
 
-    private void findInteractions(String methodName, Symbol methodSymbol) {
+    private void findInteractions(NameReferenceNode nameNode, Symbol methodSymbol) {
 
         Optional<Location> location = methodSymbol.getLocation();
         Optional<ModuleSymbol> optionalModuleSymbol = methodSymbol.getModule();
@@ -200,23 +222,30 @@ public class ActionNodeVisitor extends NodeVisitor {
                                 .findNode(location.get().textRange());
                         if (!node.isMissing()) {
                             SemanticModel nextSemanticModel = packageCompilation.getSemanticModel(module.moduleId());
+                            boolean isReferredNodeFromSameModule = isReferredNodeFromSameModule(nameNode, module);
+                            String modulePrefix = isReferredNodeFromSameModule ?
+                                    null : module.moduleName().moduleNamePart();
                             if (node instanceof FunctionDefinitionNode) {
                                 FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
                                 String referencedFunctionName = functionDefinitionNode.functionName().text();
-                                if (methodName.equals(referencedFunctionName)) {
+                                if (isReferredFunction(nameNode, referencedFunctionName)) {
                                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(packageCompilation,
-                                            nextSemanticModel, currentPackage, this.filePath);
+                                            nextSemanticModel, currentPackage, this.filePath, visitedFunctionNames,
+                                            modulePrefix);
                                     functionDefinitionNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
+                                    visitedFunctionNames.addAll(actionNodeVisitor.getVisitedFunctionNames());
                                 }
                             } else if (node instanceof MethodDeclarationNode) {
                                 MethodDeclarationNode methodDeclarationNode = (MethodDeclarationNode) node;
                                 String referencedFunctionName = methodDeclarationNode.methodName().text();
-                                if (methodName.equals(referencedFunctionName)) {
+                                if (isReferredFunction(nameNode, referencedFunctionName)) {
                                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(packageCompilation,
-                                            nextSemanticModel, currentPackage, this.filePath);
+                                            nextSemanticModel, currentPackage, this.filePath, visitedFunctionNames,
+                                            modulePrefix);
                                     methodDeclarationNode.accept(actionNodeVisitor);
                                     interactionList.addAll(actionNodeVisitor.getInteractionList());
+                                    visitedFunctionNames.addAll(actionNodeVisitor.getVisitedFunctionNames());
                                 }
                             }
                         }
@@ -261,5 +290,61 @@ public class ActionNodeVisitor extends NodeVisitor {
             }
         }
         return resourcePathBuilder.toString();
+    }
+
+    private boolean isNodeAlreadyVisited(NameReferenceNode functionName) {
+        if (functionName instanceof SimpleNameReferenceNode) {
+            return visitedFunctionNames.stream().noneMatch(nameNode -> {
+                if (nameNode instanceof SimpleNameReferenceNode) {
+                    return ((SimpleNameReferenceNode) nameNode).name().text()
+                            .equals(((SimpleNameReferenceNode) functionName).name().text());
+                } else if (nameNode instanceof QualifiedNameReferenceNode && modulePrefix != null) {
+                    return getQualifiedNameRefNodeFuncNameText((QualifiedNameReferenceNode) nameNode)
+                            .equals(modulePrefix + ":" + ((SimpleNameReferenceNode) functionName).name().text());
+                }
+                return false;
+            });
+        } else if (functionName instanceof QualifiedNameReferenceNode) {
+            return visitedFunctionNames.stream().noneMatch(nameNode -> {
+                if (nameNode instanceof QualifiedNameReferenceNode) {
+                    return getQualifiedNameRefNodeFuncNameText((QualifiedNameReferenceNode) nameNode)
+                            .equals(getQualifiedNameRefNodeFuncNameText((QualifiedNameReferenceNode) functionName));
+                }
+                return false;
+            });
+        }
+        return false;
+    }
+
+    private String getQualifiedNameRefNodeFuncNameText(QualifiedNameReferenceNode nameNode) {
+        return nameNode.modulePrefix().text() + ((Token) nameNode.colon()).text() + nameNode.identifier().text();
+    }
+
+    private boolean isReferredFunction(NameReferenceNode nameNode, String referredFunctionName) {
+        if (nameNode instanceof SimpleNameReferenceNode) {
+            return ((SimpleNameReferenceNode) nameNode).name().text().equals(referredFunctionName);
+        } else if (nameNode instanceof QualifiedNameReferenceNode) {
+            return ((QualifiedNameReferenceNode) nameNode).identifier().text().equals(referredFunctionName);
+        }
+        return false;
+    }
+
+    private boolean isReferredNodeFromSameModule(Node currentNode, Module referredNodeModule) {
+        String currentFilePath = currentNode.syntaxTree().filePath();
+        Module currentNodeModule = null;
+
+        List<Module> modules = new ArrayList<>();
+        currentPackage.modules().forEach(modules::add);
+
+        for (Module module : modules) {
+            if (module.documentIds().stream().anyMatch(docId ->
+                    module.document(docId).syntaxTree().filePath().equals(currentFilePath))) {
+                currentNodeModule = module;
+                break;
+            }
+        }
+
+        return currentNodeModule != null &&
+                currentNodeModule.moduleId().moduleName().equals(referredNodeModule.moduleId().moduleName());
     }
 }
