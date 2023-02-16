@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.globalvar;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -62,5 +63,16 @@ public class GlobalVarTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/variabledef/oce_depend_on_global_variable.bal");
         BRunUtil.invoke(result, "testOCEDependOnGlobalVariable");
+    }
+
+    @Test
+    public void testGlobalVariableWithUninitializedVars() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/statements/variabledef/" +
+                        "global_variable_with_uninitialized_vars.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "cannot call a function or method in the same " +
+                        "module before all module-level variables are initialized: variable(s) 'x' not initialized",
+                2, 9);
     }
 }
