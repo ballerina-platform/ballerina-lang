@@ -224,7 +224,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
 
     /**
      * Visitor to find the template expression node.
-     * **/
+     */
     public static class RegexTemplateNodeFinder extends NodeVisitor {
 
         private TemplateExpressionNode templateExpressionNode = null;

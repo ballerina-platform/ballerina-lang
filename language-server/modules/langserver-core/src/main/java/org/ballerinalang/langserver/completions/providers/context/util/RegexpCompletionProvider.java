@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.completions.util.SnippetBlock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class RegexpCompletionProvider {
             "*", "(", ")", "-", "=", "+", "[", "{", "]", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/",
             "?");
 
-    private static final List<String> reFlags = Arrays.asList("m", "i", "s", "x");
+    private static final HashSet<String> reFlags = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
 
     public static List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor,
                                                              BallerinaCompletionContext ctx,
@@ -159,12 +160,10 @@ public class RegexpCompletionProvider {
                     unicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().isMissing()) {
                 // Eg: re `\p{gc=<cursor>}`
                 addUnicodeGeneralCategoryMajorSnnipets(ctx, completionItems);
-            } else {
-                if (unicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().textRange().endOffset()
-                        == ctx.getCursorPositionInTree()) {
-                    // Eg: `\p{gc=L<cursor>}`, re `\p{gc=M<cursor>}`, re `\p{L<cursor>}`, re `\p{M<cursor>}`
-                    addUnicodeGeneralCategorySnippets(unicodeGeneralCategoryNode, ctx, completionItems);
-                }
+            } else if (unicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().textRange().endOffset()
+                    == ctx.getCursorPositionInTree()) {
+                // Eg: `\p{gc=L<cursor>}`, re `\p{gc=M<cursor>}`, re `\p{L<cursor>}`, re `\p{M<cursor>}`
+                addUnicodeGeneralCategorySnippets(unicodeGeneralCategoryNode, ctx, completionItems);
             }
             return completionItems;
         } else if (isReAtom(nodeAtCursor, ctx)) {
@@ -196,8 +195,7 @@ public class RegexpCompletionProvider {
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock(",", snippet + ",", snippet + ",",
                             ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_QUANTIFIER
-                && ((ReQuantifierNode) nodeAtCursor).nonGreedyChar().isEmpty()) {
+        } else if (isReQuantifier(nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
         } else if (nodeAtCursor.kind() == SyntaxKind.RE_BRACED_QUANTIFIER
@@ -249,6 +247,11 @@ public class RegexpCompletionProvider {
         return completionItems;
     }
 
+    private static boolean isReQuantifier(NonTerminalNode nodeAtCursor) {
+        return nodeAtCursor.kind() == SyntaxKind.RE_QUANTIFIER
+                && ((ReQuantifierNode) nodeAtCursor).nonGreedyChar().isEmpty();
+    }
+
     private static void addReFlags(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx,
                                    List<LSCompletionItem> completionItems, String snippet) {
         String reFlagsSource = nodeAtCursor.parent().parent().toSourceCode();
@@ -263,12 +266,11 @@ public class RegexpCompletionProvider {
 
     private static String resolveWordForTheGivenCursorPosition(BallerinaCompletionContext ctx,
                                                                RegexTemplateNodeFinder nodeFinder) {
-        String symbol = "";
         TemplateExpressionNode templateExpressionNode = nodeFinder.getTemplateExpressionNode();
         if (templateExpressionNode != null) {
             if (templateExpressionNode.startBacktick().textRange().endOffset()
                     == templateExpressionNode.endBacktick().textRange().startOffset()) {
-                return symbol;
+                return "";
             }
             // Eg: re `(abc<cursor>)`
             int startIndex = templateExpressionNode.textRange().startOffset(); // 100
@@ -287,12 +289,13 @@ public class RegexpCompletionProvider {
                 currentChar = subStr.substring(len, len + 1);
                 isCurrentCharAWordSeparator = wordSeparatorArray.contains(currentChar);
             }
-            symbol = subStr.substring(len); // abc
             if (isCurrentCharAWordSeparator) {
-                symbol = subStr.substring(len + 1);
+                return subStr.substring(len + 1);
+            } else {
+                return subStr.substring(len);
             }
         }
-        return symbol;
+        return "";
     }
 
     private static boolean isCursorAfterReFlag(NonTerminalNode nodeAtCursor) {
