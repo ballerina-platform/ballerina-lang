@@ -119,11 +119,11 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "builds/Compiles offline without downloading " +
+    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
             "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Parameters(description = "program arguments")
+    @CommandLine.Parameters(description = "Program arguments")
     private List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
@@ -153,10 +153,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
-    @CommandLine.Option(names = "--tests", description = "test functions to be executed")
+    @CommandLine.Option(names = "--tests", description = "Test functions to be executed")
     private String testList;
 
-    @CommandLine.Option(names = "--rerun-failed", description = "rerun failed tests.")
+    @CommandLine.Option(names = "--rerun-failed", description = "Rerun failed tests.")
     private boolean rerunTests;
 
     @CommandLine.Option(names = "--includes", hidden = true,
@@ -172,10 +172,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--dump-graph", description = "print the dependency graph.", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "print all intermediate graphs created in the " +
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
