@@ -322,6 +322,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -8589,7 +8590,7 @@ public class Desugar extends BLangNodeVisitor {
                 && reSequence.termList.get(0).getKind() == NodeKind.REG_EXP_ATOM_QUANTIFIER) {
             BLangReAtomQuantifier reAtomQuantifier = ((BLangReAtomQuantifier) reSequence.termList.get(0));
             if (reAtomQuantifier.atom.getKind() == NodeKind.REG_EXP_CHARACTER_CLASS 
-                    && ((BLangReCharacterClass)((BLangReCharacterClass) reAtomQuantifier.atom)).charSet == null) {
+                    && ((BLangReCharacterClass) ((BLangReCharacterClass) reAtomQuantifier.atom)).charSet == null) {
                     desugared = true;
                     reAtomQuantifier.atom = createLiteral(
                             reAtomQuantifier.pos, symTable.stringType, RE_CAPTURING_GROUP_PATTERN);
