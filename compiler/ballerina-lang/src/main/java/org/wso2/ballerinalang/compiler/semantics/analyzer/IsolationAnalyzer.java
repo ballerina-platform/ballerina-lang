@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -2278,7 +2279,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
-                BTupleType tupleType = (BTupleType) varArgType;
+                BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
+                    getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
+                    (BTupleType) varArgType;
+
                 List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
@@ -2381,6 +2385,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         // Args for rest param provided as both individual args and vararg.
         analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
+    }
+
+    private BTupleType getRepresentativeTupleTypeForRemainingArgs(int paramCount, int reqArgCount,
+                                                                  BArrayType arrayType) {
+        int remReqArgCount = paramCount - reqArgCount;
+        List<BTupleMember> members = new ArrayList<>(remReqArgCount);
+        BType eType = arrayType.eType;
+        for (int i = 0; i < remReqArgCount; i++) {
+            members.add(new BTupleMember(eType, Symbols.createVarSymbolForTupleMember(eType)));
+        }
+
+        if (arrayType.size > remReqArgCount) {
+            return new BTupleType(null, members, eType, 0);
+        }
+
+        return new BTupleType(members);
     }
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,

@@ -305,6 +305,10 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        if (project.buildOptions().nativeImage()) {
+            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
+        }
+
         Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 

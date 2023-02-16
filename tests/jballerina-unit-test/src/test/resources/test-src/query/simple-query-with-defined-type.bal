@@ -679,6 +679,50 @@ function testUsingAnIntersectionTypeInQueryExpr() {
     assertEquality(true, [{email: "anne@abc.com", score: 95.0}] == j);
 }
 
+function testQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
+    string:RegExp[] arr2 = from var reg in arr1
+        where reg != re `B`
+        select reg;
+    assertEquality(true, [re `A`, re `C`] == arr2);
+}
+
+function testQueryExprWithRegExpWithInterpolations() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    string:RegExp[] arr2 = from var reg in arr1
+        where reg != re `B${v + 1}`
+        select reg;
+    assertEquality(true, [re `A`, re `C`] == arr2);
+}
+
+function testNestedQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    string:RegExp[] arr2 = from var re in (from string:RegExp reg in arr1
+            where reg != re `B${v + 1}`
+            select reg)
+        let string:RegExp a = re `A`
+        where re != re `A`
+        select re `${re.toString() + a.toString()}`;
+    assertEquality(true, [re `CA`] == arr2);
+}
+
+function testJoinedQueryExprWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`, re `D`];
+    string:RegExp[] arr2 = [re `A`, re `B`];
+    int v = 1;
+    string[] arr3 = from var re1 in arr1
+        join string:RegExp re2 in arr2
+        on re1 equals re2
+        let string:RegExp a = re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
+        select re1.toString() + a.toString();
+    assertEquality(true, [
+        "AAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        "BAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+    ] == arr3);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
