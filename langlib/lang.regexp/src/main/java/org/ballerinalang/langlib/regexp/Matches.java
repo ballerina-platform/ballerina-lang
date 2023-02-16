@@ -26,6 +26,7 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Native implementation of lang.regexp:matches(string).
@@ -77,7 +78,7 @@ public class Matches {
     private static Matcher getMatcher(BRegexpValue regExp, BString str) {
         try {
             return RegexUtil.getMatcher(regExp, str);
-        } catch (Exception e) {
+        } catch (PatternSyntaxException e) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
                     RuntimeErrors.REGEXP_INVALID_PATTERN);
         }
