@@ -218,7 +218,7 @@ public class BalStringUtils {
      * @param exprValue Ballerina expression syntax of the xml
      * @return xml value
      */
-    public static Object parseXmlExpressionStringValue(String exprValue, BLink parent) {
+    public static Object parseXmlExpressionStringValue(String exprValue) {
         if (exprValue.matches("<[\\!--](.*?)[\\-\\-\\!]>")) {
             String comment = exprValue.substring(exprValue.indexOf("<!--") + 4, exprValue.lastIndexOf("-->"));
             return XmlFactory.createXMLComment(comment);
@@ -242,11 +242,11 @@ public class BalStringUtils {
                 String[] splitParts = part.split(item, 2);
                 String splitItem = splitParts[0];
                 if (splitItem.isEmpty()) {
-                    children.add((BXml) parseXmlExpressionStringValue(item, parent));
+                    children.add((BXml) parseXmlExpressionStringValue(item));
                 } else {
-                    children.add((BXml) parseXmlExpressionStringValue(splitItem, parent));
+                    children.add((BXml) parseXmlExpressionStringValue(splitItem));
                     if (!item.equals(splitItem)) {
-                        children.add((BXml) parseXmlExpressionStringValue(item, parent));
+                        children.add((BXml) parseXmlExpressionStringValue(item));
                     }
                 }
                 if (splitParts.length == 2) {

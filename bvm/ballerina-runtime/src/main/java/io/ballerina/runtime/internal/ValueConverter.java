@@ -134,9 +134,9 @@ public class ValueConverter {
                 if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     String xmlString = value.toString();
                     try {
-                        newValue = XmlFactory.parse(xmlString);
+                        newValue = BalStringUtils.parseXmlExpressionStringValue(xmlString);
                     } catch (BError e) {
-                        throw createConversionError(value, targetType, e.getMessage());
+                        throw createConversionError(value, targetType);
                     }
                     if (matchingType.isReadOnly()) {
                         newValue = CloneUtils.cloneReadOnly(newValue);

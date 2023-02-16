@@ -323,28 +323,21 @@ public class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, allowNumericConversion)
                         || (TypeTags.isXMLTypeTag(targetTypeTag) && isStringConvertibleToTargetXmlType(
-                                inputValue, targetType, errors))) {
+                                inputValue, targetType))) {
                     return targetType;
                 }
         }
         return null;
     }
 
-    private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType, List<String> errors) {
+    private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType) {
         if (TypeChecker.getType(inputValue).getTag() != TypeTags.STRING_TAG) {
             return false;
         }
         BXml xmlValue;
         try {
-            xmlValue = XmlFactory.parse(((BString) inputValue).getValue());
+            xmlValue = stringToXml(((BString) inputValue).getValue());
         } catch (BError e) {
-            String errMsg = "string '" + getShortSourceValue(inputValue) + "' cannot be converted to '"
-                    + targetType + "'";
-            String errCause = e.getMessage();
-            if (errCause != null) {
-                errMsg += ": " + errCause;
-            }
-            addErrorMessage(0, errors, errMsg);
             return false;
         }
         return TypeChecker.checkIsLikeType(xmlValue, targetType);
