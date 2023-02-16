@@ -107,6 +107,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_CLIENT_HTTP_URL_DISABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
@@ -1100,11 +1101,20 @@ public class HttpUtil {
      * @return The boundary string that was extracted from header or the newly generated one
      */
     public static String addBoundaryIfNotExist(HttpCarbonMessage transportMessage, String contentType) {
-        String boundaryString;
         String boundaryValue = HeaderUtil.extractBoundaryParameter(contentType);
-        boundaryString = boundaryValue != null ? sanitizeBoundary(boundaryValue) :
-                HttpUtil.addBoundaryParameter(transportMessage, contentType);
-        return boundaryString;
+        if (boundaryValue != null) {
+            boundaryValue = sanitizeBoundary(boundaryValue);
+            boolean validateContentType = MimeUtil.isValidateContentType(contentType);
+            if (!validateContentType) {
+                String headerValue = HeaderUtil.getHeaderValue(contentType);
+                MapValue<String, String> paramMap = HeaderUtil.getParamMap(contentType);
+                paramMap.put(BOUNDARY, MimeUtil.includeQuotes(boundaryValue));
+                contentType = HeaderUtil.appendHeaderParams(new StringBuilder(headerValue).append(";"), paramMap);
+                transportMessage.setHeader(String.valueOf(CONTENT_TYPE), contentType);
+            }
+            return boundaryValue;
+        }
+        return HttpUtil.addBoundaryParameter(transportMessage, contentType);
     }
 
     /**
