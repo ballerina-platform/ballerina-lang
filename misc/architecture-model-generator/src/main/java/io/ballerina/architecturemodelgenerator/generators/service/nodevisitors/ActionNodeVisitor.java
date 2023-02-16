@@ -175,7 +175,7 @@ public class ActionNodeVisitor extends NodeVisitor {
     public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         if ((functionCallExpressionNode.functionName() instanceof SimpleNameReferenceNode ||
                 functionCallExpressionNode.functionName() instanceof QualifiedNameReferenceNode) &&
-                isNoneMatchingNameReferenceNode(functionCallExpressionNode.functionName())) {
+                isNodeAlreadyVisited(functionCallExpressionNode.functionName())) {
 
             visitedFunctionNames.add(functionCallExpressionNode.functionName());
             Optional<Symbol> symbol = semanticModel.symbol(functionCallExpressionNode.functionName());
@@ -192,7 +192,7 @@ public class ActionNodeVisitor extends NodeVisitor {
     @Override
     public void visit(MethodCallExpressionNode methodCallExpressionNode) {
         if (methodCallExpressionNode.methodName() instanceof SimpleNameReferenceNode &&
-                isNoneMatchingNameReferenceNode(methodCallExpressionNode.methodName())) {
+                isNodeAlreadyVisited(methodCallExpressionNode.methodName())) {
 
             visitedFunctionNames.add(methodCallExpressionNode.methodName());
             Optional<Symbol> symbol = semanticModel.symbol(methodCallExpressionNode.methodName());
@@ -292,7 +292,7 @@ public class ActionNodeVisitor extends NodeVisitor {
         return resourcePathBuilder.toString();
     }
 
-    private boolean isNoneMatchingNameReferenceNode(NameReferenceNode functionName) {
+    private boolean isNodeAlreadyVisited(NameReferenceNode functionName) {
         if (functionName instanceof SimpleNameReferenceNode) {
             return visitedFunctionNames.stream().noneMatch(nameNode -> {
                 if (nameNode instanceof SimpleNameReferenceNode) {
