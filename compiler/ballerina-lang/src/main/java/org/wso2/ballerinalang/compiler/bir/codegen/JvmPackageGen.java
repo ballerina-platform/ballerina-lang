@@ -119,6 +119,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
@@ -246,7 +247,7 @@ public class JvmPackageGen {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         if (isInitClass) {
             setConstantFields(mv, birPackage, jvmConstantsGen);
             setLockStoreField(mv, className);
@@ -265,15 +266,15 @@ public class JvmPackageGen {
         if (birPackage.constants.isEmpty()) {
             return;
         }
-        mv.visitMethodInsn(INVOKESTATIC, jvmConstantsGen.getConstantClass(), CONSTANT_INIT_METHOD_PREFIX, "()V",
-                           false);
+        mv.visitMethodInsn(INVOKESTATIC, jvmConstantsGen.getConstantClass(), CONSTANT_INIT_METHOD_PREFIX,
+                VOID_METHOD_DESC, false);
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {
         String lockStoreClass = "L" + LOCK_STORE + ";";
         mv.visitTypeInsn(NEW, LOCK_STORE);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, lockStoreClass);
     }
 

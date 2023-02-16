@@ -140,6 +140,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJ
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -278,7 +279,7 @@ public class MethodGen {
         mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
         generateFrameClassFieldUpdate(func.localVars, mv, indexMap, frameName);
 
@@ -621,7 +622,8 @@ public class MethodGen {
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
             String moduleAnnotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
-            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX, VOID_METHOD_DESC,
+                    false);
         }
         //set module start success to true for $_init class
         if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {

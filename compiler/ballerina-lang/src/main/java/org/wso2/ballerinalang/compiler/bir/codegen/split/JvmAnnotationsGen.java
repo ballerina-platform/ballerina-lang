@@ -49,6 +49,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANNOTATIONS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm class for the ballerina annotation processing.
@@ -84,10 +85,11 @@ public class JvmAnnotationsGen {
     private void generateProcessAnnotationsMethod(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,
                                                   PackageID packageID) {
         int annotationsCount = generateAnnotationsLoad(cw, typeDefs, packageID, jvmTypeGen);
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, ANNOTATIONS_METHOD_PREFIX, "()V", null, null);
+        MethodVisitor mv =
+                cw.visitMethod(ACC_PUBLIC + ACC_STATIC, ANNOTATIONS_METHOD_PREFIX, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         for (int i = 0; i < annotationsCount; i++) {
-            mv.visitMethodInsn(INVOKESTATIC, annotationsClass, ANNOTATIONS_METHOD_PREFIX + i, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, annotationsClass, ANNOTATIONS_METHOD_PREFIX + i, VOID_METHOD_DESC, false);
         }
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, ANNOTATIONS_METHOD_PREFIX, annotationsClass);
@@ -101,7 +103,7 @@ public class JvmAnnotationsGen {
         String typePkgName = JvmCodeGenUtil.getPackageName(packageID);
 
         String annotationMethodName = ANNOTATIONS_METHOD_PREFIX + methodCount++;
-        mv = cw.visitMethod(ACC_STATIC, annotationMethodName, "()V", null, null);
+        mv = cw.visitMethod(ACC_STATIC, annotationMethodName, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             if (optionalTypeDef.isBuiltin) {

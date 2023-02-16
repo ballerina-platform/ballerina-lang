@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_NON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_STRING_RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
@@ -249,7 +250,7 @@ public class JvmBStringConstantsGen {
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
                 cw = new BallerinaClassWriter(COMPUTE_FRAMES);
                 generateConstantsClassInit(cw, constantClassName);
-                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_STRING_INIT_METHOD_PREFIX, "()V", null, null);
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_STRING_INIT_METHOD_PREFIX, VOID_METHOD_DESC, null, null);
             }
 
             visitBStringField(cw, bStringVarName);
@@ -312,7 +313,7 @@ public class JvmBStringConstantsGen {
         mv.visitInsn(DUP);
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         for (Map.Entry<String, String> stringEntry : stringChunks.entrySet()) {
             mv.visitFieldInsn(GETSTATIC, constantClassName, stringEntry.getKey(), GET_STRING);
             mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append", STRING_BUILDER_APPEND, false);
@@ -330,8 +331,9 @@ public class JvmBStringConstantsGen {
     }
 
     private void generateStaticClassInitializer(ClassWriter cw, String className) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
-        mv.visitMethodInsn(INVOKESTATIC, className, B_STRING_INIT_METHOD_PREFIX, "()V", false);
+        MethodVisitor mv =
+                cw.visitMethod(ACC_PUBLIC + ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitMethodInsn(INVOKESTATIC, className, B_STRING_INIT_METHOD_PREFIX, VOID_METHOD_DESC, false);
         genMethodReturn(mv);
     }
 

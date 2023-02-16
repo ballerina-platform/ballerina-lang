@@ -60,6 +60,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.castToJavaString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -92,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_S
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_SET_MAP_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getFieldIsPresentFlagName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.isOptionalRecordField;
@@ -358,7 +360,7 @@ public class JvmRecordGen {
         int entrySetVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, entrySetVarIndex);
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
@@ -422,7 +424,7 @@ public class JvmRecordGen {
             jvmCastGen.addBoxInsn(mv, optionalField.type);
 
             mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD, TWO_OBJECTS_ARGS, false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
 
             mv.visitLabel(ifNotPresent);
@@ -561,7 +563,7 @@ public class JvmRecordGen {
         int valuesVarIndex = 1;
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, valuesVarIndex);
         if (!fields.isEmpty()) {
             mv.visitVarInsn(ALOAD, selfIndex);
@@ -612,7 +614,7 @@ public class JvmRecordGen {
             mv.visitVarInsn(ALOAD, 0); // this
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(optionalField.type));
             jvmCastGen.addBoxInsn(mv, optionalField.type);
-            mv.visitMethodInsn(INVOKEINTERFACE, LIST, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, LIST, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;
@@ -648,7 +650,7 @@ public class JvmRecordGen {
         // cast key to java.lang.String
         castToJavaString(mv, fieldNameRegIndex, strKeyVarIndex);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "validateFreezeStatus", VOID_METHOD_DESC, false);
         if (fields.isEmpty()) {
             Label defaultCaseLabel = new Label();
             this.createRemoveDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
@@ -727,7 +729,8 @@ public class JvmRecordGen {
             } else {
                 mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
                 mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
+                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, VOID_METHOD_DESC,
+                        false);
                 mv.visitInsn(ATHROW);
             }
             i += 1;
@@ -770,7 +773,7 @@ public class JvmRecordGen {
         int keysVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, keysVarIndex);
 
         if (!fields.isEmpty()) {
@@ -827,7 +830,7 @@ public class JvmRecordGen {
             mv.visitLdcInsn(decodeIdentifier(fieldName));
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                     FROM_STRING, false);
-            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", ANY_TO_JBOOLEAN, true);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, ADD_METHOD, ANY_TO_JBOOLEAN, true);
             mv.visitInsn(POP);
             mv.visitLabel(ifNotPresent);
             bTypesCount++;

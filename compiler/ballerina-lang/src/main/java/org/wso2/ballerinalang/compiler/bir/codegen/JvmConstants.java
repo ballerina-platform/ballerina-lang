@@ -408,7 +408,10 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
-
+    public static final String CREATE_INTEROP_ERROR_METHOD = "createInteropError";
+    public static final String LAMBDA_PREFIX = "$lambda$";
+    public static final String POPULATE_METHOD_PREFIX = "$populate";
+    public static final String ADD_METHOD = "add";
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;

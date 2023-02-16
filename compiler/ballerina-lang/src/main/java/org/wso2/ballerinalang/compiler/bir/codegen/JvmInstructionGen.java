@@ -121,6 +121,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.getTargetClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
@@ -1061,7 +1062,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
                                         BSTRING_CONCAT, true);
         } else if (bType.tag == TypeTags.DECIMAL) {
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, ADD_METHOD,
                     SET_DECIMAL_RETURN_DECIMAL, false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DADD);
@@ -1551,21 +1552,19 @@ public class JvmInstructionGen {
 
         BType valueType = JvmCodeGenUtil.getReferredType(inst.rhsOp.variableDcl.type);
 
-        String method = "add";
-
         if (TypeTags.isIntegerTypeTag(valueType.tag)) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JJ)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JJ)V", true);
         } else if (valueType.tag == TypeTags.FLOAT) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JD)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JD)V", true);
         } else if (TypeTags.isStringTypeTag(valueType.tag)) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, ARRAY_ADD_BSTRING, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, ARRAY_ADD_BSTRING, true);
         } else if (valueType.tag == TypeTags.BOOLEAN) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JZ)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JZ)V", true);
         } else if (valueType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(I2B);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JB)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JB)V", true);
         } else {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, ARRAY_ADD_OBJECT, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, ARRAY_ADD_OBJECT, true);
         }
     }
 

@@ -121,6 +121,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DES
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_CLASS_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
@@ -679,7 +680,7 @@ public class JvmValueGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitTypeInsn(NEW, LOCK_VALUE);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
             mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
         }
 
@@ -701,7 +702,7 @@ public class JvmValueGen {
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleClass);
@@ -710,11 +711,11 @@ public class JvmValueGen {
 
     private void createRecordClearMethod(ClassWriter cw, String className) {
         // throw an UnsupportedOperationException, since clear is not supported by for records.
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(ATHROW);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "clear", className);
         mv.visitEnd();

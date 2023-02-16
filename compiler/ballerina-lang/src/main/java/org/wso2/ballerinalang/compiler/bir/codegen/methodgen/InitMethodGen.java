@@ -63,6 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuilt
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
@@ -71,6 +72,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -122,7 +124,7 @@ public class InitMethodGen {
 
     private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
                                                  JvmCastGen jvmCastGen) {
-        String lambdaFuncName = "$lambda$" + funcName + "$";
+        String lambdaFuncName = LAMBDA_PREFIX + funcName + "$";
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
 
@@ -169,10 +171,10 @@ public class InitMethodGen {
                                           RETURN_OBJECT, null, null);
         mv.visitCode();
 
-        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPES_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
