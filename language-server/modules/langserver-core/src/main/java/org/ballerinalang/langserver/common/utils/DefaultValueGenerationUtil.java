@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -275,11 +274,7 @@ public class DefaultValueGenerationUtil {
                 }
                 break;
             case TABLE:
-                TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
                 String rowValue = "";
-                if (rowType.typeKind() != TypeDescKind.TYPE_REFERENCE) {
-                    rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
-                }
                 valueString = "table [" + (isSnippet ?
                         generateSnippetEntry(rowValue, context.incrementAndGetPlaceholderCount()) : rowValue) + "]";
                 break;
