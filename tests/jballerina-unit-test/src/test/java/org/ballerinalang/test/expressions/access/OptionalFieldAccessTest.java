@@ -59,6 +59,8 @@ public class OptionalFieldAccessTest {
                 "access", 58, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<string>?' does not support optional field " +
                 "access", 61, 19);
+        validateError(negativeResult, i++, "invalid operation: type '(map<xml>|map<json>)' does not support" +
+                " optional field access", 65, 20);
         validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 71, 15);
         validateError(negativeResult, i++, "invalid operation: type 'Qux' does not support optional field access", 87
                 , 9);
