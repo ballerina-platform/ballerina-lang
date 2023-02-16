@@ -161,7 +161,6 @@ public class ConfigValueCreator {
 
     private BArray getNonSimpleTypeArray(TomlNode tomlValue, ArrayType arrayType,
                                          Type elementType) {
-        TomlValueNode valueNode;
         switch (elementType.getTag()) {
             case TypeTags.XML_ATTRIBUTES_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -373,14 +372,8 @@ public class ConfigValueCreator {
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
-        Type convertibleType = null;
-        for (Type type : unionType.getMemberTypes()) {
-            convertibleType = TypeConverter.getConvertibleType(balValue, type, null, new HashSet<>(),
-                    new ArrayList<>(), false);
-            if (convertibleType != null) {
-                break;
-            }
-        }
+        Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, null, new HashSet<>(),
+                new ArrayList<>(), false);
         Type type = getEffectiveType(convertibleType);
         if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;

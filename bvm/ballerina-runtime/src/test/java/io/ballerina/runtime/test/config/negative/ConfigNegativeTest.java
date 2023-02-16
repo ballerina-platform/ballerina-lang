@@ -182,10 +182,6 @@ public class ConfigNegativeTest {
                         new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 3, 0,
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
                                 " is expected to be of type '(int|map<string>)', but found 'float'"}},
-                {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 2, 0,
-                        new String[]{"error: [InvalidUnionType.toml:(4:1,5:16)] ambiguous target types found for " +
-                                "configurable variable 'ambiguousUnionVar' with type '(map<anydata>|map<string>)'"}},
         };
     }
 }
