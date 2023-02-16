@@ -1,3 +1,3 @@
 function foo() {
-    string:RegExp x1 = re `[AB\p{gc=Lu}]+` ? `;
+    _ = re `[AB\p{gc=Lu}]+` ? `;
 }

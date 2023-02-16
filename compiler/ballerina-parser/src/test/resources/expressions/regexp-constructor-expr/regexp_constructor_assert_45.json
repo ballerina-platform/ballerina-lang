@@ -62,56 +62,24 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "LOCAL_VAR_DECL",
+              "kind": "ASSIGNMENT_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "TYPED_BINDING_PATTERN",
+                  "kind": "WILDCARD_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "QUALIFIED_NAME_REFERENCE",
-                      "children": [
+                      "kind": "UNDERSCORE_KEYWORD",
+                      "leadingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "string",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "COLON_TOKEN"
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "RegExp",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
                         }
-                      ]
-                    },
-                    {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
+                      ],
+                      "trailingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "x1",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }

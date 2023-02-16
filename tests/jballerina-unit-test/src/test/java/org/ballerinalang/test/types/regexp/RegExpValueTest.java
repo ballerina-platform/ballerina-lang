@@ -97,10 +97,7 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, "duplicate flag 'x'", 28, 67);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
-                "'regexp:regexp'", 29, 23);
-        validateError(negativeResult, index++, "invalid literal for type " +
-                "'ballerina/lang.string:0.0.0:RegExp': raw templates can only be assigned to abstract subtypes of " +
-                "'ballerina/lang.object:0.0.0:RawTemplate'", 29, 45);
+                "'regexp:regexp'", 29, 9);
         validateError(negativeResult, index++, "missing backtick token", 31, 1);
         validateError(negativeResult, index++, "missing close brace token", 31, 1);
         validateError(negativeResult, index++, "missing colon token", 31, 1);
