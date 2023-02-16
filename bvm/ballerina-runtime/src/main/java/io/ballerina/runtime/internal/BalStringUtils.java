@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -35,14 +34,11 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TableValueImpl;
-import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 
@@ -54,6 +50,8 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 public class BalStringUtils {
     private static boolean hasCycles = false;
 
+    private BalStringUtils() {}
+
     /**
      * Create an array from string literal.
      *
@@ -63,7 +61,7 @@ public class BalStringUtils {
     public static Object parseArrayExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
         ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(TYPE_ANYDATA));
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return arr;
         }
         CycleUtils.Node node = new CycleUtils.Node(arr, parent);
@@ -146,7 +144,7 @@ public class BalStringUtils {
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
         MapValueImpl eleMap = new MapValueImpl(new BMapType(TYPE_ANYDATA));
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             return eleMap;
         }
         CycleUtils.Node node = new CycleUtils.Node(eleMap, parent);
@@ -221,39 +219,16 @@ public class BalStringUtils {
     public static Object parseXmlExpressionStringValue(String exprValue) {
         if (exprValue.matches("<[\\!--](.*?)[\\-\\-\\!]>")) {
             String comment = exprValue.substring(exprValue.indexOf("<!--") + 4, exprValue.lastIndexOf("-->"));
-            return XmlFactory.createXMLComment(comment);
+            return XmlFactory.createXMLComment(StringUtils.fromString(comment));
         } else if (exprValue.matches("<\\?(.*?)\\?>")) {
             String pi = exprValue.substring(exprValue.indexOf("<?") + 2, exprValue.lastIndexOf("?>"));
             String[] piArgs = pi.split(" ", 2);
             return XmlFactory.createXMLProcessingInstruction(StringUtils.fromString(piArgs[0]),
                                                              StringUtils.fromString(piArgs[1]));
-        } else if (exprValue.matches("<(\\S+?)(.*?)>(.*?)</\\1>")) {
-            return XmlFactory.parse(exprValue);
         } else if (!exprValue.startsWith("<?") && !exprValue.startsWith("<!--") && !exprValue.startsWith("<")) {
             return XmlFactory.createXMLText(StringUtils.fromString(exprValue));
         } else {
-            Pattern pattern = Pattern.compile("<(\\S+?)(.*?)>(.*?)</\\1>|<[\\!--](.*?)[\\-\\-\\!]>" +
-                    "|<\\?(.*?)\\?>");
-            Matcher matcher = pattern.matcher(exprValue);
-            List<BXml> children = new ArrayList<>();
-            String part = exprValue;
-            while (matcher.find()) {
-                String item = matcher.group();
-                String[] splitParts = part.split(item, 2);
-                String splitItem = splitParts[0];
-                if (splitItem.isEmpty()) {
-                    children.add((BXml) parseXmlExpressionStringValue(item));
-                } else {
-                    children.add((BXml) parseXmlExpressionStringValue(splitItem));
-                    if (!item.equals(splitItem)) {
-                        children.add((BXml) parseXmlExpressionStringValue(item));
-                    }
-                }
-                if (splitParts.length == 2) {
-                    part = splitParts[1];
-                }
-            }
-            return new XmlSequence(children);
+            return XmlFactory.parse(exprValue);
         }
     }
 
