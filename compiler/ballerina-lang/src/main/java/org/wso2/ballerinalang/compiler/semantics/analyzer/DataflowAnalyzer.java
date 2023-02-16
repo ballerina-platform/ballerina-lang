@@ -657,6 +657,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BType type = variable.typeNode.getBType();
             recordGlobalVariableReferenceRelationship(Types.getReferredType(type).tsymbol);
         }
+
+        if (isGlobalVarSymbol(symbol)) {
+            BLangExpression expr = variable.expr;
+            if (expr instanceof BLangInvocation) {
+                BLangInvocation invocationExpr = (BLangInvocation) expr;
+                isContainsUninitializedVars(invocationExpr.pos, invocationExpr);
+            }
+        }
+        
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
             BVarSymbol dependentVar = env.enclVarSym;
@@ -1702,32 +1711,40 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isGlobalVarsInitialized(Location pos, BLangInvocation invocation) {
-        if (env.isModuleInit) {
-            boolean isFirstUninitializedField = true;
-            StringBuilder uninitializedFields = new StringBuilder();
+        if (!env.isModuleInit) {
+            return true;
+        }
 
-            BLangExpression expr = invocation.expr;
-            boolean methodCallOnVarRef = expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
+        return isContainsUninitializedVars(pos, invocation);
+    }
+    
+    private boolean isContainsUninitializedVars(Location pos, BLangInvocation invocation) {
+        boolean isFirstUninitializedField = true;
+        StringBuilder uninitializedFields = new StringBuilder();
 
-            for (BSymbol symbol : this.uninitializedVars.keySet()) {
-                if (symbol.owner.getKind() != SymbolKind.PACKAGE || symbol == invocation.symbol ||
-                        (methodCallOnVarRef && ((BLangSimpleVarRef) expr).symbol == symbol)) {
-                    continue;
-                }
+        BLangExpression expr = invocation.expr;
+        boolean methodCallOnVarRef = expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
 
-                if (isFirstUninitializedField) {
-                    uninitializedFields = new StringBuilder(symbol.getName().value);
-                    isFirstUninitializedField = false;
-                } else {
-                    uninitializedFields.append(", ").append(symbol.getName().value);
-                }
+        for (BSymbol symbol : this.uninitializedVars.keySet()) {
+            if (symbol.owner.getKind() != SymbolKind.PACKAGE || symbol == invocation.symbol ||
+                    (methodCallOnVarRef && ((BLangSimpleVarRef) expr).symbol == symbol)) {
+                continue;
             }
-            if (uninitializedFields.length() != 0) {
-                this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
-                        uninitializedFields.toString());
-                return false;
+
+            if (isFirstUninitializedField) {
+                uninitializedFields = new StringBuilder(symbol.getName().value);
+                isFirstUninitializedField = false;
+            } else {
+                uninitializedFields.append(", ").append(symbol.getName().value);
             }
         }
+
+        if (uninitializedFields.length() != 0) {
+            this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
+                    uninitializedFields.toString());
+            return false;
+        }
+
         return true;
     }
 
