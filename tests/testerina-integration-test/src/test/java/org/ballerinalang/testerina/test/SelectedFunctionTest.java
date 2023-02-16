@@ -90,7 +90,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(
                 new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
+                new HashMap<>(), projectPath, false);
         if (!output.contains(errMsg)) {
             AssertionUtils.assertForTestFailures(output, "dependant disabled function execution failure");
         }
