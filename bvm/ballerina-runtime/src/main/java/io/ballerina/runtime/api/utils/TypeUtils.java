@@ -153,7 +153,6 @@ public class TypeUtils {
      * @return the referred type if provided with a type reference type, else returns the original type
      */
     public static Type getReferredType(Type type) {
-        Type constraint = type;
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             return getReferredType(((ReferenceType) type).getReferredType());
         }
@@ -162,7 +161,7 @@ public class TypeUtils {
             return getReferredType(((IntersectionType) type).getEffectiveType());
         }
 
-        return constraint;
+        return type;
     }
 
 }
