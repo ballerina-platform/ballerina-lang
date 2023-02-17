@@ -13,6 +13,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -43,6 +44,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final Names names;
     private final SymbolResolver symResolver;
     private final BLangDiagnosticLog dlog;
+    private final BLangMissingNodesHelper missingNodesHelper;
     private final Types types;
     private final TypeChecker typeChecker;
     private final TypeResolver typeResolver;
@@ -59,6 +61,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.typeResolver = TypeResolver.getInstance(context);
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
     }
 
     public static ConstantTypeChecker getInstance(CompilerContext context) {
@@ -196,6 +199,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
+                varRefExpr.symbol = symbol; // Set notFoundSymbol
+                logUndefinedSymbolError(varRefExpr.pos, varName.value);
                 return;
             }
 
@@ -599,7 +604,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (lhs == null || rhs == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
-            return new BLangConstantValue(null, type);
+            return null;
         }
 
         BLangLiteral lhsLiteral = (BLangLiteral) lhs.getValueSpace().iterator().next();
@@ -658,13 +663,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
-            return new BLangConstantValue(null, type);
+            return null;
         }
 
         try {
             switch (kind) {
                 case ADD:
-                    return new BLangConstantValue(value, type);
+                    return value;
                 case SUB:
                     return calculateNegation(value, type);
                 case BITWISE_COMPLEMENT:
@@ -677,15 +682,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
-        return new BLangConstantValue(null, type);
+        return null;
     }
 
-    private BLangConstantValue calculateBitWiseOp(Object lhs, Object rhs,
+    private Object calculateBitWiseOp(Object lhs, Object rhs,
                                                   BiFunction<Long, Long, Long> func, BType type, Location currentPos) {
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
                 Long val = func.apply((Long) lhs, (Long) rhs);
-                return new BLangConstantValue(val, type);
+                return val;
             default:
                 dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
 
@@ -1242,6 +1247,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
         return opSymbol;
+    }
+
+    private void logUndefinedSymbolError(Location pos, String name) {
+        if (!missingNodesHelper.isMissingNode(name)) {
+            dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, name);
+        }
     }
 
     /**
