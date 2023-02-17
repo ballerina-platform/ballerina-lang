@@ -121,14 +121,14 @@ public class SymbolsInResourceAccessActionTest {
     public Object[][] getResourceAccessActionPathPos1() {
         return new Object[][]{
                 // Resource method: [string s1]/[string s2]()
-                {66, 12, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->/<CURSOR>seg1/seg2()
-                {67, 17, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->[...[<CURSOR>"seg1", "seg2"]]()
-                {68, 13, "resource function get [string s1]/[string s2] () returns ()"},   // barCl->/[<CURSOR>"seg1"]/["seg2"]()
+                {66, 12, "resource function get [string s1]/[string s2] () returns ()"},
+                {67, 17, "resource function get [string s1]/[string s2] () returns ()"},
+                {68, 13, "resource function get [string s1]/[string s2] () returns ()"},
 
                 // Resource method: [string... ss]()
-                {70, 12, "resource function get [string... ss] () returns ()"},   // bazCl->/<CURSOR>seg1/seg2()
-                {71, 17, "resource function get [string... ss] () returns ()"},   // bazCl->[...[<CURSOR>"seg1", "seg2"]]()
-                {72, 13, "resource function get [string... ss] () returns ()"},   // bazCl->/[<CURSOR>"seg1"]/["seg2"]()
+                {70, 12, "resource function get [string... ss] () returns ()"},
+                {71, 17, "resource function get [string... ss] () returns ()"},
+                {72, 13, "resource function get [string... ss] () returns ()"},
         };
     }
 
