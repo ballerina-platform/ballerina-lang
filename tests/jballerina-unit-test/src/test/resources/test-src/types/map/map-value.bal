@@ -73,3 +73,26 @@ function testEchoAny(any value)returns (string) {
     string stringVal = <string> value;
     return stringVal;
 }
+
+public type Animals Map;
+
+public type Map map<string>;
+
+function testUpdateMapValue() {
+    Map x = {};
+    x["value"] = "animals";
+    assertEquality({"value": "animals"}, x);
+
+    Animals animals = {};
+    foreach var [name, age] in [["animal1", "Cat"], ["animal2", "Dog"]] {
+        animals[name] = age;
+    }
+    assertEquality({"animal1": "Cat", "animal2": "Dog"}, animals);
+}
+
+function assertEquality(anydata expected, anydata  actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

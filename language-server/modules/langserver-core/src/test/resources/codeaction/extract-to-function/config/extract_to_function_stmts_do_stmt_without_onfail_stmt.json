@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_do_stmt_without_onfail_stmt.bal",
+  "description": "Extract to function for do statement, checks when there is no on fail statement",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted(int param) returns int {\n    int localVar \u003d 0;\n    do {\n        if param \u003d\u003d 0 {\n            localVar /\u003d (param + 1);\n        } else {\n            localVar /\u003d param;\n        }\n    }\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted(int param) returns int {\n    int localVar = 0;\n    do {\n        if param == 0 {\n            localVar /= (param + 1);\n        } else {\n            localVar /= param;\n        }\n    }\n    return localVar;\n}"
         },
         {
           "range": {
@@ -39,10 +40,21 @@
               "character": 5
             }
           },
-          "newText": "int localVar \u003d extracted(param);"
+          "newText": "int localVar = extracted(param);"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_do_stmt_without_onfail_stmt.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for do statement, checks when there is no on fail statement"
+  ]
 }

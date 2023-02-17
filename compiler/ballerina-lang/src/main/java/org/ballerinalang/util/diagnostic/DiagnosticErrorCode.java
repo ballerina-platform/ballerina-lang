@@ -786,7 +786,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_INFER_TYPEDESC_ARGUMENT_WITHOUT_CET("BCE4038",
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
-            "BCE4039", "outer.join.must.be.declared.with.var")
+            "BCE4039", "outer.join.must.be.declared.with.var"),
+    UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
+            "BCE4040", "unsupported.usage.of.default.values.for.key.field.in.table.member")     
     ;
 
     private String diagnosticId;

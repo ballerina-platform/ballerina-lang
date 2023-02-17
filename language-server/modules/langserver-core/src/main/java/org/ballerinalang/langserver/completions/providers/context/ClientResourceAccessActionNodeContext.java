@@ -38,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -47,7 +48,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionUtil;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -83,9 +83,14 @@ public class ClientResourceAccessActionNodeContext
             this.sort(context, node, completionItems);
             return completionItems;
         }
-        
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
+
+        LinePosition linePosition = node.expression().location().lineRange().endLine();
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }
@@ -160,7 +165,7 @@ public class ClientResourceAccessActionNodeContext
             });
             return;
         }
-        
+
         super.sort(context, node, completionItems);
     }
 

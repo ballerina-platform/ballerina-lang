@@ -34,6 +34,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -322,6 +323,9 @@ public class Type {
             if (type != null) {
                 type.defaultable = parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE;
             }
+        } else if (symbol instanceof VariableSymbol) {
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            type = fromSemanticSymbol(variableSymbol.typeDescriptor());
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }

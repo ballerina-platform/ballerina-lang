@@ -18,7 +18,7 @@
       "label": "map1",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "insertText": "map1",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "map2",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "insertText": "map2",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "...map2",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "filterText": "map2",
       "insertText": "...map2",
       "insertTextFormat": "Snippet"
@@ -43,7 +43,7 @@
       "label": "...map1",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "filterText": "map1",
       "insertText": "...map1",
       "insertTextFormat": "Snippet"

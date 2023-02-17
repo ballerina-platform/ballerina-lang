@@ -487,6 +487,24 @@ function testTupleToJSONAssignment() {
      assertEquality(false, K is json);
 }
 
+public const annotation tup on type;
+public const annotation member on field;
+
+type T1 [int, @member int, string...];
+type T2 [int, @member int, string];
+type T3 [@member int, string];
+
+@tup
+type T4 [@member int, string];
+
+function testTupleMemberAnnotations2() returns [T1, T2, T3, T4] {
+    T1 x1 =  [1, 2, "hello", "world"];
+    T2 x2 =  [1, 2, "a"];
+    T3 x3 =  [1, "hello"];
+    T4 x4 =  [1, "a"];
+    return [x1, x2, x3, x4];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

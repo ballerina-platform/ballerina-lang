@@ -261,6 +261,35 @@ function testTupleVarDefWithRestBPContainsErrorBPWithRestBP() {
     assertEquality(true, b[0]);
 }
 
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyListWithListBindingPatternInVarDecl() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    ReadOnlyTuple [a, b] = t1;
+    int[] & readonly rArr = a;
+    assertEquality(<int[]> [1, 2], a);
+    assertEquality(<int[]> [1, 2], rArr);
+    string str = b;
+    assertEquality("s1", b);
+    assertEquality("s1", str);
+
+    ReadOnlyTuple t2 = [[3], "s2"];
+    var [c, d] = t2;
+    rArr = c;
+    assertEquality(<int[]> [3], c);
+    assertEquality(<int[]> [3], rArr);
+    str = d;
+    assertEquality("s2", d);
+    assertEquality("s2", str);
+
+    readonly & [int[], ReadOnlyTuple] r = [[12, 34, 56], t1];
+    var [e, f] = r;
+    readonly & int[] a1 = e;
+    assertEquality(<int[]> [12, 34, 56], a1);
+    ReadOnlyTuple b1 = f;
+    assertEquality(<ReadOnlyTuple> [[1, 2], "s1"], b1);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {

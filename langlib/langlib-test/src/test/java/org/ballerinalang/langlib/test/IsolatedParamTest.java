@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -71,16 +72,22 @@ public class IsolatedParamTest {
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 36, 28);
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 51, 59);
         validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 57, 82);
+        validateError(result, index++, NON_ISOLATED_ARG_FOR_ISOLATED_PARAM_ERROR, 65, 22);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
-    @Test
-    public void testIsolatedFunctionArgForIsolatedParam() {
-        BRunUtil.invoke(result, "testIsolatedFunctionArgForIsolatedParam");
+    @Test(dataProvider = "testFunctions")
+    public void testIsolatedParamAnalysis(String testFunc) {
+        BRunUtil.invoke(result, testFunc);
     }
 
-    @Test
-    public void testIsolatedParamWithTypeRefTypedRestArg() {
-        BRunUtil.invoke(result, "testIsolatedParamWithTypeRefTypedRestArg");
+    @DataProvider
+    public Object[] testFunctions() {
+        return new String[]{
+                "testIsolatedFunctionArgForIsolatedParam",
+                "testIsolatedParamWithTypeRefTypedRestArg",
+                "testArgAnalysisWithFixedLengthArrayRestArg",
+                "testIsolatedFuncArgInFixedLengthArrayRestArg"
+        };
     }
 }

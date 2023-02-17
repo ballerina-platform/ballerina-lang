@@ -18,7 +18,7 @@
       "label": "field1",
       "kind": "Field",
       "detail": "TestRecord2.field1",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "field3",
       "kind": "Field",
       "detail": "TestRecord2.field3",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "field3: ${1:false}",
       "insertTextFormat": "Snippet"
     },
@@ -34,7 +34,7 @@
       "label": "field2",
       "kind": "Field",
       "detail": "TestRecord2.field2",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
@@ -60,7 +60,7 @@
       "label": "...rec1",
       "kind": "Variable",
       "detail": "TestRecord1",
-      "sortText": "F",
+      "sortText": "AB",
       "filterText": "rec1",
       "insertText": "...rec1",
       "insertTextFormat": "Snippet"
