@@ -1716,15 +1716,15 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(reFlagExpression.colon);
     }
 
-    private void lookupResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        if (resourceAccessInvocation.targetResourceFunc == null) {
+    private void lookupResourceAccessPathSegments(BLangInvocation.BLangResourceAccessInvocation resourceInvocation) {
+        if (resourceInvocation.targetResourceFunc == null) {
             // Return if target-function is not set.
             // Ex: Ambiguous target-functions
             return;
         }
 
-        List<BResourcePathSegmentSymbol> pathSegSymbols = resourceAccessInvocation.targetResourceFunc.pathSegmentSymbols;
-        List<BLangExpression> pathExprs = resourceAccessInvocation.resourceAccessPathSegments.exprs;
+        List<BResourcePathSegmentSymbol> pathSegSymbols = resourceInvocation.targetResourceFunc.pathSegmentSymbols;
+        List<BLangExpression> pathExprs = resourceInvocation.resourceAccessPathSegments.exprs;
         BResourcePathSegmentSymbol restResourcePathSeg;
 
         if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {

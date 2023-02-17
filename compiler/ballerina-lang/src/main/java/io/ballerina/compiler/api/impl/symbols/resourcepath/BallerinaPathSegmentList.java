@@ -25,14 +25,12 @@ import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 /**
  * Represents an implementation of a path segment list.
@@ -41,7 +39,6 @@ import java.util.stream.Collectors;
  */
 public class BallerinaPathSegmentList implements PathSegmentList {
 
-    private final List<Name> internalSegments;
     private final List<BVarSymbol> internalPathParams;
     private final BVarSymbol internalPathRestParam;
     private final List<BResourcePathSegmentSymbol> internalPathSegmentSymbols;
@@ -55,7 +52,6 @@ public class BallerinaPathSegmentList implements PathSegmentList {
     public BallerinaPathSegmentList(List<BResourcePathSegmentSymbol> pathSegmentSymbols, List<BVarSymbol> pathParams,
                                     BVarSymbol pathRestParam, CompilerContext context) {
         this.internalPathSegmentSymbols = pathSegmentSymbols;
-        this.internalSegments = pathSegmentSymbols.stream().map(s -> s.name).collect(Collectors.toList());
         this.internalPathParams = pathParams;
         this.internalPathRestParam = pathRestParam;
         this.context = context;
