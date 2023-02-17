@@ -69,7 +69,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
@@ -156,14 +155,12 @@ public class MainMethodGen {
         genShutdownHook(mv, initClass);
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        boolean isSingleFileProject = pkg.packageID.getPkgName().toString().equals(".");
-        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MAIN_METHOD, INIT_FUTURE_VAR, userMainFunc,
-                testExecuteFunc, isSingleFileProject);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, testExecuteFunc);
         if (hasInitFunction) {
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
-        if (!serviceEPAvailable) {
+        if (!serviceEPAvailable && testExecuteFunc == null) {
             JvmCodeGenUtil.generateExitRuntime(mv);
         }
 
@@ -177,9 +174,9 @@ public class MainMethodGen {
         mv.visitEnd();
     }
 
-    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, String lambdaName,
-                                             String funcName, String futureVar, BIRNode.BIRFunction userMainFunc,
-                                             BIRNode.BIRFunction testExecuteFunc, boolean isSingleFileProject) {
+    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv,
+                                             BIRNode.BIRFunction userMainFunc,
+                                             BIRNode.BIRFunction testExecuteFunc) {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
@@ -190,8 +187,9 @@ public class MainMethodGen {
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, "$lambda$" + lambdaName + "$", funcName, futureVar);
-        genReturn(mv, indexMap, futureVar);
+        genSubmitToScheduler(initClass, mv, "$lambda$" + JvmConstants.MODULE_EXECUTE_METHOD + "$",
+                JvmConstants.MAIN_METHOD, MainMethodGen.INIT_FUTURE_VAR);
+        genReturn(mv, indexMap, MainMethodGen.INIT_FUTURE_VAR);
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {

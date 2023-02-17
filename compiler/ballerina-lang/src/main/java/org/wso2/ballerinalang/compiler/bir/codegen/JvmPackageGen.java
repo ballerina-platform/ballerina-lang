@@ -413,7 +413,7 @@ public class JvmPackageGen {
                 mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass, serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc, testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
-                initMethodGen.generateGraceFulExitMethod(cw, module, moduleClass);
+                initMethodGen.generateGracefulExitMethod(cw);
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);

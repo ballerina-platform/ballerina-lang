@@ -361,8 +361,7 @@ public class JvmCodeGenUtil {
     }
 
     public static void generateExitRuntime(MethodVisitor mv) {
-        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime",
-                GET_RUNTIME, false);
+        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
         mv.visitInsn(ICONST_0);
         mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "exit", "(I)V", false);
     }
