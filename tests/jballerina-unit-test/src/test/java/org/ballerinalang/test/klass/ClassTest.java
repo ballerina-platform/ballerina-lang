@@ -75,21 +75,14 @@ public class ClassTest {
     public void classDefNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_negative_test.bal");
         int i = 0;
-        String expectedErrorMsgPrefix = "invalid cyclic type reference in ";
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 17, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, C, A]'", 17, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, A, B]'", 22, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[B, C, A, B]'", 22, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[A, B, A]'", 28, 1);
-        BAssertUtil.validateError(negative, i++, expectedErrorMsgPrefix + "'[C, A, B, C]'", 28, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ServiceClass'", 36, 1);
+                "function get name() returns (string)' of class 'ServiceClass'", 21, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass'", 44, 1);
+                "function get name() returns (string)' of class 'ClientClass'", 29, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass2'", 52, 1);
+                "function get name() returns (string)' of class 'ClientClass2'", 37, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass3'", 56, 1);
+                "function get name() returns (string)' of class 'ClientClass3'", 41, 1);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 

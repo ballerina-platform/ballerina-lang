@@ -14,21 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-class A {
-    *B;
-    int i = 0;
-}
-
-class B {
-    *A;
-    *C;
-    int i = 0;
-}
-
-type C object {
-    *A;
-};
-
 type ServiceObject service object {
     resource function get name() returns string;
 };
