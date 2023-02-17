@@ -196,12 +196,6 @@ public class ValueConverter {
                 }
                 return convertToRecord(map, unresolvedValues, recordType, restFieldType,
                         targetTypeField);
-            case TypeTags.JSON_TAG:
-                Type matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                if (matchingType == null) {
-                    throw createConversionError(map, targetType);
-                }
-                return convert(map, matchingType, unresolvedValues);
             case TypeTags.INTERSECTION_TAG:
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues);
             default:
@@ -249,14 +243,6 @@ public class ValueConverter {
                     tupleValues[i] = ValueCreator.createListInitialValueEntry(newValue);
                 }
                 return ValueCreator.createTupleValue(tupleType, array.size(), tupleValues);
-            case TypeTags.JSON_TAG:
-                Object[] jsonValues = new Object[array.size()];
-                for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), targetType, unresolvedValues);
-                    jsonValues[i] = newValue;
-                }
-                return ValueCreator.createArrayValue(jsonValues,
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_JSON));
             case TypeTags.TABLE_TAG:
                 TableType tableType = (TableType) targetType;
                 Object[] tableValues = new Object[array.size()];

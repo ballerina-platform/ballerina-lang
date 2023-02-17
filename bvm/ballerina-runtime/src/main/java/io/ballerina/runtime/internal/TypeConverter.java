@@ -305,8 +305,10 @@ public class TypeConverter {
                     return targetType;
                 }
                 break;
+            case TypeTags.JSON_TAG:
+                return getConvertibleTypeForJsonType(inputValue, targetType, allowNumericConversion);
             case TypeTags.ANYDATA_TAG:
-                return TypeConverter.resolveMatchingTypeForUnion(inputValue, targetType);
+                return resolveMatchingTypeForUnion(inputValue, targetType);
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
                 return getConvertibleType(inputValue, effectiveType, varName, unresolvedValues, errors,
@@ -328,6 +330,14 @@ public class TypeConverter {
                 }
         }
         return null;
+    }
+
+    private static Type getConvertibleTypeForJsonType(Object inputValue, Type targetJsonType,
+                                                      boolean allowNumericConversion) {
+        if (!TypeChecker.checkIsLikeType(inputValue, targetJsonType, allowNumericConversion)) {
+            return null;
+        }
+        return resolveMatchingTypeForUnion(inputValue, targetJsonType);
     }
 
     private static boolean isStringConvertibleToTargetXmlType(Object inputValue, Type targetType) {
@@ -355,7 +365,7 @@ public class TypeConverter {
 
         for (Type memType : memberTypes) {
             if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                return memType;
+                return getConvertibleType(inputValue, memType, varName, unresolvedValues, errors, false);
             }
         }
         for (Type memType : memberTypes) {

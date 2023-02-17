@@ -2452,6 +2452,10 @@ public class TypeChecker {
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
                                                   List<TypeValuePair> unresolvedValues,
                                                   boolean allowNumericConversion) {
+        if (sourceType.isAnydata()) {
+            return true;
+        }
+
         switch (sourceType.getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.JSON_TAG:
