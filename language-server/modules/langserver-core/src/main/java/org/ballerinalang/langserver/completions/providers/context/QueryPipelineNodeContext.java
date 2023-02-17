@@ -138,7 +138,7 @@ public class QueryPipelineNodeContext extends AbstractCompletionProvider<QueryPi
                 closestNode = next;
             }
         }
-        if (closestNode.kind() != SyntaxKind.ORDER_BY_CLAUSE) {
+        if (closestNode == null || closestNode.kind() != SyntaxKind.ORDER_BY_CLAUSE) {
             return false;
         }
         SeparatedNodeList<OrderKeyNode> orderKeyNodes = ((OrderByClauseNode) closestNode).orderKey();
