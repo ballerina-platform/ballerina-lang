@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-      - 2201.[4-9]+.[0-9]+-stage
 
 jobs:
   build-lang:
