@@ -64,6 +64,7 @@ public class TypeResolver {
     private final BLangDiagnosticLog dlog;
     private final Types types;
     private final ConstantValueResolver constResolver;
+    private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final ConstantTypeChecker constantTypeChecker;
     private final ConstantTypeChecker.ResolveConstantExpressionType resolveConstantExpressionType;
@@ -77,9 +78,8 @@ public class TypeResolver {
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private HashSet<BLangConstant> resolvingConstants = new HashSet<>();
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
-    private BLangPackage pkgNode;
-
     private Map<String, BLangNode> modTable = new LinkedHashMap<>();
+    private SymbolEnv pkgEnv;
 
     public TypeResolver(CompilerContext context) {
         context.put(TYPE_RESOLVER_KEY, this);
@@ -109,8 +109,9 @@ public class TypeResolver {
         return typeResolver;
     }
 
-    public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv, BLangPackage pkgNode) {
-        this.pkgNode = pkgNode;
+    public void defineBTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
+        this.pkgEnv = pkgEnv;
+        typePrecedence = 0;
         for (BLangNode typeAndClassDef : moduleDefs) {
             modTable.put(symEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
@@ -140,6 +141,11 @@ public class TypeResolver {
         if (resolvedClassDef.contains(classDefinition)) {
             return classDefinition.getBType();
         }
+
+        if (classDefinition.getBType() != null) {
+            return classDefinition.getBType();
+        }
+
         defineClassDef(classDefinition, pkgEnv);
         symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
 
@@ -156,6 +162,8 @@ public class TypeResolver {
         // Define the class fields
         defineField(classDefinition, modTable, pkgEnv);
         resolvedClassDef.add(classDefinition);
+
+        classDefinition.setPrecedence(this.typePrecedence++);
         return classDefinition.getBType();
     }
 
@@ -253,6 +261,10 @@ public class TypeResolver {
             tSymbol.flags |= Flags.DEPRECATED;
         }
 
+        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
+            env.scope.define(tSymbol.name, tSymbol);
+        }
+
         // For each referenced type, check whether the types are already resolved.
         // If not, then that type should get a higher precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
@@ -260,9 +272,6 @@ public class TypeResolver {
             objectType.typeInclusions.add(referencedType);
         }
 
-        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
-            env.scope.define(tSymbol.name, tSymbol);
-        }
         // TODO : check
         // env.scope.define(tSymbol.name, tSymbol);
     }
@@ -346,6 +355,8 @@ public class TypeResolver {
             resolvingtypeDefinitions.remove(defn);
         }
 
+        defn.setPrecedence(this.typePrecedence++);
+
         if (defn.getBType() == null) {
             defn.setBType(type);
             defn.cycleDepth = -1;
@@ -372,20 +383,31 @@ public class TypeResolver {
         }
     }
 
+    private void logErrorForCyclicMapAndArray(BType type) {
+        if (type == null) {
+            return;
+        }
+        switch (type.getKind()) {
+            case ARRAY:
+            case MAP:
+                dlog.error(type.tsymbol.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, type.name);
+                break;
+        }
+    }
+
     public BType validateModuleLevelDef(String name, SymbolEnv symEnv) {
         BLangNode moduleLevelDef = modTable.get(name);
         if (moduleLevelDef == null) {
             return null;
         }
-        SymbolEnv env = symEnv.enclEnv != null ? symEnv.enclEnv:symEnv;
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
-            BType resolvedType = resolveTypeDefinition(env, modTable, typeDefinition, -1);
+            BType resolvedType = resolveTypeDefinition(pkgEnv, modTable, typeDefinition, -1);
 //            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition); // temporary disable due to intersections
             return resolvedType;
         } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
-            return resolveTypeDefinition(env, modTable, constant.associatedTypeDefinition, -1);
+            return resolveTypeDefinition(pkgEnv, modTable, constant.associatedTypeDefinition, -1);
         } else {
             return extracted(symEnv, modTable, (BLangClassDefinition) moduleLevelDef);
         }
@@ -538,6 +560,7 @@ public class TypeResolver {
             symResolver.validateXMLConstraintType(constraintType, td.pos);
         }
 
+        ((BXMLType) constrainedType).constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         return constrainedType;
     }
@@ -707,6 +730,9 @@ public class TypeResolver {
 
         if (td.restParamType != null) {
             BType tupleRestType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.restParamType);
+            if (tupleRestType == null) {
+                return symTable.semanticError;
+            }
             tupleType.restType = tupleRestType;
             symResolver.markParameterizedType(tupleType, tupleType.restType);
         }
@@ -1012,6 +1038,9 @@ public class TypeResolver {
 
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
+            if (resolvedType == null) {
+                return symTable.semanticError;
+            }
             if (resolvedType == symTable.noType) {
                 return symTable.noType;
             }
@@ -1231,10 +1260,18 @@ public class TypeResolver {
 
             if (tempSymbol == symTable.notFoundSymbol && pkgAlias == Names.EMPTY && mod.containsKey(typeName.value)) {
                 if (mod.get(typeName.value).getKind() == NodeKind.TYPE_DEFINITION) {
-                    BTypeDefinition defn = ((BLangTypeDefinition) mod.get(typeName.value)).typeNode.defn;
+                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) mod.get(typeName.value);
+                    BTypeDefinition defn = (typeDefinition).typeNode.defn;
                     if (defn != null) {
-                        updateIsCyclicFlag(defn.type);
-                        return defn.type;
+//                        if (depth == typeDefinition.cycleDepth) {
+//                            // We cannot define recursive typeDefinitions with same depths.
+//                            dlog.error(typeDefinition.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
+//                            return symTable.semanticError;
+//                        }
+                        BType defType = defn.type;
+                        logErrorForCyclicMapAndArray(defType);
+                        updateIsCyclicFlag(defType);
+                        return defType;
                     }
                 }
             }
@@ -1318,7 +1355,7 @@ public class TypeResolver {
 
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
-//            dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, td.typeName);
+            dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, td.typeName);
             return null;
         }
 
@@ -1350,9 +1387,10 @@ public class TypeResolver {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : td.valueSpace) {
-//            TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
-//            BType type = typeChecker.checkExpr(literal, symTable.noType, data);
             BType type = blangTypeUpdate(literal);
+            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+                return type;
+            }
             if (type != null) {
                 literal.setBType(symTable.getTypeFromTag(type.tag));
             }
@@ -1399,6 +1437,14 @@ public class TypeResolver {
                 type = blangTypeUpdate(((BLangBinaryExpr) expression).lhsExpr);
                 expression.setBType(type);
                 return type;
+            case NUMERIC_LITERAL:
+                BLangNumericLiteral expr = (BLangNumericLiteral) expression;
+                if (expr.getBType().tag == TypeTags.INT && !(expr.value instanceof Long)) {
+                    dlog.error(expression.pos, DiagnosticErrorCode.OUT_OF_RANGE, expr.originalValue,
+                            expression.getBType());
+                    return symTable.semanticError;
+                }
+                return expr.getBType();
             default:
                 return null;
         }

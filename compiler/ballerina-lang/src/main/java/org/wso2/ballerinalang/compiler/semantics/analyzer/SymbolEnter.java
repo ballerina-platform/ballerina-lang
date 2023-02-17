@@ -435,18 +435,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
 
-//        SymbolEnv cloneEnv = pkgEnv.createClone();
-//        List<BLangNode> typeAndClassDefsCloned = new ArrayList<>();
-//        typeAndClassDefs.forEach(i -> typeAndClassDefsCloned.add(nodeCloner.cloneNode(i)));
-
-
-
         boolean runTypeResolver = true;
         if (runTypeResolver) {
-//            SymbolEnv prevEnv = this.env;
             this.env = pkgEnv;
-            typeResolver.defineBTypes(typeAndClassDefs/*typeAndClassDefsCloned*/, pkgEnv, pkgNode);
-//            this.env = prevEnv;
+            typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
         }
 
 //        defineTypeNodes(typeAndClassDefs, pkgEnv);
@@ -456,8 +448,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgEnv.logErrors = true;
 
         // Sort type definitions with precedence, before defining their members.
-//        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
-//        typeAndClassDefs.sort(getTypePrecedenceComparator());
+        pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
+        typeAndClassDefs.sort(getTypePrecedenceComparator());
 
         // Add distinct type information
 //        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
