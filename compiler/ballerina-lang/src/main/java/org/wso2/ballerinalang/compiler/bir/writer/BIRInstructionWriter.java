@@ -263,7 +263,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
-        binaryWriter.writeAnnotAttachments(buf, birAsyncCall.annotAttachments);
+        BIRWriterUtils.writeAnnotAttachments(this.cp, buf, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 

@@ -231,6 +231,8 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangRecordVariable.BLangRecordVariableKeyValue node, T data);
 
     public abstract void visit(BLangResourceFunction node, T data);
+    
+    public abstract void visit(BLangResourcePathSegment node, T data);
 
     public abstract void visit(BLangRetrySpec node, T data);
 

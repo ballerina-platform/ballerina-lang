@@ -618,7 +618,7 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "FUNCTION_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
@@ -626,27 +626,15 @@
                                           "children": []
                                         },
                                         {
-                                          "kind": "FUNCTION_KEYWORD",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "FUNCTION_SIGNATURE",
+                                          "kind": "FUNCTION_TYPE_DESC",
                                           "hasDiagnostics": true,
                                           "children": [
-                                            {
-                                              "kind": "OPEN_PAREN_TOKEN"
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []
                                             },
                                             {
-                                              "kind": "CLOSE_PAREN_TOKEN",
+                                              "kind": "FUNCTION_KEYWORD",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "WHITESPACE_MINUTIAE",
@@ -655,27 +643,49 @@
                                               ]
                                             },
                                             {
-                                              "kind": "RETURN_TYPE_DESCRIPTOR",
+                                              "kind": "FUNCTION_SIGNATURE",
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "RETURNS_KEYWORD",
-                                                  "isMissing": true,
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_RETURNS_KEYWORD"
-                                                  ]
+                                                  "kind": "OPEN_PAREN_TOKEN"
                                                 },
                                                 {
                                                   "kind": "LIST",
                                                   "children": []
                                                 },
                                                 {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "kind": "CLOSE_PAREN_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "kind": "RETURN_TYPE_DESCRIPTOR",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "\u0027re"
+                                                      "kind": "RETURNS_KEYWORD",
+                                                      "isMissing": true,
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_MISSING_RETURNS_KEYWORD"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    },
+                                                    {
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "\u0027re"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -695,10 +705,19 @@
                                       ]
                                     },
                                     {
-                                      "kind": "INT_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

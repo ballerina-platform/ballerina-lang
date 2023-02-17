@@ -128,30 +128,33 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
-                                          "value": "\\"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
-                                          "value": "q"
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "q"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -246,30 +249,33 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
-                                          "value": "\\"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
-                                          "value": "e"
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "e"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -363,10 +369,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "a"
                                         }
                                       ]
@@ -377,10 +383,10 @@
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "children": [
                                         {
-                                          "kind": "RE_CHAR",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "b"
                                         }
                                       ]
@@ -392,30 +398,33 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
-                                          "value": "\\"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
-                                          "value": "y"
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "y"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -510,11 +519,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "RE_NUMERIC_ESCAPE",
                                           "hasDiagnostics": true,
                                           "diagnostics": [
                                             "ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE"
@@ -614,30 +623,33 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_CHAR_ESCAPE",
+                                      "kind": "RE_QUOTE_ESCAPE",
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_ESCAPE",
+                                          "kind": "BACK_SLASH_TOKEN"
+                                        },
+                                        {
+                                          "kind": "BITWISE_XOR_TOKEN",
+                                          "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_INVALID_ESCAPE_SEQUENCE"
+                                            "ERROR_INVALID_RE_SYNTAX_CHAR"
                                           ],
-                                          "value": "\\"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHAR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_CHAR",
-                                          "value": "!"
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "RE_LITERAL_CHAR",
+                                                    "value": "!"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

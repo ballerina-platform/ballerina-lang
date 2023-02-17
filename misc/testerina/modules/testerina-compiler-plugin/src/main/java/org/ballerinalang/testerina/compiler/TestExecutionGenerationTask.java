@@ -177,7 +177,7 @@ public class TestExecutionGenerationTask implements GeneratorTask<SourceGenerato
             String moduleName = module.moduleName().toString();
             for (DocumentId documentId : module.testDocumentIds()) {
                 Document document = module.document(documentId);
-                String documentName = moduleName + "-" + document.name().replace(BAL_EXTENSION, "")
+                String documentName = moduleName + "/" + document.name().replace(BAL_EXTENSION, "")
                         .replace("/", ".");
                 List<String> mockedFunctionList = new ArrayList<>();
                 Node rootNode = document.syntaxTree().rootNode();

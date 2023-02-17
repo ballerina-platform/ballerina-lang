@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
@@ -1135,7 +1136,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        find(tupleTypeNode.memberTypeNodes);
+        find(tupleTypeNode.members);
         find(tupleTypeNode.restParamType);
     }
 
@@ -1355,6 +1356,12 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangReCharSet reCharSet) {
         find(reCharSet.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        find(reCharSetRange.lhsCharSetAtom);
+        find(reCharSetRange.rhsCharSetAtom);
     }
 
     @Override

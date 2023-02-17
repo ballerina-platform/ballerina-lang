@@ -22,6 +22,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Field Access Expression Context tests.
@@ -45,5 +47,10 @@ public class FieldAccessExpressionContextTest extends CompletionTest {
     @Override
     public String getTestResourceDir() {
         return "field_access_expression_context";
+    }
+
+    @Override
+    public List<String> skipList() {
+        return Collections.emptyList();
     }
 }

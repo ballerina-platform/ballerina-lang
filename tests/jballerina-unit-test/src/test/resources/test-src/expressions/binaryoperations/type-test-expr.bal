@@ -1807,6 +1807,17 @@ function testResourceMethodTyping() {
     };
 
     test:assertTrue(result);
+    
+    objectVar = client object {
+        resource function get foo/[int...]() {
+        }
+    };
+
+    result = objectVar is client object {
+        resource function get foo/[string...]();
+    };
+    
+    test:assertFalse(result);
 }
 
 // ========================== distinct types ==========================

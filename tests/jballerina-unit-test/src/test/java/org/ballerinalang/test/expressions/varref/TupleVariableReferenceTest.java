@@ -310,9 +310,14 @@ public class TupleVariableReferenceTest {
     }
 
     @Test
+    public void testReadOnlyTupleWithListBindingPatternInDestructuringAssignment() {
+        BRunUtil.invoke(result, "testReadOnlyTupleWithListBindingPatternInDestructuringAssignment");
+    }
+
+    @Test
     public void testTupleVariablesReferencesSemanticsNegative() {
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
-                "-semantics-negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/expressions/varref/tuple-variable-reference-semantics-negative.bal");
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
@@ -372,6 +377,12 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'l'", 183, 116);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'm'", 183, 120);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'n'", 183, 124);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '[string[] & readonly," +
+                "string]', found 'ReadOnlyTuple'", 192, 14);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected '[string[] & readonly," +
+                "[int[] & readonly,any]]', found '([int[],ReadOnlyTuple] & readonly)'", 197, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[] & readonly', " +
+                "found 'int[]'", 199, 9);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
