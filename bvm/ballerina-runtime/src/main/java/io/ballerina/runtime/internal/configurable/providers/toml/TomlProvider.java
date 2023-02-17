@@ -975,6 +975,6 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private Optional<ConfigValue> getTomlConfigValue(Object value, VariableKey key) {
-        return Optional.of(new TomlConfigValue(value, TypeUtils.getReferredType(key.type)));
+        return Optional.of(new TomlConfigValue(value, key.type));
     }
 }

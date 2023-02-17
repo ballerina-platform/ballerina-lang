@@ -257,7 +257,6 @@ public class ConfigValueCreator {
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
         RecordType recordType;
         String recordName;
-        type = TypeUtils.getReferredType(type);
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordName = type.getName();
             recordType = (RecordType) type;
