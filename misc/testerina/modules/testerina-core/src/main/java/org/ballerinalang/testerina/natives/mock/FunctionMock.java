@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.test.runtime.BTestMain.getClassLoader;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 import static org.ballerinalang.testerina.natives.mock.MockConstants.ORIGINAL_FUNC_NAME_PREFIX;
@@ -95,8 +96,8 @@ public class FunctionMock {
 
         List<Object> argsList = Arrays.asList(args);
         StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, originalFunction);
-        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata,
-                ClassLoader.getSystemClassLoader(), originalClassName, originalFunction, argsList.toArray());
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(),
+                originalClassName, originalFunction, argsList.toArray());
     }
 
     private static Object callMockFunction(String originalFunction, String originalClassName,
@@ -122,7 +123,7 @@ public class FunctionMock {
                 packageName = projectInfo[1];
                 version = projectInfo[2];
                 className = "tests." + getMockClassName(orgName, packageName, version, originalFunction,
-                        originalClassName, mockFunctionName, mockFunctionClasses, ClassLoader.getSystemClassLoader());
+                        originalClassName, mockFunctionName, mockFunctionClasses, getClassLoader());
                 className = getQualifiedClassName(orgName, packageName, version, className);
             } catch (ClassNotFoundException e) {
                 return ErrorCreator.createError(
@@ -137,8 +138,8 @@ public class FunctionMock {
             StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
 
             return Executor.executeFunction(
-                    strand.scheduler, MOCK_STRAND_NAME, metadata, ClassLoader.getSystemClassLoader(), className,
-                    mockFunctionName, argsList.toArray());
+                    strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(), className, mockFunctionName,
+                    argsList.toArray());
         } else {
             return null;
         }
