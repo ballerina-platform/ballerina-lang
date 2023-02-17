@@ -228,7 +228,7 @@ public class BalStringUtils {
         } else if (!exprValue.startsWith("<?") && !exprValue.startsWith("<!--") && !exprValue.startsWith("<")) {
             return XmlFactory.createXMLText(StringUtils.fromString(exprValue));
         } else {
-            return XmlFactory.parse(exprValue);
+            return TypeConverter.stringToXml(exprValue);
         }
     }
 

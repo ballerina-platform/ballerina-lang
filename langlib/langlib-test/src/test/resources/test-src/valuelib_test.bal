@@ -2918,6 +2918,7 @@ function testCloneWithTypeTableToAnydata() {
 }
 
 type ReadOnlyXmlElement xml:Element & readonly;
+type AnydataUnion int|anydata;
 
 function testConversionsBetweenXml() {
     // xml to xml
@@ -2990,8 +2991,18 @@ function testConversionsBetweenXml() {
     test:assertValueEqual(x6_cloned1 is readonly, true);
 
     // xml with anydata
+    xml a  = xml `<a>1</a>`;
+    AnydataUnion & readonly a1 = checkpanic a.cloneWithType();
+    any result = a1;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(a1, xml `<a>1</a>`);
+    AnydataUnion a2 = checkpanic a.cloneWithType();
+    result = a2;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(a2, xml `<a>1</a>`);
+
     anydata & readonly x1_cloned2 = checkpanic x1.cloneWithType();
-    any result = x1_cloned2;
+    result = x1_cloned2;
     test:assertValueEqual(result is readonly, true);
     anydata x1_cloned3 = checkpanic x1.cloneWithType();
     result = x1_cloned3;
