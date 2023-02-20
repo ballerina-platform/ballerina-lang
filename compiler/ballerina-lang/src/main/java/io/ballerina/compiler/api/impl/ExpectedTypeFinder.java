@@ -975,9 +975,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     /**
-     * Get the TypeSymbol related to first argument in bLangInvocationNode.
+     * Get the TypeSymbol related to the parameter at the given index.
      *
      * @param bLangNode bLangInvocationNode related to the function/method
+     * @param argumentIndex index of the argument
+     * @param namedArgs list of named arguments
      * @return the type symbol if available, if not, returns empty
      */
     private Optional<TypeSymbol> getParamType(BLangInvocation bLangNode, int argumentIndex, List<String> namedArgs) {
@@ -1066,11 +1068,11 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return getParamType(bLangInvocation, 0, Collections.emptyList());
         }
 
-        //func(arg1, arg<cursor>, 10)
+        // func(arg1, arg<cursor>, 10)
         int argumentIndex = 0;
         List<String> namedArgs = new ArrayList<>();
         for (BLangNode nodeInst : bLangInvocation.argExprs) {
-            //only offset is considered
+            // only offset is considered
             if (nodeInst.getPosition().lineRange().endLine().offset() < linePosition.offset()) {
                 if (nodeInst.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                     namedArgs.add(((BLangNamedArgsExpression) nodeInst).name.value);
@@ -1085,7 +1087,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                         (((BArrayType) bLangInvocation.expr.expectedType).eType));
             }
 
-            //First argExpr is the expr of the BLangInvocationNode. Therefore, it should not be considered 
+            // First argExpr is the expr of the BLangInvocationNode. Therefore, it should not be considered 
             // and the type of the second arg should be returned
             return getParamType(bLangInvocation, argumentIndex, namedArgs);
         }
