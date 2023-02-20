@@ -139,10 +139,24 @@ public class LocksInMainTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/lock/locks_in_worker_send_receive_negative.bal");
         assertEquals(compileResult.getErrorCount(), 6);
-        BAssertUtil.validateError(compileResult, 0, "using send action not allowed in lock statement",
-                11, 13);
-        BAssertUtil.validateError(compileResult, 1, "using receive action not allowed in lock statement",
-                21, 21);
+        BAssertUtil.validateError(compileResult, 0,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                8, 13);
+        BAssertUtil.validateError(compileResult, 1,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                16, 21);
+        BAssertUtil.validateError(compileResult, 2,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                27, 9);
+        BAssertUtil.validateError(compileResult, 4,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                28, 22);
+        BAssertUtil.validateError(compileResult, 5,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                35, 19);
+        BAssertUtil.validateError(compileResult, 6,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                37, 13);
     }
 
     @Test()
