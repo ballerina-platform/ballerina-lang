@@ -122,4 +122,15 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
         AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-" +
                 "testMockingFunctionInSingleFileProject.txt", output);
     }
+
+    @Test
+    public void testLegacyMockingFunctionInSingleFileProject() throws BallerinaTestException {
+        String projectPath = singleFileTestsPath.resolve("mocking").toString();
+        String[] args = mergeCoverageArgs(new String[]{"function-legacy-mock.bal"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
+        assertEquals(output.replaceAll("\r", ""),
+                "ERROR [function-legacy-mock.bal:(8:1,8:38)] function mocking is not supported with " +
+                        "standalone Ballerina files\n" +
+                        "error: compilation contains errors");
+    }
 }
