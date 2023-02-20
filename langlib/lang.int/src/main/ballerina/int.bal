@@ -215,3 +215,18 @@ public isolated function fromHexString(string s) returns int|error = @java:Metho
     'class: "org.ballerinalang.langlib.integer.FromHexString",
     name: "fromHexString"
 } external;
+
+# Returns the average of its arguments.
+# The result is returned as a decimal.
+# 
+# ```ballerina
+# int:avg(10, 20, 30, 40) ⇒ 25.0
+# ```
+# 
+# + n - first int value
+# + ns - other int values
+# + return - average of parameter `n` and all of parameter `ns`
+public isolated function avg(int n, int... ns) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Avg",
+    name: "avg"
+} external;

@@ -580,6 +580,40 @@ function testQuantizeFunctionWithInvalidOutput() {
     assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 }
 
+function testAvg() {
+    decimal a1 = decimal:avg(1d, 2d, 3d, -4d, -5d);
+    test:assertValueEqual(-0.6d, a1);
+
+    a1 = 0d.avg(0, 1);
+    test:assertValueEqual(0.3333333333333333333333333333333333d, a1);
+
+    a1 = decimal:avg(0, 1);
+    test:assertValueEqual(0.5d, a1);
+
+    a1 = decimal:avg(<decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE, <decimal>int:MAX_VALUE);
+    test:assertValueEqual(<decimal>int:MAX_VALUE, a1);
+
+    a1 = int:avg(int:MAX_VALUE, int:MIN_VALUE);
+    test:assertValueEqual(-0.5d, a1);
+
+    decimal[] arr = [2, 3, 4, 5];
+    a1 = decimal:avg(1, ...arr);
+    test:assertValueEqual(3d, a1);
+
+    a1 = decimal:avg(1, ...[2, 3, 4, 5]);
+    test:assertValueEqual(3d, a1);
+
+    arr = [];
+    foreach int i in 0...1000 {
+        arr.push(<decimal>int:MAX_VALUE);
+    }
+    test:assertValueEqual(<decimal>int:MAX_VALUE, decimal:avg(<decimal>int:MAX_VALUE, ...arr));
+
+    decimal|error d = trap decimal:avg(9.999999999999999999999999999999999e6144d, 9.999999999999999999999999999999999e6144d);
+    test:assertValueEqual(true, d is error);
+    test:assertValueEqual("{ballerina}NumberOverflow", (<error>d).message());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

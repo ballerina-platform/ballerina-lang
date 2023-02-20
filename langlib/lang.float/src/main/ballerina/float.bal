@@ -652,3 +652,16 @@ public isolated function toExpString(float x, int? fractionDigits) returns strin
     'class: "org.ballerinalang.langlib.floatingpoint.ToExpString",
     name: "toExpString"
 } external;
+
+# Returns the average of its arguments.
+# Return NaN if there are no arguments,
+# ```ballerina
+# float:avg(2, 2) ⇒ 2.0
+# ```
+#
+# + xs - float values
+# + return - average of all of parameter `xs`
+public isolated function avg(float... xs) returns float = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.Avg",
+    name: "avg"
+} external;

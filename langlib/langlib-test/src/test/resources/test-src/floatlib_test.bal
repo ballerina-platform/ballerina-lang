@@ -1361,6 +1361,45 @@ function testRound() {
     assertEquality(float:round(f, -2), f);
 }
 
+function testAvg() {
+    float a1 = float:avg(1, 2, 3, -4, -5.0);
+    test:assertValueEqual(-0.6, a1);
+
+    a1 = 0.0.avg(0, 1);
+    test:assertValueEqual(0.3333333333333333, a1);
+
+    a1 = float:avg(0, 1);
+    test:assertValueEqual(0.5, a1);
+
+    a1 = float:avg(<float>int:MAX_VALUE, <float>int:MAX_VALUE, <float>int:MAX_VALUE, <float>int:MAX_VALUE);
+    test:assertValueEqual(9.223372036854776E18, a1);
+
+    a1 = float:avg(<float>int:MAX_VALUE, <float>int:MIN_VALUE);
+    test:assertValueEqual(-0.0, a1);
+
+    float[] arr = [2, 3, 4, 5];
+    a1 = float:avg(1, ...arr);
+    test:assertValueEqual(3.0, a1);
+
+    a1 = float:avg(1, ...[2, 3, 4, 5]);
+    test:assertValueEqual(3.0, a1);
+
+    a1 = float:avg();
+    test:assertValueEqual(float:NaN, a1);
+
+    a1 = float:avg(float:NaN, float:NaN);
+    test:assertValueEqual(float:NaN, a1);
+
+    a1 = float:avg(float:NaN, -float:NaN);
+    test:assertValueEqual(float:NaN, a1);
+
+    a1 = float:avg(float:NaN, float:Infinity);
+    test:assertValueEqual(float:NaN, a1);
+
+    a1 = float:avg(float:Infinity, -float:Infinity);
+    test:assertValueEqual(float:NaN, a1);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
