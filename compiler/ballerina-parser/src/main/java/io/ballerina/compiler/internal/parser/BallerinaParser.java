@@ -6489,6 +6489,9 @@ public class BallerinaParser extends AbstractParser {
                     STNode valExpr = parseExpression();
                     return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
                 }
+                // Treat invalid NamedArgument as a positional argument
+                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
+                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
