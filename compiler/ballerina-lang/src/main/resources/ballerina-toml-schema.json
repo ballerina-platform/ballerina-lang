@@ -155,7 +155,7 @@
       "properties": {
         "java11": {
           "type": "object",
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "dependency": {
               "type": "array",
@@ -180,10 +180,30 @@
                   }
                 }
               }
+            },
+            "repository": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           },
           "required": [
-            "dependency"
           ],
           "message": {
             "required": "cannot find '${property}' under 'platform.java11'"
