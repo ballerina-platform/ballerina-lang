@@ -68,6 +68,7 @@ public class SignatureInfoModelBuilder {
         this.symbol = symbol;
         this.context = context;
         this.parameterModels = new ArrayList<>();
+        this.includedRecordParams = new ArrayList<>();
         fillParamInfoModels();
     }
 
