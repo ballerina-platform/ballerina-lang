@@ -6484,9 +6484,11 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                STNode equal = parseAssignOp();
-                STNode valExpr = parseExpression();
-                return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
+                if (argNameOrExpr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    STNode equal = parseAssignOp();
+                    STNode valExpr = parseExpression();
+                    return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
+                }
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
