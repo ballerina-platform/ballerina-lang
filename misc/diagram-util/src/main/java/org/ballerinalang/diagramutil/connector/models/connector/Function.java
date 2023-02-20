@@ -18,10 +18,10 @@
 package org.ballerinalang.diagramutil.connector.models.connector;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.diagramutil.connector.models.connector.types.PathType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Function model.
@@ -30,25 +30,36 @@ public class Function {
     @Expose
     public String name;
     @Expose
+    public List<PathType> pathParams;
+    @Expose
     public List<Type> parameters;
     @Expose
     public Type returnType;
     @Expose
-    public boolean isRemote;
+    public String[] qualifiers;
     @Expose
     public String documentation;
     @Expose
     public Map<String, String> displayAnnotation;
 
-    public Function(String name, List<Type> parameters, Optional<Type> returnType,
-                    Map<String, String> displayAnnotation, boolean isRemote, String documentation) {
+    public Function(String name, List<Type> queryParams, Type returnType, Map<String, String> displayAnnotation,
+                    String[] qualifiers, String documentation) {
         this.name = name;
-        this.parameters = parameters;
+        this.parameters = queryParams;
+        this.returnType = returnType;
         this.displayAnnotation = displayAnnotation;
-        this.isRemote = isRemote;
+        this.qualifiers = qualifiers;
         this.documentation = documentation;
-        if (returnType.isPresent()) {
-            this.returnType = returnType.get();
-        }
+    }
+
+    public Function(String name, List<PathType> pathParams, List<Type> queryParams, Type returnType,
+                    Map<String, String> displayAnnotation, String[] qualifiers, String documentation) {
+        this.name = name;
+        this.pathParams = pathParams;
+        this.parameters = queryParams;
+        this.returnType = returnType;
+        this.displayAnnotation = displayAnnotation;
+        this.qualifiers = qualifiers;
+        this.documentation = documentation;
     }
 }

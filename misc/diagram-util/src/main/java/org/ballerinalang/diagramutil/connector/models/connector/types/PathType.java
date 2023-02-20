@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -18,25 +18,31 @@
 package org.ballerinalang.diagramutil.connector.models.connector.types;
 
 import com.google.gson.annotations.Expose;
-import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Object type model.
+ * Path parameter type model.
  */
-public class ObjectType extends Type {
+public class PathType {
     @Expose
-    public List<Type> fields;
+    public String name;
+    @Expose
+    public String typeName;
+    @Expose
+    public boolean isRestType;
 
-    public ObjectType() {
-        this.typeName = "object";
-        this.fields = new ArrayList<>();
+    public PathType() {
     }
 
-    public ObjectType(List<Type> fields) {
-        this.typeName = "object";
-        this.fields = fields;
+    public PathType(String name, String typeName) {
+        this.name = name;
+        this.typeName = typeName;
+        this.isRestType = false;
+    }
+
+    public PathType(String name, String typeName, boolean isRestType) {
+        this.name = name;
+        this.typeName = typeName;
+        this.isRestType = isRestType;
     }
 }

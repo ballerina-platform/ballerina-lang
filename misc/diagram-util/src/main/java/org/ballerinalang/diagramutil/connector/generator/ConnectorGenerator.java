@@ -20,32 +20,26 @@ package org.ballerinalang.diagramutil.connector.generator;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 import org.ballerinalang.diagramutil.connector.models.connector.Function;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
-import org.ballerinalang.diagramutil.connector.models.connector.types.InclusionType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.PathType;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
@@ -73,8 +67,7 @@ public class ConnectorGenerator {
      * @param project  Balerina Project
      * @param detailed Get connectors with metadata
      * @param query    Filter connector list
-     * @return
-     * @throws IOException
+     * @return List of connectors
      */
     public static List<Connector> getProjectConnectors(Project project, boolean detailed, String query)
             throws IOException {
@@ -84,53 +77,51 @@ public class ConnectorGenerator {
         String version = currentPackage.packageVersion().toString();
         String orgName = currentPackage.packageOrg().toString();
 
-        currentPackage.modules().forEach(module -> {
-            module.documentIds().forEach(documentId -> {
-                SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
-                String moduleName = module.moduleName().toString();
-                if (!syntaxTree.containsModulePart()) {
+        currentPackage.modules().forEach(module -> module.documentIds().forEach(documentId -> {
+            SyntaxTree syntaxTree = module.document(documentId).syntaxTree();
+            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+            String moduleName = module.moduleName().toString();
+            if (!syntaxTree.containsModulePart()) {
+                return;
+            }
+
+            ModulePartNode modulePartNode = syntaxTree.rootNode();
+            for (Node node : modulePartNode.members()) {
+                if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
                     return;
                 }
 
-                ModulePartNode modulePartNode = syntaxTree.rootNode();
-                for (Node node : modulePartNode.members()) {
-                    if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
-                        return;
-                    }
+                ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
+                if (classDefinition.visibilityQualifier().isPresent()
+                        && classDefinition.visibilityQualifier().get()
+                        .kind().equals(SyntaxKind.PUBLIC_KEYWORD) && Generator
+                        .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
+                    String connectorName = classDefinition.className().text();
+                    String description = getDocFromMetadata(classDefinition.metadata());
+                    Map<String, String> connectorAnnotation =
+                            getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
 
-                    ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
-                    if (classDefinition.visibilityQualifier().isPresent()
-                            && classDefinition.visibilityQualifier().get()
-                            .kind().equals(SyntaxKind.PUBLIC_KEYWORD) && Generator
-                            .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-                        String connectorName = classDefinition.className().text();
-                        String description = getDocFromMetadata(classDefinition.metadata());
-                        Map<String, String> connectorAnnotation =
-                                getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-
-                        if (detailed) {
-                            List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
-                            connectorsList.add(new Connector(orgName, moduleName, packageName, version,
-                                    connectorName, description, connectorAnnotation, functions));
-                            continue;
-                        }
-                        // Filter connectors with search query
-                        if (!query.isEmpty() && !(orgName.toLowerCase(Locale.ROOT).contains(query)
-                                || moduleName.toLowerCase(Locale.ROOT).contains(query)
-                                || connectorName.toLowerCase(Locale.ROOT).contains(query)
-                                || (connectorAnnotation.get("label") != null
-                                && connectorAnnotation.get("label").toLowerCase(Locale.ROOT).contains(query)))) {
-                            continue;
-                        }
-
+                    if (detailed) {
+                        List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
                         connectorsList.add(new Connector(orgName, moduleName, packageName, version,
-                                connectorName, description, connectorAnnotation));
+                                connectorName, description, connectorAnnotation, functions));
+                        continue;
                     }
-                }
+                    // Filter connectors with search query
+                    if (!query.isEmpty() && !(orgName.toLowerCase(Locale.ROOT).contains(query)
+                            || moduleName.toLowerCase(Locale.ROOT).contains(query)
+                            || connectorName.toLowerCase(Locale.ROOT).contains(query)
+                            || (connectorAnnotation.get("label") != null
+                            && connectorAnnotation.get("label").toLowerCase(Locale.ROOT).contains(query)))) {
+                        continue;
+                    }
 
-            });
-        });
+                    connectorsList.add(new Connector(orgName, moduleName, packageName, version,
+                            connectorName, description, connectorAnnotation));
+                }
+            }
+
+        }));
         return connectorsList;
     }
 
@@ -138,8 +129,7 @@ public class ConnectorGenerator {
      * Generate list of connector metadata inside a project.
      *
      * @param project Ballerina project
-     * @return
-     * @throws IOException
+     * @return Connector list
      */
     public static List<Connector> generateConnectorModel(Project project) throws IOException {
         List<Connector> connectors = new ArrayList<>();
@@ -170,35 +160,34 @@ public class ConnectorGenerator {
     public static List<Connector> getConnectorModelFromSyntaxTree(SyntaxTree syntaxTree, SemanticModel semanticModel,
                                                                   String orgName, String packageName, String version,
                                                                   String moduleName) {
+        Type.clearVisitedTypeMap();
         List<Connector> connectorsList = new ArrayList<>();
         if (!syntaxTree.containsModulePart()) {
             return connectorsList;
         }
-
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         for (Node node : modulePartNode.members()) {
-            if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
-                ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
-                if (!(classDefinition.visibilityQualifier().isPresent() &&
-                        classDefinition.visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD) &&
-                        Generator.containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD))) {
-                    continue;
-                }
-
-                String connectorName = classDefinition.className().text();
-                String description = getDocFromMetadata(classDefinition.metadata());
-                Map<String, String> connectorAnnotation =
-                        getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
-                if (!connectorAnnotation.isEmpty() && connectorAnnotation.containsKey("label") &&
-                        !connectorAnnotation.get("label").isEmpty()) {
-                    connectorName = connectorAnnotation.get("label");
-                }
-
-                List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
-                connectorsList.add(new Connector(orgName, moduleName, packageName, version,
-                        connectorName, description, connectorAnnotation, functions));
-
+            if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
+                continue;
             }
+            ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
+            if (classDefinition.visibilityQualifier().isEmpty() || !classDefinition.visibilityQualifier().get()
+                    .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || !Generator
+                    .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
+                continue;
+            }
+            String connectorName = classDefinition.className().text();
+            String description = GeneratorUtils.getDocFromMetadata(classDefinition.metadata());
+            Map<String, String> connectorAnnotation =
+                    GeneratorUtils.getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
+            if (!connectorAnnotation.isEmpty() && connectorAnnotation.containsKey("label") &&
+                    !connectorAnnotation.get("label").isEmpty()) {
+                connectorName = connectorAnnotation.get("label");
+            }
+
+            List<Function> functions = getConnectorFunctions(semanticModel, classDefinition);
+            connectorsList.add(new Connector(orgName, moduleName, packageName, version, connectorName,
+                    description, connectorAnnotation, functions));
         }
         return connectorsList;
     }
@@ -207,137 +196,50 @@ public class ConnectorGenerator {
                                                         ClassDefinitionNode classDefinition) {
         List<Function> functions = new ArrayList<>();
         for (Node member : classDefinition.members()) {
-
-            boolean isRemoteFunction = member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
-                    (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
-                            SyntaxKind.REMOTE_KEYWORD));
-            boolean isPublicFunction = member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
-                    (Generator.containsToken(((FunctionDefinitionNode) member).qualifierList(),
-                            SyntaxKind.PUBLIC_KEYWORD));
-
-            if (!(isRemoteFunction || isPublicFunction)) {
+            if (!(member instanceof FunctionDefinitionNode)) {
                 continue;
             }
+            NodeList<Token> qualifierList = ((FunctionDefinitionNode) member).qualifierList();
+            if ((Generator.containsToken(qualifierList, SyntaxKind.PUBLIC_KEYWORD) ||
+                    Generator.containsToken(qualifierList, SyntaxKind.REMOTE_KEYWORD) ||
+                    Generator.containsToken(qualifierList, SyntaxKind.RESOURCE_KEYWORD))) {
+                FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
 
-            FunctionDefinitionNode functionDefinition = (FunctionDefinitionNode) member;
-            List<Type> parameters = new ArrayList<>();
+                String functionName = functionDefinition.functionName().text();
+                Map<String, String> funcAnnotation =
+                        GeneratorUtils.getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
 
-            String functionName = functionDefinition.functionName().text();
-            Map<String, String> funcAnnotation =
-                    getDisplayAnnotationFromMetadataNode(functionDefinition.metadata());
+                FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
+                List<PathType> pathParams = new ArrayList<>(GeneratorUtils.getPathParameters(
+                        functionDefinition.relativeResourcePath()));
+                List<Type> queryParams = new ArrayList<>(GeneratorUtils.getFunctionParameters(
+                        functionSignature.parameters(),
+                        functionDefinition.metadata(), semanticModel));
 
-            FunctionSignatureNode functionSignature = functionDefinition.functionSignature();
-            parameters.addAll(getFunctionParameters(functionSignature.parameters(),
-                    functionDefinition.metadata(), semanticModel));
+                Type returnParam = null;
+                if (functionSignature.returnTypeDesc().isPresent()) {
+                    returnParam = GeneratorUtils.getReturnParameter(functionSignature.returnTypeDesc().get(),
+                            functionDefinition.metadata(), semanticModel);
+                }
 
-            Optional<Type> returnParam = Optional.empty();
-            if (functionSignature.returnTypeDesc().isPresent()) {
-                returnParam = getReturnParameter(functionSignature.returnTypeDesc().get(),
-                        functionDefinition.metadata(), semanticModel);
+                String[] qualifierArr = new String[qualifierList.size()];
+                for (int i = 0; i < qualifierList.size(); i++) {
+                    qualifierArr[i] = qualifierList.get(i).toString().trim();
+                }
+
+                functions.add(new Function(functionName, pathParams, queryParams, returnParam, funcAnnotation,
+                        qualifierArr, GeneratorUtils.getDocFromMetadata(functionDefinition.metadata())));
             }
-            functions.add(new Function(functionName, parameters, returnParam, funcAnnotation,
-                    isRemoteFunction, getDocFromMetadata(functionDefinition.metadata())));
         }
         return functions;
     }
 
-    /**
-     * Generate function parameters.
-     *
-     * @param parameterNodes       Parameter node
-     * @param optionalMetadataNode Metadata mode
-     * @param semanticModel
-     * @return List of types
-     */
-    public static List<Type> getFunctionParameters(SeparatedNodeList<ParameterNode> parameterNodes,
-                                                   Optional<MetadataNode> optionalMetadataNode,
-                                                   SemanticModel semanticModel) {
-        List<Type> parameters = new ArrayList<>();
-        Optional<Type> optionalParam;
-        Type param;
-
-        for (ParameterNode parameterNode : parameterNodes) {
-            switch (parameterNode.kind()) {
-                case REQUIRED_PARAM:
-                    RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-                    optionalParam = Type.fromSyntaxNode(requiredParameterNode.typeName(), semanticModel);
-                    if (optionalParam.isEmpty()) {
-                        continue;
-                    }
-                    param = optionalParam.get();
-                    param.name = requiredParameterNode.paramName().isPresent() ?
-                            requiredParameterNode.paramName().get().text() : null;
-                    param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
-                            requiredParameterNode.annotations());
-                    param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
-                    parameters.add(param);
-                    break;
-                case DEFAULTABLE_PARAM:
-                    DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) parameterNode;
-                    optionalParam = Type.fromSyntaxNode(defaultableParameter.typeName(), semanticModel);
-                    if (optionalParam.isEmpty()) {
-                        continue;
-                    }
-                    param = optionalParam.get();
-
-                    param.name = defaultableParameter.paramName().isPresent() ?
-                            defaultableParameter.paramName().get().text() : "";
-                    param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
-                            defaultableParameter.annotations());
-                    param.defaultable = true;
-                    param.defaultValue = defaultableParameter.expression().toString();
-                    param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
-                    parameters.add(param);
-
-                    break;
-                case INCLUDED_RECORD_PARAM:
-                    IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) parameterNode;
-                    optionalParam = Type.fromSyntaxNode(includedRecord.typeName(), semanticModel);
-                    if (optionalParam.isEmpty()) {
-                        continue;
-                    }
-                    param = new InclusionType(optionalParam.get());
-                    param.name = includedRecord.paramName().isPresent() ?
-                            includedRecord.paramName().get().text() : "";
-                    param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(includedRecord.annotations());
-                    param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
-                    parameters.add(param);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return parameters;
-    }
-
-    /**
-     * Get return type parameters.
-     *
-     * @param returnTypeDescriptorNode Type descriptor node
-     * @param optionalMetadataNode     Metadata node
-     * @param semanticModel            Project semantic model
-     * @return Type
-     */
-    public static Optional<Type> getReturnParameter(ReturnTypeDescriptorNode returnTypeDescriptorNode,
-                                                    Optional<MetadataNode> optionalMetadataNode,
-                                                    SemanticModel semanticModel) {
-        Optional<Type> optionalParam = Type.fromSyntaxNode(returnTypeDescriptorNode.type(), semanticModel);
-        if (optionalParam.isPresent()) {
-            Type parameter = optionalParam.get();
-            parameter.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
-                    returnTypeDescriptorNode.annotations());
-            parameter.documentation = getParameterDocFromMetadataList("return", optionalMetadataNode);
-            return Optional.of(parameter);
-        }
-        return Optional.empty();
-    }
 
     /**
      * Get display annotation.
      *
      * @param annotations Annotation node
-     * @return
+     * @return Display annotation list
      */
     public static Map<String, String> getDisplayAnnotationFromAnnotationsList(NodeList<AnnotationNode> annotations) {
         Map<String, String> displayAnnotation = new HashMap<>();
@@ -374,10 +276,11 @@ public class ConnectorGenerator {
      */
     public static Map<String, String> getDisplayAnnotationFromMetadataNode(
             Optional<MetadataNode> optionalMetadataNode) {
+        Map<String, String> result = Collections.emptyMap();
         if (optionalMetadataNode.isPresent()) {
-            return getDisplayAnnotationFromAnnotationsList(optionalMetadataNode.get().annotations());
+            result = getDisplayAnnotationFromAnnotationsList(optionalMetadataNode.get().annotations());
         }
-        return Collections.emptyMap();
+        return result;
     }
 
     /**
@@ -387,60 +290,31 @@ public class ConnectorGenerator {
      * @return Document text
      */
     private static String getDocFromMetadata(Optional<MetadataNode> optionalMetadataNode) {
+        String result;
         if (optionalMetadataNode.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder doc = new StringBuilder();
-        Optional<Node> docLines = optionalMetadataNode.get().documentationString();
-        if (docLines.isEmpty()) {
-            return doc.toString();
-        }
-
-        for (Node docLine : ((MarkdownDocumentationNode) docLines.get()).documentationLines()) {
-            if (docLine.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION_LINE) {
-                String mdLine = !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                        getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
-                doc.append(mdLine);
-            } else if (docLine.kind() == SyntaxKind.MARKDOWN_CODE_BLOCK) {
-                doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
+            result = "";
+        } else {
+            StringBuilder doc = new StringBuilder();
+            Optional<Node> docLines = optionalMetadataNode.get().documentationString();
+            if (docLines.isEmpty()) {
+                result = doc.toString();
             } else {
-                break;
-            }
-        }
-
-        return doc.toString();
-    }
-
-    private static String getParameterDocFromMetadataList(String parameterName,
-                                                          Optional<MetadataNode> optionalMetadataNode) {
-        if (optionalMetadataNode.isEmpty()) {
-            return "";
-        }
-
-        Optional<Node> docLines = optionalMetadataNode.get().documentationString();
-        StringBuilder parameterDoc = new StringBuilder();
-        if (docLines.isEmpty()) {
-            return parameterDoc.toString();
-        }
-
-        boolean lookForMoreLines = false;
-        for (Node docLine : ((MarkdownDocumentationNode) docLines.get()).documentationLines()) {
-            if (docLine.kind() == SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE) {
-                if (((MarkdownParameterDocumentationLineNode) docLine).parameterName().text()
-                        .equals(parameterName)) {
-                    parameterDoc.append(getDocLineString(((MarkdownParameterDocumentationLineNode) docLine)
-                            .documentElements()));
-                    lookForMoreLines = true;
-                } else {
-                    lookForMoreLines = false;
+                for (Node docLine : ((MarkdownDocumentationNode) docLines.get()).documentationLines()) {
+                    if (docLine.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION_LINE) {
+                        String mdLine = !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
+                                getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
+                        doc.append(mdLine);
+                    } else if (docLine.kind() == SyntaxKind.MARKDOWN_CODE_BLOCK) {
+                        doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
+                    } else {
+                        break;
+                    }
                 }
-            } else if (lookForMoreLines && docLine.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION_LINE) {
-                parameterDoc.append(getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()));
+                result = doc.toString();
             }
         }
 
-        return parameterDoc.toString();
+        return result;
     }
 
     private static String getDocLineString(NodeList<Node> documentElements) {
@@ -460,7 +334,7 @@ public class ConnectorGenerator {
         StringBuilder doc = new StringBuilder();
 
         doc.append(markdownCodeBlockNode.startBacktick().toString());
-        markdownCodeBlockNode.langAttribute().ifPresent(langAttribute -> doc.append(langAttribute.toString()));
+        markdownCodeBlockNode.langAttribute().ifPresent(doc::append);
 
         for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
             doc.append(codeLineNode.codeDescription().toString());
