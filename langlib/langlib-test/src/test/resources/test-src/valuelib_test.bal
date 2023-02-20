@@ -4306,6 +4306,17 @@ function testDecimalNonZeroToString() {
     assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
 }
 
+function testCount() {
+    assert(0, value:count());
+    assert(2, value:count(2, -1));
+    assert(1, value:count([1, 2, 3]));
+    assert(1, value:count([]));
+    assert(3, value:count(...[1, 2, 3]));
+    assert(4, value:count(error("Message1"), error("Message1"), error("Message2"), error("Message2")));
+    assert(6, value:count(error("Message1"), "str", true, 3.4, {"m": 2}, error("Message2")));
+}
+
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

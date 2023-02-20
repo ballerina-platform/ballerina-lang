@@ -423,3 +423,16 @@ public isolated function mergeJson(json j1, json j2) returns json|error = @java:
     'class: "org.ballerinalang.langlib.value.MergeJson",
     name: "mergeJson"
 } external;
+
+# Returns the number of arguments.
+# 
+# ```ballerina
+# value:count(1, 2, 3) ⇒ 3
+# ```
+# 
+# + vs - arguments that are counted
+# + return - number of arguments
+public isolated function count(any|error... vs) returns int = @java:Method {
+    'class: "org.ballerinalang.langlib.value.Count",
+    name: "count"
+} external;
