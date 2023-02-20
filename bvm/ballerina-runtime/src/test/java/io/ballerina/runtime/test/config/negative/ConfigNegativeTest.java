@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
@@ -84,8 +83,6 @@ public class ConfigNegativeTest {
         MapType mapStringType = TypeCreator.createMapType(TYPE_STRING);
         Type incompatibleUnionType = new BIntersectionType(MODULE, new Type[]{},
                 new BUnionType(Arrays.asList(PredefinedTypes.TYPE_INT, mapStringType)), 0, true);
-        Type ambiguousUnionType = new BIntersectionType(MODULE, new Type[]{},
-                new BUnionType(Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA), mapStringType)), 0, true);
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,
@@ -179,7 +176,7 @@ public class ConfigNegativeTest {
                         "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 3, 0,
+                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 1, 0,
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
                                 " is expected to be of type '(int|map<string>)', but found 'float'"}},
         };
