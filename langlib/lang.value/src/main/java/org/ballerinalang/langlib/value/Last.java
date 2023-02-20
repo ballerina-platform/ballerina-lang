@@ -18,12 +18,13 @@
 package org.ballerinalang.langlib.value;
 
 /**
- * Extern function lang.values:count.
+ * Extern function lang.values:last.
  *
  * @since 2201.5.0
  */
-public class Count {
-    public static long count(Object[] values) {
-        return values.length;
+public class Last {
+    public static Object last(Object value, Object[] values) {
+        int size = values.length;
+        return size == 0 ? value : values[size - 1];
     }
 }

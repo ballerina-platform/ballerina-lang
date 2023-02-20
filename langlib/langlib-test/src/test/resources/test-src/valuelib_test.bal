@@ -4316,6 +4316,36 @@ function testCount() {
     assert(6, value:count(error("Message1"), "str", true, 3.4, {"m": 2}, error("Message2")));
 }
 
+function testFirst() {
+    assertEquality(2, value:first(2));
+    assertEquality(2, value:first([2])[0]);
+    assertEquality(21, value:first(...[21, 31]));
+    assertEquality(1, value:first(1, 2, 4, 5));
+    var f = value:first(error("Message"), 2.0, true, {"m": 2});
+    assertEquality(true, f is error);
+    assertEquality("Message", (<error> f).message());
+    assertEquality(1, value:first(1, [2, 4, 5]));
+    assertEquality(1, value:first(1, ...[2, 4, 5]));
+    var b = value:first([false, true], ...[2, 4, 5]);
+    assertFalse(b[0]);
+    assertTrue(b[1]);
+}
+
+function testLast() {
+    assertEquality(2, value:last(2));
+    assertEquality(5, value:last(1, 2, 4, 5));
+    assertTrue([2, 3] == value:last([2, 3]));
+    assertEquality(3, value:last(...[21, 3]));
+    int[] ar = [21, 3];
+    assertEquality(3, value:last(4, ...ar));
+    var x1 = value:last(error("Message1"), error("Message2"));
+    assertEquality(true, x1 is error);
+    assertEquality("Message2", (<error> x1).message());
+    ar = [];
+    assertEquality(4, value:last(4, ...ar));
+    int[] ar1 = [1, 2, 3];
+    assertTrue([] == value:last(ar1, ar));
+}
 
 type AssertionError distinct error;
 

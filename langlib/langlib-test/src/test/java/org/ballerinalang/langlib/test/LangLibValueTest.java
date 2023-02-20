@@ -532,4 +532,14 @@ public class LangLibValueTest {
     public void testCount() {
         BRunUtil.invoke(compileResult, "testCount");
     }
+
+    @Test
+    public void testFirst() {
+        BRunUtil.invoke(compileResult, "testFirst");
+    }
+
+    @Test
+    public void testLast() {
+        BRunUtil.invoke(compileResult, "testLast");
+    }
 }

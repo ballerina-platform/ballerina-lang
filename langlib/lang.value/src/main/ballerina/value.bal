@@ -436,3 +436,33 @@ public isolated function count(any|error... vs) returns int = @java:Method {
     'class: "org.ballerinalang.langlib.value.Count",
     name: "count"
 } external;
+
+@typeParam
+type Type any|error;
+
+# Returns the first argument.
+#
+# ```ballerina
+# value:first(1, 2, 3) ⇒ 1
+# ```
+# 
+# + v - first argument
+# + vs - rest of the arguments
+# + return - first argument
+public isolated function first(Type v, (any|error)... vs) returns Type {
+    return v;
+}
+
+# Returns the last argument.
+#
+# ```ballerina
+# value:last(1, 2, 3) ⇒ 3
+# ```
+#
+# + v - first argument
+# + vs - rest of the arguments
+# + return - last argument
+public isolated function last(Type v, Type... vs) returns Type = @java:Method {
+    'class: "org.ballerinalang.langlib.value.Last",
+    name: "last"
+} external;
