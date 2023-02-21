@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import ballerina/test;
-
 configurable int intVar = 3;
 configurable float floatVar = 12.8;
 configurable string stringVar = ?;
