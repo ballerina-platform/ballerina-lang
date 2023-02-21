@@ -497,7 +497,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Token openParen = parenthesizedArgList.get().openParenToken();
         Token closeParen = parenthesizedArgList.get().closeParenToken();
         // Check if the line position is within the parameter context.
-        if (!isParenMissing(openParen, closeParen) && isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
+        if (!isParenMissing(openParen, closeParen) &&
+                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
             if (!(bLangNode instanceof BLangTypeInit)) {
                 return getExpectedType(bLangNode);
             }
