@@ -678,7 +678,7 @@
       "detail": "Snippet",
       "sortText": "D",
       "filterText": "public_function_main",
-      "insertText": "public function main() {\n\t${1}\n}",
+      "insertText": "function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
