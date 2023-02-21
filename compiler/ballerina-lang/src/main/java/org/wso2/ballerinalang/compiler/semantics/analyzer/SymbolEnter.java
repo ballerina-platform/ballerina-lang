@@ -4210,20 +4210,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             NodeKind kind = typeNode.getKind();
             if (kind == NodeKind.INTERSECTION_TYPE_NODE) {
                 BType bType = typeNode.getBType();
-                BType currentType = Types.getReferredType(bType);
-
-                if (currentType == symTable.semanticError) {
+                if (bType.tag != TypeTags.INTERSECTION) {
                     continue;
                 }
 
                 BIntersectionType intersectionType = (BIntersectionType) bType;
-                currentType = intersectionType.effectiveType;
+                bType = intersectionType.effectiveType;
 
-                if (types.isInherentlyImmutableType(currentType)) {
-                    continue;
-                }
-
-                if (!loggedTypes.add(currentType)) {
+                if (types.isInherentlyImmutableType(bType) || !loggedTypes.add(bType)) {
                     continue;
                 }
 
