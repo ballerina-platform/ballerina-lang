@@ -737,7 +737,7 @@
       "label": "string ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "T",
       "filterText": "string ``",
       "insertText": "string `${1}`",
       "insertTextFormat": "Snippet"
@@ -746,7 +746,7 @@
       "label": "xml ``",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "T",
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
