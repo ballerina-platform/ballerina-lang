@@ -23,9 +23,13 @@ import org.ballerinalang.diagramutil.connector.models.connector.types.EnumType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ErrorType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.InclusionType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.IntersectionType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.MapType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.ObjectType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.PathType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PrimitiveType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.StreamType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.TableType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.UnionType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,6 +37,7 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Connector metadata generation test case.
@@ -40,6 +45,7 @@ import java.util.List;
 public class TestConnectorTypes {
     private final String balTypeString = "String";
     private final String balTypeBool = "boolean";
+    private final String name = "abc";
 
     private Type stringType;
     private Type boolType;
@@ -48,20 +54,23 @@ public class TestConnectorTypes {
     private ErrorType errorType;
     private InclusionType inclusionType;
     private IntersectionType intersectionType;
+    private MapType mapType;
+    private ObjectType objectType;
+    private PathType pathType;
     private PrimitiveType primitiveType;
     private RecordType recordType;
     private StreamType streamType;
+    private TableType tableType;
     private UnionType unionType;
+
 
     @BeforeClass
     public void initConnectorModels() {
-        stringType = new Type();
-        stringType.name = balTypeString;
-        stringType.optional = false;
-
         boolType = new Type();
-        boolType.name = balTypeBool;
+        boolType.typeName = balTypeBool;
         boolType.optional = true;
+
+        stringType = new Type(name, balTypeString, false, null, true, "", null, null);
 
         arrayType = new ArrayType(stringType);
 
@@ -74,20 +83,27 @@ public class TestConnectorTypes {
 
         intersectionType = new IntersectionType();
 
+        mapType = new MapType(stringType);
+
+        objectType = new ObjectType(members);
+
+        pathType = new PathType(name, balTypeString, true);
+
         primitiveType = new PrimitiveType(balTypeString);
 
         recordType = new RecordType(members, stringType);
 
         streamType = new StreamType(stringType, boolType);
 
-        unionType = new UnionType();
-        unionType.members = members;
+        tableType = new TableType(stringType, Arrays.asList("foo", "bar"), boolType);
+
+        unionType = new UnionType(members);
     }
 
 
     @Test(description = "Test array type object")
     public void getArrayType() {
-        Assert.assertEquals(arrayType.memberType.name, balTypeString);
+        Assert.assertEquals(arrayType.memberType.typeName, balTypeString);
     }
 
     @Test(description = "Test enum type object")
@@ -104,12 +120,50 @@ public class TestConnectorTypes {
     @Test(description = "Test inclusion type object")
     public void getInclusionType() {
         Assert.assertEquals(inclusionType.typeName, "inclusion");
-        Assert.assertEquals(inclusionType.inclusionType.name, balTypeString);
+        Assert.assertEquals(inclusionType.inclusionType.typeName, balTypeString);
     }
 
     @Test(description = "Test intersection type object")
     public void getIntersectionType() {
         Assert.assertEquals(intersectionType.typeName, "intersection");
+    }
+
+    @Test(description = "Test map type object")
+    public void getMapType() {
+        Assert.assertEquals(mapType.typeName, "map");
+        Assert.assertEquals(mapType.paramType.typeName, balTypeString);
+    }
+
+    @Test(description = "Test object type object")
+    public void getObjectType() {
+        Assert.assertEquals(objectType.typeName, "object");
+        Assert.assertEquals(objectType.fields.size(), 2);
+    }
+
+    @Test(description = "Test object type default construct")
+    public void setObjectType() {
+        objectType = new ObjectType();
+        Assert.assertEquals(objectType.typeName, "object");
+        Assert.assertEquals(objectType.fields.size(), 0);
+    }
+
+
+    @Test(description = "Test Path type object")
+    public void getPathType() {
+        Assert.assertEquals(pathType.name, name);
+        Assert.assertEquals(pathType.typeName, balTypeString);
+        Assert.assertTrue(pathType.isRestType);
+    }
+
+    @Test(description = "Test Path type default construct")
+    public void setPathType() {
+        pathType = new PathType();
+        pathType.typeName = balTypeString;
+        Assert.assertEquals(pathType.typeName, balTypeString);
+
+        pathType = new PathType(name, balTypeBool);
+        Assert.assertEquals(pathType.name, name);
+        Assert.assertEquals(pathType.typeName, balTypeBool);
     }
 
     @Test(description = "Test primitive type object")
@@ -123,11 +177,33 @@ public class TestConnectorTypes {
         Assert.assertEquals(recordType.fields.size(), 2);
     }
 
+    @Test(description = "Test record type optional param construct")
+    public void setRecordType() {
+        recordType = new RecordType(recordType.fields, Optional.of(boolType));
+        Assert.assertTrue(recordType.hasRestType);
+    }
+
     @Test(description = "Test stream type object")
     public void getStreamType() {
         Assert.assertEquals(streamType.typeName, "stream");
-        Assert.assertEquals(streamType.leftTypeParam.name, balTypeString);
-        Assert.assertEquals(streamType.rightTypeParam.name, balTypeBool);
+        Assert.assertEquals(streamType.leftTypeParam.typeName, balTypeString);
+        Assert.assertEquals(streamType.rightTypeParam.typeName, balTypeBool);
+    }
+
+    @Test(description = "Test stream type optional construct")
+    public void setStreamType() {
+        streamType = new StreamType(Optional.of(boolType), Optional.of(tableType));
+        Assert.assertEquals(streamType.typeName, "stream");
+        Assert.assertEquals(streamType.leftTypeParam.typeName, boolType.typeName);
+        Assert.assertEquals(streamType.rightTypeParam.typeName, tableType.typeName);
+    }
+
+    @Test(description = "Test table type object")
+    public void getTableType() {
+        Assert.assertEquals(tableType.typeName, "table");
+        Assert.assertEquals(tableType.rowType.typeName, balTypeString);
+        Assert.assertEquals(tableType.keys.size(), 2);
+        Assert.assertEquals(tableType.constraintType.typeName, balTypeBool);
     }
 
     @Test(description = "Test union type object")
