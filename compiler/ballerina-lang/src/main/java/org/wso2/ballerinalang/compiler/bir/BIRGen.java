@@ -1532,7 +1532,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMapLiteral astMapLiteralExpr) {
-        visitTypedesc(astMapLiteralExpr.pos, astMapLiteralExpr.getBType());
+        BType type = astMapLiteralExpr.getBType();
+        visitTypedesc(astMapLiteralExpr.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
+
         BIRVariableDcl tempVarDcl =
                 new BIRVariableDcl(astMapLiteralExpr.getBType(), this.env.nextLocalVarId(names),
                                    VarScope.FUNCTION, VarKind.TEMP);
@@ -1562,7 +1564,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
-        visitTypedesc(astStructLiteralExpr.pos, astStructLiteralExpr.getBType());
+        BType type = astStructLiteralExpr.getBType();
+        visitTypedesc(astStructLiteralExpr.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.getBType(),
                                                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -2207,7 +2210,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void visitTypedesc(Location pos, BType type) {
-        visitTypedesc(pos, type, varDcls, null);
+        visitTypedesc(pos, type, Collections.emptyList(), null);
     }
 
     private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, BIROperand annotations) {

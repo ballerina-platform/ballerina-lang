@@ -389,17 +389,17 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
+        BSymbol owner = typeSymbol.owner;
+        desugarFieldAnnotations(owner, typeSymbol, recordTypeNode.fields, recordTypeNode.pos);
         if (((BRecordType) recordTypeNode.getBType()).mutableType != null) {
-            BRecordTypeSymbol typeSymbol =
+            BRecordTypeSymbol mutableTypeSymbol =
                                       (BRecordTypeSymbol) ((BRecordType) recordTypeNode.getBType()).mutableType.tsymbol;
-            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues = typeSymbol.defaultValues;
+            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues = mutableTypeSymbol.defaultValues;
             recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
             result = recordTypeNode;
             return;
         }
-        BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
-        BSymbol owner = typeSymbol.owner;
-        desugarFieldAnnotations(owner, typeSymbol, recordTypeNode.fields, recordTypeNode.pos);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
@@ -1649,7 +1649,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             E node = rewrite(nodeList.remove(0), env);
             Iterator<BLangSimpleVariableDef> iterator = queue.iterator();
             while (iterator.hasNext()) {
-                nodeList.add((E) queue.poll());
+                nodeList.add(rewrite((E) queue.poll(), env));
             }
             nodeList.add(node);
         }
