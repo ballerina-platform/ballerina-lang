@@ -60,7 +60,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -138,20 +137,11 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
      * @param detailed detailed connector out put or not
      * @param query    search query to filter connector list
      * @return connector list
-     * @throws IOException
      */
     private List<Connector> fetchLocalConnectors(Path filePath, boolean detailed, String query) {
         Optional<Project> project = workspaceManager.project(filePath);
         List<Connector> connectors = new ArrayList<>();
-        try {
-            if (project.isPresent()) {
-                connectors.addAll(ConnectorGenerator.getProjectConnectors(project.get(), detailed, query));
-            }
-        } catch (IOException e) {
-            String msg = "Local connector fetching operation failed!";
-            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
-        }
-
+        project.ifPresent(value -> connectors.addAll(ConnectorGenerator.getProjectConnectors(value, detailed, query)));
         return connectors;
     }
 
@@ -186,10 +176,7 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
                 return connector.get();
             }
             connector = generateFromLocalFiles(request);
-            if (connector.isPresent()) {
-                return connector.get();
-            }
-            return new JsonObject();
+            return connector.orElseGet(JsonObject::new);
         });
     }
 
@@ -270,9 +257,8 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
-                module.documentIds().forEach(documentId -> {
-                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
-                });
+                module.documentIds().forEach(documentId -> module.document(documentId).syntaxTree().rootNode()
+                        .accept(connectorNodeVisitor));
 
 
                 TypeDefinitionNode recordNode = null;

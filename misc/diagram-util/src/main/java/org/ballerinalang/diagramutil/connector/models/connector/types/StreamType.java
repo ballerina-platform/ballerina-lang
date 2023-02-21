@@ -33,12 +33,8 @@ public class StreamType extends Type {
 
     public StreamType(Optional<Type> leftTypeParam, Optional<Type> rightTypeParam) {
         this.typeName = "stream";
-        if (leftTypeParam.isPresent()) {
-            this.leftTypeParam = leftTypeParam.get();
-        }
-        if (rightTypeParam.isPresent()) {
-            this.rightTypeParam = rightTypeParam.get();
-        }
+        leftTypeParam.ifPresent(type -> this.leftTypeParam = type);
+        rightTypeParam.ifPresent(type -> this.rightTypeParam = type);
     }
 
     public StreamType(Type leftTypeParam, Type rightTypeParam) {

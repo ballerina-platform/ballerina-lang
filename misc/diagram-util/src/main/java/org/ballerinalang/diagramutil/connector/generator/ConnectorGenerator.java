@@ -22,10 +22,6 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
-import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -64,13 +60,12 @@ public class ConnectorGenerator {
     /**
      * Find connector implementations inside the project and generate metadata.
      *
-     * @param project  Balerina Project
+     * @param project  Ballerina Project
      * @param detailed Get connectors with metadata
      * @param query    Filter connector list
      * @return List of connectors
      */
-    public static List<Connector> getProjectConnectors(Project project, boolean detailed, String query)
-            throws IOException {
+    public static List<Connector> getProjectConnectors(Project project, boolean detailed, String query) {
         List<Connector> connectorsList = new ArrayList<>();
         Package currentPackage = project.currentPackage();
         String packageName = currentPackage.packageName().toString();
@@ -97,7 +92,7 @@ public class ConnectorGenerator {
                         .kind().equals(SyntaxKind.PUBLIC_KEYWORD) && Generator
                         .containsToken(classDefinition.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
                     String connectorName = classDefinition.className().text();
-                    String description = getDocFromMetadata(classDefinition.metadata());
+                    String description = GeneratorUtils.getDocFromMetadata(classDefinition.metadata());
                     Map<String, String> connectorAnnotation =
                             getDisplayAnnotationFromMetadataNode(classDefinition.metadata());
 
@@ -281,67 +276,6 @@ public class ConnectorGenerator {
             result = getDisplayAnnotationFromAnnotationsList(optionalMetadataNode.get().annotations());
         }
         return result;
-    }
-
-    /**
-     * Get doc info from metadata node.
-     *
-     * @param optionalMetadataNode Metadata node
-     * @return Document text
-     */
-    private static String getDocFromMetadata(Optional<MetadataNode> optionalMetadataNode) {
-        String result;
-        if (optionalMetadataNode.isEmpty()) {
-            result = "";
-        } else {
-            StringBuilder doc = new StringBuilder();
-            Optional<Node> docLines = optionalMetadataNode.get().documentationString();
-            if (docLines.isEmpty()) {
-                result = doc.toString();
-            } else {
-                for (Node docLine : ((MarkdownDocumentationNode) docLines.get()).documentationLines()) {
-                    if (docLine.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION_LINE) {
-                        String mdLine = !((MarkdownDocumentationLineNode) docLine).documentElements().isEmpty() ?
-                                getDocLineString(((MarkdownDocumentationLineNode) docLine).documentElements()) : "\n";
-                        doc.append(mdLine);
-                    } else if (docLine.kind() == SyntaxKind.MARKDOWN_CODE_BLOCK) {
-                        doc.append(getDocCodeBlockString((MarkdownCodeBlockNode) docLine));
-                    } else {
-                        break;
-                    }
-                }
-                result = doc.toString();
-            }
-        }
-
-        return result;
-    }
-
-    private static String getDocLineString(NodeList<Node> documentElements) {
-        if (documentElements.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder doc = new StringBuilder();
-        for (Node docNode : documentElements) {
-            doc.append(docNode.toString());
-        }
-
-        return doc.toString();
-    }
-
-    private static String getDocCodeBlockString(MarkdownCodeBlockNode markdownCodeBlockNode) {
-        StringBuilder doc = new StringBuilder();
-
-        doc.append(markdownCodeBlockNode.startBacktick().toString());
-        markdownCodeBlockNode.langAttribute().ifPresent(doc::append);
-
-        for (MarkdownCodeLineNode codeLineNode : markdownCodeBlockNode.codeLines()) {
-            doc.append(codeLineNode.codeDescription().toString());
-        }
-
-        doc.append(markdownCodeBlockNode.endBacktick().toString());
-        return doc.toString();
     }
 
 }

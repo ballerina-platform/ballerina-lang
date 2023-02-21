@@ -222,11 +222,6 @@ public class Type {
                     type = Optional.of(new TableType(tableStNode.get(), keySpecifiers, constraintStNode.get()));
                 }
                 break;
-            // TODO: Check syntax tree compatible version for ErrorTypeDescriptorNode.
-//            case ERROR_TYPE_DESC:
-//                ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
-//                type = new PrimitiveType(errorType.errorKeywordToken().text());
-//                break;
             default:
                 if (node instanceof BuiltinSimpleNameReferenceNode) {
                     BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode =
