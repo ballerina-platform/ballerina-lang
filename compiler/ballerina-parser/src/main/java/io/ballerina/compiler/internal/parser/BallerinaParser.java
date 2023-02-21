@@ -6484,23 +6484,20 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                if (argNameOrExpr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                    STNode equal = parseAssignOp();
-                    STNode valExpr = parseExpression();
-                    return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
+                if (argNameOrExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    break;
                 }
-                // Treat invalid NamedArgument as a positional argument
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
-                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
+                STNode equal = parseAssignOp();
+                STNode valExpr = parseExpression();
+                return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
-            default:
-                // Treat everything else as a single expression. If something is missing,
-                // expression-parsing will recover it.
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
-                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
+        // Treat everything else as a single expression. If something is missing,
+        // expression-parsing will recover it.
+        argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
+        return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
     }
 
     /**
