@@ -1507,6 +1507,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case BINARY_EXPR:
             case TYPE_TEST_EXPR:
             case TERNARY_EXPR:
+            case REG_EXP_TEMPLATE_LITERAL:
                 return true;
             case SIMPLE_VARIABLE_REF:
                 return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
@@ -6203,11 +6204,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 .collect(Collectors.toList());
     }
 
-    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
-        type = Types.getReferredType(type);
+        BType type = Types.getReferredType(expType);
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
@@ -6254,7 +6255,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.NONE:
             default:
                 // contextually expected type not given (i.e var).
-                selectType = checkExpr(selectExp, env, type, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                if (selectType != symTable.semanticError) {
+                    selectType = checkExpr(selectExp, env, type, data);
+                }  else {
+                    selectType = checkExpr(selectExp, env, data);
+                }
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
                 } else {
@@ -6385,7 +6391,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 default:
                     BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
-                            names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
+                            Names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC), data.env);
                     if (itrSymbol == this.symTable.notFoundSymbol) {
                         return null;
                     }

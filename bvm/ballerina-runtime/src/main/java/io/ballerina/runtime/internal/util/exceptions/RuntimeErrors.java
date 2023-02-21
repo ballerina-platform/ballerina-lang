@@ -127,7 +127,9 @@ public enum RuntimeErrors implements DiagnosticCode {
     INVALID_FRACTION_DIGITS("invalid.fraction.digits", "RUNTIME_0099"),
     INVALID_UTF_8_BYTE_ARRAY_VALUE("invalid.utf8.byte.array.value", "RUNTIME_0100"),
     INCOMPATIBLE_ARGUMENTS("incompatible.arguments", "RUNTIME_0101"),
-    DECIMAL_VALUE_OUT_OF_RANGE("decimal.value.out.of.range", "RUNTIME_0102");
+    DECIMAL_VALUE_OUT_OF_RANGE("decimal.value.out.of.range", "RUNTIME_0102"),
+    NEGATIVE_REGEXP_FIND_INDEX("regexp.match.string.negative.index", "RUNTIME_0103"),
+    INVALID_REGEXP_FIND_INDEX("regexp.match.string.index.out.of.range", "RUNTIME_0104");
 
     private String errorMsgKey;
     private String errorCode;
