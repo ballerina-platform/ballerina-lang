@@ -29,11 +29,13 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,13 +168,15 @@ public class ModuleVariableDeclarationNodeContext extends
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
                         Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION,
-                        Snippet.DEF_MAIN_FUNCTION, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                         Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
                         Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
                 );
                 snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
+                CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+                completionItems.add(new MainFunctionCompletionItem(context, mainCompletionItem));
                 return completionItems;
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:

@@ -33,6 +33,8 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.providers.context.MainFunctionCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -78,10 +80,12 @@ public class ModulePartNodeContextUtil {
         if (isInImportStatementsContext(context)) {
             snippets.add(Snippet.KW_IMPORT);
         }
-        if (!isMainFunctionAvailable(context)) {
-            snippets.add(Snippet.DEF_MAIN_FUNCTION);
-        }
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
+
+        if (!isMainFunctionAvailable(context)) {
+            CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+            completionItems.add(new MainFunctionCompletionItem(context, mainCompletionItem));
+        }
 
         return completionItems;
     }
@@ -116,13 +120,13 @@ public class ModulePartNodeContextUtil {
      */
     public static void sort(List<LSCompletionItem> items) {
         for (LSCompletionItem item : items) {
+            if (item instanceof MainFunctionCompletionItem) {
+                item.getCompletionItem().setSortText(genSortText(1) + genSortText(1));
+                continue;
+            }
             CompletionItem cItem = item.getCompletionItem();
             if (isSnippetBlock(item)) {
                 SnippetCompletionItem snippetCompletionItem = (SnippetCompletionItem) item;
-                if (snippetCompletionItem.id().equals(Snippet.DEF_MAIN_FUNCTION.name())) {
-                    cItem.setSortText(genSortText(1) + genSortText(1));
-                    continue;
-                }
                 if (snippetCompletionItem.id().equals(Snippet.DEF_SERVICE_COMMON.name())) {
                     cItem.setSortText(genSortText(1) + genSortText(2));
                     continue;
