@@ -198,6 +198,11 @@ unionVar3 = 24
 versions = ["HTTP_1_1", "HTTP_1_1", "HTTP_2"]
 countryCodes = ["United States", "Sri Lanka"]
 numbers = [1, 2.5, "three"]
+city = {name = "Jack", city = "Colombo"}
+pet = {nickname = "Fido", pet_type = "Dog", age = 4}
+arrayUnionVal = [1, 2, 3]
+arrTupleUnionVal = [23.1, 24]
+unionVal1 = 23.0
 
 [[configUnionTypes.union_ambiguity.mapArrayVar]]
 a = "test string"
