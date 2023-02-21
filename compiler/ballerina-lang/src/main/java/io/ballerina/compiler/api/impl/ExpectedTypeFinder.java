@@ -489,39 +489,48 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        // TODO Fix casting
         Optional<ParenthesizedArgList> parenthesizedArgList = node.parenthesizedArgList();
+        if (parenthesizedArgList.isEmpty()) {
+            return getExpectedType(bLangNode);
+        }
+
         Token openParen = parenthesizedArgList.get().openParenToken();
         Token closeParen = parenthesizedArgList.get().closeParenToken();
         // Check if the line position is within the parameter context.
-        if (parenthesizedArgList.isPresent() && !isParenMissing(openParen, closeParen) &&
-                isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
-            if (bLangNode instanceof BLangTypeInit) {
-                BLangInvocation initInvocation = (BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation;
-                if (initInvocation.symbol == null) {
+        if (!isParenMissing(openParen, closeParen) && isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())) {
+            if (!(bLangNode instanceof BLangTypeInit)) {
+                return getExpectedType(bLangNode);
+            }
+
+            BLangTypeInit  bLangTypeInit = (BLangTypeInit) bLangNode;
+            if (!(bLangTypeInit.initInvocation instanceof BLangInvocation)) {
+                return getExpectedType(bLangNode);
+            }
+
+            BLangInvocation initInvocation = (BLangInvocation) bLangTypeInit.initInvocation;
+            if (initInvocation.symbol == null) {
+                throw new IllegalStateException();
+            }
+
+            List<BVarSymbol> params = ((BInvokableSymbol) initInvocation.symbol).params;
+            if (params.isEmpty()) {
+                throw new IllegalStateException();
+            }
+
+            if (initInvocation.argExprs.isEmpty()) {
+                return getParamType(initInvocation);
+            }
+
+            int argIndex = 0;
+            for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
+                if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())
+                        && argIndex < params.size()) {
+                    return getTypeFromBType(params.get(argIndex).getType());
+                }
+
+                argIndex += 1;
+                if (params.size() < argIndex) {
                     throw new IllegalStateException();
-                }
-
-                List<BVarSymbol> params = ((BInvokableSymbol) initInvocation.symbol).params;
-                if (params.isEmpty()) {
-                    throw new IllegalStateException();
-                }
-
-                if (initInvocation.argExprs.isEmpty()) {
-                    return getParamType(initInvocation);
-                }
-
-                int argIndex = 0;
-                for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
-                    if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())
-                            && argIndex < params.size()) {
-                        return getTypeFromBType(params.get(argIndex).getType());
-                    }
-
-                    argIndex += 1;
-                    if (params.size() < argIndex) {
-                        throw new IllegalStateException();
-                    }
                 }
             }
         }
@@ -738,6 +747,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
             }
 
         }
+
         Token openParen = node.openBracket();
         Token closeParen = node.closeBracket();
         if (!isParenMissing(openParen, closeParen) &&
