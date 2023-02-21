@@ -143,7 +143,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<TypeSymbol> type = Optional.empty();
         if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
-            LinePosition linePosition = node.location().lineRange().startLine();
+            LinePosition linePosition = node.expression().location().lineRange().startLine();
             type = context.currentSemanticModel().get()
                     .expectedType(context.currentDocument().get(), linePosition);
         }

@@ -50,7 +50,9 @@ public class ConvertToXmlOrStringTemplateCodeActionTest extends AbstractCodeActi
                 {"config10.json"},
                 {"config11.json"},
                 {"config12.json"},
-                {"config13.json"}
+                {"config13.json"},
+                {"config14.json"},
+                {"config15.json"}
         };
     }
 
