@@ -21,6 +21,7 @@ package io.ballerina.projects;
  * Build options of a project.
  */
 public class BuildOptions {
+
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
@@ -29,10 +30,11 @@ public class BuildOptions {
     private String targetDir;
     private Boolean enableCache;
     private Boolean nativeImage;
+    private Boolean exportComponentModel;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage) {
+                 Boolean nativeImage, Boolean exportComponentModel) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -41,6 +43,7 @@ public class BuildOptions {
         this.targetDir = targetPath;
         this.enableCache = enableCache;
         this.nativeImage = nativeImage;
+        this.exportComponentModel = exportComponentModel;
     }
 
     public boolean testReport() {
@@ -99,6 +102,10 @@ public class BuildOptions {
         return this.compilationOptions.exportOpenAPI();
     }
 
+    public boolean exportComponentModel() {
+        return this.compilationOptions.exportComponentModel();
+    }
+
     public boolean enableCache() {
         return this.compilationOptions.enableCache();
     }
@@ -150,6 +157,11 @@ public class BuildOptions {
         } else {
             buildOptionsBuilder.setNativeImage(this.nativeImage);
         }
+        if (theirOptions.exportComponentModel != null) {
+            buildOptionsBuilder.setExportComponentModel(theirOptions.exportComponentModel);
+        } else {
+            buildOptionsBuilder.setExportComponentModel(this.exportComponentModel);
+        }
 
         CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
         buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
@@ -163,6 +175,7 @@ public class BuildOptions {
         buildOptionsBuilder.setSticky(compilationOptions.sticky);
         buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
         buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
 
         return buildOptionsBuilder.build();
@@ -199,7 +212,8 @@ public class BuildOptions {
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
-        NATIVE_IMAGE("native");
+        NATIVE_IMAGE("native"),
+        EXPORT_COMPONENT_MODEL("exportComponentModel");
 
         private final String name;
 
@@ -219,6 +233,7 @@ public class BuildOptions {
      * @since 2.0.0
      */
     public static class BuildOptionsBuilder {
+
         private Boolean testReport;
         private Boolean codeCoverage;
         private Boolean dumpBuildTime;
@@ -227,6 +242,7 @@ public class BuildOptions {
         private Boolean enableCache;
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
+        private Boolean exportComponentModel;
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
@@ -323,6 +339,12 @@ public class BuildOptions {
             return this;
         }
 
+        public BuildOptionsBuilder setExportComponentModel(Boolean value) {
+            compilationOptionsBuilder.setExportComponentModel(value);
+            exportComponentModel = value;
+            return this;
+        }
+
         public BuildOptionsBuilder setEnableCache(Boolean value) {
             compilationOptionsBuilder.setEnableCache(value);
             enableCache = value;
@@ -337,7 +359,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache, nativeImage);
+                    compilationOptions, targetPath, enableCache, nativeImage, exportComponentModel);
         }
     }
 }

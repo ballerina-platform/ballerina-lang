@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 20,
+    "character": 3
+  },
+  "source": "createVariable.bal",
+  "expected": [
+    {
+      "title": "Ignore return value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 20,
+              "character": 3
+            },
+            "end": {
+              "line": 20,
+              "character": 3
+            }
+          },
+          "newText": "_ \u003d "
+        }
+      ]
+    }
+  ]
+}

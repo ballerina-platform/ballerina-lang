@@ -58,13 +58,14 @@ function processConfigAnnotation(string name, function f) returns boolean {
                 diagnostics = error("Failed to execute the data provider");
             }
         }
-        config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
             && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
-
+        if enabled {
+            config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));
+        }
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length());
+            enabled = enabled, dependsOnCount = config.dependsOn.length(), config = config);
         return true;
     }
     return false;

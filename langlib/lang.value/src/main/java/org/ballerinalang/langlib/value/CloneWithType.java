@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -107,7 +108,7 @@ public class CloneWithType {
         }
 
         // handle primitive values
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG) {
             if (TypeChecker.checkIsType(value, convertibleType)) {
                 return value;
             } else {
@@ -140,34 +141,36 @@ public class CloneWithType {
 
         unresolvedValues.add(typeValuePair);
 
-        Object newValue;
-        switch (value.getType().getTag()) {
+        Object newValue = getConvertedObject(value, value.getType(), targetType, unresolvedValues, t);
+        unresolvedValues.remove(typeValuePair);
+        return newValue;
+    }
+
+    private static Object getConvertedObject(BRefValue value, Type sourceType, Type targetType,
+                                             List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((BMap<?, ?>) value, targetType, unresolvedValues, t);
-                break;
+                return convertMap((BMap<?, ?>) value, targetType, unresolvedValues, t);
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((BArray) value, targetType, unresolvedValues, t);
-                break;
+                return convertArray((BArray) value, targetType, unresolvedValues, t);
             case TypeTags.TABLE_TAG:
-                newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
-                break;
+                return convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.ERROR_TAG:
-                newValue = value.copy(new HashMap<>());
-                break;
+                return value.copy(new HashMap<>());
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getConvertedObject(value, ((ReferenceType) sourceType).getReferredType(), targetType,
+                        unresolvedValues, t);
             default:
                 // should never reach here
                 throw createConversionError(value, targetType);
         }
-
-        unresolvedValues.remove(typeValuePair);
-        return newValue;
     }
 
     private static Object convertMap(BMap<?, ?> map, Type targetType, List<TypeValuePair> unresolvedValues,
@@ -203,6 +206,8 @@ public class CloneWithType {
                 return convert(map, matchingType, unresolvedValues, t);
             case TypeTags.INTERSECTION_TAG:
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertMap(map, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
             default:
                 break;
         }
@@ -273,6 +278,8 @@ public class CloneWithType {
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),
                                     unresolvedValues, t);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertArray(array, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
             default:
                 break;
         }
@@ -282,6 +289,10 @@ public class CloneWithType {
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
                                        List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return convertTable(bTable, ((ReferenceType) targetType).getReferredType(), unresolvedValues, t);
+        }
+
         TableType tableType = (TableType) targetType;
         Object[] tableValues = new Object[bTable.size()];
         int count = 0;

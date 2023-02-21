@@ -42,7 +42,6 @@ public class JvmConstantGenCommons {
 
     public static void generateConstantsClassInit(ClassWriter cw, String constantsClass) {
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, constantsClass, null, JvmConstants.OBJECT, null);
-
         MethodVisitor methodVisitor = cw.visitMethod(ACC_PRIVATE, JvmConstants.JVM_INIT_METHOD, "()V", null, null);
         methodVisitor.visitCode();
         methodVisitor.visitVarInsn(ALOAD, 0);

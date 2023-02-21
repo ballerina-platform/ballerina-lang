@@ -151,7 +151,7 @@ public class Symbols {
         return symbol;
     }
 
-    public static BTypeSymbol createTypeSymbol(int symTag,
+    public static BTypeSymbol createTypeSymbol(long symTag,
                                                long flags,
                                                Name name,
                                                PackageID pkgID,
@@ -162,7 +162,7 @@ public class Symbols {
         return createTypeSymbol(symTag, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
-    public static BTypeSymbol createTypeSymbol(int symTag,
+    public static BTypeSymbol createTypeSymbol(long symTag,
                                                long flags,
                                                Name name,
                                                Name originalName,
@@ -191,7 +191,7 @@ public class Symbols {
     }
 
 
-    public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
+    public static BInvokableTypeSymbol createInvokableTypeSymbol(long symTag,
                                                                  long flags,
                                                                  PackageID pkgID,
                                                                  BType type,
@@ -201,7 +201,7 @@ public class Symbols {
         return new BInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
     }
 
-    public static BInvokableSymbol createInvokableSymbol(int kind,
+    public static BInvokableSymbol createInvokableSymbol(long kind,
                                                          long flags,
                                                          Name name,
                                                          Name originalName,
@@ -221,14 +221,21 @@ public class Symbols {
                                                  SymbolOrigin origin) {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner, pos, origin);
     }
+    
+    public static BResourcePathSegmentSymbol createResourcePathSegmentSymbol(Name name,
+                                                                             PackageID pkgID,
+                                                                             BType type,
+                                                                             BSymbol owner,
+                                                                             Location location,
+                                                                             BResourcePathSegmentSymbol parentResource,
+                                                                             BResourceFunction resourceMethod,
+                                                                             SymbolOrigin origin) {
+        return new BResourcePathSegmentSymbol(name, pkgID, type, owner, location, parentResource, resourceMethod,
+                origin);
+    }
 
-    public static BClientDeclarationSymbol createClientDeclarationSymbol(Name name,
-                                                                         String nsURI,
-                                                                         PackageID pkgID,
-                                                                         BSymbol owner,
-                                                                         Location pos,
-                                                                         SymbolOrigin origin) {
-        return new BClientDeclarationSymbol(name, nsURI, pkgID, owner, pos, origin);
+    public static BVarSymbol createVarSymbolForTupleMember(BType type) {
+        return new BVarSymbol(0, null, null, type, null, null, null);
     }
 
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
@@ -271,7 +278,7 @@ public class Symbols {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
     }
 
-    public static boolean isTagOn(BSymbol symbol, int symTag) {
+    public static boolean isTagOn(BSymbol symbol, long symTag) {
         return (symbol.tag & symTag) == symTag;
     }
 

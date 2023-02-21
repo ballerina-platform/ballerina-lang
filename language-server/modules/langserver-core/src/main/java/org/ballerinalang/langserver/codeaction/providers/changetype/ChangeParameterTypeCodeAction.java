@@ -90,9 +90,9 @@ public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionP
             return Collections.emptyList();
         }
 
-        // Skip, variable declarations with non-initializers
+        // Skip, variable declarations with non-initializers and field access initializers
         Optional<ExpressionNode> initializer = localVarNode.initializer();
-        if (initializer.isEmpty()) {
+        if (initializer.isEmpty()  || initializer.get().kind() == SyntaxKind.FIELD_ACCESS) {
             return Collections.emptyList();
         }
 

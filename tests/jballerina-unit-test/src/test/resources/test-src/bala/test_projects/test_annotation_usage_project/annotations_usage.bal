@@ -20,6 +20,22 @@ public const annotation Allow on parameter, source var;
 
 public const annotation Custom on source annotation;
 
+public const annotation Ann on type;
+
+public const annotation Member on field;
+
+@Ann
+public type Recx record {|
+    @Member int x1;
+    string y1;
+|};
+
+@Ann
+public type Tup [@Member int, string];
+
+public type T1 [int, @Member int, string...];
+public type T2 [int, @Member int, string];
+
 @Custom
 public annotation map<int> NonConstAllow on parameter;
 
@@ -111,3 +127,15 @@ public class Cl2 {
 
     }
 }
+
+const THREE = 3;
+
+public const annotation record {| int[] arr; |} AnnotWithList on type;
+
+@AnnotWithList {
+    arr: [1, 2, THREE]
+}
+public type TypeWithListInAnnots record {|
+    int a;
+    int b;
+|};

@@ -364,23 +364,17 @@ public class ParserTestUtils {
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-            case RE_ASSERTION_VALUE:
-            case RE_CHAR:
-            case RE_ESCAPE:
-            case RE_SYNTAX_CHAR:
+            case RE_LITERAL_CHAR:
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
             case RE_SIMPLE_CHAR_CLASS_CODE:
             case RE_PROPERTY:
             case RE_UNICODE_SCRIPT_START:
             case RE_UNICODE_PROPERTY_VALUE:
             case RE_UNICODE_GENERAL_CATEGORY_START:
             case RE_UNICODE_GENERAL_CATEGORY_NAME:
-            case RE_CHAR_SET_ATOM:
-            case RE_CHAR_SET_ATOM_NO_DASH:
-            case RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM:
-            case RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH:
             case RE_FLAGS_VALUE:
-            case RE_BASE_QUANTIFIER_VALUE:
-            case RE_BRACED_QUANTIFIER_DIGIT:
+            case DIGIT:
             case DOCUMENTATION_DESCRIPTION:
             case DOCUMENTATION_STRING:
             case CODE_CONTENT:
@@ -459,10 +453,6 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_NAMESPACE_DECLARATION;
             case "MODULE_XML_NAMESPACE_DECLARATION":
                 return SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION;
-            case "CLIENT_DECLARATION":
-                return SyntaxKind.CLIENT_DECLARATION;
-            case "MODULE_CLIENT_DECLARATION":
-                return SyntaxKind.MODULE_CLIENT_DECLARATION;
             case "ANNOTATION_DECLARATION":
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
@@ -828,6 +818,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
             case "SPREAD_MEMBER":
                 return SyntaxKind.SPREAD_MEMBER;
+            case "MEMBER_TYPE_DESC":
+                return SyntaxKind.MEMBER_TYPE_DESC;
             default:
                 return getActionKind(kind);
         }
@@ -1340,18 +1332,20 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_ATOM_QUANTIFIER;
             case "RE_ASSERTION":
                 return SyntaxKind.RE_ASSERTION;
-            case "RE_ASSERTION_VALUE":
-                return SyntaxKind.RE_ASSERTION_VALUE;
-            case "RE_CHAR_ESCAPE":
-                return SyntaxKind.RE_CHAR_ESCAPE;
-            case "RE_CHAR":
-                return SyntaxKind.RE_CHAR;
-            case "RE_ESCAPE":
-                return SyntaxKind.RE_ESCAPE;
+            case "DOLLAR_TOKEN":
+                return SyntaxKind.DOLLAR_TOKEN;
+            case "DOT_TOKEN":
+                return SyntaxKind.DOT_TOKEN;
+            case "RE_LITERAL_CHAR_DOT_OR_ESCAPE":
+                return SyntaxKind.RE_LITERAL_CHAR_DOT_OR_ESCAPE;
+            case "RE_LITERAL_CHAR":
+                return SyntaxKind.RE_LITERAL_CHAR;
+            case "RE_NUMERIC_ESCAPE":
+                return SyntaxKind.RE_NUMERIC_ESCAPE;
+            case "RE_CONTROL_ESCAPE":
+                return SyntaxKind.RE_CONTROL_ESCAPE;
             case "RE_QUOTE_ESCAPE":
                 return SyntaxKind.RE_QUOTE_ESCAPE;
-            case "RE_SYNTAX_CHAR":
-                return SyntaxKind.RE_SYNTAX_CHAR;
             case "RE_SIMPLE_CHAR_CLASS_ESCAPE":
                 return SyntaxKind.RE_SIMPLE_CHAR_CLASS_ESCAPE;
             case "RE_SIMPLE_CHAR_CLASS_CODE":
@@ -1374,18 +1368,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME;
             case "RE_CHARACTER_CLASS":
                 return SyntaxKind.RE_CHARACTER_CLASS;
-            case "RE_CHAR_SET_ATOM":
-                return SyntaxKind.RE_CHAR_SET_ATOM;
-            case "RE_CHAR_SET_ATOM_NO_DASH":
-                return SyntaxKind.RE_CHAR_SET_ATOM_NO_DASH;
             case "RE_CHAR_SET_RANGE":
                 return SyntaxKind.RE_CHAR_SET_RANGE;
             case "RE_CHAR_SET_RANGE_NO_DASH":
                 return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH;
-            case "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM":
-                return SyntaxKind.RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM;
-            case "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH":
-                return SyntaxKind.RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH;
             case "RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET":
                 return SyntaxKind.RE_CHAR_SET_RANGE_WITH_RE_CHAR_SET;
             case "RE_CHAR_SET_RANGE_NO_DASH_WITH_RE_CHAR_SET":
@@ -1406,12 +1392,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RE_FLAGS_VALUE;
             case "RE_QUANTIFIER":
                 return SyntaxKind.RE_QUANTIFIER;
-            case "RE_BASE_QUANTIFIER_VALUE":
-                return SyntaxKind.RE_BASE_QUANTIFIER_VALUE;
             case "RE_BRACED_QUANTIFIER":
                 return SyntaxKind.RE_BRACED_QUANTIFIER;
-            case "RE_BRACED_QUANTIFIER_DIGIT":
-                return SyntaxKind.RE_BRACED_QUANTIFIER_DIGIT;
+            case "DIGIT":
+                return SyntaxKind.DIGIT;
+            case "ESCAPED_MINUS_TOKEN":
+                return SyntaxKind.ESCAPED_MINUS_TOKEN;
             default:
                 return getDocumentationKind(kind);
         }

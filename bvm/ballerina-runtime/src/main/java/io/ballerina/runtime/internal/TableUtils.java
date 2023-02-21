@@ -26,6 +26,7 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.Map;
@@ -93,9 +94,13 @@ public class TableUtils {
                     result = 31 * result + hash(tableIterator.next(), node);
                 }
                 return result;
+            } else if (refValue instanceof RegExpValue) {
+                return (long) refValue.toString().hashCode();
             } else {
                 return (long) obj.hashCode();
             }
+        } else if (obj instanceof Long) {
+            return (long) obj;
         } else {
             return (long) obj.hashCode();
         }

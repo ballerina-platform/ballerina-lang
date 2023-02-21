@@ -182,3 +182,19 @@ function testSelfReferencingVariables() {
     [any[], float] [f, g] = [[f, 4], 6.7];
     [[string, [int, [boolean, string], float[]], int[]], float] [[h, [i, [j, k], l], m], n] = [["A", [i, [j, "B"], l], m], n];
 }
+
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyTupleWithListBindingPatternInDestructuringAssignmentNegative() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    string[] & readonly a;
+    string b;
+    [a, b] = t1; // error
+
+    readonly & [int[], ReadOnlyTuple] t2 = [[12, 34, 56], t1];
+    readonly & string[] c;
+    readonly & int[] d;
+    [c, [d, _]] = t2;  // error
+    int[] arr = [];
+    d = arr;  // error
+}

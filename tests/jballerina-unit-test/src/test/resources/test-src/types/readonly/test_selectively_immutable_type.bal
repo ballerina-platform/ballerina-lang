@@ -1148,6 +1148,55 @@ function testIsReadonlyWithInBuiltUnionType() returns error? {
     assertTrue(y is readonly);
 }
 
+type MyJson int|float|decimal|boolean|string|()|map<MyJson>|MyJson[];
+
+function testReadOnlyIntersectionWithJsonAndAnydata() {
+    anydata & readonly a = 1;
+    any b = a;
+    assertFalse(b is string|error);
+    assertTrue(b is any|error);
+    assertTrue(b is anydata & readonly);
+    assertTrue(b is json & readonly);
+
+    json & readonly c = 1;
+    any d = c;
+    assertFalse(d is string|error);
+    assertTrue(d is any|error);
+    assertTrue(d is json & readonly);
+    assertTrue(d is anydata & readonly);
+
+    (MyJson & readonly)[] e = [1,  "str"];
+    any g = e;
+    assertTrue(g is json[]);
+    assertTrue(g is MyJson[]);
+    assertTrue(g is (json & readonly)[]);
+    assertTrue(g is ((json & readonly)|xml)[]);
+    assertFalse(g is string[]);
+    assertFalse(g is string[] & readonly);
+
+    (json & readonly)[] f = [1, 2];
+    any h = f;
+    assertTrue(h is MyJson[]);
+    assertTrue(h is (MyJson & readonly)[]);
+    assertTrue(h is (xml|(MyJson & readonly))[]);
+    assertFalse(h is int[]);
+    assertFalse(h is string[]);
+
+    (json & readonly)[] i = [1, {a: 123}];
+    any j = i;
+    assertTrue(j is (json & readonly)[]);
+    assertTrue(j is (anydata & readonly)[]);
+    assertTrue((<json[]> j)[1] is record {| 123 a; |});
+    assertFalse((<json[]> j)[1] is record {| 1234 a; |});
+    assertFalse(j is (string|error)[]);
+
+    (anydata & readonly)[] k = [1, "hello", xml `text`];
+    any l = k;
+    assertTrue(l is (anydata & readonly)[]);
+    assertFalse(l is (json & readonly)[]);
+    assertFalse(l is (string|error)[]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

@@ -31,6 +31,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
@@ -103,6 +104,22 @@ public class TestBirAndJarCache {
                                                 module.descriptor().version());
             Assert.assertTrue(foundPaths.contains(jarName + BLANG_COMPILED_JAR_EXT));
         }
+    }
+
+    @Test
+    public void testCachingWhenCodeGenHasErrors() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_nonexisting_interop");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors(),
+                TestUtils.getDiagnosticsAsString(compilation.diagnosticResult()));
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().errorCount(), 1,
+                TestUtils.getDiagnosticsAsString(jBallerinaBackend.diagnosticResult()));
+        Path cacheDir = new Target(buildProject.targetDir()).cachesPath();
+        Assert.assertFalse(Files.exists(cacheDir.resolve(ProjectConstants.REPO_BIR_CACHE_NAME)));
+        Assert.assertFalse(Files.exists(cacheDir.resolve(jBallerinaBackend.targetPlatform().code())));
     }
 
     /**
