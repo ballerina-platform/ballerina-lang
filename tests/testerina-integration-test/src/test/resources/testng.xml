@@ -50,6 +50,8 @@ under the License.
             <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
             <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
             <class name="org.ballerinalang.testerina.test.CodegenCodeCoverageTest"/>
+            <class name="org.ballerinalang.testerina.test.ConfigurableCliArgsTest"/>
+            <class name="org.ballerinalang.testerina.test.negative.InvalidConfigurableCliArgsTestCase"/>
         </classes>
     </test>
 </suite>

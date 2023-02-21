@@ -2,7 +2,7 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [OPTIONS] [<package>|<source-file>]
+       bal test [OPTIONS] [<package>|<source-file>] [--] <(-Ckey=value)...>
                
 
 DESCRIPTION
@@ -79,6 +79,15 @@ OPTIONS
            functionality.
 
 
+ARGUMENTS
+       --
+           The '--' argument signals the end of the bal tool options
+           Arguments following '--' are treated as arguments to the program.
+
+       (-Ckey=value)...
+           The list of command-line arguments for the Ballerina program.
+
+
 EXAMPLES
        Run all the test functions in the current package.
            $ bal test
@@ -125,3 +134,7 @@ EXAMPLES
        Run the test functions with the code coverage and generate a coverage
        report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml
+
+       Run the test functions with three program args:
+              val1=add, val2=10, and val3=5.
+                  $ bal test -- -Cval1=add -Cval2=10 -Cval3=5
