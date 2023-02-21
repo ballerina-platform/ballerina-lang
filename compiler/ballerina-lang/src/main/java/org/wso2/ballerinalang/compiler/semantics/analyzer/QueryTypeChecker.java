@@ -26,6 +26,7 @@ import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -97,6 +98,7 @@ public class QueryTypeChecker extends TypeChecker {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final Names names;
     private final BLangDiagnosticLog dlog;
+    private final NodeCloner nodeCloner;
 
     public static QueryTypeChecker getInstance(CompilerContext context) {
         QueryTypeChecker queryTypeChecker = context.get(QUERY_TYPE_CHECKER_KEY);
@@ -118,6 +120,7 @@ public class QueryTypeChecker extends TypeChecker {
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.nodeCloner = NodeCloner.getInstance(context);
     }
 
     @Override
@@ -285,11 +288,11 @@ public class QueryTypeChecker extends TypeChecker {
         }
     }
 
-    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
-        type = Types.getReferredType(type);
+        BType type = Types.getReferredType(expType);
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
@@ -336,7 +339,12 @@ public class QueryTypeChecker extends TypeChecker {
             case TypeTags.NONE:
             default:
                 // contextually expected type not given (i.e var).
-                selectType = checkExpr(selectExp, env, type, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                if (selectType != symTable.semanticError) {
+                    selectType = checkExpr(selectExp, env, type, data);
+                }  else {
+                    selectType = checkExpr(selectExp, env, data);
+                }
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
                 } else {
