@@ -6857,15 +6857,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int i = 0;
         BLangExpression vararg = null;
         boolean foundNamedArg = false;
+        boolean isIncRecordAllowExtraFields = incRecordParamAllowAdditionalFields != null;
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     foundNamedArg = true;
-                    if (i < parameterCountForNamedArgs || incRecordParamAllowAdditionalFields != null) {
+                    BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) expr;
+                    boolean isNamedArgForIncRecordParam =
+                                  isNamedArgForIncRecordParam(namedArg.name.value, incRecordParamAllowAdditionalFields);
+                    if (i < parameterCountForNamedArgs) {
+                        if (isNamedArgForIncRecordParam) {
+                            isIncRecordAllowExtraFields = false;
+                        }
                         iExpr.requiredArgs.add(expr);
                     } else {
-                        // can not provide a rest parameters as named args
-                        dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+                        if (isIncRecordAllowExtraFields && !isNamedArgForIncRecordParam) {
+                            iExpr.requiredArgs.add(expr);
+                        } else {
+                            dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+                        }
                     }
                     i++;
                     break;
@@ -6892,6 +6902,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         return checkInvocationArgs(iExpr, paramTypes, vararg, incRecordParams,
                                     incRecordParamAllowAdditionalFields, data);
+    }
+
+    private boolean isNamedArgForIncRecordParam(String namedArgName, BVarSymbol incRecordParam) {
+        return incRecordParam != null && namedArgName.equals(incRecordParam.name.value);
     }
 
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg,
