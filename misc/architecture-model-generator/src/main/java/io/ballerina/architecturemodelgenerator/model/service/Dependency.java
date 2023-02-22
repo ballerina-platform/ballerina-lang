@@ -18,8 +18,11 @@
 
 package io.ballerina.architecturemodelgenerator.model.service;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.ModelElement;
+
+import java.util.List;
 
 /**
  * Represent the dependency of another service.
@@ -30,8 +33,9 @@ public class Dependency extends ModelElement {
     private final String serviceId;
     private final String connectorType;
 
-    public Dependency(String serviceId, String connectorType, ElementLocation elementLocation) {
-        super(elementLocation);
+    public Dependency(String serviceId, String connectorType, ElementLocation elementLocation,
+                      List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.serviceId = serviceId;
         this.connectorType = connectorType;
     }

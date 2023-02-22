@@ -41,6 +41,7 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -102,7 +103,7 @@ public class GeneratorUtils {
             break;
         }
 
-        return new ServiceAnnotation(id, label, elementLocation);
+        return new ServiceAnnotation(id, label, elementLocation, Collections.emptyList());
     }
 
     public static ServiceAnnotation getServiceAnnotation(Annotatable annotableSymbol, String filePath) {
@@ -136,7 +137,7 @@ public class GeneratorUtils {
             }
         }
 
-        return new ServiceAnnotation(id, label, elementLocation);
+        return new ServiceAnnotation(id, label, elementLocation, Collections.emptyList());
     }
 
     public static String getClientModuleName(Node clientNode, SemanticModel semanticModel) {

@@ -19,6 +19,8 @@
 package io.ballerina.architecturemodelgenerator;
 
 import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
 import io.ballerina.architecturemodelgenerator.generators.entity.EntityModelGenerator;
 import io.ballerina.architecturemodelgenerator.generators.service.ServiceModelGenerator;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
@@ -26,7 +28,9 @@ import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -45,6 +49,7 @@ public class ComponentModelBuilder {
         Map<String, Service> services = new HashMap<>();
         // todo: Change to TypeDefinition
         Map<String, Entity> entities = new HashMap<>();
+        List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
         PackageId packageId = new PackageId(currentPackage);
         AtomicBoolean hasDiagnosticErrors = new AtomicBoolean(false);
 
@@ -54,18 +59,30 @@ public class ComponentModelBuilder {
             if (currentPackageCompilation.diagnosticResult().hasErrors() && !hasDiagnosticErrors.get()) {
                 hasDiagnosticErrors.set(true);
             }
-            // todo : Check project diagnostics
+
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentPackageCompilation, module);
-            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentPackageCompilation, module);
             try {
                 services.putAll(serviceModelGenerator.generate());
+            } catch (Exception e) {
+                DiagnosticMessage message = DiagnosticMessage.failedToGenerateServices(e.getMessage());
+                ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                        message.getCode(), message.getDescription(), message.getSeverity(), null, null
+                );
+                diagnostics.add(diagnostic);
+            }
+
+            EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentPackageCompilation, module);
+            try {
                 entities.putAll(entityModelGenerator.generate());
             } catch (Exception e) {
-                // Handle exception
-                hasDiagnosticErrors.set(true);
+                DiagnosticMessage message = DiagnosticMessage.failedToGenerateEntities(e.getMessage());
+                ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                        message.getCode(), message.getDescription(), message.getSeverity(), null, null
+                );
+                diagnostics.add(diagnostic);
             }
         });
 
-        return new ComponentModel(packageId, services, entities, hasDiagnosticErrors.get());
+        return new ComponentModel(packageId, hasDiagnosticErrors.get(), diagnostics, services, entities);
     }
 }

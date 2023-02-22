@@ -18,6 +18,10 @@
 
 package io.ballerina.architecturemodelgenerator.model;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
+
+import java.util.List;
+
 /**
  * Represents the abstract model for a component model item.
  *
@@ -26,12 +30,18 @@ package io.ballerina.architecturemodelgenerator.model;
 public abstract class ModelElement {
 
     private final ElementLocation elementLocation;
+    private final List<ComponentModelingDiagnostics> diagnostics;
 
-    public ModelElement(ElementLocation elementLocation) {
+    public ModelElement(ElementLocation elementLocation, List<ComponentModelingDiagnostics> diagnostics) {
         this.elementLocation = elementLocation;
+        this.diagnostics = diagnostics;
     }
 
     public ElementLocation getElementLocation() {
         return elementLocation;
+    }
+
+    public List<ComponentModelingDiagnostics> getDiagnostics() {
+        return diagnostics;
     }
 }

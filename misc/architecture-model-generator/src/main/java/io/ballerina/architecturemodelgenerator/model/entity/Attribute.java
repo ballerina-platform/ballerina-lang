@@ -18,6 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.model.entity;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.ModelElement;
 
@@ -38,8 +39,9 @@ public class Attribute extends ModelElement {
     private final List<Association> associations; // can have multiple association when union is found
 
     public Attribute(String name, String type, boolean optional, boolean nillable, String defaultValue,
-                     List<Association> associations, ElementLocation elementLocation) {
-        super(elementLocation);
+                     List<Association> associations, ElementLocation elementLocation,
+                     List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.name = name;
         this.type = type;
         this.optional = optional;

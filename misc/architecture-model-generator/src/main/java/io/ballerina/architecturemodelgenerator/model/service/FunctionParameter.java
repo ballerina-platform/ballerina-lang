@@ -18,6 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.model.service;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.ModelElement;
 
@@ -34,8 +35,9 @@ public class FunctionParameter extends ModelElement {
     private final String name;
     private final boolean isRequired;
 
-    public FunctionParameter(List<String> type, String name, boolean isRequired, ElementLocation elementLocation) {
-        super(elementLocation);
+    public FunctionParameter(List<String> type, String name, boolean isRequired, ElementLocation elementLocation,
+                             List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.type = type;
         this.name = name;
         this.isRequired = isRequired;

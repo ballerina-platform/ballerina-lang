@@ -20,6 +20,8 @@ package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
 import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterIn;
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.Dependency;
 import io.ballerina.architecturemodelgenerator.model.service.FunctionParameter;
@@ -64,6 +66,7 @@ import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -146,12 +149,20 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
 
                 ActionNodeVisitor actionNodeVisitor =
                         new ActionNodeVisitor(packageCompilation, semanticModel, currentPackage, filePath);
-                functionDefinitionNode.accept(actionNodeVisitor);
-
+                List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
+                try {
+                    functionDefinitionNode.accept(actionNodeVisitor);
+                } catch (Exception e) {
+                    DiagnosticMessage message = DiagnosticMessage.failedToGenerateResource(e.getMessage());
+                    ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                            message.getCode(), message.getDescription(), message.getSeverity(), null, null
+                    );
+                    diagnostics.add(diagnostic);
+                }
                 ResourceId resourceId = new ResourceId(this.serviceId, method, resourcePath);
                 Resource resource = new Resource(identifierBuilder.toString().trim(),
                         resourceId, resourceParameterList, returnTypes,
-                        actionNodeVisitor.getInteractionList(), elementLocation);
+                        actionNodeVisitor.getInteractionList(), elementLocation, diagnostics);
                 resources.add(resource);
 
                 break;
@@ -168,10 +179,18 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
 
                     ActionNodeVisitor actionNodeVisitor = new ActionNodeVisitor(
                             packageCompilation, semanticModel, currentPackage, filePath);
-                    functionDefinitionNode.accept(actionNodeVisitor);
-
+                    List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
+                    try {
+                        functionDefinitionNode.accept(actionNodeVisitor);
+                    } catch (Exception e) {
+                        DiagnosticMessage message = DiagnosticMessage.failedToGenerateRemoteFunction(e.getMessage());
+                        ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                                message.getCode(), message.getDescription(), message.getSeverity(), null, null
+                        );
+                        diagnostics.add(diagnostic);
+                    }
                     RemoteFunction remoteFunction = new RemoteFunction(name, parameterList, returnTypes,
-                            actionNodeVisitor.getInteractionList(), elementLocation);
+                            actionNodeVisitor.getInteractionList(), elementLocation, diagnostics);
                     remoteFunctions.add(remoteFunction);
                 }
                 break;
@@ -189,7 +208,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
             PathParameterSymbol parameterSymbol = ((PathParameterSymbol) symbol.get());
             paramTypes = getReferencedType(parameterSymbol.typeDescriptor());
         } // todo : implement else
-        return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true, elementLocation);
+        return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true, elementLocation, Collections.emptyList());
     }
 
     private void getParameters(FunctionSignatureNode functionSignatureNode, boolean isResource,
@@ -228,10 +247,11 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 }
                 if (isResource) {
                     // todo : param kind
-                    resourceParams.add(new ResourceParameter(
-                            paramTypes, paramName.trim(), paramIn, isRequired, elementLocation));
+                    resourceParams.add(new ResourceParameter(paramTypes, paramName.trim(), paramIn, isRequired,
+                            elementLocation, Collections.emptyList()));
                 } else {
-                    remoteFunctionParams.add(new FunctionParameter(paramTypes, paramName, isRequired, elementLocation));
+                    remoteFunctionParams.add(new FunctionParameter(
+                            paramTypes, paramName, isRequired, elementLocation, Collections.emptyList()));
                 }
             }
         }
@@ -343,7 +363,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                                 UUID.randomUUID().toString();
                         Dependency dependency = new Dependency(serviceId,
                                 getClientModuleName(referredClassSymbol),
-                                getElementLocation(filePath, objectFieldNode.lineRange()));
+                                getElementLocation(filePath, objectFieldNode.lineRange()), Collections.emptyList());
                         dependencies.add(dependency);
                     }
                 }

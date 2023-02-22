@@ -18,10 +18,12 @@
 
 package io.ballerina.architecturemodelgenerator;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.projects.Package;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,21 +35,32 @@ public class ComponentModel {
 
     private final PackageId packageId;
     private final boolean hasCompilationErrors;
+    private final List<ComponentModelingDiagnostics> diagnostics;
     private final Map<String, Service> services;
     private final Map<String, Entity> entities;
 
-    public ComponentModel(PackageId packageId, Map<String, Service> services, Map<String, Entity> entities,
-                          boolean hasCompilationErrors) {
+    public ComponentModel(PackageId packageId, boolean hasCompilationErrors,
+                          List<ComponentModelingDiagnostics> diagnostics, Map<String, Service> services,
+                          Map<String, Entity> entities) {
 
         this.packageId = packageId;
+        this.hasCompilationErrors = hasCompilationErrors;
+        this.diagnostics = diagnostics;
         this.services = services;
         this.entities = entities;
-        this.hasCompilationErrors = hasCompilationErrors;
     }
 
     public PackageId getPackageId() {
 
         return packageId;
+    }
+
+    public boolean hasCompilationErrors() {
+        return hasCompilationErrors;
+    }
+
+    public List<ComponentModelingDiagnostics> getDiagnostics() {
+        return diagnostics;
     }
 
     public Map<String, Service> getServices() {
@@ -58,10 +71,6 @@ public class ComponentModel {
     public Map<String, Entity> getEntities() {
 
         return entities;
-    }
-
-    public boolean hasCompilationErrors() {
-        return hasCompilationErrors;
     }
 
     /**

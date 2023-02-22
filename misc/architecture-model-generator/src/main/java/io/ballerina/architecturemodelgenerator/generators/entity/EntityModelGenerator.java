@@ -55,6 +55,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.text.LineRange;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class EntityModelGenerator extends ModelGenerator {
             }
             attributeList.add(getAttribute(recordFieldSymbol, recordFieldNode, entityName));
         }
-        return new Entity(attributeList, inclusionList, elementLocation, isAnonymous);
+        return new Entity(attributeList, inclusionList, isAnonymous, elementLocation, Collections.emptyList());
     }
 
     private Attribute getAttribute(RecordFieldSymbol recordFieldSymbol, RecordFieldNode recordFieldNode,
@@ -177,7 +178,7 @@ public class EntityModelGenerator extends ModelGenerator {
         }
         // todo: address when union types has anonymous records
         return new Attribute(fieldName, fieldType, optional, nillable, defaultValue, associations,
-                getElementLocation(recordFieldSymbol));
+                getElementLocation(recordFieldSymbol), Collections.emptyList());
     }
 
     private Optional<RecordTypeSymbol> getInlineRecordTypeSymbol(ArrayTypeSymbol arrayTypeSymbol) {

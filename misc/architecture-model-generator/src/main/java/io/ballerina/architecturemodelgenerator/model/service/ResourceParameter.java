@@ -18,6 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.model.service;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.ModelElement;
 
@@ -36,8 +37,8 @@ public class ResourceParameter extends ModelElement {
     private final boolean isRequired;
 
     public ResourceParameter(List<String> type, String name, String in, boolean isRequired,
-                             ElementLocation elementLocation) {
-        super(elementLocation);
+                             ElementLocation elementLocation, List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.type = type;
         this.name = name;
         this.in = in;

@@ -61,4 +61,34 @@ public class DiagnosticMessage {
                 "package for the path: %s. %nMessage : %s %nStackTrace : %s", projectPath, message, stacktrace),
                 DiagnosticSeverity.ERROR);
     }
+
+    public static DiagnosticMessage failedToGenerateServices(String message) {
+        return new DiagnosticMessage("003", String.format("Unexpected error occurred while generating services. " +
+                "Message : %s", message), DiagnosticSeverity.ERROR);
+    }
+
+    public static DiagnosticMessage failedToGenerateEntities(String message) {
+        return new DiagnosticMessage("004", String.format("Unexpected error occurred while generating entities. " +
+                "Message : %s", message), DiagnosticSeverity.ERROR);
+    }
+
+    public static DiagnosticMessage failedToGenerateService(String message) {
+        return new DiagnosticMessage("005", String.format("Unexpected error occurred while generating the service. " +
+                "Message : %s", message), DiagnosticSeverity.ERROR);
+    }
+
+    public static DiagnosticMessage failedToGenerateResource(String message) {
+        return new DiagnosticMessage("006", String.format("Unexpected error occurred while generating the resource. " +
+                "Message : %s", message), DiagnosticSeverity.ERROR);
+    }
+
+    public static DiagnosticMessage failedToGenerateRemoteFunction(String message) {
+        return new DiagnosticMessage("007", String.format("Unexpected error occurred while generating the remote " +
+                "function. Message : %s", message), DiagnosticSeverity.ERROR);
+    }
+
+    public static DiagnosticMessage failedToGenerateInteraction(String message) {
+        return new DiagnosticMessage("008", String.format("Unexpected error occurred while generating the interaction " +
+                "Message : %s", message), DiagnosticSeverity.ERROR);
+    }
 }

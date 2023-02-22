@@ -18,6 +18,7 @@
 
 package io.ballerina.architecturemodelgenerator.model.service;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.ModelElement;
 
@@ -37,8 +38,9 @@ public class Resource extends ModelElement {
     private final List<Interaction> interactions;
 
     public Resource(String identifier, ResourceId resourceId, List<ResourceParameter> parameters, List<String> returns,
-                    List<Interaction> interactions, ElementLocation elementLocation) {
-        super(elementLocation);
+                    List<Interaction> interactions, ElementLocation elementLocation,
+                    List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.identifier = identifier;
         this.resourceId = resourceId;
         this.parameters = parameters;

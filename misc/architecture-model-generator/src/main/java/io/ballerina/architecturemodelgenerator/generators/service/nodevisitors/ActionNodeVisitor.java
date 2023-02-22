@@ -18,6 +18,8 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
 import io.ballerina.architecturemodelgenerator.model.service.Interaction;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
 import io.ballerina.compiler.api.ModuleID;
@@ -109,64 +111,91 @@ public class ActionNodeVisitor extends NodeVisitor {
     @Override
     public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
         NameReferenceNode clientNode = null;
-        if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
-            NameReferenceNode fieldName = ((FieldAccessExpressionNode)
-                    clientResourceAccessActionNode.expression()).fieldName();
-            if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
-                clientNode = fieldName;
-            }
-            // todo : Other combinations
-        } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
-            clientNode = (SimpleNameReferenceNode) clientResourceAccessActionNode.expression();
-        } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
-            clientNode = (QualifiedNameReferenceNode) clientResourceAccessActionNode.expression();
-        }
-        String resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
-        String resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
 
+        String resourceMethod = null;
+        String resourcePath = null;
         String serviceId = null;
-        Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
-        if (clientSymbol.isPresent()) {
-            Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
-            serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
+
+        List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
+        try {
+            if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
+                NameReferenceNode fieldName = ((FieldAccessExpressionNode)
+                        clientResourceAccessActionNode.expression()).fieldName();
+                if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                    clientNode = fieldName;
+                }
+                // todo : Other combinations
+            } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                clientNode = (SimpleNameReferenceNode) clientResourceAccessActionNode.expression();
+            } else if (clientResourceAccessActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+                clientNode = (QualifiedNameReferenceNode) clientResourceAccessActionNode.expression();
+            }
+            resourceMethod = String.valueOf(clientResourceAccessActionNode.methodName().get().name().text());
+            resourcePath = getResourcePath(clientResourceAccessActionNode.resourceAccessPath());
+
+            Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
+            if (clientSymbol.isPresent()) {
+                Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
+                serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
+            }
+        } catch (Exception e) {
+            DiagnosticMessage message = DiagnosticMessage.failedToGenerateInteraction(e.getMessage());
+            ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                    message.getCode(), message.getDescription(), message.getSeverity(), null, null
+            );
+            diagnostics.add(diagnostic);
         }
 
         Interaction interaction = new Interaction(
                 new ResourceId(serviceId, resourceMethod, resourcePath),
                 getClientModuleName(clientNode, semanticModel), getElementLocation(filePath,
-                clientResourceAccessActionNode.lineRange()));
+                clientResourceAccessActionNode.lineRange()), diagnostics);
         interactionList.add(interaction);
     }
 
     @Override
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         NameReferenceNode clientNode = null;
-        if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
-            NameReferenceNode fieldName = ((FieldAccessExpressionNode)
-                    remoteMethodCallActionNode.expression()).fieldName();
-            if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
-                clientNode = fieldName;
+
+        String resourceMethod = null;
+        String serviceId = null;
+
+        List<ComponentModelingDiagnostics> diagnostics = new ArrayList<>();
+        try {
+            if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.FIELD_ACCESS)) {
+                NameReferenceNode fieldName = ((FieldAccessExpressionNode)
+                        remoteMethodCallActionNode.expression()).fieldName();
+                if (fieldName.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                    clientNode = fieldName;
+                }
+                // todo : Other combinations
+            } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                clientNode = (SimpleNameReferenceNode) remoteMethodCallActionNode.expression();
+            } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+                clientNode = (QualifiedNameReferenceNode) remoteMethodCallActionNode.expression();
             }
-            // todo : Other combinations
-        } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
-            clientNode = (SimpleNameReferenceNode) remoteMethodCallActionNode.expression();
-        } else if (remoteMethodCallActionNode.expression().kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
-            clientNode = (QualifiedNameReferenceNode) remoteMethodCallActionNode.expression();
+
+            if (clientNode != null) {
+                resourceMethod = remoteMethodCallActionNode.methodName().name().text();
+
+                Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
+                if (clientSymbol.isPresent()) {
+                    Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
+                    serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
+                }
+            }
+        } catch (Exception e) {
+            DiagnosticMessage message = DiagnosticMessage.failedToGenerateInteraction(e.getMessage());
+            ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
+                    message.getCode(), message.getDescription(), message.getSeverity(), null, null
+            );
+            diagnostics.add(diagnostic);
         }
 
         if (clientNode != null) {
-            String resourceMethod = remoteMethodCallActionNode.methodName().name().text();
-
-            String serviceId = null;
-            Optional<Symbol> clientSymbol = semanticModel.symbol(clientNode);
-            if (clientSymbol.isPresent()) {
-                Annotatable annotatableSymbol = (Annotatable) clientSymbol.get();
-                serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
-            }
-
             Interaction interaction = new Interaction(new ResourceId(serviceId,
                     resourceMethod, null), getClientModuleName(clientNode, semanticModel),
-                    getElementLocation(filePath, remoteMethodCallActionNode.lineRange()));
+                    getElementLocation(filePath, remoteMethodCallActionNode.lineRange()), diagnostics);
             interactionList.add(interaction);
         }
     }

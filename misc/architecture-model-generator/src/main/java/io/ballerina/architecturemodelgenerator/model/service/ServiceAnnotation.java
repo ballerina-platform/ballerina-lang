@@ -18,29 +18,33 @@
 
 package io.ballerina.architecturemodelgenerator.model.service;
 
+import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
+import io.ballerina.architecturemodelgenerator.model.ModelElement;
+
+import java.util.List;
 
 /**
  * Represents display annotation.
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation {
+public class ServiceAnnotation extends ModelElement {
 
     private final String id;
     private final String label;
-    private final ElementLocation elementLocation;
 
     public ServiceAnnotation() {
+        super(null, null);
         this.id = "";
         this.label = "";
-        elementLocation = null;
     }
 
-    public ServiceAnnotation(String id, String label, ElementLocation elementLocation) {
+    public ServiceAnnotation(String id, String label, ElementLocation elementLocation,
+                             List<ComponentModelingDiagnostics> diagnostics) {
+        super(elementLocation, diagnostics);
         this.id = id;
         this.label = label;
-        this.elementLocation = elementLocation;
     }
 
     public String getId() {
@@ -49,9 +53,5 @@ public class ServiceAnnotation {
 
     public String getLabel() {
         return label;
-    }
-
-    public ElementLocation getElementLocation() {
-        return elementLocation;
     }
 }
