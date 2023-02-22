@@ -22,25 +22,16 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,6 +40,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeValidator;
 import org.ballerinalang.langserver.codeaction.ExtractToFunctionStatementAnalyzer;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -368,7 +360,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (CodeActionUtil.isRange(context.range())
+        if (CodeActionUtil.isRangeSelection(context.range())
                 || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
             Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(matchedCodeActionNode);
@@ -407,18 +399,18 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
         matchedCodeActionNode.accept(nodeValidator);
-        if (nodeValidator.getInvalidNode()) {
+        if (nodeValidator.isInvalidNode()) {
             return Collections.emptyList();
         }
 
         // Selection is a position
-        List<NonTerminalNode> nodeList = getPossibleExpressionNodes(matchedCodeActionNode, nodeValidator);
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
         LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
 
         // List out the expression node list that we are going to provide quick pick support
         // Find the arg list for each of the expression nodes
 
+        List<NonTerminalNode> nodeList = getPossibleExpressionNodes(matchedCodeActionNode);
         nodeList.forEach(extractableNode -> {
             Optional<TypeSymbol> tSymbol = context.currentSemanticModel()
                     .flatMap(semanticModel -> semanticModel.typeOf(extractableNode));
@@ -428,8 +420,14 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
             String key = extractableNode.toSourceCode().strip();
             Optional<List<Symbol>> varAndParamSymbolsWithinRange =
                     getVarAndParamSymbolsWithinRangeForExprs(extractableNode.lineRange(), context);
+            if (varAndParamSymbolsWithinRange.isEmpty()) {
+                return;
+            }
             Optional<ArgListsHolder> argListsHolder = getArgLists(context,
                     varAndParamSymbolsWithinRange.get(), extractableNode);
+            if (argListsHolder.isEmpty()) {
+                return;
+            }
             textEditMap.put(key,
                     getTextEdits(context, extractableNode, newLineAtEnd,
                             tSymbol.get(),
@@ -461,12 +459,12 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
     }
 
-    private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node, 
-                                                             ExpressionNodeValidator nodeValidator) {
+    private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node) {
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
         // Identify the sub-expressions to be extracted
         List<NonTerminalNode> nodeList = new ArrayList<>();
-        while (node != null && !isExtractableExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
-                && !nodeValidator.getInvalidNode()) {
+        while (node != null && !isStatementOrModuleMemberDeclarationNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
+                && !nodeValidator.isInvalidNode()) {
             nodeList.add(node);
             node = node.parent();
             node.accept(nodeValidator);
@@ -474,10 +472,13 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return nodeList;
     }
 
-    private static boolean isExtractableExpressionNode(NonTerminalNode node) {
+    private static boolean isStatementOrModuleMemberDeclarationNode(NonTerminalNode node) {
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
+    /**
+     * The method is used to get the text edits which includes function call edit and the function definition edit.
+     */
     private List<TextEdit> getTextEdits(CodeActionContext context,
                                         Node matchedCodeActionNode,
                                         boolean newLineAtEnd,
@@ -539,18 +540,11 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                                                                             CodeActionContext context) {
         List<Symbol> varAndParamSymbols =
                 getVisibleSymbols(context, PositionUtil.toPosition(matchedLineRange.endLine())).stream()
-                        .filter(symbol -> 
-                                symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
-                        .filter(symbol -> 
-                                symbol.getLocation().get().lineRange().filePath().equals(matchedLineRange.filePath()))
-                        .filter(symbol -> 
-                                context.currentSemanticModel().get()
-                                        .references(symbol)
-                                        .stream()
-                                        .anyMatch(location -> 
-                                                PositionUtil.isRangeWithinRange(
-                                                        PositionUtil.getRangeFromLineRange(location.lineRange()), 
-                                                        PositionUtil.toRange(matchedLineRange))))
+                        .filter(symbol -> symbol.kind() == SymbolKind.VARIABLE || symbol.kind() == SymbolKind.PARAMETER)
+                        .filter(symbol -> context.currentSemanticModel().get().references(symbol).stream()
+                                .anyMatch(location -> PositionUtil.isRangeWithinRange(PositionUtil
+                                                .getRangeFromLineRange(location.lineRange()),
+                                        PositionUtil.toRange(matchedLineRange))))
                         .collect(Collectors.toList());
 
         if (varAndParamSymbols.stream().anyMatch(symbol -> symbol.getLocation().isEmpty())) {
@@ -730,73 +724,6 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
 
         private List<String> extractFunctionArgs;
         private List<String> replaceFunctionCallArgs;
-    }
-
-    static class ExpressionNodeValidator extends NodeVisitor {
-
-        private boolean invalidNode = false;
-
-        @Override
-        public void visit(BinaryExpressionNode node) {
-            node.lhsExpr().accept(this);
-            node.rhsExpr().accept(this);
-        }
-
-        @Override
-        public void visit(BasicLiteralNode node) {
-        }
-
-        @Override
-        public void visit(UnaryExpressionNode node) {
-        }
-
-        @Override
-        public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-        }
-
-        @Override
-        public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(IndexedExpressionNode indexedExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(TypeCastExpressionNode typeCastExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-
-        }
-
-        @Override
-        protected void visitSyntaxNode(Node node) {
-            invalidNode = true;
-        }
-
-        public Boolean getInvalidNode() {
-            return invalidNode;
-        }
     }
 
     static class ExtractToFunctionTypeFinder extends NodeVisitor {

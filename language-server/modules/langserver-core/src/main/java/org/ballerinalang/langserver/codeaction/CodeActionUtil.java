@@ -707,7 +707,7 @@ public class CodeActionUtil {
                 objectFieldNode.fieldName().lineRange().endLine().offset();
     }
 
-    public static boolean isRange(Range range) {
+    public static boolean isRangeSelection(Range range) {
         return !range.getStart().equals(range.getEnd());
     }
 

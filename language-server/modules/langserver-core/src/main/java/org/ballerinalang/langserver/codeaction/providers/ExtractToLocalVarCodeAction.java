@@ -20,27 +20,16 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
-import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
@@ -141,7 +130,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (CodeActionUtil.isRange(context.range())
+        if (CodeActionUtil.isRangeSelection(context.range())
                 || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
             List<TextEdit> textEdits = getTextEdits(context, typeSymbol.get(), node, statementNode);
@@ -155,12 +144,12 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
 
         ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
         node.accept(nodeValidator);
-        if (nodeValidator.getInvalidNode()) {
+        if (nodeValidator.isInvalidNode()) {
             return Collections.emptyList();
         }
 
         // Selection is a position
-        List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
+        List<Node> nodeList = getPossibleExpressionNodes(node);
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
         LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
 
@@ -212,11 +201,12 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return new Position(position.getLine() + 1, position.getCharacter());
     }
 
-    private static List<Node> getPossibleExpressionNodes(Node node, ExpressionNodeValidator nodeValidator) {
+    private static List<Node> getPossibleExpressionNodes(Node node) {
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
         // Identify the sub-expressions to be extracted
         List<Node> nodeList = new ArrayList<>();
-        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
-                && !nodeValidator.getInvalidNode()) {
+        while (node != null && !isStatementOrModuleDeclaration(node) && node.kind() != SyntaxKind.OBJECT_FIELD
+                && !nodeValidator.isInvalidNode()) {
             nodeList.add(node);
             node = node.parent();
             node.accept(nodeValidator);
@@ -224,7 +214,7 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return nodeList;
     }
 
-    private static boolean isExpressionNode(Node node) {
+    private static boolean isStatementOrModuleDeclaration(Node node) {
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
@@ -283,71 +273,5 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return context.currentSemanticModel().get()
                 .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
-
-    static class ExpressionNodeValidator extends NodeVisitor {
-
-        private boolean invalidNode = false;
-
-        @Override
-        public void visit(BinaryExpressionNode node) {
-            node.lhsExpr().accept(this);
-            node.rhsExpr().accept(this);
-        }
-
-        @Override
-        public void visit(BasicLiteralNode node) {
-        }
-
-        @Override
-        public void visit(UnaryExpressionNode node) {
-        }
-
-        @Override
-        public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-        }
-
-        @Override
-        public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(IndexedExpressionNode indexedExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(TypeCastExpressionNode typeCastExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
-
-        }
-
-        @Override
-        public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-
-        }
-
-        @Override
-        protected void visitSyntaxNode(Node node) {
-            invalidNode = true;
-        }
-
-        public Boolean getInvalidNode() {
-            return invalidNode;
-        }
-    }
+    
 }
