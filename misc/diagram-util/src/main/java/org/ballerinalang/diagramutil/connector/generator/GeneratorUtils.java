@@ -210,7 +210,7 @@ public class GeneratorUtils {
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     ResourcePathParameterNode pathRestParam = (ResourcePathParameterNode) pathParamNode;
-                    if(pathRestParam.paramName().isPresent()) {
+                    if (pathRestParam.paramName().isPresent()) {
                         PathType restParam = new PathType(pathRestParam.paramName().get().text(),
                                 pathRestParam.typeDescriptor().toString().trim(), true);
                         parameters.add(restParam);

@@ -111,6 +111,10 @@ public class Type {
         visitedTypeMap.clear();
     }
 
+    public static void clearParentSymbols() {
+        clearVisitedTypeMap();
+    }
+
     public static Optional<Type> fromSyntaxNode(Node node, SemanticModel semanticModel) {
         Optional<Type> type = Optional.empty();
 
@@ -212,7 +216,7 @@ public class Type {
                 if (tableTypeSymbol != null) {
                     keySpecifiers = tableTypeSymbol.keySpecifiers();
                 }
-                if(tableTypeNode.keyConstraintNode().isEmpty()){
+                if (tableTypeNode.keyConstraintNode().isEmpty()) {
                     break;
                 }
                 Node keyConstraint = tableTypeNode.keyConstraintNode().get();
